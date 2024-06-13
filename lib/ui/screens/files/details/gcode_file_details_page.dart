@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2024. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: avoid-missing-image-alt
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
@@ -18,6 +20,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -27,6 +30,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
@@ -52,8 +56,22 @@ class GCodeFileDetailPage extends ConsumerWidget {
   }
 }
 
-class _GCodeFileDetailPage extends HookConsumerWidget {
+class _GCodeFileDetailPage extends StatelessWidget {
   const _GCodeFileDetailPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const _AppBar(),
+      body: context.isCompact ? const _CompactBody() : const _MediumBody(),
+      floatingActionButton: const _Fab(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}
+
+class _CompactBody extends HookConsumerWidget {
+  const _CompactBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,217 +93,541 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
     final numFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(
-      //     file.name,
-      //     overflow: TextOverflow.fade,
-      //   ),
-      // ),
-      body: CustomScrollView(
-        slivers: [
-          SliverLayoutBuilder(builder: (context, constraints) {
-            return SliverAppBar(
-              expandedHeight: 220,
-              floating: true,
-              actions: const [_PreHeatBtn()],
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                background: Stack(alignment: Alignment.center, children: [
-                  Hero(
-                    transitionOnUserGestures: true,
-                    tag: 'gCodeImage-${model.file.hashCode}',
-                    child: IconTheme(
-                      data: IconThemeData(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      child: (bigImageUri != null)
-                          ? CachedNetworkImage(
-                              cacheManager: cacheManager,
-                              imageUrl: bigImageUri.toString(),
-                              cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
-                              httpHeaders: ref.watch(previewImageHttpHeaderProvider),
-                              imageBuilder: (context, imageProvider) => Image(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              ),
-                              placeholder: (context, url) => const Icon(Icons.insert_drive_file),
-                              errorWidget: (context, url, error) => const Icon(Icons.file_present),
-                            )
-                          : const Icon(Icons.insert_drive_file),
+    return CustomScrollView(
+      slivers: [
+        SliverLayoutBuilder(builder: (context, constraints) {
+          return SliverAppBar(
+            expandedHeight: 220,
+            floating: true,
+            actions: const [_PreHeatBtn()],
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: Stack(alignment: Alignment.center, children: [
+                Hero(
+                  transitionOnUserGestures: true,
+                  tag: 'gCodeImage-${model.file.hashCode}',
+                  child: IconTheme(
+                    data: IconThemeData(
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
+                    child: (bigImageUri != null)
+                        ? CachedNetworkImage(
+                            cacheManager: cacheManager,
+                            imageUrl: bigImageUri.toString(),
+                            cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
+                            httpHeaders: ref.watch(previewImageHttpHeaderProvider),
+                            imageBuilder: (context, imageProvider) => Image(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                            placeholder: (context, url) => const Icon(Icons.insert_drive_file),
+                            errorWidget: (context, url, error) => const Icon(Icons.file_present),
+                          )
+                        : const Icon(Icons.insert_drive_file),
                   ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SizeTransition(
-                      sizeFactor: animCtrler.view,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 8,
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizeTransition(
+                    sizeFactor: animCtrler.view,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(8.0),
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(8.0),
-                          ),
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-                        ),
-                        child: Text(
-                          model.file.name,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 5,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimaryContainer,
-                              ),
-                        ),
+                        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                      ),
+                      child: Text(
+                        model.file.name,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 5,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            ),
                       ),
                     ),
                   ),
-                ]),
-              ),
-            );
-          }),
-          SliverToBoxAdapter(
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              // if (model.materialMissmatch != null)
-              WarningCard(
-                show: model.materialMissmatch != null,
-                onTap: model.canStartPrint ? controller.changeActiveSpool : null,
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                leadingIcon: const Icon(Icons.layers_clear),
-                // leadingIcon: Icon(Icons.layers_clear),
-                title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
-                subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
-                    .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
-              ),
-              // if (model.insufficientFilament != null)
-              WarningCard(
-                show: model.insufficientFilament != null,
-                onTap: model.canStartPrint ? controller.changeActiveSpool : null,
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                leadingIcon: const Icon(Icons.scale),
-                title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
-                subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                    .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
-              ),
-              Card(
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      leading: const Icon(
-                        FlutterIcons.printer_3d_nozzle_outline_mco,
-                      ),
-                      title: const Text('pages.setting.general.title').tr(),
-                    ),
-                    const Divider(),
-                    _PropertyTile(
-                      title: 'pages.files.details.general_card.path'.tr(),
-                      subtitle: model.file.absolutPath,
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.general_card.last_mod'.tr(),
-                      subtitle: dateFormatGeneral.format(model.file.modifiedDate),
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.general_card.last_printed'.tr(),
-                      subtitle: (model.file.printStartTime != null)
-                          ? dateFormatGeneral.format(model.file.lastPrintDate!)
-                          : 'pages.files.details.general_card.no_data'.tr(),
-                    ),
-                  ],
                 ),
+              ]),
+            ),
+          );
+        }),
+        SliverToBoxAdapter(
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            // if (model.materialMissmatch != null)
+            WarningCard(
+              show: model.materialMissmatch != null,
+              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.layers_clear),
+              // leadingIcon: Icon(Icons.layers_clear),
+              title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
+              subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
+                  .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
+            ),
+            // if (model.insufficientFilament != null)
+            WarningCard(
+              show: model.insufficientFilament != null,
+              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.scale),
+              title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
+              subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
+                  .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+            ),
+            Card(
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(
+                      FlutterIcons.printer_3d_nozzle_outline_mco,
+                    ),
+                    title: const Text('pages.setting.general.title').tr(),
+                  ),
+                  const Divider(),
+                  _PropertyTile(
+                    title: 'pages.files.details.general_card.path'.tr(),
+                    subtitle: model.file.absolutPath,
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.general_card.last_mod'.tr(),
+                    subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.general_card.last_printed'.tr(),
+                    subtitle: (model.file.printStartTime != null)
+                        ? dateFormatGeneral.format(model.file.lastPrintDate!)
+                        : 'pages.files.details.general_card.no_data'.tr(),
+                  ),
+                ],
               ),
-              Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: const Icon(FlutterIcons.tags_ant),
-                      title: const Text('pages.files.details.meta_card.title').tr(),
-                    ),
-                    const Divider(),
-                    _PropertyTile(
-                      title: 'pages.files.details.meta_card.filament'.tr(),
-                      subtitle: [
-                        '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
-                        '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
-                        if (model.file.filamentWeightTotal != null)
-                          '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
-                        if (model.file.filamentTotal != null)
-                          '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
-                      ].join('\n'),
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.meta_card.est_print_time'.tr(),
-                      subtitle:
-                          '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(model.file, dateFormatEta)}',
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.meta_card.slicer'.tr(),
-                      subtitle: formatSlicerAndVersion(model.file),
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                      subtitle: '${model.file.nozzleDiameter} mm',
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.meta_card.layer_higher'.tr(),
-                      subtitle:
-                          '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
-                          '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
-                    ),
-                    _PropertyTile(
-                      title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
-                      subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
-                        model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                        model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                      ]),
-                    ),
-                  ],
-                ),
+            ),
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(FlutterIcons.tags_ant),
+                    title: const Text('pages.files.details.meta_card.title').tr(),
+                  ),
+                  const Divider(),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.filament'.tr(),
+                    subtitle: [
+                      '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
+                      '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                      if (model.file.filamentWeightTotal != null)
+                        '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                      if (model.file.filamentTotal != null)
+                        '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                    ].join('\n'),
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.est_print_time'.tr(),
+                    subtitle:
+                        '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.slicer'.tr(),
+                    subtitle: model.file.slicerAndVersion,
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
+                    subtitle: '${model.file.nozzleDiameter} mm',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.layer_higher'.tr(),
+                    subtitle:
+                        '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
+                        '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
+                    subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
+                      model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                      model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                    ]),
+                  ),
+                ],
               ),
-              // Card(
-              //   child: Column(
-              //     mainAxisSize: MainAxisSize.min,
-              //     children: <Widget>[
-              //       ListTile(
-              //         leading: Icon(FlutterIcons.chart_bar_mco),
-              //         title: Text('pages.files.details.stat_card.title').tr(),
-              //       ),
-              //       Divider(),
-              //       Placeholder(
-              //
-              //       )
-              //     ],
-              //   ),
-              // ),
-              const SizedBox(height: 80),
-              // Safe Area was not working, added a top padding
-            ]),
-          ),
-        ],
-      ),
+            ),
+            // Card(
+            //   child: Column(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: <Widget>[
+            //       ListTile(
+            //         leading: Icon(FlutterIcons.chart_bar_mco),
+            //         title: Text('pages.files.details.stat_card.title').tr(),
+            //       ),
+            //       Divider(),
+            //       Placeholder(
+            //
+            //       )
+            //     ],
+            //   ),
+            // ),
+            const SizedBox(height: 80),
+            // Safe Area was not working, added a top padding
+          ]),
+        ),
+      ],
+    );
+  }
+}
 
-      floatingActionButton: const _Fab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+class _MediumBody extends HookConsumerWidget {
+  const _MediumBody({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    logger.w('Rebuilding _GCodeFileDetailPage');
+    final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    final model = ref.watch(_gCodeFileDetailsControllerProvider);
+
+    final cacheManager = ref.watch(httpCacheManagerProvider(model.machineUUID));
+
+    final machineUri = ref.watch(previewImageUriProvider);
+
+    final bigImageUri = model.file.constructBigImageUri(machineUri);
+
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
+    final numFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        logger.i('Constraints ${constraints.widthConstraints()}');
+
+        final maxWidthCard = constraints.maxWidth / 2;
+
+        return StaggeredGrid.count(
+          crossAxisCount: 2,
+          children: [
+            WarningCard(
+              show: model.materialMissmatch != null,
+              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.layers_clear),
+              // leadingIcon: Icon(Icons.layers_clear),
+              title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
+              subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
+                  .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
+            ),
+            WarningCard(
+              show: model.insufficientFilament != null,
+              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.scale),
+              title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
+              subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
+                  .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+            ),
+            Hero(
+              transitionOnUserGestures: true,
+              tag: 'gCodeImage-${model.file.hashCode}',
+              child: IconTheme(
+                data: IconThemeData(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                child: (bigImageUri != null)
+                    ? CachedNetworkImage(
+                        cacheManager: cacheManager,
+                        imageUrl: bigImageUri.toString(),
+                        cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
+                        httpHeaders: ref.watch(previewImageHttpHeaderProvider),
+                        imageBuilder: (context, imageProvider) => Image(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                        placeholder: (context, url) => const Icon(Icons.insert_drive_file),
+                        errorWidget: (context, url, error) => const Icon(Icons.file_present),
+                      )
+                    : const Icon(Icons.insert_drive_file),
+              ),
+            ),
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(
+                      FlutterIcons.printer_3d_nozzle_outline_mco,
+                    ),
+                    title: const Text('pages.setting.general.title').tr(),
+                  ),
+                  const Divider(),
+                  _PropertyTile(
+                    title: 'pages.files.details.general_card.path'.tr(),
+                    subtitle: model.file.absolutPath,
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.general_card.last_mod'.tr(),
+                    subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.general_card.last_printed'.tr(),
+                    subtitle: (model.file.printStartTime != null)
+                        ? dateFormatGeneral.format(model.file.lastPrintDate!)
+                        : 'pages.files.details.general_card.no_data'.tr(),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(FlutterIcons.tags_ant),
+                    title: const Text('pages.files.details.meta_card.title').tr(),
+                  ),
+                  const Divider(),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.filament'.tr(),
+                    subtitle: [
+                      '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
+                      '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                      if (model.file.filamentWeightTotal != null)
+                        '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                      if (model.file.filamentTotal != null)
+                        '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                    ].join('\n'),
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.est_print_time'.tr(),
+                    subtitle:
+                        '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.slicer'.tr(),
+                    subtitle: model.file.slicerAndVersion,
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
+                    subtitle: '${model.file.nozzleDiameter} mm',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.layer_higher'.tr(),
+                    subtitle:
+                        '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
+                        '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
+                    subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
+                      model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                      model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+
+        // return ListView(
+        //   shrinkWrap: true,
+        //   children: [
+        //     IntrinsicHeight(
+        //       child: Row(
+        //         crossAxisAlignment: CrossAxisAlignment.stretch,
+        //         children: [
+        //           SizedBox(
+        //             width: maxWidthCard,
+        //             child: Column(
+        //               mainAxisSize: MainAxisSize.min,
+        //               children: [
+        //                 Hero(
+        //                   transitionOnUserGestures: true,
+        //                   tag: 'gCodeImage-${model.file.hashCode}',
+        //                   child: IconTheme(
+        //                     data: IconThemeData(
+        //                       color: Theme.of(context).colorScheme.onPrimary,
+        //                     ),
+        //                     child: (bigImageUri != null)
+        //                         ? CachedNetworkImage(
+        //                             cacheManager: cacheManager,
+        //                             imageUrl: bigImageUri.toString(),
+        //                             cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
+        //                             httpHeaders: ref.watch(previewImageHttpHeaderProvider),
+        //                             imageBuilder: (context, imageProvider) => Image(
+        //                               image: imageProvider,
+        //                               fit: BoxFit.cover,
+        //                               width: double.infinity,
+        //                             ),
+        //                             placeholder: (context, url) => const Icon(Icons.insert_drive_file),
+        //                             errorWidget: (context, url, error) => const Icon(Icons.file_present),
+        //                           )
+        //                         : const Icon(Icons.insert_drive_file),
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //           SizedBox(
+        //             width: maxWidthCard,
+        //             child: Card(
+        //               child: Column(
+        //                 mainAxisSize: MainAxisSize.min,
+        //                 children: <Widget>[
+        //                   ListTile(
+        //                     leading: const Icon(
+        //                       FlutterIcons.printer_3d_nozzle_outline_mco,
+        //                     ),
+        //                     title: const Text('pages.setting.general.title').tr(),
+        //                   ),
+        //                   const Divider(),
+        //                   _PropertyTile(
+        //                     title: 'pages.files.details.general_card.path'.tr(),
+        //                     subtitle: model.file.absolutPath,
+        //                   ),
+        //                   _PropertyTile(
+        //                     title: 'pages.files.details.general_card.last_mod'.tr(),
+        //                     subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+        //                   ),
+        //                   _PropertyTile(
+        //                     title: 'pages.files.details.general_card.last_printed'.tr(),
+        //                     subtitle: (model.file.printStartTime != null)
+        //                         ? dateFormatGeneral.format(model.file.lastPrintDate!)
+        //                         : 'pages.files.details.general_card.no_data'.tr(),
+        //                   ),
+        //                 ],
+        //               ),
+        //             ),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // );
+      },
+    );
+
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            // if (model.materialMissmatch != null)
+            WarningCard(
+              show: model.materialMissmatch != null,
+              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.layers_clear),
+              // leadingIcon: Icon(Icons.layers_clear),
+              title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
+              subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
+                  .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
+            ),
+            // if (model.insufficientFilament != null)
+            WarningCard(
+              show: model.insufficientFilament != null,
+              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.scale),
+              title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
+              subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
+                  .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+            ),
+
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(FlutterIcons.tags_ant),
+                    title: const Text('pages.files.details.meta_card.title').tr(),
+                  ),
+                  const Divider(),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.filament'.tr(),
+                    subtitle: [
+                      '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
+                      '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                      if (model.file.filamentWeightTotal != null)
+                        '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                      if (model.file.filamentTotal != null)
+                        '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                    ].join('\n'),
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.est_print_time'.tr(),
+                    subtitle:
+                        '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.slicer'.tr(),
+                    subtitle: model.file.slicerAndVersion,
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
+                    subtitle: '${model.file.nozzleDiameter} mm',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.layer_higher'.tr(),
+                    subtitle:
+                        '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
+                        '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
+                    subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
+                      model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                      model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+            // Card(
+            //   child: Column(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: <Widget>[
+            //       ListTile(
+            //         leading: Icon(FlutterIcons.chart_bar_mco),
+            //         title: Text('pages.files.details.stat_card.title').tr(),
+            //       ),
+            //       Divider(),
+            //       Placeholder(
+            //
+            //       )
+            //     ],
+            //   ),
+            // ),
+            const SizedBox(height: 80),
+            // Safe Area was not working, added a top padding
+          ]),
+        ),
+      ],
+    );
+  }
+}
+
+class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const _AppBar({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    final model = ref.watch(_gCodeFileDetailsControllerProvider);
+
+    return AppBar(
+      title: Text(model.file.name),
+      actions: const [_PreHeatBtn()],
     );
   }
 
-  String formatSlicerAndVersion(GCodeFile file) {
-    String ukwn = tr('general.unknown');
-    if (file.slicerVersion == null) return file.slicer ?? ukwn;
-
-    return '${file.slicer ?? ukwn} (v${file.slicerVersion})';
-  }
-
-  String formatPotentialEta(GCodeFile file, DateFormat dateFormat) {
-    if (file.estimatedTime == null) return tr('general.unknown');
-    var eta = DateTime.now().add(Duration(seconds: file.estimatedTime!.toInt())).toLocal();
-    return dateFormat.format(eta);
-  }
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class _Fab extends ConsumerWidget {

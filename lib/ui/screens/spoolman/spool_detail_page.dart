@@ -11,6 +11,7 @@ import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -73,42 +74,67 @@ class _SpoolDetailPage extends ConsumerWidget {
       //   child: const Icon(Icons.mode),
       // ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: ListView(
           children: [
-            Flexible(
-              child: ListView(
-                children: [
-                  WarningCard(
-                    show: spool.archived,
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                    leadingIcon: const Icon(Icons.archive),
-                    // leadingIcon: Icon(Icons.layers_clear),
-                    title: const Text('pages.spoolman.spool_details.archived_warning.title').tr(),
-                    subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
-                  ),
-                  _SpoolInfo(machineUUID: machineUUID),
-                  _SpoolList(
-                    key: Key('sameMat-${spool.id}'),
-                    machineUUID: machineUUID,
-                    title: const ListTile(
-                      leading: Icon(Icons.spoke_outlined),
-                      title: Text('Alternative Spools (Same Material)'),
-                    ),
-                    filters: {'filament.material': spool.filament.material},
-                  ),
-                  _SpoolList(
-                    key: Key('sameFil-${spool.id}'),
-                    machineUUID: machineUUID,
-                    title: const ListTile(
-                      leading: Icon(Icons.color_lens_outlined),
-                      title: Text('Alternative Spools (Same Filament)'),
-                    ),
-                    filters: {'filament.id': spool.filament.id},
-                  ),
-                ],
+            WarningCard(
+              show: spool.archived,
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              leadingIcon: const Icon(Icons.archive),
+              // leadingIcon: Icon(Icons.layers_clear),
+              title: const Text('pages.spoolman.spool_details.archived_warning.title').tr(),
+              subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
+            ),
+            _SpoolInfo(machineUUID: machineUUID),
+            if (context.isCompact) ...[
+              _SpoolList(
+                key: Key('sameMat-${spool.id}'),
+                machineUUID: machineUUID,
+                title: const ListTile(
+                  leading: Icon(Icons.spoke_outlined),
+                  title: Text('Alternative Spools (Same Material)'),
+                ),
+                filters: {'filament.material': spool.filament.material},
               ),
-            )
+              _SpoolList(
+                key: Key('sameFil-${spool.id}'),
+                machineUUID: machineUUID,
+                title: const ListTile(
+                  leading: Icon(Icons.color_lens_outlined),
+                  title: Text('Alternative Spools (Same Filament)'),
+                ),
+                filters: {'filament.id': spool.filament.id},
+              ),
+            ],
+            if (context.isLargerThanCompact)
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Flexible(
+                      child: _SpoolList(
+                        key: Key('sameMat-${spool.id}'),
+                        machineUUID: machineUUID,
+                        title: const ListTile(
+                          leading: Icon(Icons.spoke_outlined),
+                          title: Text('Alternative Spools (Same Material)'),
+                        ),
+                        filters: {'filament.material': spool.filament.material},
+                      ),
+                    ),
+                    Flexible(
+                      child: _SpoolList(
+                        key: Key('sameFil-${spool.id}'),
+                        machineUUID: machineUUID,
+                        title: const ListTile(
+                          leading: Icon(Icons.color_lens_outlined),
+                          title: Text('Alternative Spools (Same Filament)'),
+                        ),
+                        filters: {'filament.id': spool.filament.id},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
@@ -335,13 +361,15 @@ class _SpoolList extends HookConsumerWidget {
         children: [
           title,
           const Divider(),
-          SpoolmanStaticPagination(
-            key: ValueKey(filters),
-            machineUUID: machineUUID,
-            type: SpoolmanListType.spools,
-            exclude: ref.watch(_spoolProvider),
-            filters: filters,
-            onEntryTap: ref.read(_spoolDetailPageControllerProvider(machineUUID).notifier).onEntryTap,
+          Flexible(
+            child: SpoolmanStaticPagination(
+              key: ValueKey(filters),
+              machineUUID: machineUUID,
+              type: SpoolmanListType.spools,
+              exclude: ref.watch(_spoolProvider),
+              filters: filters,
+              onEntryTap: ref.read(_spoolDetailPageControllerProvider(machineUUID).notifier).onEntryTap,
+            ),
           ),
           const SizedBox(height: 8),
         ],
