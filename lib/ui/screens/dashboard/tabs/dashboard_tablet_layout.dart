@@ -5,16 +5,19 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
+import 'dart:ui';
+
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
+import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../components/dashboard_card.dart';
+import '../../../components/reordable_multi_col_row.dart';
 import '../components/editing_dashboard_card.dart';
-import '../reordable_multi_col_row.dart';
 
 class DashboardTabletLayout extends HookWidget {
   const DashboardTabletLayout({
@@ -71,7 +74,6 @@ class DashboardTabletLayout extends HookWidget {
         children: [
           for (var tab in tabs)
             [
-              //TODO: Add info cards here only for index = 0
               for (var component in tab.components)
                 EditingDashboardCard(
                   key: Key('ED-${tab.uuid}:${component.type.name}:${component.uuid}'),
@@ -84,23 +86,44 @@ class DashboardTabletLayout extends HookWidget {
                 ),
             ],
         ],
+        header: [
+          WarningCard(
+            leadingIcon: const Icon(Icons.dashboard_customize),
+            margin: const EdgeInsets.all(4),
+            title: const Text('pages.customizing_dashboard.editing_card.title').tr(),
+            subtitle: const Text('pages.customizing_dashboard.editing_card.body').tr(),
+          ),
+        ],
+        footer: [
+          for (var tab in tabs)
+            _EditingSuffix(
+              key: Key('ED-${tab.uuid}:suffix'),
+              onAddComponent: () {
+                if (onAddComponent != null) {
+                  onAddComponent!(tab);
+                }
+              },
+            ),
+        ],
         buildDraggableFeedback: (BuildContext context, BoxConstraints constraints, Widget child) {
-          return Material(
-            // elevation: 10.0,
-            color: Colors.transparent,
-            // borderRadius: BorderRadius.zero,
-            child: ConstrainedBox(constraints: constraints, child: child),
-          );
+          return HookBuilder(builder: (context) {
+            final animation = useAnimationController(duration: const Duration(milliseconds: 250))..forward();
 
-          // return AnimatedBuilder(
-          //   animation: animation,
-          //   builder: (BuildContext ctx, Widget? c) {
-          //     final double animValue = Curves.easeInOut.transform(animation.value);
-          //     final double elevation = lerpDouble(1, 0.85, animValue)!;
-          //     return Transform.scale(scale: elevation, child: c);
-          //   },
-          //   child: child,
-          // );
+            return AnimatedBuilder(
+              animation: animation,
+              builder: (BuildContext ctx, Widget? c) {
+                final double animValue = Curves.easeInOut.transform(animation.value);
+                final double scale = lerpDouble(1, 0.75, animValue)!;
+                return Transform.scale(scale: scale, child: c);
+              },
+              child: Material(
+                // elevation: 10.0,
+                color: Colors.transparent,
+                // borderRadius: BorderRadius.zero,
+                child: ConstrainedBox(constraints: constraints, child: child),
+              ),
+            );
+          });
         },
       );
     } else {
