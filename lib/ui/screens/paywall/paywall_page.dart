@@ -35,7 +35,50 @@ class PaywallPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Widget body = CustomScrollView(
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        if (context.isCompact)
+          SliverLayoutBuilder(builder: (context, constraints) {
+            return SliverAppBar(
+              expandedHeight: 210,
+              floating: false,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.parallax,
+                background: SvgPicture.asset(
+                  'assets/vector/undraw_pair_programming_re_or4x.svg',
+                ),
+              ),
+            );
+          }),
+        if (context.isLargerThanCompact)
+          SliverToBoxAdapter(
+            child: SvgPicture.asset(
+              height: 210,
+              'assets/vector/undraw_pair_programming_re_or4x.svg',
+            ),
+          ),
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: _PaywallPage(),
+        ),
+      ],
+    );
+    if (context.isLargerThanCompact) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text(tr('pages.paywall.title')),
+        // toolbarOpacity: 0.2,
+        // backgroundColor: Colors.greenAccent,
+      ).unless(context.isCompact),
       drawer: const NavigationDrawerWidget(),
       body: LoaderOverlay(
         useDefaultLoading: false,
@@ -53,27 +96,7 @@ class PaywallPage extends HookConsumerWidget {
             ],
           ),
         ),
-        child: CustomScrollView(
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverLayoutBuilder(builder: (context, constraints) {
-              return SliverAppBar(
-                expandedHeight: 210,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.parallax,
-                  background: SvgPicture.asset(
-                    'assets/vector/undraw_pair_programming_re_or4x.svg',
-                  ),
-                ),
-              );
-            }),
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: _PaywallPage(),
-            ),
-          ],
-        ),
+        child: body,
       ),
     );
   }
@@ -210,15 +233,6 @@ class _PaywallPage extends ConsumerWidget {
             ],
           ),
         );
-
-    if (context.isLargerThanCompact) {
-      return Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: widget),
-        ],
-      );
-    }
 
     return widget;
   }
