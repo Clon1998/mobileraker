@@ -242,14 +242,14 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
       double speed = (distance / topThreshold) * 20; // Adjust the multiplier as needed
       // logger.i('AutoScroll: Scrolling up!!! speed: $speed');
       _scrolling = true;
-      _scroll(-3.5, 1.012); // Linear acceleration
+      _scroll(-5.5, 1.008); // Linear acceleration
     } else if (position.dy > bottomThreshold) {
       if (_scrolling) return;
       double distance = bottomThreshold - position.dy;
       double speed = (distance / bottomThreshold) * 20; // Adjust the multiplier as needed
       // logger.i('AutoScroll: Scrolling down!!! speed: $speed dist $distance');
       _scrolling = true;
-      _scroll(3.5, 1.012); // Linear acceleration
+      _scroll(5.5, 1.008); // Linear acceleration
     } else if (_scrolling) {
       // logger.i('AutoScroll: Stopped Scrolling!!!');
       _scrolling = false;
