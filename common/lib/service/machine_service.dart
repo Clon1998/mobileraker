@@ -268,18 +268,26 @@ class MachineService {
     // await Future.delayed(Duration(seconds: 4));
 // DANGER!! It is really important to invalidate in the correct order!
     ref.invalidate(allMachinesProvider);
+    // Announcements API
     ref.invalidate(announcementProvider(machine.uuid));
     ref.invalidate(announcementServiceProvider(machine.uuid));
+    // Files API
     ref.invalidate(fileNotificationsProvider(machine.uuid));
     ref.invalidate(fileServiceProvider(machine.uuid));
+    // Webcam API
     ref.invalidate(webcamServiceProvider(machine.uuid));
+    // Printer API
     ref.invalidate(printerProvider(machine.uuid));
     ref.invalidate(printerServiceProvider(machine.uuid));
+    // Klippy API
     ref.invalidate(klipperProvider(machine.uuid));
     ref.invalidate(klipperServiceProvider(machine.uuid));
+    // I/O
     ref.invalidate(dioClientProvider(machine.uuid));
     ref.invalidate(jrpcClientStateProvider(machine.uuid));
     ref.invalidate(jrpcClientProvider(machine.uuid));
+    // Actual machine
+    ref.invalidate(machineSettingsProvider(machine.uuid));
     ref.invalidate(machineProvider(machine.uuid));
   }
 

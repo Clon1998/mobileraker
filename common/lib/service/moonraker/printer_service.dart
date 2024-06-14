@@ -58,7 +58,6 @@ import '../../data/dto/machine/firmware_retraction.dart';
 import '../../data/dto/machine/z_thermal_adjust.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
-import '../machine_service.dart';
 import '../selected_machine_service.dart';
 import '../ui/dialog_service_interface.dart';
 import '../ui/snackbar_service_interface.dart';
@@ -118,15 +117,13 @@ class PrinterService {
   PrinterService(AutoDisposeRef ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
         _fileService = ref.watch(fileServiceProvider(ownerUUID)),
-        _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
 
     ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyState), (previous, next) {
-      logger.i('[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri
-          .obfuscate()}] Received new klippyState: $previous -> $next: ${previous?.valueOrFullNull} -> ${next
-          .valueOrFullNull}');
+      logger.i(
+          '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new klippyState: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}');
       switch (next.valueOrFullNull) {
         case KlipperState.ready:
           if (!_queriedForSession) {
@@ -149,8 +146,6 @@ class PrinterService {
   final JsonRpcClient _jRpcClient;
 
   final FileService _fileService;
-
-  final MachineService _machineService;
 
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
