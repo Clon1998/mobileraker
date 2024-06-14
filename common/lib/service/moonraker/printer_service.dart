@@ -75,7 +75,7 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 
 @riverpod
 Stream<Printer> printer(PrinterRef ref, String machineUUID) {
-  ref.keepAlive();
+  // ref.keepAlive();
   var printerService = ref.watch(printerServiceProvider(machineUUID));
   ref.listenSelf((previous, next) {
     var previousFileName = previous?.valueOrNull?.print.filename;
