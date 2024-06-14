@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// This widget watches the ASYNCVALUE (AsyncError) of the printerProvider and handles the error state of the provider to prevent any issues down the widget tree
-class PrinterProviderGuard extends HookConsumerWidget {
+class PrinterProviderGuard extends ConsumerWidget {
   const PrinterProviderGuard({
     super.key,
     required this.machineUUID,

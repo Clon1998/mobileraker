@@ -36,7 +36,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
     var themeData = Theme.of(context);
     return Dialog(
       child: Padding(
-        padding: const EdgeInsets.only(top: 15.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -91,16 +91,19 @@ class _Footer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      // mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: () {
-            dialogCompleter(DialogResponse.aborted());
-          },
-          child: const Text('general.cancel').tr(),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+      child: Row(
+        // mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: () {
+              dialogCompleter(DialogResponse.aborted());
+            },
+            child: const Text('general.cancel').tr(),
+          ),
+        ],
+      ),
     );
   }
 }

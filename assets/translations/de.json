@@ -49,12 +49,20 @@
     "completed": "Abgeschlossen",
     "activate": "Activ",
     "stop": "Stoppen",
-    "start": "Starten"
+    "start": "Starten",
+    "repeat": "Wiederholen",
+    "load_more": "Mehr laden",
+    "archived": "Archiviert"
   },
   "pages": {
     "dashboard": {
       "title": "Dashboard",
-      "ems_btn": "Not-Halt",
+      "ems_btn": "Not-Aus",
+      "ems_confirmation": {
+        "title": "Not-Aus bestätigen",
+        "body": "Sie sind im Begriff, einen Not-Aus-Befehl an den Drucker zu senden. Dadurch werden alle Motoren und Heizelemente sofort angehalten.",
+        "confirm": "STOP!"
+      },
       "server_status": {
         "unavailable": "Kein Server verfügbar",
         "available": "Serverstatus ist {} und Klippy ist {}"
@@ -262,7 +270,7 @@
       "title": "App - Einstellungen",
       "general": {
         "title": "Allgemein",
-        "ems_confirm": "Bestätigung für Notaus",
+        "ems_confirm": "Bestätigung für Not-Aus",
         "ems_confirm_hint": "Zeige eine Bestätigungsdialog, bevor der Notaus-Befehl gesendet wird",
         "always_baby": "Z-Versatz Karte",
         "always_baby_hint": "Zeige die Z-Versatz Karte immer auf dem Dashboard",
@@ -390,13 +398,14 @@
         "read_only": "Webcam ist schreibgeschützt"
       },
       "macros": {
+        "default_grp": "Standard",
         "new_macro_grp": "Neue Makro - Gruppe",
         "no_macros_available": "Keine Makros verfügbar!",
         "no_macros_found": "Keine Makros gefunden!",
         "no_macros_in_grp": "Keine Makros in der Gruppe!",
         "deleted_grp": "Gruppe {} gelöscht",
         "macros": "Makros",
-        "default_name": "Neuer Makro",
+        "default_name": "Neue Makro Gruppe",
         "macros_to_default": {
           "one": "Ein Makro in die Standardgruppe verschoben!",
           "two": "Zwei Makro in die Standardgruppe verschoben!",
@@ -465,6 +474,21 @@
           "title": "Fehler beim Abrufen des WiFi-Namens!",
           "body": "Vergewissern Sie sich, dass die App über die erforderlichen Zugriffsrechte, für das Abrufen des WLAN-Status des Geräts, verfügt."
         }
+      },
+      "temp_ordering": {
+        "title": "Temperatursensor Reihenfolge",
+        "helper": "Ändern Sie die Reihenfolge der Temperatursensoren, die auf dem Dashboard angezeigt werden.",
+        "no_sensors": "Keine Sensoren gefunden!"
+      },
+      "fan_ordering": {
+        "title": "Lüfter Reihenfolge",
+        "helper": "Ändern Sie die Reihenfolge der Lüfter, die auf dem Dashboard angezeigt werden.",
+        "no_fans": "Keine Lüfter gefunden!"
+      },
+      "misc_ordering": {
+        "title": "Verschiedenes Reihenfolge",
+        "helper": "Ändern Sie die Reihenfolge der verschiedenen Elemente, die auf dem Dashboard angezeigt werden.",
+        "no_controls": "Keine Elemente gefunden!"
       }
     },
     "printer_add": {
@@ -518,6 +542,7 @@
     },
     "console": {
       "title": "Konsole",
+      "card_title": "GCode Konsole",
       "no_entries": "Keine zwischengespeicherten Befehle gefunden",
       "fetching_console": "@:general.fetching Konsoleneinträge…",
       "command_input": {
@@ -587,6 +612,67 @@
         "title": "Berechtigung für das Mikrofon erforderlich",
         "subtitle": "Der Riementuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Gurte zu analysieren.\n\nTippen Sie, um die Erlaubnis zu erteilen."
       }
+    },
+    "spoolman": {
+      "title": "Spoolman",
+      "not_available": "Spoolman ist für diesen Drucker nicht verfügbar.\nBitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist.",
+      "learn_more": "Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die ",
+      "learn_more_link": "GitHub Seite.",
+      "no_spools": "Keine Spulen gefunden!",
+      "no_filaments": "Keine Filamente gefunden!",
+      "no_vendors": "Keine Anbieter gefunden!",
+      "error_loading_spools": "Fehler beim Laden der Spulen",
+      "error_loading_filaments": "Fehler beim Laden der Filamente",
+      "spool": {
+        "one": "Spule",
+        "other": "Spulen"
+      },
+      "filament": {
+        "one": "Filament",
+        "andere": "Filamente"
+      },
+      "vendor": {
+        "one": "Anbieter",
+        "andere": "Anbieter"
+      },
+      "properties": {
+        "id": "ID",
+        "name": "Name",
+        "registered": "Registriert",
+        "comment": "Kommentar",
+        "material": "Material",
+        "price": "Preis",
+        "density": "Dichte",
+        "diameter": "Durchmesser",
+        "weight": "Gewicht",
+        "spool_weight": "Spulengewicht",
+        "article_number": "Artikelnummer",
+        "first_used": "Erstmals verwendet",
+        "last_used": "Zuletzt verwendet",
+        "remaining_weight": "Verbleibendes Gewicht",
+        "used_weight": "Benutztes Gewicht",
+        "location": "Standort",
+        "lot_number": "Lot Number"
+      },
+      "vendor_details": {
+        "page_title": "Lieferant {}",
+        "info_card": "Anbieter-Info",
+        "filaments_card": "Filamente nach Anbieter",
+        "spools_card": "Spulen nach Anbieter"
+      },
+      "filament_details": {
+        "info_card": "Filament Info",
+        "spools_card": "Filament Spulen"
+      },
+      "spool_details": {
+        "page_title": "Spool {}",
+        "info_card": "Spool Info",
+        "set_active": "Als aktiven Spool einstellen",
+        "archived_warning": {
+          "title": "Spool ist archiviert",
+          "body": "Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden."
+        }
+      }
     }
   },
   "components": {
@@ -625,7 +711,8 @@
       "printer_add": "Sie haben das Maschinenlimit erreicht. Nur Mobileraker Supporter können mehr als {} Geräte hinzufügen.",
       "job_queue": "Die Job Queue ist leider nur für Supporter verfügbar.",
       "timelaps_share": "Das Teilen von Zeitrafferaufnahmen ist leider nur für Unterstützer möglich.",
-      "printer_theme": "Druckerspezifische Designs sind leider nur für Supporter verfügbar."
+      "printer_theme": "Druckerspezifische Designs sind leider nur für Supporter verfügbar.",
+      "spoolman_page": "Die Spoolman-Seite ist leider nur für Supporter verfügbar."
     },
     "machine_deletion_warning": {
       "title": "Maschinelle Löschung",
@@ -774,6 +861,11 @@
     "filament_sensor_triggered": {
       "title": "Filament Sensor Ausgelöst",
       "body": "Sensor '{}' wurde ausgelöst.\n\nBitte überprüfen Sie sowohl den Drucker als auch den Sensor, um sicherzustellen, dass genügend Filament vorhanden ist oder deaktivieren Sie den Sensor, wenn er nicht benötigt wird."
+    },
+    "screws_tilt_adjust": {
+      "title": "Bettneigung einstellen",
+      "base": "Basis",
+      "hint": "Der Dialog hilft Ihnen, die Bett-Schrauben einzustellen. Für jede Schraube wird die erforderliche Anpassung als Uhrzeit (HH:MM) angezeigt. Zum Beispiel bedeutet 01:15 eine volle Umdrehung plus eine Vierteldrehung in die Richtung, die das Icon angibt."
     }
   },
   "bottom_sheets": {
@@ -824,7 +916,32 @@
       "hint": "Makros für die Gruppe {} auswählen"
     },
     "signIn": {
-      "subtitle": "Die Einrichtung eines Nutzerkontos ist zwar freiwillig, jedoch notwendig, um Käufe, die auf einem anderen Gerät oder einer anderen Plattform getätigt wurden, wiederherzustellen."
+      "subtitle": "Die Einrichtung eines Nutzerkontos ist zwar freiwillig, jedoch notwendig, um Käufe, die auf einem anderen Gerät oder einer anderen Plattform getätigt wurden, wiederherzustellen.",
+      "forgot_password": "Passwort vergessen?",
+      "forgot_password_success": "E-Mail zum Zurücksetzen des Passworts gesendet!",
+      "hint": {
+        "sign_in": "Haben Sie noch kein Konto?",
+        "sign_up": "Haben Sie bereits ein Konto?",
+        "reset_password": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten."
+      },
+      "action": {
+        "sign_in": "Anmelden",
+        "sign_up": "Registrieren",
+        "reset_password": "Passwort zurücksetzen"
+      },
+      "email": {
+        "label": "E-Mail",
+        "hint": "Ihre E-Mail-Adresse"
+      },
+      "password": {
+        "label": "Passwort",
+        "hint": "Ihr Passwort"
+      },
+      "confirm_password": {
+        "label": "Passwort bestätigen",
+        "hint": "Bestätigen Sie Ihr Passwort",
+        "error": "Passwörter stimmen nicht überein!"
+      }
     },
     "profile": {
       "title": "Sie sind eingeloggt.",
@@ -873,6 +990,20 @@
         "title": "Dienste verwalten",
         "no_services": "Keine Dienste gefunden!",
         "provider_error": "Fehler beim Laden der Dienste!"
+      },
+      "confirm_action": {
+        "title": "Sind Sie sicher?",
+        "hint": {
+          "long_press": "Hinweis: Durch langes Drücken können Sie die Aktion direkt ausführen."
+        },
+        "body": {
+          "pi_restart": "Sie sind dabei, den Raspberry Pi neu zu starten. Sind Sie sicher, dass Sie fortfahren wollen?",
+          "pi_shutdown": "Sie sind im Begriff, den Raspberry Pi herunterzufahren. Dadurch werden alle aktiven Verbindungen getrennt und alle laufenden Prozesse gestoppt. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "fw_restart": "Sie sind im Begriff, die Firmware neu zu starten. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "service_start": "Sie sind im Begriff, den Dienst '{}' zu starten. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "service_restart": "Sie sind im Begriff, den Dienst '{}' neu zu starten. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "service_stop": "Sie sind im Begriff, den Dienst '{}' zu beenden. Sind Sie sicher, dass Sie fortfahren möchten?"
+        }
       }
     }
   },

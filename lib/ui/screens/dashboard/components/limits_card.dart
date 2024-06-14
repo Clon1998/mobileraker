@@ -7,10 +7,12 @@
 
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -26,18 +28,22 @@ import 'slider_or_text_input.dart';
 part 'limits_card.freezed.dart';
 part 'limits_card.g.dart';
 
-class LimitsCard extends StatelessWidget {
+class LimitsCard extends HookWidget {
   const LimitsCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
-  Widget build(BuildContext context) => Card(
-        child: Padding(
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+
+    return Card(
+      child: Padding(
           padding: const EdgeInsets.only(bottom: 15),
           child: LimitsSlidersOrTexts(machineUUID: machineUUID),
         ),
       );
+  }
 }
 
 class _LimitsSlidersOrTextsLoading extends StatelessWidget {
@@ -78,20 +84,35 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'LimitsSlidersOrTexts-$machineUUID',
+      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const _LimitsSlidersOrTextsLoading(),
+      childOnData: _Body(
+        machineUUID: machineUUID,
+      ),
+    );
+  }
+}
+
+class _Body extends HookConsumerWidget {
+  const _Body({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Building LimitsSlidersOrTextsBody for $machineUUID');
+
     var inputLocked = useState(true);
-
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-
-    if (showLoading) {
-      return const _LimitsSlidersOrTextsLoading();
-    }
-
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
+
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).requireValue;
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -120,7 +141,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.maxVelocity),
+                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.maxVelocity),
                 prefixText: tr('pages.dashboard.control.limit_card.velocity'),
                 onChange: canEdit ? controller.onEditedMaxVelocity : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.toStringWithSeparator()),
@@ -128,7 +149,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
                 maxValue: 500,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.maxAccel),
+                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.maxAccel),
                 prefixText: tr('pages.dashboard.control.limit_card.accel'),
                 onChange: canEdit ? controller.onEditedMaxAccel : null,
                 numberFormat: NumberFormat('0 mm/s²', context.locale.toStringWithSeparator()),
@@ -136,7 +157,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
                 maxValue: 5000,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.squareCornerVelocity),
+                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity),
                 prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                 onChange: canEdit ? controller.onEditedMaxSquareCornerVelocity : null,
                 numberFormat: NumberFormat('0.# mm/s', context.locale.toStringWithSeparator()),
@@ -144,7 +165,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
                 maxValue: 8,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.maxAccelToDecel),
+                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.maxAccelToDecel),
                 prefixText: tr('pages.dashboard.control.limit_card.accel_to_decel'),
                 onChange: canEdit ? controller.onEditedMaxAccelToDecel : null,
                 numberFormat: NumberFormat('0 mm/s²', context.locale.toStringWithSeparator()),

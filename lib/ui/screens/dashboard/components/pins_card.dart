@@ -13,10 +13,12 @@ import 'package:common/data/dto/machine/leds/addressable_led.dart';
 import 'package:common/data/dto/machine/leds/dumb_led.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
 import 'package:common/data/dto/machine/output_pin.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -26,6 +28,7 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,41 +41,35 @@ import '../../../../service/ui/dialog_service_impl.dart';
 import '../../../components/adaptive_horizontal_scroll.dart';
 import '../../../components/card_with_button.dart';
 import '../../../components/card_with_switch.dart';
-import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 import '../../../components/dialog/led_rgbw/led_rgbw_dialog_controller.dart';
 
 part 'pins_card.freezed.dart';
 part 'pins_card.g.dart';
 
-class PinsCard extends ConsumerWidget {
+class PinsCard extends HookConsumerWidget {
   const PinsCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_pinsCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-
-    if (showLoading) {
-      return const _PinsCardLoading();
-    }
-    var showCard = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.showCard));
-
-    if (!showCard) {
-      return const SizedBox.shrink();
-    }
-
-    logger.i('Rebuilding pins card');
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardTitle(machineUUID: machineUUID),
-          _CardBody(machineUUID: machineUUID),
-          const SizedBox(height: 8),
-        ],
+    useAutomaticKeepAlive();
+    logger.i('Rebuilding pins card for $machineUUID');
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'PinsCard-$machineUUID',
+      toGuard: _pinsCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: const _PinsCardLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CardTitle(machineUUID: machineUUID),
+            _CardBody(machineUUID: machineUUID),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -146,8 +143,6 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.total));
-
     logger.i('Rebuilding output card title');
 
     return ListTile(
@@ -166,31 +161,16 @@ class _CardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('Rebuilding outputs card body');
 
-    var pinsCount = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.pins.length));
-    var ledsCount = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.leds.length));
-    var filamentSensorsCount =
-        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.filamentSensors.length));
+    var elementCount =
+        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.elements.length));
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: 'pins$machineUUID',
       children: [
-        for (var i = 0; i < pinsCount; i++)
-          _Output(
+        for (var i = 0; i < elementCount; i++)
+          _Element(
             // ignore: avoid-unsafe-collection-methods
-            pinProvider: _pinsCardControllerProvider(machineUUID).selectRequireValue((value) => value.pins[i]),
-            machineUUID: machineUUID,
-          ),
-        for (var i = 0; i < ledsCount; i++)
-          _Led(
-            // ignore: avoid-unsafe-collection-methods
-            ledProvider: _pinsCardControllerProvider(machineUUID).selectRequireValue((value) => value.leds[i]),
-            machineUUID: machineUUID,
-          ),
-        for (var i = 0; i < filamentSensorsCount; i++)
-          _FilamentSensor(
-            // ignore: avoid-unsafe-collection-methods
-            sensorProvider:
-                _pinsCardControllerProvider(machineUUID).selectRequireValue((value) => value.filamentSensors[i]),
+            provider: _pinsCardControllerProvider(machineUUID).selectRequireValue((value) => value.elements[i]),
             machineUUID: machineUUID,
           ),
       ],
@@ -198,10 +178,29 @@ class _CardBody extends ConsumerWidget {
   }
 }
 
-class _Output extends ConsumerWidget {
-  const _Output({super.key, required this.pinProvider, required this.machineUUID});
+class _Element extends ConsumerWidget {
+  const _Element({super.key, required this.machineUUID, required this.provider});
 
-  final ProviderListenable<OutputPin> pinProvider;
+  final String machineUUID;
+  final ProviderListenable provider;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var element = ref.watch(provider);
+
+    return switch (element) {
+      Led() => _Led(led: element, machineUUID: machineUUID),
+      OutputPin() => _Output(pin: element, machineUUID: machineUUID),
+      FilamentSensor() => _FilamentSensor(sensor: element, machineUUID: machineUUID),
+      _ => throw ArgumentError('Unknown element type'),
+    };
+  }
+}
+
+class _Output extends ConsumerWidget {
+  const _Output({super.key, required this.pin, required this.machineUUID});
+
+  final OutputPin pin;
   final String machineUUID;
 
   String pinValue(double v, String locale) {
@@ -212,7 +211,6 @@ class _Output extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    var pin = ref.watch(pinProvider);
     var klippyCanReceiveCommands =
         ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
     var pinConfig = ref
@@ -284,9 +282,9 @@ class _Output extends ConsumerWidget {
 }
 
 class _Led extends ConsumerWidget {
-  const _Led({super.key, required this.ledProvider, required this.machineUUID});
+  const _Led({super.key, required this.led, required this.machineUUID});
 
-  final ProviderListenable<Led> ledProvider;
+  final Led led;
   final String machineUUID;
 
   static const double _iconSize = 30;
@@ -370,7 +368,6 @@ class _Led extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    Led led = ref.watch(ledProvider);
     var ledConfig = ref
         .watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.ledConfig[led.configName]));
     var klippyCanReceiveCommands =
@@ -418,14 +415,13 @@ class _Led extends ConsumerWidget {
 class _FilamentSensor extends ConsumerWidget {
   static const double _iconSize = 30;
 
-  const _FilamentSensor({super.key, required this.sensorProvider, required this.machineUUID});
+  const _FilamentSensor({super.key, required this.sensor, required this.machineUUID});
 
-  final ProviderListenable<FilamentSensor> sensorProvider;
+  final FilamentSensor sensor;
   final String machineUUID;
 
   @override
   Widget build(_, WidgetRef ref) {
-    var sensor = ref.watch(sensorProvider);
     var klippyCanReceiveCommands =
         ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
@@ -491,36 +487,70 @@ class _PinsCardController extends _$PinsCardController {
   @override
   Stream<_Model> build(String machineUUID) async* {
     logger.i('Rebuilding pinsCardController for $machineUUID');
-
+    var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.miscOrdering));
     // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
     // This means that if the value is the same, the widget will not rebuild.
     // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
     var klippyCanReceiveCommands =
         ref.watchAsSubject(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
-    var leds = ref.watchAsSubject(printerProvider(machineUUID).selectAs(
-        (data) => data.leds.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
-    var ledConfig = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile.leds));
-    var pins = ref.watchAsSubject(printerProvider(machineUUID).selectAs(
-        (data) => data.outputPins.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
-    var pinConfig = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile.outputs));
 
-    var filamentSensors = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) =>
-        data.filamentSensors.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
+    var elements = ref
+        .watchAsSubject(printerProvider(machineUUID).selectAs((value) {
+      var leds = value.leds;
+      var filamentSensors = value.filamentSensors;
+      var pins = value.outputPins;
 
-    yield* Rx.combineLatest6(
+      return [
+        ...leds.values,
+        ...pins.values,
+        ...filamentSensors.values,
+      ];
+    }))
+        // Use map here since this prevents to many operations if the original list not changes!
+        .map((elements) {
+      var output = <dynamic>[];
+
+      for (var el in elements) {
+        switch (el) {
+          case Led():
+            if (el.name.startsWith('_')) continue;
+            break;
+          case OutputPin():
+            if (el.name.startsWith('_')) continue;
+            break;
+          case FilamentSensor():
+            if (el.name.startsWith('_')) continue;
+            break;
+          default:
+            continue;
+        }
+        output.add(el);
+      }
+
+      // Sort output by ordering, if ordering is not found it will be placed at the end
+      output.sort((a, b) {
+        var aIndex = ordering.indexWhere((element) => element.name == a.name);
+        var bIndex = ordering.indexWhere((element) => element.name == b.name);
+
+        if (aIndex == -1) aIndex = output.length;
+        if (bIndex == -1) bIndex = output.length;
+
+        return aIndex.compareTo(bIndex);
+      });
+      return output;
+    });
+
+    var configFile = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile));
+
+    yield* Rx.combineLatest3(
       klippyCanReceiveCommands,
-      leds,
-      ledConfig,
-      pins,
-      pinConfig,
-      filamentSensors,
-      (a, b, c, d, e, f) => _Model(
+      elements,
+      configFile,
+      (a, b, c) => _Model(
         klippyCanReceiveCommands: a,
-        leds: b,
-        ledConfig: c,
-        pins: d,
-        pinConfig: e,
-        filamentSensors: f,
+        elements: b,
+        ledConfig: c.leds,
+        pinConfig: c.outputs,
       ),
     );
   }
@@ -622,14 +652,10 @@ class _Model with _$Model {
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
-    required List<Led> leds,
+    required List<dynamic> elements,
     required Map<String, ConfigLed> ledConfig,
-    required List<OutputPin> pins,
     required Map<String, ConfigOutput> pinConfig,
-    required List<FilamentSensor> filamentSensors,
   }) = __Model;
 
-  bool get showCard => leds.isNotEmpty || pins.isNotEmpty || filamentSensors.isNotEmpty;
-
-  int get total => leds.length + pins.length + filamentSensors.length;
+  bool get showCard => elements.isNotEmpty;
 }

@@ -95,9 +95,10 @@ class BedMesh with _$BedMesh {
 }
 
 List<BedMeshProfile> _parseProfiles(Map raw) {
-  return raw.entries.map((e) {
-    String name = e.key;
-    Map<String, dynamic> value = (e.value as Map).map((key, value) => MapEntry(key as String, value));
+  return raw.entries
+      .map((e) {
+        String name = e.key;
+        Map<String, dynamic> value = (e.value as Map).map((key, value) => MapEntry(key as String, value));
 
         // sort the entires by name ignoring case
         return BedMeshProfile.fromJson(name, value);
@@ -114,8 +115,8 @@ Map _deparseProfiles(List<BedMeshProfile> profiles) {
 }
 
 String? _profileName(Map raw, _) {
-  String name = raw['profile_name'];
-  return (name.isEmpty) ? null : name;
+  String? name = raw['profile_name'];
+  return (name?.isEmpty == false) ? name : null;
 }
 
 (double, double)? _readCord(Map raw, String key) {

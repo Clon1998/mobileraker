@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
+import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/model_event.dart';
@@ -25,18 +26,18 @@ import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
-import '../data/dto/server/klipper.dart';
 import '../data/model/moonraker_db/fcm/device_fcm_settings.dart';
 import '../data/model/moonraker_db/fcm/notification_settings.dart';
-import '../data/model/moonraker_db/gcode_macro.dart';
-import '../data/model/moonraker_db/machine_settings.dart';
-import '../data/model/moonraker_db/macro_group.dart';
+import '../data/model/moonraker_db/settings/gcode_macro.dart';
+import '../data/model/moonraker_db/settings/machine_settings.dart';
+import '../data/model/moonraker_db/settings/macro_group.dart';
 import '../data/repository/fcm/device_fcm_settings_repository.dart';
 import '../data/repository/fcm/device_fcm_settings_repository_impl.dart';
 import '../data/repository/fcm/notification_settings_repository_impl.dart';
@@ -137,15 +138,21 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
   ref.keepAliveFor();
 
-  var machine = await ref.watch(machineProvider(machineUUID).future);
-  if (machine == null) return;
+  // We listen to macro count changes to trigger a provider rebuild, allowing us to migrate the setting's macros
+  var macroCnt = await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.gcodeMacros.length));
 
-  var klippyState = await ref.watch(klipperSelectedProvider.selectAsync((data) => data.klippyState));
-  if (klippyState != KlipperState.ready) return;
+  // Converts Klippy ready state to a stream of settings -> Emits new settings each time the Klippy state is transitioning to ready
+  yield* ref
+      .watchAsSubject(klipperProvider(machineUUID))
+      .where((event) => event.klippyState == KlipperState.ready)
+      .distinct()
+      .asyncMap((event) async {
+    var printerData = await ref.read(printerProvider(machineUUID).future);
 
-  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
-  var fetchSettings = await ref.read(machineServiceProvider).fetchSettings(machine);
-  yield fetchSettings;
+    return await ref
+        .read(machineServiceProvider)
+        .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
+  });
 }
 
 @riverpod
@@ -196,10 +203,12 @@ class MachineService {
     return;
   }
 
-  Future<MachineSettings> fetchSettings(Machine machine) async {
+  Future<MachineSettings> fetchSettings({Machine? machine, String? machineUUID}) async {
+    assert(machine != null || machineUUID != null, 'Either machine or machineUUID must be provided!');
     // await _tryMigrateSettings(machine);
     MachineSettings machineSettings =
-        await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ?? MachineSettings.fallback();
+        await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get() ??
+            MachineSettings.fallback();
 
     return machineSettings;
   }
@@ -497,20 +506,37 @@ class MachineService {
     return i;
   }
 
-  Future<void> updateMacrosInSettings(String machineUUID, List<String> macros) async {
+  /// Fetches the settings for a machine and adjusts the default macros.
+  ///
+  /// This method fetches the settings for a machine with the provided UUID.
+  /// It then adjusts the default macros based on the provided list of macros.
+  /// If a macro already exists in the default group, it is not added again.
+  /// If a macro does not exist in the default group, it is added.
+  /// If a macro exists in the default group but not in the provided list, it is removed.
+  ///
+  /// This method is useful for keeping the default macros up to date with the actual macros
+  /// that are available on the machine.
+  ///
+  /// [machineUUID] is the UUID of the machine to fetch the settings for.
+  /// [macros] is the list of macros to adjust the default macros with.
+  ///
+  /// Throws a [MobilerakerException] if the machine with the provided UUID does not exist.
+  ///
+  /// Returns the updated [MachineSettings] for the machine.
+  Future<MachineSettings> fetchSettingsAndAdjustDefaultMacros(String machineUUID, List<String> macros) async {
     // Get the machine with the provided UUID
     final machine = await _machineRepo.get(uuid: machineUUID);
 
     if (machine == null) {
       logger.e('Could not update macros, machine $machineUUID not found!');
-      return;
+      return throw const MobilerakerException('Machine not found');
     }
 
     // Log the machine information
     logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri.obfuscate()})"!');
 
     // Fetch the machine settings
-    final machineSettings = await fetchSettings(machine);
+    final machineSettings = await fetchSettings(machineUUID: machineUUID);
 
     // Filter out macros that start with '_'
     final filteredRawMacros = macros.where((element) => !element.startsWith('_')).toList();
@@ -538,14 +564,15 @@ class MachineService {
         logger.i('Found legacy default group, migrating it to the new default group format!');
         modifiableMacroGrps.remove(legacyDefaultGrp);
 
-        return MacroGroup.defaultGroup(name: 'Default', macros: legacyDefaultGrp.macros);
+        return MacroGroup.defaultGroup(
+            name: tr('pages.printer_edit.macros.default_grp'), macros: legacyDefaultGrp.macros);
       }
 
-      return MacroGroup.defaultGroup(name: 'Default');
+      return MacroGroup.defaultGroup(name: tr('pages.printer_edit.macros.default_grp'));
     });
 
     // If there's no legacy group and no new macros to add, return early
-    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return;
+    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return machineSettings;
 
     if (hasUnavailableMacro) {
       logger.i('Found some unavailable macros, will update all groups without the unavailable macros!');
@@ -569,6 +596,7 @@ class MachineService {
     // Update the machine settings and save
     machineSettings.macroGroups = modifiableMacroGrps;
     await ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
+    return machineSettings;
   }
 
   /// Links the machine to the octoEverywhere service

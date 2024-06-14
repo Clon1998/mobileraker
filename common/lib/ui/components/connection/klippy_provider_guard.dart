@@ -14,22 +14,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
-import 'package:mobileraker/ui/components/power_api_card.dart';
 
-import 'connection_state_view.dart';
+import '../../../service/app_router.dart';
+import '../../../service/machine_service.dart';
 
-class KlippyStateWidget extends HookConsumerWidget {
-  const KlippyStateWidget({
+class KlippyProviderGuard extends HookConsumerWidget {
+  const KlippyProviderGuard({
     super.key,
     required this.machineUUID,
     required this.onConnected,
     this.skipKlipperReady = false,
+    this.klippyErrorChildren,
   });
 
   final String machineUUID;
-  final OnConnectedBuilder onConnected;
+  final Widget Function(BuildContext context, String machineUUID) onConnected;
   final bool skipKlipperReady;
+
+  // Additional children to show when klippy is in error state
+  final List<Widget>? klippyErrorChildren;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,7 +59,7 @@ class KlippyStateWidget extends HookConsumerWidget {
           // The `when !wasFetched` ensures to skip the state error if we had a AsyncData before -> the dashboard should take care of showing errors
         )
             when !skipKlipperReady && !wasFetched =>
-          _StateError(data: kInstance, machineUUID: machineUUID),
+          _StateError(data: kInstance, machineUUID: machineUUID, onErrorChildren: klippyErrorChildren),
         AsyncData(value: KlipperInstance(klippyState: KlipperState.unauthorized)) => const _StateUnauthorized(),
         AsyncError(:final error) => _ProviderError(machineUUID: machineUUID, error: error),
         _ => onConnected(context, machineUUID),
@@ -66,10 +69,11 @@ class KlippyStateWidget extends HookConsumerWidget {
 }
 
 class _StateError extends ConsumerWidget {
-  const _StateError({super.key, required this.data, required this.machineUUID});
+  const _StateError({super.key, required this.data, required this.machineUUID, this.onErrorChildren});
 
   final KlipperInstance data;
   final String machineUUID;
+  final List<Widget>? onErrorChildren;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -99,20 +103,25 @@ class _StateError extends ConsumerWidget {
                     ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: ref.read(connectionStateControllerProvider.notifier).onRestartKlipperPressed,
+                        onPressed: () {
+                          ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
+                        },
                         child: const Text(
                           'pages.dashboard.general.restart_klipper',
                         ).tr(),
                       ),
-                      ElevatedButton(
-                        onPressed: ref.read(connectionStateControllerProvider.notifier).onRestartMCUPressed,
-                        child: const Text(
-                          'pages.dashboard.general.restart_mcu',
-                        ).tr(),
-                      ),
+                      if (data.klippyConnected)
+                        ElevatedButton(
+                          onPressed: () {
+                            ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
+                          },
+                          child: const Text(
+                            'pages.dashboard.general.restart_mcu',
+                          ).tr(),
+                        ),
                     ],
                   ),
                 ),
@@ -120,7 +129,7 @@ class _StateError extends ConsumerWidget {
             ),
           ),
         ),
-        if (data.hasPowerComponent) PowerApiCard(machineUUID: machineUUID),
+        if (onErrorChildren != null) ...onErrorChildren!,
       ],
     );
   }
@@ -141,7 +150,9 @@ class _StateUnauthorized extends ConsumerWidget {
           textAlign: TextAlign.center,
         ),
         TextButton(
-          onPressed: ref.read(connectionStateControllerProvider.notifier).onEditPrinter,
+          onPressed: () {
+            ref.read(goRouterProvider).pushNamed('printerEdit', extra: machine);
+          },
           child: Text('components.nav_drawer.printer_settings'.tr()),
         ),
       ],

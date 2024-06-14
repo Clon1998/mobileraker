@@ -103,7 +103,14 @@ HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientTy
 }
 
 HttpClient httpClientFromBaseOptions(BaseOptions options) {
-  final client = HttpClient()
+  var context = SecurityContext.defaultContext;
+
+  if (options.useTlsClientCertificate) {
+    context.useCertificateChainBytes(options.tlsClientCertificate!);
+    context.usePrivateKeyBytes(options.tlsClientPrivateKey!);
+  }
+
+  final client = HttpClient(context: context)
     ..idleTimeout = const Duration(seconds: 3)
     ..connectionTimeout = options.connectTimeout;
 

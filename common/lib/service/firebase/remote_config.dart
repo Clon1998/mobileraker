@@ -34,6 +34,10 @@ extension MobilerakerFF on FirebaseRemoteConfig {
 
   bool get obicoEnabled => getBool('obico_remote_connection');
 
+  bool get showSpoolmanPage => getBool('spoolman_page');
+
+  bool get spoolmanPageSupporterOnly => getBool('spoolman_page_pay');
+
   Future<void> initialize() async {
     try {
       await setConfigSettings(RemoteConfigSettings(
@@ -44,6 +48,8 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'non_suporters_max_printers': -1,
         'oe_webrtc_warning': true,
         'obico_remote_connection': true,
+        'spoolman_page': true,
+        'spoolman_page_pay': true,
         /*
         
         {"enabled":false,"messages":[{"show":false,"type":"info","title":"","body":""}]}

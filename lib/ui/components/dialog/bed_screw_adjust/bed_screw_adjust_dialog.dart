@@ -7,16 +7,16 @@ import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
-import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog_controller.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:vector_math/vector_math.dart' as vec;
 
 class BedScrewAdjustDialog extends HookConsumerWidget {
@@ -56,8 +56,16 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
 
-    return WillPopScope(
-      onWillPop: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onPopTriggered,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await ref.read(bedScrewAdjustDialogControllerProvider.notifier).onPopTriggered();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Dialog(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),

@@ -29,7 +29,7 @@ class StackTraceDialog extends StatelessWidget {
               request.title!,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            Expanded(
+            Flexible(
               child: SingleChildScrollView(child: Text(request.body!)),
             ),
             Row(

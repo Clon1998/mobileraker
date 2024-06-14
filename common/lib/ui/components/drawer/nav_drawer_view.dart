@@ -5,11 +5,13 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +73,12 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: Icons.file_present,
                       routeName: '/files',
                     ),
+                    if (ref.watch(remoteConfigProvider).showSpoolmanPage)
+                      const _DrawerItem(
+                      text: 'Spoolman',
+                        icon: FlutterIcons.database_ent,
+                        routeName: '/spoolman',
+                      ),
                     const Divider(),
                     _DrawerItem(
                       text: 'pages.setting.title'.tr(),
@@ -82,14 +90,6 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: FlutterIcons.hand_holding_heart_faw5s,
                       routeName: '/paywall',
                     ),
-                    if (kDebugMode) ...[
-                      const Divider(),
-                      const _DrawerItem(
-                        text: 'Spoolman',
-                        icon: Icons.local_library,
-                        routeName: '/spoolman',
-                      ),
-                    ],
                     const Divider(),
                     _DrawerItem(
                       text: tr('pages.faq.title'),
@@ -117,45 +117,48 @@ class NavigationDrawerWidget extends ConsumerWidget {
               ),
             ),
           ),
-          Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.only(bottom: 20, top: 10),
-            child: RichText(
-              text: TextSpan(
-                style: themeData.textTheme.bodySmall!.copyWith(color: themeData.colorScheme.onSurface),
-                text: 'components.nav_drawer.footer'.tr(),
-                children: [
-                  TextSpan(
-                    text: ' GitHub ',
-                    style: TextStyle(color: themeData.colorScheme.secondary),
-                    children: const [
-                      WidgetSpan(
-                        child: Icon(FlutterIcons.github_alt_faw, size: 18),
-                      ),
-                    ],
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        const String url = 'https://github.com/Clon1998/mobileraker';
-                        if (await canLaunchUrlString(url)) {
-                          await launchUrlString(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
-                  ),
-                  const TextSpan(text: '\n\n'),
-                  TextSpan(
-                    text: tr('pages.setting.imprint'),
-                    style: TextStyle(color: themeData.colorScheme.secondary),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/imprint'),
-                  ),
-                ],
+          SafeArea(
+            top: false,
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(bottom: 20, top: 10),
+              child: RichText(
+                text: TextSpan(
+                  style: themeData.textTheme.bodySmall!.copyWith(color: themeData.colorScheme.onSurface),
+                  text: 'components.nav_drawer.footer'.tr(),
+                  children: [
+                    TextSpan(
+                      text: ' GitHub ',
+                      style: TextStyle(color: themeData.colorScheme.secondary),
+                      children: const [
+                        WidgetSpan(
+                          child: Icon(FlutterIcons.github_alt_faw, size: 18),
+                        ),
+                      ],
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          const String url = 'https://github.com/Clon1998/mobileraker';
+                          if (await canLaunchUrlString(url)) {
+                            await launchUrlString(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                    ),
+                    const TextSpan(text: '\n\n'),
+                    TextSpan(
+                      text: tr('pages.setting.imprint'),
+                      style: TextStyle(color: themeData.colorScheme.secondary),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/imprint'),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ),
         ],

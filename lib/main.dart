@@ -12,10 +12,12 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart' as widget;
@@ -27,8 +29,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/app_setup.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/ui/snackbar_service_impl.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
+import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
@@ -37,8 +39,11 @@ import 'ui/theme/theme_setup.dart';
 
 Future<void> main() async {
   var widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await setupLogger();
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
+
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(ProviderScope(

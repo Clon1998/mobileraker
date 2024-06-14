@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
@@ -33,9 +34,7 @@ class InfoCard extends StatelessWidget {
   Widget _fallbackChild(ThemeData theme) {
     var onContainer = theme.colorScheme.onSecondaryContainer;
     return DefaultTextStyle(
-      style:
-          theme.textTheme.bodySmall?.copyWith(color: onContainer.lighten(5)) ??
-              TextStyle(color: onContainer),
+      style: theme.textTheme.bodySmall?.copyWith(color: _lighten(onContainer, 5)) ?? TextStyle(color: onContainer),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
         child: Row(
@@ -67,4 +66,15 @@ class InfoCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Taken from flex_color_scheme, just here to avoid adding a dependency
+Color _lighten(Color color, [final int amount = 10]) {
+  if (amount <= 0) return color;
+  if (amount > 100) return Colors.white;
+  // HSLColor returns saturation 1 for black, we want 0 instead to be able
+  // lighten black color up along the grey scale from black.
+  final HSLColor hsl =
+      color == const Color(0xFF000000) ? HSLColor.fromColor(color).withSaturation(0) : HSLColor.fromColor(color);
+  return hsl.withLightness(min(1, max(0, hsl.lightness + amount / 100))).toColor();
 }

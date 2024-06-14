@@ -49,12 +49,20 @@
     "completed": "Completed",
     "activate": "Activate",
     "stop": "Stop",
-    "start": "Start"
+    "start": "Start",
+    "repeat": "Repeat",
+    "load_more": "Load more",
+    "archived": "Archived"
   },
   "pages": {
     "dashboard": {
       "title": "Dashboard",
       "ems_btn": "Emergency-Stop",
+      "ems_confirmation": {
+        "title": "Confirm Emergency-Stop",
+        "body": "You are about to send an emergency-stop command to the printer. This will immediately stop all motors and heaters.",
+        "confirm": "STOP!"
+      },
       "server_status": {
         "unavailable": "No Server available",
         "available": "Server State is {} and Klippy is {}"
@@ -390,13 +398,14 @@
         "read_only": "Webcam is read-only"
       },
       "macros": {
+        "default_grp": "Default",
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",
         "no_macros_found": "No Macros found!",
         "no_macros_in_grp": "No macros in the group!",
         "deleted_grp": "Deleted group {}",
         "macros": "Macros",
-        "default_name": "New Macro",
+        "default_name": "New Macro Group",
         "macros_to_default": {
           "one": "Moved one macro to default group!",
           "two": "Moved two macro to default group!",
@@ -465,6 +474,21 @@
           "title": "Error while fetching WiFi name!",
           "body": "Please make sure the app has the necessary permissions to access the device's WiFi state."
         }
+      },
+      "temp_ordering": {
+        "title": "Temperature Sensor UI-Ordering",
+        "helper": "Change the order of the temperature sensors on the dashboard.",
+        "no_sensors": "No temperature sensors found!"
+      },
+      "fan_ordering": {
+        "title": "Fan UI-Ordering",
+        "helper": "Change the order of the fans on the dashboard.",
+        "no_fans": "No fans found!"
+      },
+      "misc_ordering": {
+        "title": "Misc Element UI-Ordering",
+        "helper": "Change the order of the miscellaneous elements on the dashboard.",
+        "no_controls": "No misc elements found!"
       }
     },
     "printer_add": {
@@ -518,6 +542,7 @@
     },
     "console": {
       "title": "Console",
+      "card_title": "GCode Console",
       "no_entries": "No cached commands found",
       "fetching_console": "@:general.fetching console entries…",
       "command_input": {
@@ -587,6 +612,67 @@
         "title": "Microphone permission required",
         "subtitle": "The belt tuner uses your phone's microphone to analyze the frequency of your belts.\n\nTap to grant the permission."
       }
+    },
+    "spoolman": {
+      "title": "Spoolman",
+      "not_available": "Spoolman is not available for this printer. \nPlease make sure that Spoolman is installed and enabled on your printer.",
+      "learn_more": "To learn more about Spoolman and how to install it, visit the project's",
+      "learn_more_link": "GitHub page.",
+      "no_spools": "No spools found!",
+      "no_filaments": "No filaments found!",
+      "no_vendors": "No vendors found!",
+      "error_loading_spools": "Error loading spools",
+      "error_loading_filaments": "Error loading filaments",
+      "spool": {
+        "one": "Spool",
+        "other": "Spools"
+      },
+      "filament": {
+        "one": "Filament",
+        "other": "Filaments"
+      },
+      "vendor": {
+        "one": "Vendor",
+        "other": "Vendors"
+      },
+      "properties": {
+        "id": "ID",
+        "name": "Name",
+        "registered": "Registered",
+        "comment": "Comment",
+        "material": "Material",
+        "price": "Price",
+        "density": "Density",
+        "diameter": "Diameter",
+        "weight": "Weight",
+        "spool_weight": "Spool Weight",
+        "article_number": "Article Number",
+        "first_used": "First Used",
+        "last_used": "Last Used",
+        "remaining_weight": "Remaining Weight",
+        "used_weight": "Used Weight",
+        "location": "Location",
+        "lot_number": "Lot Number"
+      },
+      "vendor_details": {
+        "page_title": "Vendor {}",
+        "info_card": "Vendor Info",
+        "filaments_card": "Filaments by Vendor",
+        "spools_card": "Spools by Vendor"
+      },
+      "filament_details": {
+        "info_card": "Filament Info",
+        "spools_card": "Filament Spools"
+      },
+      "spool_details": {
+        "page_title": "Spool {}",
+        "info_card": "Spool Info",
+        "set_active": "Set as Active Spool",
+        "archived_warning": {
+          "title": "Spool is archived",
+          "body": "This spool is archived and can not be used for new prints."
+        }
+      }
     }
   },
   "components": {
@@ -625,7 +711,8 @@
       "printer_add": "You've reached the machine limit. Only Mobileraker Supporters can add more than {} machines.",
       "job_queue": "Sorry, the Job Queue is only available to Supporters.",
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
-      "printer_theme": "Sorry, printer specific themes are only available to Supporters."
+      "printer_theme": "Sorry, printer specific themes are only available to Supporters.",
+      "spoolman_page": "Sorry, the Spoolman page is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",
@@ -774,6 +861,11 @@
     "filament_sensor_triggered": {
       "title": "Filament Sensor Triggered",
       "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available or disable the sensor."
+    },
+    "screws_tilt_adjust": {
+      "title": "Screws Tilt Adjust",
+      "base": "Base",
+      "hint": "The dialog helps you adjust the screws of the bed. For each screw you are seeing the required adjustments as clock in HH:MM format. For example, 01:15 indicates a full rotation plus a quarter turn in the direction the icon indicates."
     }
   },
   "bottom_sheets": {
@@ -824,7 +916,32 @@
       "hint": "Select macros for group {}"
     },
     "signIn": {
-      "subtitle": "Although creating an account is optional, it is necessary to do so in order to restore purchases made on another device or platform."
+      "subtitle": "Although creating an account is optional, it is necessary to do so in order to restore purchases made on another device or platform.",
+      "forgot_password": "Forgot Password?",
+      "forgot_password_success": "Password reset email sent!",
+      "hint": {
+        "sign_in": "Dont have an account yet?",
+        "sign_up": "Already have an account?",
+        "reset_password": "Provide your email address to receive a password reset link."
+      },
+      "action": {
+        "sign_in": "Sign In",
+        "sign_up": "Sign Up",
+        "reset_password": "Reset Password"
+      },
+      "email": {
+        "label": "Email",
+        "hint": "Your email address"
+      },
+      "password": {
+        "label": "Password",
+        "hint": "Your password"
+      },
+      "confirm_password": {
+        "label": "Confirm Password",
+        "hint": "Confirm your password",
+        "error": "Passwords do not match!"
+      }
     },
     "profile": {
       "title": "You are signed in.",
@@ -873,6 +990,20 @@
         "title": "Manage Services",
         "no_services": "No services found!",
         "provider_error": "Error while fetching services"
+      },
+      "confirm_action": {
+        "title": "Are you sure?",
+        "hint": {
+          "long_press": "Hint: To skip this, long press the button that opened this confirmation."
+        },
+        "body": {
+          "pi_restart": "You are about to restart the Raspberry Pi. Are you sure you want to proceed?",
+          "pi_shutdown": "You are about to shut down the Raspberry Pi. This will disconnect all active connections and stop all running processes. Are you sure you want to proceed?",
+          "fw_restart": "You are about to restart the firmware. Are you sure you want to proceed?",
+          "service_start": "You are about to start the service '{}'. Are you sure you want to proceed?",
+          "service_restart": "You are about to restart the service '{}'. Are you sure you want to proceed?",
+          "service_stop": "You are about to stop the service '{}'. Are you sure you want to proceed?"
+        }
       }
     }
   },

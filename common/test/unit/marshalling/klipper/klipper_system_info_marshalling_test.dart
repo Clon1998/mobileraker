@@ -6,6 +6,7 @@
 import 'dart:convert';
 
 import 'package:common/data/dto/server/klipper_system_info.dart';
+import 'package:common/data/dto/server/service_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -127,13 +128,13 @@ void main() {
     expect(klipperSystemInfo.availableServices, ['klipper', 'klipper_mcu', 'moonraker']);
     expect(klipperSystemInfo.serviceState, isNotEmpty);
     expect(klipperSystemInfo.serviceState['klipper']!.name, 'klipper');
-    expect(klipperSystemInfo.serviceState['klipper']!.activeState, 'active');
+    expect(klipperSystemInfo.serviceState['klipper']!.activeState, ServiceState.active);
     expect(klipperSystemInfo.serviceState['klipper']!.subState, 'running');
     expect(klipperSystemInfo.serviceState['klipper_mcu']!.name, 'klipper_mcu');
-    expect(klipperSystemInfo.serviceState['klipper_mcu']!.activeState, 'active');
+    expect(klipperSystemInfo.serviceState['klipper_mcu']!.activeState, ServiceState.active);
     expect(klipperSystemInfo.serviceState['klipper_mcu']!.subState, 'running');
     expect(klipperSystemInfo.serviceState['moonraker']!.name, 'moonraker');
-    expect(klipperSystemInfo.serviceState['moonraker']!.activeState, 'active');
+    expect(klipperSystemInfo.serviceState['moonraker']!.activeState, ServiceState.active);
     expect(klipperSystemInfo.serviceState['moonraker']!.subState, 'running');
   });
 }

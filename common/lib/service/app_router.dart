@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'app_router.g.dart';
 
 mixin RouteDefinitionMixin {
-  String? get name;
+  // String get name;
 }
 
 @riverpod

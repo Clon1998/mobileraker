@@ -64,7 +64,7 @@ class KlippyService {
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       switch (next.valueOrFullNull) {
         case ClientState.connected:
-          refreshKlippy();
+          refreshKlippy().ignore();
           break;
         case ClientState.error:
           _current = _current.copyWith(klippyConnected: false, klippyState: KlipperState.error);
@@ -192,14 +192,14 @@ class KlippyService {
     _current = _current.copyWith(klippyState: KlipperState.ready, klippyConnected: true, klippyStateMessage: null);
     logger.i('State: notify_klippy_ready');
     // Just to be sure, fetch all klippy info again
-    refreshKlippy();
+    refreshKlippy().ignore();
   }
 
   _onNotifyKlippyShutdown(Map<String, dynamic> m) async {
     _current = _current.copyWith(klippyState: KlipperState.shutdown, klippyStateMessage: null);
     logger.i('State: notify_klippy_shutdown');
     // Just to be sure, fetch all klippy info again (Also fetches the statusMessage that contains the shutdown reason)
-    refreshKlippy();
+    refreshKlippy().ignore();
   }
 
   _onNotifyKlippyDisconnected(Map<String, dynamic> m) {

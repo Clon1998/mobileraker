@@ -26,7 +26,7 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
     // make sure we close the dialog once its resolved externally
     // also prevents opening the dialog by mistake!
     ref.listenSelf((previous, next) {
-      if (next.valueOrNull?.isActive == false) {
+      if (next.valueOrNull?.isActive == false && !_completed) {
         logger.i(
           'Dialog closed externally since manual_probe is not active anymore!',
         );

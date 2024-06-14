@@ -8,19 +8,23 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_gcode_macro.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/data/model/moonraker_db/gcode_macro.dart';
-import 'package:common/data/model/moonraker_db/macro_group.dart';
+import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
+import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -29,34 +33,35 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
-import '../../../animation/SizeAndFadeTransition.dart';
 
 part 'macro_group_card.freezed.dart';
 part 'macro_group_card.g.dart';
 
-class MacroGroupCard extends ConsumerWidget {
+class MacroGroupCard extends HookConsumerWidget {
   const MacroGroupCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showCard = ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
-    var showLoading = showCard.isLoading && !showCard.isReloading;
-
-    if (showLoading) return const _MacroGroupLoading();
-    if (showCard.valueOrNull != true) return const SizedBox.shrink();
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: _SelectedGroup(machineUUID: machineUUID),
-          ),
-        ],
+    useAutomaticKeepAlive();
+    logger.i('Building MacroGroupCard for $machineUUID');
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'MacroGroupCard-$machineUUID',
+      toGuard: _macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: const _MacroGroupLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: _SelectedGroup(machineUUID: machineUUID),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -145,16 +150,10 @@ class _SelectedGroup extends ConsumerWidget {
 
     if (group == null) return const Text('No group found');
 
-    return AnimatedSwitcher(
-      // duration: Duration(seconds: 2),
-      duration: kThemeAnimationDuration,
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, anim) => SizeAndFadeTransition(
-        sizeAxisAlignment: 1,
-        sizeAndFadeFactor: anim,
-        child: child,
-      ),
+    return AnimatedSizeAndFade(
+      alignment: Alignment.bottomCenter,
+      sizeDuration: kThemeAnimationDuration,
+      fadeDuration: kThemeAnimationDuration,
       // The column is required to make it stretch
       child: group.hasMacros(isPrinting)
           ? Column(

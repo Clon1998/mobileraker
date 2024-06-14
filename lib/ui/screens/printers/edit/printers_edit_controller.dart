@@ -8,9 +8,10 @@ import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
-import 'package:common/data/model/moonraker_db/machine_settings.dart';
-import 'package:common/data/model/moonraker_db/macro_group.dart';
-import 'package:common/data/model/moonraker_db/temperature_preset.dart';
+import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
+import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
+import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
+import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -42,11 +43,14 @@ import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/misc_ordering_list.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/sensor_ordering_list.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
+import 'components/fans_ordering_list.dart';
 import 'components/macro_group_list.dart';
 
 part 'printers_edit_controller.g.dart';
@@ -58,11 +62,9 @@ GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef _) => Globa
 Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [currentlyEditing])
-Future<MachineSettings> machineRemoteSettings(
-  MachineRemoteSettingsRef ref,
-) {
+Future<MachineSettings> machineRemoteSettings(MachineRemoteSettingsRef ref) {
   var machine = ref.watch(currentlyEditingProvider);
-  return ref.watch(machineServiceProvider).fetchSettings(machine);
+  return ref.watch(machineSettingsProvider(machine.uuid).future);
 }
 
 @riverpod
@@ -172,9 +174,11 @@ class PrinterEditController extends _$PrinterEditController {
       var speedZ = storedValues['speedZ'];
       var extrudeSpeed = storedValues['extrudeSpeed'];
 
-      List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).value!;
-
+      List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
       List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
+      List<ReordableElement> tempOrdering = ref.read(sensorOrderingListControllerProvider(_machine.uuid)).requireValue;
+      List<ReordableElement> fanOrdering = ref.read(fansOrderingListControllerProvider(_machine.uuid)).requireValue;
+      List<ReordableElement> miscOrdering = ref.read(miscOrderingListControllerProvider(_machine.uuid)).requireValue;
 
       for (var preset in presets) {
         var name = storedValues['${preset.uuid}-presetName'];
@@ -206,6 +210,9 @@ class PrinterEditController extends _$PrinterEditController {
               inverts: inverts,
               speedXY: speedXY,
               speedZ: speedZ,
+              tempOrdering: tempOrdering,
+              fanOrdering: fanOrdering,
+              miscOrdering: miscOrdering,
             ),
           );
     }

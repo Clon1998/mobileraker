@@ -31,7 +31,11 @@ Future<List<Command>> availableMacros(AvailableMacrosRef ref) {
 }
 
 @riverpod
-RefreshController consoleRefreshController(ConsoleRefreshControllerRef _) => RefreshController();
+RefreshController consoleRefreshController(ConsoleRefreshControllerRef ref) {
+  var refreshController = RefreshController();
+  ref.onDispose(refreshController.dispose);
+  return refreshController;
+}
 
 @riverpod
 class ConsoleListController extends _$ConsoleListController {

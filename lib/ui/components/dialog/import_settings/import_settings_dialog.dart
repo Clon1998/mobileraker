@@ -4,7 +4,7 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/moonraker_db/temperature_preset.dart';
+import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';

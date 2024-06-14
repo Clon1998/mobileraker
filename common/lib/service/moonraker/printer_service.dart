@@ -34,6 +34,7 @@ import 'package:common/data/dto/machine/output_pin.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/machine/toolhead.dart';
 import 'package:common/data/dto/machine/virtual_sd_card.dart';
@@ -53,6 +54,7 @@ import '../../data/dto/console/command.dart';
 import '../../data/dto/console/console_entry.dart';
 import '../../data/dto/machine/filament_sensors/filament_sensor.dart';
 import '../../data/dto/machine/firmware_retraction.dart';
+import '../../data/dto/machine/z_thermal_adjust.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../machine_service.dart';
@@ -175,11 +177,13 @@ class PrinterService {
     'pca9632': _updateLed,
     'manual_probe': _updateManualProbe,
     'bed_screws': _updateBedScrew,
+    'screws_tilt_adjust': _updateScrewsTiltAdjust,
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
     'bed_mesh': _updateBedMesh,
     'filament_switch_sensor': _updateFilamentSensor,
     'filament_motion_sensor': _updateFilamentSensor,
+    'z_thermal_adjust': _updateZThermalAdjust,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -228,7 +232,7 @@ class PrinterService {
       if (disposed) return;
       // I need this temp variable since in some edge cases the updateSettings otherwise throws?
       var printerObj = printerBuilder.build();
-      _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros).ignore();
+      // _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros).ignore();
       _registerJrpcHandlers();
       _makeSubscribeRequest(printerObj.queryableObjects);
       current = printerObj;
@@ -676,6 +680,8 @@ class PrinterService {
         printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
       } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.filament_motion_sensor)) {
         printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.z_thermal_adjust)) {
+        printerBuilder.zThermalAdjust = ZThermalAdjust(lastHistory: DateTime(1990));
       }
     }
     printerBuilder.extruders =
@@ -714,7 +720,6 @@ class PrinterService {
   _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
     final TemperatureFan curFan = printer.fans[fanName]! as TemperatureFan;
 
-    //TODO add TempHistory
     printer.fans = {...printer.fans, fanName: TemperatureFan.partialUpdate(curFan, fanJson)};
   }
 
@@ -817,6 +822,10 @@ class PrinterService {
     printer.bedScrew = BedScrew.partialUpdate(printer.bedScrew, jsonResponse);
   }
 
+  _updateScrewsTiltAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.screwsTiltAdjust = ScrewsTiltAdjust.partialUpdate(printer.screwsTiltAdjust, jsonResponse);
+  }
+
   _updateFirmwareRetraction(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.firmwareRetraction = FirmwareRetraction.partialUpdate(printer.firmwareRetraction, jsonResponse);
   }
@@ -830,6 +839,10 @@ class PrinterService {
       ...printer.filamentSensors,
       sensor: FilamentSensor.partialUpdate(printer.filamentSensors[sensor]!, jsonResponse)
     };
+  }
+
+  _updateZThermalAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.zThermalAdjust = ZThermalAdjust.partialUpdate(printer.zThermalAdjust, jsonResponse);
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {

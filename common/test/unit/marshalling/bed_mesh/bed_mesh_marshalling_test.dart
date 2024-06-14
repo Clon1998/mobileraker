@@ -1772,7 +1772,7 @@ void main() {
     expect(mesh.probedMatrix.fold(0, (previousValue, element) => previousValue + element.length), 5 * 5);
     expect(mesh.meshMatrix.fold(0, (previousValue, element) => previousValue + element.length), 13 * 13);
     expect(mesh.profiles.length, 19);
-    expect(mesh.zValueRangeProbed, 0.07);
+    expect(mesh.zValueRangeProbed, (-0.05, 0.02));
     expect(mesh.meshMin, (40, 40));
     expect(mesh.meshMax, (260, 260));
 
@@ -3622,7 +3622,7 @@ void main() {
     expect(mesh.probedMatrix.fold(0, (previousValue, element) => previousValue + element.length), 3 * 3);
     expect(mesh.meshMatrix.fold(0, (previousValue, element) => previousValue + element.length), 12 * 12);
     expect(mesh.profiles.length, 18);
-    expect(mesh.zValueRangeProbed, 0.44 + 0.33);
+    expect(mesh.zValueRangeProbed, (-0.33, 0.44));
     expect(mesh.meshMin, (20, 20));
     expect(mesh.meshMax, (280, 280));
 
@@ -3680,7 +3680,7 @@ void main() {
     expect(mesh.probedMatrix.fold(0, (previousValue, element) => previousValue + element.length), 5 * 5);
     expect(mesh.meshMatrix.fold(0, (previousValue, element) => previousValue + element.length), 13 * 13);
     expect(mesh.profiles.length, 19);
-    expect(mesh.zValueRangeProbed, 0.07);
+    expect(mesh.zValueRangeProbed, (-0.05, 0.02));
 
     expect(mesh.probedMatrix[0], [-0.035, -0.05, -0.0375, -0.03, -0.0075]);
     expect(mesh.probedMatrix[1], [0.0025, -0.02, -0.0075, -0.005, -0.005]);
@@ -3908,7 +3908,7 @@ void main() {
     expect(mesh.probedMatrix.fold(0, (previousValue, element) => previousValue + element.length), 5 * 5);
     expect(mesh.meshMatrix.fold(0, (previousValue, element) => previousValue + element.length), 13 * 13);
     expect(mesh.profiles.length, 19);
-    expect(mesh.zValueRangeProbed, 0.07);
+    expect(mesh.zValueRangeProbed, (-0.05, 0.02));
     expect(mesh.meshMin, (40, 40));
     expect(mesh.meshMax, (260, 260));
 
@@ -4367,7 +4367,7 @@ void main() {
     expect(mesh.probedMatrix[0], [-0.3, -0.2, -0.1]);
     expect(mesh.probedMatrix[1], [0.44, -0.33, -0.22]);
     expect(mesh.probedMatrix[2], [-0.1, -0.2, 0]);
-    expect(mesh.zValueRangeProbed, 0.44 + 0.33);
+    expect(mesh.zValueRangeProbed, (-0.33, 0.44));
   });
 
   test('BedMesh.partialUpdate for mesh_matrix', () {
@@ -4558,7 +4558,7 @@ void main() {
     expect(mesh.probedMatrix.fold(0, (previousValue, element) => previousValue + element.length), 5 * 5);
     // expect(mesh.meshMatrix.fold(0, (previousValue, element) => previousValue + element.length), 13 * 13);
     expect(mesh.profiles.length, 19);
-    expect(mesh.zValueRangeProbed, 0.07);
+    expect(mesh.zValueRangeProbed, (-0.05, 0.02));
     expect(mesh.meshMin, (40, 40));
     expect(mesh.meshMax, (260, 260));
 
@@ -4813,7 +4813,7 @@ void main() {
     expect(mesh.probedMatrix.fold(0, (previousValue, element) => previousValue + element.length), 5 * 5);
     expect(mesh.meshMatrix.fold(0, (previousValue, element) => previousValue + element.length), 13 * 13);
     // expect(mesh.profiles.length, 19);
-    expect(mesh.zValueRangeProbed, 0.07);
+    expect(mesh.zValueRangeProbed, (-0.05, 0.02));
     expect(mesh.meshMin, (40, 40));
     expect(mesh.meshMax, (260, 260));
 

@@ -13,7 +13,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   // Returns a stream that alwways issues the latest/cached value of the provider
   // if the provider has one, even if multiple listeners listen to the stream!
   Stream<T> watchAsSubject<T>(ProviderListenable<AsyncValue<T>> provider,
-      {bool skipLoadingOnReload = false, bool skipLoadingOnRefresh = true}) {
+      {bool skipLoadingOnReload = false, bool skipLoadingOnRefresh = true, bool asSubject = true}) {
     final ctrler = StreamController<T>();
     onDispose(() {
       ctrler.close();
@@ -39,7 +39,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
         },
       );
       // loading: () => null);
-    }, fireImmediately: true);
+    }, fireImmediately: asSubject);
     return ctrler.stream;
   }
 
@@ -215,5 +215,13 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     onResume(() => timer?.cancel());
     onDispose(() => timer?.cancel());
     return link;
+  }
+}
+
+extension MobilerakerWidgetRef on WidgetRef {
+  /// Helper method to externally keep a provider alive without the need to watch it!
+  ProviderSubscription<T> keepAliveExternally<T>(ProviderListenable<T> provider) {
+    var providerSubscription = listenManual(provider, (_, __) {});
+    return providerSubscription;
   }
 }

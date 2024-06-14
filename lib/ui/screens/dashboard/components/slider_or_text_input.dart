@@ -65,6 +65,7 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
     stepsToAdd = (maxValue - widget.minValue) / 2;
     // Actual States
 
+    //TODO: This needs to be moced to updateWidget as init state is NOT caled if provider changes!
     double initValue = ref.read(widget.provider);
     lastSubmittedValue = initValue;
     sliderPos = initValue;

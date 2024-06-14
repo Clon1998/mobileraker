@@ -29,18 +29,27 @@ extension Precision on double {
     return '${numberFormat.format(g)} $suffix';
   }
 
-  String formatMiliMeters(NumberFormat numberFormat) {
+  String formatMiliMeters(NumberFormat numberFormat, [bool useMicro = false]) {
     var mm = this;
     final String suffix;
-    if (mm < 1000) {
-      suffix = 'mm';
-    } else if (mm < 1000000) {
-      mm /= 1000;
-      suffix = 'm';
-    } else {
-      mm /= 1000000;
-      suffix = 'km';
+
+    switch (mm) {
+      case < 1 when useMicro:
+        mm *= 1000;
+        suffix = 'µm';
+        break;
+      case < 1000:
+        suffix = 'mm';
+        break;
+      case < 1000000:
+        mm /= 1000;
+        suffix = 'm';
+        break;
+      default:
+        mm /= 1000000;
+        suffix = 'km';
     }
+
     return '${numberFormat.format(mm)} $suffix';
   }
 }

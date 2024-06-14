@@ -17,7 +17,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
@@ -25,6 +24,8 @@ import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+import '../../components/connection/machine_connection_guard.dart';
 
 class ConsolePage extends ConsumerWidget {
   const ConsolePage({super.key});
@@ -40,7 +41,7 @@ class ConsolePage extends ConsumerWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: ConnectionStateView(onConnected: (_, __) => const _ConsoleBody()),
+      body: MachineConnectionGuard(onConnected: (_, __) => const _ConsoleBody()),
     );
   }
 }
@@ -56,6 +57,7 @@ class _ConsoleBody extends HookConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
+    var borderSize = BorderSide(width: 0.5, color: theme.colorScheme.primary);
 
     return SafeArea(
       child: Container(
@@ -81,9 +83,9 @@ class _ConsoleBody extends HookConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 child: Text(
-                  'GCode Console',
+                  'pages.console.card_title',
                   style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
-                ),
+                ).tr(),
               ),
             ),
             Expanded(

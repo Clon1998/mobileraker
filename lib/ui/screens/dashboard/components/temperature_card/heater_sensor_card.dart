@@ -11,12 +11,18 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
+import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
+import 'package:common/data/dto/machine/z_thermal_adjust.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -34,7 +40,7 @@ import 'package:stringr/stringr.dart';
 
 import '../../../../../service/ui/dialog_service_impl.dart';
 import '../../../../components/adaptive_horizontal_scroll.dart';
-import '../../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 import '../../../../components/graph_card_with_button.dart';
 import '../../../../components/spinning_fan.dart';
 import 'temperature_sensor_preset_card.dart';
@@ -45,31 +51,54 @@ part 'heater_sensor_card.g.dart';
 class HeaterSensorCard extends ConsumerWidget {
   const HeaterSensorCard({super.key, required this.machineUUID, this.trailing});
 
+  factory HeaterSensorCard.preview() {
+    return const _HeaterSensorCardPreview();
+  }
+
   final String machineUUID;
 
   final Widget? trailing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-    if (showLoading) {
-      return const HeaterSensorPresetCardLoading();
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            HeaterSensorPresetCardTitle(
-              machineUUID: machineUUID,
-              title: const Text('pages.dashboard.general.temp_card.title').tr(),
-              trailing: trailing,
-            ),
-            _CardBody(machineUUID: machineUUID),
-          ],
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'HeaterSensorCard-$machineUUID',
+      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const HeaterSensorPresetCardLoading(),
+      childOnData: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              HeaterSensorPresetCardTitle(
+                machineUUID: machineUUID,
+                title: const Text('pages.dashboard.general.temp_card.title').tr(),
+                trailing: trailing,
+              ),
+              _CardBody(machineUUID: machineUUID),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _HeaterSensorCardPreview extends HeaterSensorCard {
+  static const String _machineUUID = 'preview';
+
+  const _HeaterSensorCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(
+      overrides: [
+        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
+        printerProvider(_machineUUID).overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+      ],
+      child: Consumer(
+        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
       ),
     );
   }
@@ -85,67 +114,52 @@ class _CardBody extends ConsumerWidget {
     // ROHE model nutzung ist AA. Wenn eine der listen sich ändert wird alles neu gebaut! Lieber einzelne Selects darauf!
     var provider = _controllerProvider(machineUUID);
 
-    var hasPrintBed = ref.watch(provider.selectAs((value) => value.hasPrintBed)).requireValue;
-    var extruderCount = ref.watch(provider.selectAs((value) => value.extruders.length)).requireValue;
-    var genericHeatersCount = ref.watch(provider.selectAs((value) => value.genericHeaters.length)).requireValue;
-    var temperatureSensorCount = ref.watch(provider.selectAs((value) => value.temperatureSensors.length)).requireValue;
-    var temperatureFanCount = ref.watch(provider.selectAs((value) => value.temperatureFans.length)).requireValue;
+    var sensors = ref.watch(provider.selectRequireValue((value) => value.sensors.length));
     logger.w('Rebuilding HeaterSensorCard');
+
     return AdaptiveHorizontalScroll(
       snap: true,
       pageStorageKey: 'temps$machineUUID',
       children: [
-        ..._extruderTiles(extruderCount),
-        if (hasPrintBed)
-          _HeaterMixinTile(
+        for (var i = 0; i < sensors; i++)
+          _SensorMixinTile(
             machineUUID: machineUUID,
-            heaterProvider: provider.select((value) => value.requireValue.heaterBed!),
+            sensorProvider: _controllerProvider(machineUUID).selectRequireValue((value) => value.sensors[i]),
           ),
-        ..._genericHeaterTiles(genericHeatersCount),
-        ..._temperatureSensorTiles(temperatureSensorCount),
-        ..._temperatureFanTiles(temperatureFanCount),
       ],
     );
   }
+}
 
-  List<Widget> _extruderTiles(int count) {
-    return List.generate(
-      count,
-      (index) => _HeaterMixinTile(
-        machineUUID: machineUUID,
-        heaterProvider: _controllerProvider(machineUUID).select((value) => value.requireValue.extruders[index]),
-      ),
-    );
-  }
+class _SensorMixinTile extends ConsumerWidget {
+  const _SensorMixinTile({super.key, required this.machineUUID, required this.sensorProvider});
 
-  List<Widget> _genericHeaterTiles(int count) {
-    return List.generate(
-      count,
-      (index) => _HeaterMixinTile(
-        machineUUID: machineUUID,
-        heaterProvider: _controllerProvider(machineUUID).select((value) => value.requireValue.genericHeaters[index]),
-      ),
-    );
-  }
+  final String machineUUID;
+  final ProviderListenable<SensorMixin> sensorProvider;
 
-  List<Widget> _temperatureSensorTiles(int count) {
-    return List.generate(
-      count,
-      (index) => _TemperatureSensorTile(
-        sensorProvider:
-            _controllerProvider(machineUUID).select((value) => value.requireValue.temperatureSensors[index]),
-      ),
-    );
-  }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var sensor = ref.watch(sensorProvider);
+    // logger.i('Rebuilding SensorMixinTile ${sensor.name}');
 
-  List<Widget> _temperatureFanTiles(int count) {
-    return List.generate(
-      count,
-      (index) => _TemperatureFanTile(
-        machineUUID: machineUUID,
-        tempFanProvider: _controllerProvider(machineUUID).select((value) => value.requireValue.temperatureFans[index]),
-      ),
-    );
+    return switch (sensor) {
+      HeaterMixin() => _HeaterMixinTile(
+          machineUUID: machineUUID,
+          heater: sensor,
+        ),
+      TemperatureSensor() => _TemperatureSensorTile(
+          temperatureSensor: sensor,
+        ),
+      TemperatureFan() => _TemperatureFanTile(
+          machineUUID: machineUUID,
+          temperatureFan: sensor,
+        ),
+      ZThermalAdjust() => _ZThermalAdjustTile(
+          machineUUID: machineUUID,
+          zThermalAdjust: sensor,
+        ),
+      _ => throw UnimplementedError(),
+    };
   }
 }
 
@@ -155,22 +169,21 @@ class _HeaterMixinTile extends HookConsumerWidget {
   const _HeaterMixinTile({
     super.key,
     required this.machineUUID,
-    required this.heaterProvider,
+    required this.heater,
   });
+
   final String machineUUID;
-  final ProviderListenable<HeaterMixin> heaterProvider;
+  final HeaterMixin heater;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.requireValue.klippyCanReceiveCommands));
-
-    var genericHeater = ref.watch(heaterProvider);
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
     var spots = useRef(<FlSpot>[]);
 
-    var temperatureHistory = genericHeater.temperatureHistory;
+    var temperatureHistory = heater.temperatureHistory;
     if (temperatureHistory != null) {
       List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
@@ -180,28 +193,28 @@ class _HeaterMixinTile extends HookConsumerWidget {
     NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     ThemeData themeData = Theme.of(context);
     Color colorBg = themeData.colorScheme.surfaceVariant;
-    if (genericHeater.target > 0 && klippyCanReceiveCommands) {
+    if (heater.target > 0 && klippyCanReceiveCommands) {
       colorBg = Color.alphaBlend(
         const Color.fromRGBO(178, 24, 24, 1).withOpacity(
-          min(genericHeater.temperature / genericHeater.target, 1),
+          min(heater.temperature / heater.target, 1),
         ),
         colorBg,
       );
-    } else if (genericHeater.temperature > _stillHotTemp) {
+    } else if (heater.temperature > _stillHotTemp) {
       colorBg = Color.alphaBlend(
         const Color.fromRGBO(243, 106, 65, 1.0).withOpacity(
-          min(genericHeater.temperature / _stillHotTemp - 1, 1),
+          min(heater.temperature / _stillHotTemp - 1, 1),
         ),
         colorBg,
       );
     }
-    var name = beautifyName(genericHeater.name);
+    var name = beautifyName(heater.name);
 
     return GraphCardWithButton(
       backgroundColor: colorBg,
       plotSpots: spots.value,
       buttonChild: const Text('general.set').tr(),
-      onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(genericHeater) : null,
+      onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
       builder: (BuildContext context) {
         var innerTheme = Theme.of(context);
         return Tooltip(
@@ -219,18 +232,18 @@ class _HeaterMixinTile extends HookConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    '${numberFormat.format(genericHeater.temperature)} °C',
+                    '${numberFormat.format(heater.temperature)} °C',
                     style: innerTheme.textTheme.titleLarge,
                   ),
-                  Text(genericHeater.target > 0
+                  Text(heater.target > 0
                       ? 'pages.dashboard.general.temp_card.heater_on'.tr(
-                          args: [numberFormat.format(genericHeater.target)],
+                          args: [numberFormat.format(heater.target)],
                         )
                       : 'general.off'.tr()),
                 ],
               ),
               AnimatedOpacity(
-                opacity: genericHeater.temperature > _stillHotTemp ? 1 : 0,
+                opacity: heater.temperature > _stillHotTemp ? 1 : 0,
                 duration: kThemeAnimationDuration,
                 child: Tooltip(
                   message: '$name is still hot!',
@@ -246,13 +259,12 @@ class _HeaterMixinTile extends HookConsumerWidget {
 }
 
 class _TemperatureSensorTile extends HookConsumerWidget {
-  const _TemperatureSensorTile({super.key, required this.sensorProvider});
-  final ProviderListenable<TemperatureSensor> sensorProvider;
+  const _TemperatureSensorTile({super.key, required this.temperatureSensor});
+
+  final TemperatureSensor temperatureSensor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureSensor temperatureSensor = ref.watch(sensorProvider);
-
     var spots = useRef(<FlSpot>[]);
     var temperatureHistory = temperatureSensor.temperatureHistory;
 
@@ -298,18 +310,18 @@ class _TemperatureFanTile extends HookConsumerWidget {
 
   const _TemperatureFanTile({
     super.key,
-    required this.tempFanProvider,
+    required this.temperatureFan,
     required this.machineUUID,
   });
-  final ProviderListenable<TemperatureFan> tempFanProvider;
+
+  final TemperatureFan temperatureFan;
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureFan temperatureFan = ref.watch(tempFanProvider);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands)).requireValue;
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
     var spots = useRef(<FlSpot>[]);
     var temperatureHistory = temperatureFan.temperatureHistory;
@@ -360,6 +372,65 @@ class _TemperatureFanTile extends HookConsumerWidget {
   }
 }
 
+class _ZThermalAdjustTile extends HookConsumerWidget {
+  static const double icoSize = 30;
+
+  const _ZThermalAdjustTile({
+    super.key,
+    required this.zThermalAdjust,
+    required this.machineUUID,
+  });
+
+  final ZThermalAdjust zThermalAdjust;
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    var klippyCanReceiveCommands =
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
+
+    var spots = useRef(<FlSpot>[]);
+    var temperatureHistory = zThermalAdjust.temperatureHistory;
+    //
+    if (temperatureHistory != null) {
+      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+      spots.value.clear();
+      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+    }
+    var beautifiedNamed = beautifyName(zThermalAdjust.name);
+    var numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+
+    return GraphCardWithButton(
+      plotSpots: spots.value,
+      buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
+      onTap: null,
+      builder: (context) => Tooltip(
+        message: beautifiedNamed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              beautifiedNamed,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              '${numberFormat.format(zThermalAdjust.temperature)} °C',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Text(
+              zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 @riverpod
 class _Controller extends _$Controller {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
@@ -368,11 +439,13 @@ class _Controller extends _$Controller {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
+    logger.i('Rebuilding HeaterSensorCard for machine $machineUUID');
     ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
 
+    var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.tempOrdering));
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
     );
@@ -382,39 +455,55 @@ class _Controller extends _$Controller {
     // Con:
     // - More boilerPlate
     // - Potentially more updates since more streams are listened to?
-    var extruders = ref.watchAsSubject(printerProviderr.selectAs((value) => value.extruders));
-    var genericHeaters = ref.watchAsSubject(printerProviderr.selectAs(
-        (value) => value.genericHeaters.values.where((e) => !e.name.startsWith('_')).toList(growable: false)));
-    var temperatureSensors = ref.watchAsSubject(printerProviderr.selectAs(
-      (value) => value.temperatureSensors.values.where((e) => !e.name.startsWith('_')).toList(growable: false),
-    ));
-    var temperatureFans = ref.watchAsSubject(printerProviderr.selectAs(
-      (value) =>
-          value.fans.values.whereType<TemperatureFan>().where((e) => !e.name.startsWith('_')).toList(growable: false),
-    ));
-    var heaterBed = ref.watchAsSubject(printerProviderr.selectAs((value) => value.heaterBed));
 
-    yield* Rx.combineLatest6(
+    final senors = ref.watchAsSubject(printerProviderr.selectAs((value) {
+      final extruders = value.extruders;
+      final genericHeaters = value.genericHeaters;
+      final tempSensors = value.temperatureSensors;
+      final tempFans = value.fans.values.whereType<TemperatureFan>().toList();
+      final zAdjust = value.zThermalAdjust;
+
+      return [
+        ...extruders,
+        if (value.heaterBed != null) value.heaterBed!,
+        ...genericHeaters.values,
+        ...tempSensors.values,
+        ...tempFans,
+        if (zAdjust != null) zAdjust,
+      ];
+    }))
+        // Use map here since this prevents to many operations if the original list not changes!
+        .map((sensors) {
+      var output = <SensorMixin>[];
+
+      for (var sensor in sensors) {
+        if (sensor.name.startsWith('_')) continue;
+        output.add(sensor);
+      }
+
+      // Sort output by ordering, if ordering is not found it will be placed at the end
+      output.sort((a, b) {
+        var aIndex = ordering.indexWhere((element) => element.name == a.name);
+        var bIndex = ordering.indexWhere((element) => element.name == b.name);
+
+        if (aIndex == -1) aIndex = output.length;
+        if (bIndex == -1) bIndex = output.length;
+
+        return aIndex.compareTo(bIndex);
+      });
+      return output;
+    });
+
+    yield* Rx.combineLatest2(
       klippyCanReceiveCommands,
-      extruders,
-      genericHeaters,
-      temperatureSensors,
-      temperatureFans,
-      heaterBed,
-      (a, b, c, d, e, f) => _Model(
-        klippyCanReceiveCommands: a,
-        extruders: b,
-        genericHeaters: c,
-        temperatureSensors: d,
-        temperatureFans: e,
-        heaterBed: f,
-      ),
+      senors,
+      (a, b) => _Model(klippyCanReceiveCommands: a, sensors: b),
     );
   }
 
   adjustHeater(HeaterMixin heater) {
     double? maxValue;
-    var configFile = ref.read(printerProvider(machineUUID).selectAs((value) => value.configFile)).requireValue;
+    var configFile = ref.read(printerProvider(machineUUID).selectRequireValue((value) => value.configFile));
     if (heater is Extruder) {
       maxValue = configFile.extruders[heater.name]?.maxTemp;
     } else if (heater is HeaterBed) {
@@ -473,18 +562,49 @@ class _Controller extends _$Controller {
   }
 }
 
+class _PreviewController extends _Controller {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    ref.keepAliveFor();
+    return Stream.value(_Model(
+      klippyCanReceiveCommands: true,
+      sensors: [
+        Extruder(
+          temperature: 150,
+          target: 200,
+          num: 0,
+          lastHistory: DateTime.now(),
+          temperatureHistory: [60, 100, 120, 150],
+        ),
+        HeaterBed(
+          temperature: 40,
+          target: 60,
+          lastHistory: DateTime.now(),
+          temperatureHistory: [100, 88, 70, 40, 44, 52, 60],
+        )
+      ],
+    ));
+  }
+
+  @override
+  // ignore: no-empty-block
+  adjustHeater(HeaterMixin heater) {
+    // No action due to preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  editTemperatureFan(TemperatureFan temperatureFan) {
+    // No action due to preview
+  }
+}
+
 @freezed
 class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
-    required List<Extruder> extruders,
-    required List<GenericHeater> genericHeaters,
-    required List<TemperatureSensor> temperatureSensors,
-    required List<TemperatureFan> temperatureFans,
-    HeaterBed? heaterBed,
+    required List<SensorMixin> sensors,
   }) = __Model;
-
-  bool get hasPrintBed => heaterBed != null;
 }

@@ -6,8 +6,8 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:common/data/model/moonraker_db/gcode_macro.dart';
-import 'package:common/data/model/moonraker_db/macro_group.dart';
+import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
+import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';

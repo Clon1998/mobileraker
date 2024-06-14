@@ -6,6 +6,8 @@
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
+import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
+import 'package:common/data/dto/machine/z_thermal_adjust.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -34,6 +36,23 @@ part 'printer.freezed.dart';
 class PrinterBuilder {
   PrinterBuilder();
 
+  factory PrinterBuilder.preview() {
+    var toolhead = const Toolhead();
+    var gCodeMove = const GCodeMove();
+    var motionReport = const MotionReport();
+    var print = const PrintStats();
+    var configFile = ConfigFile();
+    var virtualSdCard = const VirtualSdCard();
+
+    return PrinterBuilder()
+      ..toolhead = toolhead
+      ..gCodeMove = gCodeMove
+      ..motionReport = motionReport
+      ..print = print
+      ..configFile = configFile
+      ..virtualSdCard = virtualSdCard;
+  }
+
   PrinterBuilder.fromPrinter(Printer printer)
       : toolhead = printer.toolhead,
         extruders = printer.extruders,
@@ -46,6 +65,7 @@ class PrinterBuilder {
         virtualSdCard = printer.virtualSdCard,
         manualProbe = printer.manualProbe,
         bedScrew = printer.bedScrew,
+        screwsTiltAdjust = printer.screwsTiltAdjust,
         firmwareRetraction = printer.firmwareRetraction,
         bedMesh = printer.bedMesh,
         fans = printer.fans,
@@ -58,6 +78,7 @@ class PrinterBuilder {
         leds = printer.leds,
         genericHeaters = printer.genericHeaters,
         filamentSensors = printer.filamentSensors,
+        zThermalAdjust = printer.zThermalAdjust,
         currentFile = printer.currentFile;
 
   Toolhead? toolhead;
@@ -73,9 +94,11 @@ class PrinterBuilder {
   VirtualSdCard? virtualSdCard;
   ManualProbe? manualProbe;
   BedScrew? bedScrew;
+  ScrewsTiltAdjust? screwsTiltAdjust;
   GCodeFile? currentFile;
   FirmwareRetraction? firmwareRetraction;
   BedMesh? bedMesh;
+  ZThermalAdjust? zThermalAdjust;
   Map<String, NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
@@ -120,6 +143,7 @@ class PrinterBuilder {
       virtualSdCard: virtualSdCard!,
       manualProbe: manualProbe,
       bedScrew: bedScrew,
+      screwsTiltAdjust: screwsTiltAdjust,
       firmwareRetraction: firmwareRetraction,
       bedMesh: bedMesh,
       currentFile: currentFile,
@@ -131,6 +155,7 @@ class PrinterBuilder {
       leds: Map.unmodifiable(leds),
       genericHeaters: Map.unmodifiable(genericHeaters),
       filamentSensors: Map.unmodifiable(filamentSensors),
+      zThermalAdjust: zThermalAdjust,
     );
     return printer;
   }
@@ -154,9 +179,11 @@ class Printer with _$Printer {
     required VirtualSdCard virtualSdCard,
     ManualProbe? manualProbe,
     BedScrew? bedScrew,
+    ScrewsTiltAdjust? screwsTiltAdjust,
     FirmwareRetraction? firmwareRetraction,
     BedMesh? bedMesh,
     GCodeFile? currentFile,
+    ZThermalAdjust? zThermalAdjust,
     @Default({}) Map<String, NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<String, OutputPin> outputPins,

@@ -4,6 +4,7 @@
  */
 
 //TODO Decide regarding null values or not!
+import 'package:common/data/dto/config/config_screws_tilt_adjust.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:flutter/foundation.dart';
 
@@ -35,6 +36,7 @@ class ConfigFile {
   ConfigHeaterBed? configHeaterBed;
   ConfigPrintCoolingFan? configPrintCoolingFan;
   ConfigBedScrews? configBedScrews;
+  ConfigScrewsTiltAdjust? configScrewsTiltAdjust;
   Map<String, ConfigExtruder> extruders = {};
   Map<String, ConfigOutput> outputs = {};
   Map<String, ConfigStepper> steppers = {};
@@ -100,6 +102,8 @@ class ConfigFile {
         genericHeaters[objectName] = ConfigHeaterGeneric.fromJson(objectName, jsonChild);
       } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.bed_screws)) {
         configBedScrews = ConfigBedScrews.fromJson(jsonChild);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.screws_tilt_adjust)) {
+        configScrewsTiltAdjust = ConfigScrewsTiltAdjust.fromJson(jsonChild);
       }
     }
 

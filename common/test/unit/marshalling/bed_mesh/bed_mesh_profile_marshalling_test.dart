@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -69,6 +69,6 @@ void main() {
 
     expect(meshProfile, isNotNull);
     expect(meshProfile.name, 'Test Plate');
-    expect(meshProfile.points.length, 25);
+    expect(meshProfile.points.length, 5);
   });
 }

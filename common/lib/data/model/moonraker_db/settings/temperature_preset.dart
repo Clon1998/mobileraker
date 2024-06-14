@@ -6,7 +6,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-import 'stamped_entity.dart';
+import '../stamped_entity.dart';
 
 part 'temperature_preset.g.dart';
 
@@ -27,8 +27,7 @@ class TemperaturePreset extends StampedEntity {
   int bedTemp; // Safe values
   int extruderTemp; // Safe values
 
-  factory TemperaturePreset.fromJson(Map<String, dynamic> json) =>
-      _$TemperaturePresetFromJson(json);
+  factory TemperaturePreset.fromJson(Map<String, dynamic> json) => _$TemperaturePresetFromJson(json);
 
   Map<String, dynamic> toJson() => _$TemperaturePresetToJson(this);
 
@@ -42,12 +41,17 @@ class TemperaturePreset extends StampedEntity {
       identical(this, other) ||
       other is TemperaturePreset &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
-          uuid == other.uuid &&
-          bedTemp == other.bedTemp &&
-          extruderTemp == other.extruderTemp;
+          (identical(other.name, name) || name == other.name) &&
+          (identical(other.uuid, uuid) || uuid == other.uuid) &&
+          (identical(other.bedTemp, bedTemp) || bedTemp == other.bedTemp) &&
+          (identical(other.extruderTemp, extruderTemp) || extruderTemp == other.extruderTemp);
 
   @override
-  int get hashCode =>
-      name.hashCode ^ uuid.hashCode ^ bedTemp.hashCode ^ extruderTemp.hashCode;
+  int get hashCode => Object.hash(
+        runtimeType,
+        name,
+        uuid,
+        bedTemp,
+        extruderTemp,
+      );
 }

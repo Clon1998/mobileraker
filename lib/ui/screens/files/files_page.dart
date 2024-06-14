@@ -16,6 +16,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -30,15 +31,14 @@ import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../components/connection/machine_connection_guard.dart';
 
 class FilesPage extends ConsumerWidget {
   const FilesPage({super.key});
@@ -50,7 +50,7 @@ class FilesPage extends ConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav(),
       floatingActionButton: const _Fab(),
-      body: ConnectionStateView(
+      body: MachineConnectionGuard(
         onConnected: (_, __) => const _FilesBody(),
         skipKlipperReady: true,
       ),
@@ -204,13 +204,23 @@ class _FilesBody extends ConsumerWidget {
     var theme = Theme.of(context);
 
     var controller = ref.watch(filesPageControllerProvider.notifier);
+    var borderSize = BorderSide(width: 0.5, color: theme.colorScheme.primary);
 
-    return WillPopScope(
-      onWillPop: controller.onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await controller.onWillPop();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
+          border: Border(bottom: borderSize, left: borderSize, right: borderSize),
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
@@ -363,18 +373,25 @@ class _FilesError extends ConsumerWidget {
   }
 }
 
-class _FilesData extends ConsumerWidget {
+class _FilesData extends ConsumerStatefulWidget {
   const _FilesData({super.key, required this.files});
 
   final FolderContentWrapper files;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState createState() => _FilesDataState();
+}
+
+class _FilesDataState extends ConsumerState<_FilesData> {
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  @override
+  Widget build(BuildContext context) {
     var model = ref.watch(filesPageControllerProvider);
     var controller = ref.watch(filesPageControllerProvider.notifier);
 
-    int lenFolders = files.folders.length;
-    int lenGcodes = files.files.length;
+    int lenFolders = widget.files.folders.length;
+    int lenGcodes = widget.files.files.length;
     int lenTotal = lenFolders + lenGcodes;
 
     // Add one of the .. folder to back
@@ -385,7 +402,7 @@ class _FilesData extends ConsumerWidget {
       curve: Curves.easeOutCubic,
       child: SmartRefresher(
         header: const WaterDropMaterialHeader(),
-        controller: RefreshController(),
+        controller: _refreshController,
         onRefresh: controller.refreshFiles,
         child: (lenTotal == 0)
             ? ListTile(
@@ -421,22 +438,28 @@ class _FilesData extends ConsumerWidget {
                   }
 
                   if (index < lenFolders) {
-                    Folder folder = files.folders[index];
-                    return _FolderItem(folder: folder, key: ValueKey(folder));
-                  }
-                  RemoteFile file = files.files[index - lenFolders];
-                  if (file is GCodeFile) {
-                    return _GCodeFileItem(key: ValueKey(file), gCode: file);
-                  }
-                  if (file.isImage) {
-                    return _ImageFileItem(key: ValueKey(file), file: file);
-                  }
+              Folder folder = widget.files.folders[index];
+              return _FolderItem(folder: folder, key: ValueKey(folder));
+            }
+            RemoteFile file = widget.files.files[index - lenFolders];
+            if (file is GCodeFile) {
+              return _GCodeFileItem(key: ValueKey(file), gCode: file);
+            }
+            if (file.isImage) {
+              return _ImageFileItem(key: ValueKey(file), file: file);
+            }
 
                   return _FileItem(file: file, key: ValueKey(file));
                 },
               ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 }
 

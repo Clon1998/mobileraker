@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:common/data/model/moonraker_db/gcode_macro.dart';
+import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';

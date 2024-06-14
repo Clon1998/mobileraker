@@ -7,7 +7,7 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/config/config_heater_bed.dart';
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/moonraker_db/temperature_preset.dart';
+import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
@@ -16,6 +16,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/ui/components/warning_card.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -30,20 +31,23 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
-import 'package:mobileraker/ui/components/warning_card.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/misc_ordering_list.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/sensor_ordering_list.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
+import 'components/fans_ordering_list.dart';
 import 'components/macro_group_list.dart';
 import 'printers_edit_controller.dart';
 
 class PrinterEditPage extends ConsumerWidget {
   const PrinterEditPage({super.key, required this.machine});
+
   final Machine machine;
 
   @override
@@ -555,6 +559,13 @@ class _RemoteSettings extends ConsumerWidget {
                   ),
                 ),
                 const TemperaturePresetList(),
+                const Divider(),
+                SensorOrderingList(machineUuid: machineUUID),
+                const Divider(),
+                FansOrderingList(machineUuid: machineUUID),
+                const Divider(),
+                MiscOrderingList(machineUuid: machineUUID),
+                const Divider(),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: TextButton.icon(
@@ -716,6 +727,7 @@ class _TempPresetItem extends HookConsumerWidget {
     required this.idx,
     required this.machine,
   });
+
   final TemperaturePreset preset;
   final int idx;
   final Machine machine; // We cant use the provider here since the reordable cant use the provider while dragging!
@@ -901,9 +913,17 @@ class _SegmentsState<T> extends State<Segments<T>> {
     );
   }
 
-  WillPopScope buildEditing(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => cancel(),
+  Widget buildEditing(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await cancel();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

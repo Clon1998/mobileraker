@@ -316,6 +316,31 @@
     "horizontal_move_z": 5,
     "probe_height": 0
   },
+  "screws_tilt_adjust": {
+    "screw1": [
+      5,
+      30
+    ],
+    "screw1_name": "front left screw",
+    "screw2": [
+      155,
+      30
+    ],
+    "screw2_name": "front right screw",
+    "screw3": [
+      155,
+      190
+    ],
+    "screw3_name": "rear right screw",
+    "screw4": [
+      5,
+      190
+    ],
+    "screw4_name": "rear left screw",
+    "screw_thread": "CW-M3",
+    "horizontal_move_z": 10,
+    "speed": 50
+  },
   "autotune_tmc stepper_x": {
     "stealth_and_spread": false,
     "stealth": false,

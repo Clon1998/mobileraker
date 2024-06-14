@@ -10,13 +10,13 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/info_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
-import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
@@ -33,9 +33,14 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/filament_detail_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/spool_detail_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/vendor_detail_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
-import 'package:mobileraker_pro/pro_routes.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
+import 'package:mobileraker_pro/spoolman/dto/filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
@@ -43,7 +48,7 @@ import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
 
-enum AppRoute {
+enum AppRoute implements RouteDefinitionMixin {
   dashBoard,
   overview,
   printerEdit,
@@ -64,6 +69,10 @@ enum AppRoute {
   videoPlayer,
   tool,
   beltTuner,
+  spoolman,
+  spoolman_vendorDetails,
+  spoolman_spoolDetails,
+  spoolman_filamentDetails;
 }
 
 @riverpod
@@ -235,8 +244,35 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       ),
       GoRoute(
         path: '/spoolman',
-        name: ProRoutes.spoolman.name,
+        name: AppRoute.spoolman.name,
         builder: (context, state) => const SpoolmanPage(),
+        routes: [
+          GoRoute(
+            path: 'spool-details',
+            name: AppRoute.spoolman_spoolDetails.name,
+            builder: (context, state) => switch (state.extra) {
+              [String machineUUID, Spool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
+              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+            },
+          ),
+          GoRoute(
+            path: 'filament-details',
+            name: AppRoute.spoolman_filamentDetails.name,
+            builder: (context, state) => switch (state.extra) {
+              [String machineUUID, Filament filament] =>
+                FilamentDetailPage(filament: filament, machineUUID: machineUUID),
+              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+            },
+          ),
+          GoRoute(
+            path: 'vendor-details',
+            name: AppRoute.spoolman_vendorDetails.name,
+            builder: (context, state) => switch (state.extra) {
+              [String machineUUID, Vendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
+              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+            },
+          ),
+        ],
       ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),

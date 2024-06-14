@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/server/klipper_system_info.dart';
 import 'package:common/data/dto/server/service_status.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -14,25 +17,40 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 
-class NonPrintingBottomSheet extends StatefulHookConsumerWidget {
+class NonPrintingBottomSheet extends ConsumerStatefulWidget {
   const NonPrintingBottomSheet({super.key});
 
   @override
   ConsumerState<NonPrintingBottomSheet> createState() => _NonPrintingBottomSheetState();
 }
 
+typedef _ShowConfirmAction = void Function(String title, String body, VoidCallback action, [String? hint]);
+
 class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet> {
   final GlobalKey _homeKey = GlobalKey();
 
+  final ValueNotifier<int> _page = ValueNotifier(0);
+
   double _sheetHeight = 300;
+
+  bool _closing = false;
+
+  String _confirmTitle = '';
+
+  String _confirmBody = '';
+
+  VoidCallback? _confirmAction;
+
+  String? _confirmHint;
 
   @override
   void initState() {
@@ -41,15 +59,17 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
     ref.listenManual(jrpcClientStateSelectedProvider, (previous, next) {
       if (next.valueOrNull != ClientState.connected) {
         // Close the bottom sheet if the client is disconnected
-        Navigator.of(context).pop();
+        if (mounted && !_closing) {
+          logger.i('Closing bottom sheet because client is disconnected');
+          Navigator.of(context).pop();
+          _closing = true;
+        }
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var page = useState(0);
-
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
@@ -57,9 +77,26 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
           duration: kThemeAnimationDuration,
           curve: Curves.easeInOut,
           alignment: Alignment.bottomCenter,
-          child: (page.value == 0)
-              ? _Home(key: _homeKey, pageController: page)
-              : _ManageServices(key: const Key('npMs'), defaultHeight: _sheetHeight, pageController: page),
+          child: ValueListenableBuilder(
+            valueListenable: _page,
+            builder: (ctx, value, _) => switch (value) {
+              1 => _ManageServices(
+                  key: const Key('npMs'),
+                  defaultHeight: _sheetHeight,
+                  pageController: _page,
+                  showConfirm: _showConfirm,
+                ),
+              2 => _Confirm(
+                  key: const Key('npConfirm'),
+                  pageController: _page,
+                  title: _confirmTitle,
+                  body: _confirmBody,
+                  hint: _confirmHint,
+                  action: _confirmAction!,
+                ),
+              _ => _Home(key: _homeKey, pageController: _page, showConfirm: _showConfirm),
+            },
+          ),
         ),
       ),
     );
@@ -72,16 +109,35 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
     }
     return _sheetHeight;
   }
+
+  void _showConfirm(String title, String body, VoidCallback action, [String? hint]) {
+    setState(() {
+      _confirmTitle = title;
+      _confirmBody = body;
+      _confirmHint = hint;
+      _confirmAction = action;
+      _page.value = 2;
+    });
+  }
+
+  @override
+  void dispose() {
+    _page.dispose();
+    super.dispose();
+  }
 }
 
-class _Home extends HookConsumerWidget {
-  const _Home({super.key, required this.pageController});
+class _Home extends ConsumerWidget {
+  const _Home({super.key, required this.pageController, required _ShowConfirmAction showConfirm})
+      : _showConfirm = showConfirm;
 
   final ValueNotifier<int> pageController;
 
+  final _ShowConfirmAction _showConfirm;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyService = ref.read(klipperServiceSelectedProvider);
+    var klippyService = ref.watch(klipperServiceSelectedProvider);
 
     var themeData = Theme.of(context);
     return Column(
@@ -96,12 +152,13 @@ class _Home extends HookConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: _btnAction(context, klippyService.shutdownHost),
+                  onPressed: () => _btnActionWithConfirm(klippyService.shutdownHost, 'pi_shutdown'),
+                  onLongPress: _btnAction(context, klippyService.shutdownHost),
                   style: OutlinedButton.styleFrom(
                     backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
                     foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
                   ),
-                  child: const Text('general.shutdown').tr(),
+                  child: AutoSizeText(tr('general.shutdown'), maxLines: 1),
                 ),
               ),
             ),
@@ -121,8 +178,9 @@ class _Home extends HookConsumerWidget {
                     backgroundColor: themeData.extension<CustomColors>()?.warning ?? Colors.red,
                     foregroundColor: themeData.extension<CustomColors>()?.onWarning ?? Colors.white,
                   ),
-                  onPressed: _btnAction(context, klippyService.rebootHost),
-                  child: const Text('general.restart').tr(),
+                  onPressed: () => _btnActionWithConfirm(klippyService.rebootHost, 'pi_restart'),
+                  onLongPress: _btnAction(context, klippyService.rebootHost),
+                  child: AutoSizeText(tr('general.restart'), maxLines: 1),
                 ),
               ),
             ),
@@ -130,14 +188,16 @@ class _Home extends HookConsumerWidget {
         ),
         const SizedBox(height: 5),
         OutlinedButton(
-          onPressed: _btnAction(context, klippyService.restartMCUs),
-          child: Text(
-            '${tr('general.firmware')} ${tr('@.lower:general.restart')}',
-          ),
+          onPressed: () => _btnActionWithConfirm(klippyService.restartMCUs, 'fw_restart'),
+          onLongPress: _btnAction(context, klippyService.restartMCUs),
+          child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
         ),
         OutlinedButton(
           onPressed: () => pageController.value = 1,
-          child: const Text('bottom_sheets.non_printing.manage_service.title').tr(),
+          child: AutoSizeText(
+            tr('bottom_sheets.non_printing.manage_service.title'),
+            maxLines: 1,
+          ),
         ),
         // OutlinedButton(
         //   onPressed: _btnAction(context, klippyService.restartMoonraker),
@@ -147,7 +207,10 @@ class _Home extends HookConsumerWidget {
           onPressed: () => ref
               .read(bottomSheetServiceProvider)
               .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
-          child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),
+          child: AutoSizeText(
+            tr('dialogs.supporter_perks.job_queue_perk.title'),
+            maxLines: 1,
+          ),
         ),
 
         /// Dont strech the button
@@ -162,6 +225,15 @@ class _Home extends HookConsumerWidget {
     );
   }
 
+  Future<void> _btnActionWithConfirm(VoidCallback toCall, [String? gender]) async {
+    _showConfirm(
+      tr('bottom_sheets.non_printing.confirm_action.title'),
+      tr('bottom_sheets.non_printing.confirm_action.body', gender: gender),
+      toCall,
+      tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
+    );
+  }
+
   VoidCallback _btnAction(BuildContext ctx, VoidCallback toCall) {
     return () {
       Navigator.of(ctx).pop();
@@ -171,11 +243,15 @@ class _Home extends HookConsumerWidget {
 }
 
 class _ManageServices extends ConsumerWidget {
-  const _ManageServices({super.key, required this.defaultHeight, required this.pageController});
+  const _ManageServices(
+      {super.key, required this.defaultHeight, required this.pageController, required _ShowConfirmAction showConfirm})
+      : _showConfirm = showConfirm;
 
   final double defaultHeight;
 
   final ValueNotifier<int> pageController;
+
+  final _ShowConfirmAction _showConfirm;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -194,7 +270,10 @@ class _ManageServices extends ConsumerWidget {
       children: [
         Flexible(
           child: switch (systemInfo) {
-            AsyncValue(hasValue: true, :final value?) => _ServiceList(systemInfo: value),
+            AsyncValue(hasValue: true, :final value?) => _ServiceList(
+                systemInfo: value,
+                showConfirm: _showConfirm,
+              ),
             AsyncLoading() => const Center(
                 child: CircularProgressIndicator.adaptive(),
               ),
@@ -219,9 +298,12 @@ class _ManageServices extends ConsumerWidget {
 }
 
 class _ServiceList extends ConsumerWidget {
-  const _ServiceList({super.key, required this.systemInfo});
+  const _ServiceList({super.key, required this.systemInfo, required _ShowConfirmAction showConfirm})
+      : _showConfirm = showConfirm;
 
   final KlipperSystemInfo systemInfo;
+
+  final _ShowConfirmAction _showConfirm;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -302,6 +384,15 @@ class _ServiceList extends ConsumerWidget {
       ],
     );
   }
+
+  void _confirmation(String service, String kind, VoidCallback action) {
+    _showConfirm(
+      tr('bottom_sheets.non_printing.confirm_action.title'),
+      tr('bottom_sheets.non_printing.confirm_action.body', gender: 'service_$kind', args: [service]),
+      action,
+      tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
+    );
+  }
 }
 
 class _SystemInfoProviderError extends ConsumerWidget {
@@ -331,6 +422,70 @@ class _SystemInfoProviderError extends ConsumerWidget {
         label: const Text('general.retry').tr(),
       ),
     );
+  }
+}
+
+class _Confirm extends ConsumerWidget {
+  const _Confirm({
+    super.key,
+    required this.pageController,
+    required this.title,
+    required this.body,
+    required this.action,
+    this.hint,
+  });
+
+  final ValueNotifier<int> pageController;
+
+  final String title;
+
+  final String body;
+
+  final String? hint;
+
+  final VoidCallback action;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+    var cc = themeData.extension<CustomColors>();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title,
+          style: themeData.textTheme.titleLarge,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 5),
+        Text(body, style: themeData.textTheme.titleSmall),
+        const SizedBox(height: 10),
+        if (hint != null) Text(hint!, style: themeData.textTheme.bodySmall, textAlign: TextAlign.center),
+
+        /// Dont strech the button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FilledButton.icon(
+              onPressed: () => pageController.value = 0,
+              label: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+              icon: const Icon(Icons.keyboard_arrow_left),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
+              onPressed: () => _onConfirm(context),
+              child: const Text('general.confirm').tr(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  _onConfirm(BuildContext ctx) {
+    action();
+    ctx.pop();
   }
 }
 

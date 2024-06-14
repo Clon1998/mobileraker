@@ -1,5 +1,61 @@
 # Mobileraker - Changelog
 
+## [2.6.19] - 2024-05-09
+
+### Enhancements
+
+- Implemented support for the `Z Thermal Adjust` sensor in the Temperature
+  card. [#340](https://github.com/Clon1998/mobileraker/issues/340)
+- Enhanced animations and transitions on the dashboard page.
+- Updated Number Edit Dialog in slider mode to include buttons for incremental value adjustment.
+- Refined coloring of circular print progress bar to align with the theme.
+- MJPEG webcams now exhibit smoother transition when opened in fullscreen.
+
+### Bug Fixes
+
+- Eliminated dependency on firebase_ui_auth to resolve crashing on Android attributed to dynamic
+  links. [#359](https://github.com/Clon1998/mobileraker/issues/359)
+- Rectified overview page "jumping" in certain scenarios.
+- Corrected faulty state of dashboard cards in case of prolonged or failed klipper/moonraker data fetching.
+
+## [2.6.18] - 2024-04-30
+
+Hotfixing broken overview page
+
+## [2.6.17] - 2024-04-29
+
+### Enhancements
+
+- Introduced a new feature in machine settings that allows users to customize the order of sensors, heaters, fans, and
+  outputs according to their preferences in their respective cards.
+
+### Bug Fixes
+
+- Optimized the screw tilt dialog to prevent it from triggering excessively when the app was backgrounded for a long
+  period. [#362](https://github.com/Clon1998/mobileraker/issues/362)
+
+## [2.6.16] - 2024-04-26
+
+### Bug Fixes
+
+- Fixed default name while adding a new macro group.
+- Fixed color picker on IOS. [#360](https://github.com/Clon1998/mobileraker/issues/360)
+
+### Localization
+
+- Updated the Hungarian translation, thanks
+  to [@AntoszHUN](https://github.com/AntoszHUN). [#353](https://github.com/Clon1998/mobileraker/pull/353)
+
+## [2.6.15] - 2024-04-24
+
+### Bug Fixes
+
+- Fixed an issue that, in some cases, prevented the app from refreshing a printer during a pull-to-refresh action.
+- The webcam card no longer displays an error if no webcams were found.
+- Filament runout sensor and calibration watcher now work correctly after switching between printers.
+- Added support for the `screws_tilt_adjust` dialog. [#175](https://github.com/Clon1998/mobileraker/issues/175)
+- WebRtc webcam now pauses when the app is in the background.
+
 ## [2.6.14] - 2024-03-25
 
 ### Changed Features

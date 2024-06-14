@@ -54,3 +54,4 @@ GoogleService-Info.plist
 
 *.patch
 /lib/license.dart
+firebase.json

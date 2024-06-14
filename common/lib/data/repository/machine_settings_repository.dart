@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import '../model/moonraker_db/machine_settings.dart';
+import '../model/moonraker_db/settings/machine_settings.dart';
 
 abstract class MachineSettingsRepository {
   Future<void> update(MachineSettings machineSettings);

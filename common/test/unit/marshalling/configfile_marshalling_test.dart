@@ -188,5 +188,21 @@ void main() {
     expect(config.configBedScrews?.probeSpeed, 5);
     expect(config.configBedScrews?.speed, 50);
     expect(config.configBedScrews?.screws.length, 3);
+
+    // Verify ScrewsTiltAdjust config
+    expect(config.configScrewsTiltAdjust, isNotNull);
+    expect(config.configScrewsTiltAdjust?.screwThread, 'CW-M3');
+    expect(config.configScrewsTiltAdjust?.horizontalMoveZ, 10);
+    expect(config.configScrewsTiltAdjust?.speed, 50);
+
+    expect(config.configScrewsTiltAdjust?.screws.length, 4);
+    expect(config.configScrewsTiltAdjust?.screws[0].name, 'front left screw');
+    expect(config.configScrewsTiltAdjust?.screws[0].position, [5, 30]);
+    expect(config.configScrewsTiltAdjust?.screws[1].name, 'front right screw');
+    expect(config.configScrewsTiltAdjust?.screws[1].position, [155, 30]);
+    expect(config.configScrewsTiltAdjust?.screws[2].name, 'rear right screw');
+    expect(config.configScrewsTiltAdjust?.screws[2].position, [155, 190]);
+    expect(config.configScrewsTiltAdjust?.screws[3].name, 'rear left screw');
+    expect(config.configScrewsTiltAdjust?.screws[3].position, [5, 190]);
   });
 }

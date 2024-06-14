@@ -3,21 +3,26 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/fans/fan.dart';
 import 'package:common/data/dto/machine/fans/generic_fan.dart';
 import 'package:common/data/dto/machine/fans/named_fan.dart';
 import 'package:common/data/dto/machine/fans/print_fan.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,35 +33,36 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../components/adaptive_horizontal_scroll.dart';
 import '../../../components/card_with_button.dart';
-import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 import '../../../components/spinning_fan.dart';
 
 part 'fans_card.freezed.dart';
 part 'fans_card.g.dart';
 
-class FansCard extends ConsumerWidget {
+class FansCard extends HookConsumerWidget {
   const FansCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_fansCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    useAutomaticKeepAlive();
+    logger.i('Rebuilding fans card for $machineUUID');
 
-    if (showLoading) {
-      return const _FansCardLoading();
-    }
-    // logger.i('Rebuilding fans card');
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardTitle(machineUUID: machineUUID),
-          _CardBody(machineUUID: machineUUID),
-          const SizedBox(height: 8),
-        ],
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'FansCard-$machineUUID',
+      toGuard: _fansCardControllerProvider(machineUUID).selectAs((data) => data.fans.isNotEmpty),
+      childOnLoading: const _FansCardLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CardTitle(machineUUID: machineUUID),
+            _CardBody(machineUUID: machineUUID),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -151,19 +157,10 @@ class _CardBody extends ConsumerWidget {
     // logger.i('Rebuilding fans card body');
 
     var fansCount = ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.fans.length));
-    var hasPrintFan =
-        ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.hasPrintFan));
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: 'fans$machineUUID',
       children: [
-        // PrintFan
-        if (hasPrintFan)
-          _Fan(
-            fanProvider: _fansCardControllerProvider(machineUUID).selectRequireValue((value) => value.printFan),
-            machineUUID: machineUUID,
-          ),
-        // All other fans
         for (var i = 0; i < fansCount; i++)
           _Fan(
             // ignore: avoid-unsafe-collection-methods
@@ -204,7 +201,7 @@ class _Fan extends ConsumerWidget {
 
     VoidCallback? onTap = switch (fan) {
       GenericFan() when klippyCanReceiveCommands => () => controller.onEditGenericFan(fan),
-      PrintFan() when klippyCanReceiveCommands => controller.onEditPartFan,
+      PrintFan() when klippyCanReceiveCommands => () => controller.onEditPartFan(fan),
       _ => null,
     };
 
@@ -279,29 +276,70 @@ class _FansCardController extends _$FansCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    // logger.i('Rebuilding fansCardController for $machineUUID');
+    logger.i('Rebuilding fansCardController for $machineUUID');
 
     // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
     // This means that if the value is the same, the widget will not rebuild.
     // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
-    var printFan = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.printFan));
-    var fans = ref.watchAsSubject(printerProvider(machineUUID).selectAs(
-        (data) => data.fans.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
+    var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.fanOrdering));
+
+    int getOrderingIndex(Fan fan) {
+      return ordering.indexWhere((element) {
+        return switch (fan) {
+          NamedFan() => element.name == fan.name,
+          PrintFan() => element.kind == ConfigFileObjectIdentifiers.fan,
+          _ => false
+        };
+      });
+    }
+
     var klippyCanReceiveCommands =
         ref.watchAsSubject(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
 
-    yield* Rx.combineLatest3(
-      printFan,
-      fans,
+    var fans = ref
+        .watchAsSubject(printerProvider(machineUUID).selectAs((value) {
+      var printFan = value.printFan;
+      var fans = value.fans;
+
+      return [
+        if (printFan != null) printFan,
+        ...fans.values,
+      ];
+    }))
+        // Use map here since this prevents to many operations if the original list not changes!
+        .map((fans) {
+      var output = <Fan>[];
+
+      for (var fan in fans) {
+        if (fan case NamedFan(name: var name) when name.startsWith('_')) continue;
+        output.add(fan);
+      }
+
+      // Sort output by ordering, if ordering is not found it will be placed at the end
+      output.sort((a, b) {
+        var aIndex = getOrderingIndex(a);
+        var bIndex = getOrderingIndex(b);
+
+        if (aIndex == -1) aIndex = output.length;
+        if (bIndex == -1) bIndex = output.length;
+
+        return aIndex.compareTo(bIndex);
+      });
+      return output;
+    });
+
+    yield* Rx.combineLatest2(
       klippyCanReceiveCommands,
-      (a, b, c) => _Model(printFan: a, fans: b, klippyCanReceiveCommands: c),
+      fans,
+      (a, b) => _Model(
+        klippyCanReceiveCommands: a,
+        fans: b,
+      ),
     );
   }
 
-  Future<void> onEditPartFan() async {
+  Future<void> onEditPartFan(PrintFan fan) async {
     if (!state.hasValue) return;
-    var fan = state.requireValue.printFan;
-    if (fan == null) return;
 
     var resp = await _dialogService.show(DialogRequest(
       type: _dialogMode,
@@ -349,9 +387,6 @@ class _Model with _$Model {
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
-    required PrintFan? printFan,
-    required List<NamedFan> fans,
+    required List<Fan> fans,
   }) = __Model;
-
-  bool get hasPrintFan => printFan != null;
 }

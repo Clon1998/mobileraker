@@ -6,13 +6,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../util/json_util.dart';
+import '../sensor_mixin.dart';
 import 'heater_mixin.dart';
 
 part 'heater_bed.freezed.dart';
 part 'heater_bed.g.dart';
 
 @freezed
-class HeaterBed with _$HeaterBed, HeaterMixin {
+class HeaterBed with _$HeaterBed, SensorMixin, HeaterMixin {
   const HeaterBed._();
 
   const factory HeaterBed({

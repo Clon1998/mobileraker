@@ -9,6 +9,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/data/adapters/uri_adapter.dart';
+import 'package:common/data/model/hive/dashboard_component.dart';
+import 'package:common/data/model/hive/dashboard_component_type.dart';
+import 'package:common/data/model/hive/dashboard_layout.dart';
+import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/gcode_macro.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/macro_group.dart';
@@ -31,7 +35,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -99,12 +102,32 @@ setupBoxes() async {
     Hive.registerAdapter(nAdapter);
   }
 
+  DashboardLayoutAdapter dlAdapter = DashboardLayoutAdapter();
+  if (!Hive.isAdapterRegistered(dlAdapter.typeId)) {
+    Hive.registerAdapter(dlAdapter);
+  }
+
+  var dtAdapter = DashboardTabAdapter();
+  if (!Hive.isAdapterRegistered(dtAdapter.typeId)) {
+    Hive.registerAdapter(dtAdapter);
+  }
+
+  var dcAdapter = DashboardComponentAdapter();
+  if (!Hive.isAdapterRegistered(dcAdapter.typeId)) {
+    Hive.registerAdapter(dcAdapter);
+  }
+
+  var dctAdapter = DashboardComponentTypeAdapter();
+  if (!Hive.isAdapterRegistered(dctAdapter.typeId)) {
+    Hive.registerAdapter(dctAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   try {
     // await openBoxes(keyMaterial);
     await openBoxes();
-    Hive.box<Machine>("printers").values.forEach((element) {
+    Hive.box<Machine>('printers').values.forEach((element) {
       logger.i('Machine in box is ${element.logName}#${element.hashCode}');
       // ToDo remove after machine migration!
       element.save();
@@ -179,6 +202,7 @@ Future<List<Box>> openBoxes() {
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
     Hive.openBox<Notification>('notifications'),
+    Hive.openBox<DashboardLayout>('dashboard_layouts'),
     // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
 }
@@ -190,6 +214,7 @@ Future<void> deleteBoxes() {
     Hive.deleteBoxFromDisk('uuidbox'),
     Hive.deleteBoxFromDisk('settingsbox'),
     Hive.deleteBoxFromDisk('notifications'),
+    Hive.deleteBoxFromDisk('dashboard_layouts'),
     // Hive.deleteBoxFromDisk('octo')
   ]);
 }
@@ -229,6 +254,11 @@ initializeAvailableMachines(Ref ref) async {
 
 @riverpod
 Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
+  // Firebase stuff
+  yield StartUpStep.firebaseCore;
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // only start listening after Firebase is initialized
   ref.listenSelf((previous, next) {
     if (next.hasError) {
       var error = next.asError!;
@@ -240,9 +270,6 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
       );
     }
   });
-  // Firebase stuff
-  yield StartUpStep.firebaseCore;
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   yield StartUpStep.firebaseAppCheck;
   await FirebaseAppCheck.instance.activate();
@@ -264,12 +291,6 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   yield StartUpStep.firebaseAuthUi;
   // Just make sure it is created!
   ref.read(firebaseUserProvider);
-
-  FirebaseUIAuth.configureProviders([
-    EmailAuthProvider(),
-    // GoogleProvider(clientId: GOOGLE_CLIENT_ID),
-    // fui_apple.AppleProvider(),
-  ]);
 
   setupLicenseRegistry();
 

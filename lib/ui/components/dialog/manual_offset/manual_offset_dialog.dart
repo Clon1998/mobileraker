@@ -4,15 +4,15 @@
  */
 
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_controller.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 
 class ManualOffsetDialog extends HookConsumerWidget {
@@ -36,8 +36,16 @@ class ManualOffsetDialog extends HookConsumerWidget {
 
     var numberFormat = NumberFormat('0.0##', context.locale.toStringWithSeparator());
 
-    return WillPopScope(
-      onWillPop: ref.read(controller.notifier).onPopTriggered,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await ref.read(controller.notifier).onPopTriggered();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Dialog(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),
