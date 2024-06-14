@@ -16,9 +16,7 @@ import 'package:common/data/model/model_event.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
-import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
@@ -48,8 +46,6 @@ import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
 import 'firebase/remote_config.dart';
 import 'misc_providers.dart';
-import 'moonraker/announcement_service.dart';
-import 'moonraker/file_service.dart';
 import 'moonraker/klippy_service.dart';
 import 'moonraker/printer_service.dart';
 import 'octoeverywhere/app_connection_service.dart';
@@ -66,7 +62,9 @@ MachineService machineService(MachineServiceRef ref) {
 
 @riverpod
 Future<Machine?> machine(MachineRef ref, String uuid) async {
-  ref.keepAlive();
+  /// Using keepAliveFor ensures that the machineProvider remains active until all users of this provider are disposed.
+  /// While ensuring that it eventually gets disposed.
+  ref.keepAliveFor();
   ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
 
   logger.i('machineProvider creation STARTED $uuid');
@@ -270,36 +268,39 @@ class MachineService {
       await _selectedMachineService.selectMachine(nextMachine);
     }
 
+    /// Replace the manual invalidation. The machineProvider is now not kept alive, only up to 30 sec so
+    /// It automatically invalidates itself after that if not used anymore.
+
     // await Future.delayed(Duration(seconds: 4));
 // DANGER!! It is really important to invalidate in the correct order!
-    // Announcements API
-    ref.invalidate(announcementProvider(machine.uuid));
-    ref.invalidate(announcementServiceProvider(machine.uuid));
-    // Files API
-    ref.invalidate(fileNotificationsProvider(machine.uuid));
-    ref.invalidate(fileServiceProvider(machine.uuid));
-    // Webcam API
-    ref.invalidate(webcamServiceProvider(machine.uuid));
-
-    // Settings
-    // ref.invalidate(machineSettingsProvider(machine.uuid));
-    // Printer API
-    ref.invalidate(printerProvider(machine.uuid));
-    ref.invalidate(printerServiceProvider(machine.uuid));
-    // Klippy API
-    ref.invalidate(klipperProvider(machine.uuid));
-    ref.invalidate(klipperServiceProvider(machine.uuid));
-    // I/O
-    ref.invalidate(baseOptionsProvider);
-    ref.invalidate(httpClientProvider);
-    ref.invalidate(jrpcClientManagerProvider(machine.uuid));
-    ref.invalidate(dioClientProvider(machine.uuid));
-    ref.invalidate(jrpcClientStateProvider(machine.uuid));
-    ref.invalidate(jrpcClientProvider(machine.uuid));
-    // Actual machine
-    ref.invalidate(machineProvider(machine.uuid));
+//     // Announcements API
+//     ref.invalidate(announcementProvider(machine.uuid));
+//     ref.invalidate(announcementServiceProvider(machine.uuid));
+//     // Files API
+//     ref.invalidate(fileNotificationsProvider(machine.uuid));
+//     ref.invalidate(fileServiceProvider(machine.uuid));
+//     // Webcam API
+//     ref.invalidate(webcamServiceProvider(machine.uuid));
+//
+//     // Settings
+//     // ref.invalidate(machineSettingsProvider(machine.uuid));
+//     // Printer API
+//     ref.invalidate(printerProvider(machine.uuid));
+//     ref.invalidate(printerServiceProvider(machine.uuid));
+//     // Klippy API
+//     ref.invalidate(klipperProvider(machine.uuid));
+//     ref.invalidate(klipperServiceProvider(machine.uuid));
+//     // I/O
+//     ref.invalidate(baseOptionsProvider);
+//     ref.invalidate(httpClientProvider);
+//     ref.invalidate(jrpcClientManagerProvider(machine.uuid));
+//     ref.invalidate(dioClientProvider(machine.uuid));
+//     ref.invalidate(jrpcClientStateProvider(machine.uuid));
+//     ref.invalidate(jrpcClientProvider(machine.uuid));
+//     // Actual machine
+//     ref.invalidate(machineProvider(machine.uuid));
     // ref.invalidate(selectedMachineProvider);
-    await ref.refresh(allMachinesProvider);
+    ref.invalidate(allMachinesProvider);
     logger.i('Removed machine ${machine.uuid}');
   }
 
