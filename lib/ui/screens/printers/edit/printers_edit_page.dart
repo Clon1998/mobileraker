@@ -375,7 +375,10 @@ class _WebCamItem extends HookConsumerWidget {
                 FormBuilderDropdown(
                   name: '${cam.uuid}-service',
                   initialValue: cam.service,
-                  items: WebcamServiceType.values
+                  items: {
+                    ...WebcamServiceType.renderedValues(),
+                    cam.service,
+                  }
                       .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
                             enabled: serviceType.supported,
                             value: serviceType,
