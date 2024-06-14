@@ -9,6 +9,7 @@ import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -475,6 +476,18 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
 
   Future<void> onRenameLayout(DashboardLayout layout) async {
     logger.i('Renaming layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
+
+    var isSupporter = ref.read(isSupporterProvider);
+
+    if (!isSupporter) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.custom_dashboard'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
 
     final result = await _dialogService.show(DialogRequest(
       type: DialogType.textInput,
