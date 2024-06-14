@@ -31,6 +31,7 @@ import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -203,6 +204,7 @@ class _BodyState extends ConsumerState<_Body> {
     var controller = ref.watch(_dashboardPageControllerProvider(machineUUID).notifier);
 
     return AsyncValueWidget(
+      debugLabel: 'DashboardPageController-$machineUUID',
       skipLoadingOnReload: true,
       value: asyncModel,
       data: (model) {
@@ -560,6 +562,8 @@ class _DashboardPageController extends _$DashboardPageController {
 
   @override
   Future<_Model> build(String machineUUID) async {
+    // Cache it if the user goes back to the page, but dont persist it longer!
+    ref.keepAliveFor();
     ref.listenSelf((previous, next) {
       logger.i(
           'DashboardPageController: (aIdx: ${previous?.valueOrNull?.activeIndex}, l:  ${previous?.valueOrNull?.layout.tabs.length}) -> (aIdx: ${next?.valueOrNull?.activeIndex}, l:  ${next?.valueOrNull?.layout.tabs.length})');
