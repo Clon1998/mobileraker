@@ -200,7 +200,7 @@ class _CompactBody extends HookConsumerWidget {
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.general_card.last_mod'.tr(),
-                    subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+                    subtitle: model.file.modifiedDate?.let(dateFormatGeneral.format) ?? 'general.unknown'.tr(),
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.general_card.last_printed'.tr(),
@@ -382,7 +382,7 @@ class _MediumBody extends HookConsumerWidget {
                           ),
                           _PropertyTile(
                             title: 'pages.files.details.general_card.last_mod'.tr(),
-                            subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+                            subtitle: model.file.modifiedDate?.let(dateFormatGeneral.format) ?? 'general.unknown'.tr(),
                           ),
                           _PropertyTile(
                             title: 'pages.files.details.general_card.last_printed'.tr(),
@@ -539,7 +539,7 @@ class _MediumBody extends HookConsumerWidget {
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.general_card.last_mod'.tr(),
-                    subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+                    subtitle: model.file.modifiedDate?.let(dateFormatGeneral.format) ?? 'general.unknown'.tr(),
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.general_card.last_printed'.tr(),

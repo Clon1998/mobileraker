@@ -27,7 +27,8 @@ mixin RemoteFile {
 
   bool get isImage => fileExtension != null && ['jpg', 'jpeg', 'png'].contains(fileExtension);
 
-  DateTime get modifiedDate {
+  DateTime? get modifiedDate {
+    if (modified <= 0) return null;
     return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
   }
 }

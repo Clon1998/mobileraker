@@ -627,10 +627,8 @@ class _FileItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(filesPageControllerProvider.notifier);
-    var modified = ref
-        .read(dateFormatServiceProvider)
-        .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
-        .format(file.modifiedDate);
+    var dateFormat = ref.read(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
+    var modified = file.modifiedDate?.let(dateFormat.format) ?? 'general.unknown'.tr();
 
     return _Slideable(
       file: file,
@@ -656,10 +654,8 @@ class _ImageFileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var modified = ref
-        .read(dateFormatServiceProvider)
-        .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
-        .format(file.modifiedDate);
+    var dateFormat = ref.read(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
+    var modified = file.modifiedDate?.let(dateFormat.format) ?? 'general.unknown'.tr();
 
     var controller = ref.watch(filesPageControllerProvider.notifier);
     var imageBaseUri = ref.watch(previewImageUriProvider);

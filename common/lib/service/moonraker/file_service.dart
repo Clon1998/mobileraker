@@ -197,7 +197,7 @@ class FileService {
     } on JRpcError catch (e) {
       if (e.message.contains('Metadata not available for')) {
         logger.w('Metadata not available for $filename');
-        return GCodeFile(name: filename, parentPath: parentPath);
+        return GCodeFile(name: filename, parentPath: parentPath, modified: -1, size: -1);
       }
 
       throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filename, parent: e);
