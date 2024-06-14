@@ -16,13 +16,12 @@ import 'package:common/data/model/model_event.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
-import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -47,8 +46,6 @@ import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
 import 'firebase/remote_config.dart';
 import 'misc_providers.dart';
-import 'moonraker/announcement_service.dart';
-import 'moonraker/file_service.dart';
 import 'moonraker/klippy_service.dart';
 import 'moonraker/printer_service.dart';
 import 'octoeverywhere/app_connection_service.dart';
@@ -65,7 +62,9 @@ MachineService machineService(MachineServiceRef ref) {
 
 @riverpod
 Future<Machine?> machine(MachineRef ref, String uuid) async {
-  ref.keepAlive();
+  /// Using keepAliveFor ensures that the machineProvider remains active until all users of this provider are disposed.
+  /// While ensuring that it eventually gets disposed.
+  ref.keepAliveFor();
   ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
 
   logger.i('machineProvider creation STARTED $uuid');
@@ -80,10 +79,19 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
     next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.logName).join()}'));
   });
 
+  logger.i('Received fetchAll');
+
   var settingService = ref.watch(settingServiceProvider);
   // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
   var machines = await ref.read(machineServiceProvider).fetchAll();
-  logger.i('Received fetchAll');
+  final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
+
+  logger.i('Received ordering $ordering');
+  machines = machines.sorted((a, b) {
+    final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
+    final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
+    return aOrder.compareTo(bOrder);
+  });
 
   var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
   logger.i('Received isSupporter $isSupporter');
@@ -137,6 +145,10 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
   ref.keepAliveFor();
 
+  // Just ensure we have a machine to prevent errors while we dispose the machine/on remove the machine.
+  final machine = await ref.watch(machineProvider(machineUUID).future);
+  if (machine == null) return;
+
   // We listen to macro count changes to trigger a provider rebuild, allowing us to migrate the setting's macros
   var macroCnt = await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.gcodeMacros.length));
 
@@ -148,6 +160,7 @@ Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUU
       .asyncMap((event) async {
     var printerData = await ref.read(printerProvider(machineUUID).future);
 
+    // We need to use read to prevent circular dependencies
     return await ref
         .read(machineServiceProvider)
         .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
@@ -255,22 +268,40 @@ class MachineService {
       await _selectedMachineService.selectMachine(nextMachine);
     }
 
+    /// Replace the manual invalidation. The machineProvider is now not kept alive, only up to 30 sec so
+    /// It automatically invalidates itself after that if not used anymore.
+
     // await Future.delayed(Duration(seconds: 4));
 // DANGER!! It is really important to invalidate in the correct order!
+//     // Announcements API
+//     ref.invalidate(announcementProvider(machine.uuid));
+//     ref.invalidate(announcementServiceProvider(machine.uuid));
+//     // Files API
+//     ref.invalidate(fileNotificationsProvider(machine.uuid));
+//     ref.invalidate(fileServiceProvider(machine.uuid));
+//     // Webcam API
+//     ref.invalidate(webcamServiceProvider(machine.uuid));
+//
+//     // Settings
+//     // ref.invalidate(machineSettingsProvider(machine.uuid));
+//     // Printer API
+//     ref.invalidate(printerProvider(machine.uuid));
+//     ref.invalidate(printerServiceProvider(machine.uuid));
+//     // Klippy API
+//     ref.invalidate(klipperProvider(machine.uuid));
+//     ref.invalidate(klipperServiceProvider(machine.uuid));
+//     // I/O
+//     ref.invalidate(baseOptionsProvider);
+//     ref.invalidate(httpClientProvider);
+//     ref.invalidate(jrpcClientManagerProvider(machine.uuid));
+//     ref.invalidate(dioClientProvider(machine.uuid));
+//     ref.invalidate(jrpcClientStateProvider(machine.uuid));
+//     ref.invalidate(jrpcClientProvider(machine.uuid));
+//     // Actual machine
+//     ref.invalidate(machineProvider(machine.uuid));
+    // ref.invalidate(selectedMachineProvider);
     ref.invalidate(allMachinesProvider);
-    ref.invalidate(announcementProvider(machine.uuid));
-    ref.invalidate(announcementServiceProvider(machine.uuid));
-    ref.invalidate(fileNotificationsProvider(machine.uuid));
-    ref.invalidate(fileServiceProvider(machine.uuid));
-    ref.invalidate(webcamServiceProvider(machine.uuid));
-    ref.invalidate(printerProvider(machine.uuid));
-    ref.invalidate(printerServiceProvider(machine.uuid));
-    ref.invalidate(klipperProvider(machine.uuid));
-    ref.invalidate(klipperServiceProvider(machine.uuid));
-    ref.invalidate(dioClientProvider(machine.uuid));
-    ref.invalidate(jrpcClientStateProvider(machine.uuid));
-    ref.invalidate(jrpcClientProvider(machine.uuid));
-    ref.invalidate(machineProvider(machine.uuid));
+    logger.i('Removed machine ${machine.uuid}');
   }
 
   Future<Machine?> fetch(String uuid) {
@@ -434,9 +465,41 @@ class MachineService {
       if (liveActivityPushToken == null) {
         await repo.delete(machine.uuid);
       } else {
-        await repo.update(machine.uuid, APNs(liveActivity: liveActivityPushToken));
+        await repo.write(machine.uuid, APNs(liveActivity: liveActivityPushToken));
       }
       logger.i('${machine.logTagExtended} Propagated new live activity in FCM');
+    } finally {
+      keepAliveExternally.close();
+    }
+  }
+
+  Future<void> updateApplePushNotificationToken(
+    String machineUUID,
+    String? liveActivityPushToken,
+  ) async {
+    final keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machineUUID));
+    try {
+      logger.i('Trying to update Apple Push Notification Token for machine $machineUUID');
+      final repo = ref.read(apnsRepositoryProvider(machineUUID));
+
+      final connectionResult = await ref.readWhere(jrpcClientStateProvider(machineUUID),
+          (state) => state == ClientState.connected || state == ClientState.connecting);
+
+      if (connectionResult != ClientState.connected) {
+        logger.w(
+            'Unable to update Apple Push Notification Token because JRPC was not connected for machine $machineUUID');
+        return;
+      }
+
+      if (liveActivityPushToken == null) {
+        await repo.delete(machineUUID);
+      } else {
+        await repo.write(machineUUID, APNs(liveActivity: liveActivityPushToken));
+      }
+      logger.i('Successfully updated Apple Push Notification Token for machine $machineUUID');
+    } catch (e) {
+      logger.w('Error while trying to update Apple Push Notification Token for machine $machineUUID. Rethrowing...', e);
+      rethrow;
     } finally {
       keepAliveExternally.close();
     }
@@ -465,7 +528,8 @@ class MachineService {
     var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
         (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
     if (connectionResult != ClientState.connected) {
-      logger.w('${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
+      logger
+          .w('${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
       throw const MobilerakerException('Machine not connected');
     }
 
@@ -491,16 +555,6 @@ class MachineService {
       }
     }
     return noCompanion;
-  }
-
-  Future<int> indexOfMachine(Machine setting) async {
-    int i = -1;
-    List<Machine> machines = await fetchAll();
-    for (Machine element in machines) {
-      i++;
-      if (element == setting) return i;
-    }
-    return i;
   }
 
   /// Fetches the settings for a machine and adjusts the default macros.
@@ -619,6 +673,32 @@ class MachineService {
     }
 
     return ref.watch(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
+  }
+
+  Future<void> reordered(String machineUUID, int oldIndex, int newIndex) async {
+    final allMachines = await ref.read(allMachinesProvider.future);
+    if (oldIndex >= allMachines.length || newIndex >= allMachines.length) {
+      logger.w('Invalid index for reordering machines: $oldIndex -> $newIndex');
+      return;
+    }
+    final machine = allMachines[oldIndex];
+
+    logger.i('Reordering machine ${machine.logName} from $oldIndex to $newIndex');
+    final readList = [..._settingService.readList(UtilityKeys.machineOrdering, <String>[])];
+
+    // add all missing machines to the list
+    for (var m in allMachines) {
+      if (!readList.contains(m.uuid)) {
+        readList.add(m.uuid);
+      }
+    }
+
+    // remove the machine from the list
+    readList.remove(machine.uuid);
+    // insert the machine at the new index
+    readList.insert(newIndex, machine.uuid);
+
+    _settingService.write(UtilityKeys.machineOrdering, readList);
   }
 
   Future<void> dispose() async {

@@ -365,7 +365,7 @@ class MacroGroupListController extends _$MacroGroupListController {
   }
 
   onMacroInGroupReorder(MacroGroup group, int oldIdx, int newIdx) {
-    logger.i('on Macro In Group Reorder');
+    logger.i('on Macro In Group Reorder $oldIdx -> $newIdx');
 
     state = state.whenData((value) {
       var macros = group.macros.toList();

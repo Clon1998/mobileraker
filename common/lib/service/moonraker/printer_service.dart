@@ -44,6 +44,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -57,7 +58,6 @@ import '../../data/dto/machine/firmware_retraction.dart';
 import '../../data/dto/machine/z_thermal_adjust.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
-import '../machine_service.dart';
 import '../selected_machine_service.dart';
 import '../ui/dialog_service_interface.dart';
 import '../ui/snackbar_service_interface.dart';
@@ -75,7 +75,7 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 
 @riverpod
 Stream<Printer> printer(PrinterRef ref, String machineUUID) {
-  ref.keepAlive();
+  // ref.keepAlive();
   var printerService = ref.watch(printerServiceProvider(machineUUID));
   ref.listenSelf((previous, next) {
     var previousFileName = previous?.valueOrNull?.print.filename;
@@ -89,6 +89,11 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
     }
   });
   return printerService.printerStream;
+}
+
+@riverpod
+Future<List<Command>> printerAvailableCommands(PrinterAvailableCommandsRef ref, String machineUUID) async {
+  return ref.watch(printerServiceProvider(machineUUID)).gcodeHelp();
 }
 
 @riverpod
@@ -112,13 +117,13 @@ class PrinterService {
   PrinterService(AutoDisposeRef ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
         _fileService = ref.watch(fileServiceProvider(ownerUUID)),
-        _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
 
     ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyState), (previous, next) {
-      logger.i('Printer Service received klippyState: ${next.valueOrNull}');
+      logger.i(
+          '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new klippyState: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}');
       switch (next.valueOrFullNull) {
         case KlipperState.ready:
           if (!_queriedForSession) {
@@ -141,8 +146,6 @@ class PrinterService {
   final JsonRpcClient _jRpcClient;
 
   final FileService _fileService;
-
-  final MachineService _machineService;
 
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
@@ -190,6 +193,7 @@ class PrinterService {
 
   bool _queriedForSession = false;
 
+  //TODO: Make this private and offer a riverpod provider
   Stream<String> get gCodeResponseStream => _gCodeResponseStreamController.stream;
 
   Printer? _current;

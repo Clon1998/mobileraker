@@ -135,12 +135,16 @@ class LiveActivityService {
         var listenersToClose = _printerListeners.keys.where((e) => machines.any((m) => m.uuid == e));
         var listenersToOpen = machines.whereNot((e) => _printerListeners.containsKey(e.uuid));
 
+        var closed = 0;
         for (var uuid in listenersToClose) {
+          closed++;
           _printerListeners[uuid]?.close();
           _printerListeners.remove(uuid);
         }
 
+        var opened = 0;
         for (var machine in listenersToOpen) {
+          opened++;
           _printerListeners[machine.uuid] = ref.listen(
             printerProvider(machine.uuid),
             (_, nextP) => nextP.whenData((value) => _handlePrinterData(machine.uuid, value)),
@@ -149,7 +153,7 @@ class LiveActivityService {
         }
 
         logger.i(
-            'Added ${listenersToOpen.length} new printerData listeners and removed ${listenersToClose.length} printer listeners in the LiveActivityService');
+            'Added $opened new printerData listeners and removed $closed printer listeners in the LiveActivityService');
       }),
       fireImmediately: true,
     );

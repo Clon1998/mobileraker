@@ -9,12 +9,14 @@ import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -219,14 +221,17 @@ class _LayoutPreview extends HookWidget {
   final void Function(DashboardLayout layout) onTapDelete;
   final void Function(DashboardLayout layout) onTapReset;
   final void Function(DashboardLayout layout) onTapRename;
-  static const int _pagesOnScreen = 3;
+  static const int _pagesOnScreenCompact = 3;
+  static const int _pagesOnScreenMedium = 2;
 
   @override
   Widget build(BuildContext context) {
     final controller = useScrollController();
 
+    final int pagesOnScreen = context.isLargerThanCompact ? _pagesOnScreenMedium : _pagesOnScreenCompact;
+
     final width = MediaQuery.maybeSizeOf(context)?.width ?? 300;
-    final scollSteps = layout.tabs.length / _pagesOnScreen;
+    final scollSteps = layout.tabs.length / pagesOnScreen;
     final themeData = Theme.of(context);
     final colorExt = themeData.extension<CustomColors>();
 
@@ -272,7 +277,7 @@ class _LayoutPreview extends HookWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (var i = 0; i < max(availableTabs, _pagesOnScreen); i++)
+                          for (var i = 0; i < max(availableTabs, pagesOnScreen); i++)
                             Builder(builder: (ctx) {
                               final tab = layout.tabs.elementAtOrNull(i);
 
@@ -295,7 +300,7 @@ class _LayoutPreview extends HookWidget {
                                 );
                               }
                               return ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: scrollWidth / _pagesOnScreen),
+                                constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
                                 child: FittedBox(
                                   child: SizedBox(
                                     width: width,
@@ -329,8 +334,8 @@ class _LayoutPreview extends HookWidget {
               right: 0,
               left: 0,
               child: Wrap(
-                // runAlignment: WrapAlignment.end,
                 alignment: WrapAlignment.end,
+                verticalDirection: VerticalDirection.up,
                 spacing: 4,
                 children: [
                   if (layout.created != null)
@@ -471,6 +476,18 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
 
   Future<void> onRenameLayout(DashboardLayout layout) async {
     logger.i('Renaming layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
+
+    var isSupporter = ref.read(isSupporterProvider);
+
+    if (!isSupporter) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.custom_dashboard'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
 
     final result = await _dialogService.show(DialogRequest(
       type: DialogType.textInput,

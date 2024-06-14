@@ -3,22 +3,23 @@
  * All rights reserved.
  */
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'print_state_enum.g.dart';
 
 @JsonEnum(alwaysCreate: true)
 enum PrintState {
-  standby('Standby'),
-  printing('Printing'),
-  paused('Paused'),
-  complete('Complete'),
-  cancelled('Cancelled'),
-  error('Error');
+  standby,
+  printing,
+  paused,
+  complete,
+  cancelled,
+  error;
 
-  const PrintState(this.displayName);
+  const PrintState();
 
-  final String displayName;
+  String get displayName => tr('print_state.$name');
 
   String toJsonEnum() => _$PrintStateEnumMap[this]!;
 

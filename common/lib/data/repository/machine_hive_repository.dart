@@ -51,12 +51,12 @@ class MachineHiveRepository implements MachineRepository {
   }
 
   @override
-  Future<List<Machine>> fetchAll() {
-    return Future.value(_boxMachines.values.toList(growable: false));
+  Future<List<Machine>> fetchAll() async {
+    return _boxMachines.values.toList(growable: false);
   }
 
   @override
-  Future<int> count() {
-    return Future.value(_boxMachines.length);
+  Future<int> count() async {
+    return _boxMachines.length;
   }
 }

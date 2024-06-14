@@ -35,12 +35,16 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
   @override
   void initState() {
     super.initState();
+    logger.i('Init PrinterCalibrationWatcher for ${widget.machineUUID}');
     _setup();
   }
 
   @override
   void didUpdateWidget(PrinterCalibrationWatcher old) {
-    _setup();
+    if (old.machineUUID != widget.machineUUID) {
+      logger.i('Switching PrinterCalibrationWatcher from ${old.machineUUID} to ${widget.machineUUID}');
+      _setup();
+    }
     super.didUpdateWidget(old);
   }
 

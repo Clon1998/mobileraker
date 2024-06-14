@@ -11,6 +11,9 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/connection/klippy_provider_guard.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/responsive_limit.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -41,18 +44,20 @@ class MachineConnectionGuard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(selectedMachineProvider);
+    final machine = ref.watch(selectedMachineProvider);
     return Center(
       child: switch (machine) {
-        AsyncData(value: null) => const _WelcomeMessage(),
+        AsyncData(value: null) => const _WelcomeMessage().also((_) => logger.i('MACHINE GUARD DETECTED NO MACHINE')),
         AsyncData(:final value?) => _WebsocketStateWidget(
             machineUUID: value.uuid,
             skipKlipperReady: skipKlipperReady,
             onConnected: onConnected,
           ),
-        AsyncError(:var error) => ErrorCard(
-            title: const Text('Error selecting active machine'),
-            body: Text(error.toString()),
+        AsyncError(:var error) => ResponsiveLimit(
+            child: ErrorCard(
+              title: const Text('Error selecting active machine'),
+              body: Text(error.toString()),
+            ),
           ),
         _ => const CircularProgressIndicator.adaptive(),
       },
@@ -76,15 +81,16 @@ class _WebsocketStateWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    AsyncValue<ClientState> connectionState = ref.watch(_machineConnectionGuardControllerProvider);
-    ClientType clientType = ref.watch(jrpcClientSelectedProvider.select((value) => value.clientType));
-
-    var connectionStateController = ref.watch(_machineConnectionGuardControllerProvider.notifier);
+    final model = ref.watch(_machineConnectionGuardControllerProvider(machineUUID));
+    final controller = ref.watch(_machineConnectionGuardControllerProvider(machineUUID).notifier);
 
     return AsyncValueWidget(
-      key: ValueKey(clientType),
-      value: connectionState,
-      data: (ClientState clientState) {
+      // Warum brauche ich den key?
+      // key: ValueKey(model),
+      value: model,
+      data: (data) {
+        final (clientState, clientType) = data;
+
         switch (clientState) {
           case ClientState.connected:
             return KlippyProviderGuard(
@@ -95,89 +101,95 @@ class _WebsocketStateWidget extends ConsumerWidget {
             );
 
           case ClientState.disconnected:
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.warning_amber_outlined,
-                  size: 50,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                const SizedBox(height: 30),
-                const Text('@:klipper_state.disconnected !').tr(),
-                TextButton.icon(
-                  onPressed: connectionStateController.onRetryPressed,
-                  icon: const Icon(Icons.restart_alt_outlined),
-                  label: const Text('components.connection_watcher.reconnect').tr(),
-                ),
-              ],
+            return ResponsiveLimit(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(height: 30),
+                  const Text('@:klipper_state.disconnected !').tr(),
+                  TextButton.icon(
+                    onPressed: controller.onRetryPressed,
+                    icon: const Icon(Icons.restart_alt_outlined),
+                    label: const Text('components.connection_watcher.reconnect').tr(),
+                  ),
+                ],
+              ),
             );
           case ClientState.connecting:
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (clientType == ClientType.local)
-                  SpinKitPulse(
-                    size: 100,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                if (clientType == ClientType.octo)
-                  SpinKitPouringHourGlassRefined(
-                    size: 100,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                const SizedBox(height: 30),
-                FadingText(tr(clientType == ClientType.local
-                    ? 'components.connection_watcher.trying_connect'
-                    : 'components.connection_watcher.trying_connect_remote')),
-              ],
+            return ResponsiveLimit(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (clientType == ClientType.local)
+                    SpinKitPulse(
+                      size: 100,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  if (clientType != ClientType.local)
+                    SpinKitPouringHourGlassRefined(
+                      size: 100,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  const SizedBox(height: 30),
+                  FadingText(tr(clientType == ClientType.local
+                      ? 'components.connection_watcher.trying_connect'
+                      : 'components.connection_watcher.trying_connect_remote')),
+                ],
+              ),
             );
           case ClientState.error:
           default:
-            return Padding(
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.warning_amber_outlined,
-                          size: 50,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          connectionStateController.clientErrorMessage,
-                          textAlign: TextAlign.center,
-                        ),
-                        if (!connectionStateController.errorIsOctoSupportedExpired)
-                          TextButton.icon(
-                            onPressed: connectionStateController.onRetryPressed,
-                            icon: const Icon(Icons.restart_alt_outlined),
-                            label: const Text(
-                              'components.connection_watcher.reconnect',
-                            ).tr(),
+            return ResponsiveLimit(
+              child: Padding(
+                padding: const EdgeInsets.all(22),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            size: 50,
+                            color: Theme.of(context).colorScheme.error,
                           ),
-                        if (connectionStateController.errorIsOctoSupportedExpired)
-                          TextButton.icon(
-                            onPressed: connectionStateController.onGoToOE,
-                            icon: const Icon(Icons.open_in_browser),
-                            label: const Text(
-                              'components.connection_watcher.more_details',
-                            ).tr(),
+                          const SizedBox(height: 20),
+                          Text(
+                            controller.clientErrorMessage,
+                            textAlign: TextAlign.center,
                           ),
-                      ],
+                          if (!controller.errorIsOctoSupportedExpired)
+                            TextButton.icon(
+                              onPressed: controller.onRetryPressed,
+                              icon: const Icon(Icons.restart_alt_outlined),
+                              label: const Text(
+                                'components.connection_watcher.reconnect',
+                              ).tr(),
+                            ),
+                          if (controller.errorIsOctoSupportedExpired)
+                            TextButton.icon(
+                              onPressed: controller.onGoToOE,
+                              icon: const Icon(Icons.open_in_browser),
+                              label: const Text(
+                                'components.connection_watcher.more_details',
+                              ).tr(),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  if (clientType == ClientType.octo || clientType == ClientType.obico)
-                    Text(
-                      'bottom_sheets.add_remote_con.disclosure',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ).tr(namedArgs: {'service': (clientType == ClientType.octo) ? 'OctoEverywhere' : 'Obico'}),
-                ],
+                    if (clientType == ClientType.octo || clientType == ClientType.obico)
+                      Text(
+                        'bottom_sheets.add_remote_con.disclosure',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ).tr(namedArgs: {'service': (clientType == ClientType.octo) ? 'OctoEverywhere' : 'Obico'}),
+                  ],
+                ),
               ),
             );
         }
@@ -191,18 +203,22 @@ class _WelcomeMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return ResponsiveLimit(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        // mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: SvgPicture.asset(
-              'assets/vector/undraw_hello_re_3evm.svg',
+            child: FractionallySizedBox(
+              heightFactor: 0.5,
+              child: SvgPicture.asset(
+                'assets/vector/undraw_hello_re_3evm.svg',
+                // fit: BoxFit.fitHeight,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
+            padding: const EdgeInsets.only(bottom: 24.0, top: 8),
             child: Text(
               'components.connection_watcher.add_printer',
               textAlign: TextAlign.center,
@@ -214,7 +230,7 @@ class _WelcomeMessage extends StatelessWidget {
             icon: const Icon(Icons.add),
             label: const Text('pages.overview.add_machine').tr(),
           ),
-          const Spacer(),
+          // const Spacer(),
         ],
       ),
     );
@@ -224,14 +240,24 @@ class _WelcomeMessage extends StatelessWidget {
 @riverpod
 class _MachineConnectionGuardController extends _$MachineConnectionGuardController {
   @override
-  Future<ClientState> build() => ref.watch(jrpcClientStateSelectedProvider.selectAsync((data) => data));
+  Future<(ClientState, ClientType)> build(String machineUUID) async {
+    final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+    final cState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
 
-  onRetryPressed() {
-    ref.read(jrpcClientSelectedProvider).openChannel();
+    return (cState, clientType);
+  }
+
+  void onRetryPressed() {
+    ref.read(jrpcClientProvider(machineUUID)).openChannel();
+  }
+
+  @override
+  bool updateShouldNotify(AsyncValue<(ClientState, ClientType)> previous, AsyncValue<(ClientState, ClientType)> next) {
+    return previous != next;
   }
 
   String get clientErrorMessage {
-    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    var jsonRpcClient = ref.read(jrpcClientProvider(machineUUID));
     Exception? errorReason = jsonRpcClient.errorReason;
     if (errorReason is TimeoutException) {
       return 'A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...';
@@ -244,7 +270,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
   }
 
   bool get errorIsOctoSupportedExpired {
-    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    var jsonRpcClient = ref.read(jrpcClientProvider(machineUUID));
     Exception? errorReason = jsonRpcClient.errorReason;
     if (errorReason is! OctoEverywhereHttpException) {
       return false;
@@ -253,7 +279,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
     return errorReason.statusCode == 605;
   }
 
-  onGoToOE() async {
+  void onGoToOE() async {
     var oeURI = Uri.parse(
       'https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker',
     );

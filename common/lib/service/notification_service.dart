@@ -27,6 +27,8 @@ import 'package:flutter/material.dart' hide Notification;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'live_activity_service_v2.dart';
+
 part 'notification_service.g.dart';
 
 @Riverpod(keepAlive: true)
@@ -60,6 +62,7 @@ class NotificationService {
         _settingsService = _ref.watch(settingServiceProvider),
         _notifyAPI = _ref.watch(awesomeNotificationProvider),
         _liveActivityService = _ref.watch(liveActivityServiceProvider),
+        _liveActivityServicev2 = _ref.watch(v2LiveActivityProvider),
         _notifyFCM = _ref.watch(awesomeNotificationFcmProvider);
 
   final AutoDisposeRef _ref;
@@ -68,6 +71,7 @@ class NotificationService {
   final AwesomeNotifications _notifyAPI;
   final AwesomeNotificationsFcm _notifyFCM;
   final LiveActivityService _liveActivityService;
+  final LiveActivityServiceV2 _liveActivityServicev2;
 
   final ReceivePort _notificationTapPort = ReceivePort();
   final ReceivePort _fcmTokenUpdatePort = ReceivePort();
@@ -94,6 +98,7 @@ class NotificationService {
       _initializeRemoteMessaging(licenseKeys, allMachines, hiddenMachines).ignore();
 
       await _liveActivityService.initialize();
+      // await _liveActivityServicev2.initialize();
 
       _initializeMachineRepoListener();
 

@@ -219,7 +219,7 @@
       }
     },
     "customizing_dashboard": {
-      "title": "Editing layout...",
+      "title": "Personalize Dashboard",
       "cancel_confirm": {
         "title": "Discard changes?",
         "body": "Are you sure you want to leave the layout editing mode?\nAll changes will be lost. To save your changes, press the save button."
@@ -241,6 +241,14 @@
       "editing_card": {
         "title": "Editing Mode",
         "body": "You can now reorder, add and remove cards and pages. All cards show preview data."
+      },
+      "error_save_snack": {
+        "title": "Error saving layout!",
+        "body": "An error occurred while trying to save the layout."
+      },
+      "error_no_components": {
+        "title": "Empty Layout!",
+        "body": "You have not added any widgets. Add at least one widget to save the layout."
       }
     },
     "files": {
@@ -255,6 +263,9 @@
       "no_files_found": "No files found!",
       "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
       "file_name_in_use": "File name already in use!",
+      "gcode_tab": "GCodes",
+      "config_tab": "Configs",
+      "timelapse_tab": "Timelapses",
       "details": {
         "preheat": "Preheat",
         "print": "Print",
@@ -578,6 +589,8 @@
       "card_title": "GCode Console",
       "no_entries": "No cached commands found",
       "fetching_console": "@:general.fetching console entries…",
+      "macro_suggestions": "G-Code Suggestions",
+      "no_suggestions": "No suggestions found!",
       "command_input": {
         "hint": "Enter console command"
       }
@@ -900,6 +913,10 @@
       "title": "Screws Tilt Adjust",
       "base": "Base",
       "hint": "The dialog helps you adjust the screws of the bed. For each screw you are seeing the required adjustments as clock in HH:MM format. For example, 01:15 indicates a full rotation plus a quarter turn in the direction the icon indicates."
+    },
+    "dashboard_page_settings": {
+      "title": "Dashboard Page Settings",
+      "icon_label": "Select the icon for the page:"
     }
   },
   "bottom_sheets": {
@@ -1004,7 +1021,8 @@
       "no_profile_active": "No profile active",
       "no_mesh": "No Mesh",
       "clear_loaded_profile": "Clear loaded profile",
-      "range_between_highest_and_lowest_point": "Range between highest and lowest point"
+      "range_between_highest_and_lowest_point": "Range between highest and lowest point",
+      "cant_render": "Rendering of the bed mesh for the printer's kinematics is not supported yet."
     },
     "select_spool": {
       "header": {
@@ -1078,6 +1096,14 @@
     "unauthorized": "Unauthorized",
     "initializing": "Initializing",
     "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
+  },
+  "print_state": {
+    "standby": "Standby",
+    "printing": "Printing",
+    "paused": "Paused",
+    "complete": "Complete",
+    "cancelled": "Cancelled",
+    "error": "Error"
   },
   "theme_mode": {
     "light": "Light",

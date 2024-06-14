@@ -6,6 +6,7 @@
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -58,14 +59,9 @@ class PrinterAddPage extends HookConsumerWidget {
                   _AddPrinterStepperFlow(),
                   Divider(),
                   Expanded(
-                    child: CustomScrollView(
+                    child: SingleChildScrollView(
                       physics: ClampingScrollPhysics(),
-                      slivers: [
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: _StepperBody(),
-                        ),
-                      ],
+                      child: _StepperBody(),
                     ),
                   ),
                   _StepperFooter(),
@@ -96,7 +92,7 @@ class _StepperBody extends ConsumerWidget {
             sizeAndFadeFactor: anim,
             child: child,
           ),
-          child: stepperBody(model.step, model.isExpert),
+          child: Center(child: ResponsiveLimit(child: stepperBody(model.step, model.isExpert))),
         ),
       ),
     );
@@ -151,6 +147,8 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
       activeStep: model.step,
       showLoadingAnimation: false,
       enableStepTapping: model.step != 3,
+      padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 0),
+      showScrollbar: false,
       steps: [
         EasyStep(
           title: tr('pages.printer_add.steps.mode'),
@@ -184,26 +182,26 @@ class _InputModeStepScreen extends ConsumerWidget {
 
     var themeData = Theme.of(context);
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size(256, 256)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SvgPicture.asset(
-                'assets/vector/undraw_maker_launch_re_rq81.svg',
-                // 'assets/vector/undraw_choice_re_2hkp.svg',
-                // 'assets/vector/undraw_select_option_re_u4qn.svg',
-              ),
+        ConstrainedBox(
+          constraints: BoxConstraints.loose(const Size(256, 256)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: SvgPicture.asset(
+              'assets/vector/undraw_maker_launch_re_rq81.svg',
+              alignment: Alignment.center,
             ),
           ),
         ),
-        Text(
-          'pages.printer_add.select_mode.title',
-          style: themeData.textTheme.labelLarge,
-        ).tr(),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'pages.printer_add.select_mode.title',
+            style: themeData.textTheme.labelLarge,
+          ).tr(),
+        ),
         Text(
           'pages.printer_add.select_mode.body',
           textAlign: TextAlign.justify,
@@ -476,11 +474,12 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             ),
           ],
         ),
-        Expanded(
-            child: SslSettings(
-          initialCertificateDER: advancedFormState.pinnedCertificateDER,
-          initialTrustSelfSigned: advancedFormState.trustUntrustedCertificate,
-        )),
+        Flexible(
+          child: SslSettings(
+            initialCertificateDER: advancedFormState.pinnedCertificateDER,
+            initialTrustSelfSigned: advancedFormState.trustUntrustedCertificate,
+          ),
+        ),
         HttpHeaders(initialValue: advancedFormState.headers),
       ],
     );
@@ -602,34 +601,33 @@ class _ConfirmationStepScreen extends ConsumerWidget {
       return SpinKitWave(color: themeData.colorScheme.primary);
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        children: [
-          Text(
-            'pages.printer_add.confirmed.title',
-            style: themeData.textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ).tr(args: [model.machineToAdd!.name]),
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints.loose(const Size(256, 256)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: SvgPicture.asset(
-                  'assets/vector/undraw_astronaut_re_8c33.svg',
-                  // 'assets/vector/undraw_confirmed_re_sef7.svg',
-                ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'pages.printer_add.confirmed.title',
+          style: themeData.textTheme.titleLarge,
+          textAlign: TextAlign.center,
+        ).tr(args: [model.machineToAdd!.name]),
+        Flexible(
+          child: ConstrainedBox(
+            constraints: BoxConstraints.loose(const Size(256, 256)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SvgPicture.asset(
+                'assets/vector/undraw_astronaut_re_8c33.svg',
+                // 'assets/vector/undraw_confirmed_re_sef7.svg',
               ),
             ),
           ),
-          FilledButton.tonalIcon(
-            onPressed: controller.goToDashboard,
-            icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-            label: const Text('pages.printer_add.confirmed.to_dashboard').tr(),
-          ),
-        ],
-      ),
+        ),
+        FilledButton.tonalIcon(
+          onPressed: controller.goToDashboard,
+          icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+          label: const Text('pages.printer_add.confirmed.to_dashboard').tr(),
+        ),
+      ],
     );
   }
 }

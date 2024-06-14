@@ -5,6 +5,7 @@
 
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -58,8 +59,24 @@ class _VendorDetailPage extends ConsumerWidget {
         addAutomaticKeepAlives: true,
         children: [
           const _VendorInfo(),
-          _VendorFilaments(machineUUID: machineUUID),
-          _VendorSpools(machineUUID: machineUUID),
+          if (context.isCompact) ...[
+            _VendorFilaments(machineUUID: machineUUID),
+            _VendorSpools(machineUUID: machineUUID),
+          ],
+          if (context.isLargerThanCompact)
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Flexible(
+                    child: _VendorFilaments(machineUUID: machineUUID),
+                  ),
+                  Flexible(
+                    child: _VendorSpools(machineUUID: machineUUID),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
       // body: _SpoolTab(),

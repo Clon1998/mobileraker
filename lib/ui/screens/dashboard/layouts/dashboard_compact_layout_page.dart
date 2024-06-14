@@ -16,14 +16,14 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/editing_dashboard_card.dart';
 
 import '../../../components/dashboard_card.dart';
 import '../../../components/pull_to_refresh_printer.dart';
 
-class DashboardTabPage extends ConsumerStatefulWidget {
-  const DashboardTabPage({
+class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
+  const DashboardCompactLayoutPage({
     super.key,
     required this.machineUUID,
     required this.tab,
@@ -61,10 +61,10 @@ class DashboardTabPage extends ConsumerStatefulWidget {
   final void Function() onRequestedEdit;
 
   @override
-  ConsumerState<DashboardTabPage> createState() => DashboardTabPageState();
+  ConsumerState<DashboardCompactLayoutPage> createState() => DashboardTabPageState();
 }
 
-class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
+class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
   @override
   Widget build(BuildContext context) {
     logger.i('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
@@ -146,10 +146,12 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
               // return childs[index];
               final component = components[index];
 
-              return _CardWhileEditing(
+              return EditingDashboardCard(
                 key: ValueKey('$index-editing'),
-                index: index,
-                child: DasboardCard.preview(type: component.type),
+                child: ReorderableDelayedDragStartListener(
+                  index: index,
+                  child: AbsorbPointer(child: DasboardCard.preview(type: component.type)),
+                ),
                 onRemovedTap: () {
                   widget.onRemoveComponent!(widget.tab, widget.tab.components[index]);
                 },
@@ -167,6 +169,9 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
               ),
             ),
           ),
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 80),
+        )
       ],
     );
 
@@ -180,10 +185,12 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
 
   Widget _buildCard(DashboardComponent component, int index) {
     if (widget.isEditing) {
-      return _CardWhileEditing(
+      return EditingDashboardCard(
         key: ValueKey('$index-editing'),
-        index: index,
-        child: DasboardCard.preview(type: component.type),
+        child: ReorderableDelayedDragStartListener(
+          index: index,
+          child: AbsorbPointer(child: DasboardCard.preview(type: component.type)),
+        ),
         onRemovedTap: () {
           widget.onRemoveComponent!(widget.tab, widget.tab.components[index]);
         },
@@ -273,86 +280,6 @@ class _EditingSuffix extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _CardWhileEditing extends HookWidget {
-  const _CardWhileEditing({
-    super.key,
-    required this.child,
-    required this.index,
-    this.onRemovedTap,
-    this.onEditTap,
-  });
-
-  final Widget child;
-  final int index;
-  final void Function()? onRemovedTap;
-  final void Function()? onEditTap;
-
-  @override
-  Widget build(BuildContext context) {
-    var tapped = useState(false);
-    var animationController = useAnimationController(duration: kThemeAnimationDuration);
-    // animationController.forward();
-
-    final ignoreActions = useListenableSelector(animationController, () => animationController.isAnimating);
-
-    var tgt = ReorderableDelayedDragStartListener(
-      index: index,
-      enabled: !tapped.value,
-      child: AbsorbPointer(child: child),
-    );
-
-    return GestureDetector(
-      onTap: () async {
-        if (ignoreActions) return;
-        if (tapped.value) {
-          await animationController.reverse();
-        } else {
-          animationController.forward();
-        }
-        tapped.value = !tapped.value;
-
-        logger.i('Tapped: $index - ${!tapped.value} - ${tapped.value}');
-      },
-      child: Stack(
-        children: [
-          tgt,
-          if (tapped.value)
-            Positioned.fill(
-              child: FadeTransition(
-                opacity: animationController.drive(CurveTween(curve: Curves.linear)),
-                child: Card(
-                  color: Colors.black.withOpacity(0.75),
-                  // margin: EdgeInsets.all(4.0),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        //TODO: Add ability to edit indepth details/Card specific settings or something like "Show while printing"...
-                        // IconButton(
-                        //   onPressed: onEditTap,
-                        //   icon: const Icon(Icons.edit),
-                        //   iconSize: 45,
-                        //   color: Colors.white,
-                        // ),
-                        // const SizedBox(width: 24.0),
-                        IconButton(
-                          onPressed: onRemovedTap,
-                          icon: const Icon(Icons.delete),
-                          iconSize: 45,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

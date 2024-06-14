@@ -27,17 +27,17 @@ class ConsoleEntry {
 
   DateTime get timestamp => DateTime.fromMillisecondsSinceEpoch((time * 1000).toInt());
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ConsoleEntry &&
-          runtimeType == other.runtimeType &&
-          message == other.message &&
-          type == other.type &&
-          time == other.time;
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is ConsoleEntry &&
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.time, time) || other.time == time));
+  }
 
   @override
-  int get hashCode => message.hashCode ^ type.hashCode ^ time.hashCode;
+  int get hashCode => Object.hash(message, type, time);
 
   @override
   String toString() {

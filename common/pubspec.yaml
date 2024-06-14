@@ -66,6 +66,9 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_cache_manager: ^3.3.1
 
+  #reactive UI
+  responsive_framework: ^1.4.0
+
   #ui
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git

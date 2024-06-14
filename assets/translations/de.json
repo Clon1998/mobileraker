@@ -219,7 +219,7 @@
       }
     },
     "customizing_dashboard": {
-      "title": "Layout bearbeiten...",
+      "title": "Dashboard-Layout Personalisieren",
       "cancel_confirm": {
         "title": "Änderungen verwerfen?",
         "body": "Möchten Sie den Layout-Bearbeitungsmodus wirklich verlassen? Dadurch werden alle Änderungen verworfen. Um Ihre Änderungen zu speichern, drücken Sie die Speichertaste."
@@ -241,6 +241,14 @@
       "editing_card": {
         "title": "Editiermodus",
         "body": "Sie können jetzt Layout Karten und Seiten neu anordnen, hinzufügen und entfernen. Alle Karten zeigen Vorschau-Daten an."
+      },
+      "error_save_snack": {
+        "title": "Fehler beim Speichern!",
+        "body": "Ihre Änderungen konnten nicht gespeichert werden."
+      },
+      "error_no_components": {
+        "title": "Leeres Layout!",
+        "body": "Du hast keine Widgets hinzugefügt. Füge mindestens ein Widget hinzu, um das Layout zu speichern."
       }
     },
     "files": {
@@ -255,6 +263,9 @@
       "no_files_found": "Keine Datei gefunden!",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",
       "file_name_in_use": "Der Dateiname wird bereits verwendet!",
+      "gcode_tab": "GCodes",
+      "config_tab": "Konfigs",
+      "timelapse_tab": "Zeitraffer",
       "details": {
         "preheat": "Vorheizen",
         "print": "Drucken",
@@ -578,6 +589,8 @@
       "card_title": "GCode Konsole",
       "no_entries": "Keine zwischengespeicherten Befehle gefunden",
       "fetching_console": "@:general.fetching Konsoleneinträge…",
+      "macro_suggestions": "G-Code Vorschläge",
+      "no_suggestions": "Keine Vorschläge gefunden",
       "command_input": {
         "hint": "Geben Sie einen Befehl ein"
       }
@@ -637,13 +650,13 @@
       "title": "Tools"
     },
     "beltTuner": {
-      "title": "Riementuner",
+      "title": "Zahnriemen-Tuner",
       "description": "Die richtige Riemenspannung ist für eine optimale Leistung des 3D-Druckers unerlässlich. Eine falsche Spannung, ob zu stark oder zu schwach, kann zu mechanischen Problemen, frühzeitiger Ermüdung und verminderter Druckqualität führen. Die angegebenen Werte dienen als Richtwerte; es wird jedoch empfohlen, die Empfehlungen des Herstellers zu beachten, um konkrete, auf Ihr Druckermodell zugeschnittene Richtwerte zu erhalten. Anpassungen sollten sowohl auf der Grundlage dieser empfohlenen Werte als auch auf der Grundlage der individuellen Anforderungen und Bedingungen des Druckers vorgenommen werden.",
       "beltType": "Wählen deine Zahnriemen Typ:",
       "target": "Ziel: {} Hz über {} mm",
       "permissionWarning": {
         "title": "Berechtigung für das Mikrofon erforderlich",
-        "subtitle": "Der Riementuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Gurte zu analysieren.\n\nTippen Sie, um die Erlaubnis zu erteilen."
+        "subtitle": "Der Zahnriemen-Tuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Zahnriemen zu analysieren.\n\nTippen Sie, um die Erlaubnis zu erteilen."
       }
     },
     "spoolman": {
@@ -900,6 +913,10 @@
       "title": "Bettneigung einstellen",
       "base": "Basis",
       "hint": "Der Dialog hilft Ihnen, die Bett-Schrauben einzustellen. Für jede Schraube wird die erforderliche Anpassung als Uhrzeit (HH:MM) angezeigt. Zum Beispiel bedeutet 01:15 eine volle Umdrehung plus eine Vierteldrehung in die Richtung, die das Icon angibt."
+    },
+    "dashboard_page_settings": {
+      "title": "Dashboard-Seiteneinstellungen",
+      "icon_label": "Wählen Sie das Symbol für die Seite:"
     }
   },
   "bottom_sheets": {
@@ -1004,7 +1021,8 @@
       "no_profile_active": "Kein aktives Profil",
       "no_mesh": "Kein Netz",
       "clear_loaded_profile": "Geladenes Profil zurücksetzen",
-      "range_between_highest_and_lowest_point": "Abstand zwischen höchstem und tiefstem Punkt"
+      "range_between_highest_and_lowest_point": "Abstand zwischen höchstem und tiefstem Punkt",
+      "cant_render": "Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch nicht unterstützt."
     },
     "select_spool": {
       "header": {
@@ -1078,6 +1096,14 @@
     "unauthorized": "Unberechtigt",
     "initializing": "Initialisierung",
     "not_connected": "Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen Sie, ob Klipper auf Ihrem System läuft."
+  },
+  "print_state": {
+    "standby": "Standby",
+    "printing": "Drucken",
+    "paused": "Pausiert",
+    "complete": "Abgeschlossen",
+    "cancelled": "Abgebrochen",
+    "error": "Fehler"
   },
   "theme_mode": {
     "light": "Hell",

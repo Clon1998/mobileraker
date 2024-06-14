@@ -227,7 +227,13 @@ class _Fan extends ConsumerWidget {
       _ => null,
     };
 
-    return _FanCard(name: name, speed: fan.speed, onTap: onTap);
+    VoidCallback? onLongTap = switch (fan) {
+      GenericFan() when klippyCanReceiveCommands => () => controller.onToggleFan(fan),
+      PrintFan() when klippyCanReceiveCommands => () => controller.onPrintFan(fan),
+      _ => null,
+    };
+
+    return _FanCard(name: name, speed: fan.speed, onTap: onTap, onLongTap: onLongTap);
   }
 }
 
@@ -237,12 +243,14 @@ class _FanCard extends StatelessWidget {
   final String name;
   final double speed;
   final VoidCallback? onTap;
+  final VoidCallback? onLongTap;
 
   const _FanCard({
     super.key,
     required this.name,
     required this.speed,
     this.onTap,
+    this.onLongTap,
   });
 
   @override
@@ -252,6 +260,7 @@ class _FanCard extends StatelessWidget {
           ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
           : const Text('general.set').tr(),
       onTap: onTap,
+      onLongTap: onLongTap,
       builder: (context) {
         var themeData = Theme.of(context);
 
@@ -399,6 +408,26 @@ class _FansCardController extends _$FansCardController {
     if (resp != null && resp.confirmed && resp.data != null) {
       num v = resp.data;
       _printerService.genericFanFan(fan.name, v.toDouble() / 100);
+    }
+  }
+
+  void onToggleFan(GenericFan fan) {
+    if (!state.hasValue) return;
+
+    if (fan.speed > 0) {
+      _printerService.genericFanFan(fan.name, 0);
+    } else {
+      _printerService.genericFanFan(fan.name, 1);
+    }
+  }
+
+  void onPrintFan(PrintFan fan) {
+    if (!state.hasValue) return;
+
+    if (fan.speed > 0) {
+      _printerService.partCoolingFan(0);
+    } else {
+      _printerService.partCoolingFan(1);
     }
   }
 }

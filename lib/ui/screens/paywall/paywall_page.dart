@@ -7,9 +7,11 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:common/service/payment_service.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -33,7 +35,50 @@ class PaywallPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Widget body = CustomScrollView(
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        if (context.isCompact)
+          SliverLayoutBuilder(builder: (context, constraints) {
+            return SliverAppBar(
+              expandedHeight: 210,
+              floating: false,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.parallax,
+                background: SvgPicture.asset(
+                  'assets/vector/undraw_pair_programming_re_or4x.svg',
+                ),
+              ),
+            );
+          }),
+        if (context.isLargerThanCompact)
+          SliverToBoxAdapter(
+            child: SvgPicture.asset(
+              height: 210,
+              'assets/vector/undraw_pair_programming_re_or4x.svg',
+            ),
+          ),
+        const SliverFillRemaining(
+          hasScrollBody: false,
+          child: _PaywallPage(),
+        ),
+      ],
+    );
+    if (context.isLargerThanCompact) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text(tr('pages.paywall.title')),
+        // toolbarOpacity: 0.2,
+        // backgroundColor: Colors.greenAccent,
+      ).unless(context.isCompact),
       drawer: const NavigationDrawerWidget(),
       body: LoaderOverlay(
         useDefaultLoading: false,
@@ -51,27 +96,7 @@ class PaywallPage extends HookConsumerWidget {
             ],
           ),
         ),
-        child: CustomScrollView(
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverLayoutBuilder(builder: (context, constraints) {
-              return SliverAppBar(
-                expandedHeight: 210,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.parallax,
-                  background: SvgPicture.asset(
-                    'assets/vector/undraw_pair_programming_re_or4x.svg',
-                  ),
-                ),
-              );
-            }),
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: _PaywallPage(),
-            ),
-          ],
-        ),
+        child: body,
       ),
     );
   }
@@ -125,7 +150,7 @@ class _PaywallPage extends ConsumerWidget {
       },
     );
 
-    return ref.watch(paywallPageControllerProvider).when(
+    Widget widget = ref.watch(paywallPageControllerProvider).when(
           data: (data) => _PaywallOfferings(model: data),
           error: (e, s) {
             if (e is PlatformException) {
@@ -208,6 +233,8 @@ class _PaywallPage extends ConsumerWidget {
             ],
           ),
         );
+
+    return widget;
   }
 }
 

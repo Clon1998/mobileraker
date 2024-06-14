@@ -33,4 +33,8 @@ enum WebcamServiceType {
   final bool forSupporters;
 
   const WebcamServiceType(this.supported, this.forSupporters);
+
+  static List<WebcamServiceType> renderedValues() => WebcamServiceType.values
+      .where((element) => element != WebcamServiceType.preview && element != WebcamServiceType.unknown)
+      .toList();
 }

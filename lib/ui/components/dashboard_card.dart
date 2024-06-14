@@ -31,11 +31,11 @@ class DasboardCard extends StatelessWidget {
   const DasboardCard._({super.key, required this.child, bool isDemo = false}) : _isDemo = isDemo;
 
   factory DasboardCard({Key? key, required DashboardComponentType type, required String machineUUID}) {
-    return DasboardCard._(child: _resolve(type, machineUUID));
+    return DasboardCard._(key: key, child: _resolve(type, machineUUID));
   }
 
   factory DasboardCard.preview({Key? key, required DashboardComponentType type}) {
-    return DasboardCard._(child: _resolveDemo(type), isDemo: true);
+    return DasboardCard._(key: key, child: _resolveDemo(type), isDemo: true);
   }
 
   final Widget child;

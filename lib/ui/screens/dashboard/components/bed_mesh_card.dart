@@ -230,62 +230,74 @@ class _CardBody extends ConsumerWidget {
               ),
             ],
           ),
-        IntrinsicHeight(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (meshIsActive) ...[
-                Column(
-                  children: [
-                    Expanded(
-                      child: BedMeshLegend(
-                        valueRange:
-                            model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: controller.changeMode,
-                      child: Tooltip(
-                        message: tr(
-                          'pages.dashboard.control.bed_mesh_card.showing_matrix',
-                          gender: model.showProbed ? 'probed' : 'mesh',
-                        ),
-                        child: AnimatedSwitcher(
-                          duration: kThemeAnimationDuration,
-                          child: (model.showProbed
-                              ? Icon(
-                                  Icons.blur_on,
-                                  key: const ValueKey('probed'),
-                                  size: 30,
-                                  color: themeData.colorScheme.secondary,
-                                )
-                              : Icon(
-                                  Icons.grid_on,
-                                  key: const ValueKey('mesh'),
-                                  size: 30,
-                                  color: themeData.colorScheme.secondary,
-                                )),
+        if (model.canRender)
+          IntrinsicHeight(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (meshIsActive) ...[
+                  Column(
+                    children: [
+                      Expanded(
+                        child: BedMeshLegend(
+                          valueRange:
+                              model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: controller.changeMode,
+                        child: Tooltip(
+                          message: tr(
+                            'pages.dashboard.control.bed_mesh_card.showing_matrix',
+                            gender: model.showProbed ? 'probed' : 'mesh',
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: kThemeAnimationDuration,
+                            child: (model.showProbed
+                                ? Icon(
+                                    Icons.blur_on,
+                                    key: const ValueKey('probed'),
+                                    size: 30,
+                                    color: themeData.colorScheme.secondary,
+                                  )
+                                : Icon(
+                                    Icons.grid_on,
+                                    key: const ValueKey('mesh'),
+                                    size: 30,
+                                    color: themeData.colorScheme.secondary,
+                                  )),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: BedMeshPlot(
+                    bedMesh: model.bedMesh,
+                    bedMin: model.bedMin,
+                    bedMax: model.bedMax,
+                    isProbed: model.showProbed,
+                  ),
                 ),
-                const SizedBox(width: 8),
+                // _GradientLegend(machineUUID: machineUUID),
+                // _ScaleIndicator(gradient: invertedGradient, min: zMin, max: zMax),
               ],
-              Expanded(
-                child: BedMeshPlot(
-                  bedMesh: model.bedMesh,
-                  bedMin: model.bedMin,
-                  bedMax: model.bedMax,
-                  isProbed: model.showProbed,
-                ),
-              ),
-              // _GradientLegend(machineUUID: machineUUID),
-              // _ScaleIndicator(gradient: invertedGradient, min: zMin, max: zMax),
-            ],
+            ),
           ),
-        ),
+        if (!model.canRender)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                'bottom_sheets.bedMesh.cant_render',
+                textAlign: TextAlign.center,
+                style: themeData.textTheme.bodySmall,
+              ).tr(),
+            ),
+          ),
       ],
     );
   }
@@ -335,6 +347,7 @@ class _Controller extends _$Controller {
     }
 
     return _Model(
+      canRender: configFile.stepperX != null && configFile.stepperY != null,
       klippyCanReceiveCommands: results[0] as bool,
       showProbed: showProbed,
       bedMesh: mesh,
@@ -392,6 +405,7 @@ class _PreviewController extends _Controller {
   @override
   Future<_Model> build(String machineUUID) {
     const model = _Model(
+      canRender: true,
       klippyCanReceiveCommands: true,
       showProbed: false,
       bedMesh: BedMesh(
@@ -483,6 +497,7 @@ class _Model with _$Model {
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
+    required bool canRender,
     required bool showProbed,
     required BedMesh? bedMesh,
     required (double, double) bedMin, //x, y

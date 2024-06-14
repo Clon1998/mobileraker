@@ -239,7 +239,7 @@ class _MacroChip extends ConsumerWidget {
           onPressed: enabled ? () => controller.onMacroPressed(configMacro!) : null,
           label: Text(macro.beautifiedName),
           labelStyle: TextStyle(
-            color: enabled ? themeData.colorScheme.onPrimary : themeData.colorScheme.onSurface.withOpacity(0.38),
+            color: enabled ? themeData.colorScheme.onPrimary : themeData.disabledColor,
           ),
           backgroundColor: themeData.colorScheme.primary,
         ),

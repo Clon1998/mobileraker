@@ -8,11 +8,14 @@
 import 'dart:io';
 
 import 'package:common/service/live_activity_service.dart';
+import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
@@ -38,13 +41,8 @@ class DevPage extends HookConsumerWidget {
 
     var systemInfo = ref.watch(klipperSystemInfoProvider(selMachine!.uuid));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dev'),
-      ),
-      drawer: const NavigationDrawerWidget(),
-      body: ListView(
-        children: [
+    Widget body = ListView(
+      children: [
           // PowerApiCardLoading(),
 
           // BedMeshCard(machineUUID: selMachine!.uuid),
@@ -85,8 +83,9 @@ class DevPage extends HookConsumerWidget {
             },
           ),
 
-          OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
-          OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
+        OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
+        OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
+        OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
           OutlinedButton(
               onPressed: () => ref
                   .read(bottomSheetServiceProvider)
@@ -109,7 +108,23 @@ class DevPage extends HookConsumerWidget {
           //   data: (data) => getMeshChart(data),
           // ),
         ],
+    );
+
+    if (context.isLargerThanCompact) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dev'),
       ),
+      drawer: const NavigationDrawerWidget(),
+      body: body,
     );
   }
 
@@ -120,6 +135,10 @@ class DevPage extends HookConsumerWidget {
     logger.i('#2');
     var activityState = await liveActivitiesPlugin.getActivityState('123123');
     logger.i('Got state message: $activityState');
+  }
+
+  v2Activity(WidgetRef ref) async {
+    ref.read(v2LiveActivityProvider).initialize();
   }
 
   startLiveActivity(WidgetRef ref) async {
