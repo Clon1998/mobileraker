@@ -79,6 +79,10 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.read(selectedMachineProvider).valueOrFullNull == null) {
+      return const SizedBox.shrink();
+    }
+
     var jobQueueStatusAsync = ref.watch(
       filesPageControllerProvider.select((value) => value.jobQueueStatus),
     );
@@ -149,6 +153,10 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.read(selectedMachineProvider).valueOrFullNull == null) {
+      return AppBar(title: Text('pages.files.title').tr());
+    }
+
     final themeData = Theme.of(context);
 
     final onBackground = themeData.appBarTheme.foregroundColor ??
