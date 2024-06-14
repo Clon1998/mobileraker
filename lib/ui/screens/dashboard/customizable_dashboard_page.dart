@@ -493,7 +493,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
       return AppBar(
         centerTitle: context.isLargerThanCompact,
         title: const Text('pages.dashboard.title').tr(),
-        automaticallyImplyLeading: !context.isLargerThanCompact,
+        // automaticallyImplyLeading: !context.isLargerThanCompact,
       );
     }
 
