@@ -567,7 +567,6 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
       rowChildren.add(
         Expanded(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               if (headerForCol != null) headerForCol,
               ...children[i],

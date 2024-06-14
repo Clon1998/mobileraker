@@ -19,6 +19,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../components/dashboard_card.dart';
+import '../../../components/pull_to_refresh_printer.dart';
 import '../../../components/reordable_multi_col_row.dart';
 import '../components/editing_dashboard_card.dart';
 
@@ -174,12 +175,22 @@ class DashboardMediumLayout extends HookConsumerWidget {
       );
     }
 
-    return SingleChildScrollView(
-      // primary: true,
-      controller: sc,
-      physics: const ClampingScrollPhysics(),
-      child: body,
+    // Ensure we will the whole screen
+    var scrollView = SizedBox(
+      height: double.infinity,
+      child: SingleChildScrollView(
+        // primary: true,
+        controller: sc,
+        physics: const ClampingScrollPhysics(),
+        child: body,
+      ),
     );
+
+    if (!isEditing) {
+      return PullToRefreshPrinter(child: scrollView);
+    }
+
+    return scrollView;
 
     //
     // return ReorderableColumns(
