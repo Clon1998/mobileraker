@@ -147,6 +147,10 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
   ref.keepAliveFor();
 
+  // Just ensure we have a machine to prevent errors while we dispose the machine/on remove the machine.
+  final machine = await ref.watch(machineProvider(machineUUID).future);
+  if (machine == null) return;
+
   // We listen to macro count changes to trigger a provider rebuild, allowing us to migrate the setting's macros
   var macroCnt = await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.gcodeMacros.length));
 
@@ -158,6 +162,7 @@ Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUU
       .asyncMap((event) async {
     var printerData = await ref.read(printerProvider(machineUUID).future);
 
+    // We need to use read to prevent circular dependencies
     return await ref
         .read(machineServiceProvider)
         .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
@@ -267,7 +272,6 @@ class MachineService {
 
     // await Future.delayed(Duration(seconds: 4));
 // DANGER!! It is really important to invalidate in the correct order!
-    ref.invalidate(allMachinesProvider);
     // Announcements API
     ref.invalidate(announcementProvider(machine.uuid));
     ref.invalidate(announcementServiceProvider(machine.uuid));
@@ -276,6 +280,9 @@ class MachineService {
     ref.invalidate(fileServiceProvider(machine.uuid));
     // Webcam API
     ref.invalidate(webcamServiceProvider(machine.uuid));
+
+    // Settings
+    // ref.invalidate(machineSettingsProvider(machine.uuid));
     // Printer API
     ref.invalidate(printerProvider(machine.uuid));
     ref.invalidate(printerServiceProvider(machine.uuid));
@@ -283,12 +290,17 @@ class MachineService {
     ref.invalidate(klipperProvider(machine.uuid));
     ref.invalidate(klipperServiceProvider(machine.uuid));
     // I/O
+    ref.invalidate(baseOptionsProvider);
+    ref.invalidate(httpClientProvider);
+    ref.invalidate(jrpcClientManagerProvider(machine.uuid));
     ref.invalidate(dioClientProvider(machine.uuid));
     ref.invalidate(jrpcClientStateProvider(machine.uuid));
     ref.invalidate(jrpcClientProvider(machine.uuid));
     // Actual machine
-    ref.invalidate(machineSettingsProvider(machine.uuid));
     ref.invalidate(machineProvider(machine.uuid));
+    // ref.invalidate(selectedMachineProvider);
+    await ref.refresh(allMachinesProvider);
+    logger.i('Removed machine ${machine.uuid}');
   }
 
   Future<Machine?> fetch(String uuid) {

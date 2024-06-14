@@ -12,6 +12,8 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/connection/klippy_provider_guard.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/responsive_limit.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -45,7 +47,7 @@ class MachineConnectionGuard extends ConsumerWidget {
     final machine = ref.watch(selectedMachineProvider);
     return Center(
       child: switch (machine) {
-        AsyncData(value: null) => const _WelcomeMessage(),
+        AsyncData(value: null) => const _WelcomeMessage().also((_) => logger.i('MACHINE GUARD DETECTED NO MACHINE')),
         AsyncData(:final value?) => _WebsocketStateWidget(
             machineUUID: value.uuid,
             skipKlipperReady: skipKlipperReady,
