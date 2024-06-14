@@ -3,8 +3,10 @@
  * All rights reserved.
  */
 
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -121,17 +123,22 @@ class NavigationRailView extends ConsumerWidget {
                   bottom: false,
                   top: false,
                   right: false,
-                  child: GestureDetector(
-                    onTap: (() =>
-                            ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)))
-                        .only(model.enabled),
-                    child: SvgPicture.asset(
-                          'assets/vector/mr_logo.svg',
-                          width: 44,
-                          height: 44,
-                        ).unless(brandingIcon != null) ??
-                        Image(image: brandingIcon!, width: 44, height: 44),
-                  ),
+                  child: Consumer(
+                      builder: (context, ref, child) {
+                        final enable =
+                            ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
+
+                        return GestureDetector(
+                          onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine))).only(model.enabled && enable),
+                          child: child,
+                        );
+                      },
+                      child: SvgPicture.asset(
+                            'assets/vector/mr_logo.svg',
+                            width: 44,
+                            height: 44,
+                          ).unless(brandingIcon != null) ??
+                          Image(image: brandingIcon!, width: 44, height: 44)),
                 ),
               ),
             ],
