@@ -181,7 +181,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
       child: SingleChildScrollView(
         // primary: true,
         controller: sc,
-        // physics: const ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         child: body,
       ),
     );
