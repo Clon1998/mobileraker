@@ -79,9 +79,11 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.read(selectedMachineProvider).valueOrFullNull == null) {
+    if (ref.watch(selectedMachineProvider).valueOrFullNull == null) {
       return const SizedBox.shrink();
     }
+
+    final page = ref.watch(filePageProvider);
 
     var jobQueueStatusAsync = ref.watch(
       filesPageControllerProvider.select((value) => value.jobQueueStatus),
@@ -95,20 +97,38 @@ class _Fab extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     var themeData = Theme.of(context);
-    return FloatingActionButton(
-      onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
-      child: badges.Badge(
-        badgeStyle: badges.BadgeStyle(
-          badgeColor: themeData.colorScheme.onSecondary,
+
+    Widget fab;
+    if (page == 0) {
+      fab = FloatingActionButton(
+        onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
+        child: badges.Badge(
+          badgeStyle: badges.BadgeStyle(
+            badgeColor: themeData.colorScheme.onSecondary,
+          ),
+          badgeAnimation: const badges.BadgeAnimation.rotation(),
+          position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
+          badgeContent: Text(
+            '${jobQueueStatus.queuedJobs.length}',
+            style: TextStyle(color: themeData.colorScheme.secondary),
+          ),
+          child: const Icon(Icons.content_paste),
         ),
-        badgeAnimation: const badges.BadgeAnimation.rotation(),
-        position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
-        badgeContent: Text(
-          '${jobQueueStatus.queuedJobs.length}',
-          style: TextStyle(color: themeData.colorScheme.secondary),
-        ),
-        child: const Icon(Icons.content_paste),
-      ),
+      );
+    } else {
+      fab = SizedBox.shrink();
+    }
+
+    return AnimatedSwitcher(
+      // duration: kThemeAnimationDuration,
+      duration: const Duration(milliseconds: 350),
+      transitionBuilder: (child, animation) {
+        return ScaleTransition(
+          scale: animation,
+          child: child,
+        );
+      },
+      child: fab,
     );
   }
 }
