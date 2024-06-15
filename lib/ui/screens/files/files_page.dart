@@ -502,7 +502,7 @@ class _Header extends HookConsumerWidget {
     final tabController = useTabController(initialLength: hasTimelapse ? 3 : 2, keys: [machineUUID, hasTimelapse]);
 
     // That is used to sync Riverpod and tab controller (Also it would be better to refactor that...)
-    final filePageIdx = ref.read(filePageProvider);
+    final filePageIdx = ref.watch(filePageProvider);
     if (tabController.index != filePageIdx && !tabController.indexIsChanging) {
       tabController.index = filePageIdx;
     }

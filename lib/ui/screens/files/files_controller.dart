@@ -93,8 +93,9 @@ class _FilePath extends _$FilePath {
 Future<FolderContentWrapper> _fileApiResponse(
   _FileApiResponseRef ref, [
   String path = 'gcodes',
-]) {
+    ]) async {
   ref.keepAliveFor();
+  // await Future.delayed(const Duration(milliseconds: 5000));
   return ref.watch(fileServiceSelectedProvider).fetchDirectoryInfo(path, true);
 }
 
