@@ -88,7 +88,7 @@ class _Fab extends ConsumerWidget {
     var jobQueueStatusAsync = ref.watch(
       filesPageControllerProvider.select((value) => value.jobQueueStatus),
     );
-    if (jobQueueStatusAsync.isLoading || jobQueueStatusAsync.hasError) {
+    if (!jobQueueStatusAsync.hasValue) {
       return const SizedBox.shrink();
     }
     var jobQueueStatus = jobQueueStatusAsync.requireValue;
@@ -101,7 +101,8 @@ class _Fab extends ConsumerWidget {
     Widget fab;
     if (page == 0) {
       fab = FloatingActionButton(
-        onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
+        onPressed:
+            jobQueueStatusAsync.isLoading ? null : ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
         child: badges.Badge(
           badgeStyle: badges.BadgeStyle(
             badgeColor: themeData.colorScheme.onSecondary,
