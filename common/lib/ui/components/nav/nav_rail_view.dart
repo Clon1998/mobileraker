@@ -22,18 +22,81 @@ class NavigationRailView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(navWidgetControllerProvider.notifier);
-    final model = ref.watch(navWidgetControllerProvider);
     // final active = model.entries.indexWhere((element) => element.route == countext.location);
-    final current = ref.watch(goRouterProvider).location;
 
     final themeData = Theme.of(context);
-    final themePack = ref.watch(activeThemeProvider).requireValue.themePack;
-    final brandingIcon =
-        (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
+    final backgroundColor = themeData.colorScheme.surface;
+
+    ///!! The SafeAreas are at each child because we set background colors for each element
+
+    return SizedBox(
+      width: 72, // M3 Constraints
+      child: Material(
+          color: backgroundColor,
+          elevation: 2,
+          child: Column(
+            children: [
+              Expanded(
+                child: CustomScrollView(
+                  // shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: _Leading(leading: leading),
+                    ),
+                    const SliverFillRemaining(
+                      // fillOverscroll: fa,
+                      hasScrollBody: false,
+                      child: _Body(),
+                    ),
+                  ],
+                ),
+              ),
+              const _Footer(),
+            ],
+          )),
+    );
+  }
+}
+
+class _Leading extends StatelessWidget {
+  const _Leading({
+    super.key,
+    required this.leading,
+  });
+
+  final Widget? leading;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0).add(const EdgeInsets.only(top: 8)),
+      child: SafeArea(
+        bottom: false,
+        top: false,
+        right: false,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56,
+            minWidth: double.infinity,
+          ),
+          child: leading,
+        ),
+      ),
+    );
+  }
+}
+
+class _Body extends ConsumerWidget {
+  const _Body({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
 
     final foregroundColor = themeData.colorScheme.onSurface;
-    final backgroundColor = themeData.colorScheme.surface;
 
     final selectedForegroundColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.onSurfaceVariant
@@ -41,108 +104,92 @@ class NavigationRailView extends ConsumerWidget {
 
     final selectedBackgroundColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.surfaceVariant
-        : themeData.colorScheme.primaryContainer.withOpacity(.1);
+        : themeData.colorScheme.primary.withOpacity(.2);
 
-    return IntrinsicWidth(
-      child: Material(
-          color: backgroundColor,
-          elevation: 2,
+    final controller = ref.watch(navWidgetControllerProvider.notifier);
+    final model = ref.watch(navWidgetControllerProvider);
+
+    final current = ref.watch(goRouterProvider).location;
+
+    return SafeArea(
+      bottom: false,
+      top: false,
+      right: false,
+      child: Align(
+        alignment: Alignment.center,
+        child: Material(
+          color: Colors.transparent,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: SafeArea(
-                  bottom: false,
-                  top: false,
-                  right: false,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 72),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (leading != null)
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                    minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56,
-                                    minWidth: themeData.floatingActionButtonTheme.sizeConstraints?.minWidth ?? 56),
-                                child: leading,
-                              ),
-                            ),
-                          Flexible(
-                            child: Material(
-                              color: Colors.transparent,
-                              child: SingleChildScrollView(
-                                padding: leading == null
-                                    ? EdgeInsets.only(
-                                        top:
-                                            16 + (themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56))
-                                    : null,
-                                physics: const ClampingScrollPhysics(),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    for (final entry in model.entries)
-                                      entry.isDivider
-                                          ? const Divider()
-                                          : InkWell(
-
-                                              // title: Text(entry.label),
-                                              onTap: (() => controller.replace(entry.route)).only(model.enabled),
-                                              child: Ink(
-                                                color: selectedBackgroundColor.only(current == entry.route),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(12),
-                                                  child: Icon(entry.icon,
-                                                      color: current == entry.route
-                                                          ? selectedForegroundColor
-                                                          : foregroundColor),
-                                                ),
-                                              )
-                                              // selected: active == model.entries.indexOf(entry),
-                                              ),
-                                  ],
-                                ),
-                              ),
-                            ),
+              // Text('123'),
+              // Text('456'),
+              for (final entry in model.entries)
+                entry.isDivider
+                    ? const Divider()
+                    : InkWell(
+                        // title: Text(entry.label),
+                        onTap: (() => controller.replace(entry.route)).only(model.enabled),
+                        child: Ink(
+                          color: selectedBackgroundColor.only(current == entry.route),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(entry.icon,
+                                color: current == entry.route ? selectedForegroundColor : foregroundColor),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                color: themeData.colorScheme.primary,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: SafeArea(
-                  bottom: false,
-                  top: false,
-                  right: false,
-                  child: Consumer(
-                      builder: (context, ref, child) {
-                        final enable =
-                            ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
-
-                        return GestureDetector(
-                          onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine))).only(model.enabled && enable),
-                          child: child,
-                        );
-                      },
-                      child: SvgPicture.asset(
-                            'assets/vector/mr_logo.svg',
-                            width: 44,
-                            height: 44,
-                          ).unless(brandingIcon != null) ??
-                          Image(image: brandingIcon!, width: 44, height: 44)),
-                ),
-              ),
+                        )
+                        // selected: active == model.entries.indexOf(entry),
+                        ),
             ],
-          )),
+          ),
+        ),
+      ),
+    );
+    ;
+  }
+}
+
+class _Footer extends ConsumerWidget {
+  const _Footer({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themePack = ref.watch(activeThemeProvider).requireValue.themePack;
+
+    final themeData = Theme.of(context);
+    final brandingIcon =
+        (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
+
+    final model = ref.watch(navWidgetControllerProvider);
+
+    return Container(
+      width: double.infinity,
+      color: themeData.appBarTheme.backgroundColor ??
+          themeData.colorScheme.primary.unless(themeData.useMaterial3) ??
+          themeData.colorScheme.surface,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      child: SafeArea(
+        bottom: false,
+        top: false,
+        right: false,
+        child: Consumer(
+            builder: (context, ref, child) {
+              final enable = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
+
+              return GestureDetector(
+                onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)))
+                    .only(model.enabled && enable),
+                child: child,
+              );
+            },
+            child: SvgPicture.asset(
+                  'assets/vector/mr_logo.svg',
+                  width: 44,
+                  height: 44,
+                ).unless(brandingIcon != null) ??
+                Image(image: brandingIcon!, width: 44, height: 44)),
+      ),
     );
   }
 }

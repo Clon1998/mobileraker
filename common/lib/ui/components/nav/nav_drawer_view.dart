@@ -239,7 +239,7 @@ class _DrawerItem extends ConsumerWidget {
     var themeData = Theme.of(context);
     var selectedTileColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.surfaceVariant
-        : themeData.colorScheme.primaryContainer.withOpacity(.1);
+        : themeData.colorScheme.primaryContainer.withOpacity(.25);
 
     return ListTile(
       selected: ref.watch(goRouterProvider).location == routeName,
