@@ -105,6 +105,7 @@ FileService fileServiceSelected(FileServiceSelectedRef ref) {
 
 @riverpod
 Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRef ref) async* {
+  ref.keepAliveFor();
   try {
     var machine = await ref.watch(selectedMachineProvider.future);
     if (machine == null) return;

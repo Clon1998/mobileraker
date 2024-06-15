@@ -94,11 +94,14 @@ Future<FolderContentWrapper> _fileApiResponse(
   _FileApiResponseRef ref, [
   String path = 'gcodes',
 ]) {
+  ref.keepAliveFor();
   return ref.watch(fileServiceSelectedProvider).fetchDirectoryInfo(path, true);
 }
 
 @riverpod
 Future<FolderContentWrapper> _procssedContent(_ProcssedContentRef ref) async {
+  ref.keepAliveFor();
+
   final path = ref.watch(_filePathProvider);
   final fileApiResponse = await ref.watch(_fileApiResponseProvider(path.join('/')).future);
   final searchTerm = ref.watch(searchTextEditingControllerProvider).text.toLowerCase();
