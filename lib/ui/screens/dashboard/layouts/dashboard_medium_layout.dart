@@ -175,21 +175,16 @@ class DashboardMediumLayout extends HookConsumerWidget {
       );
     }
 
-    // Ensure we will the whole screen
-    var scrollView = SizedBox(
-      height: double.infinity,
-      child: SingleChildScrollView(
-        // primary: true,
-        controller: sc,
-        physics: const ClampingScrollPhysics(),
-        child: body,
-      ),
-    );
-
     return PullToRefreshPrinter(
       enablePullDown: !isEditing,
       scrollController: sc,
-      child: scrollView,
+      child: SingleChildScrollView(
+        // primary: true,
+        controller: sc,
+
+        physics: const RangeMaintainingScrollPhysics(),
+        child: body,
+      ),
     );
 
     //
