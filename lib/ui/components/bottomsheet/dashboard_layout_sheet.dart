@@ -274,42 +274,44 @@ class _LayoutPreview extends HookWidget {
                     return SingleChildScrollView(
                       controller: controller,
                       scrollDirection: Axis.horizontal,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (var i = 0; i < max(availableTabs, pagesOnScreen); i++)
-                            Builder(builder: (ctx) {
-                              final tab = layout.tabs.elementAtOrNull(i);
+                      child: IgnorePointer(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (var i = 0; i < max(availableTabs, pagesOnScreen); i++)
+                              Builder(builder: (ctx) {
+                                final tab = layout.tabs.elementAtOrNull(i);
 
-                              Widget child;
-                              if (tab == null || tab.components.isEmpty) {
-                                child = Padding(
-                                  padding: EdgeInsets.symmetric(vertical: width / 4),
-                                  child: SvgPicture.asset(
-                                    'assets/vector/undraw_taken_re_yn20.svg',
-                                    alignment: Alignment.center,
-                                    width: width * 0.5,
+                                Widget child;
+                                if (tab == null || tab.components.isEmpty) {
+                                  child = Padding(
+                                    padding: EdgeInsets.symmetric(vertical: width / 4),
+                                    child: SvgPicture.asset(
+                                      'assets/vector/undraw_taken_re_yn20.svg',
+                                      alignment: Alignment.center,
+                                      width: width * 0.5,
+                                    ),
+                                  );
+                                } else {
+                                  child = Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      for (var card in tab.components) DasboardCard.preview(type: card.type),
+                                    ],
+                                  );
+                                }
+                                return ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
+                                  child: FittedBox(
+                                    child: SizedBox(
+                                      width: width,
+                                      child: child,
+                                    ),
                                   ),
                                 );
-                              } else {
-                                child = Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    for (var card in tab.components) DasboardCard.preview(type: card.type),
-                                  ],
-                                );
-                              }
-                              return ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
-                                child: FittedBox(
-                                  child: SizedBox(
-                                    width: width,
-                                    child: child,
-                                  ),
-                                ),
-                              );
-                            }),
-                        ],
+                              }),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -330,7 +332,7 @@ class _LayoutPreview extends HookWidget {
               ],
             ),
             Positioned(
-              bottom: 0,
+              bottom: scollSteps > 1 ? 6 : 0,
               right: 0,
               left: 0,
               child: Wrap(
