@@ -122,7 +122,7 @@ class _Fab extends ConsumerWidget {
 
     return AnimatedSwitcher(
       // duration: kThemeAnimationDuration,
-      duration: const Duration(milliseconds: 350),
+      duration: kThemeAnimationDuration,
       transitionBuilder: (child, animation) {
         return ScaleTransition(
           scale: animation,
