@@ -75,6 +75,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     var scroll = CustomScrollView(
       key: PageStorageKey<String>(widget.tab.uuid),
+      physics: const RangeMaintainingScrollPhysics(),
       slivers: <Widget>[
         if (widget.isEditing)
           SliverPadding(
