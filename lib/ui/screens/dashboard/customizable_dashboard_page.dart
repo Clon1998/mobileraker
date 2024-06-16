@@ -130,7 +130,7 @@ class _DashboardView extends HookConsumerWidget {
 
     return Scaffold(
       appBar: const _AppBar(),
-      body: SafeArea(child: body),
+      body: body,
       floatingActionButton: fab.unless(context.isLargerThanCompact),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar:

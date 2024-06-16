@@ -62,7 +62,6 @@ class DashboardMediumLayout extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sc = useScrollController(debugLabel: 'DashboardTabletLayout');
-
     final Widget body;
     if (isEditing) {
       body = ReorderableMultiColRow(
@@ -183,7 +182,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
         controller: sc,
 
         physics: const RangeMaintainingScrollPhysics(),
-        child: body,
+        child: SafeArea(child: body),
       ),
     );
 

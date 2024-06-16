@@ -171,7 +171,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
             ),
           ),
         const SliverToBoxAdapter(
-          child: SizedBox(height: 80),
+          child: SizedBox(height: 40),
         )
       ],
     );
