@@ -19,12 +19,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
-  const PullToRefreshPrinter({super.key, this.child, this.enablePullDown = true, this.scrollController});
+  const PullToRefreshPrinter({super.key, this.child, this.enablePullDown = true, this.scrollController, this.physics});
 
   final Widget? child;
 
   final bool enablePullDown;
   final ScrollController? scrollController;
+  final ScrollPhysics? physics;
 
   @override
   ConsumerState createState() => _PullToRefreshPrinterState();
@@ -51,6 +52,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
       ),
       controller: refreshController,
       scrollController: widget.scrollController,
+      physics: widget.physics,
       onRefresh: onRefresh,
       child: widget.child,
     );

@@ -176,12 +176,13 @@ class DashboardMediumLayout extends HookConsumerWidget {
 
     return PullToRefreshPrinter(
       enablePullDown: !isEditing,
-      scrollController: sc,
+      scrollController: sc, //Maybe that is the reason why autoscroll is broken?
+      physics: const RangeMaintainingScrollPhysics(),
       child: SingleChildScrollView(
         // primary: true,
-        controller: sc,
+        // controller: sc,
 
-        physics: const RangeMaintainingScrollPhysics(),
+        // physics: const RangeMaintainingScrollPhysics(),
         child: SafeArea(child: body),
       ),
     );
