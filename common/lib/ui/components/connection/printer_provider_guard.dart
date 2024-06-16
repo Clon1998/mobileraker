@@ -26,9 +26,9 @@ class PrinterProviderGuard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var printer = ref.watch(printerProvider(machineUUID));
+    var printer = ref.watch(printerProvider(machineUUID).select((state) => state.runtimeType));
 
-    // logger.i('Rebuilding PrinterProviderGuard ');
+    logger.i('Rebuilding PrinterProviderGuard $printer');
 
     return switch (printer) {
       AsyncError(:final error) => _ProviderError(key: const Key('ppErr'), machineUUID: machineUUID, error: error),
