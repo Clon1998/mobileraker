@@ -440,7 +440,7 @@ class _FansCardPreviewController extends _FansCardController {
     state = const AsyncValue.data(_Model(
       klippyCanReceiveCommands: true,
       fans: [
-        PrintFan(speed: 0.69),
+        PrintFan(speed: 0),
         ControllerFan(name: 'Preview Fan', speed: 0),
       ],
     ));
