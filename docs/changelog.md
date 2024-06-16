@@ -4,29 +4,36 @@
 
 ### New Features
 
-- [Supporters] Introduced customizable dashboards, allowing users to create up to five tabs and personalize them with
-  various cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
-- It is now possible to reorder printers via the overview page. Just long press a printer and drag it to the desired
-  position.
+- **Customizable Dashboards for Supporters**: Users can now create up to five tabs and personalize them with various
+  cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
+- **Reorder Printers**: You can now reorder printers on the overview page by long-pressing a printer and dragging it to
+  the desired position.
+- **Full Tablet Support [Beta]**: The app now scales correctly on tablets, offering a more desktop-like experience
+  optimized for larger screens. This includes the customizable dashboard feature, enhancing usability on tablets.
 
 ### Enhancements
 
-- Added country flags to the language selection menu for improved accessibility.
-- Included a disclaimer for remote connection failures, clarifying the differences between _Mobileraker-Supporters_ and
-  _OctoEverywhere_/_Obico-Supporters_.
-- Removed the `Websocket Address` field from printer settings to eliminate unnecessary complexity and confusion.
-- Enhanced the display of error messages for webcam cards to ensure clarity and consistency.
-- If a single webcam is present and it fails to load, the entire webcam card can now be
+- **Language Selection Menu**: Added country flags to improve accessibility.
+- **Remote Connection Disclaimer**: Included a disclaimer for remote connection failures, clarifying the differences
+  between _Mobileraker-Supporters_ and _OctoEverywhere_/_Obico-Supporters_.
+- **Printer Settings Simplification**: Removed the `Websocket Address` field to reduce complexity and confusion.
+- **Webcam Card Error Messages**: Enhanced the display of error messages for webcam cards for better clarity and
+  consistency.
+- **Webcam Card Visibility**: If a single webcam fails to load, the entire webcam card can now be
   hidden. [#217](https://github.com/Clon1998/mobileraker/issues/217)
-- The console page now offers more accurate command suggestions based on user input.
-- Increased the size of the slider in the num-edit dialog for easier usability.
-- Its now possible to toggle fans to 100%/0% in the fans card by long pressing the _Set_ button.
+- **Console Page Improvements**: More accurate command suggestions based on user input.
+- **Num-Edit Dialog Slider**: Increased the slider size for easier usability.
+- **Fan Control Enhancement**: You can now toggle fans to 100%/0% in the fans card by long-pressing the _Set_ button.
+- **File Page Caching**: The File page now caches results to prevent unnecessary reloading when switching between tabs
+  or files.
 
 ### Bug Fixes
 
-- Fixed the Back button on the printer add page.
-- The Spoolman card now displays the remaining filament with two decimal
+- **Back Button**: Fixed the Back button on the printer add page.
+- **Spoolman Card**: The Spoolman card now displays the remaining filament with two decimal
   places. [#364](https://github.com/Clon1998/mobileraker/issues/364)
+- **Printer Deletion Issue**: Fixed an issue that caused the app to get stuck when deleting a printer.
+- **JobQueue Button**: The JobQueue button on the files page now only shows up if on the gcode tab.
 
 ## [2.6.19] - 2024-05-09
 
