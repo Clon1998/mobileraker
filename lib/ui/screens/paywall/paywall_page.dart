@@ -36,7 +36,7 @@ class PaywallPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = CustomScrollView(
-      physics: const ClampingScrollPhysics(),
+      physics: const ClampingScrollPhysics().only(context.isCompact),
       slivers: [
         if (context.isCompact)
           SliverLayoutBuilder(builder: (context, constraints) {
