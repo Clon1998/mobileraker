@@ -235,8 +235,9 @@ class _CardBody extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        OverflowBar(
+          alignment: MainAxisAlignment.spaceEvenly,
+          overflowAlignment: OverflowBarAlignment.center,
           children: [
             ElevatedButton.icon(
               icon: const Icon(FlutterIcons.minus_ant),
