@@ -130,7 +130,7 @@ class _Body extends ConsumerWidget {
                     ? const Divider()
                     : InkWell(
                         // title: Text(entry.label),
-                        onTap: (() => controller.replace(entry.route)).only(model.enabled),
+                        onTap: model.enabled ? () => controller.replace(entry.route) : null,
                         child: Ink(
                           color: selectedBackgroundColor.only(current == entry.route),
                           child: Padding(
@@ -161,7 +161,7 @@ class _Footer extends ConsumerWidget {
     final brandingIcon =
         (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
 
-    final model = ref.watch(navWidgetControllerProvider);
+    final navigationEnabled = ref.watch(navWidgetControllerProvider.select((s) => s.enabled));
 
     return Container(
       width: double.infinity,
@@ -179,7 +179,7 @@ class _Footer extends ConsumerWidget {
 
               return GestureDetector(
                 onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)))
-                    .only(model.enabled && enable),
+                    .only(navigationEnabled && enable),
                 child: child,
               );
             },

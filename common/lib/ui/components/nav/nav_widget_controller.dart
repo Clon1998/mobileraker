@@ -135,7 +135,7 @@ class NavWidgetModel with _$NavWidgetModel {
 
   const factory NavWidgetModel({
     @Default([]) List<NavEntry> entries,
-    @Default(true) enabled,
+    @Default(true) bool enabled,
   }) = _NavWidgetModel;
 }
 

@@ -567,6 +567,14 @@ class _DashboardPageController extends _$DashboardPageController {
     ref.listenSelf((previous, next) {
       logger.i(
           'DashboardPageController: (aIdx: ${previous?.valueOrNull?.activeIndex}, l:  ${previous?.valueOrNull?.layout.tabs.length}) -> (aIdx: ${next?.valueOrNull?.activeIndex}, l:  ${next?.valueOrNull?.layout.tabs.length})');
+
+      if (previous?.valueOrNull?.isEditing != true && next.valueOrNull?.isEditing == true) {
+        logger.i('Disable NavWidget');
+        ref.read(navWidgetControllerProvider.notifier).disable();
+      } else if (previous?.valueOrNull?.isEditing == true && next.valueOrNull?.isEditing != true) {
+        logger.i('Enable NavWidget');
+        ref.read(navWidgetControllerProvider.notifier).enable();
+      }
     });
 
     var layout = await ref.watch(dashboardLayoutProvider(machineUUID).future);
@@ -580,8 +588,6 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void startEditMode() {
-    ref.read(navWidgetControllerProvider.notifier).disable();
-
     var value = state.requireValue;
     if (value.isEditing) return;
     logger.i('Start Edit Mode');
@@ -678,7 +684,6 @@ class _DashboardPageController extends _$DashboardPageController {
       // await Future.delayed(const Duration(seconds: 2));
       await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, toUpdate);
       _originalLayout = null;
-      ref.read(navWidgetControllerProvider.notifier).enable();
       _snackbarService.show(SnackBarConfig(
         type: SnackbarType.info,
         title: tr('pages.customizing_dashboard.saved_snack.title'),
