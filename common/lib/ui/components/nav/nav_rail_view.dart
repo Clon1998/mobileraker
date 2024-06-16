@@ -8,11 +8,12 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../../service/app_router.dart';
 import '../../../service/ui/theme_service.dart';
 
 class NavigationRailView extends ConsumerWidget {
@@ -109,8 +110,8 @@ class _Body extends ConsumerWidget {
     final controller = ref.watch(navWidgetControllerProvider.notifier);
     final model = ref.watch(navWidgetControllerProvider);
 
-    final current = ref.watch(goRouterProvider).location;
-
+    final current = GoRouter.of(context).routeInformationProvider.value.uri.toString();
+    logger.i('Current Route: $current');
     return SafeArea(
       bottom: false,
       top: false,
@@ -128,25 +129,83 @@ class _Body extends ConsumerWidget {
               for (final entry in model.entries)
                 entry.isDivider
                     ? const Divider()
-                    : InkWell(
-                        // title: Text(entry.label),
+                    : _NavEntry(
+                        entry: entry,
                         onTap: model.enabled ? () => controller.replace(entry.route) : null,
-                        child: Ink(
-                          color: selectedBackgroundColor.only(current == entry.route),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Icon(entry.icon,
-                                color: current == entry.route ? selectedForegroundColor : foregroundColor),
-                          ),
-                        )
-                        // selected: active == model.entries.indexOf(entry),
-                        ),
+                        selectedBackgroundColor: selectedBackgroundColor,
+                        selectedForegroundColor: selectedForegroundColor,
+                        foregroundColor: foregroundColor,
+                      ),
             ],
           ),
         ),
       ),
     );
     ;
+  }
+}
+
+class _NavEntry extends StatefulWidget {
+  const _NavEntry({
+    super.key,
+    required this.entry,
+    this.onTap,
+    this.selectedBackgroundColor,
+    this.selectedForegroundColor,
+    this.foregroundColor,
+  });
+
+  final NavEntry entry;
+  final GestureTapCallback? onTap;
+
+  final Color? selectedBackgroundColor;
+  final Color? selectedForegroundColor;
+  final Color? foregroundColor;
+
+  @override
+  State<_NavEntry> createState() => _NavEntryState();
+}
+
+class _NavEntryState extends State<_NavEntry> {
+  GoRouter? _goRouter;
+  String? _currentRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _goRouter?.removeListener(_onRouteChanged);
+    _goRouter = GoRouter.of(context);
+    _currentRoute = _goRouter!.location;
+    _goRouter!.addListener(_onRouteChanged);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = _currentRoute == widget.entry.route;
+    return InkWell(
+        // title: Text(entry.label),
+        onTap: widget.onTap,
+        child: Ink(
+          color: widget.selectedBackgroundColor.only(isActive),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Icon(widget.entry.icon, color: isActive ? widget.selectedForegroundColor : widget.foregroundColor),
+          ),
+        )
+        // selected: active == model.entries.indexOf(entry),
+        );
+  }
+
+  void _onRouteChanged() {
+    setState(() {
+      _currentRoute = _goRouter?.location;
+    });
+  }
+
+  @override
+  void dispose() {
+    _goRouter?.removeListener(_onRouteChanged);
+    super.dispose();
   }
 }
 
