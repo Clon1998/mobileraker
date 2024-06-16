@@ -175,12 +175,11 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
       ],
     );
 
-    if (widget.isEditing) {
-      return scroll;
-    }
-
     // Only offer pull to refresh when not editing
-    return PullToRefreshPrinter(child: scroll);
+    return PullToRefreshPrinter(
+      enablePullDown: widget.isEditing,
+      child: scroll,
+    );
   }
 
   Widget _buildCard(DashboardComponent component, int index) {

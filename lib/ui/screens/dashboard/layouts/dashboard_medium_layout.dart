@@ -186,11 +186,11 @@ class DashboardMediumLayout extends HookConsumerWidget {
       ),
     );
 
-    if (!isEditing) {
-      return PullToRefreshPrinter(child: scrollView);
-    }
-
-    return scrollView;
+    return PullToRefreshPrinter(
+      enablePullDown: !isEditing,
+      scrollController: sc,
+      child: scrollView,
+    );
 
     //
     // return ReorderableColumns(
