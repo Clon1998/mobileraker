@@ -328,11 +328,13 @@ class _LayoutPreview extends HookWidget {
                       spacing: const EdgeInsets.symmetric(horizontal: 2),
                     ),
                   ),
+                  // Space required for the action buttons
                 ],
+                const SizedBox(height: 35),
               ],
             ),
             Positioned(
-              bottom: scollSteps > 1 ? 6 : 0,
+              bottom: -6,
               right: 0,
               left: 0,
               child: Wrap(
