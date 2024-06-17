@@ -29,9 +29,11 @@ class NavigationRailView extends ConsumerWidget {
     final backgroundColor = themeData.colorScheme.surface;
 
     ///!! The SafeAreas are at each child because we set background colors for each element
+    var paddingOf = MediaQuery.paddingOf(context);
+    logger.w('Padding left: ${paddingOf.left}');
 
     return SizedBox(
-      width: 72, // M3 Constraints
+      width: 72 + paddingOf.left, // M3 Constraints
       child: Material(
           color: backgroundColor,
           elevation: 2,
@@ -43,12 +45,17 @@ class NavigationRailView extends ConsumerWidget {
                   physics: const ClampingScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(
-                      child: _Leading(leading: leading),
+                      child: _Leading(
+                        leading: leading,
+                        safeAreaPadding: EdgeInsets.only(left: paddingOf.left),
+                      ),
                     ),
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       // fillOverscroll: fa,
                       hasScrollBody: false,
-                      child: _Body(),
+                      child: _Body(
+                        safeAreaPadding: EdgeInsets.only(left: paddingOf.left),
+                      ),
                     ),
                   ],
                 ),
@@ -64,34 +71,33 @@ class _Leading extends StatelessWidget {
   const _Leading({
     super.key,
     required this.leading,
+    this.safeAreaPadding = EdgeInsets.zero,
   });
 
   final Widget? leading;
+
+  final EdgeInsets safeAreaPadding;
 
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.all(8.0).add(const EdgeInsets.only(top: 8)),
-      child: SafeArea(
-        bottom: false,
-        top: false,
-        right: false,
-        child: ConstrainedBox(
+      padding: const EdgeInsets.all(8.0).add(const EdgeInsets.only(top: 8)).add(safeAreaPadding),
+      child: ConstrainedBox(
           constraints: BoxConstraints(
             minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56,
-            minWidth: double.infinity,
+            // minWidth: double.infinity,
           ),
-          child: leading,
-        ),
-      ),
+          child: leading),
     );
   }
 }
 
 class _Body extends ConsumerWidget {
-  const _Body({super.key});
+  const _Body({super.key, this.safeAreaPadding = EdgeInsets.zero});
+
+  final EdgeInsets safeAreaPadding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -112,32 +118,28 @@ class _Body extends ConsumerWidget {
 
     final current = GoRouter.of(context).routeInformationProvider.value.uri.toString();
     logger.i('Current Route: $current');
-    return SafeArea(
-      bottom: false,
-      top: false,
-      right: false,
-      child: Align(
-        alignment: Alignment.center,
-        child: Material(
-          color: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Text('123'),
-              // Text('456'),
-              for (final entry in model.entries)
-                entry.isDivider
-                    ? const Divider()
-                    : _NavEntry(
-                        entry: entry,
-                        onTap: model.enabled ? () => controller.replace(entry.route) : null,
-                        selectedBackgroundColor: selectedBackgroundColor,
-                        selectedForegroundColor: selectedForegroundColor,
-                        foregroundColor: foregroundColor,
-                      ),
-            ],
-          ),
+    return Align(
+      alignment: Alignment.center,
+      child: Material(
+        color: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Text('123'),
+            // Text('456'),
+            for (final entry in model.entries)
+              entry.isDivider
+                  ? const Divider()
+                  : _NavEntry(
+                      entry: entry,
+                      onTap: model.enabled ? () => controller.replace(entry.route) : null,
+                      safeAreaPadding: safeAreaPadding,
+                      selectedBackgroundColor: selectedBackgroundColor,
+                      selectedForegroundColor: selectedForegroundColor,
+                      foregroundColor: foregroundColor,
+                    ),
+          ],
         ),
       ),
     );
@@ -150,6 +152,7 @@ class _NavEntry extends StatefulWidget {
     super.key,
     required this.entry,
     this.onTap,
+    this.safeAreaPadding = EdgeInsets.zero,
     this.selectedBackgroundColor,
     this.selectedForegroundColor,
     this.foregroundColor,
@@ -157,6 +160,8 @@ class _NavEntry extends StatefulWidget {
 
   final NavEntry entry;
   final GestureTapCallback? onTap;
+
+  final EdgeInsets safeAreaPadding;
 
   final Color? selectedBackgroundColor;
   final Color? selectedForegroundColor;
@@ -183,17 +188,18 @@ class _NavEntryState extends State<_NavEntry> {
   Widget build(BuildContext context) {
     final isActive = _currentRoute == widget.entry.route;
     return InkWell(
-        // title: Text(entry.label),
-        onTap: widget.onTap,
-        child: Ink(
-          color: widget.selectedBackgroundColor.only(isActive),
+      onTap: widget.onTap,
+      child: Ink(
+        color: widget.selectedBackgroundColor.only(isActive),
+        child: Align(
+          alignment: Alignment.center,
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12).add(widget.safeAreaPadding),
             child: Icon(widget.entry.icon, color: isActive ? widget.selectedForegroundColor : widget.foregroundColor),
           ),
-        )
-        // selected: active == model.entries.indexOf(entry),
-        );
+        ),
+      ),
+    );
   }
 
   void _onRouteChanged() {
@@ -228,27 +234,22 @@ class _Footer extends ConsumerWidget {
           themeData.colorScheme.primary.unless(themeData.useMaterial3) ??
           themeData.colorScheme.surface,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-      child: SafeArea(
-        bottom: false,
-        top: false,
-        right: false,
-        child: Consumer(
-            builder: (context, ref, child) {
-              final enable = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
+      child: Consumer(
+          builder: (context, ref, child) {
+            final enable = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
 
-              return GestureDetector(
-                onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)))
-                    .only(navigationEnabled && enable),
-                child: child,
-              );
-            },
-            child: SvgPicture.asset(
-                  'assets/vector/mr_logo.svg',
-                  width: 44,
-                  height: 44,
-                ).unless(brandingIcon != null) ??
-                Image(image: brandingIcon!, width: 44, height: 44)),
-      ),
+            return GestureDetector(
+              onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)))
+                  .only(navigationEnabled && enable),
+              child: child,
+            );
+          },
+          child: SvgPicture.asset(
+                'assets/vector/mr_logo.svg',
+                width: 44,
+                height: 44,
+              ).unless(brandingIcon != null) ??
+              Image(image: brandingIcon!, width: 44, height: 44)),
     );
   }
 }
