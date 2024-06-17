@@ -56,9 +56,8 @@ class _Rail extends StatelessWidget {
     final themeData = Theme.of(context);
     final backgroundColor = themeData.colorScheme.surface;
 
-    ///!! The SafeAreas are at each child because we set background colors for each element
-    var paddingOf = MediaQuery.paddingOf(context);
-    logger.w('Padding left: ${paddingOf.left}');
+    final paddingOf = MediaQuery.paddingOf(context);
+    final safeAreaPadding = EdgeInsets.only(left: paddingOf.left);
 
     return SizedBox(
       width: 72 + paddingOf.left, // M3 Constraints
@@ -75,20 +74,20 @@ class _Rail extends StatelessWidget {
                     SliverToBoxAdapter(
                       child: _Leading(
                         leading: leading,
-                        safeAreaPadding: EdgeInsets.only(left: paddingOf.left),
+                        safeAreaPadding: safeAreaPadding,
                       ),
                     ),
                     SliverFillRemaining(
                       // fillOverscroll: fa,
                       hasScrollBody: false,
                       child: _Body(
-                        safeAreaPadding: EdgeInsets.only(left: paddingOf.left),
+                        safeAreaPadding: safeAreaPadding,
                       ),
                     ),
                   ],
                 ),
               ),
-              const _Footer(),
+              _Footer(safeAreaPadding: safeAreaPadding),
             ],
           )),
     );
@@ -244,7 +243,9 @@ class _NavEntryState extends State<_NavEntry> {
 }
 
 class _Footer extends ConsumerWidget {
-  const _Footer({super.key});
+  const _Footer({super.key, this.safeAreaPadding = EdgeInsets.zero});
+
+  final EdgeInsets safeAreaPadding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -261,7 +262,7 @@ class _Footer extends ConsumerWidget {
       color: themeData.appBarTheme.backgroundColor ??
           themeData.colorScheme.primary.unless(themeData.useMaterial3) ??
           themeData.colorScheme.surface,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8).add(safeAreaPadding),
       child: Consumer(
           builder: (context, ref, child) {
             final enable = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
