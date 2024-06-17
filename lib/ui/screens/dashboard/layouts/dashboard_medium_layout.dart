@@ -137,7 +137,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
               for (var component in tab.components)
                 EditingDashboardCard(
                   key: Key('ED-${tab.uuid}:${component.type.name}:${component.uuid}'),
-                  child: DasboardCard.preview(type: component.type),
+                  child: AbsorbPointer(child: DasboardCard.preview(type: component.type)),
                   onRemovedTap: () {
                     if (onRemoveComponent != null) {
                       onRemoveComponent!(tab, component);

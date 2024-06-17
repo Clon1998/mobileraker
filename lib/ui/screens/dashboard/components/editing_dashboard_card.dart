@@ -39,7 +39,7 @@ class EditingDashboardCard extends HookWidget {
       },
       child: Stack(
         children: [
-          AbsorbPointer(child: child),
+          child,
           if (tapped.value)
             Positioned.fill(
               child: FadeTransition(

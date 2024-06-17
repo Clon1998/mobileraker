@@ -178,7 +178,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     // Only offer pull to refresh when not editing
     return PullToRefreshPrinter(
-      enablePullDown: widget.isEditing,
+      enablePullDown: !widget.isEditing,
       child: scroll,
     );
   }

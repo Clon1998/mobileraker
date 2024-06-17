@@ -5,7 +5,6 @@
 
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/ui/components/error_card.dart';
-import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
@@ -43,8 +42,8 @@ class DasboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.i(
-        'Building DashboardCard with isDemo: $_isDemo, instance: #${identityHashCode(this)}, child: ${identityHashCode(child)}');
+    // logger.i(
+    //     'Building DashboardCard with isDemo: $_isDemo, instance: #${identityHashCode(this)}, child: ${identityHashCode(child)}');
 
     return child;
   }
@@ -75,7 +74,7 @@ class DasboardCard extends StatelessWidget {
   }
 
   static Widget _resolveDemo(DashboardComponentType type) {
-    logger.w('Resolving demo card for $type');
+    // logger.w('Resolving demo card for $type');
     return switch (type) {
       DashboardComponentType.zOffset => ZOffsetCard.preview(),
       DashboardComponentType.machineStatus => MachineStatusCard.preview(),
