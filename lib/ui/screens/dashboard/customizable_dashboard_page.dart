@@ -351,6 +351,7 @@ class _PrintingFAB extends ConsumerWidget {
       spacing: 5,
       renderOverlay: false,
       direction: context.isLargerThanCompact ? SpeedDialDirection.down : SpeedDialDirection.up,
+      switchLabelPosition: context.isLargerThanCompact,
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
