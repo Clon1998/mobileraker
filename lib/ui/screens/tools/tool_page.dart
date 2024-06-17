@@ -72,12 +72,7 @@ class ToolPage extends HookConsumerWidget {
     );
 
     if (context.isLargerThanCompact) {
-      body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
-      );
+      body = NavigationRailView(page: body);
     }
 
     return Scaffold(

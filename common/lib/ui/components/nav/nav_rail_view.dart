@@ -17,12 +17,40 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../service/ui/theme_service.dart';
 
 class NavigationRailView extends ConsumerWidget {
-  const NavigationRailView({super.key, this.leading});
+  const NavigationRailView({super.key, this.leading, required this.page});
 
   final Widget? leading;
 
+  final Widget page;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        _Rail(leading: leading, page: page),
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeLeft: true,
+            child: page,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Rail extends StatelessWidget {
+  const _Rail({super.key, required this.leading, required this.page});
+
+  final Widget? leading;
+
+  final Widget page;
+
+  @override
+  Widget build(BuildContext context) {
     // final active = model.entries.indexWhere((element) => element.route == countext.location);
 
     final themeData = Theme.of(context);

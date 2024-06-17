@@ -57,12 +57,7 @@ class FilesPage extends ConsumerWidget {
     const fab = _Fab();
 
     if (context.isLargerThanCompact) {
-      body = Row(
-        children: [
-          const NavigationRailView(leading: fab),
-          Expanded(child: body),
-        ],
-      );
+      body = NavigationRailView(leading: fab, page: body);
     }
     return Scaffold(
       appBar: const _AppBar(),

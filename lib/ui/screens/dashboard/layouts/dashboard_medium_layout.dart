@@ -183,9 +183,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
         // controller: sc,
 
         // physics: const RangeMaintainingScrollPhysics(),
-        child: SafeArea(
-            left: false, // Handled by the nav Bar
-            child: body),
+        child: SafeArea(child: body),
       ),
     );
 

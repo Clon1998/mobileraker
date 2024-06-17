@@ -7,6 +7,7 @@
 
 import 'dart:io';
 
+import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
@@ -24,7 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/async_value_widget.dart';
+import 'package:mobileraker/ui/components/dashboard_card.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
@@ -50,38 +51,8 @@ class DevPage extends HookConsumerWidget {
           // MachineStatusCardLoading(),
           // BedMeshCard(machineUUID: selMachine!.uuid),
           // SpoolmanCardLoading(),
-          // _MeshView(machineUUID: selMachine!.uuid),
-          // ControlExtruderLoading(),
-          // HeaterSensorCard(machineUUID: selMachine!.uuid),
-          // TemperaturePresetCard(machineUUID: selMachine!.uuid),
-          // HeaterSensorPresetCardLoading(),
-          // const ControlXYZLoading(),
-          // const ZOffsetLoading(),
-          // const Text('One'),
-          // OutlinedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
 
-          AsyncValueWidget(
-            value: systemInfo,
-            data: (data) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var entry in data.serviceState.entries)
-                    Row(
-                      children: [
-                        Expanded(child: Text(entry.value.name, style: Theme.of(context).textTheme.labelLarge)),
-                        IconButton(onPressed: () {}, icon: const Icon(Icons.restart_alt)),
-                        IconButton(onPressed: () {}, icon: const Icon(Icons.stop)),
-                      ],
-                    ),
-
-                  // ListTile(
-                  //   subtitle: Text('State: ${entry.value.activeState}, SubState: ${entry.value.subState}'),
-                  // ),
-                ],
-              );
-            },
-          ),
+        for (var type in DashboardComponentType.values) DasboardCard.preview(type: type),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
@@ -111,12 +82,7 @@ class DevPage extends HookConsumerWidget {
     );
 
     if (context.isLargerThanCompact) {
-      body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
-      );
+      body = NavigationRailView(page: body);
     }
 
     return Scaffold(

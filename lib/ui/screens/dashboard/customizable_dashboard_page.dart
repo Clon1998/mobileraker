@@ -113,13 +113,7 @@ class _DashboardView extends HookConsumerWidget {
     final fab = activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it));
 
     if (context.isLargerThanCompact) {
-      body = Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          NavigationRailView(leading: fab),
-          Expanded(child: body),
-        ],
-      );
+      body = NavigationRailView(leading: fab, page: body);
     }
 
     var isEditing = activeMachine?.let((it) =>

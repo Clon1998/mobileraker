@@ -44,9 +44,7 @@ class ConsolePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = MachineConnectionGuard(onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID));
     if (context.isLargerThanCompact) {
-      body = Row(
-        children: [const NavigationRailView(), Expanded(child: body)],
-      );
+      body = NavigationRailView(page: body);
     }
 
     return Scaffold(

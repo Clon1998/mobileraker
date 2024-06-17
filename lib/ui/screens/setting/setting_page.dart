@@ -41,12 +41,7 @@ class SettingPage extends ConsumerWidget {
     Widget body = const _Body();
 
     if (context.isLargerThanCompact) {
-      body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
-      );
+      body = NavigationRailView(page: body);
     }
 
     return Scaffold(

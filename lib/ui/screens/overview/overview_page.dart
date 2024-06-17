@@ -8,7 +8,6 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
-import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -31,11 +30,7 @@ class OverviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget body = const _OverviewBody();
     if (context.isLargerThanCompact) {
-      body = ResponsiveLimit(
-        child: Row(
-          children: [const NavigationRailView(), Expanded(child: body)],
-        ),
-      );
+      body = NavigationRailView(page: body);
     }
 
     return Scaffold(
