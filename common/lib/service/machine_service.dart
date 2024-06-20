@@ -218,9 +218,17 @@ class MachineService {
   Future<MachineSettings> fetchSettings({Machine? machine, String? machineUUID}) async {
     assert(machine != null || machineUUID != null, 'Either machine or machineUUID must be provided!');
     // await _tryMigrateSettings(machine);
-    MachineSettings machineSettings =
-        await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get() ??
-            MachineSettings.fallback();
+    MachineSettings? machineSettings =
+        await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get();
+
+    if (machineSettings == null) {
+      logger.i(
+          'No settings found for ${machine?.logName ?? machineUUID}, falling back to default and writing it to database!');
+      machineSettings = MachineSettings.fallback();
+      ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).update(machineSettings);
+    } else {
+      logger.i('Fetched settings for ${machine?.logName ?? machineUUID}: $machineSettings');
+    }
 
     return machineSettings;
   }

@@ -164,58 +164,59 @@ class PrinterEditController extends _$PrinterEditController {
     Map<String, dynamic> storedValues,
   ) async {
     AsyncValue<MachineSettings> remoteSettings = ref.read(machineRemoteSettingsProvider);
-    if (remoteSettings.hasValue && !remoteSettings.hasError) {
-      List<bool> inverts = [
-        storedValues['invertX'],
-        storedValues['invertY'],
-        storedValues['invertZ'],
-      ];
-      var speedXY = storedValues['speedXY'];
-      var speedZ = storedValues['speedZ'];
-      var extrudeSpeed = storedValues['extrudeSpeed'];
-
-      List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
-      List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
-      List<ReordableElement> tempOrdering = ref.read(sensorOrderingListControllerProvider(_machine.uuid)).requireValue;
-      List<ReordableElement> fanOrdering = ref.read(fansOrderingListControllerProvider(_machine.uuid)).requireValue;
-      List<ReordableElement> miscOrdering = ref.read(miscOrderingListControllerProvider(_machine.uuid)).requireValue;
-
-      for (var preset in presets) {
-        var name = storedValues['${preset.uuid}-presetName'];
-        int? extruderTemp = storedValues['${preset.uuid}-extruderTemp'];
-        int? bedTemp = storedValues['${preset.uuid}-bedTemp'];
-
-        preset
-          ..name = name
-          ..extruderTemp = extruderTemp!
-          ..bedTemp = bedTemp!
-          ..lastModified = DateTime.now();
-      }
-
-      List<double> moveSteps = ref.read(moveStepStateProvider);
-      List<double> babySteps = ref.read(babyStepStateProvider);
-      List<int> extSteps = ref.read(extruderStepStateProvider);
-
-      await ref.read(machineServiceProvider).updateSettings(
-            _machine,
-            MachineSettings(
-              created: remoteSettings.value!.created,
-              lastModified: DateTime.now(),
-              macroGroups: macroGroups,
-              temperaturePresets: presets,
-              babySteps: babySteps,
-              extrudeSteps: extSteps,
-              moveSteps: moveSteps,
-              extrudeFeedrate: extrudeSpeed,
-              inverts: inverts,
-              speedXY: speedXY,
-              speedZ: speedZ,
-              tempOrdering: tempOrdering,
-              fanOrdering: fanOrdering,
-              miscOrdering: miscOrdering,
-            ),
-          );
+    if (!remoteSettings.hasValue || remoteSettings.hasError) {
+      return;
     }
+    List<bool> inverts = [
+      storedValues['invertX'],
+      storedValues['invertY'],
+      storedValues['invertZ'],
+    ];
+    var speedXY = storedValues['speedXY'];
+    var speedZ = storedValues['speedZ'];
+    var extrudeSpeed = storedValues['extrudeSpeed'];
+
+    List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
+    List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
+    List<ReordableElement> tempOrdering = ref.read(sensorOrderingListControllerProvider(_machine.uuid)).requireValue;
+    List<ReordableElement> fanOrdering = ref.read(fansOrderingListControllerProvider(_machine.uuid)).requireValue;
+    List<ReordableElement> miscOrdering = ref.read(miscOrderingListControllerProvider(_machine.uuid)).requireValue;
+
+    for (var preset in presets) {
+      var name = storedValues['${preset.uuid}-presetName'];
+      int? extruderTemp = storedValues['${preset.uuid}-extruderTemp'];
+      int? bedTemp = storedValues['${preset.uuid}-bedTemp'];
+
+      preset
+        ..name = name
+        ..extruderTemp = extruderTemp!
+        ..bedTemp = bedTemp!
+        ..lastModified = DateTime.now();
+    }
+
+    List<double> moveSteps = ref.read(moveStepStateProvider);
+    List<double> babySteps = ref.read(babyStepStateProvider);
+    List<int> extSteps = ref.read(extruderStepStateProvider);
+
+    await ref.read(machineServiceProvider).updateSettings(
+          _machine,
+          MachineSettings(
+            created: remoteSettings.value!.created,
+            lastModified: DateTime.now(),
+            temperaturePresets: presets,
+            inverts: inverts,
+            speedXY: speedXY,
+            speedZ: speedZ,
+            extrudeFeedrate: extrudeSpeed,
+            moveSteps: moveSteps,
+            babySteps: babySteps,
+            extrudeSteps: extSteps,
+            macroGroups: macroGroups,
+            tempOrdering: tempOrdering,
+            fanOrdering: fanOrdering,
+            miscOrdering: miscOrdering,
+          ),
+        );
   }
 
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
