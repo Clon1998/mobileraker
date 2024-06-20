@@ -41,6 +41,7 @@ import '../data/repository/fcm/device_fcm_settings_repository_impl.dart';
 import '../data/repository/fcm/notification_settings_repository_impl.dart';
 import '../data/repository/machine_hive_repository.dart';
 import '../data/repository/machine_settings_moonraker_repository.dart';
+import '../data/repository/machine_settings_repository.dart';
 import '../network/jrpc_client_provider.dart';
 import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
@@ -218,8 +219,17 @@ class MachineService {
   Future<MachineSettings> fetchSettings({Machine? machine, String? machineUUID}) async {
     assert(machine != null || machineUUID != null, 'Either machine or machineUUID must be provided!');
     // await _tryMigrateSettings(machine);
-    MachineSettings? machineSettings =
-        await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get();
+    MachineSettings? machineSettings;
+    try {
+      machineSettings = await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get();
+    } on JRpcError catch (e) {
+      logger.e('Error while fetching settings for ${machine?.logName ?? machineUUID}', e);
+      // check if error message is like 'Key 'settingss' in namespace 'mobileraker' not found'
+      if (e.message !=
+          'Key \'${MachineSettingsRepository.key}\' in namespace \'${MachineSettingsRepository.namespace}\' not found') {
+        rethrow;
+      }
+    }
 
     if (machineSettings == null) {
       logger.i(

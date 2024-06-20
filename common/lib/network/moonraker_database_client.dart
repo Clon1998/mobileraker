@@ -44,7 +44,7 @@ class MoonrakerDatabaseClient {
   }
 
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-database-item
-  Future<dynamic> getDatabaseItem(String namespace, {String? key}) async {
+  Future<dynamic> getDatabaseItem(String namespace, {String? key, bool throwOnError = false}) async {
     _validateClientConnection();
     logger.i('Getting $key');
     var params = {'namespace': namespace};
@@ -53,6 +53,9 @@ class MoonrakerDatabaseClient {
       RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod('server.database.get_item', params: params);
       return blockingResponse.result['value'];
     } on JRpcError catch (e) {
+      if (throwOnError) {
+        rethrow;
+      }
       logger.w('Could not retrieve key: $key', e, StackTrace.current);
     }
     return null;

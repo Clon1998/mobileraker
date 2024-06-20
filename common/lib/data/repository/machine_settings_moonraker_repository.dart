@@ -28,13 +28,13 @@ class MachineSettingsMoonrakerRepository implements MachineSettingsRepository {
     machineSettings.lastModified = DateTime.now();
 
     await _databaseService.addDatabaseItem(
-        'mobileraker', 'settings', machineSettings);
+        MachineSettingsRepository.namespace, MachineSettingsRepository.key, machineSettings);
   }
 
   @override
   Future<MachineSettings?> get() async {
-    var json =
-        await _databaseService.getDatabaseItem('mobileraker', key: 'settings');
+    var json = await _databaseService.getDatabaseItem(MachineSettingsRepository.namespace,
+        key: MachineSettingsRepository.key, throwOnError: true);
     if (json == null) return null;
     return MachineSettings.fromJson(json);
   }
