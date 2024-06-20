@@ -32,7 +32,34 @@ class MachineSettings extends StampedEntity {
     this.miscOrdering = const [],
   }) : super(created, lastModified ?? DateTime.now());
 
-  MachineSettings.fallback() : this(created: DateTime.now(), lastModified: DateTime.now());
+  // Factory to get fallback
+  factory MachineSettings.fallback() {
+    final now = DateTime.now();
+    return MachineSettings(
+      created: now,
+      lastModified: now,
+      temperaturePresets: [
+        TemperaturePreset(
+          created: now,
+          name: 'PLA',
+          extruderTemp: 200,
+          bedTemp: 60,
+        ),
+        TemperaturePreset(
+          created: now,
+          name: 'PETG',
+          extruderTemp: 230,
+          bedTemp: 90,
+        ),
+        TemperaturePreset(
+          created: now,
+          name: 'ABS',
+          extruderTemp: 250,
+          bedTemp: 100,
+        ),
+      ],
+    );
+  }
 
   List<bool> inverts; // [X,Y,Z]
   int speedXY;
