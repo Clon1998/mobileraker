@@ -18,6 +18,7 @@ class GCodeMacro with _$GCodeMacro {
     required String name,
     @Default(true) bool visible,
     @Default(true) bool showWhilePrinting,
+    DateTime? forRemoval,
   }) = _GCodeMacro;
 
   factory GCodeMacro({

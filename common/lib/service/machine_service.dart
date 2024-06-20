@@ -604,12 +604,28 @@ class MachineService {
     List<MacroGroup> modifiableMacroGrps = machineSettings.macroGroups.toList();
 
     bool hasUnavailableMacro = false;
+    bool hasMarkedForRemoval = false;
+    final now = DateTime.now();
+
     // Iterate through the macro groups and remove macros that already exist
     for (int i = 0; i < modifiableMacroGrps.length; i++) {
       final grp = modifiableMacroGrps[i];
-      // ToDo: Decide if I want to remove unused macros again or not?
-      // modifiableMacroGrps[i] = grp.copyWith(macros: List.unmodifiable(grp.macros.where((macro) => filteredRawMacros.contains(macro.name))));
-      // hasUnavailableMacro = hasUnavailableMacro || modifiableMacroGrps[i].macros.length != grp.macros.length;
+      final mMacros = [
+        // Filter out group macros that reached the 7 day limit after they were marked for removal
+        for (var macro in grp.macros.where((m) => (m.forRemoval?.difference(now).inDays ?? 0) < 7))
+          macro.copyWith(
+            forRemoval: (macro.forRemoval ?? now).unless(filteredRawMacros.contains(macro.name)).also((it) {
+              hasMarkedForRemoval = hasMarkedForRemoval || it == now;
+              if (it == now) {
+                logger.i('Marking macro "${macro.name}" for removal in 7 days!');
+              }
+            }),
+          )
+      ];
+
+      modifiableMacroGrps[i] = grp.copyWith(macros: mMacros);
+
+      hasUnavailableMacro = hasUnavailableMacro || grp.macros.length != mMacros.length;
       filteredRawMacros.removeWhere((macro) => grp.macros.any((existingMacro) => existingMacro.name == macro));
     }
 
@@ -631,25 +647,32 @@ class MachineService {
     });
 
     // If there's no legacy group and no new macros to add, return early
-    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return machineSettings;
+    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty && !hasMarkedForRemoval)
+      return machineSettings;
 
     if (hasUnavailableMacro) {
-      logger.i('Found some unavailable macros, will update all groups without the unavailable macros!');
+      logger.i('Removing macros that reached the 7 day limit after they were marked for removal!');
     }
 
-    // Log the number of new macros being added to the default group
-    logger.i('Adding ${filteredRawMacros.length} new macros to the default group!');
+    if (hasMarkedForRemoval) {
+      logger.i('Some macros were marked for removal, they will be removed in 7 days!');
+    }
 
-    // Create an updated default group with the combined macros
-    final updatedDefaultGrp = defaultGroup.copyWith(
-      macros: List.unmodifiable([...defaultGroup.macros, ...filteredRawMacros.map((e) => GCodeMacro(name: e))]),
-    );
+    if (filteredRawMacros.isNotEmpty) {
+      // Log the number of new macros being added to the default group
+      logger.i('Adding ${filteredRawMacros.length} new macros to the default group!');
 
-    // Update or add the default group to the list of modifiable macro groups
-    if (modifiableMacroGrps.contains(defaultGroup)) {
-      modifiableMacroGrps[modifiableMacroGrps.indexOf(defaultGroup)] = updatedDefaultGrp;
-    } else {
-      modifiableMacroGrps.add(updatedDefaultGrp);
+      // Create an updated default group with the combined macros
+      final updatedDefaultGrp = defaultGroup.copyWith(
+        macros: List.unmodifiable([...defaultGroup.macros, ...filteredRawMacros.map((e) => GCodeMacro(name: e))]),
+      );
+
+      // Update or add the default group to the list of modifiable macro groups
+      if (modifiableMacroGrps.contains(defaultGroup)) {
+        modifiableMacroGrps[modifiableMacroGrps.indexOf(defaultGroup)] = updatedDefaultGrp;
+      } else {
+        modifiableMacroGrps.add(updatedDefaultGrp);
+      }
     }
 
     // Update the machine settings and save
