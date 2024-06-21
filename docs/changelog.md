@@ -26,6 +26,7 @@
 - **Fan Control Enhancement**: You can now toggle fans to 100%/0% in the fans card by long-pressing the _Set_ button.
 - **File Page Caching**: The File page now caches results to prevent unnecessary reloading when switching between tabs
   or files.
+- **Default Presets**: For new machines, the app now includes default temperature presets for PLA, PETG and ABS.
 
 ### Bug Fixes
 
