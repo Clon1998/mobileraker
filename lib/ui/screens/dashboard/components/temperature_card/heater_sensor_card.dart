@@ -277,11 +277,14 @@ class _HeaterMixinTile extends HookConsumerWidget {
                       '${numberFormat.format(heater.temperature)} °C',
                       style: innerTheme.textTheme.titleLarge,
                     ),
-                    Text(heater.target > 0
-                        ? 'pages.dashboard.general.temp_card.heater_on'.tr(
-                            args: [numberFormat.format(heater.target)],
-                          )
-                        : 'general.off'.tr()),
+                    Text(
+                      heater.target > 0
+                          ? 'pages.dashboard.general.temp_card.heater_on'.tr(
+                              args: [numberFormat.format(heater.target)],
+                            )
+                          : 'general.off'.tr(),
+                      style: innerTheme.textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
@@ -323,28 +326,32 @@ class _TemperatureSensorTile extends HookConsumerWidget {
       plotSpots: spots.value,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      builder: (context) => Tooltip(
-        message: beautifiedNamed,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AutoSizeText(
-              beautifiedNamed,
-              minFontSize: 8,
-              style: Theme.of(context).textTheme.bodySmall,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              '${numberFormat.format(temperatureSensor.temperature)} °C',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            Text(
-              '${numberFormat.format(temperatureSensor.measuredMaxTemp)} °C max',
-            ),
-          ],
-        ),
-      ),
+      builder: (context) {
+        final themeData = Theme.of(context);
+        return Tooltip(
+          message: beautifiedNamed,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AutoSizeText(
+                beautifiedNamed,
+                minFontSize: 8,
+                style: themeData.textTheme.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                '${numberFormat.format(temperatureSensor.temperature)} °C',
+                style: themeData.textTheme.titleLarge,
+              ),
+              Text(
+                '${numberFormat.format(temperatureSensor.measuredMaxTemp)} °C max',
+                style: themeData.textTheme.bodySmall,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -383,39 +390,43 @@ class _TemperatureFanTile extends HookConsumerWidget {
       plotSpots: spots.value,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
-      builder: (context) => Tooltip(
-        message: beautifiedNamed,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AutoSizeText(
-                    beautifiedNamed,
-                    minFontSize: 8,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    '${numberFormat.format(temperatureFan.temperature)} °C',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Text(
-                    'pages.dashboard.general.temp_card.heater_on'
-                        .tr(args: [numberFormat.format(temperatureFan.target)]),
-                  ),
-                ],
+      builder: (context) {
+        final themeData = Theme.of(context);
+        return Tooltip(
+          message: beautifiedNamed,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      beautifiedNamed,
+                      minFontSize: 8,
+                      style: themeData.textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '${numberFormat.format(temperatureFan.temperature)} °C',
+                      style: themeData.textTheme.titleLarge,
+                    ),
+                    Text(
+                      'pages.dashboard.general.temp_card.heater_on'
+                          .tr(args: [numberFormat.format(temperatureFan.target)]),
+                      style: themeData.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            temperatureFan.speed > 0
-                ? const SpinningFan(size: icoSize)
-                : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
-          ],
-        ),
-      ),
+              temperatureFan.speed > 0
+                  ? const SpinningFan(size: icoSize)
+                  : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -458,25 +469,25 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
         final themeData = Theme.of(context);
         return Tooltip(
           message: beautifiedNamed,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               AutoSizeText(
                 beautifiedNamed,
                 minFontSize: 8,
                 style: themeData.textTheme.bodySmall,
                 maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              '${numberFormat.format(zThermalAdjust.temperature)} °C',
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                '${numberFormat.format(zThermalAdjust.temperature)} °C',
                 style: themeData.textTheme.titleLarge,
               ),
-            Text(
-              zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
-            ),
-          ],
-        ),
+              Text(
+                zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
+              ),
+            ],
+          ),
         );
       },
     );

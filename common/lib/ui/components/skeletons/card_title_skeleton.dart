@@ -53,12 +53,16 @@ class CardTitleSkeleton extends StatelessWidget {
               ),
             ),
           ),
-      title: const SizedBox(
-        width: double.infinity,
-        height: 20,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
+      title: const FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: 0.5,
+        child: SizedBox(
+          width: double.infinity,
+          height: 20,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+            ),
           ),
         ),
       ),

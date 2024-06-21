@@ -39,7 +39,7 @@ class GraphCardWithButton extends StatelessWidget {
             : Colors.black
                 .blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
 
-    return Container(
+    return Padding(
       padding: CardTheme.of(context).margin ?? const EdgeInsets.all(4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,10 +72,7 @@ class GraphCardWithButton extends StatelessWidget {
                       ),
                       iconTheme: themeData.iconTheme.copyWith(color: onBackgroundColor),
                     ),
-                    child: DefaultTextStyle(
-                      style: TextStyle(color: onBackgroundColor),
-                      child: Builder(builder: builder),
-                    ),
+                    child: Builder(builder: builder),
                   ),
                 ),
               ],

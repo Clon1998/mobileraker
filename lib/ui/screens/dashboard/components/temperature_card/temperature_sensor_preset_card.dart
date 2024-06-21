@@ -6,7 +6,7 @@
 import 'package:collection/collection.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
-import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
+import 'package:common/ui/components/skeletons/horizontal_scroll_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card.dart';
@@ -104,12 +104,14 @@ class HeaterSensorPresetCardTitle extends ConsumerWidget {
   }
 }
 
+// ignore: prefer-single-widget-per-file
 class HeaterSensorPresetCardLoading extends StatelessWidget {
   const HeaterSensorPresetCardLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
+    var defaultTextStyle = DefaultTextStyle.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
@@ -119,54 +121,13 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CardTitleSkeleton.trailingText(
-                  // leading: const Icon(
-                  //   FlutterIcons.fire_alt_faw5s,
-                  //   color: Colors.white,
-                  // ),
-                  ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Flexible(
-                          child: CardWithSkeleton(
-                            contentTextStyles: [
-                              themeData.textTheme.titleLarge,
-                              themeData.textTheme.bodySmall,
-                              themeData.textTheme.bodySmall,
-                            ],
-                          ),
-                        ),
-                        Flexible(
-                          child: CardWithSkeleton(
-                            contentTextStyles: [
-                              themeData.textTheme.titleLarge,
-                              themeData.textTheme.bodySmall,
-                              themeData.textTheme.bodySmall,
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5),
-                      child: SizedBox(
-                        width: 30,
-                        height: 11,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              CardTitleSkeleton.trailingText(),
+              HorizontalScrollSkeleton(
+                contentTextStyles: [
+                  themeData.textTheme.titleLarge,
+                  themeData.textTheme.bodySmall,
+                  themeData.textTheme.bodySmall,
+                ],
               ),
             ],
           ),
