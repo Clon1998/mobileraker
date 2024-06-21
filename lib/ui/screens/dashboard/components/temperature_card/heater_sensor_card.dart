@@ -5,6 +5,7 @@
 
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/config/fan/config_temperature_fan.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
@@ -261,25 +262,28 @@ class _HeaterMixinTile extends HookConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: innerTheme.textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    '${numberFormat.format(heater.temperature)} °C',
-                    style: innerTheme.textTheme.titleLarge,
-                  ),
-                  Text(heater.target > 0
-                      ? 'pages.dashboard.general.temp_card.heater_on'.tr(
-                          args: [numberFormat.format(heater.target)],
-                        )
-                      : 'general.off'.tr()),
-                ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      name,
+                      minFontSize: 8,
+                      style: innerTheme.textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '${numberFormat.format(heater.temperature)} °C',
+                      style: innerTheme.textTheme.titleLarge,
+                    ),
+                    Text(heater.target > 0
+                        ? 'pages.dashboard.general.temp_card.heater_on'.tr(
+                            args: [numberFormat.format(heater.target)],
+                          )
+                        : 'general.off'.tr()),
+                  ],
+                ),
               ),
               AnimatedOpacity(
                 opacity: heater.temperature > _stillHotTemp ? 1 : 0,
@@ -324,8 +328,9 @@ class _TemperatureSensorTile extends HookConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            AutoSizeText(
               beautifiedNamed,
+              minFontSize: 8,
               style: Theme.of(context).textTheme.bodySmall,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -383,23 +388,27 @@ class _TemperatureFanTile extends HookConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  beautifiedNamed,
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  '${numberFormat.format(temperatureFan.temperature)} °C',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Text(
-                  'pages.dashboard.general.temp_card.heater_on'.tr(args: [numberFormat.format(temperatureFan.target)]),
-                ),
-              ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText(
+                    beautifiedNamed,
+                    minFontSize: 8,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '${numberFormat.format(temperatureFan.temperature)} °C',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Text(
+                    'pages.dashboard.general.temp_card.heater_on'
+                        .tr(args: [numberFormat.format(temperatureFan.target)]),
+                  ),
+                ],
+              ),
             ),
             temperatureFan.speed > 0
                 ? const SpinningFan(size: icoSize)
@@ -445,27 +454,31 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
       plotSpots: spots.value,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      builder: (context) => Tooltip(
-        message: beautifiedNamed,
+      builder: (context) {
+        final themeData = Theme.of(context);
+        return Tooltip(
+          message: beautifiedNamed,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              beautifiedNamed,
-              style: Theme.of(context).textTheme.bodySmall,
-              maxLines: 1,
+              AutoSizeText(
+                beautifiedNamed,
+                minFontSize: 8,
+                style: themeData.textTheme.bodySmall,
+                maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               '${numberFormat.format(zThermalAdjust.temperature)} °C',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+                style: themeData.textTheme.titleLarge,
+              ),
             Text(
               zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
             ),
           ],
         ),
-      ),
+        );
+      },
     );
   }
 }

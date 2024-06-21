@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/power/power_device.dart';
 import 'package:common/data/enums/power_state_enum.dart';
@@ -191,8 +192,11 @@ class _PowerDeviceCard extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            AutoSizeText(
               beautifyName(powerDevice.name),
+              minFontSize: 8,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: themeData.textTheme.bodySmall,
             ),
             Text(

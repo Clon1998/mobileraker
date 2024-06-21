@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/service/machine_service.dart';
@@ -135,8 +136,9 @@ class _PresetTile extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            AutoSizeText(
               name,
+              minFontSize: 8,
               style: Theme.of(context).textTheme.titleLarge,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/fans/controller_fan.dart';
 import 'package:common/data/dto/machine/fans/fan.dart';
@@ -271,20 +272,23 @@ class _FanCard extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: themeData.textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    speed > 0 ? numberFormat.format(speed) : 'general.off'.tr(),
-                    style: themeData.textTheme.headlineSmall,
-                  ),
-                ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      name,
+                      minFontSize: 8,
+                      style: themeData.textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      speed > 0 ? numberFormat.format(speed) : 'general.off'.tr(),
+                      style: themeData.textTheme.headlineSmall,
+                    ),
+                  ],
+                ),
               ),
               speed > 0 ? const SpinningFan(size: icoSize) : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
             ],

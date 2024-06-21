@@ -5,6 +5,7 @@
 
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/config/config_output.dart';
 import 'package:common/data/dto/config/led/config_dumb_led.dart';
 import 'package:common/data/dto/config/led/config_led.dart';
@@ -253,8 +254,9 @@ class _Output extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AutoSizeText(
                   beautifiedName,
+                  minFontSize: 8,
                   style: textTheme.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -281,8 +283,9 @@ class _Output extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              AutoSizeText(
                 beautifiedName,
+                minFontSize: 8,
                 style: textTheme.bodySmall,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -409,20 +412,23 @@ class _Led extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    beautifiedName,
-                    style: textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    statusText(led, ledConfig, context.locale.toStringWithSeparator()),
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      beautifiedName,
+                      minFontSize: 8,
+                      style: textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      statusText(led, ledConfig, context.locale.toStringWithSeparator()),
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ],
+                ),
               ),
               statusWidget(led, ledConfig),
             ],
@@ -461,26 +467,29 @@ class _FilamentSensor extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    beautifiedName,
-                    style: textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    switch (sensor) {
-                      FilamentSensor(enabled: true, filamentDetected: true) =>
-                        'pages.dashboard.control.pin_card.filament_sensor.detected'.tr(),
-                      FilamentSensor(enabled: true, filamentDetected: false) =>
-                        'pages.dashboard.control.pin_card.filament_sensor.not_detected'.tr(),
-                      _ => 'general.disabled'.tr(),
-                    },
-                    style: textTheme.headlineSmall,
-                  ),
-                ],
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      beautifiedName,
+                      minFontSize: 8,
+                      style: textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      switch (sensor) {
+                        FilamentSensor(enabled: true, filamentDetected: true) =>
+                          'pages.dashboard.control.pin_card.filament_sensor.detected'.tr(),
+                        FilamentSensor(enabled: true, filamentDetected: false) =>
+                          'pages.dashboard.control.pin_card.filament_sensor.not_detected'.tr(),
+                        _ => 'general.disabled'.tr(),
+                      },
+                      style: textTheme.headlineSmall,
+                    ),
+                  ],
+                ),
               ),
               Icon(
                 sensor.enabled ? Icons.sensors : Icons.sensors_off,
