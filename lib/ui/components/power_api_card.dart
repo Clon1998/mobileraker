@@ -15,7 +15,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
-import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
+import 'package:common/ui/components/skeletons/horizontal_scroll_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -40,6 +40,10 @@ class PowerApiCard extends HookConsumerWidget {
 
   static Widget preview() {
     return const _Preview();
+  }
+
+  static Widget loading() {
+    return const _PowerApiCardLoading();
   }
 
   final String machineUUID;
@@ -117,44 +121,11 @@ class _PowerApiCardLoading extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const CardTitleSkeleton(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Flexible(
-                        child: CardWithSkeleton(
-                          contentTextStyles: [
-                            themeData.textTheme.bodySmall,
-                            themeData.textTheme.headlineSmall,
-                          ],
-                        ),
-                      ),
-                      Flexible(
-                        child: CardWithSkeleton(
-                          contentTextStyles: [
-                            themeData.textTheme.bodySmall,
-                            themeData.textTheme.headlineSmall,
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5),
-                    child: SizedBox(
-                      width: 30,
-                      height: 11,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            HorizontalScrollSkeleton(
+              contentTextStyles: [
+                themeData.textTheme.bodySmall,
+                themeData.textTheme.headlineSmall,
+              ],
             ),
             const SizedBox(height: 8),
           ],

@@ -7,7 +7,6 @@
 
 import 'dart:io';
 
-import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
@@ -25,7 +24,9 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/dashboard_card.dart';
+import 'package:mobileraker/ui/components/power_api_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/pins_card.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
@@ -52,7 +53,12 @@ class DevPage extends HookConsumerWidget {
           // BedMeshCard(machineUUID: selMachine!.uuid),
           // SpoolmanCardLoading(),
 
-        for (var type in DashboardComponentType.values) DasboardCard.preview(type: type),
+        FansCard(machineUUID: selMachine.uuid),
+        FansCard.loading(),
+        PinsCard(machineUUID: selMachine.uuid),
+        PinsCard.loading(),
+        PowerApiCard(machineUUID: selMachine.uuid),
+        PowerApiCard.loading(),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
