@@ -1084,6 +1084,10 @@
       "import_snackbar": {
         "title": "Layout importiert!",
         "body": "Stellen Sie sicher, dass Sie das Layout speichern, um es zu behalten."
+      },
+      "falsy_import_snackbar": {
+        "title": "Fehler beim Importieren",
+        "body": "Das Layout konnte nicht importiert werden. Bitte stellen Sie sicher, dass die Zwischenablage ein gültiges Layout enthält."
       }
     }
   },

@@ -1084,6 +1084,10 @@
       "import_snackbar": {
         "title": "Layout imported!",
         "body": "Make sure to hit the save button to apply the changes."
+      },
+      "falsy_import_snackbar": {
+        "title": "Error while importing layout!",
+        "body": "The layout could not be imported. Please make sure the clipboard contains a valid layout."
       }
     }
   },

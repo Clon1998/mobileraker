@@ -455,8 +455,18 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
   }
 
   Future<void> onImportLayout() async {
+    logger.i('Importing layout from clipboard');
     try {
       var data = await Clipboard.getData('text/plain');
+      if (data?.text == null) {
+        logger.w('Clipboard data is null or empty');
+        _snackBarService.show(SnackBarConfig(
+          title: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.title'),
+          message: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.body'),
+          duration: const Duration(seconds: 10),
+        ));
+        return;
+      }
       final json = jsonDecode(data!.text!);
 
       final layout = ref.read(dashboardLayoutServiceProvider).importFromJson(json);
