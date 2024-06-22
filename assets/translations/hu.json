@@ -49,12 +49,20 @@
     "completed": "Befejezve",
     "activate": "Aktivál",
     "stop": "Stop",
-    "start": "Start"
+    "start": "Start",
+    "repeat": "Ismétlés",
+    "load_more": "Több betöltése",
+    "archived": "Archivált"
   },
   "pages": {
     "dashboard": {
       "title": "Irányítópult",
       "ems_btn": "Vész-STOP",
+      "ems_confirmation": {
+        "title": "Vész-STOP megerősítése",
+        "body": "Vészleállítási parancsot készülsz küldeni a nyomtatónak. Ez azonnal leállítja az összes motort és fűtést.",
+        "confirm": "STOP!"
+      },
       "server_status": {
         "unavailable": "Nincs elérhető szerver",
         "available": "A szerver állapota {} és Klippy {}"
@@ -73,7 +81,7 @@
           "flow": "Áramlás",
           "filament": "Nyomtatószál",
           "filament_tooltip": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.",
-          "eta_tooltip": "Hátralévő idő: {} ",
+          "eta_tooltip": "Hátralévő idő:\nÁtl.: {avg}\nSzeletelő: {slicer}\nFájl: {file}\nNyomtatószál: {filament}",
           "remaining": "Fennmaradó"
         },
         "cam_card": {
@@ -148,16 +156,16 @@
           "cold_extrude_error": "A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !"
         },
         "macro_card": {
-          "title": "G-kód - Makrók"
+          "title": "G-kód - Makrók",
+          "no_macros": "Jelenleg nincsenek makrók ebben a csoportban"
         },
         "pin_card": {
-          "title": {
-            "zero": "Kimeneti tű",
-            "one": "Kimeneti tű",
-            "two": "Kimeneti tűk",
-            "other": "Kimeneti tűk"
-          },
-          "pin_btn": "Tű"
+          "title_misc": "Vegyes",
+          "pin_btn": "Tű",
+          "filament_sensor": {
+            "detected": "Észlelve",
+            "not_detected": "Üres"
+          }
         },
         "power_card": {
           "title": "Energia Panel",
@@ -390,6 +398,7 @@
         "read_only": "Webkamera csak olvasható"
       },
       "macros": {
+        "default_grp": "Alapértelmezett",
         "new_macro_grp": "Új makró - Csoport",
         "no_macros_available": "Nincsenek elérhető makrók!",
         "no_macros_found": "Nem találtam makrókat!",
@@ -465,6 +474,21 @@
           "title": "Hiba történt a WiFi név lekérésekor!",
           "body": "Győződj meg róla, hogy az alkalmazás rendelkezik e szükséges engedélyekkel az eszköz WiFi állapotának eléréséhez."
         }
+      },
+      "temp_ordering": {
+        "title": "Hőmérséklet-érzékelő felület hozzáadása",
+        "helper": "Módosítsd a hőmérséklet-érzékelők sorrendjét a műszerfalon.",
+        "no_sensors": "Nem található hőmérséklet-érzékelő!"
+      },
+      "fan_ordering": {
+        "title": "Ventilátor felület hozzáadása",
+        "helper": "Módosítsd a ventilátorok sorrendjét a műszerfalon.",
+        "no_fans": "Nem találhatók ventilátorok!"
+      },
+      "misc_ordering": {
+        "title": "Egyéb elem hozzáadása",
+        "helper": "A műszerfal különféle elemeinek sorrendjének módosítása.",
+        "no_controls": "Nem találhatók egyéb elemek!"
       }
     },
     "printer_add": {
@@ -518,6 +542,7 @@
     },
     "console": {
       "title": "Konzol",
+      "card_title": "G-Kód Konzol",
       "no_entries": "Nem találtunk gyorsítótárazott parancsokat",
       "fetching_console": "@:general.fetching konzol bejegyzések...",
       "command_input" : {
@@ -587,6 +612,67 @@
         "title": "Mikrofonengedély szükséges",
         "subtitle": "A szíjhangoló a telefon mikrofonját használja a szíjak frekvenciájának elemzésére.\n\nKoppints az engedély megadásához."
       }
+    },
+    "spoolman": {
+      "title": "Orsómester",
+      "not_available": "Az orsómester nem elérhető ehhez a nyomtatóhoz. \nKérjük, győződj meg róla, hogy az orsómester telepítve és engedélyezve van a nyomtatón.",
+      "learn_more": "Ha többet szeretnél megtudni az orsómesterről és a telepítéséről, látogass el a projekt weboldalára",
+      "learn_more_link": "GitHub oldal.",
+      "no_spools": "Nem található orsó!",
+      "no_filaments": "Nem található nyomtatószál!",
+      "no_vendors": "Nem található forgalmazó!",
+      "error_loading_spools": "Orsó betöltési hiba",
+      "error_loading_filaments": "Nyomtatószál betöltési hiba",
+      "spool": {
+        "one": "Orsó",
+        "other": "Orsók"
+      },
+      "filament": {
+        "one": "Nyomtatószál",
+        "other": "Nyomtatószálak"
+      },
+      "vendor": {
+        "one": "Forgalmazó",
+        "other": "Forgalmazók"
+      },
+      "properties": {
+        "id": "ID",
+        "name": "Név",
+        "registered": "Regisztrált",
+        "comment": "Megjegyzés",
+        "material": "Anyag",
+        "price": "Ár",
+        "density": "Sűrűség",
+        "diameter": "Átmérő",
+        "weight": "Súly",
+        "spool_weight": "Orsó súlya",
+        "article_number": "Cikkszám",
+        "first_used": "Első használat",
+        "last_used": "Utolsó használat",
+        "remaining_weight": "Maradék súly",
+        "used_weight": "Használt súly",
+        "location": "Helyszín",
+        "lot_number": "Tételszám"
+      },
+      "vendor_details": {
+        "page_title": "Forgalmazó {}",
+        "info_card": "Forgalmazó infó",
+        "filaments_card": "Nyomtatószál gyártó szerint",
+        "spools_card": "Orsó gyártó szerint"
+      },
+      "filament_details": {
+        "info_card": "Nyomtatószál infó",
+        "spools_card": "Nyomtatószál orsó"
+      },
+      "spool_details": {
+        "page_title": "Orsó {}",
+        "info_card": "Orsó infó",
+        "set_active": "Aktív orsó beállítása",
+        "archived_warning": {
+          "title": "Az orsó archivált",
+          "body": "Ez az orsó archiválva van, és nem használható új nyomtatáshoz."
+        }
+      }
     }
   },
   "components": {
@@ -625,7 +711,8 @@
       "printer_add": "Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára érhető el.",
       "job_queue": "Sajnáljuk, a Várólista csak a Támogatók számára érhető el.",
       "timelaps_share": "Sajnáljuk, az időzített felvételek megosztása csak a Támogatók számára érhető el.",
-      "printer_theme": "Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek el."
+      "printer_theme": "Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek el.",
+      "spoolman_page": "Sajnáljuk, az Orsómester oldal csak a Támogatók számára elérhető."
     },
     "machine_deletion_warning": {
       "title": "Gépi törlés",
@@ -774,6 +861,11 @@
     "filament_sensor_triggered": {
       "title": "Szálérzékelő aktiválva",
       "body": "Az '{}' érzékelő működésbe lépett.\n\nKérjük, ellenőrizd a nyomtatót és az érzékelőt, hogy a szál rendelkezésre áll-e, vagy tiltsd le az érzékelőt."
+    },
+    "screws_tilt_adjust": {
+      "title": "Csavarok dőlésbeállítás",
+      "base": "Alap",
+      "hint": "A párbeszédpanel segít az ágy csavarjainak beállításában. Minden egyes csavar esetében a szükséges beállításokat óránként látja ÓÓ:PP formátumban. Például a 01:15 egy teljes fordulatot plusz egy negyed fordulatot jelent az ikon által jelzett irányba."
     }
   },
   "bottom_sheets": {
@@ -824,7 +916,32 @@
       "hint": "Makrók kiválasztása a csoporthoz {}"
     },
     "signIn": {
-      "subtitle": "Bár a fiók létrehozása nem kötelező, a más eszközön vagy platformon végzett vásárlások visszaállításához szükséges."
+      "subtitle": "Bár a fiók létrehozása nem kötelező, a más eszközön vagy platformon végzett vásárlások visszaállításához szükséges.",
+      "forgot_password": "Elfelejtetted a jelszavad?",
+      "forgot_password_success": "Jelszó-visszaállítási E-mail elküldve!",
+      "hint": {
+        "sign_in": "Még nincs fiókod?",
+        "sign_up": "Már van fiókod?",
+        "reset_password": "Add meg az E-mail címed, hogy jelszó-visszaállítási linket kapj."
+      },
+      "action": {
+        "sign_in": "Bejelentkezés",
+        "sign_up": "Regisztráció",
+        "reset_password": "Jelszó visszaállítás"
+      },
+      "email": {
+        "label": "E-mail",
+        "hint": "Az E-mail címed"
+      },
+      "password": {
+        "label": "Jelszó",
+        "hint": "Jelszavad"
+      },
+      "confirm_password": {
+        "label": "Jelszó megerősítése",
+        "hint": "Jelszavad megerősítése",
+        "error": "Nem egyeznek a jelszavak!"
+      }
     },
     "profile": {
       "title": "Bejelentkeztél.",
@@ -873,6 +990,20 @@
         "title": "Szolgáltatások kezelése",
         "no_services": "Nincs szolgáltatás!",
         "provider_error": "Hiba a szolgáltatások lekérése során"
+      },
+      "confirm_action": {
+        "title": "Biztos vagy benne?",
+        "hint": {
+          "long_press": "Tipp: Ennek kihagyásához nyomd meg hosszan a megerősítést megnyitó gombot."
+        },
+        "body": {
+          "pi_restart": "A Raspberry Pi újraindítása előtt állsz. Biztos vagy benne, hogy folytatni akarod?",
+          "pi_shutdown": "A Raspberry Pi leállítása előtt állsz. Ez minden aktív kapcsolatot megszakít, és leállítja az összes futó folyamatot. Biztos vagy benne, hogy folytatni akarod?",
+          "fw_restart": "A firmware újraindítása előtt állsz. Biztos, hogy folytatni akarod?",
+          "service_start": "A '{}' szolgáltatást készülsz elindítani. Biztos, hogy folytatni akarod?",
+          "service_restart": "A '{}' szolgáltatás újraindítása előtt állsz. Biztos, hogy folytatni akarod?",
+          "service_stop": "A '{}' szolgáltatás leállítására készülsz. Biztos, hogy folytatni akarod?"
+        }
       }
     }
   },

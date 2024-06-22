@@ -136,7 +136,6 @@ dependencies:
 
   #ui
   flutter_reorderable_grid_view: ^4.0.0
-  kanban_board: ^0.1.0
   flutter_staggered_grid_view: ^0.7.0
   auto_size_text: ^3.0.0
   snap_scroll_physics: ^0.0.1+3
