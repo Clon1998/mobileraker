@@ -257,13 +257,13 @@ class _BodyState extends ConsumerState<_Body> {
         logger.wtf('pageController.hasClients: ${pageController.hasClients}, _lastPage: $_lastPage');
         if (next.valueOrNull != null &&
             previous?.valueOrNull?.activeIndex != next.value!.activeIndex &&
-            pageController.hasClients &&
             _lastPage != next.value!.activeIndex) {
+          /// We need to use the post frame because otherwise the pageController will not be ready
           // ignore: avoid-passing-async-when-sync-expected
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
             logger.i('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
-            _animationPageTarget = next.value!.activeIndex;
             if (pageController.hasClients && pageController.positions.isNotEmpty) {
+              _animationPageTarget = next.value!.activeIndex;
               logger.i('[Controller->UI] Animating to: ${next.value!.activeIndex}');
               await pageController.animateToPage(next.value!.activeIndex,
                   duration: kThemeAnimationDuration, curve: Curves.easeOutCubic);
