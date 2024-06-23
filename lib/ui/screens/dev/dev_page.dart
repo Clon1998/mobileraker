@@ -7,6 +7,7 @@
 
 import 'dart:io';
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
@@ -24,9 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/pins_card.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
@@ -54,11 +53,11 @@ class DevPage extends HookConsumerWidget {
           // SpoolmanCardLoading(),
 
         FansCard(machineUUID: selMachine.uuid),
-        FansCard.loading(),
-        PinsCard(machineUUID: selMachine.uuid),
-        PinsCard.loading(),
-        PowerApiCard(machineUUID: selMachine.uuid),
-        PowerApiCard.loading(),
+        // FansCard.loading(),
+        // PinsCard(machineUUID: selMachine.uuid),
+        // PinsCard.loading(),
+        // PowerApiCard(machineUUID: selMachine.uuid),
+        // PowerApiCard.loading(),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
@@ -137,7 +136,7 @@ class DevPage extends HookConsumerWidget {
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
-      'completed_label': tr('general.completed'),
+      for (var state in PrintState.values) '${state.name}_label': state.displayName,
     };
 
     var activityId = await liveActivities.createActivity(
