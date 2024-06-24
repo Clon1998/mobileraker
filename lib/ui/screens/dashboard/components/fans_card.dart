@@ -205,7 +205,7 @@ class _Fan extends ConsumerWidget {
       _ => null,
     };
 
-    return _FanCard(name: name, speed: fan.speed, onTap: onTap, onLongTap: onLongTap);
+    return _FanCard(name: name, speed: fan.speed, rpm: fan.rpm, onTap: onTap, onLongTap: onLongTap);
   }
 }
 
@@ -214,6 +214,7 @@ class _FanCard extends StatelessWidget {
 
   final String name;
   final double speed;
+  final double? rpm;
   final VoidCallback? onTap;
   final VoidCallback? onLongTap;
 
@@ -221,6 +222,7 @@ class _FanCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.speed,
+    this.rpm,
     this.onTap,
     this.onLongTap,
   });
@@ -258,6 +260,12 @@ class _FanCard extends StatelessWidget {
                       speed > 0 ? numberFormat.format(speed) : 'general.off'.tr(),
                       style: themeData.textTheme.headlineSmall,
                     ),
+                    if (rpm != null)
+                      Text(
+                        '${rpm!.round()} rpm',
+                        maxLines: 1,
+                        style: themeData.textTheme.bodySmall,
+                      ),
                   ],
                 ),
               ),
