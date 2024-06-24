@@ -5,4 +5,5 @@
 
 abstract class Fan {
   abstract final double speed;
+  abstract final double? rpm;
 }

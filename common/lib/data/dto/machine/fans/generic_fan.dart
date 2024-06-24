@@ -16,6 +16,7 @@ class GenericFan extends NamedFan with _$GenericFan {
   const factory GenericFan({
     required String name,
     @Default(0) double speed,
+    double? rpm,
   }) = _GenericFan;
 
   factory GenericFan.fromJson(Map<String, dynamic> json, [String? name]) =>

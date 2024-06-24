@@ -15,6 +15,7 @@ class PrintFan with _$PrintFan implements Fan {
   const PrintFan._();
   const factory PrintFan({
     @Default(0) double speed,
+    double? rpm,
   }) = _PrintFan;
 
   factory PrintFan.fromJson(Map<String, dynamic> json) =>

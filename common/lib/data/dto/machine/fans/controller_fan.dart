@@ -16,6 +16,7 @@ class ControllerFan extends NamedFan with _$ControllerFan {
   const factory ControllerFan({
     required String name,
     @Default(0) double speed,
+    double? rpm,
   }) = _ControllerFan;
 
   factory ControllerFan.fromJson(Map<String, dynamic> json, [String? name]) =>

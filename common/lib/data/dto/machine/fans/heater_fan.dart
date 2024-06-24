@@ -16,6 +16,7 @@ class HeaterFan extends NamedFan with _$HeaterFan {
   const factory HeaterFan({
     required String name,
     @Default(0) double speed,
+    double? rpm,
   }) = _HeaterFan;
 
   factory HeaterFan.fromJson(Map<String, dynamic> json, [String? name]) =>
