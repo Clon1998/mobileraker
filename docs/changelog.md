@@ -4,8 +4,10 @@
 
 ### New Features
 
-- **Customizable Dashboards for Supporters**: Users can now create up to five tabs and personalize them with various
-  cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
+- **Customizable Dashboards for Supporters**: Users can now create up to five tabs on small screen devices and
+  personalize them with various
+  cards. For big screen devices like tablets it is possible to modify the layout of the
+  page. [#11](https://github.com/Clon1998/mobileraker/issues/11)
 - **Reorder Printers**: You can now reorder printers on the overview page by long-pressing a printer and dragging it to
   the desired position.
 - **Full Tablet Support [Beta]**: The app now scales correctly on tablets, offering a more desktop-like experience
