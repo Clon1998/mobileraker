@@ -28,6 +28,7 @@
   or files.
 - **Default Presets**: For new machines, the app now includes default temperature presets for PLA, PETG and ABS.
 - **Tach Fan Support**: The fan card now shows the tachometer value for fans that support it.
+- **Config File Sharing**: Added the ability to share config files (`*.cfg`) with other apps.
 
 ### Bug Fixes
 

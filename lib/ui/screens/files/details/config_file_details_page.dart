@@ -55,9 +55,21 @@ class _ConfigFileDetail extends HookConsumerWidget {
       backgroundColor: atomOneDarkTheme['root']!.backgroundColor,
       appBar: AppBar(
         title: Text(file.name, overflow: TextOverflow.fade),
-        actions: const [
+        actions: [
           // IconButton(onPressed: null, icon: Icon(Icons.live_help_outlined)),
           // IconButton(onPressed: null, icon: Icon(Icons.search))
+          Consumer(
+            builder: (ctx, ref, _) {
+              final controller = ref.watch(configFileDetailsControllerProvider.notifier);
+              final canShare = ref.watch(configFileDetailsControllerProvider
+                  .select((s) => !s.isSharing && !s.isUploading && s.config.hasValue));
+
+              return IconButton(
+                onPressed: canShare ? () => controller.share(ctx) : null,
+                icon: const Icon(Icons.share),
+              );
+            },
+          ),
         ],
       ),
       body: Column(

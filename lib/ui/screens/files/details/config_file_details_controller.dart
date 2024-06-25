@@ -12,9 +12,11 @@ import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:share_plus/share_plus.dart';
 
 part 'config_file_details_controller.freezed.dart';
 part 'config_file_details_controller.g.dart';
@@ -58,6 +60,38 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
         state = state.copyWith(config: AsyncValue.error(e, s));
       }
     }
+  }
+
+  void share(BuildContext ctx) {
+    state.config.whenData((config) async {
+      state = state.copyWith(isSharing: true);
+
+      try {
+        final file = ref.read(configFileProvider);
+
+        var result = await ref.read(fileServiceSelectedProvider).downloadFile(filePath: file.absolutPath).last;
+        var downloadFile = result as FileDownloadComplete;
+
+        final box = ctx.findRenderObject() as RenderBox?;
+        final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+        Share.shareXFiles(
+          [XFile(downloadFile.file.path, mimeType: 'text/plain', name: file.name)],
+          subject: 'Config file: ${file.name}',
+          sharePositionOrigin: pos,
+        ).ignore();
+      } catch (e) {
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+              type: SnackbarType.error,
+              title: 'Error while downloading file for sharing.',
+              message: e.toString(),
+            ));
+      } finally {
+        if (mounted) {
+          state = state.copyWith(isSharing: false);
+        }
+      }
+    });
   }
 
   Future<void> onSaveTapped(String code) async {
@@ -110,5 +144,6 @@ class ConfigDetailPageState with _$ConfigDetailPageState {
   const factory ConfigDetailPageState({
     @Default(AsyncValue.loading()) AsyncValue<String> config,
     @Default(false) bool isUploading,
+    @Default(false) bool isSharing,
   }) = _ConfigDetailPageState;
 }
