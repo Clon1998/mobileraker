@@ -37,6 +37,10 @@
 - **Printer Deletion Issue**: Fixed an issue that caused the app to get stuck when deleting a printer.
 - **JobQueue Button**: The JobQueue button on the files page now only shows up if on the gcode tab.
 
+### i18n
+
+- **Hungarian Translation**: Updated the Hungarian translation, thanks to [@AntoszHUN](https://github.com/AntoszHUN).
+
 ## [2.6.19] - 2024-05-09
 
 ### Enhancements
