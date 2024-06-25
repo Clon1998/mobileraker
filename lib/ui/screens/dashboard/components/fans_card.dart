@@ -240,6 +240,8 @@ class _FanCard extends StatelessWidget {
 
         var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
 
+        final tachFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
+
         return Tooltip(
           message: name,
           child: Row(
@@ -262,7 +264,7 @@ class _FanCard extends StatelessWidget {
                     ),
                     if (rpm != null)
                       Text(
-                        '${rpm!.round()} rpm',
+                        '${tachFormat.format(rpm)} rpm',
                         maxLines: 1,
                         style: themeData.textTheme.bodySmall,
                       ),
