@@ -122,18 +122,23 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
       appBar: AppBar(
         title: Text(widget.file.name),
         actions: [
-          IconButton(
-            onPressed: loading ? null : _startDownload,
-            icon: const Icon(Icons.share),
-          ),
+          Builder(builder: (context) {
+            return IconButton(
+              onPressed: loading ? null : () => _startDownload(context),
+              icon: const Icon(Icons.share),
+            );
+          }),
         ],
       ),
       body: SafeArea(child: SizedBox.expand(child: body)),
     );
   }
 
-  _startDownload() {
+  _startDownload(BuildContext ctx) {
     var isSupporter = ref.read(isSupporterProvider);
+
+    final box = ctx.findRenderObject() as RenderBox?;
+    final pos = box!.localToGlobal(Offset.zero) & box.size;
 
     setState(() {
       loading = true;
@@ -165,6 +170,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         await Share.shareXFiles(
           [XFile(downloadFile.file.path, mimeType: 'video/mp4')],
           subject: 'Video ${widget.file.name}',
+          sharePositionOrigin: pos,
         );
         logger.i('Done with sharing');
         setState(() {
