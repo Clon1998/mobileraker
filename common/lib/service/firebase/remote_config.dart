@@ -50,9 +50,20 @@ DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
   // };
   // return DeveloperAnnouncement.fromJson(d);
 
-  return DeveloperAnnouncement.fromJson(
-    json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
-  );
+  try {
+    return DeveloperAnnouncement.fromJson(
+      json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
+    );
+  } catch (e, s) {
+    logger.e('Error while trying to parse developer announcements', e);
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      s,
+      reason: 'Error while trying to parse developer announcements',
+      fatal: true,
+    );
+    return const DeveloperAnnouncement(enabled: false, messages: []);
+  }
 }
 
 extension MobilerakerFF on FirebaseRemoteConfig {
