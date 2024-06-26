@@ -232,8 +232,6 @@ class _BeltTunerController extends _$BeltTunerController {
 
   @override
   Stream<int> build() async* {
-    logger.i('Building belt tuner controller');
-
     var status = await ref.watch(permissionStatusProvider(Permission.microphone).future);
     // We can only use the fft service if we have permission to access the microphone
     if (!status.isGranted) return;

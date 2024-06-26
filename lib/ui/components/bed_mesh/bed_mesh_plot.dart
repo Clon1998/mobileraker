@@ -5,7 +5,6 @@
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/util/extensions/linear_gradient_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:common/util/num_scaler.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -28,8 +27,6 @@ class BedMeshPlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('Building _MeshPlot $bedMin, $bedMax');
-
     if (bedMesh?.profileName?.isNotEmpty != true) {
       return Center(child: const Text('bottom_sheets.bedMesh.no_mesh_loaded').tr());
     }
@@ -167,7 +164,6 @@ class _ZScatterSpot extends ScatterSpot {
 }
 
 LinearGradient gradientForRange(double min, double max, [bool inverse = false, NumScaler? scaler]) {
-  logger.i('Getting gradient for range $min, $max,$inverse');
   scaler ??= NumScaler(
     originMin: min,
     originMax: max,

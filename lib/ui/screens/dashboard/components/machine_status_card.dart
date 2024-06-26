@@ -136,7 +136,6 @@ class _CardTitle extends ConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(
         _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
-    // logger.i('Rebuilding _CardTitle for $machineUUID');
 
     var printState =
         ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
@@ -166,7 +165,6 @@ class _Title extends ConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(
         _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
-    // logger.i('Rebuilding _Title for $machineUUID');
 
     final Widget text;
     if (klippyCanReceiveCommands) {
@@ -207,7 +205,6 @@ class _Trailing extends ConsumerWidget {
     // Here it is fine to just use the model directly, as the most updates will be triggered via the progress which we are using here
     var model = ref.watch(_machineStatusCardControllerProvider(machineUUID).requireValue());
 
-    // logger.i('Rebuilding _Trailing for $machineUUID');
 
     var themeData = Theme.of(context);
     // Slider()
@@ -290,7 +287,6 @@ class _KlippyStateActionButtons extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
-    // logger.i('Rebuilding _KlippyStateActionButtons for $machineUUID');
     var klippyState =
         ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klipperState));
 
@@ -335,7 +331,6 @@ class _M117Message extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
-    // logger.i('Rebuilding _M117Message for $machineUUID');
     var m117 = ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.m117));
 
     //TOOD: Animate this. So just use a AnimatedSwitcher and a size
@@ -383,7 +378,6 @@ class _ExcludeObject extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    // logger.i('Rebuilding _ExcludeObject for $machineUUID');
 
     var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
     var show = ref
@@ -483,7 +477,6 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
     ref.keepAliveFor();
     // updateShouldNotify(previous, next)
     // await Future.delayed(const Duration(seconds: 5));
-    // logger.i('Building content for MachineStatusCard for $machineUUID');
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
 

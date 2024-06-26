@@ -5,7 +5,6 @@
 
 import 'dart:ui' as ui;
 
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -33,15 +32,12 @@ class _BedMeshLegendState extends State<BedMeshLegend> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('Got value range ${widget.valueRange}');
-
     LinearGradient gradient = gradientForRange(widget.valueRange.$1, widget.valueRange.$2, true);
 
     // min: zMin, max: zMax
     return GestureDetector(
       onVerticalDragUpdate: (details) => _showTooltip(details.localPosition.dy),
       onTapDown: (details) {
-        logger.i('Tapped down!');
         _showTooltip(details.localPosition.dy);
       },
       onTapUp: (details) => removeOverlay(),

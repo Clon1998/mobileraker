@@ -104,7 +104,6 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
     s = ProviderScope(
       overrides: [
         _controllerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(() {
-          logger.e('1312312312312312321');
           return _PreviewController();
         }),
         printerProvider(_HeaterSensorCardPreview._machineUUID)
@@ -112,34 +111,27 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
       ],
       child: const HeaterSensorCard(machineUUID: _HeaterSensorCardPreview._machineUUID),
     );
-
-    logger.i('INIT of _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    logger.i(
-        'Dependencies changed of _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
   }
 
   @override
   void didUpdateWidget(_HeaterSensorCardPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
-    logger.i('didUpdateWidget _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
   }
 
   @override
   Widget build(BuildContext context) {
     // super.build(context);
-    logger.i('Rebuilding _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
 
     return s;
   }
 
   @override
   void dispose() {
-    logger.i('Disposing _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
     super.dispose();
   }
 }

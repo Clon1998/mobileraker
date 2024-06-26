@@ -5,7 +5,6 @@
 
 import 'dart:math';
 
-import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 
 import 'card_with_skeleton.dart';
@@ -41,8 +40,6 @@ class HorizontalScrollSkeleton extends StatelessWidget {
       builder: (context, constraints) {
         final int visibleCnt = max(1, (constraints.maxWidth / minWidth).floor());
         final double itemWidth = (constraints.maxWidth / visibleCnt).clamp(minWidth, maxWidth);
-
-        logger.w('visibleCnt: $visibleCnt, itemWidth: $itemWidth, constraints.maxWidth: ${constraints.maxWidth}');
 
         return Padding(
           padding: padding ?? const EdgeInsets.symmetric(horizontal: 8),

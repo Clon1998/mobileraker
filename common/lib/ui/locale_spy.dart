@@ -18,7 +18,6 @@ class LocaleSpy extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('LocaleSpy: build');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(activeLocaleProvider.notifier).setLocale(context.locale);
     });

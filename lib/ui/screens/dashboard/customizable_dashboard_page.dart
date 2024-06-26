@@ -120,8 +120,6 @@ class _DashboardView extends HookConsumerWidget {
             ref.watch(_dashboardPageControllerProvider(it.uuid).selectAs((d) => d.isEditing)).valueOrNull == true) ==
         true;
 
-    logger.i('isEditing!: $isEditing');
-
     return Scaffold(
       appBar: const _AppBar(),
       body: body,

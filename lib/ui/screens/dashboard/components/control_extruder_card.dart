@@ -51,7 +51,6 @@ class ControlExtruderCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding ControlExtruderCard');
 
     return AsyncGuard(
       animate: true,
