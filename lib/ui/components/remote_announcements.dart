@@ -36,6 +36,7 @@ class _RemoteAnnouncementsController extends _$RemoteAnnouncementsController {
     var isSupporter = ref.watch(isSupporterProvider);
     var announcement = ref.watch(developerAnnouncementProvider);
     logger.i('Developer announcements are enabled: ${announcement.enabled}');
+    logger.i('Received ${announcement.messages.length} developer announcements.');
     if (!announcement.enabled) return [];
 
     // logger.i('Dismissed hashes: $_dismissedHashes');

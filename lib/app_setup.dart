@@ -26,6 +26,7 @@ import 'package:common/service/firebase/analytics.dart';
 import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/service/notification_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/util/extensions/logging_extension.dart';
@@ -254,6 +255,12 @@ initializeAvailableMachines(Ref ref) async {
 
 @riverpod
 Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
+  logger.i('*****************************');
+  logger.i('Mobileraker is warming up...');
+
+  logger.i('Mobileraker Version: ${await ref.read(versionInfoProvider.future)}');
+  logger.i('*****************************');
+
   // Firebase stuff
   yield StartUpStep.firebaseCore;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

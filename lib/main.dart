@@ -45,7 +45,9 @@ Future<void> main() async {
 
   await setupLogger();
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
-
+  logger.i('-----------------------');
+  logger.i('Starting Mobileraker...');
+  logger.i('-----------------------');
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(ProviderScope(
     // Injecting local implementation of interfaces defined in the common module
