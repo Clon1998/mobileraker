@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:common/util/extensions/string_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -237,7 +238,7 @@ class JsonRpcClient {
     curState = ClientState.connecting;
     _resetChannel();
 
-    logger.i('$logPrefix Using headers $headers');
+    logger.i('$logPrefix Using headers $headersLogSafe');
     logger.i('$logPrefix Using timeout $timeout');
 
     // Since obico is not closing/terminating the websocket connection in case of statusCode errors like limit reached, we need to send a good old http request.
@@ -453,6 +454,8 @@ class JsonRpcClient {
   }
 
   String get logPrefix => '[$clientType@${uri.obfuscate()} #${identityHashCode(this)}]';
+
+  String get headersLogSafe => '{${headers.entries.map((e) => '${e.key}: ${e.value.toString().obfuscate(5)}').join()}}';
 
   @override
   bool operator ==(Object other) =>
