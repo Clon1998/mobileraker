@@ -21,19 +21,37 @@ class LoggerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     var logData = memoryOutput.buffer.map((element) => element.lines).join('\n');
     return MobilerakerDialog(
-      actionText: MaterialLocalizations.of(context).saveButtonLabel,
-      onAction: () async {
-        var logDir = await logFileDirectory();
-        var logFiles = logDir.listSync().map((e) => XFile(e.path, mimeType: 'text/plain')).toList();
+      footer: OverflowBar(
+        spacing: 4,
+        alignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: () => completer(DialogResponse()),
+            child: Text(MaterialLocalizations.of(context).closeButtonLabel),
+          ),
+          Builder(
+            builder: (context) {
+              return FilledButton.tonal(
+                onPressed: () async {
+                  var logDir = await logFileDirectory();
+                  var logFiles = logDir.listSync().map((e) => XFile(e.path, mimeType: 'text/plain')).toList();
 
-        Share.shareXFiles(
-          logFiles,
-          subject: 'Debug-Logs',
-          text: 'Most recent Mobileraker logs',
-        );
-      },
-      dismissText: MaterialLocalizations.of(context).closeButtonLabel,
-      onDismiss: () => completer(DialogResponse()),
+                  final box = context.findRenderObject() as RenderBox?;
+                  final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+                  Share.shareXFiles(
+                    logFiles,
+                    subject: 'Most recent Mobileraker logs',
+                    // text: '',
+                    sharePositionOrigin: pos,
+                  );
+                },
+                child: Text(MaterialLocalizations.of(context).shareButtonLabel),
+              );
+            },
+          ),
+        ],
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min, // To make the card compact
         children: <Widget>[
@@ -41,9 +59,7 @@ class LoggerDialog extends StatelessWidget {
             'Debug-Logs',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          Expanded(
-            child: SingleChildScrollView(child: Text(logData)),
-          ),
+          Expanded(child: SingleChildScrollView(child: Text(logData))),
         ],
       ),
     );

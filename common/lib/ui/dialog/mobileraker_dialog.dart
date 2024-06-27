@@ -49,6 +49,7 @@ class MobilerakerDialog extends StatelessWidget {
     Widget? footer = this.footer;
     if (actionText != null || dismissText != null) {
       footer = OverflowBar(
+        spacing: 4,
         alignment: MainAxisAlignment.end,
         children: [
           if (dismissText != null)
@@ -57,7 +58,6 @@ class MobilerakerDialog extends StatelessWidget {
               style: dismissStyle,
               child: Text(dismissText!),
             ),
-          const SizedBox(width: 4),
           if (actionText != null)
             FilledButton.tonal(
               onPressed: onAction,
