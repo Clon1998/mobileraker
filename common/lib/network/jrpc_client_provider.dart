@@ -91,7 +91,7 @@ class JrpcClientManager extends _$JrpcClientManager {
     logger.i(
         '[JrpcClientManager@${machine.name}] A ${remoteClientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
 
-    if (!ref.read(remoteConfigProvider).obicoEnabled && remoteClientType == ClientType.obico) {
+    if (!ref.read(remoteConfigBoolProvider('obico_remote_connection')) && remoteClientType == ClientType.obico) {
       logger.i(
           '[JrpcClientManager@${machine.name}] Obico detected as remoteClientType, but obico is disabled in remoteConfig. Will not setup handover');
       return;

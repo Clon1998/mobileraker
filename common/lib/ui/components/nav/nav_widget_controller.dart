@@ -29,7 +29,7 @@ class NavWidgetController extends _$NavWidgetController {
     // final current = ref.watch(goRouterProvider).location;
 
     final showOverview = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
-    final showSpoolman = ref.watch(remoteConfigProvider).showSpoolmanPage;
+    final showSpoolman = ref.watch(remoteConfigBoolProvider('spoolman_page'));
 
     final navTargets = <NavEntry>[
       if (showOverview) ...[

@@ -75,7 +75,7 @@ class PrinterEditController extends _$PrinterEditController {
 
   Machine get _machine => ref.read(currentlyEditingProvider);
 
-  bool get _obicoEnabled => ref.read(remoteConfigProvider).obicoEnabled;
+  bool get _obicoEnabled => ref.read(remoteConfigBoolProvider('obico_remote_connection'));
 
   ThemeModel? activeTheme;
 

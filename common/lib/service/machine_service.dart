@@ -96,7 +96,7 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
 
   var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
   logger.i('Received isSupporter $isSupporter');
-  var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+  var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
   logger.i('Max allowed machines for non Supporters is $maxNonSupporterMachines');
   if (isSupporter) {
     await settingService.delete(UtilityKeys.nonSupporterMachineCleanup);

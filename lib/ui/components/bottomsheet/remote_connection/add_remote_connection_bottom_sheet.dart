@@ -52,7 +52,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
-    var obicoEnabled = ref.watch(remoteConfigProvider).obicoEnabled;
+    var obicoEnabled = ref.watch(remoteConfigBoolProvider('obico_remote_connection'));
 
     var activeIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
       if (obicoEnabled && value.obicoTunnel != null) {

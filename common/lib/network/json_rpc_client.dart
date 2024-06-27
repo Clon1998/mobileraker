@@ -455,7 +455,8 @@ class JsonRpcClient {
 
   String get logPrefix => '[$clientType@${uri.obfuscate()} #${identityHashCode(this)}]';
 
-  String get headersLogSafe => '{${headers.entries.map((e) => '${e.key}: ${e.value.toString().obfuscate(5)}').join()}}';
+  String get headersLogSafe =>
+      '{${headers.entries.map((e) => '${e.key}: ${e.value.toString().obfuscate(5)}').join(', ')}}';
 
   @override
   bool operator ==(Object other) =>

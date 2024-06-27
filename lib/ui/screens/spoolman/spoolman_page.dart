@@ -125,7 +125,7 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var isSupporter = ref.watch(isSupporterProvider);
 
-    if (!isSupporter && ref.watch(remoteConfigProvider).spoolmanPageSupporterOnly) {
+    if (!isSupporter && ref.watch(remoteConfigBoolProvider('spoolman_page_pay'))) {
       return Center(
         child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.spoolman_page').tr()),
       );

@@ -67,10 +67,8 @@ class WebcamWebRtc extends ConsumerWidget {
         break;
     }
 
-    var remoteConfig = ref.watch(remoteConfigProvider);
-    if (clientType == ClientType.octo &&
-        remoteConfig.oeWebrtc &&
-        webcamInfo.service == WebcamServiceType.webRtcCamStreamer) {
+    final showWarning = ref.watch(remoteConfigBoolProvider('oe_webrtc_warning'));
+    if (clientType == ClientType.octo && showWarning && webcamInfo.service == WebcamServiceType.webRtcCamStreamer) {
       return Text(
         'components.web_rtc.oe_warning',
         style: Theme.of(context).textTheme.bodySmall,

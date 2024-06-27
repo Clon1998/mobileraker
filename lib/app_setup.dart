@@ -282,7 +282,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   await FirebaseAppCheck.instance.activate();
 
   yield StartUpStep.firebaseRemoteConfig;
-  await ref.read(remoteConfigProvider).initialize();
+  await ref.read(remoteConfigInstanceProvider).initialize();
   if (kDebugMode) {
     FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }

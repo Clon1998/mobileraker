@@ -10,17 +10,88 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'remote_config.g.dart';
 
 @Riverpod(keepAlive: true)
-FirebaseRemoteConfig remoteConfig(RemoteConfigRef ref) {
-  var instance = FirebaseRemoteConfig.instance;
+FirebaseRemoteConfig remoteConfigInstance(RemoteConfigInstanceRef ref) {
+  final instance = FirebaseRemoteConfig.instance;
+
   return instance;
 }
 
 @Riverpod(keepAlive: true)
+Stream<RemoteConfigUpdate> _remoteConfigUpdateStream(_RemoteConfigUpdateStreamRef ref) async* {
+  final instance = ref.watch(remoteConfigInstanceProvider);
+  await for (final update in instance.onConfigUpdated) {
+    logger.i('[Remote-Config] Received update for keys: ${update.updatedKeys.join(', ')}');
+    try {
+      await instance.activate();
+      logger.i('[Remote-Config] Activated new config');
+      yield RemoteConfigUpdate(update.updatedKeys);
+    } catch (e) {
+      logger.e('[Remote-Config] Error while trying to activate new config', e);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: 'Error while trying to activate new config for keys: ${update.updatedKeys.join(', ')}',
+      );
+    }
+  }
+}
+
+@riverpod
+int remoteConfigInt(RemoteConfigIntRef ref, String key) {
+  final instance = ref.watch(remoteConfigInstanceProvider);
+
+  ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
+    if (next case AsyncData(isLoading: false, :final value)) {
+      if (value.updatedKeys.contains(key)) {
+        logger.i('Received update for $key, invalidating to update the value.');
+        ref.invalidateSelf();
+      }
+    }
+  });
+
+  return instance.getInt(key);
+}
+
+@riverpod
+String remoteConfigString(RemoteConfigStringRef ref, String key) {
+  final instance = ref.watch(remoteConfigInstanceProvider);
+
+  ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
+    if (next case AsyncData(isLoading: false, :final value)) {
+      if (value.updatedKeys.contains(key)) {
+        logger.i('Received update for $key, invalidating to update the value.');
+        ref.invalidateSelf();
+      }
+    }
+  });
+
+  return instance.getString(key);
+}
+
+@riverpod
+bool remoteConfigBool(RemoteConfigBoolRef ref, String key) {
+  final instance = ref.watch(remoteConfigInstanceProvider);
+
+  ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
+    if (next case AsyncData(isLoading: false, :final value)) {
+      if (value.updatedKeys.contains(key)) {
+        logger.i('Received update for $key, invalidating to update the value.');
+        ref.invalidateSelf();
+      }
+    }
+  });
+  return instance.getBool(key);
+}
+
+@riverpod
 DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
+  ref.keepAlive();
+
   // var d =   {
   //   "enabled": true,
   //   "messages": [
@@ -51,8 +122,10 @@ DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
   // return DeveloperAnnouncement.fromJson(d);
 
   try {
+    final data = ref.watch(remoteConfigStringProvider('developer_announcements'));
+
     return DeveloperAnnouncement.fromJson(
-      json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
+      json.decode(data),
     );
   } catch (e, s) {
     logger.e('Error while trying to parse developer announcements', e);
@@ -67,16 +140,15 @@ DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
 }
 
 extension MobilerakerFF on FirebaseRemoteConfig {
-  // TODO maybe extract the strings of the FF to seperate consts or enums (But as of now I am only exposing theme from within the service anyway lol
-  int get maxNonSupporterMachines => getInt('non_suporters_max_printers');
-
-  bool get oeWebrtc => getBool('oe_webrtc_warning');
-
-  bool get obicoEnabled => getBool('obico_remote_connection');
-
-  bool get showSpoolmanPage => getBool('spoolman_page');
-
-  bool get spoolmanPageSupporterOnly => getBool('spoolman_page_pay');
+  // int get maxNonSupporterMachines => getInt('non_suporters_max_printers');
+  //
+  // bool get oeWebrtc => getBool('oe_webrtc_warning');
+  //
+  // bool get obicoEnabled => getBool('obico_remote_connection');
+  //
+  // bool get showSpoolmanPage => getBool('spoolman_page');
+  //
+  // bool get spoolmanPageSupporterOnly => getBool('spoolman_page_pay');
 
   Future<void> initialize() async {
     try {
@@ -90,15 +162,11 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'obico_remote_connection': true,
         'spoolman_page': true,
         'spoolman_page_pay': true,
-        /*
-        
-        {"enabled":false,"messages":[{"show":false,"type":"info","title":"","body":""}]}
-        
-         */
         'developer_announcements': json.encode({'enabled': false, 'messages': []}),
       });
       fetchAndActivate().then((value) {
-        logger.i('FirebaseRemote values are fetched and activated!');
+        logger.i(
+            'FirebaseRemote values are fetched and activated! The last fetch was ${value ? 'successful' : 'not successful'} and on $lastFetchTime');
       }).ignore();
       logger.i('Completed FirebaseRemote init');
     } catch (e, s) {

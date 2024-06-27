@@ -18,7 +18,7 @@ class PerksDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+    var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
 
     return MobilerakerDialog(
       dismissText: MaterialLocalizations.of(context).closeButtonLabel,

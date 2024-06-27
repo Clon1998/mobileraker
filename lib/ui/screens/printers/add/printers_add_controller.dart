@@ -57,7 +57,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   @override
   PrinterAddState build() {
     var isSupporter = ref.watch(isSupporterProvider);
-    var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+    var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
     if (!isSupporter && maxNonSupporterMachines > 0) {
       ref.read(allMachinesProvider.selectAsync((data) => data.length)).then((value) {
         if (value >= maxNonSupporterMachines) {
