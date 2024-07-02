@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:common/service/misc_providers.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/uri_extension.dart';
@@ -259,11 +260,7 @@ class _FPSDisplay extends ConsumerWidget {
 }
 
 @riverpod
-class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
-  _MjpegController() {
-    WidgetsBinding.instance.addObserver(this);
-  }
-
+class _MjpegController extends _$MjpegController {
   double _fps = 0;
 
   int _fpsFrameCount = 0;
@@ -276,7 +273,20 @@ class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
   Stream<_Model> build(Dio dio, MjpegConfig config) async* {
     // await Future.delayed(const Duration(seconds: 15));
 
-    ref.onDispose(dispose);
+    ref.listen(appLifecycleProvider, (_, appState) {
+      switch (appState) {
+        case AppLifecycleState.resumed:
+          _manager.start();
+          break;
+
+        case AppLifecycleState.paused:
+          _manager.stop();
+          break;
+        default:
+        // Do Nothing
+      }
+    });
+
     var manager = ref.watch(mjpegManagerProvider(dio, config));
     manager.start();
     yield* manager.jpegStream.doOnData(_frameReceived).map((event) => _Model(fps: _fps, image: event));
@@ -288,21 +298,6 @@ class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
     _manager.start();
   }
 
-  @override
-  didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        _manager.start();
-        break;
-
-      case AppLifecycleState.paused:
-        _manager.stop();
-        break;
-      default:
-      // Do Nothing
-    }
-  }
-
   void _frameReceived(MemoryImage image) {
     final DateTime now = DateTime.now();
     _fpsFrameCount++;
@@ -312,10 +307,6 @@ class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
       _fpsFrameCount = 0;
       _fpsLastUpdate = now;
     }
-  }
-
-  dispose() {
-    WidgetsBinding.instance.removeObserver(this);
   }
 }
 
