@@ -226,6 +226,8 @@ class _CardBody extends ConsumerWidget {
     var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
     var model = ref.watch(_webcamCardControllerProvider(machineUUID).requireValue());
 
+    if (model.allCams.isEmpty) return const SizedBox.shrink();
+
     // For the preview. This is a bit hacky but it works the best!
     if (model.activeCam.service == WebcamServiceType.preview) {
       return Center(
