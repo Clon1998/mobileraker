@@ -242,7 +242,7 @@ class _CompactBody extends HookConsumerWidget {
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                    subtitle: '${model.file.nozzleDiameter} mm',
+                    subtitle: model.file.nozzleDiameter?.let((it) => '$it mm') ?? tr('general.unknown'),
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.layer_higher'.tr(),
