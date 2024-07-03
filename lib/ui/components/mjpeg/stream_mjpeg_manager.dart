@@ -49,6 +49,7 @@ class StreamMjpegManager implements MjpegManager {
   @override
   void start() async {
     _subscription?.cancel(); // Ensure its clear to start a new stream!
+    logger.i('StreamMjpegManager started stream');
     try {
       var response = await _dio.getUri(
         _uri,
