@@ -132,11 +132,11 @@ Yes! You can create as many groups as you want and assign macros to them. To cre
 and tap the gear icon next to your printer's name. This will open the printer's settings. Scroll down to the Macros
 section, where you can add, edit and reorder groups.
 
-<img src="../misc/images/menu_screenshot.png" width="55%"></img>
+![Menu Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/menu_screenshot.png)
 
 To assign a macro to a group, tap on the button next to the group's name. This will open a bottom sheet where you can
 select the macro you want to assign to the group.
 To reorder a macro within a group, tap on the group to expand it and then tap and drag the macro to the desired position
 within the group.
 
-<img src="../misc/images/macro_grp_screenshot.png" width="55%"></img>
+![Menu Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/macro_grp_screenshot.png)
