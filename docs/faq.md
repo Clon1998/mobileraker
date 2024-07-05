@@ -1,19 +1,21 @@
-# Table of Contents
-
-- [What is Mobileraker?](#-what-is-mobileraker)
-- [How do I add a Webcam?](#-how-do-i-add-a-webcam)
-- [My Webcam Is Not Showing Up in Mobileraker but Works in Mainsail/Fluidd](#-my-webcam-is-not-showing-up-in-mobileraker-but-works-in-mainsailfluidd)
-  - [Why Auto-Resolving?](#why-auto-resolving)
-  - [Auto-Resolve Process](#auto-resolve-process)
-- [Remote printer access?](#-remote-printer-access)
-- [How to set up push notifications?](#-how-to-set-up-push-notifications)
-- [What kind of notifications can mobileraker send?](#-what-kind-of-notifications-can-mobileraker-send)
-- [Why do the notifications not update if I open the app?](#-why-do-the-notifications-not-update-if-i-open-the-app)
-- [How can I switch the active printer without using the navbar?](#-how-can-i-switch-the-active-printer-without-using-the-navbar)
-- [Is it possible for Mobileraker to send notifications along with a screenshot?](#-is-it-possible-for-mobileraker-to-send-notifications-along-with-a-screenshot)
-- [Does Mobileraker store the notification's screenshots the backend receives?](#-does-mobileraker-store-the-notifications-screenshots-the-backend-receives)
-
+# Frequently Asked Questions
 > Have a question or suggestion for the FAQ? Open an issue on GitHub, and we will make sure to address it here!
+
+## Question Overview
+
+1. What is Mobileraker?
+2. How do I add a Webcam?
+3. My Webcam Is Not Showing Up in Mobileraker but Works in Mainsail/Fluidd. Why?
+4. Why Auto-Resolving?
+5. How does the Auto-Resolve Process work?
+6. How can I access my printer remotely?
+7. How to set up push notifications?
+8. What kind of notifications can mobileraker send?
+9. Why do the notifications not update if I open the app?
+10. How can I switch the active printer without using the navbar?
+11. Is it possible for Mobileraker to send notifications along with a screenshot?
+12. Does Mobileraker store the notification's screenshots the backend receives?
+13. Is there a way to organize Macros?
 
 ## 🚀 What is Mobileraker?
 
@@ -126,13 +128,34 @@ the user. However, all images are encrypted and deleted within 48 hours of recei
 the `mobilraker_companion`. If a user wants to prevent the transmission of image data to the backend, they can simply
 disable it in the `Mobileraker.conf` file (`include_snapshot: False` in the `[general]` section).
 
-## 🗂️ Is there a way to organize Macros?
+## 🗂 Is there a way to organize Macros?
 
-Yes! You can create as many groups as you want and assign macros to them. To create a new group, open the navigation bar
-and tap the gear icon next to your printer's name. This will open the printer's settings. Scroll down to the Macros
-section, where you can add, edit and reorder groups.
+You can create as many groups as you want and assign macros to them.
+By default, all macros are assigned to the `Default` group. Below are the steps to create groups, assign macros to them,
+and reorder macros within groups.
 
-To assign a macro to a group, tap on the button next to the group's name. This will open a bottom sheet where you can
-select the macro you want to assign to the group.
-To reorder a macro within a group, tap on the group to expand it and then tap and drag the macro to the desired position
-within the group.
+### Creating Groups
+
+To create a new group:
+
+1. Open the navigation bar.
+2. Tap the gear icon next to your printer's name to open the printer's settings.
+3. Scroll down to the **Macros** section where you can add, edit, and reorder groups.
+
+![Menu Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/menu_screenshot.png)
+
+### Assigning Macros to Groups
+
+To assign a macro to a group:
+
+1. Tap the button next to the group's name.
+2. A bottom sheet will open where you can select the macro you want to assign to the group.
+
+### Reordering Macros within Groups
+
+To reorder a macro within a group:
+
+1. Tap on the group to expand it.
+2. Tap and drag the macro to the desired position within the group.
+
+![Macro Group Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/macro_grp_screenshot.png)
