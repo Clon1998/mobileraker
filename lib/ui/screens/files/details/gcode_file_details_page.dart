@@ -37,6 +37,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../routing/app_router.dart';
@@ -578,22 +579,42 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
       }
     });
 
+    (double?, String?) spoolCalc(Spool spool) {
+      double? insufficientFilament;
+      String? materialMissmatch;
+      if (spool.filament.material != null &&
+          gCodeFile.filamentType != null &&
+          !equalsIgnoreAsciiCase(gCodeFile.filamentType!.trim(), spool.filament.material!.trim())) {
+        materialMissmatch = spool.filament.material?.trim();
+      }
+
+      if (gCodeFile.filamentWeightTotal != null &&
+          spool.remainingWeight != null &&
+          spool.remainingWeight! < gCodeFile.filamentWeightTotal!) {
+        insufficientFilament = spool.remainingWeight!;
+      }
+      return (insufficientFilament, materialMissmatch);
+    }
+
     double? insufficientFilament;
     String? materialMissmatch;
     if (klippy?.hasSpoolmanComponent == true) {
-      var spool = ref.watch(activeSpoolProvider(machineUUID)).valueOrNull;
-      if (spool != null) {
-        if (spool.filament.material != null &&
-            gCodeFile.filamentType != null &&
-            !equalsIgnoreAsciiCase(gCodeFile.filamentType!.trim(), spool.filament.material!.trim())) {
-          materialMissmatch = spool.filament.material?.trim();
-        }
+      final spool = ref.read(activeSpoolProvider(machineUUID)).valueOrNull;
 
-        if (gCodeFile.filamentWeightTotal != null &&
-            spool.remainingWeight != null &&
-            spool.remainingWeight! < gCodeFile.filamentWeightTotal!) {
-          insufficientFilament = spool.remainingWeight!;
+      ref.listen(activeSpoolProvider(machineUUID), (previous, next) {
+        if (previous?.valueOrNull != next.valueOrNull) {
+          final res = spoolCalc(next.valueOrNull!);
+          state = state.copyWith(
+            insufficientFilament: res.$1,
+            materialMissmatch: res.$2,
+          );
         }
+      });
+
+      if (spool != null) {
+        final res = spoolCalc(spool);
+        insufficientFilament = res.$1;
+        materialMissmatch = res.$2;
       }
     }
 
