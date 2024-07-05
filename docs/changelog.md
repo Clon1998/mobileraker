@@ -1,5 +1,19 @@
 # Mobileraker - Changelog
 
+## [2.7.1] - 2024-07-xx
+
+### Enhancements
+
+- App-Remote-Configs are now updated in realtime and should not cause the dashboard to be unresponsive anymore in case a
+  bad config is loaded.
+
+### Bug Fixes
+
+- The buttons on the GCode detail page now correctly react to the printer and klipper state rather than beeing disabled
+  if the dashboard was not opened before.
+- Fixed GCode Page showing `null` instead of `Unknown` if the nozzle size meta-data is not available.
+- Logs can now be shared on IPad.
+
 ## [2.7.0] - 2024-06-26
 
 ### New Features
