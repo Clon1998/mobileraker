@@ -126,17 +126,34 @@ the user. However, all images are encrypted and deleted within 48 hours of recei
 the `mobilraker_companion`. If a user wants to prevent the transmission of image data to the backend, they can simply
 disable it in the `Mobileraker.conf` file (`include_snapshot: False` in the `[general]` section).
 
-## 🗂️ Is there a way to organize Macros?
+## 🗂 Is there a way to organize Macros?
 
-Yes! You can create as many groups as you want and assign macros to them. To create a new group, open the navigation bar
-and tap the gear icon next to your printer's name. This will open the printer's settings. Scroll down to the Macros
-section, where you can add, edit and reorder groups.
+You can create as many groups as you want and assign macros to them.
+By default, all macros are assigned to the `Default` group. Below are the steps to create groups, assign macros to them,
+and reorder macros within groups.
+
+### Creating Groups
+
+To create a new group:
+
+1. Open the navigation bar.
+2. Tap the gear icon next to your printer's name to open the printer's settings.
+3. Scroll down to the **Macros** section where you can add, edit, and reorder groups.
 
 ![Menu Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/menu_screenshot.png)
 
-To assign a macro to a group, tap on the button next to the group's name. This will open a bottom sheet where you can
-select the macro you want to assign to the group.
-To reorder a macro within a group, tap on the group to expand it and then tap and drag the macro to the desired position
-within the group.
+### Assigning Macros to Groups
 
-![Menu Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/macro_grp_screenshot.png)
+To assign a macro to a group:
+
+1. Tap the button next to the group's name.
+2. A bottom sheet will open where you can select the macro you want to assign to the group.
+
+### Reordering Macros within Groups
+
+To reorder a macro within a group:
+
+1. Tap on the group to expand it.
+2. Tap and drag the macro to the desired position within the group.
+
+![Macro Group Screenshot](https://raw.githubusercontent.com/Clon1998/mobileraker/master/misc/images/macro_grp_screenshot.png)
