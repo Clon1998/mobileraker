@@ -256,13 +256,25 @@ class JsonRpcClient {
       return false;
     }
 
-    final ioChannel = IOWebSocketChannel.connect(
-      uri,
-      headers: headers,
-      pingInterval: const Duration(seconds: 30),
-      connectTimeout: Duration(seconds: timeout.inSeconds + 2),
-      customClient: _httpClient,
-    );
+    final IOWebSocketChannel ioChannel;
+    try {
+      ioChannel = IOWebSocketChannel.connect(
+        uri,
+        headers: headers,
+        pingInterval: const Duration(seconds: 30),
+        connectTimeout: Duration(seconds: timeout.inSeconds + 2),
+        customClient: _httpClient,
+      );
+    } catch (e) {
+      if (e case StateError(message: "Client is closed")) {
+        logger.e('$logPrefix HTTPClient is closed, aborting opening of websocket');
+        //TODO: We need to get a new HttpClient here...
+      }
+
+      logger.e('$logPrefix Error while connecting IOWebSocketChannel: $e');
+      _updateError(e);
+      return false;
+    }
 
     _channel = ioChannel;
 
