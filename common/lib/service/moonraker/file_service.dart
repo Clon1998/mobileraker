@@ -121,7 +121,9 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
   FileService(AutoDisposeRef ref, this._machineUUID, this._jRpcClient, this._dio)
-      : _downloadReceiverPortName = 'downloadFilePort-${_machineUUID.hashCode}' {
+      : _downloadReceiverPortName = 'downloadFilePort-${_machineUUID.hashCode}',
+        _apiRequestTimeout =
+            _jRpcClient.timeout > const Duration(seconds: 30) ? _jRpcClient.timeout : const Duration(seconds: 30) {
     ref.onDispose(dispose);
     ref.listen(jrpcMethodEventProvider(_machineUUID, 'notify_filelist_changed'), _onFileListChanged);
   }
@@ -137,11 +139,13 @@ class FileService {
 
   final Dio _dio;
 
+  final Duration _apiRequestTimeout;
+
   Future<List<FileRoot>> fetchRoots() async {
     logger.i('Fetching roots');
 
     try {
-      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.roots');
+      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.roots', timeout: _apiRequestTimeout);
 
       List<dynamic> rootsResponse = blockingResp.result as List;
       return List.generate(rootsResponse.length, (index) {
@@ -158,8 +162,11 @@ class FileService {
     logger.i('Fetching for `$path` [extended:$extended]');
 
     try {
-      RpcResponse blockingResp =
-          await _jRpcClient.sendJRpcMethod('server.files.get_directory', params: {'path': path, 'extended': extended});
+      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
+        'server.files.get_directory',
+        params: {'path': path, 'extended': extended},
+        timeout: _apiRequestTimeout,
+      );
 
       Set<String>? allowedFileType;
 
@@ -191,8 +198,8 @@ class FileService {
     final parentPath = parentPathParts.join('/');
 
     try {
-      RpcResponse blockingResp =
-          await _jRpcClient.sendJRpcMethod('server.files.metadata', params: {'filename': filename});
+      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.metadata',
+          params: {'filename': filename}, timeout: _apiRequestTimeout);
 
       return GCodeFile.fromJson(blockingResp.result, parentPath);
     } on JRpcError catch (e) {
@@ -209,7 +216,8 @@ class FileService {
     logger.i('Creating Folder "$filePath"');
 
     try {
-      var rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory', params: {'path': filePath});
+      var rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory',
+          params: {'path': filePath}, timeout: _apiRequestTimeout);
       return FileActionResponse.fromJson(rpcResponse.result);
     } on JRpcError catch (e) {
       throw FileActionException('Jrpc error while trying to create directory.', reqPath: filePath, parent: e);
@@ -220,8 +228,8 @@ class FileService {
     logger.i('Deleting File "$filePath"');
 
     try {
-      RpcResponse rpcResponse =
-          await _jRpcClient.sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.delete_file',
+          params: {'path': filePath}, timeout: _apiRequestTimeout);
       return FileActionResponse.fromJson(rpcResponse.result);
     } on JRpcError catch (e) {
       throw FileActionException('Jrpc error while trying to delete file.', reqPath: filePath, parent: e);
@@ -243,8 +251,8 @@ class FileService {
     logger.i('Moving file from $origin to $destination');
 
     try {
-      RpcResponse rpcResponse =
-          await _jRpcClient.sendJRpcMethod('server.files.move', params: {'source': origin, 'dest': destination});
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.move',
+          params: {'source': origin, 'dest': destination}, timeout: _apiRequestTimeout);
       return FileActionResponse.fromJson(rpcResponse.result);
     } on JRpcError catch (e) {
       throw FileActionException('Jrpc error while trying to move file.', reqPath: origin, parent: e);
