@@ -220,6 +220,7 @@ class _BodyState extends ConsumerState<_Body> {
             onRequestedEdit: controller.startEditMode,
           );
         }
+        final first = model.layout.tabs.firstOrNull?.uuid;
 
         /// THIS IS FOR MOBILE!
         return PageView(
@@ -230,7 +231,7 @@ class _BodyState extends ConsumerState<_Body> {
               DashboardCompactLayoutPage(
                 key: ValueKey(tab.hashCode),
                 machineUUID: machineUUID,
-                staticWidgets: _staticWidgets,
+                staticWidgets: _staticWidgets.only(first == tab.uuid) ?? [],
                 tab: tab,
                 isEditing: model.isEditing,
                 onReorder: controller.onTabComponentsReordered,
