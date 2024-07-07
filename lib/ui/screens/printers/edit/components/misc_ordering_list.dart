@@ -54,7 +54,7 @@ class MiscOrderingList extends ConsumerWidget {
             if (items.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: const Text('pages.printer_edit.misc_ordering.no_sensors').tr(),
+                child: const Text('pages.printer_edit.misc_ordering.no_controls').tr(),
               );
             }
 
