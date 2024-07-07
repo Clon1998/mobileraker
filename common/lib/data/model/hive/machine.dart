@@ -85,7 +85,7 @@ class Machine extends HiveObject {
     this.octoEverywhere,
     this.camOrdering = const [],
     this.httpHeaders = const {},
-    this.timeout = 5,
+    this.timeout = 10,
     this.localSsids = const [],
     this.printerThemePack = -1,
     this.obicoTunnel,
