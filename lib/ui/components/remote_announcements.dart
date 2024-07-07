@@ -33,6 +33,7 @@ class _RemoteAnnouncementsController extends _$RemoteAnnouncementsController {
 
   @override
   List<DeveloperAnnouncementEntry> build() {
+    ref.keepAlive(); // Only show messages once per app start
     var isSupporter = ref.watch(isSupporterProvider);
     var announcement = ref.watch(developerAnnouncementProvider);
     logger.i('Developer announcements are enabled: ${announcement.enabled}');
