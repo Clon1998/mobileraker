@@ -161,30 +161,27 @@ class _MessageCard extends HookConsumerWidget {
         borderRadius: borderRadius,
         onTap: onTap.unless(animCtrl.isAnimating),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
+          padding: const EdgeInsets.all(8.0) + const EdgeInsets.only(left: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(width: 4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(message.title, style: themeData.textTheme.labelLarge),
-                    Text(message.body, style: _bodyColor(themeData), textAlign: TextAlign.justify),
-                  ],
-                ),
+              Row(
+                children: [
+                  Expanded(child: Text(message.title, style: themeData.textTheme.labelLarge)),
+                  MobilerakerIconButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    onPressed: () {
+                      if (animate) {
+                        animCtrl.animateTo(0).then((value) => dismissNotifcation());
+                      } else {
+                        dismissNotifcation();
+                      }
+                    }.unless(animCtrl.isAnimating),
+                    icon: const Icon(Icons.close, size: 22),
+                  ),
+                ],
               ),
-              MobilerakerIconButton(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                onPressed: () {
-                  if (animate) {
-                    animCtrl.animateTo(0).then((value) => dismissNotifcation());
-                  } else {
-                    dismissNotifcation();
-                  }
-                }.unless(animCtrl.isAnimating),
-                icon: const Icon(Icons.close, size: 20),
-              ),
+              Text(message.body, style: _bodyColor(themeData), textAlign: TextAlign.justify),
             ],
           ),
         ),
