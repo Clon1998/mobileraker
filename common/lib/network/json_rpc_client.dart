@@ -108,7 +108,7 @@ class JsonRpcClient {
 
   final HttpClient _httpClient;
 
-  Exception? errorReason;
+  Object? errorReason;
 
   bool get hasError => errorReason != null;
 

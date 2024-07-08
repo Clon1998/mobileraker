@@ -258,7 +258,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
 
   String get clientErrorMessage {
     var jsonRpcClient = ref.read(jrpcClientProvider(machineUUID));
-    Exception? errorReason = jsonRpcClient.errorReason;
+    Object? errorReason = jsonRpcClient.errorReason;
     if (errorReason is TimeoutException) {
       return 'A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...';
     } else if (errorReason is OctoEverywhereException) {
@@ -271,7 +271,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
 
   bool get errorIsOctoSupportedExpired {
     var jsonRpcClient = ref.read(jrpcClientProvider(machineUUID));
-    Exception? errorReason = jsonRpcClient.errorReason;
+    Object? errorReason = jsonRpcClient.errorReason;
     if (errorReason is! OctoEverywhereHttpException) {
       return false;
     }
