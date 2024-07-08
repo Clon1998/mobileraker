@@ -367,11 +367,9 @@ class _GCodeSuggestions extends HookConsumerWidget {
   ///
   /// Finally, the function returns the commands in the `potential` list sorted by their scores in descending order.
 
-  List<String> _calculateSuggestedMacros(
-    String currentInput,
-    List<String> history,
-    List<Command> available,
-  ) {
+  List<String> _calculateSuggestedMacros(String currentInput,
+      List<String> history,
+      List<Command> available,) {
     List<String> potential = [...history, ...additionalCmds];
     Set<String> seen = <String>{...history};
 
@@ -564,15 +562,15 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     return SmartRefresher(
       header: ClassicHeader(
-        textStyle: TextStyle(color: themeData.colorScheme.onBackground),
+        textStyle: TextStyle(color: themeData.colorScheme.onSurface),
         idleIcon: Icon(
           Icons.arrow_upward,
-          color: themeData.colorScheme.onBackground,
+          color: themeData.colorScheme.onSurface,
         ),
-        completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
+        completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
         releaseIcon: Icon(
           Icons.refresh,
-          color: themeData.colorScheme.onBackground,
+          color: themeData.colorScheme.onSurface,
         ),
         idleText: tr('components.pull_to_refresh.pull_up_idle'),
       ),
@@ -697,10 +695,13 @@ class _ConsoleListController extends _$ConsoleListController {
 
     ref.onDispose(() => sub.cancel());
 
+    final history = ref.watch(_macroHistoryProvider(machineUUID));
+
     return _Model(
       klippyCanReceiveCommands: klippyCanReceiveCommands,
       consoleEntries: consoleEntries,
       availableCommands: availableCommands,
+      commandHistory: history,
     );
   }
 
@@ -720,18 +721,26 @@ class _ConsoleListController extends _$ConsoleListController {
             DateTime.now().millisecondsSinceEpoch / 1000,
           ),
         ]));
-    _printerService.gCode(command);
-    addToHistory(command);
+    _printerService.gCode(command).whenComplete(() => addToHistory(command));
+  }
+
+  void addToHistory(String command) => ref.read(_macroHistoryProvider(machineUUID).notifier).addToHistory(command);
+}
+
+@riverpod
+class _MacroHistory extends _$MacroHistory {
+  @override
+  List<String> build(String machineUUID) {
+    // We keep this for the lifetime of the app
+    ref.keepAlive();
+    return [];
   }
 
   void addToHistory(String command) {
-    state = state.whenData((value) {
-      final history = value.commandHistory;
-      final tmp = history.toList();
-      tmp.remove(command);
-      tmp.insert(0, command);
-      return value.copyWith(commandHistory: tmp.sublist(0, tmp.length.clamp(0, commandCacheSize)));
-    });
+    final tmp = state.toList();
+    tmp.remove(command);
+    tmp.insert(0, command);
+    state = tmp.sublist(0, tmp.length.clamp(0, commandCacheSize));
   }
 }
 
