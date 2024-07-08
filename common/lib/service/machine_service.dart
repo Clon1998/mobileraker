@@ -616,18 +616,17 @@ class MachineService {
     bool hasUnavailableMacro = false;
     bool hasMarkedForRemoval = false;
     final now = DateTime.now();
-
     // Iterate through the macro groups and remove macros that already exist
     for (int i = 0; i < modifiableMacroGrps.length; i++) {
       final grp = modifiableMacroGrps[i];
       final mMacros = [
         // Filter out group macros that reached the 7 day limit after they were marked for removal
-        for (var macro in grp.macros.where((m) => (m.forRemoval?.difference(now).inDays ?? 0) < 7))
+        for (var macro in grp.macros.where((m) => (m.forRemoval?.difference(now).inHours.abs() ?? 0) < 12))
           macro.copyWith(
             forRemoval: (macro.forRemoval ?? now).unless(filteredRawMacros.contains(macro.name)).also((it) {
               hasMarkedForRemoval = hasMarkedForRemoval || it == now;
               if (it == now) {
-                logger.i('Marking macro "${macro.name}" for removal in 7 days!');
+                logger.i('Marking macro "${macro.name}" for removal in 12 hr(s)!');
               }
             }),
           )

@@ -6,6 +6,9 @@
 
 - App-Remote-Configs are now updated in realtime and should not cause the dashboard to be unresponsive anymore in case a
   bad config is loaded.
+- File Page now uses a higher timeout to prevent early timeouts on slow connections. This can also be configured by
+  increasing the printer's timeout in the printer settings within the app.
+- Static Dashboard Widgets (Warnings, Announcements, ...) are now only shown on the first page of the dashboard.
 
 ### Bug Fixes
 
@@ -13,6 +16,7 @@
   if the dashboard was not opened before.
 - Fixed GCode Page showing `null` instead of `Unknown` if the nozzle size meta-data is not available.
 - Logs can now be shared on IPad.
+- Fixed an issue that caused the developer announcements to be shown to often.
 
 ## [2.7.0] - 2024-06-26
 
