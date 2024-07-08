@@ -162,7 +162,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
                       child: GestureDetector(
                         onLongPress: onRequestedEdit,
                         child: DasboardCard(
-                          type: component.type,
+                          component: component,
                           machineUUID: machineUUID,
                         ),
                       ),

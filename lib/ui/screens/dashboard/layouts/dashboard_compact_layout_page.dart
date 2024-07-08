@@ -116,7 +116,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
                 //TODO: It might be beneficial to move the GeastureHandler to the actual card widget...
                 child: GestureDetector(
                   onLongPress: widget.onRequestedEdit,
-                  child: DasboardCard(type: component.type, machineUUID: widget.machineUUID),
+                  child: DasboardCard(component: component, machineUUID: widget.machineUUID),
                 ),
               );
             },
@@ -202,7 +202,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
       //TODO: It might be beneficial to move the GeastureHandler to the actual card widget...
       child: GestureDetector(
         onLongPress: widget.onRequestedEdit,
-        child: DasboardCard(type: component.type, machineUUID: widget.machineUUID),
+        child: DasboardCard(component: component, machineUUID: widget.machineUUID),
       ),
     );
   }

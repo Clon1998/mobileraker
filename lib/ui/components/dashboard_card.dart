@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/util/misc.dart';
@@ -29,8 +30,8 @@ import '../screens/dashboard/components/z_offset_card.dart';
 class DasboardCard extends StatelessWidget {
   const DasboardCard._({super.key, required this.child, bool isDemo = false}) : _isDemo = isDemo;
 
-  factory DasboardCard({Key? key, required DashboardComponentType type, required String machineUUID}) {
-    return DasboardCard._(key: key, child: _resolve(type, machineUUID));
+  factory DasboardCard({Key? key, required DashboardComponent component, required String machineUUID}) {
+    return DasboardCard._(key: key, child: _resolve(component, machineUUID));
   }
 
   factory DasboardCard.preview({Key? key, required DashboardComponentType type}) {
@@ -48,8 +49,8 @@ class DasboardCard extends StatelessWidget {
     return child;
   }
 
-  static Widget _resolve(DashboardComponentType type, String machineUUID) {
-    return switch (type) {
+  static Widget _resolve(DashboardComponent component, String machineUUID) {
+    return switch (component.type) {
       DashboardComponentType.machineStatus => MachineStatusCard(machineUUID: machineUUID),
       DashboardComponentType.temperatureSensorPreset => TemperatureSensorPresetCard(machineUUID: machineUUID),
       DashboardComponentType.webcam => WebcamCard(machineUUID: machineUUID),
@@ -68,7 +69,7 @@ class DasboardCard extends StatelessWidget {
       DashboardComponentType.bedMesh => BedMeshCard(machineUUID: machineUUID),
       _ => ErrorCard(
           title: const Text('Unknown card type'),
-          body: Text('The card type $type is not supported'),
+          body: Text('The card type ${component.type} is not supported'),
         ),
     };
   }
