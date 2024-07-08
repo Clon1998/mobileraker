@@ -133,91 +133,98 @@ class _NavHeader extends HookConsumerWidget {
 
     return DrawerHeader(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
+      padding: const EdgeInsets.only(top: 30),
       decoration: BoxDecoration(color: background),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          InkWell(
-            onTap: () {
-              if (selectedMachine.hasValue && selectedMachine.value != null) {
-                controller.pushingTo(
-                  '/printer/edit',
-                  arguments: selectedMachine.requireValue!,
-                );
-              } else {
-                controller.pushingTo('/printer/add');
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      (brandingIcon == null)
-                          ? SvgPicture.asset(
-                              'assets/vector/mr_logo.svg',
-                              width: 60,
-                              height: 60,
-                            )
-                          : Image(height: 60, width: 60, image: brandingIcon),
-                      Flexible(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              selectedMachine.valueOrNull?.name ?? 'NO PRINTER',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
+      child: Material(
+        color: Colors.transparent,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () {
+                if (selectedMachine.hasValue && selectedMachine.value != null) {
+                  controller.pushingTo(
+                    '/printer/edit',
+                    arguments: selectedMachine.requireValue!,
+                  );
+                } else {
+                  controller.pushingTo('/printer/add');
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          (brandingIcon == null)
+                              ? SvgPicture.asset(
+                                  'assets/vector/mr_logo.svg',
+                                  width: 60,
+                                  height: 60,
+                                )
+                              : Image(height: 60, width: 60, image: brandingIcon),
+                          Flexible(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedMachine.valueOrNull?.name ?? 'Mobileraker',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  selectedMachine.valueOrNull?.httpUri.host ?? 'Add printer first',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: themeData.textTheme.titleSmall?.copyWith(color: onBackground),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              selectedMachine.valueOrNull?.httpUri.host ?? 'Add printer first',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.titleSmall?.copyWith(color: onBackground),
-                            ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Tooltip(
+                        message: 'components.nav_drawer.printer_settings'.tr(),
+                        child: Icon(
+                          FlutterIcons.settings_mdi,
+                          color: onBackground,
+                          size: 27,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Tooltip(
-                    message: 'components.nav_drawer.printer_settings'.tr(),
-                    child: Icon(
-                      FlutterIcons.settings_mdi,
-                      color: onBackground,
-                      size: 27,
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          ListTile(
-            title: Text(
-              'components.nav_drawer.manage_printers',
-              style: TextStyle(color: onBackground),
-            ).tr(),
-            trailing: ValueListenableBuilder(
-              valueListenable: machineSelectionExt,
-              builder: (context, value, child) => AnimatedRotation(
-                duration: kThemeAnimationDuration,
-                curve: Curves.easeInOutCubic,
-                turns: value ? 0 : 0.5,
-                child: child,
               ),
-              child: Icon(Icons.expand_less, color: onBackground),
             ),
-            onTap: () => machineSelectionExt.value = !machineSelectionExt.value,
-          ),
-        ],
+            ListTile(
+              // contentPadding: EdgeInsets.,
+              title: Text(
+                'components.nav_drawer.manage_printers',
+                style: TextStyle(color: onBackground),
+              ).tr(),
+              trailing: ValueListenableBuilder(
+                valueListenable: machineSelectionExt,
+                builder: (context, value, child) => AnimatedRotation(
+                  duration: kThemeAnimationDuration,
+                  curve: Curves.easeInOutCubic,
+                  turns: value ? 0 : 0.5,
+                  child: child,
+                ),
+                child: Icon(Icons.expand_less, color: onBackground),
+              ),
+              onTap: () => machineSelectionExt.value = !machineSelectionExt.value,
+            ),
+          ],
+        ),
       ),
     );
   }
