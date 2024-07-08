@@ -185,7 +185,7 @@ class _SelectedGroup extends ConsumerWidget {
                   alignment: WrapAlignment.spaceEvenly,
                   spacing: 5,
                   children: [
-                    for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
+                    for (var macro in group.filtered(isPrinting)) _MacroChip(machineUUID: machineUUID, macro: macro),
                   ],
                 ),
               ],
@@ -231,6 +231,7 @@ class _MacroChip extends ConsumerWidget {
 
     var themeData = Theme.of(context);
     var enabled = klippyCanReceiveCommands;
+    //Note, the visibility is just an additional check. The group already filters out removed macros and the once that should not be shown while printing/are hidden
     return Visibility(
       visible: configMacro != null && macro.visible && (!isPrinting || macro.showWhilePrinting),
       child: GestureDetector(

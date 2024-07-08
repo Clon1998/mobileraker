@@ -50,10 +50,13 @@ class MacroGroup with _$MacroGroup {
   bool get isDefaultGroup => uuid == 'default';
 
   bool hasMacros(bool isPrinting) {
-    return macros.any((element) => element.visible && (!isPrinting || element.showWhilePrinting));
+    return macros
+        .any((element) => element.visible && (!isPrinting || element.showWhilePrinting) && element.forRemoval == null);
   }
 
   List<GCodeMacro> filtered(bool isPrinting) {
-    return macros.where((element) => element.visible && (!isPrinting || element.showWhilePrinting)).toList();
+    return macros
+        .where((element) => element.visible && (!isPrinting || element.showWhilePrinting) && element.forRemoval == null)
+        .toList();
   }
 }
