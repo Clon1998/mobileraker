@@ -28,6 +28,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/dashboard_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -249,7 +250,7 @@ class _MacroChip extends ConsumerWidget {
   }
 }
 
-@riverpod
+@Riverpod(dependencies: [dashboardCardUUID])
 class _MacroGroupCardController extends _$MacroGroupCardController {
   SettingService get _settingService => ref.read(settingServiceProvider);
 
@@ -257,7 +258,9 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
-  KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.gCodeIndex, machineUUID);
+  KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.gCodeIndex, machineUUID + _componentUUID);
+
+  String get _componentUUID => ref.read(dashboardCardUUIDProvider);
 
   @override
   Stream<_Model> build(String machineUUID) async* {

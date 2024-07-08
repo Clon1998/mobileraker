@@ -8,8 +8,10 @@ import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_card.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../screens/dashboard/components/bed_mesh_card.dart';
 import '../screens/dashboard/components/control_extruder_card.dart';
@@ -26,31 +28,43 @@ import '../screens/dashboard/components/temperature_card/temperature_sensor_pres
 import '../screens/dashboard/components/webcam_card.dart';
 import '../screens/dashboard/components/z_offset_card.dart';
 
+part 'dashboard_card.g.dart';
+
+@Riverpod(dependencies: [], keepAlive: true)
+String dashboardCardUUID(DashboardCardUUIDRef ref) {
+  throw UnimplementedError();
+}
+
 /// Transforms a [DashboardComponentType] into a widget
 class DasboardCard extends StatelessWidget {
-  const DasboardCard._({super.key, required this.child, bool isDemo = false}) : _isDemo = isDemo;
+  const DasboardCard._({super.key, required this.componentUUID, required this.child});
 
   factory DasboardCard({Key? key, required DashboardComponent component, required String machineUUID}) {
-    return DasboardCard._(key: key, child: _resolve(component, machineUUID));
+    return DasboardCard._(key: key, componentUUID: component.uuid, child: _resolve(component.type, machineUUID));
   }
 
   factory DasboardCard.preview({Key? key, required DashboardComponentType type}) {
-    return DasboardCard._(key: key, child: _resolveDemo(type), isDemo: true);
+    return DasboardCard._(key: key, componentUUID: 'demo:${type.name}', child: _resolveDemo(type));
   }
 
+  final String componentUUID;
   final Widget child;
-  final bool _isDemo;
 
   @override
   Widget build(BuildContext context) {
     // logger.i(
     //     'Building DashboardCard with isDemo: $_isDemo, instance: #${identityHashCode(this)}, child: ${identityHashCode(child)}');
 
-    return child;
+    // This provides the componentUUID to the children without the need to pass it down manually
+    // In the future this should not be the UUID but rather the entire component
+    return ProviderScope(
+      overrides: [dashboardCardUUIDProvider.overrideWithValue(componentUUID)],
+      child: child,
+    );
   }
 
-  static Widget _resolve(DashboardComponent component, String machineUUID) {
-    return switch (component.type) {
+  static Widget _resolve(DashboardComponentType type, String machineUUID) {
+    return switch (type) {
       DashboardComponentType.machineStatus => MachineStatusCard(machineUUID: machineUUID),
       DashboardComponentType.temperatureSensorPreset => TemperatureSensorPresetCard(machineUUID: machineUUID),
       DashboardComponentType.webcam => WebcamCard(machineUUID: machineUUID),
@@ -69,7 +83,7 @@ class DasboardCard extends StatelessWidget {
       DashboardComponentType.bedMesh => BedMeshCard(machineUUID: machineUUID),
       _ => ErrorCard(
           title: const Text('Unknown card type'),
-          body: Text('The card type ${component.type} is not supported'),
+          body: Text('The card type $type is not supported'),
         ),
     };
   }

@@ -9,6 +9,7 @@
 - File Page now uses a higher timeout to prevent early timeouts on slow connections. This can also be configured by
   increasing the printer's timeout in the printer settings within the app.
 - Static Dashboard Widgets (Warnings, Announcements, ...) are now only shown on the first page of the dashboard.
+- Multiple GCode-Macro cards now work independently of each other and do not sync the selected group anymore.
 
 ### Bug Fixes
 
