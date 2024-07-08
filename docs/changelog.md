@@ -17,6 +17,7 @@
 - Fixed GCode Page showing `null` instead of `Unknown` if the nozzle size meta-data is not available.
 - Logs can now be shared on IPad.
 - Fixed an issue that caused the developer announcements to be shown to often.
+- Fixed GCode console history resetting after leaving the page.
 
 ## [2.7.0] - 2024-06-26
 
