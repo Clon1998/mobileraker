@@ -454,7 +454,8 @@
           "one": "Ein Makro in die Standardgruppe verschoben!",
           "two": "Zwei Makro in die Standardgruppe verschoben!",
           "other": "{} Makros in die Standardgruppe verschoben!"
-        }
+        },
+        "macro_removed": "Das Makro wurde nicht gefunden und wird in Kürze automatisch entfernt."
       },
       "presets": {
         "no_presets": "Keine Voreinstellungen hinzugefügt!",

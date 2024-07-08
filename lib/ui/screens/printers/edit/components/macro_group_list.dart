@@ -197,13 +197,28 @@ class _MacroGroup extends HookConsumerWidget {
               },
               onReorder: (a, b) => controller.onMacroInGroupReorder(macroGroup, a, b),
               onNoReorder: (a) => controller.onNoMacroInGroupReorder(macroGroup, a),
-              children: macros
-                  .map((m) => ActionChip(
-                        avatar: _macroAvatar(m),
+              children: macros.map((m) {
+                if (m.forRemoval != null) {
+                  return Tooltip(
+                    message: tr('pages.printer_edit.macros.macro_removed'),
+                    showDuration: const Duration(seconds: 5),
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: ActionChip(
+                      avatar: Icon(Icons.report_problem_outlined),
+                      labelStyle: TextStyle(decoration: TextDecoration.lineThrough),
+                      // backgroundColor: themeData.dialogBackgroundColor,
+                      label: Text(m.beautifiedName),
+                      // onPressed: () => controller.macroSettings(macroGroup, m),
+                    ),
+                  );
+                }
+
+                return ActionChip(
+                  avatar: _macroAvatar(m),
                         label: Text(m.beautifiedName),
                         onPressed: () => controller.macroSettings(macroGroup, m),
-                      ))
-                  .toList(),
+                );
+              }).toList(),
             ),
           // ActionChip(
           //   backgroundColor: themeData.colorScheme.primary,
