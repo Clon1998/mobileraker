@@ -462,6 +462,7 @@ class JsonRpcClient {
 
     _resetChannel();
     _stateStream.close();
+    _httpClient.close();
     logger.i('$logPrefix JsonRpcClient disposed!');
   }
 
