@@ -594,6 +594,10 @@
       "no_suggestions": "Keine Vorschläge gefunden",
       "command_input": {
         "hint": "Geben Sie einen Befehl ein"
+      },
+      "provider_error": {
+        "title": "Fehler beim Laden der Konsole!",
+        "body": "Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Konsoleneinträge konnten nicht geladen werden. Bitte versuchen Sie es später erneut!"
       }
     },
     "overview": {

@@ -594,6 +594,10 @@
       "no_suggestions": "No suggestions found!",
       "command_input": {
         "hint": "Enter console command"
+      },
+      "provider_error": {
+        "title": "Error fetching Console Data",
+        "body": "An error occurred while trying to fetch the console data. Please retry later!"
       }
     },
     "overview": {

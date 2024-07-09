@@ -10,11 +10,14 @@ import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -367,9 +370,11 @@ class _GCodeSuggestions extends HookConsumerWidget {
   ///
   /// Finally, the function returns the commands in the `potential` list sorted by their scores in descending order.
 
-  List<String> _calculateSuggestedMacros(String currentInput,
-      List<String> history,
-      List<Command> available,) {
+  List<String> _calculateSuggestedMacros(
+    String currentInput,
+    List<String> history,
+    List<Command> available,
+  ) {
     List<String> potential = [...history, ...additionalCmds];
     Set<String> seen = <String>{...history};
 
@@ -455,13 +460,13 @@ class _Console extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeData = Theme.of(context);
-
-    return ref.watch(_consoleListControllerProvider(machineUUID).selectAs((data) => data.consoleEntries.length)).when(
-          data: (entryCount) => _ConsoleData(machineUUID: machineUUID, count: entryCount, onCommandTap: onCommandTap),
-          loading: () => const _ConsoleLoading(),
-          error: (e, s) => Text('Error while fetching History, $e'),
-        );
+    return AsyncGuard(
+      debugLabel: 'console-$machineUUID',
+      toGuard: _consoleListControllerProvider(machineUUID).selectAs((_) => true),
+      childOnLoading: const _ConsoleLoading(),
+      childOnError: (error, _) => _ConsoleProviderError(error: error),
+      childOnData: _ConsoleData(machineUUID: machineUUID, onCommandTap: onCommandTap),
+    );
   }
 }
 
@@ -523,11 +528,45 @@ class _ConsoleLoading extends StatelessWidget {
   }
 }
 
+class _ConsoleProviderError extends ConsumerWidget {
+  const _ConsoleProviderError({super.key, required this.error});
+
+  final Object error;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final message = error.toString();
+
+    return Center(
+      child: SimpleErrorWidget(
+        title: const Text('pages.console.provider_error.title').tr(),
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('pages.console.provider_error.body').tr(),
+            Text(
+              message,
+              maxLines: 4,
+            ),
+          ],
+        ),
+        action: TextButton.icon(
+          onPressed: () {
+            logger.i('Retrying console provider');
+            ref.invalidate(_consoleListControllerProvider);
+          },
+          icon: const Icon(Icons.restart_alt_outlined),
+          label: const Text('general.retry').tr(),
+        ),
+      ),
+    );
+  }
+}
+
 class _ConsoleData extends ConsumerStatefulWidget {
-  const _ConsoleData({super.key, required this.machineUUID, required this.count, required this.onCommandTap});
+  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap});
 
   final String machineUUID;
-  final int count;
   final ValueChanged<String> onCommandTap;
 
   @override
@@ -550,7 +589,10 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.count == 0) {
+    final count = ref
+        .watch(_consoleListControllerProvider(widget.machineUUID).selectRequireValue((d) => d.consoleEntries.length));
+
+    if (count == 0) {
       return ListTile(
         leading: const Icon(Icons.browser_not_supported_sharp),
         title: const Text('pages.console.no_entries').tr(),
@@ -559,6 +601,8 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     final themeData = Theme.of(context);
     final dateFormatService = ref.read(dateFormatServiceProvider);
+
+    logger.e('Rebuilding console list. Count: $count');
 
     return SmartRefresher(
       header: ClassicHeader(
@@ -578,46 +622,44 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
       onRefresh: () => ref.invalidate(_consoleListControllerProvider),
       child: ListView.builder(
         reverse: true,
-        itemCount: widget.count,
+        itemCount: count,
         itemBuilder: (context, index) {
-          final correctedIndex = widget.count - 1 - index;
+          if (index >= count) return null; // Prevents index out of bounds error
+          final correctedIndex = count - index - 1;
 
-          return Consumer(
-            builder: (context, ref, _) {
-              final (ConsoleEntry entry, bool canSend) = ref
-                  .watch(_consoleListControllerProvider(widget.machineUUID)
-                      .selectAs((data) => (data.consoleEntries[correctedIndex], data.klippyCanReceiveCommands)))
-                  .requireValue;
+          final (ConsoleEntry? entry, bool canSend) = ref.watch(_consoleListControllerProvider(widget.machineUUID)
+              .selectRequireValue(
+                  (data) => (data.consoleEntries.elementAtOrNull(correctedIndex), data.klippyCanReceiveCommands)));
 
-              DateFormat dateFormat = dateFormatService.Hms();
-              if (entry.timestamp.isNotToday()) {
-                dateFormat.addPattern('MMMd', ', ');
-              }
+          if (entry == null) return null;
 
-              if (entry.type == ConsoleEntryType.command) {
-                return ListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  title: Text(
-                    entry.message,
-                    style: _commandTextStyle(
-                      themeData,
-                      ListTileTheme.of(context),
-                    ),
-                  ),
-                  onTap: canSend ? () => widget.onCommandTap(entry.message) : null,
-                  subtitle: Text(dateFormat.format(entry.timestamp)),
-                  subtitleTextStyle: themeData.textTheme.bodySmall,
-                );
-              }
+          DateFormat dateFormat = dateFormatService.Hms();
+          if (entry.timestamp.isNotToday()) {
+            dateFormat.addPattern('MMMd', ', ');
+          }
 
-              return ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                title: Text(entry.message),
-                subtitle: Text(dateFormat.format(entry.timestamp)),
-                subtitleTextStyle: themeData.textTheme.bodySmall,
-              );
-            },
+          if (entry.type == ConsoleEntryType.command) {
+            return ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              title: Text(
+                entry.message,
+                style: _commandTextStyle(
+                  themeData,
+                  ListTileTheme.of(context),
+                ),
+              ),
+              onTap: canSend ? () => widget.onCommandTap(entry.message) : null,
+              subtitle: Text(dateFormat.format(entry.timestamp)),
+              subtitleTextStyle: themeData.textTheme.bodySmall,
+            );
+          }
+
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+            title: Text(entry.message),
+            subtitle: Text(dateFormat.format(entry.timestamp)),
+            subtitleTextStyle: themeData.textTheme.bodySmall,
           );
         },
       ),
