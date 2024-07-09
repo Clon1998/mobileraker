@@ -51,9 +51,9 @@ class FolderContentWrapper with _$FolderContentWrapper {
 
 @riverpod
 CacheManager httpCacheManager(HttpCacheManagerRef ref, String machineUUID) {
-  var clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
-
-  HttpClient httpClient = ref.watch(httpClientProvider(machineUUID, clientType));
+  final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+  final HttpClient httpClient = ref.watch(httpClientProvider(machineUUID, clientType, 'httpCacheManager'));
+  ref.onDispose(httpClient.close);
 
   return CacheManager(
     Config(

@@ -30,7 +30,7 @@ JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientTy
   }
 
   var clientOptions = ref.watch(baseOptionsProvider(machineUUID, type));
-  var httpClient = ref.watch(httpClientProvider(machineUUID, type));
+  var httpClient = ref.watch(httpClientProvider(machineUUID, type, 'JsonRpcClient'));
 
   var jrpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(clientOptions, machine);
   jrpcClientBuilder.httpClient = httpClient;

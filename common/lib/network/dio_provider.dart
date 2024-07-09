@@ -35,7 +35,7 @@ Dio dioClient(DioClientRef ref, String machineUUID) {
   dio.interceptors.add(MobilerakerDioInterceptor());
   ref.onDispose(dio.close);
 
-  var httpClient = ref.watch(httpClientProvider(machineUUID, clientType));
+  var httpClient = ref.watch(httpClientProvider(machineUUID, clientType, 'dioClient'));
 
   IOHttpClientAdapter clientAdapter = dio.httpClientAdapter as IOHttpClientAdapter;
   clientAdapter.createHttpClient = () => httpClient;
@@ -94,7 +94,8 @@ BaseOptions baseOptions(BaseOptionsRef ref, String machineUUID, ClientType clien
 }
 
 @riverpod
-HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientType) {
+// The "user" parameter is used to provide different clients for different classes that can independently close the clients without affecting each other.
+HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientType, String user) {
   var options = ref.watch(baseOptionsProvider(machineUUID, clientType));
 
   var client = httpClientFromBaseOptions(options);
