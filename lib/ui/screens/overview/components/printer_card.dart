@@ -11,12 +11,12 @@ import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
-import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -268,6 +268,8 @@ class _PrinterCardController extends _$PrinterCardController {
 
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
+
   @override
   Future<_Model> build(Machine machine) async {
     final previewCamFuture = _previewCam();
@@ -322,9 +324,17 @@ class _PrinterCardController extends _$PrinterCardController {
   }
 
   onFullScreenTap() {
+    var cam = state.requireValue.previewCam;
+    if (cam == null) {
+      return _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: 'Could not open cam',
+        message: 'Unexpected error occurred. Please try again.',
+      ));
+    }
     _goRouter.pushNamed(
       AppRoute.fullCam.name,
-      extra: {'machine': machine, 'selectedCam': state.requireValue},
+      extra: {'machine': this.machine, 'selectedCam': cam},
     );
   }
 }

@@ -19,6 +19,7 @@
 - Logs can now be shared on IPad.
 - Fixed an issue that caused the developer announcements to be shown to often.
 - Fixed GCode console history resetting after leaving the page.
+- Fixed full-screen webcam page not opening correctly from the overview page.
 
 ## [2.7.0] - 2024-06-26
 
