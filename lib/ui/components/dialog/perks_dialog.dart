@@ -41,6 +41,15 @@ class PerksDialog extends ConsumerWidget {
             child: ListView(
               shrinkWrap: true,
               children: [
+                ListTile(
+                  title: const Text(
+                    'dialogs.supporter_perks.custom_dashboard_perk.title',
+                  ).tr(),
+                  subtitle: const Text(
+                    'dialogs.supporter_perks.custom_dashboard_perk.subtitle',
+                  ).tr(),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                ),
                 if (maxNonSupporterMachines >= 0)
                   ListTile(
                     title: const Text(

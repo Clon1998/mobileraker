@@ -870,6 +870,10 @@
       "printer_theme_perk": {
         "title": "Druckerbasierte Designs",
         "subtitle": "Wählen Sie für jeden Drucker ein anderes Design!"
+      },
+      "custom_dashboard_perk": {
+        "title": "Anpassbares Dashboards",
+        "subtitle": "Passen Sie Ihr Dashboard an Ihre Bedürfnisse an!"
       }
     },
     "bed_screw_adjust": {
