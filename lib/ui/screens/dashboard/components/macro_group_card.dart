@@ -260,7 +260,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.gCodeIndex, machineUUID + _componentUUID);
 
-  String get _componentUUID => ref.read(dashboardCardUUIDProvider);
+  String get _componentUUID => ref.read(dashboardCardUUIDProvider(machineUUID));
 
   @override
   Stream<_Model> build(String machineUUID) async* {

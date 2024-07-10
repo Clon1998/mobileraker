@@ -6,10 +6,12 @@
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
+import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -31,22 +33,40 @@ import '../screens/dashboard/components/z_offset_card.dart';
 part 'dashboard_card.g.dart';
 
 @Riverpod(dependencies: [], keepAlive: true)
-String dashboardCardUUID(DashboardCardUUIDRef ref) {
+DashboardComponentType _cardType(_CardTypeRef ref) {
   throw UnimplementedError();
+}
+
+@Riverpod(dependencies: [], keepAlive: true)
+String _cardUUID(_CardUUIDRef ref) {
+  throw UnimplementedError();
+}
+
+@Riverpod(dependencies: [_cardUUID, _cardType])
+String dashboardCardUUID(DashboardCardUUIDRef ref, String machineUUID) {
+  final dashboard = ref.watch(dashboardLayoutProvider(machineUUID).requireValue());
+
+  if (dashboard.created == null) {
+    return ref.watch(_cardTypeProvider).name;
+  }
+
+  return ref.watch(_cardUUIDProvider);
 }
 
 /// Transforms a [DashboardComponentType] into a widget
 class DasboardCard extends StatelessWidget {
-  const DasboardCard._({super.key, required this.componentUUID, required this.child});
+  const DasboardCard._({super.key, required this.componentUUID, required this.type, required this.child});
 
   factory DasboardCard({Key? key, required DashboardComponent component, required String machineUUID}) {
-    return DasboardCard._(key: key, componentUUID: component.uuid, child: _resolve(component.type, machineUUID));
+    return DasboardCard._(
+        key: key, componentUUID: component.uuid, type: component.type, child: _resolve(component.type, machineUUID));
   }
 
   factory DasboardCard.preview({Key? key, required DashboardComponentType type}) {
-    return DasboardCard._(key: key, componentUUID: 'demo:${type.name}', child: _resolveDemo(type));
+    return DasboardCard._(key: key, componentUUID: 'demo:${type.name}', type: type, child: _resolveDemo(type));
   }
 
+  final DashboardComponentType type;
   final String componentUUID;
   final Widget child;
 
@@ -58,7 +78,10 @@ class DasboardCard extends StatelessWidget {
     // This provides the componentUUID to the children without the need to pass it down manually
     // In the future this should not be the UUID but rather the entire component
     return ProviderScope(
-      overrides: [dashboardCardUUIDProvider.overrideWithValue(componentUUID)],
+      overrides: [
+        _cardUUIDProvider.overrideWithValue(componentUUID),
+        _cardTypeProvider.overrideWithValue(type),
+      ],
       child: child,
     );
   }
