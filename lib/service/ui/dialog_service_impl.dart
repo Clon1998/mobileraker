@@ -18,6 +18,7 @@ import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/dashboard_page_settings_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/filament_operation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/http_headers/http_header_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/info_dialog.dart';
@@ -59,6 +60,7 @@ enum DialogType implements DialogIdentifierMixin {
   screwsTiltAdjust,
   dashboardPageSettings,
   dashboardComponentSettings,
+  filamentOperation,
 }
 
 DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
@@ -104,6 +106,7 @@ class DialogServiceImpl implements DialogService {
     DialogType.screwsTiltAdjust: (r, c) => ScrewsTiltAdjustDialog(request: r, completer: c),
     DialogType.dashboardPageSettings: (r, c) => DashboardPageSettingsDialog(request: r, completer: c),
     DialogType.dashboardComponentSettings: (r, c) => DashboardComponentSettingsDialog(request: r, completer: c),
+    DialogType.filamentOperation: (r, c) => FilamentOperationDialog(request: r, completer: c),
   };
 
   @override

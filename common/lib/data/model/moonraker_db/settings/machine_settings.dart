@@ -30,6 +30,8 @@ class MachineSettings extends StampedEntity {
     this.tempOrdering = const [],
     this.fanOrdering = const [],
     this.miscOrdering = const [],
+    this.filamentUnloadGCode,
+    this.filamentLoadGCode,
   }) : super(created, lastModified ?? DateTime.now());
 
   // Factory to get fallback
@@ -80,6 +82,10 @@ class MachineSettings extends StampedEntity {
   // Ordering of misc UI elements: Leds, Relays, FilamentSensors
   List<ReordableElement> miscOrdering;
 
+  String? filamentLoadGCode;
+
+  String? filamentUnloadGCode;
+
   factory MachineSettings.fromJson(Map<String, dynamic> json) => _$MachineSettingsFromJson(json);
 
   Map<String, dynamic> toJson() => _$MachineSettingsToJson(this);
@@ -101,7 +107,9 @@ class MachineSettings extends StampedEntity {
           const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets) &&
           const DeepCollectionEquality().equals(other.tempOrdering, tempOrdering) &&
           const DeepCollectionEquality().equals(other.fanOrdering, fanOrdering) &&
-          const DeepCollectionEquality().equals(other.miscOrdering, miscOrdering);
+          const DeepCollectionEquality().equals(other.miscOrdering, miscOrdering) &&
+          other.filamentLoadGCode == filamentLoadGCode &&
+          other.filamentUnloadGCode == filamentUnloadGCode;
 
   @override
   int get hashCode => Object.hash(
@@ -119,6 +127,8 @@ class MachineSettings extends StampedEntity {
         const DeepCollectionEquality().hash(tempOrdering),
         const DeepCollectionEquality().hash(fanOrdering),
         const DeepCollectionEquality().hash(miscOrdering),
+        filamentLoadGCode,
+        filamentUnloadGCode,
       );
 
   @override

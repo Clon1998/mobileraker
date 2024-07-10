@@ -3,21 +3,18 @@
  * All rights reserved.
  */
 
-import 'dart:math';
-
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
+
+import '../../range_edit_slider.dart';
 
 part 'num_edit_form_dialog.freezed.dart';
 
@@ -151,10 +148,17 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
         mainAxisSize: MainAxisSize.min, // To make the card compact
         children: <Widget>[
           Text(widget.request.title!, style: themeData.textTheme.titleLarge),
+          if (widget.request.body != null) Text(widget.request.body!, style: themeData.textTheme.bodySmall),
           AnimatedCrossFade(
             duration: kThemeAnimationDuration,
             crossFadeState: DialogType.rangeEdit == _type ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-            firstChild: _RangeEditSlider(value: _value, args: widget.args, onChanged: _onSliderChanged),
+            firstChild: RangeEditSlider(
+              value: _value,
+              lowerLimit: widget.args.min,
+              upperLimit: widget.args.max ?? 100,
+              decimalPlaces: widget.args.fraction,
+              onChanged: _onSliderChanged,
+            ),
             secondChild: _NumField(controller: _controller, args: widget.args, errorText: _validation),
           ),
         ],
@@ -213,110 +217,6 @@ class _NumField extends StatelessWidget {
     if (args.max == null) return 'Enter a value of at least ${args.min}';
 
     return 'Enter a value between ${args.min} and ${args.max}';
-  }
-}
-
-class _RangeEditSlider extends HookWidget {
-  const _RangeEditSlider({
-    super.key,
-    required this.value,
-    required this.args,
-    required this.onChanged,
-  });
-
-  final num value;
-  final NumberEditDialogArguments args;
-  final void Function(num) onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final lowerLimit = args.min.toDouble();
-    final upperLimit = args.max?.toDouble() ?? 100.0;
-
-    final numberFormat =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: args.fraction);
-
-    final themeData = Theme.of(context);
-    return Column(
-      children: [
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            children: [
-              MobilerakerIconButton(
-                onPressed: () {
-                  onChanged(max(lowerLimit, value - 1));
-                },
-                onLongPressed: () {
-                  onChanged(lowerLimit);
-                },
-                icon: const Icon(Icons.remove),
-              ),
-              const Spacer(),
-              Text(numberFormat.format(value)),
-              const Spacer(),
-              MobilerakerIconButton(
-                onPressed: () {
-                  num t = value + 1;
-                  if (t > (upperLimit)) {
-                    t = upperLimit;
-                  }
-                  onChanged(t);
-                },
-                onLongPressed: () {
-                  onChanged(upperLimit);
-                },
-                icon: const Icon(Icons.add),
-              ),
-            ],
-          ),
-        ),
-        LinearGauge(
-          start: lowerLimit,
-          end: upperLimit,
-          customLabels: [
-            CustomRulerLabel(text: numberFormat.format(lowerLimit), value: lowerLimit),
-            CustomRulerLabel(text: numberFormat.format(upperLimit), value: upperLimit),
-          ],
-          valueBar: [
-            ValueBar(
-              enableAnimation: false,
-              valueBarThickness: 6.0,
-              value: value.toDouble(),
-              color: themeData.colorScheme.primary,
-              borderRadius: 5,
-            ),
-          ],
-          pointers: [
-            Pointer(
-              value: value.toDouble(),
-              shape: PointerShape.circle,
-              color: themeData.colorScheme.primary,
-              isInteractive: true,
-              enableAnimation: false,
-              height: 25,
-              // width: 10,
-              pointerAlignment: PointerAlignment.center,
-              onChanged: onChanged,
-            ),
-          ],
-          linearGaugeBoxDecoration: LinearGaugeBoxDecoration(
-            thickness: 5,
-            backgroundColor: themeData.colorScheme.primary.withOpacity(0.46),
-            borderRadius: 5,
-          ),
-          rulers: RulerStyle(
-            rulerPosition: RulerPosition.center,
-            showPrimaryRulers: false,
-            showSecondaryRulers: false,
-            showLabel: true,
-            labelOffset: 5,
-            textStyle: themeData.textTheme.bodySmall,
-          ),
-        ),
-      ],
-    );
   }
 }
 

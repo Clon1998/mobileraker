@@ -293,12 +293,13 @@ class PrinterService {
     return gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
-  activateExtruder([int extruderIndex = 0]) {
-    gCode('ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
+  Future<void> activateExtruder([int extruderIndex = 0]) async {
+    await gCode('ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
   }
 
-  Future<void> moveExtruder(double length, [double velocity = 5]) async {
-    await gCode('M83\nG1 E$length F${velocity * 60}');
+  Future<void> moveExtruder(num length, [num velocity = 5, bool waitMove = false]) async {
+    final m400 = waitMove ? '\nM400' : '';
+    await gCode('M83\nG1 E$length F${velocity * 60}$m400');
   }
 
   Future<bool> homePrintHead(Set<PrinterAxis> axis) {

@@ -58,6 +58,7 @@
     "import": "Importieren",
     "current": "Aktuell",
     "load": "Laden",
+    "unload": "Entladen",
     "discard": "Verwerfen",
     "hide": "Verstecken"
   },
@@ -926,6 +927,10 @@
     "dashboard_page_settings": {
       "title": "Dashboard-Seiteneinstellungen",
       "icon_label": "Wählen Sie das Symbol für die Seite:"
+    },
+    "filament_swtich": {
+      "title_load": "Filament laden",
+      "title_unload": "Filament Entladen"
     }
   },
   "bottom_sheets": {

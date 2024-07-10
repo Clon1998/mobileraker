@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Copyright (c) 2024. Patrick Schmidt.
+  - All rights reserved.
+  -->
+
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+    <path d="M 4 2 L 14 2 L 14 7 L 16 7 L 16 13 L 13.5 13 L 10 17 L 8 17 L 4.5 13 L 2 13 L 2 7 L 4 7 L 4 2 M 4 9 L 4 11 L 5.5 11 L 9 15 L 12.5 11 L 14 11 L 14 9 L 12 9 L 12 4 L 6 4 L 6 9 L 4 9 Z"
+          transform="matrix(1, 0, 0, 1, 8.881784197001252e-16, 0)"/>
+    <path d="M 17.72 14.923 H 18.706 V 17.721 H 21.499 V 18.697 H 18.706 V 21.494 H 17.72 V 18.697 H 14.928 V 17.721 H 17.72 Z"
+          style="fill: rgb(0, 0, 0); stroke: rgb(0, 0, 0);" transform="matrix(1, 0, 0, 1, 8.881784197001252e-16, 0)"
+          bx:shape="cross 14.928 14.923 6.571 6.571 0.976 0.986 0.5 1@afca693e"/>
+</svg>

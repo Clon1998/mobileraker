@@ -105,3 +105,7 @@ dev_dependencies:
   hive_generator: ^2.0.0
 
 flutter:
+  fonts:
+    - family: Mobileraker
+      fonts:
+        - asset: fonts/Mobileraker.ttf

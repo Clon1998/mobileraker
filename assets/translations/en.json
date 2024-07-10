@@ -58,6 +58,7 @@
     "import": "Import",
     "current": "Current",
     "load": "Load",
+    "unload": "Unload",
     "discard": "Discard",
     "hide": "Hide"
   },
@@ -926,6 +927,11 @@
     "dashboard_page_settings": {
       "title": "Dashboard Page Settings",
       "icon_label": "Select the icon for the page:"
+    },
+    "filament_swtich": {
+      "title_load": "Filament Load",
+      "title_unload": "Filament Unload"
+
     }
   },
   "bottom_sheets": {
