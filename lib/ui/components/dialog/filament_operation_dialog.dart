@@ -79,10 +79,10 @@ class FilamentOperationDialog extends HookWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            args.isLoad ? 'dialogs.filament_swtich.title_load' : 'dialogs.filament_swtich.title_unload',
+            'dialogs.filament_switch.title',
             style: themeData.textTheme.headlineSmall,
             textAlign: TextAlign.center,
-          ).tr(),
+          ).tr(gender: args.operation),
           const SizedBox(height: 10),
           Flexible(
             child: AsyncGuard(
@@ -132,7 +132,7 @@ class _Data extends ConsumerWidget {
           children: [
             TextButton(
                 onPressed: details.isActive ? () => controller.moveToStep(_FilamentChangeSteps.heatUp) : null,
-                child: const Text('Heat-Up')),
+                child: const Text('dialogs.filament_switch.controls.heat_up').tr()),
           ],
         ),
       _FilamentChangeSteps.heatUp => Row(
@@ -140,7 +140,7 @@ class _Data extends ConsumerWidget {
           children: [
             TextButton(
                 onPressed: details.isActive ? () => controller.moveToStep(_FilamentChangeSteps.setTemperature) : null,
-                child: const Text('Change Temp')),
+                child: const Text('dialogs.filament_switch.controls.change_temp').tr()),
           ],
         ),
       _FilamentChangeSteps.moveFilament => Consumer(builder: (context, ref, child) {
@@ -154,19 +154,22 @@ class _Data extends ConsumerWidget {
                 children: [
                   TextButton(
                       onPressed: controller.moveFilament.only(details.isActive && movingFila != true),
-                      child: Text(args.isLoad ? 'Repeat Load' : 'Repeat Unload')),
+                      child: Text(args.isLoad
+                              ? 'dialogs.filament_switch.controls.repeat_load'
+                              : 'dialogs.filament_switch.controls.repeat_unload')
+                          .tr()),
                   if (args.isLoad)
                     TextButton(
                         onPressed: details.isActive && movingFila == false
                             ? () => controller.moveToStep(_FilamentChangeSteps.purgeFilament)
                             : null,
-                        child: const Text('Purge')),
+                        child: const Text('dialogs.filament_switch.controls.purge').tr()),
                   if (!args.isLoad)
                     TextButton(
                         onPressed: details.isActive && movingFila == false
                             ? () => completer(DialogResponse.confirmed())
                             : null,
-                        child: const Text('Finish')),
+                        child: Text('general.finish').tr()),
                 ],
               ),
             _ => Row(
@@ -178,10 +181,10 @@ class _Data extends ConsumerWidget {
                         onPressed: details.isActive && movingFila != true
                             ? () => controller.moveToStep(_FilamentChangeSteps.setTemperature)
                             : null,
-                        child: const Text('Change Temp')),
+                        child: const Text('dialogs.filament_switch.controls.change_temp').tr()),
                   TextButton(
                       onPressed: controller.moveFilament.only(details.isActive && movingFila != true),
-                      child: Text(args.isLoad ? 'Load' : 'Unload')),
+                      child: Text('general.${args.operation}').tr()),
                 ],
               ),
           };
@@ -203,10 +206,10 @@ class _Data extends ConsumerWidget {
             children: [
               TextButton(
                   onPressed: controller.purgeFilament.only(details.isActive && purging != true),
-                  child: const Text('Repeat Purge')),
+                  child: const Text('dialogs.filament_switch.controls.repeat_purge').tr()),
               TextButton(
                   onPressed: details.isActive && purging == false ? () => completer(DialogResponse.confirmed()) : null,
-                  child: const Text('Finish')),
+                  child: const Text('general.finish').tr()),
             ],
           );
         }),
@@ -232,32 +235,32 @@ class _Data extends ConsumerWidget {
 
     return switch (step) {
       _FilamentChangeSteps.setTemperature => Step(
-          title: const Text('Filament Temperature'),
-          subtitle: const Text('Select target temperature'),
+          title: const Text('dialogs.filament_switch.steps.set_temps.title').tr(),
+          subtitle: const Text('dialogs.filament_switch.steps.set_temps.subtitle').tr(),
           state: state,
           content: _StepSetTemperature(args: args, completer: completer),
         ),
       _FilamentChangeSteps.heatUp => Step(
-          title: const Text('Toolhead Heating'),
-          subtitle: const Text('Heating up to target temperature'),
+          title: const Text('dialogs.filament_switch.steps.heat_up.title').tr(),
+          subtitle: const Text('dialogs.filament_switch.steps.heat_up.subtitle').tr(),
           state: state,
           content: _StepWaitHeatup(args: args, completer: completer),
         ),
       _FilamentChangeSteps.moveFilament => Step(
-          title: Text(args.isLoad ? 'Load Filament' : 'Unload Filament'),
+          title: const Text('dialogs.filament_switch.steps.move.title').tr(gender: args.operation),
           subtitle: _subtitleMoving(),
           state: state,
           content: _StepMoveFilament(args: args, completer: completer),
         ),
       _FilamentChangeSteps.purgeFilament => Step(
-          title: const Text('Purge Filament'),
+          title: const Text('dialogs.filament_switch.steps.purge.title').tr(),
           subtitle: _subtitlePurging(),
           state: state,
           content: _StepPurgeFilament(args: args, completer: completer),
         ),
       _FilamentChangeSteps.tipForming => Step(
-          title: const Text('Tip Forming'),
-          subtitle: const Text('Forming the tip of the filament'),
+          title: const Text('dialogs.filament_switch.steps.tip_form.title').tr(),
+          subtitle: const Text('dialogs.filament_switch.steps.tip_form.subtitle').tr(),
           state: state,
           content: const SizedBox(),
         ),
@@ -268,27 +271,23 @@ class _Data extends ConsumerWidget {
     return Consumer(builder: (context, ref, child) {
       final movingFila = ref.watch(
           _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.movingFilament));
-      Widget w = switch (movingFila) {
-        true when args.isLoad => const Text('Loading filament...'),
-        true => const Text('Unloading filament...'),
-        false when args.isLoad => const Text('Did the filament reach the nozzle? Repeat if necessary.'),
-        false => const Text('Did the filament come out of the extruder? Repeat if necessary.'),
-        _ when args.isLoad => const Text('Insert filament into extruder'),
-        _ => const Text('Move filament out of extruder'),
+      String ops = switch (movingFila) {
+        true => 'processing',
+        false => 'processed',
+        _ => 'idle',
       };
 
-      w = SizedBox(
-        key: Key('movFila-$movingFila'),
-        width: double.infinity,
-        child: w,
-      );
 
       const dur = kThemeAnimationDuration;
       return AnimatedSizeAndFade(
         alignment: Alignment.bottomLeft,
         fadeDuration: dur,
         sizeDuration: dur,
-        child: w,
+        child: SizedBox(
+          key: Key('movFila-$ops'),
+          width: double.infinity,
+          child: const Text('dialogs.filament_switch.steps.move.subtitle').tr(gender: '${args.operation}.$ops'),
+        ),
       );
     });
   }
@@ -297,24 +296,22 @@ class _Data extends ConsumerWidget {
     return Consumer(builder: (context, ref, child) {
       final purgingFilament = ref.watch(
           _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament));
-      Widget w = switch (purgingFilament) {
-        true => const Text('Purging filament...'),
-        false => const Text('Verify purged material is clean. Repeat if necessary.'),
-        _ => const Text('Load filament into Nozzle'),
+      String ops = switch (purgingFilament) {
+        true => 'processing',
+        false => 'processed',
+        _ => 'idle',
       };
-
-      w = SizedBox(
-        key: Key('purgFila-$purgingFilament'),
-        width: double.infinity,
-        child: w,
-      );
 
       const dur = kThemeAnimationDuration;
       return AnimatedSizeAndFade(
         alignment: Alignment.bottomLeft,
         fadeDuration: dur,
         sizeDuration: dur,
-        child: w,
+        child: SizedBox(
+          key: Key('purgFila-$ops'),
+          width: double.infinity,
+          child: const Text('dialogs.filament_switch.steps.purge.subtitle').tr(gender: ops),
+        ),
       );
     });
   }
@@ -386,7 +383,7 @@ class _StepWaitHeatup extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('${numberFormat.format(model.extruderTemp)}/${numberFormat.format(model.targetTemperature)} °C'),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               LinearProgressIndicator(
                 value: model.extruderTemp / model.targetTemperature,
               )
@@ -583,11 +580,15 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
 
 @freezed
 class FilamentOperationDialogArgs with _$FilamentOperationDialogArgs {
+  const FilamentOperationDialogArgs._();
+
   const factory FilamentOperationDialogArgs({
     required String machineUUID,
     required bool isLoad,
     required String extruder,
   }) = _FilamentOperationDialogArgs;
+
+  String get operation => isLoad ? 'load' : 'unload';
 }
 
 @freezed

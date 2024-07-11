@@ -25,8 +25,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/range_edit_slider.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'dev_page.g.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -44,13 +48,19 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-          // PowerApiCardLoading(),
+        Slider(value: 0.5, onChanged: (_) => null),
+        RangeEditSlider(value: 40, onChanged: (_) => null),
+        Consumer(builder: (context, ref, child) {
+          var state = ref.watch(caseBProvider);
+          return Center(child: Text('State: $state'));
+        }),
+        // PowerApiCardLoading(),
 
-          // BedMeshCard(machineUUID: selMachine!.uuid),
-          // FirmwareRetractionCard(machineUUID: selMachine!.uuid),
-          // MachineStatusCardLoading(),
-          // BedMeshCard(machineUUID: selMachine!.uuid),
-          // SpoolmanCardLoading(),
+        // BedMeshCard(machineUUID: selMachine!.uuid),
+        // FirmwareRetractionCard(machineUUID: selMachine!.uuid),
+        // MachineStatusCardLoading(),
+        // BedMeshCard(machineUUID: selMachine!.uuid),
+        // SpoolmanCardLoading(),
 
         FansCard(machineUUID: selMachine.uuid),
         // FansCard.loading(),
@@ -62,28 +72,28 @@ class DevPage extends HookConsumerWidget {
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
         OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
-          OutlinedButton(
-              onPressed: () => ref
-                  .read(bottomSheetServiceProvider)
-                  .show(BottomSheetConfig(type: SheetType.userManagement, isScrollControlled: true)),
-              child: const Text('UserMngnt')),
-          ElevatedButton(
-              onPressed: () {
-                ref.read(snackBarServiceProvider).show(SnackBarConfig(
-                    type: SnackbarType.info,
-                    title: 'Purchases restored',
-                    message: 'Managed to restore Supporter-Status!'));
-              },
-              child: const Text('SNACKBAR')),
+        OutlinedButton(
+            onPressed: () => ref
+                .read(bottomSheetServiceProvider)
+                .show(BottomSheetConfig(type: SheetType.userManagement, isScrollControlled: true)),
+            child: const Text('UserMngnt')),
+        ElevatedButton(
+            onPressed: () {
+              ref.read(snackBarServiceProvider).show(SnackBarConfig(
+                  type: SnackbarType.info,
+                  title: 'Purchases restored',
+                  message: 'Managed to restore Supporter-Status!'));
+            },
+            child: const Text('SNACKBAR')),
 
-          // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
-          // OutlinedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
-          // // Expanded(child: WebRtcCam()),
-          // AsyncValueWidget(
-          //   value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
-          //   data: (data) => getMeshChart(data),
-          // ),
-        ],
+        // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
+        // OutlinedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
+        // // Expanded(child: WebRtcCam()),
+        // AsyncValueWidget(
+        //   value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
+        //   data: (data) => getMeshChart(data),
+        // ),
+      ],
     );
 
     if (context.isLargerThanCompact) {
@@ -217,4 +227,21 @@ void dummyDownload() async {
     },
   );
   print('Download is done: ${response.statusCode}');
+}
+
+@riverpod
+Stream<(int, int)> caseA(CaseARef ref) {
+  logger.i('Creating caseA stream');
+  return Stream.periodic(const Duration(seconds: 1), (x) => (x, x * 2));
+}
+
+@riverpod
+class CaseB extends _$CaseB {
+  @override
+  int build() {
+    logger.i('Building caseB');
+    var v = ref.watch(caseAProvider.select((d) => d.valueOrNull?.$1));
+
+    return v ?? -1;
+  }
 }

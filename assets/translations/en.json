@@ -60,7 +60,8 @@
     "load": "Load",
     "unload": "Unload",
     "discard": "Discard",
-    "hide": "Hide"
+    "hide": "Hide",
+    "finish": "Finish"
   },
   "pages": {
     "dashboard": {
@@ -928,10 +929,59 @@
       "title": "Dashboard Page Settings",
       "icon_label": "Select the icon for the page:"
     },
-    "filament_swtich": {
-      "title_load": "Filament Load",
-      "title_unload": "Filament Unload"
-
+    "filament_switch": {
+      "title": {
+        "load": "Filament load Wizard",
+        "unload": "Filament unload Wizard"
+      },
+      "controls": {
+        "heat_up": "Heat-Up",
+        "change_temp": "Change Temp",
+        "purge": "Purge",
+        "repeat_load": "Repeat Load",
+        "repeat_unload": "Repeat Unload",
+        "repeat_purge": "Repeat Purge"
+      },
+      "steps": {
+        "set_temps": {
+          "title": "Filament Temperature",
+          "subtitle": "Select target temperature"
+        },
+        "heat_up": {
+          "title": "Toolhead Heating",
+          "subtitle": "Heating up to target temperature"
+        },
+        "move": {
+          "title": {
+            "load": "Load Filament",
+            "unload": "Unload Filament"
+          },
+          "subtitle": {
+            "load": {
+              "idle": "Insert filament into the extruder",
+              "processing": "Loading filament...",
+              "processed": "Did the filament reach the nozzle? Repeat if necessary"
+            },
+            "unload": {
+              "idle": "Move filament out of extruder",
+              "processing": "Unloading filament...",
+              "processed": "Did the filament come out of the extruder? Repeat if necessary"
+            }
+          }
+        },
+        "purge": {
+          "title": "Purge Filament",
+          "subtitle": {
+            "idle": "Load filament into Nozzle",
+            "processing": "Purging filament...",
+            "processed": "Verify purged material is clean. Repeat if necessary"
+          }
+        },
+        "tip_form": {
+          "title": "Tip Forming",
+          "subtitle": "Forming a filament tip"
+        }
+      }
     }
   },
   "bottom_sheets": {

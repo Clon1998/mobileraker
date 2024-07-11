@@ -60,7 +60,8 @@
     "load": "Laden",
     "unload": "Entladen",
     "discard": "Verwerfen",
-    "hide": "Verstecken"
+    "hide": "Verstecken",
+    "finish": "Abschließen"
   },
   "pages": {
     "dashboard": {
@@ -928,9 +929,59 @@
       "title": "Dashboard-Seiteneinstellungen",
       "icon_label": "Wählen Sie das Symbol für die Seite:"
     },
-    "filament_swtich": {
-      "title_load": "Filament laden",
-      "title_unload": "Filament Entladen"
+    "filament_switch": {
+      "title": {
+        "load": "Filament Lade Assistent",
+        "unload": "Filament Entlade Assistent"
+      },
+      "controls": {
+        "heat_up": "Aufheizen",
+        "change_temp": "Temperatur ändern",
+        "purge": "Ausstoßen",
+        "repeat_load": "Laden wiederholen",
+        "repeat_unload": "Entladen wiederholen",
+        "repeat_purge": "Ausstoßen wiederholen"
+      },
+      "steps": {
+        "set_temps": {
+          "title": "Filament Temperatur",
+          "subtitle": "Zieltemperatur auswählen"
+        },
+        "heat_up": {
+          "title": "Druckkopf aufheizen",
+          "subtitle": "Aufheizen auf Zieltemperatur"
+        },
+        "move": {
+          "title": {
+            "load": "Filament laden",
+            "unload": "Filament entladen"
+          },
+          "subtitle": {
+            "load": {
+              "idle": "Filament in den Extruder einführen",
+              "processing": "Filament wird geladen...",
+              "processed": "Hat das Filament die Düse erreicht? Bei Bedarf wiederholen"
+            },
+            "unload": {
+              "idle": "Filament aus dem Extruder bewegen",
+              "processing": "Filament wird entladen...",
+              "processed": "Ist das Filament aus dem Extruder gekommen? Bei Bedarf wiederholen"
+            }
+          }
+        },
+        "purge": {
+          "title": "Filament Ausstoßen",
+          "subtitle": {
+            "idle": "Filament in die Düse laden",
+            "processing": "Filament wird ausgestoßen...",
+            "processed": "Überprüfen, ob das ausgestoßene Material sauber ist. Bei Bedarf wiederholen"
+          }
+        },
+        "tip_form": {
+          "title": "Spitzenbildung",
+          "subtitle": "Eine Filamentspitze formen"
+        }
+      }
     }
   },
   "bottom_sheets": {
