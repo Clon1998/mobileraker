@@ -73,21 +73,27 @@ class FilamentOperationDialog extends HookWidget {
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
     return MobilerakerDialog(
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      paddingFooter: const EdgeInsets.all(15),
       dismissText: tr('general.close'),
       onDismiss: () => completer(DialogResponse()),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'dialogs.filament_switch.title',
-            style: themeData.textTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ).tr(gender: args.operation),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Text(
+              'dialogs.filament_switch.title',
+              style: themeData.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ).tr(gender: args.operation),
+          ),
           const SizedBox(height: 10),
           Flexible(
             child: AsyncGuard(
               animate: true,
+              animationAlignment: Alignment.center,
               toGuard: _filamentOperationDialogControllerProvider(args, completer).selectAs((_) => true),
               childOnData: _Data(args: args, completer: completer),
               childOnLoading: IntrinsicHeight(

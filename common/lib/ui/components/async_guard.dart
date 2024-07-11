@@ -26,6 +26,7 @@ class AsyncGuard extends ConsumerWidget {
     this.debugLabel,
     required this.toGuard,
     this.animate = false,
+    this.animationAlignment = Alignment.topCenter,
     this.childOnLoading,
     this.childOnError,
     required this.childOnData,
@@ -48,6 +49,9 @@ class AsyncGuard extends ConsumerWidget {
 
   /// A flag indicating whether to animate transitions between states.
   final bool animate;
+
+  /// The alignment of the animation.
+  final Alignment animationAlignment;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,7 +88,11 @@ class AsyncGuard extends ConsumerWidget {
     const animationDuration = kThemeAnimationDuration;
 
     return AnimatedSizeAndFade(
-        alignment: Alignment.topCenter, fadeDuration: animationDuration, sizeDuration: animationDuration, child: w);
+      alignment: animationAlignment,
+      fadeDuration: animationDuration,
+      sizeDuration: animationDuration,
+      child: w,
+    );
 
     // THIS might also be a good consideration
     // return AnimatedSwitcher(
