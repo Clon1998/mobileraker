@@ -486,7 +486,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       }
     });
 
-    await Future.delayed(Duration(seconds: 5));
+    // await Future.delayed(Duration(seconds: 5));
 
     final settings = await ref.watch(machineSettingsProvider(machineUUID).future);
 
