@@ -23,6 +23,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/range_edit_slider.dart';
@@ -89,7 +90,12 @@ class FilamentOperationDialog extends HookWidget {
               animate: true,
               toGuard: _filamentOperationDialogControllerProvider(args, completer).selectAs((_) => true),
               childOnData: _Data(args: args, completer: completer),
-              childOnLoading: const Center(child: CircularProgressIndicator.adaptive()),
+              childOnLoading: IntrinsicHeight(
+                child: SpinKitSpinningLines(
+                  size: 80,
+                  color: themeData.colorScheme.secondary,
+                ),
+              ),
             ),
           ),
         ],
@@ -343,6 +349,7 @@ class _StepSetTemperature extends HookConsumerWidget {
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          physics: const ClampingScrollPhysics(),
           child: Row(
             children: [
               for (final material in presets) ...[
@@ -479,7 +486,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       }
     });
 
-    // await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(Duration(seconds: 5));
 
     final settings = await ref.watch(machineSettingsProvider(machineUUID).future);
 
