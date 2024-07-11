@@ -428,7 +428,17 @@
         "feedrate": "Extruder Vorschubgeschwindigkeit",
         "feedrate_short": "Vorschubgeschwindigkeit",
         "steps_extrude": "Extrudier-Schritte",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude",
+        "filament": {
+          "loading_distance": "Extruder-Düsen Abstand",
+          "loading_distance_helper": "Abstand von der Düse zum Extruder. Wird zum Laden und Entladen des Filaments verwendet",
+          "loading_speed": "(Ent)Ladegeschwindigkeit",
+          "loading_speed_helper": "Geschwindigkeit zum Laden und Entladen des Filaments von der Düse zum Extruder",
+          "purge_amount": "Ausstoß-Länge",
+          "purge_amount_helper": "Filament-Ausstoß zur Reinigung der Düse",
+          "purge_speed": "Ausstoß-Geschwindigkeit",
+          "purge_speed_helper": "Geschwindigkeit zum Reinigen des Filaments"
+        }
       },
       "cams": {
         "target_fps": "Ziel FPS",

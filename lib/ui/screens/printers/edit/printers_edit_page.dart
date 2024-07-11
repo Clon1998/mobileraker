@@ -20,6 +20,7 @@ import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -176,7 +177,7 @@ class _Body extends ConsumerWidget {
                         ),
                       ),
                       helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
-                      helperMaxLines: 3,
+                      helperMaxLines: 5,
                     ),
                     name: 'printerApiKey',
                     initialValue: machine.apiKey,
@@ -187,7 +188,7 @@ class _Body extends ConsumerWidget {
                     decoration: InputDecoration(
                       labelText: 'pages.printer_edit.general.timeout_label'.tr(),
                       helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
-                      helperMaxLines: 3,
+                      helperMaxLines: 5,
                       suffixText: 's',
                     ),
                     name: 'printerLocalTimeout',
@@ -531,10 +532,87 @@ class _RemoteSettings extends ConsumerWidget {
                   decoration: InputDecoration(
                       labelText: 'pages.printer_edit.extruders.feedrate'.tr(), suffixText: 'mm/s', isDense: true),
                   keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator:
-                      FormBuilderValidators.compose([FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                    FormBuilderValidators.numeric(),
+                  ]),
                 ),
                 const ExtruderStepSegmentInput(),
+                FormBuilderTextField(
+                  name: 'loadingDistance',
+                  initialValue: machineSettings.nozzleExtruderDistance.toString(),
+                  valueTransformer: (text) => text?.let(int.tryParse) ?? 100,
+                  decoration: InputDecoration(
+                    labelText: tr('pages.printer_edit.extruders.filament.loading_distance'),
+                    helperText: tr('pages.printer_edit.extruders.filament.loading_distance_helper'),
+                    suffixText: 'mm',
+                    isDense: true,
+                    helperMaxLines: 5,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                    FormBuilderValidators.integer(),
+                    FormBuilderValidators.numeric(),
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'loadingSpeed',
+                  initialValue: machineSettings.loadingSpeed.toString(),
+                  valueTransformer: (text) => text?.let(double.tryParse)?.toPrecision(1) ?? 5.0,
+                  decoration: InputDecoration(
+                    labelText: tr('pages.printer_edit.extruders.filament.loading_speed'),
+                    helperText: tr('pages.printer_edit.extruders.filament.loading_speed_helper'),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                    helperMaxLines: 5,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                    FormBuilderValidators.numeric(),
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'purgeLength',
+                  initialValue: machineSettings.purgeLength.toString(),
+                  valueTransformer: (text) => text?.let(int.tryParse) ?? 5,
+                  decoration: InputDecoration(
+                    labelText: tr('pages.printer_edit.extruders.filament.purge_amount'),
+                    helperText: tr('pages.printer_edit.extruders.filament.purge_amount_helper'),
+                    suffixText: 'mm',
+                    isDense: true,
+                    helperMaxLines: 5,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                    FormBuilderValidators.numeric(),
+                    FormBuilderValidators.integer(),
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'purgeSpeed',
+                  initialValue: machineSettings.purgeSpeed.toString(),
+                  valueTransformer: (text) => text?.let(double.tryParse)?.toPrecision(1) ?? 2.5,
+                  decoration: InputDecoration(
+                    labelText: tr('pages.printer_edit.extruders.filament.purge_speed'),
+                    helperText: tr('pages.printer_edit.extruders.filament.purge_speed_helper'),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                    helperMaxLines: 5,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                    FormBuilderValidators.numeric(),
+                  ]),
+                ),
                 const Divider(),
                 MacroGroupList(machineUUID: machineUUID, enabled: !isSaving),
                 const Divider(),

@@ -2,6 +2,12 @@
 
 ## [2.7.1] - 2024-07-xx
 
+### New Features
+
+- Filament Load and Unload buttons have been added to the control extruder card. They will open a wizard that will guide
+  you through the process of loading or unloading filament. The speeds and distances can be configured in the printer's
+  settings within the app.
+
 ### Enhancements
 
 - App-Remote-Configs are now updated in realtime and should not cause the dashboard to be unresponsive anymore in case a

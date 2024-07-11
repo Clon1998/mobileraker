@@ -172,9 +172,14 @@ class PrinterEditController extends _$PrinterEditController {
       storedValues['invertY'],
       storedValues['invertZ'],
     ];
-    var speedXY = storedValues['speedXY'];
-    var speedZ = storedValues['speedZ'];
-    var extrudeSpeed = storedValues['extrudeSpeed'];
+    final speedXY = storedValues['speedXY'];
+    final speedZ = storedValues['speedZ'];
+    final extrudeSpeed = storedValues['extrudeSpeed'];
+
+    final loadingDistance = storedValues['loadingDistance'];
+    final loadingSpeed = storedValues['loadingSpeed'];
+    final purgeLength = storedValues['purgeLength'];
+    final purgeSpeed = storedValues['purgeSpeed'];
 
     List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
     List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
@@ -215,6 +220,10 @@ class PrinterEditController extends _$PrinterEditController {
             tempOrdering: tempOrdering,
             fanOrdering: fanOrdering,
             miscOrdering: miscOrdering,
+            loadingSpeed: loadingSpeed,
+            nozzleExtruderDistance: loadingDistance,
+            purgeLength: purgeLength,
+            purgeSpeed: purgeSpeed,
           ),
         );
   }
@@ -375,6 +384,18 @@ class PrinterEditController extends _$PrinterEditController {
             break;
           case 'extrudeSpeed':
             patchingValues[field] = settings.extrudeFeedrate.toString();
+            break;
+          case 'loadingDistance':
+            patchingValues[field] = settings.nozzleExtruderDistance.toString();
+            break;
+          case 'loadingSpeed':
+            patchingValues[field] = settings.loadingSpeed.toString();
+            break;
+          case 'purgeLength':
+            patchingValues[field] = settings.purgeLength.toString();
+            break;
+          case 'purgeSpeed':
+            patchingValues[field] = settings.purgeSpeed.toString();
             break;
           case 'moveSteps':
             ref.read(moveStepStateProvider.notifier).state = List.of(settings.moveSteps);

@@ -220,6 +220,30 @@ class _DialogBody extends ConsumerWidget {
                           'pages.printer_edit.extruders.steps_extrude_short',
                         ).tr(),
                       ),
+                      FormBuilderFieldOption(
+                        value: 'loadingDistance',
+                        child: const Text(
+                          'pages.printer_edit.extruders.filament.loading_distance',
+                        ).tr(),
+                      ),
+                      FormBuilderFieldOption(
+                        value: 'loadingSpeed',
+                        child: const Text(
+                          'pages.printer_edit.extruders.filament.loading_speed',
+                        ).tr(),
+                      ),
+                      FormBuilderFieldOption(
+                        value: 'purgeLength',
+                        child: const Text(
+                          'pages.printer_edit.extruders.filament.purge_amount',
+                        ).tr(),
+                      ),
+                      FormBuilderFieldOption(
+                        value: 'purgeSpeed',
+                        child: const Text(
+                          'pages.printer_edit.extruders.filament.purge_speed',
+                        ).tr(),
+                      ),
                     ],
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),

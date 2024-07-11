@@ -428,7 +428,17 @@
         "feedrate": "Extruder velocity",
         "feedrate_short": "Velocity",
         "steps_extrude": "Extrude steps",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude",
+        "filament": {
+          "loading_distance": "Extruder Nozzle Distance",
+          "loading_distance_helper": "Distance from the nozzle to the extruder. Used for (un)loading filament",
+          "loading_speed": "(Un)Loading Speed",
+          "loading_speed_helper": "Speed for loading and unloading filament from the nozzle to the extruder",
+          "purge_amount": "Purge Length",
+          "purge_amount_helper": "Length of filament to purge",
+          "purge_speed": "Purge Speed",
+          "purge_speed_helper": "Speed for purging filament"
+        }
       },
       "cams": {
         "target_fps": "Target FPS",
