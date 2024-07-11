@@ -29,7 +29,6 @@ import 'package:mobileraker/ui/components/range_edit_slider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'filament_operation_dialog.freezed.dart';
-
 part 'filament_operation_dialog.g.dart';
 
 enum _FilamentChangeSteps { setTemperature, heatUp, moveFilament, purgeFilament, tipForming }
@@ -85,11 +84,13 @@ class FilamentOperationDialog extends HookWidget {
             textAlign: TextAlign.center,
           ).tr(),
           const SizedBox(height: 10),
-          AsyncGuard(
-            animate: true,
-            toGuard: _filamentOperationDialogControllerProvider(args, completer).selectAs((_) => true),
-            childOnData: _Data(args: args, completer: completer),
-            childOnLoading: const Center(child: CircularProgressIndicator.adaptive()),
+          Flexible(
+            child: AsyncGuard(
+              animate: true,
+              toGuard: _filamentOperationDialogControllerProvider(args, completer).selectAs((_) => true),
+              childOnData: _Data(args: args, completer: completer),
+              childOnLoading: const Center(child: CircularProgressIndicator.adaptive()),
+            ),
           ),
         ],
       ),
