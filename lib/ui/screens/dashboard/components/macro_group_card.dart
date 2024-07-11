@@ -140,18 +140,25 @@ class _CardTitle extends ConsumerWidget {
     return ListTile(
       leading: const Icon(FlutterIcons.code_braces_mco),
       title: const Text('pages.dashboard.control.macro_card.title').tr(),
-      trailing: (model.groups.length > 1)
-          ? DropdownButton(
-              value: model.selected,
-              items: model.groups
-                  .mapIndexed((index, element) => DropdownMenuItem(
-                        value: index,
-                        child: Text(element.name),
-                      ))
-                  .toList(),
-              onChanged: controller.onDropDownChanged,
-            )
-          : null,
+      trailing: switch (model.groups.length) {
+        == 1 => Tooltip(
+            triggerMode: TooltipTriggerMode.tap,
+            showDuration: const Duration(seconds: 5),
+            message: tr('pages.dashboard.control.macro_card.add_grp_hint'),
+            child: const Icon(Icons.help_outline),
+          ),
+        > 1 => DropdownButton(
+            value: model.selected,
+            items: model.groups
+                .mapIndexed((index, element) => DropdownMenuItem(
+                      value: index,
+                      child: Text(element.name),
+                    ))
+                .toList(),
+            onChanged: controller.onDropDownChanged,
+          ),
+        _ => null,
+      },
     );
   }
 }
@@ -354,11 +361,11 @@ class _MacroGroupCardPreviewController extends _MacroGroupCardController {
       ],
       selected: 0,
       configMacros: {
-        'home all': ConfigGcodeMacro(macroName: 'Home all', gcode: ''),
-        'clean nozzle': ConfigGcodeMacro(macroName: 'Clean nozzle', gcode: ''),
-        'm600': ConfigGcodeMacro(macroName: 'M600', gcode: ''),
-        'park toolhead': ConfigGcodeMacro(macroName: 'Park Toolhead', gcode: ''),
-        'preview macros': ConfigGcodeMacro(macroName: 'Preview Macros', gcode: ''),
+        'home all': const ConfigGcodeMacro(macroName: 'Home all', gcode: ''),
+        'clean nozzle': const ConfigGcodeMacro(macroName: 'Clean nozzle', gcode: ''),
+        'm600': const ConfigGcodeMacro(macroName: 'M600', gcode: ''),
+        'park toolhead': const ConfigGcodeMacro(macroName: 'Park Toolhead', gcode: ''),
+        'preview macros': const ConfigGcodeMacro(macroName: 'Preview Macros', gcode: ''),
       },
     ));
 
