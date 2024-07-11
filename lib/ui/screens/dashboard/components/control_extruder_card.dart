@@ -23,6 +23,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
@@ -33,7 +34,9 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -289,7 +292,7 @@ class _CardBody extends ConsumerWidget {
               onTap: controller.onSpoolManagement,
               child: SpoolWidget(
                 height: 32,
-                color: themeData.colorScheme.secondary.hexCode.substring(2),
+                color: model.activeSpool?.filament.colorHex ?? themeData.colorScheme.secondary.hexCode.substring(2),
               ),
             ),
             AsyncOutlinedButton(
@@ -320,9 +323,13 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     ref.keepAliveFor();
     // await Future.delayed(Duration(seconds: 5));
 
+    logger.i('Building ControlExtruderCardController for $machineUUID');
+
     // The active extruder (Set via klipper/moonraker) is watched and based on it, the streams are constructed
     var activeExtruder =
         await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex));
+
+    var activeSpool = await ref.watch(activeSpoolProvider(machineUUID).selectAsync((s) => s));
 
     var showCard =
         ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.print.state != PrintState.printing));
@@ -347,6 +354,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
         var minExtrudeTemp = b.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170;
         return _Model(
+          activeSpool: activeSpool,
           showCard: d,
           klippyCanReceiveCommands: a.klippyCanReceiveCommands,
           hasSpoolman: a.hasSpoolmanComponent,
@@ -526,5 +534,6 @@ class _Model with _$Model {
     @Default(false) bool minExtrudeTempReached,
     required double extruderVelocity,
     @Default(false) bool hasSpoolman,
+    Spool? activeSpool,
   }) = __Model;
 }
