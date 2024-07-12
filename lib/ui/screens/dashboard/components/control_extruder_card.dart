@@ -167,6 +167,38 @@ class _ControlExtruderLoading extends StatelessWidget {
                       RangeSelectorSkeleton(itemCount: 5),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  // Loading/Unloading part
+                  const Divider(),
+                  OverflowBar(
+                    alignment: MainAxisAlignment.spaceEvenly,
+                    overflowAlignment: OverflowBarAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4),
+                        child: SizedBox(
+                          height: 40,
+                          width: 104,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      SpoolWidget(
+                        height: 32,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4),
+                        child: SizedBox(
+                          height: 40,
+                          width: 104,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -306,7 +338,7 @@ class _CardBody extends ConsumerWidget {
   }
 }
 
-@riverpod
+@Riverpod(dependencies: [])
 class _ControlExtruderCardController extends _$ControlExtruderCardController {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 

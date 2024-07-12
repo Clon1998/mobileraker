@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/range_edit_slider.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -48,12 +47,8 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-        Slider(value: 0.5, onChanged: (_) => null),
-        RangeEditSlider(value: 40, onChanged: (_) => null),
-        Consumer(builder: (context, ref, child) {
-          var state = ref.watch(caseBProvider);
-          return Center(child: Text('State: $state'));
-        }),
+        // ControlExtruderCard(machineUUID: selMachine.uuid),
+        // ControlExtruderLoading(),
         // PowerApiCardLoading(),
 
         // BedMeshCard(machineUUID: selMachine!.uuid),
