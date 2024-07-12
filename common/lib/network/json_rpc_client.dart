@@ -88,6 +88,8 @@ class JsonRpcClientBuilder {
 }
 
 class JsonRpcClient {
+  static const int pingInterval = 15;
+
   JsonRpcClient({
     required this.uri,
     this.headers = const {},
@@ -261,8 +263,8 @@ class JsonRpcClient {
       ioChannel = IOWebSocketChannel.connect(
         uri,
         headers: headers,
-        pingInterval: const Duration(seconds: 30),
-        connectTimeout: Duration(seconds: timeout.inSeconds + 2),
+        pingInterval: const Duration(seconds: pingInterval),
+        connectTimeout: Duration(seconds: timeout.inSeconds),
         customClient: _httpClient,
       );
     } catch (e) {
@@ -306,14 +308,21 @@ class JsonRpcClient {
     _channel?.sink.add(message);
   }
 
+  int _recivdBytes = 0;
+
   /// CB for called for each new message from the channel/ws
   _onChannelMessage(message) {
     Map<String, dynamic> result = jsonDecode(message);
     int? mId = result['id'];
     String? method = result['method'];
     Map<String, dynamic>? error = result['error'];
+    logger.d('$logPrefix @Rec (messageId: $mId, method: $method): $message');
 
-    logger.d('$logPrefix @Rec (messageId: $mId): $message');
+    if (kDebugMode) {
+      final int messageLength = message.length;
+      _recivdBytes += messageLength;
+      // logger.i('$logPrefix ${message.length}@Rec  (Total: $_recivdBytes) (messageId: $mId, method: $method)');
+    }
 
     if (method != null) {
       _methodListeners[method]?.forEach((e) => e(result));

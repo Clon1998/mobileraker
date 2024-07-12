@@ -5,6 +5,7 @@
 
 import 'dart:io';
 
+import 'package:common/network/http_client_factory.dart';
 import 'package:common/network/interceptor/mobileraker_dio_interceptor.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -27,15 +28,17 @@ const _thirdPartyRemoteConnectionTimeout = Duration(seconds: 30);
 
 @riverpod
 Dio dioClient(DioClientRef ref, String machineUUID) {
-  var clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
-  var baseOptions = ref.watch(baseOptionsProvider(machineUUID, clientType));
+  final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+  final baseOptions = ref.watch(baseOptionsProvider(machineUUID, clientType));
 
-  var dio = Dio(baseOptions);
+  final dio = Dio(baseOptions);
   dio.interceptors.add(RetryInterceptor(dio: dio));
   dio.interceptors.add(MobilerakerDioInterceptor());
   ref.onDispose(dio.close);
 
-  var httpClient = ref.watch(httpClientProvider(machineUUID, clientType, 'dioClient'));
+  final httpClientFactory = ref.watch(httpClientFactoryProvider);
+  final httpClient = httpClientFactory.fromBaseOptions(baseOptions);
+  ref.onDispose(httpClient.close);
 
   IOHttpClientAdapter clientAdapter = dio.httpClientAdapter as IOHttpClientAdapter;
   clientAdapter.createHttpClient = () => httpClient;
@@ -93,42 +96,6 @@ BaseOptions baseOptions(BaseOptionsRef ref, String machineUUID, ClientType clien
     ..clientType = clientType;
 }
 
-@riverpod
-// The "user" parameter is used to provide different clients for different classes that can independently close the clients without affecting each other.
-HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientType, String user) {
-  var options = ref.watch(baseOptionsProvider(machineUUID, clientType));
-
-  var client = httpClientFromBaseOptions(options);
-  ref.onDispose(client.close);
-  return client;
-}
-
-HttpClient httpClientFromBaseOptions(BaseOptions options) {
-  var context = SecurityContext.defaultContext;
-
-  if (options.useTlsClientCertificate) {
-    context.useCertificateChainBytes(options.tlsClientCertificate!);
-    context.usePrivateKeyBytes(options.tlsClientPrivateKey!);
-  }
-
-  final client = HttpClient(context: context)
-    ..idleTimeout = const Duration(seconds: 3)
-    ..connectionTimeout = options.connectTimeout;
-
-  if (!options.trustUntrustedCertificate && options.pinnedCertificateFingerPrint == null) return client;
-
-  var fingerPrint = options.pinnedCertificateFingerPrint;
-
-  return client
-    ..badCertificateCallback = (X509Certificate cert, String host, int port) {
-      if (fingerPrint == null) {
-        return true;
-      }
-      // Manually verified that using DER of cert is correctly working to generate a SHA256 FP for the cert
-      HashDigest sha256Fp = sha256.convert(cert.der);
-      return fingerPrint == sha256Fp;
-    };
-}
 
 @riverpod
 Dio octoApiClient(OctoApiClientRef ref) {

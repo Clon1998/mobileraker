@@ -32,6 +32,7 @@ import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../network/http_client_factory.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
 
@@ -52,7 +53,10 @@ class FolderContentWrapper with _$FolderContentWrapper {
 @riverpod
 CacheManager httpCacheManager(HttpCacheManagerRef ref, String machineUUID) {
   final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
-  final HttpClient httpClient = ref.watch(httpClientProvider(machineUUID, clientType, 'httpCacheManager'));
+  final baseOptions = ref.watch(baseOptionsProvider(machineUUID, clientType));
+  final httpClientFactory = ref.watch(httpClientFactoryProvider);
+
+  final HttpClient httpClient = httpClientFactory.fromBaseOptions(baseOptions);
   ref.onDispose(httpClient.close);
 
   return CacheManager(

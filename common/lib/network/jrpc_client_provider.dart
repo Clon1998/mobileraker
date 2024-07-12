@@ -19,6 +19,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../service/machine_service.dart';
 import '../service/selected_machine_service.dart';
+import 'http_client_factory.dart';
 
 part 'jrpc_client_provider.g.dart';
 
@@ -29,11 +30,11 @@ JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientTy
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
-  var clientOptions = ref.watch(baseOptionsProvider(machineUUID, type));
-  var httpClient = ref.watch(httpClientProvider(machineUUID, type, 'JsonRpcClient'));
+  final clientOptions = ref.watch(baseOptionsProvider(machineUUID, type));
+  final httpClientFactory = ref.watch(httpClientFactoryProvider);
 
   var jrpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(clientOptions, machine);
-  jrpcClientBuilder.httpClient = httpClient;
+  jrpcClientBuilder.httpClient = httpClientFactory.fromBaseOptions(clientOptions);
 
   JsonRpcClient jsonRpcClient = jrpcClientBuilder.build();
   logger.i('${jsonRpcClient.logPrefix} JsonRpcClient CREATED!!');

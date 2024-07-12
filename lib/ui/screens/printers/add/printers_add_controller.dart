@@ -14,7 +14,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/exceptions/obico_exception.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
-import 'package:common/network/dio_provider.dart';
+import 'package:common/network/http_client_factory.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
@@ -324,7 +324,10 @@ class TestConnectionController extends _$TestConnectionController {
 
   @override
   TestConnectionState build() {
-    ref.onDispose(dispose);
+    ref.onDispose(() => _testConnectionRPCState?.cancel());
+    ref.onDispose(_client.dispose);
+    ref.onDispose(_httpClient.close);
+
     ref.listenSelf((previous, next) {
       logger.wtf('TestConnectionState: $previous -> $next');
     });
@@ -338,7 +341,7 @@ class TestConnectionController extends _$TestConnectionController {
 
     TestConnectionState s;
 
-    var baseOptions = BaseOptions(
+    final baseOptions = BaseOptions(
       baseUrl: machineToAdd.httpUri.toString(),
       headers: machineToAdd.headerWithApiKey,
       connectTimeout: Duration(seconds: machineToAdd.timeout),
@@ -349,7 +352,9 @@ class TestConnectionController extends _$TestConnectionController {
           machineToAdd.pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)))
       ..clientType = ClientType.local;
 
-    var httpClient = httpClientFromBaseOptions(baseOptions);
+    final httpClientFactory = ref.read(httpClientFactoryProvider);
+
+    final httpClient = httpClientFactory.fromBaseOptions(baseOptions);
 
     JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(baseOptions, machineToAdd);
     jsonRpcClientBuilder.httpClient = httpClient;
@@ -413,12 +418,6 @@ class TestConnectionController extends _$TestConnectionController {
 
       state = state.copyWith(httpState: false, httpError: e.toString());
     }
-  }
-
-  dispose() {
-    _testConnectionRPCState?.cancel();
-    _client.dispose();
-    _httpClient.close();
   }
 }
 
