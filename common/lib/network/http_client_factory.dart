@@ -6,6 +6,8 @@
 import 'dart:io';
 
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:dio/dio.dart';
 import 'package:hashlib/hashlib.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -30,7 +32,7 @@ class HttpClientFactory {
   ///
   /// @param options The base options to configure the client with.
   /// @return The configured HTTP client.
-  HttpClient fromBaseOptions(options) {
+  HttpClient fromBaseOptions(BaseOptions options) {
     var context = SecurityContext.defaultContext;
 
     if (options.useTlsClientCertificate) {
