@@ -16,6 +16,7 @@
   increasing the printer's timeout in the printer settings within the app.
 - Static Dashboard Widgets (Warnings, Announcements, ...) are now only shown on the first page of the dashboard.
 - Multiple GCode-Macro cards now work independently of each other and do not sync the selected group anymore.
+- Increased default HttpClient idle timeout to ensure a more stable connection to the printer.
 
 ### Bug Fixes
 
