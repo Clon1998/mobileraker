@@ -324,10 +324,6 @@ class TestConnectionController extends _$TestConnectionController {
 
   @override
   TestConnectionState build() {
-    ref.onDispose(() => _testConnectionRPCState?.cancel());
-    ref.onDispose(_client.dispose);
-    ref.onDispose(_httpClient.close);
-
     ref.listenSelf((previous, next) {
       logger.wtf('TestConnectionState: $previous -> $next');
     });
@@ -370,6 +366,11 @@ class TestConnectionController extends _$TestConnectionController {
     );
 
     _testHttp(s.httpUri);
+
+    ref.onDispose(() => _testConnectionRPCState?.cancel());
+    ref.onDispose(_client.dispose);
+    ref.onDispose(_httpClient.close);
+
     return s;
   }
 
