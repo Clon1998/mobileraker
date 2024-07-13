@@ -25,9 +25,10 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../overview/components/printer_card.dart';
 
 part 'dev_page.g.dart';
 
@@ -57,12 +58,13 @@ class DevPage extends HookConsumerWidget {
         // BedMeshCard(machineUUID: selMachine!.uuid),
         // SpoolmanCardLoading(),
 
-        FansCard(machineUUID: selMachine.uuid),
+        // FansCard(machineUUID: selMachine.uuid),
         // FansCard.loading(),
         // PinsCard(machineUUID: selMachine.uuid),
         // PinsCard.loading(),
         // PowerApiCard(machineUUID: selMachine.uuid),
         // PowerApiCard.loading(),
+        PrinterCard(selMachine),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),

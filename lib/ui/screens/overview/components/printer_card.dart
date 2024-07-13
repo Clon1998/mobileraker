@@ -19,7 +19,6 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/theme/theme_pack.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -82,28 +81,41 @@ class _Body extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(machine.name, style: themeData.textTheme.titleMedium),
-                Text(
-                  machine.httpUri.toString(),
-                  style: themeData.textTheme.bodySmall,
-                ),
-                Consumer(builder: (context, ref, child) {
-                  var printer = ref.watch(printerProvider(machine.uuid).selectAs((data) => data.print.state));
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(machine.name, style: themeData.textTheme.titleMedium),
+                  Text(
+                    machine.httpUri.toString(),
+                    style: themeData.textTheme.bodySmall,
+                  ),
+                  Flexible(
+                    child: Consumer(builder: (context, ref, child) {
+                      final model = ref.watch(_printerCardControllerProvider(machine));
 
-                  return AnimatedSwitcher(
-                    duration: kThemeAnimationDuration,
-                    // duration: const Duration(seconds: 2),
-                    child: switch (printer) {
-                      AsyncData(value: var state) => Text(state.displayName, style: themeData.textTheme.bodySmall),
-                      _ => FadingText(tr('general.unknown'), style: themeData.textTheme.bodySmall),
-                    },
-                  );
-                }),
-              ],
+                      return AnimatedSwitcher(
+                        duration: kThemeAnimationDuration,
+                        // duration: const Duration(seconds: 2),
+                        child: switch (model) {
+                          AsyncData(value: _Model(jrpcClientState: ClientState.error)) => Text(
+                                  key: Key('cs-e'),
+                                  'pages.printer_edit.fetch_error_hint',
+                                  style: themeData.textTheme.bodySmall)
+                              .tr(),
+                          AsyncData(value: _Model(:final printState, jrpcClientState: ClientState.connected)) =>
+                            Text(key: Key('cs-c'), printState.displayName, style: themeData.textTheme.bodySmall),
+                          _ => Text(
+                              key: Key('cs-w'),
+                              '',
+                              style: themeData.textTheme.bodySmall), // Just a placeholder to prevent jumping UI
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
             _Trailing(machine: machine),
           ],
@@ -123,7 +135,7 @@ class _Trailing extends HookConsumerWidget {
     final triedReconnect = useState(false);
     final model = ref.watch(_printerCardControllerProvider(machine));
 
-    // logger.i('Rebuilding _Trailing for ${machine.logName} $model');
+    logger.i('Rebuilding _Trailing for ${machine.logName} $model');
 
     final themeData = Theme.of(context);
     return switch (model) {
@@ -142,6 +154,7 @@ class _Trailing extends HookConsumerWidget {
           color: themeData.colorScheme.error,
         ),
       AsyncData() => MobilerakerIconButton(
+          padding: EdgeInsets.zero,
           icon: const Icon(Icons.restart_alt_outlined),
           color: themeData.extension<CustomColors>()?.danger,
           onPressed: () {
@@ -149,7 +162,6 @@ class _Trailing extends HookConsumerWidget {
             ref.read(jrpcClientProvider(machine.uuid)).ensureConnection();
           },
         ),
-      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
       AsyncError(error: var e) => Tooltip(
           message: e.toString(),
           child: Icon(
@@ -158,6 +170,7 @@ class _Trailing extends HookConsumerWidget {
             color: themeData.colorScheme.error,
           ),
         ),
+      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
       _ => const SizedBox.shrink(),
     };
   }
@@ -265,16 +278,19 @@ class _PrinterCardController extends _$PrinterCardController {
 
   @override
   Future<_Model> build(Machine machine) async {
+    final jrpcStateFuture = ref.watch(jrpcClientStateProvider(machine.uuid).future);
+    final jrpcState = await jrpcStateFuture;
+
+    if (jrpcState != ClientState.connected) {
+      return _Model(jrpcClientState: jrpcState, printState: PrintState.error, printProgress: 0);
+    }
+
     final previewCamFuture = _previewCam();
     final printerDataFuture =
         ref.watch(printerProvider(machine.uuid).selectAsync((d) => (d.print.state, d.printProgress)));
-    final jrpcStateFuture = ref.watch(jrpcClientStateProvider(machine.uuid).future);
-    // await Future.delayed(const Duration(seconds: 60));
 
-    final res = await Future.wait([previewCamFuture, printerDataFuture, jrpcStateFuture]);
-    final previewCam = res[0] as WebcamInfo?;
-    final printerData = res[1] as (PrintState, double);
-    final jrpcState = res[2] as ClientState;
+    final printerData = await printerDataFuture;
+    final previewCam = await previewCamFuture;
 
     return _Model(
       previewCam: previewCam,
@@ -287,12 +303,12 @@ class _PrinterCardController extends _$PrinterCardController {
   Future<WebcamInfo?> _previewCam() async {
     final isSupporter = ref.watch(isSupporterProvider);
 
-    final cams = await ref.watch(allSupportedWebcamInfosProvider(this.machine.uuid).future);
+    final cams = await ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
     if (cams.isEmpty) {
       return null;
     }
 
-    final webcamIndexKey = CompositeKey.keyWithString(UtilityKeys.webcamIndex, this.machine.uuid);
+    final webcamIndexKey = CompositeKey.keyWithString(UtilityKeys.webcamIndex, machine.uuid);
     final selIndex = ref.watch(intSettingProvider(webcamIndexKey)).clamp(0, cams.length - 1);
 
     WebcamInfo? previewCam = cams.elementAtOrNull(selIndex);
@@ -307,13 +323,13 @@ class _PrinterCardController extends _$PrinterCardController {
   }
 
   onTapTile() {
-    ref.read(selectedMachineServiceProvider).selectMachine(this.machine);
+    ref.read(selectedMachineServiceProvider).selectMachine(machine);
     _goRouter.pushNamed(AppRoute.dashBoard.name);
   }
 
   onLongPressTile() {
-    _selectedMachineService.selectMachine(this.machine);
-    _goRouter.pushNamed(AppRoute.printerEdit.name, extra: this.machine);
+    _selectedMachineService.selectMachine(machine);
+    _goRouter.pushNamed(AppRoute.printerEdit.name, extra: machine);
   }
 
   onFullScreenTap() {
@@ -327,7 +343,7 @@ class _PrinterCardController extends _$PrinterCardController {
     }
     _goRouter.pushNamed(
       AppRoute.fullCam.name,
-      extra: {'machine': this.machine, 'selectedCam': cam},
+      extra: {'machine': machine, 'selectedCam': cam},
     );
   }
 }
