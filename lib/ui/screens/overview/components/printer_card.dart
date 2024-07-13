@@ -123,26 +123,18 @@ class _Trailing extends HookConsumerWidget {
     final triedReconnect = useState(false);
     final model = ref.watch(_printerCardControllerProvider(machine));
 
-    // logger.i('Rebuilding _Trailing for ${machine.logName}');
+    // logger.i('Rebuilding _Trailing for ${machine.logName} $model');
 
     final themeData = Theme.of(context);
     return switch (model) {
-      // AsyncValue(isLoading: true, isRefreshing: false) => const SizedBox(
-      //   height: 20,
-      //   width: 20,
-      //   child: CircularProgressIndicator(
-      //     strokeWidth: 2
-      //   ),
-      // ),
-      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
       // Handle connected
-      AsyncData(
-        value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.printing, :final printProgress?)
+      AsyncValue(
+        value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.printing, :final printProgress)
       ) =>
         _PrintProgressBar(progress: printProgress, circular: true),
-      AsyncData(value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.paused)) =>
+      AsyncValue(value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.paused)) =>
         const Icon(Icons.pause_circle_outline, size: 20),
-      AsyncData(value: _Model(jrpcClientState: ClientState.connected)) => MachineStateIndicator(machine),
+      AsyncValue(value: _Model(jrpcClientState: ClientState.connected)) => MachineStateIndicator(machine),
       // Handle other jrpc states
       AsyncData() when triedReconnect.value => Icon(
           FlutterIcons.disconnect_ant,
@@ -157,6 +149,7 @@ class _Trailing extends HookConsumerWidget {
             ref.read(jrpcClientProvider(machine.uuid)).ensureConnection();
           },
         ),
+      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
       AsyncError(error: var e) => Tooltip(
           message: e.toString(),
           child: Icon(
