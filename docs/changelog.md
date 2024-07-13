@@ -28,6 +28,7 @@
 - Fixed GCode console history resetting after leaving the page.
 - Fixed full-screen webcam page not opening correctly from the overview page.
 - Fixed flickering of overview page printer cards while printing.
+- Fixed switching printer via app bar not honoring the configured printer order.
 -
 
 ## [2.7.0] - 2024-06-26

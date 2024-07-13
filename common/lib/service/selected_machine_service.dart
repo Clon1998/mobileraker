@@ -78,25 +78,6 @@ class SelectedMachineService {
     }
   }
 
-  selectNextMachine() async {
-    List<Machine> list = await _machineRepo.fetchAll();
-
-    if (list.length < 2) return;
-    logger.i('Selecting next machine');
-    int indexSelected = list.indexWhere((element) => element.uuid == _selected?.uuid);
-    int next = (indexSelected + 1) % list.length;
-    selectMachine(list[next]);
-  }
-
-  selectPreviousMachine() async {
-    List<Machine> list = await _machineRepo.fetchAll();
-    if (list.length < 2) return;
-    logger.i('Selecting previous machine');
-    int indexSelected = list.indexWhere((element) => element.uuid == _selected?.uuid);
-    int prev = (indexSelected - 1 < 0) ? list.length - 1 : indexSelected - 1;
-    selectMachine(list[prev]);
-  }
-
   bool isSelectedMachine(Machine toCheck) => toCheck.uuid == _boxUuid.get('selectedPrinter');
 
   dispose() {

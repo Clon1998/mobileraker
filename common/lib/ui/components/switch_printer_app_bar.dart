@@ -55,13 +55,20 @@ class _SwitchPrinterAppBarState extends ConsumerState<SwitchPrinterAppBar> {
   onTap() => _dialogService.show(DialogRequest(type: CommonDialogs.activeMachine));
 
   onHorizontalDragEnd(DragEndDetails endDetails) {
+    final all = ref.read(allMachinesProvider.requireValue());
+    final active = ref.read(selectedMachineProvider.requireValue());
+    if (all.isEmpty || active == null) return;
+    final activeIndex = all.indexOf(active);
+
     double primaryVelocity = endDetails.primaryVelocity ?? 0;
     if (primaryVelocity < 0) {
-      // Page forwards
-      _selectedMachineService.selectPreviousMachine();
+      // Next index
+      final nextIndex = (activeIndex + 1) % all.length;
+      _selectedMachineService.selectMachine(all[nextIndex]);
     } else if (primaryVelocity > 0) {
-      // Page backwards
-      _selectedMachineService.selectNextMachine();
+      // Previous index
+      final previousIndex = (activeIndex - 1) % all.length;
+      _selectedMachineService.selectMachine(all[previousIndex]);
     }
   }
 }
