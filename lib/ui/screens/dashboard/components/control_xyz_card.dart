@@ -171,50 +171,40 @@ class _ControlXYZLoading extends StatelessWidget {
                     child: SizedBox(height: 54, width: double.infinity),
                   ),
                   // QuickActions
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4.0),
-                    child: Wrap(
-                      runSpacing: 4,
-                      spacing: 8,
-                      alignment: WrapAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          width: 80,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 80,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 80,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 40,
-                          width: 80,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Calculate the number of buttons that can fit in one row
+                        double buttonWidth = 80;
+                        double availableWidth = constraints.maxWidth;
+                        int buttons = (availableWidth / (buttonWidth + 8)).floor(); // Including spacing
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (buttons < 0)
+                              SizedBox(
+                                height: 40,
+                                width: availableWidth,
+                                child: const DecoratedBox(
+                                  decoration: BoxDecoration(color: Colors.white),
+                                ),
+                              ),
+                            for (int i = 0; i < buttons; i++)
+                              Padding(
+                                padding: i == 0 ? EdgeInsets.zero : const EdgeInsets.only(left: 8.0),
+                                child: SizedBox(
+                                  height: 40,
+                                  width: buttonWidth,
+                                  child: const DecoratedBox(
+                                    decoration: BoxDecoration(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   const Divider(),
@@ -225,9 +215,11 @@ class _ControlXYZLoading extends StatelessWidget {
                       Flexible(
                         child: Padding(
                           padding: const EdgeInsets.only(right: 4.0),
-                          child: Container(
+                          child: ConstrainedBox(
                             constraints: const BoxConstraints(maxHeight: 19, maxWidth: 100),
-                            color: Colors.white,
+                            child: const DecoratedBox(
+                              decoration: BoxDecoration(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
