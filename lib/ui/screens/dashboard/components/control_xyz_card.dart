@@ -34,6 +34,7 @@ import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table.dart';
+import 'package:overflow_view/overflow_view.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -395,32 +396,41 @@ class _QuickActionsWidget extends ConsumerWidget {
     var directActions =
         ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.directActions)).requireValue;
 
-    return Wrap(
-      runSpacing: 4,
+    return OverflowView.flexible(
+      // Either layout the children horizontally (the default)
+      // or vertically.
+      direction: Axis.horizontal,
+      // The amount of space between children.
       spacing: 8,
-      alignment: WrapAlignment.center,
-      children: [
-        ...[
-          for (var action in directActions)
-            Tooltip(
-              message: action.description,
-              child: AsyncElevatedButton.icon(
-                onPressed: klippyCanReceiveCommands ? action.callback : null,
-                icon: Icon(action.icon),
-                label: Text(action.title.toUpperCase()),
-              ),
+      // The widgets to display until there is not enough space.
+      children: <Widget>[
+        for (var action in directActions)
+          Tooltip(
+            message: action.description,
+            child: AsyncElevatedButton.icon(
+              onPressed: klippyCanReceiveCommands ? action.callback : null,
+              icon: Icon(action.icon),
+              label: Text(action.title.toUpperCase()),
             ),
-        ],
-        _MoreActionsPopup(machineUUID: machineUUID),
+          ),
       ],
+      // The overview indicator showed if there is not enough space for
+      // all chidren.
+      builder: (context, remaining) {
+        final moreActions = directActions.sublist(directActions.length - remaining);
+
+        return _MoreActionsPopup(machineUUID: machineUUID, moreActions: moreActions);
+      },
     );
   }
 }
 
 class _MoreActionsPopup extends ConsumerWidget {
-  const _MoreActionsPopup({super.key, required this.machineUUID});
+  const _MoreActionsPopup({super.key, required this.machineUUID, required this.moreActions});
 
   final String machineUUID;
+
+  final List<_QuickAction> moreActions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -428,8 +438,6 @@ class _MoreActionsPopup extends ConsumerWidget {
     var klippyCanReceiveCommands = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
         .requireValue;
-    var moreActions =
-        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.moreActions)).requireValue;
 
     bool enabled = klippyCanReceiveCommands && moreActions.any((e) => e.callback != null);
 
@@ -461,7 +469,10 @@ class _MoreActionsPopup extends ConsumerWidget {
             : null,
         onPressed: null,
         icon: const Icon(Icons.more_vert),
-        label: const Text('@.upper:pages.dashboard.general.move_card.more_btn').tr(),
+        label: const Text(
+          '@.upper:pages.dashboard.general.move_card.more_btn',
+          maxLines: 1,
+        ).tr(),
       ),
     );
   }
@@ -484,14 +495,14 @@ class _StepSelectorWidget extends ConsumerWidget {
         ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
     var steps = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return OverflowBar(
+      alignment: MainAxisAlignment.spaceEvenly,
+      spacing: 4,
+      overflowAlignment: OverflowBarAlignment.center,
       children: [
-        Flexible(
-          child: Text(
-            '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
-            textAlign: TextAlign.center,
-          ),
+        Text(
+          '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
+          textAlign: TextAlign.center,
         ),
         RangeSelector(
           selectedIndex: selected,
@@ -544,8 +555,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         return _Model(
           showCard: a,
           klippyCanReceiveCommands: b,
-          directActions: c.$1,
-          moreActions: c.$2,
+          directActions: c,
           steps: d,
           selected: min(max(0, idx), d.length - 1),
         );
@@ -611,8 +621,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 
   Future<void> onBedScrewAdjust() => _printerService.bedScrewsAdjust();
 
-  (List<_QuickAction>, List<_QuickAction>) _quickActions(ConfigFile configFile) {
-    List<_QuickAction> directActions = [
+  List<_QuickAction> _quickActions(ConfigFile configFile) {
+    return [
       _QuickAction(
         title: tr('pages.dashboard.general.move_card.home_all_btn'),
         description: tr('pages.dashboard.general.move_card.home_all_tooltip'),
@@ -649,9 +659,12 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
           icon: Icons.architecture,
           callback: onZTiltAdjust,
         ),
-    ];
-
-    List<_QuickAction> calibrationActions = [
+      _QuickAction(
+        title: tr('pages.dashboard.general.move_card.m84_btn'),
+        description: tr('pages.dashboard.general.move_card.m84_tooltip'),
+        icon: Icons.near_me_disabled,
+        callback: onMotorOff,
+      ),
       if (configFile.hasProbe == true)
         _QuickAction(
           title: 'pages.dashboard.general.move_card.poff_btn'.tr(),
@@ -680,23 +693,6 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         callback: onSaveConfig,
       ),
     ];
-
-    var m84 = _QuickAction(
-      title: tr('pages.dashboard.general.move_card.m84_btn'),
-      description: tr('pages.dashboard.general.move_card.m84_tooltip'),
-      icon: Icons.near_me_disabled,
-      callback: onMotorOff,
-    );
-
-    if (directActions.length < 3) {
-      directActions.add(m84);
-    } else {
-      calibrationActions.insert(0, m84);
-      calibrationActions.addAll(directActions.sublist(3));
-      directActions = directActions.sublist(0, min(directActions.length, 3));
-    }
-
-    return (directActions, calibrationActions);
   }
 }
 
@@ -723,8 +719,6 @@ class _ControlXYZCardPreviewController extends _ControlXYZCardController {
           icon: Icons.near_me_disabled,
           callback: () => null,
         ),
-      ],
-      moreActions: [
         _QuickAction(
           title: 'pages.dashboard.general.move_card.save_btn'.tr(),
           description: 'pages.dashboard.general.move_card.save_tooltip'.tr(),
@@ -817,7 +811,6 @@ class _Model with _$Model {
     required int selected,
     required List<double> steps,
     @Default([]) List<_QuickAction> directActions,
-    @Default([]) List<_QuickAction> moreActions,
   }) = __Model;
 }
 
