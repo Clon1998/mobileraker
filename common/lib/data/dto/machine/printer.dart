@@ -5,6 +5,7 @@
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
+import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
@@ -103,7 +104,7 @@ class PrinterBuilder {
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
   List<String> queryableObjects = [];
-  List<String> gcodeMacros = [];
+  Map<String, GcodeMacro> gcodeMacros = {};
   Map<String, Led> leds = {};
   Map<String, GenericHeater> genericHeaters = {};
   Map<String, FilamentSensor> filamentSensors = {};
@@ -188,7 +189,7 @@ class Printer with _$Printer {
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<String, OutputPin> outputPins,
     @Default([]) List<String> queryableObjects,
-    @Default([]) List<String> gcodeMacros,
+    @Default({}) Map<String, GcodeMacro> gcodeMacros,
     @Default({}) Map<String, Led> leds,
     @Default({}) Map<String, GenericHeater> genericHeaters,
     @Default({}) Map<String, FilamentSensor> filamentSensors,

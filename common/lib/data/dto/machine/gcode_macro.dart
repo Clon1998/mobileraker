@@ -10,9 +10,11 @@ part 'gcode_macro.g.dart';
 
 @Freezed(toJson: false)
 class GcodeMacro with _$GcodeMacro {
+  const GcodeMacro._();
+
   const factory GcodeMacro({
     required String name,
-    @JsonKey(readValue: readVars) required Map<String, dynamic> vars,
+    @JsonKey(readValue: readVars) @Default({}) Map<String, dynamic> vars,
   }) = _GcodeMacro;
 
   factory GcodeMacro.fromJson(Map<String, dynamic> json, [String? name]) =>
@@ -22,6 +24,10 @@ class GcodeMacro with _$GcodeMacro {
     var mergedJson = {...current.toJson(), ...partialJson};
     return GcodeMacro.fromJson(mergedJson);
   }
+
+  bool get isVisible => !isHidden;
+
+  bool get isHidden => name.startsWith('_');
 }
 
 Map<String, dynamic> readVars(Map input, String key) {
@@ -36,6 +42,7 @@ Map<String, dynamic> readVars(Map input, String key) {
   return vars;
 }
 
+/// This is a hack to get the toJson to work while still using freezed to generate the rest...
 extension JsonMacro on GcodeMacro {
   Map<String, dynamic> toJson() => {
         'name': name,

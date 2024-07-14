@@ -21,6 +21,7 @@ import 'package:common/data/dto/machine/fans/heater_fan.dart';
 import 'package:common/data/dto/machine/fans/print_fan.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
+import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/gcode_move.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
@@ -65,8 +66,6 @@ import 'file_service.dart';
 import 'klippy_service.dart';
 
 part 'printer_service.g.dart';
-
-final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
 
 @riverpod
 PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
@@ -632,7 +631,6 @@ class PrinterService {
 
     List<String> objects = result['objects'].cast<String>();
     List<String> qObjects = [];
-    List<String> gCodeMacros = [];
     int extruderCnt = 0;
 
     for (String rawObject in objects) {
@@ -642,7 +640,7 @@ class PrinterService {
       String objectName = klipperObjectIdentifier.$2 ?? klipperObjectIdentifier.$1;
 
       if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.gcode_macro)) {
-        if (!skipGCodes.contains(objectName)) gCodeMacros.add(objectName);
+        printerBuilder.gcodeMacros[objectName] = GcodeMacro(name: objectName);
       } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.extruder)) {
         int extNum = int.tryParse(objectIdentifier.substring(8)) ?? 0;
         extruderCnt = max(extNum + 1, extruderCnt);
@@ -692,7 +690,6 @@ class PrinterService {
     printerBuilder.extruders =
         List.generate(extruderCnt, (index) => Extruder(num: index, lastHistory: DateTime(1990)), growable: false);
     printerBuilder.queryableObjects = List.unmodifiable(qObjects);
-    printerBuilder.gcodeMacros = List.unmodifiable(gCodeMacros);
 
     return printerBuilder;
   }

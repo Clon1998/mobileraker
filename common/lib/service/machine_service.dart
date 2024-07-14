@@ -31,6 +31,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
+import '../data/dto/machine/gcode_macro.dart';
 import '../data/model/moonraker_db/fcm/device_fcm_settings.dart';
 import '../data/model/moonraker_db/fcm/notification_settings.dart';
 import '../data/model/moonraker_db/settings/gcode_macro.dart';
@@ -592,7 +593,8 @@ class MachineService {
   /// Throws a [MobilerakerException] if the machine with the provided UUID does not exist.
   ///
   /// Returns the updated [MachineSettings] for the machine.
-  Future<MachineSettings> fetchSettingsAndAdjustDefaultMacros(String machineUUID, List<String> macros) async {
+  Future<MachineSettings> fetchSettingsAndAdjustDefaultMacros(
+      String machineUUID, Map<String, GcodeMacro> macros) async {
     // Get the machine with the provided UUID
     final machine = await _machineRepo.get(uuid: machineUUID);
 
@@ -608,7 +610,7 @@ class MachineService {
     final machineSettings = await fetchSettings(machineUUID: machineUUID);
 
     // Filter out macros that start with '_'
-    final filteredRawMacros = macros.where((element) => !element.startsWith('_')).toList();
+    final filteredRawMacros = macros.values.where((element) => element.isVisible).toList();
 
     // Create a copy of the modifiable macro groups
     List<MacroGroup> modifiableMacroGrps = machineSettings.macroGroups.toList();
@@ -623,7 +625,7 @@ class MachineService {
         // Filter out group macros that reached the 7 day limit after they were marked for removal
         for (var macro in grp.macros.where((m) => (m.forRemoval?.difference(now).inHours.abs() ?? 0) < 12))
           macro.copyWith(
-            forRemoval: (macro.forRemoval ?? now).unless(filteredRawMacros.contains(macro.name)).also((it) {
+            forRemoval: (macro.forRemoval ?? now).unless(filteredRawMacros.any((e) => e.name == macro.name)).also((it) {
               hasMarkedForRemoval = hasMarkedForRemoval || it == now;
               if (it == now) {
                 logger.i('Marking macro "${macro.name}" for removal in 12 hr(s)!');
@@ -635,7 +637,7 @@ class MachineService {
       modifiableMacroGrps[i] = grp.copyWith(macros: mMacros);
 
       hasUnavailableMacro = hasUnavailableMacro || grp.macros.length != mMacros.length;
-      filteredRawMacros.removeWhere((macro) => grp.macros.any((existingMacro) => existingMacro.name == macro));
+      filteredRawMacros.removeWhere((macro) => grp.macros.any((existingMacro) => existingMacro.name == macro.name));
     }
 
     bool hasLegacyDefaultGroup = false;
@@ -673,7 +675,7 @@ class MachineService {
 
       // Create an updated default group with the combined macros
       final updatedDefaultGrp = defaultGroup.copyWith(
-        macros: List.unmodifiable([...defaultGroup.macros, ...filteredRawMacros.map((e) => GCodeMacro(name: e))]),
+        macros: List.unmodifiable([...defaultGroup.macros, ...filteredRawMacros.map((e) => GCodeMacro(name: e.name))]),
       );
 
       // Update or add the default group to the list of modifiable macro groups
