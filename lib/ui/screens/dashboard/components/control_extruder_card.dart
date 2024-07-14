@@ -6,6 +6,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
+import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -47,6 +49,8 @@ import '../../../components/dialog/filament_operation_dialog.dart';
 
 part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
+
+RegExp _toolchangeMacroRegex = RegExp(r'^T\d+$');
 
 class ControlExtruderCard extends HookConsumerWidget {
   const ControlExtruderCard({super.key, required this.machineUUID});
@@ -276,6 +280,7 @@ class _CardBody extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        _ToolSelector(machineUUID: machineUUID),
         OverflowBar(
           alignment: MainAxisAlignment.spaceEvenly,
           overflowAlignment: OverflowBarAlignment.center,
@@ -333,6 +338,56 @@ class _CardBody extends ConsumerWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _ToolSelector extends ConsumerWidget {
+  const _ToolSelector({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).requireValue());
+    final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const ClampingScrollPhysics(),
+      child: ToggleButtons(
+        isSelected: [
+          for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
+        ],
+        onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
+        children: [
+          for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
+        ],
+      ),
+    );
+  }
+}
+
+class _ToolItem extends StatelessWidget {
+  const _ToolItem({super.key, required this.tool});
+
+  final GcodeMacro tool;
+
+  @override
+  Widget build(BuildContext context) {
+    final Object? val = tool.vars['color'] ?? tool.vars['colour'];
+    final color = val?.let((t) => Color(int.parse(t.toString(), radix: 16) | 0xFF000000));
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (color != null)
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Icon(Icons.circle, color: color, size: 12),
+          ),
+        Text(tool.name),
       ],
     );
   }
@@ -397,6 +452,10 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           minExtrudeTemp: minExtrudeTemp,
           minExtrudeTempReached: (b.extruders.elementAtOrNull(activeExtruder)?.temperature ?? 0) >= minExtrudeTemp,
           extruderVelocity: velocity,
+          toolchangeMacros: b.gcodeMacros.values.where((e) => _toolchangeMacroRegex.hasMatch(e.name)).sortedByCompare(
+                (e) => int.tryParse(e.name.substring(1)) ?? 0,
+                (i, j) => i.compareTo(j),
+              ),
         );
       },
     );
@@ -495,6 +554,12 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       isScrollControlled: true,
     ));
   }
+
+  void onToolSelected(int toolIdx) {
+    final tool = state.requireValue.toolchangeMacros.elementAtOrNull(toolIdx);
+    if (tool == null) return;
+    _printerService.gCode(tool.name);
+  }
 }
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
@@ -551,6 +616,11 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
   void onSpoolManagement() {
     // Do nothing preview
   }
+
+  @override
+  void onToolSelected(int toolIdx) {
+    // Do nothing preview
+  }
 }
 
 @freezed
@@ -567,5 +637,6 @@ class _Model with _$Model {
     required double extruderVelocity,
     @Default(false) bool hasSpoolman,
     Spool? activeSpool,
+    @Default([]) List<GcodeMacro> toolchangeMacros,
   }) = __Model;
 }

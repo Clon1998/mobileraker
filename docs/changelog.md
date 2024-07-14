@@ -7,6 +7,7 @@
 - Filament Load and Unload buttons have been added to the control extruder card. They will open a wizard that will guide
   you through the process of loading or unloading filament. The speeds and distances can be configured in the printer's
   settings within the app.
+- Added Tool-Selector to the Extruder Card.
 
 ### Enhancements
 
