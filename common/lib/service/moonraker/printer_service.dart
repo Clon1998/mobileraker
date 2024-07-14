@@ -186,6 +186,7 @@ class PrinterService {
     'filament_switch_sensor': _updateFilamentSensor,
     'filament_motion_sensor': _updateFilamentSensor,
     'z_thermal_adjust': _updateZThermalAdjust,
+    'gcode_macro': _updateGcodeMacro,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -845,6 +846,12 @@ class PrinterService {
 
   _updateZThermalAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.zThermalAdjust = ZThermalAdjust.partialUpdate(printer.zThermalAdjust, jsonResponse);
+  }
+
+  _updateGcodeMacro(String macro, Map<String, dynamic> inputJson, {required PrinterBuilder printer}) {
+    final curObj = printer.gcodeMacros[macro]!;
+
+    printer.gcodeMacros = {...printer.gcodeMacros, macro: GcodeMacro.partialUpdate(curObj, inputJson)};
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {
