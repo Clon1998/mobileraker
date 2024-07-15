@@ -17,6 +17,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/async_guard.dart';
+import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/ui/components/spool_widget.dart';
@@ -190,6 +191,7 @@ class _ControlExtruderLoading extends StatelessWidget {
                       ),
                       SpoolWidget(
                         height: 32,
+                        width: 32,
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 4),
@@ -280,31 +282,59 @@ class _CardBody extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _ToolSelector(machineUUID: machineUUID),
-        OverflowBar(
-          alignment: MainAxisAlignment.spaceEvenly,
-          overflowAlignment: OverflowBarAlignment.center,
-          children: [
-            ElevatedButton.icon(
-              icon: const Icon(MobilerakerIcons.nozzle_unload),
-              label: const Text(
-                'pages.dashboard.control.extrude_card.retract',
-              ).tr(),
-              onPressed: canExtrude ? () => controller.onMoveE(true) : null,
-            ),
-            IconButton(
-              onPressed: controller.onFeedrateButtonPressed,
-              icon: const Icon(Icons.speed),
-              color: themeData.colorScheme.primary,
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(MobilerakerIcons.nozzle_load),
-              label: const Text(
-                'pages.dashboard.control.extrude_card.extrude',
-              ).tr(),
-              onPressed: canExtrude ? () => controller.onMoveE() : null,
-            ),
-          ],
+        if (model.toolchangeMacros.isNotEmpty) _ToolSelector(machineUUID: machineUUID),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final theme = Theme.of(context);
+
+            // 24 from mobile raker icon button padding
+            final icoSize = (theme.iconTheme.size ?? 24) + 24;
+            final width = (constraints.maxWidth - icoSize) / 2;
+
+            return OverflowBar(
+              alignment: MainAxisAlignment.spaceEvenly,
+              overflowAlignment: OverflowBarAlignment.center,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: width),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(MobilerakerIcons.nozzle_unload),
+                        label: const Text(
+                          'pages.dashboard.control.extrude_card.retract',
+                        ).tr(),
+                        onPressed: canExtrude ? () => controller.onMoveE(true) : null,
+                      ),
+                    ],
+                  ),
+                ),
+                MobilerakerIconButton(
+                  onPressed: controller.onFeedrateButtonPressed,
+                  icon: const Icon(Icons.speed),
+                  color: themeData.colorScheme.primary,
+                ),
+                ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: width),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(MobilerakerIcons.nozzle_load),
+                        label: const Text(
+                          'pages.dashboard.control.extrude_card.extrude',
+                        ).tr(),
+                        onPressed: canExtrude ? () => controller.onMoveE() : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         Text(
           '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]',
@@ -317,26 +347,51 @@ class _CardBody extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         const Divider(),
-        OverflowBar(
-          alignment: MainAxisAlignment.spaceEvenly,
-          overflowAlignment: OverflowBarAlignment.center,
-          children: [
-            AsyncOutlinedButton(
-              onPressed: controller.onUnloadFilament.only(model.klippyCanReceiveCommands),
-              child: const Text('general.unload').tr(),
-            ),
-            GestureDetector(
-              onTap: controller.onSpoolManagement,
-              child: SpoolWidget(
-                height: 32,
-                color: model.activeSpool?.filament.colorHex ?? themeData.colorScheme.secondary.hexCode.substring(2),
-              ),
-            ),
-            AsyncOutlinedButton(
-              onPressed: controller.onLoadFilament.only(model.klippyCanReceiveCommands),
-              child: const Text('general.load').tr(),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double width = (constraints.maxWidth - 20) / 2;
+
+            return OverflowBar(
+              alignment: MainAxisAlignment.spaceEvenly,
+              overflowAlignment: OverflowBarAlignment.center,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: width),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AsyncOutlinedButton(
+                        onPressed: controller.onUnloadFilament.only(model.klippyCanReceiveCommands),
+                        child: const Text('general.unload').tr(),
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: controller.onSpoolManagement,
+                  child: SpoolWidget(
+                    height: 32,
+                    width: 20,
+                    color: model.activeSpool?.filament.colorHex ?? themeData.colorScheme.secondary.hexCode.substring(2),
+                  ),
+                ),
+                ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: width),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AsyncOutlinedButton(
+                        onPressed: controller.onLoadFilament.only(model.klippyCanReceiveCommands),
+                        child: const Text('general.load').tr(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
@@ -353,17 +408,20 @@ class _ToolSelector extends ConsumerWidget {
     final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).requireValue());
     final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const ClampingScrollPhysics(),
-      child: ToggleButtons(
-        isSelected: [
-          for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
-        ],
-        onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
-        children: [
-          for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        child: ToggleButtons(
+          isSelected: [
+            for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
+          ],
+          onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
+          children: [
+            for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
+          ],
+        ),
       ),
     );
   }
