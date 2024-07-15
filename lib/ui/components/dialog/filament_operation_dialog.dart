@@ -44,7 +44,7 @@ const _loadingSteps = [
 const _unloadingSteps = [
   _FilamentChangeSteps.setTemperature,
   _FilamentChangeSteps.heatUp,
-  _FilamentChangeSteps.tipForming,
+  // _FilamentChangeSteps.tipForming, // This is to unreliable and clogs the extruder...
   _FilamentChangeSteps.moveFilament,
 ];
 
@@ -480,11 +480,17 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
         _printerService.setHeaterTemperature(args.extruder, next.valueOrNull!.targetTemperature);
       } else if (modelNext.targetReached && modelNext.step == _FilamentChangeSteps.heatUp) {
         logger.i('Target reached, next step');
-        if (args.isLoad) {
-          moveToStep(_FilamentChangeSteps.moveFilament);
-        } else {
-          moveToStep(_FilamentChangeSteps.tipForming);
-        }
+        moveToStep(_FilamentChangeSteps.moveFilament);
+        // if we unload, we automatically start extruding
+        if (!args.isLoad) moveFilament();
+
+        //TODO: This was used for tip forming. However, tip forming is meh and causes more issues than it solves
+
+        // if (args.isLoad) {
+        //   moveToStep(_FilamentChangeSteps.moveFilament);
+        // } else {
+        //   moveToStep(_FilamentChangeSteps.tipForming);
+        // }
       } else if (!args.isLoad &&
           modelPrevious?.step != _FilamentChangeSteps.tipForming &&
           modelNext.step == _FilamentChangeSteps.tipForming) {
