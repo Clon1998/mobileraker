@@ -163,6 +163,9 @@ class SettingPageController extends _$SettingPageController {
     if (sources == null) {
       return;
     }
+    if (sources.isEmpty) {
+      return; // We don't want to save an empty list
+    }
 
     _settingService.writeList(AppSettingKeys.etaSources, sources);
 
