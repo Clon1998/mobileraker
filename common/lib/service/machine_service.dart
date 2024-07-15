@@ -437,6 +437,7 @@ class MachineService {
     ProgressNotificationMode? mode,
     Set<PrintState>? printStates,
     bool? progressbar,
+    List<String>? etaSources,
   }) async {
     var keepAliveExternally = ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
     try {
@@ -465,6 +466,11 @@ class MachineService {
         var future = notificationSettingsRepository.updateAndroidProgressbarSettings(machine.uuid, progressbar);
         updateReq.add(future);
       }
+      if (etaSources != null) {
+        var future = notificationSettingsRepository.updateEtaSourcesSettings(machine.uuid, etaSources);
+        updateReq.add(future);
+      }
+
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
       logger.i('${machine.logTagExtended} Propagated new notification settings');
     } finally {

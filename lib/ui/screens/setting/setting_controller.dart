@@ -141,17 +141,39 @@ bool notificationFirebaseAvailable(NotificationFirebaseAvailableRef ref) {
 
 @riverpod
 class SettingPageController extends _$SettingPageController {
+  SettingService get _settingService => ref.read(settingServiceProvider);
+
+  MachineService get _machineService => ref.read(machineServiceProvider);
+
   @override
   void build() {
     return;
   }
 
-  openCompanion() async {
+  Future<void> openCompanion() async {
     const String url = 'https://github.com/Clon1998/mobileraker_companion#companion---installation';
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> onEtaSourcesChanged(List<String>? sources) async {
+    if (sources == null) {
+      return;
+    }
+
+    _settingService.writeList(AppSettingKeys.etaSources, sources);
+
+    // Now also propagate it to all connected machines!
+
+    List<Machine> allMachine = await ref.read(allMachinesProvider.future);
+    for (var machine in allMachine) {
+      _machineService.updateMachineFcmNotificationConfig(
+        machine: machine,
+        etaSources: sources,
+      );
     }
   }
 }

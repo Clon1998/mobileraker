@@ -57,6 +57,8 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(settingPageControllerProvider.notifier);
+
     var settingService = ref.watch(settingServiceProvider);
     var themeData = Theme.of(context);
 
@@ -161,11 +163,7 @@ class _Body extends ConsumerWidget {
                 ),
                 FormBuilderFilterChip(
                   name: AppSettingKeys.etaSources.key,
-                  onChanged: (b) {
-                    if (formKey.currentState?.validate() ?? false) {
-                      settingService.writeList(AppSettingKeys.etaSources, b ?? []);
-                    }
-                  },
+                  onChanged: controller.onEtaSourcesChanged,
                   initialValue: ref.read(
                     stringListSettingProvider(AppSettingKeys.etaSources),
                   ),
