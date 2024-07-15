@@ -19,6 +19,7 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -401,6 +402,8 @@ class MachineService {
         logger.w('Was unable to fetch version info', e);
       }
 
+      final language = ref.read(activeLocaleProvider).toString();
+
       if (fcmSettings == null) {
         fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version);
         fcmSettings.settings =
@@ -414,8 +417,10 @@ class MachineService {
           fcmSettings.settings.progress != progressMode.value ||
           !setEquals(fcmSettings.settings.states, states) ||
           !setEquals(fcmSettings.settings.etaSources, etaSources) ||
-          fcmSettings.version != version) {
+          fcmSettings.version != version ||
+          fcmSettings.language != language) {
         fcmSettings.version = version;
+        fcmSettings.language = language;
         fcmSettings.machineName = machine.name;
         fcmSettings.fcmToken = deviceFcmToken;
         fcmSettings.settings =

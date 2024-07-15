@@ -26,6 +26,16 @@ bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = fals
 }
 
 @riverpod
+String? stringSetting(StringSettingRef ref, KeyValueStoreKey key, [String? fallback]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readString(key, fallback);
+}
+
+@riverpod
 int intSetting(IntSettingRef ref, KeyValueStoreKey key, [int fallback = 0]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
@@ -77,6 +87,14 @@ class SettingService {
   }
 
   int readInt(KeyValueStoreKey key, [int fallback = 0]) {
+    return _boxSettings.get(key.key) ?? key.defaultValue ?? fallback;
+  }
+
+  Future<void> writeString(KeyValueStoreKey key, String val) {
+    return _boxSettings.put(key.key, val);
+  }
+
+  String? readString(KeyValueStoreKey key, [String? fallback]) {
     return _boxSettings.get(key.key) ?? key.defaultValue ?? fallback;
   }
 
@@ -161,6 +179,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   meshViewMode('meshViewMode'),
   devAnnouncementDismiss('devAnnouncementDismiss'),
   machineOrdering('machineOrdering'),
+  lastLocale('lastLocale', 'en'),
   ;
 
   @override

@@ -8,6 +8,9 @@
   you through the process of loading or unloading filament. The speeds and distances can be configured in the printer's
   settings within the app.
 - Added Tool-Selector to the Extruder Card.
+- Made the ETA and Remaining time configurable via a Eta-Source selection field on the app settings page.
+- The app's language is now automatically synced to the companion to ensure the notifications are displayed in the
+  correct language, if the language is available on the companion.
 
 ### Enhancements
 

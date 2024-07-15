@@ -9,6 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../service/setting_service.dart';
+
 part 'locale_spy.g.dart';
 
 class LocaleSpy extends ConsumerWidget {
@@ -27,13 +29,20 @@ class LocaleSpy extends ConsumerWidget {
 
 @Riverpod(keepAlive: true)
 class ActiveLocale extends _$ActiveLocale {
+  SettingService get _settingService => ref.read(settingServiceProvider);
+
   @override
   Locale build() {
     ref.listenSelf((previous, next) {
       logger.i('Active locale changed from $previous to $next');
+      _settingService.writeString(UtilityKeys.lastLocale, next.toString());
     });
 
-    return const Locale('en');
+    final last = ref.read(stringSettingProvider(UtilityKeys.lastLocale))!;
+
+    var split = last.split('_');
+
+    return Locale(split[0], split.elementAtOrNull(2) ?? split.elementAtOrNull(1));
   }
 
   void setLocale(Locale locale) {
