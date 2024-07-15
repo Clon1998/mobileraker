@@ -230,6 +230,8 @@ class LiveActivityServiceV2 {
       final notification =
           await _notificationsRepository.getByMachineUuid(machineUUID) ?? Notification(machineUuid: machineUUID);
 
+      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
+
       // Data that needs to be present to be shown!
       final hasDataReady = printer.currentFile?.name != null;
 
@@ -244,9 +246,10 @@ class LiveActivityServiceV2 {
 
       // We use the slicer estimate to get a delta window. If the delta is more than 5% of the estimated time or 15 minutes we update the ETA. (Whichever is higher)
       final deltaWindow = max((printer.currentFile?.estimatedTime?.let((it) => (it * 0.05) ~/ 60)) ?? 15, 15);
+      final eta = printer.calcEta(etaSources);
       final hasEtaChange = isPrinting &&
-          printer.eta != null &&
-          (notification.eta == null || printer.eta!.difference(notification.eta!).inMinutes.abs() >= deltaWindow);
+          eta != null &&
+          (notification.eta == null || eta!.difference(notification.eta!).inMinutes.abs() >= deltaWindow);
 
       // Check if we need to create or clear the live activity
       final createLiveActivity = isPrinting && !_machineActivityMapping.containsKey(machineUUID);
@@ -268,7 +271,7 @@ class LiveActivityServiceV2 {
         await _notificationsRepository.save(
           Notification(machineUuid: machineUUID)
             ..progress = printer.printProgress
-            ..eta = printer.eta
+            ..eta = eta
             ..file = printer.currentFile?.name
             ..printState = printer.print.state,
         );
@@ -302,11 +305,12 @@ class LiveActivityServiceV2 {
 
       // logger.i('Refreshing live activity for machine ${machine.logNameExtended}');
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
+      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
         'state': printer.print.state.name,
         'file': printer.currentFile?.name ?? tr('general.unknown'),
-        'eta': printer.eta?.secondsSinceEpoch ?? -1,
+        'eta': printer.calcEta(etaSources)?.secondsSinceEpoch ?? -1,
 
         // Not sure yet if I want to use this
         'printStartTime':

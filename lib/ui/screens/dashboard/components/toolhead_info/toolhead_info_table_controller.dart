@@ -40,7 +40,7 @@ class ToolheadInfo with _$ToolheadInfo {
     int? remainingSlicer,
   }) = _ToolheadInfo;
 
-  factory ToolheadInfo.byComponents(Printer printer, bool positionWithOffset) {
+  factory ToolheadInfo.byComponents(Printer printer, bool positionWithOffset, Set<String> etaSources) {
     final GCodeFile? currentFile = printer.currentFile;
     int maxLayer = _calculateMaxLayer(printer);
     int curLayer = _calculateCurrentLayer(printer, maxLayer);
@@ -77,8 +77,8 @@ class ToolheadInfo with _$ToolheadInfo {
       usedFilament: usedFilament,
       totalFilament: totalFilament,
       usedFilamentPerc: usedFilamentPerc,
-      eta: printer.eta,
-      remaining: printer.remainingTimeAvg,
+      eta: printer.calcEta(etaSources),
+      remaining: printer.calcRemainingTimeAvg(etaSources),
       remainingFile: printer.remainingTimeByFile,
       remainingFilament: printer.remainingTimeByFilament,
       remainingSlicer: printer.remainingTimeBySlicer,
@@ -123,9 +123,11 @@ class ToolheadInfo with _$ToolheadInfo {
 @riverpod
 Stream<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref, String machineUUID) async* {
   ref.keepAliveFor();
-  var settingService = ref.watch(settingServiceProvider);
+  final applyOffsetSettings = ref.watch(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion));
+
+  final etaSourceSettings = ref.watch(stringListSettingProvider(AppSettingKeys.etaSources)).toSet();
 
   yield* ref
       .watchAsSubject(printerProvider(machineUUID))
-      .map((event) => ToolheadInfo.byComponents(event, settingService.readBool(AppSettingKeys.applyOffsetsToPostion)));
+      .map((event) => ToolheadInfo.byComponents(event, applyOffsetSettings, etaSourceSettings));
 }

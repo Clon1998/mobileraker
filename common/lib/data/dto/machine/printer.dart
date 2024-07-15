@@ -201,8 +201,8 @@ class Printer with _$Printer {
 
   double get zOffset => gCodeMove.homingOrigin[2];
 
-  DateTime? get eta {
-    final remaining = remainingTimeAvg ?? 0;
+  DateTime? calcEta(Set<String> sources) {
+    final remaining = calcRemainingTimeAvg(sources) ?? 0;
     if (remaining <= 0) return null;
     return DateTime.now().add(Duration(seconds: remaining));
   }
@@ -230,24 +230,24 @@ class Printer with _$Printer {
     return (slicerEstimate - printDuration).toInt();
   }
 
-  int? get remainingTimeAvg {
+  int? calcRemainingTimeAvg(Set<String> sources) {
     var remaining = 0;
     var cnt = 0;
 
     final rFile = remainingTimeByFile ?? 0;
-    if (rFile > 0) {
+    if (rFile > 0 && sources.contains('file')) {
       remaining += rFile;
       cnt++;
     }
 
     final rFilament = remainingTimeByFilament ?? 0;
-    if (rFilament > 0) {
+    if (rFilament > 0 && sources.contains('filament')) {
       remaining += rFilament;
       cnt++;
     }
 
     final rSlicer = remainingTimeBySlicer ?? 0;
-    if (rSlicer > 0) {
+    if (rSlicer > 0 && sources.contains('slicer')) {
       remaining += rSlicer;
       cnt++;
     }

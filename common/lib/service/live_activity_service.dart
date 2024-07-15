@@ -203,10 +203,12 @@ class LiveActivityService {
       // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
       if (!hasProgressChange && !hasStateChange && !hasFileChange && !clearLiveActivity) return;
       logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
+      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
+
       await _notificationsRepository.save(
         Notification(machineUuid: machineUUID)
           ..progress = printer.printProgress
-          ..eta = printer.eta
+          ..eta = printer.calcEta(etaSources)
           ..file = printer.currentFile?.name
           ..printState = printer.print.state,
       );
@@ -255,11 +257,12 @@ class LiveActivityService {
     _updateLiveActivityLocks[machineUUID] = Completer();
     try {
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
+      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
         'state': printer.print.state.name,
         'file': printer.currentFile?.name ?? tr('general.unknown'),
-        'eta': printer.eta?.secondsSinceEpoch ?? -1,
+        'eta': printer.calcEta(etaSources)?.secondsSinceEpoch ?? -1,
 
         // Not sure yet if I want to use this
         'printStartTime':

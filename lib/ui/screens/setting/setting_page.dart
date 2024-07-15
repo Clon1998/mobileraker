@@ -60,10 +60,11 @@ class _Body extends ConsumerWidget {
     var settingService = ref.watch(settingServiceProvider);
     var themeData = Theme.of(context);
 
+    var formKey = ref.watch(settingPageFormKeyProvider);
     return Center(
       child: ResponsiveLimit(
         child: FormBuilder(
-          key: ref.watch(settingPageFormKeyProvider),
+          key: formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -160,7 +161,11 @@ class _Body extends ConsumerWidget {
                 ),
                 FormBuilderFilterChip(
                   name: AppSettingKeys.etaSources.key,
-                  onChanged: (b) => settingService.writeList(AppSettingKeys.etaSources, b ?? []),
+                  onChanged: (b) {
+                    if (formKey.currentState?.validate() ?? false) {
+                      settingService.writeList(AppSettingKeys.etaSources, b ?? []);
+                    }
+                  },
                   initialValue: ref.read(
                     stringListSettingProvider(AppSettingKeys.etaSources),
                   ),
@@ -183,6 +188,13 @@ class _Body extends ConsumerWidget {
                       child: Text('Filament'),
                     ),
                   ],
+                  validator: (list) {
+                    if (list == null || list.isEmpty) {
+                      return 'Min 1';
+                    }
+
+                    return null;
+                  },
                   // activeColor: themeData.colorScheme.primary,
                 ),
                 const _SectionHeader(title: 'UI'),
