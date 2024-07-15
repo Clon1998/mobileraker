@@ -158,6 +158,33 @@ class _Body extends ConsumerWidget {
                   ),
                   activeColor: themeData.colorScheme.primary,
                 ),
+                FormBuilderFilterChip(
+                  name: AppSettingKeys.etaSources.key,
+                  onChanged: (b) => settingService.writeList(AppSettingKeys.etaSources, b ?? []),
+                  initialValue: ref.read(
+                    stringListSettingProvider(AppSettingKeys.etaSources),
+                  ),
+                  decoration: InputDecoration(
+                    labelText: tr('pages.setting.general.eta_sources'),
+                    helperText: tr('pages.setting.general.eta_sources_hint'),
+                  ),
+                  alignment: WrapAlignment.spaceEvenly,
+                  options: const [
+                    FormBuilderChipOption(
+                      value: 'slicer',
+                      child: Text('Slicer'),
+                    ),
+                    FormBuilderChipOption(
+                      value: 'file',
+                      child: Text('GCode'),
+                    ),
+                    FormBuilderChipOption(
+                      value: 'filament',
+                      child: Text('Filament'),
+                    ),
+                  ],
+                  // activeColor: themeData.colorScheme.primary,
+                ),
                 const _SectionHeader(title: 'UI'),
                 const _ThemeSelector(),
                 const _ThemeModeSelector(),

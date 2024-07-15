@@ -340,7 +340,9 @@
         "filament_sensor_dialog": "Filamentsensor Dialog",
         "filament_sensor_dialog_hint": "Zeige einen Dialog, wenn ein Filamentsensor ausgelöst wird",
         "confirm_gcode": "Bestätige Makro-Ausführung",
-        "confirm_gcode_hint": "Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird"
+        "confirm_gcode_hint": "Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird",
+        "eta_sources": "ETA Quellen",
+        "eta_sources_hint": "Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen"
       },
       "notification": {
         "title": "Benachrichtigung",

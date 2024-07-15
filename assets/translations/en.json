@@ -340,7 +340,9 @@
         "filament_sensor_dialog": "Show Filament Sensor Alerts",
         "filament_sensor_dialog_hint": "Show a dialog when a filament sensor is triggered",
         "confirm_gcode": "Confirm Macro Execution",
-        "confirm_gcode_hint": "Always show a confirmation dialog before executing a GCode-Macro on the dashboard"
+        "confirm_gcode_hint": "Always show a confirmation dialog before executing a GCode-Macro on the dashboard",
+        "eta_sources": "ETA Calculation",
+        "eta_sources_hint": "Select the source that should be used for the ETA calculation"
       },
       "notification": {
         "title": "Notification",
