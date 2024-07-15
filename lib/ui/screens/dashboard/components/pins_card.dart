@@ -462,10 +462,23 @@ class _FilamentSensor extends ConsumerWidget {
                   ],
                 ),
               ),
-              Icon(
-                sensor.enabled ? Icons.sensors : Icons.sensors_off,
-                size: _iconSize,
-                // color: sensor.enabled ? Colors.green : Colors.white,
+              AnimatedSwitcher(
+                // duration: Duration(milliseconds: 5000),
+                duration: kThemeAnimationDuration,
+                transitionBuilder: (child, anim) => RotationTransition(
+                  turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                  child: FadeTransition(opacity: anim, child: child),
+                ),
+                child: Icon(
+                  key: ValueKey(sensor),
+                  switch (sensor) {
+                    FilamentSensor(enabled: true, filamentDetected: false) => Icons.warning_amber,
+                    FilamentSensor(enabled: false) => Icons.sensors_off,
+                    _ => Icons.sensors,
+                  },
+                  size: _iconSize,
+                  // color: sensor.enabled ? Colors.green : Colors.white,
+                ),
               ),
             ],
           ),
