@@ -4,36 +4,46 @@
 
 ### New Features
 
-- Filament Load and Unload buttons have been added to the control extruder card. They will open a wizard that will guide
-  you through the process of loading or unloading filament. The speeds and distances can be configured in the printer's
-  settings within the app.
-- Added Tool-Selector to the Extruder Card.
-- Made the ETA and Remaining time configurable via a Eta-Source selection field on the app settings page.
-- The app's language is now automatically synced to the companion to ensure the notifications are displayed in the
-  correct language, if the language is available on the companion.
+- **Filament Load and Unload Wizard**: Introduced dedicated Filament Load and Unload buttons within the control extruder
+  card. These buttons launch a step-by-step wizard to assist users in loading or unloading filament. Users can configure
+  the speeds and distances in the printer settings within the app.
+- **Tool Selector**: Added a Tool-Selector to the Extruder Card, enhancing the functionality and ease of tool
+  management.
+- **Configurable ETA and Remaining Time**: Users can now configure the Estimated Time of Arrival (ETA) and Remaining
+  Time via a new ETA-Source selection field in the app settings. This setting is also automatically synchronized with
+  the companion which after the next companion update will also respect this setting.
+- **Companion Language Synchronization**: The app now automatically synchronizes its language settings with the
+  companion device to ensure notifications are displayed in the correct language, provided it is available on the
+  companion.
 
 ### Enhancements
 
-- App-Remote-Configs are now updated in realtime and should not cause the dashboard to be unresponsive anymore in case a
-  bad config is loaded.
-- File Page now uses a higher timeout to prevent early timeouts on slow connections. This can also be configured by
-  increasing the printer's timeout in the printer settings within the app.
-- Static Dashboard Widgets (Warnings, Announcements, ...) are now only shown on the first page of the dashboard.
-- Multiple GCode-Macro cards now work independently of each other and do not sync the selected group anymore.
-- Increased default HttpClient idle timeout to ensure a more stable connection to the printer.
+- **Realtime Remote Configuration Updates**: App-Remote-Configs now update in real-time, preventing the dashboard from
+  becoming unresponsive due to a bad configuration.
+- **Increased File Page Timeout**: The timeout for the File Page has been increased to prevent early disconnections on
+  slow connections. This timeout can be further adjusted in the printer settings within the app.
+- **Static Dashboard Widgets**: Static Dashboard Widgets (e.g., Warnings, Announcements) are now displayed only on the
+  first page of the dashboard, reducing clutter on subsequent pages.
+- **Independent GCode-Macro Cards**: Multiple GCode-Macro cards now operate independently and do not synchronize the
+  selected group, providing greater flexibility.
+- **Enhanced HttpClient Stability**: The default HttpClient idle timeout has been increased to ensure a more stable
+  connection to the printer.
 
 ### Bug Fixes
 
-- The buttons on the GCode detail page now correctly react to the printer and klipper state rather than beeing disabled
-  if the dashboard was not opened before.
-- Fixed GCode Page showing `null` instead of `Unknown` if the nozzle size meta-data is not available.
-- Logs can now be shared on IPad.
-- Fixed an issue that caused the developer announcements to be shown to often.
-- Fixed GCode console history resetting after leaving the page.
-- Fixed full-screen webcam page not opening correctly from the overview page.
-- Fixed flickering of overview page printer cards while printing.
-- Fixed switching printer via app bar not honoring the configured printer order.
--
+- **GCode Detail Page Button Functionality**: Resolved an issue where the buttons on the GCode detail page did not
+  respond correctly to the printer and Klipper state unless the dashboard was opened first.
+- **Nozzle Size Metadata Display**: Fixed an issue where the GCode Page displayed `null` instead of `Unknown` if the
+  nozzle size metadata was unavailable.
+- **Log Sharing on iPad**: Logs can now be successfully shared on iPad devices.
+- **Developer Announcements Frequency**: Corrected a problem where developer announcements were shown too frequently.
+- **GCode Console History Preservation**: Fixed the issue where the GCode console history reset after navigating away
+  from the page.
+- **Full-Screen Webcam Page Access**: Addressed a bug preventing the full-screen webcam page from opening correctly from
+  the overview page.
+- **Printer Card Flickering**: Eliminated flickering of printer cards on the overview page during active prints.
+- **Printer Switching Order**: Fixed an issue where switching printers via the app bar did not honor the configured
+  printer order.
 
 ## [2.7.0] - 2024-06-26
 
