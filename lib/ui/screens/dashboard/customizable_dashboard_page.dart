@@ -205,8 +205,8 @@ class _BodyState extends ConsumerState<_Body> {
             machineUUID: machineUUID,
             isEditing: model.isEditing,
             tabs: model.layout.tabs,
-            staticWidgets: [
-              const InfoCard(
+            staticWidgets: const [
+              InfoCard(
                 title: Text('Tablet Layout Status'),
                 body: Text(
                     'Please note that the tablet layout is currently under development and may not function as expected. If you encounter any issues, we encourage you to report them on our GitHub page.'),
@@ -262,6 +262,14 @@ class _BodyState extends ConsumerState<_Body> {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
             logger.i('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
             if (pageController.hasClients && pageController.positions.isNotEmpty) {
+              if (previous?.valueOrNull?.activeIndex == null) {
+                logger.i('[Controller->UI] Jumping to: ${next.value!.activeIndex}');
+                pageController.jumpToPage(next.value!.activeIndex);
+                _lastPage = next.value!.activeIndex;
+                logger.i('[Controller->UI] PageController finished jumping to: ${pageController.page?.round()}');
+                return;
+              }
+
               _animationPageTarget = next.value!.activeIndex;
               logger.i('[Controller->UI] Animating to: ${next.value!.activeIndex}');
               await pageController.animateToPage(next.value!.activeIndex,
