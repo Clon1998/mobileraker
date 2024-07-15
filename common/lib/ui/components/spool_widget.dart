@@ -42,7 +42,9 @@ String? _getColorVariant(String color) {
 }
 
 class SpoolWidget extends ConsumerWidget {
-  const SpoolWidget({super.key, String? color, this.height = 55, this.width = 55}) : color = color ?? '333333';
+  const SpoolWidget({super.key, String? color, this.height = 55, double? width})
+      : color = color ?? '333333',
+        width = width ?? 0.45 * height;
 
   final String color;
   final double height;
@@ -54,19 +56,21 @@ class SpoolWidget extends ConsumerWidget {
 
     var model = ref.watch(_coloredSpoolProvider(color, brightness));
 
-    return switch (model) {
-      AsyncData(:final value) => SvgPicture.string(
-          value,
-          height: height,
-          width: width,
-        ),
-      _ => ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: height,
-            maxWidth: width,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: height,
+        maxWidth: width,
+      ),
+      child: switch (model) {
+        AsyncData(:final value) => SizedBox.expand(
+            child: SvgPicture.string(
+              value,
+              height: height,
+              width: width,
+            ),
           ),
-          child: const SizedBox.expand(),
-        )
-    };
+        _ => const SizedBox.expand()
+      },
+    );
   }
 }

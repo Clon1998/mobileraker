@@ -199,7 +199,6 @@ class _FilamentInfo extends ConsumerWidget {
             leading: SpoolWidget(
               color: filament.colorHex,
               height: 32,
-              // width: 15,
             ),
             title: const Text('pages.spoolman.filament_details.info_card').tr(),
           ),
