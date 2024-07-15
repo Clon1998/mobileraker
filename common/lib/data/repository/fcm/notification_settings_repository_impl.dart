@@ -70,6 +70,14 @@ class NotificationSettingsRepositoryImpl extends NotificationSettingsRepository 
     await _databaseService.addDatabaseItem(
         'mobileraker', 'fcm.$machineId.settings.lastModified', DateTime.now().toIso8601String());
 
-    await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId.settings.android_progressbar', enabled);
+    await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId.settings.androidProgressbar', enabled);
+  }
+
+  @override
+  Future<void> updateEtaSourcesSettings(String machineId, List<String> sources) async {
+    await _databaseService.addDatabaseItem(
+        'mobileraker', 'fcm.$machineId.settings.lastModified', DateTime.now().toIso8601String());
+
+    await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId.settings.etaSources', sources);
   }
 }

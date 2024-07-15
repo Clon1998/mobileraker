@@ -16,5 +16,7 @@ abstract class NotificationSettingsRepository {
 
   Future<void> updateAndroidProgressbarSettings(String machineId, bool enabled);
 
+  Future<void> updateEtaSourcesSettings(String machineId, List<String> sources);
+
   Future<NotificationSettings?> get(String machineId);
 }

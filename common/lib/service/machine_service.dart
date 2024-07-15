@@ -188,6 +188,8 @@ class MachineService {
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _settingService = ref.watch(settingServiceProvider),
         _appConnectionService = ref.watch(appConnectionServiceProvider) {
+    // ref.listen(provider, listener)
+
     ref.onDispose(dispose);
   }
 
@@ -388,6 +390,8 @@ class MachineService {
           .split(',')
           .toSet();
 
+      final etaSources = _settingService.readList<String>(AppSettingKeys.etaSources).toSet();
+
       String? version;
       try {
         var packageInfo = await ref.watch(versionInfoProvider.future);
@@ -399,7 +403,8 @@ class MachineService {
 
       if (fcmSettings == null) {
         fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version);
-        fcmSettings.settings = NotificationSettings(progress: progressMode.value, states: states);
+        fcmSettings.settings =
+            NotificationSettings(progress: progressMode.value, states: states, etaSources: etaSources);
         logger.i(
             '${machine.logTagExtended} Did not find DeviceFcmSettings in MoonrakerDB, trying to add it: $fcmSettings');
         await fcmRepo.update(machine.uuid, fcmSettings);
@@ -408,11 +413,13 @@ class MachineService {
           fcmSettings.fcmToken != deviceFcmToken ||
           fcmSettings.settings.progress != progressMode.value ||
           !setEquals(fcmSettings.settings.states, states) ||
+          !setEquals(fcmSettings.settings.etaSources, etaSources) ||
           fcmSettings.version != version) {
         fcmSettings.version = version;
         fcmSettings.machineName = machine.name;
         fcmSettings.fcmToken = deviceFcmToken;
-        fcmSettings.settings = fcmSettings.settings.copyWith(progress: progressMode.value, states: states);
+        fcmSettings.settings =
+            fcmSettings.settings.copyWith(progress: progressMode.value, states: states, etaSources: etaSources);
         logger.i('${machine.logTagExtended} Trying to update DeviceFcmSettings');
         await fcmRepo.update(machine.uuid, fcmSettings);
         logger.i('${machine.logTagExtended} Successfully updated DeviceFcmSettings');
