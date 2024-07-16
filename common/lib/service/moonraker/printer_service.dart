@@ -18,6 +18,7 @@ import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/data/dto/machine/fans/controller_fan.dart';
 import 'package:common/data/dto/machine/fans/generic_fan.dart';
 import 'package:common/data/dto/machine/fans/heater_fan.dart';
+import 'package:common/data/dto/machine/fans/named_fan.dart';
 import 'package:common/data/dto/machine/fans/print_fan.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
@@ -165,10 +166,10 @@ class PrinterService {
     'configfile': _updateConfigFile,
     'print_stats': _updatePrintStat,
     'fan': _updatePrintFan,
-    'heater_fan': _updateHeaterFan,
-    'controller_fan': _updateControllerFan,
-    'temperature_fan': _updateTemperatureFan,
-    'fan_generic': _updateGenericFan,
+    'heater_fan': _updateFan,
+    'controller_fan': _updateFan,
+    'temperature_fan': _updateFan,
+    'fan_generic': _updateFan,
     'output_pin': _updateOutputPin,
     'temperature_sensor': _updateTemperatureSensor,
     'exclude_object': _updateExcludeObject,
@@ -709,27 +710,16 @@ class PrinterService {
     printer.printFan = PrintFan.partialUpdate(printer.printFan, jsonResponse);
   }
 
-  _updateHeaterFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
-    final HeaterFan curFan = printer.fans[fanName]! as HeaterFan;
-    printer.fans = {...printer.fans, fanName: HeaterFan.partialUpdate(curFan, fanJson)};
-  }
+  _updateFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
+    final curFan = printer.fans[fanName];
 
-  _updateControllerFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
-    final ControllerFan curFan = printer.fans[fanName]! as ControllerFan;
+    if (curFan == null) {
+      logger.e('Fan $fanName not found in printer.fans');
+      throw MobilerakerException('Fan $fanName not found in printer.fans');
+    }
 
-    printer.fans = {...printer.fans, fanName: ControllerFan.partialUpdate(curFan, fanJson)};
-  }
-
-  _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
-    final TemperatureFan curFan = printer.fans[fanName]! as TemperatureFan;
-
-    printer.fans = {...printer.fans, fanName: TemperatureFan.partialUpdate(curFan, fanJson)};
-  }
-
-  _updateGenericFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
-    final GenericFan curFan = printer.fans[fanName]! as GenericFan;
-
-    printer.fans = {...printer.fans, fanName: GenericFan.partialUpdate(curFan, fanJson)};
+    NamedFan updated = NamedFan.partialUpdate(curFan, fanJson);
+    printer.fans = {...printer.fans, fanName: updated};
   }
 
   _updateTemperatureSensor(String sensorName, Map<String, dynamic> sensorJson, {required PrinterBuilder printer}) {
