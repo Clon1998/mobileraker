@@ -99,15 +99,15 @@ class _Body extends ConsumerWidget {
                         duration: kThemeAnimationDuration,
                         // duration: const Duration(seconds: 2),
                         child: switch (model) {
-                          AsyncData(value: _Model(jrpcClientState: ClientState.error)) => Text(
-                                  key: Key('cs-e'),
+                          AsyncValue(value: _Model(jrpcClientState: ClientState.error)) => Text(
+                                  key: const Key('cs-e'),
                                   'pages.printer_edit.fetch_error_hint',
                                   style: themeData.textTheme.bodySmall)
                               .tr(),
-                          AsyncData(value: _Model(:final printState, jrpcClientState: ClientState.connected)) =>
-                            Text(key: Key('cs-c'), printState.displayName, style: themeData.textTheme.bodySmall),
+                          AsyncValue(value: _Model(:final printState, jrpcClientState: ClientState.connected)) =>
+                            Text(key: const Key('cs-c'), printState.displayName, style: themeData.textTheme.bodySmall),
                           _ => Text(
-                              key: Key('cs-w'),
+                              key: const Key('cs-w'),
                               '',
                               style: themeData.textTheme.bodySmall), // Just a placeholder to prevent jumping UI
                         },
