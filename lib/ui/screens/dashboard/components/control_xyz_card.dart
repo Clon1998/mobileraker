@@ -8,8 +8,8 @@ import 'dart:math';
 
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';

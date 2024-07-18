@@ -21,6 +21,18 @@ extension MobilerakerString on String {
     return (parts[0].toLowerCase(), trimmed.substring(parts[0].length).trim());
   }
 
+  (ConfigFileObjectIdentifiers?, String?) toKlipperObjectIdentifierNEW() {
+    final trimmed = trim();
+    final parts = trimmed.split(RegExp(r'\s+'));
+    final cIdentifier = ConfigFileObjectIdentifiers.tryParse(parts[0].toLowerCase());
+
+    if (cIdentifier == null) return (null, null);
+
+    if (parts.length == 1) return (cIdentifier, null);
+
+    return (cIdentifier, trimmed.substring(parts[0].length).trim());
+  }
+
   bool isKlipperObject(ConfigFileObjectIdentifiers objectIdentifier) {
     if (objectIdentifier.regex != null) {
       return RegExp(objectIdentifier.regex!).hasMatch(this);
