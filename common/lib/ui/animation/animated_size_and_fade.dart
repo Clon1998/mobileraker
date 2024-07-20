@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/util/logger.dart';
 import 'package:flutter/widgets.dart';
 
 class AnimatedSizeAndFade extends StatelessWidget {
@@ -13,6 +14,7 @@ class AnimatedSizeAndFade extends StatelessWidget {
   final Curve fadeOutCurve;
   final Curve sizeCurve;
   final Alignment alignment;
+  final String? debugLabel;
 
   const AnimatedSizeAndFade({
     super.key,
@@ -23,6 +25,7 @@ class AnimatedSizeAndFade extends StatelessWidget {
     this.fadeOutCurve = Curves.easeInOut,
     this.sizeCurve = Curves.easeInOut,
     this.alignment = Alignment.center,
+    this.debugLabel,
   });
 
   @override
@@ -51,13 +54,18 @@ class AnimatedSizeAndFade extends StatelessWidget {
       children = previousChildren.isEmpty
           ? [currentChild]
           : [
-              Positioned(
-                left: 0,
-                right: 0,
-                child: previousChildren[0],
-              ),
+              for (var child in previousChildren)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  child: child,
+                ),
               currentChild,
             ];
+      if (debugLabel != null) {
+        logger.i(
+            '$debugLabel: I HAVE : ${previousChildren.length} PREVIOUS CHILDREN and total ${children.length} children');
+      }
     }
 
     return Stack(
