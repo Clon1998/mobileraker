@@ -37,9 +37,7 @@ class ZThermalAdjust with _$ZThermalAdjust, SensorMixin {
     required DateTime lastHistory,
   }) = _ZThermalAdjust;
 
-  factory ZThermalAdjust.fromJson(Map<String, dynamic> json) {
-    return _$ZThermalAdjustFromJson(json);
-  }
+  factory ZThermalAdjust.fromJson(Map<String, dynamic> json) => _$ZThermalAdjustFromJson(json);
 
   factory ZThermalAdjust.partialUpdate(ZThermalAdjust current, Map<String, dynamic> partialJson) {
     var mergedJson = {...current.toJson(), ...partialJson};
