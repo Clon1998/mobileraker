@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.7.2] - 2024-08-xx
+
+### Enhancements
+
+- **Collapsible Macros**: The macro group card is now limited to a maximum of 3 rows. If this limit is exceeded, it will
+  provide a button to show all macros.
+
 ## [2.7.1] - 2024-07-16
 
 ### New Features

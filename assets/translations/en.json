@@ -168,7 +168,8 @@
         "macro_card": {
           "title": "Gcode - Macros",
           "no_macros": "No macros are currently visible in this group",
-          "add_grp_hint": "You can create different groups to organize your macros. Just go to the printer settings and add a new group."
+          "add_grp_hint": "You can create different groups to organize your macros. Just go to the printer settings and add a new group.",
+          "show_all_tooltip": "Show all macros"
         },
         "pin_card": {
           "title_misc": "Miscellaneous",

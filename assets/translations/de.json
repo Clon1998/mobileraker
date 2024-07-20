@@ -168,7 +168,8 @@
         "macro_card": {
           "title": "Gcode - Macros",
           "no_macros": "In dieser Gruppe sind derzeit keine Makros sichtbar",
-          "add_grp_hint": "Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an."
+          "add_grp_hint": "Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an.",
+          "show_all_tooltip": "Alle Makros anzeigen"
         },
         "pin_card": {
           "title_misc": "Verschiedenes",
