@@ -245,7 +245,7 @@ class _SelectedGroup extends HookConsumerWidget {
           child: showAllAvailable.value && !showAll.value
               ? MobilerakerIconButton(
                   key: ValueKey('showAll-${group.uuid}'),
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.all(8),
                   tooltip: tr('pages.dashboard.control.macro_card.show_all_tooltip'),
                   onPressed: () => showAll.value = true,
                   icon: const Icon(Icons.keyboard_arrow_down),
