@@ -25,6 +25,8 @@ struct LiveActivitiesAppAttributes: ActivityAttributes, Identifiable {
         // values before notification is sent to update
         let progress: Double?
         let eta: Int?
+        let printState: String?
+        let file: String?
     }
     
     var id = UUID()
@@ -35,8 +37,8 @@ let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
-            let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
-            let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
+            let state = context.state.printState ??  sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
+            let file = context.state.file ??  sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
             
             let progress = state == "complete" ?  1 : context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
             
@@ -119,8 +121,8 @@ struct PrintingLiveActivity: Widget {
             .activitySystemActionForegroundColor(labelColor)
             
         } dynamicIsland: { context in
-            let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
-            let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"file"))!
+            let state = context.state.printState ?? sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
+            let file = context.state.file ??  sharedDefault.string(forKey: context.attributes.prefixedKey(key:"file"))!
             let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"eta"))
             let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
             let primaryColor = sharedDefault.integer(forKey:context.attributes.prefixedKey(key: "primary_color_dark"))
