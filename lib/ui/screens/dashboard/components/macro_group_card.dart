@@ -201,10 +201,8 @@ class _SelectedGroup extends HookConsumerWidget {
       ref.read(settingServiceProvider).writeBool(hadMoreMacrosSettingKey, newVal);
     }, [group.uuid, showAllAvailable.value]);
 
-    final dur = const Duration(seconds: 5);
-
-    logger.wtf(
-        'LAlala - showAll: ${showAll.value} - showAllAvailable: ${showAllAvailable.value} - hadShowAll   : $hadShowAll');
+    const dur = kThemeAnimationDuration;
+    // final dur = const Duration(seconds: 5);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
