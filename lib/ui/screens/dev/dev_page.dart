@@ -119,6 +119,8 @@ class DevPage extends HookConsumerWidget {
     ref.read(v2LiveActivityProvider).initialize();
   }
 
+  final customID = "338e8845-0cc9-42fa-810f-b09bba7469cc";
+
   startLiveActivity(WidgetRef ref) async {
     ref.read(liveActivityServiceProvider).disableClearing();
     var liveActivities = ref.read(liveActivityProvider);
@@ -146,7 +148,8 @@ class DevPage extends HookConsumerWidget {
       for (var state in PrintState.values) '${state.name}_label': state.displayName,
     };
 
-    var activityId = await liveActivities.createActivity(
+    var activityId = await liveActivities.createOrUpdateActivity(
+      customID,
       data,
       removeWhenAppIsKilled: true,
     );
@@ -157,8 +160,6 @@ class DevPage extends HookConsumerWidget {
   }
 
   updateLiveActivity(WidgetRef ref) async {
-    if (_bla == null) return;
-
     var liveActivities = ref.read(liveActivityProvider);
     // _liveActivitiesPlugin.activityUpdateStream.listen((event) {
     //   logger.wtf('xxxLiveActivityUpdate: $event');
@@ -182,12 +183,18 @@ class DevPage extends HookConsumerWidget {
       'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
       'completed_label': tr('general.completed'),
     };
+    // if (_bla == null) return;
+    // var activityId = await liveActivities.updateActivity(
+    //   _bla!,
+    //   data,
+    // );
 
-    var activityId = await liveActivities.updateActivity(
-      _bla!,
+    await liveActivities.createOrUpdateActivity(
+      customID,
       data,
     );
-    logger.i('UPDATED activity with id: $_bla -> $activityId');
+    logger.i('UPDATED activity with customID: $customID');
+    // logger.i('UPDATED activity with id: $_bla -> $activityId');
   }
 
 //   var test = 44.4;

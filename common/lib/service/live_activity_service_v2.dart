@@ -147,6 +147,8 @@ class LiveActivityServiceV2 {
           _machineService.updateApplePushNotificationToken(entry.key, null).ignore();
           _machineActivityMapping.remove(entry.key);
           break;
+        default:
+          logger.w('Received unknown activity update: $event');
       }
     });
     _subscriptions.add(s);
