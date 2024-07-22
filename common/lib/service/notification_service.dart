@@ -97,8 +97,8 @@ class NotificationService {
       _initializeLocalMessageHandling(allMachines);
       _initializeRemoteMessaging(licenseKeys, allMachines, hiddenMachines).ignore();
 
-      await _liveActivityService.initialize();
-      // await _liveActivityServicev2.initialize();
+      // await _liveActivityService.initialize();
+      await _liveActivityServicev2.initialize();
 
       _initializeMachineRepoListener();
 

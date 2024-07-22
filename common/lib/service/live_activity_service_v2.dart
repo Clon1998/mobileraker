@@ -22,7 +22,6 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:live_activities/models/activity_update.dart';
-import 'package:live_activities/models/live_activity_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/machine/print_state_enum.dart';
@@ -171,7 +170,7 @@ class LiveActivityServiceV2 {
         for (var machine in listenersToOpen) {
           _printerDataListeners[machine.uuid] = ref.listen(
             printerProvider(machine.uuid),
-            (_, nextP) => nextP.whenData((value) => _handlePrinterData(machine.uuid, value)),
+            (_, nextP) => nextP.whenData((value) => _handlePrinterData(machine.uuid, value).ignore()),
             fireImmediately: true,
           );
         }
@@ -190,9 +189,7 @@ class LiveActivityServiceV2 {
       appLifecycleProvider,
       (_, next) async {
         // Only force a refresh for all machines when the app is resumed
-        // if (next != AppLifecycleState.resumed) return;
-        //TODO: THIS IS FOR DEV only
-        if (next != AppLifecycleState.inactive) return;
+        if (next != AppLifecycleState.resumed) return;
         _refreshActivities().ignore();
       },
     );
@@ -205,11 +202,10 @@ class LiveActivityServiceV2 {
       final toWaitFor = <Future>[];
       final allMachs = await ref.read(allMachinesProvider.future);
       for (var machine in allMachs) {
-        // await _dummyForId(machine.uuid);
-
         // Get the printer data and use it to refresh the live activity via the handlePrinterData method
-        final res =
-            ref.read(printerProvider(machine.uuid).future).then((value) => _handlePrinterData(machine.uuid, value));
+        final res = ref
+            .read(printerProvider(machine.uuid).future)
+            .then((value) => _handlePrinterData(machine.uuid, value).ignore());
         toWaitFor.add(res);
       }
       await Future.wait(toWaitFor);
@@ -224,7 +220,6 @@ class LiveActivityServiceV2 {
 
     // Use locks to prevent multiple async updates at the same time
     // No need to actually wait for the lock since printerData updates are really frequent skipping some is fine!
-
     if (_handlePrinterDataThrottleLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) return;
     final lock = Completer();
     _handlePrinterDataThrottleLocks[machineUUID] = lock;
@@ -251,7 +246,7 @@ class LiveActivityServiceV2 {
       final eta = printer.calcEta(etaSources);
       final hasEtaChange = isPrinting &&
           eta != null &&
-          (notification.eta == null || eta!.difference(notification.eta!).inMinutes.abs() >= deltaWindow);
+          (notification.eta == null || eta.difference(notification.eta!).inMinutes.abs() >= deltaWindow);
 
       // Check if we need to create or clear the live activity
       final createLiveActivity = isPrinting && !_machineActivityMapping.containsKey(machineUUID);
@@ -292,11 +287,18 @@ class LiveActivityServiceV2 {
   Future<bool> _refreshLiveActivityForMachine(String machineUUID, Printer printer) async {
     Completer? lock;
     try {
-      // Check lock
-      if (_refreshActivityLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) {
+      int tries = 0;
+      // Check lock -> We do it in a loop. This is because we want to enusre our Task is not listening to an to old future.
+      while ((_refreshActivityLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) && tries < 5) {
         // Wait for the lock to be completed
         await _refreshActivityLocks[machineUUID]!.future;
+        tries++;
       }
+      if (tries >= 5) {
+        logger.w('Could not acquire lock for machine $machineUUID. Skipping activity refresh.');
+        return false;
+      }
+
       // Acquire lock
       lock = Completer();
       _refreshActivityLocks[machineUUID] = lock;
@@ -306,7 +308,7 @@ class LiveActivityServiceV2 {
       if (machine == null) return false;
 
       // logger.i('Refreshing live activity for machine ${machine.logNameExtended}');
-      var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
+      final themePack = ref.read(themeServiceProvider).activeTheme.themePack;
       final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
@@ -354,25 +356,6 @@ class LiveActivityServiceV2 {
   /// Updates or creates a live activity for a machine.
   /// Note that this does not require a lock as it is part of the refreshLiveActivityForMachine method which already has a lock.
   Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, String machineUUID) async {
-    // Check if an activity is already running for this machine and if we can still address it
-    if (_machineActivityMapping.containsKey(machineUUID)) {
-      _ActivityEntry activityEntry = _machineActivityMapping[machineUUID]!;
-
-      LiveActivityState? activityState = await _liveActivityAPI.getActivityState(activityEntry.activityId);
-
-      // logger.i('Found a live activity for $machineUUID with state: $activityState');
-
-      // If the activity is still active we can update it and return
-      if (activityState == LiveActivityState.active) {
-        // logger.i('Can update LiveActivity for $machineUUID with id: $activityEntry');
-        await _liveActivityAPI.updateActivity(activityEntry.activityId, activityData);
-        return activityEntry.activityId;
-      }
-      // Okay we can not update the activity remove and end it
-      await _liveActivityAPI.endActivity(activityEntry.activityId);
-      _machineActivityMapping.remove(machineUUID);
-    }
-
     // Get platform info about the current active activities
     final activeCount = await _liveActivityAPI.getAllActivitiesIds().then((value) => value.length);
     if (activeCount >= 5) {
@@ -381,56 +364,16 @@ class LiveActivityServiceV2 {
     }
 
     // Okay I guess we need to create a new activity for this machine
-    final activityId = await _liveActivityAPI.createActivity(activityData, removeWhenAppIsKilled: true);
-    if (activityId != null) {
+    final activityId =
+        await _liveActivityAPI.createOrUpdateActivity(machineUUID, activityData, removeWhenAppIsKilled: true);
+    if (activityId case String()) {
       _machineActivityMapping[machineUUID] = _ActivityEntry(activityId);
+      logger.i('Created new LiveActivity for $machineUUID} with id: $activityId');
+      return activityId;
     }
-    logger.i('Created new LiveActivity for $machineUUID with id: $activityId');
+
+    logger.i('Updated LiveActivity for $machineUUID');
     return activityId;
-  }
-
-  Future<void> _dummyForId(String machineUUID) async {
-    logger.i('Creating dummy activity for machine $machineUUID');
-    // For now this is just dummy code to test the content...
-    final enabled = await _liveActivityAPI.areActivitiesEnabled();
-    final allIds = await _liveActivityAPI.getAllActivities();
-    logger.i('Live activities are enabled: $enabled');
-    logger.i('All activities: $allIds');
-
-    final _liveActivityIdForMachine = _machineActivityMapping[machineUUID]?.activityId;
-
-    Map<String, dynamic> data = {
-      'progress': 0.25,
-      'state': PrintState.printing.name,
-      'file': '${allIds.length}x Ids, ${DateTime.now().toIso8601String()}',
-      'eta': -1,
-
-      // Not sure yet if I want to use this
-      'printStartTime': DateTime.now().subtract(const Duration(seconds: 5000)).secondsSinceEpoch,
-
-      // Labels
-      'primary_color_dark': 0xFFFFEB3B,
-      'primary_color_light': 0xFFFF4081,
-      'machine_name': '$machineUUID ${_liveActivityIdForMachine ?? '---'}',
-      'eta_label': tr('pages.dashboard.general.print_card.eta'),
-      'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
-      'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
-
-      // Labels for the print states
-      for (var state in PrintState.values) '${state.name}_label': state.displayName,
-    };
-
-    if (_liveActivityIdForMachine == null) {
-      final id = await _liveActivityAPI.createActivity(data, removeWhenAppIsKilled: true);
-      if (id == null) {
-        logger.e('Failed to create activity');
-        return;
-      }
-      logger.i('Created activity with id: $id');
-      _machineActivityMapping[machineUUID] = _ActivityEntry(id);
-    } else {
-      _liveActivityAPI.updateActivity(_liveActivityIdForMachine, data);
-    }
   }
 
   void dispose() {
