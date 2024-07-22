@@ -149,7 +149,7 @@ class DevPage extends HookConsumerWidget {
     };
 
     var activityId = await liveActivities.createOrUpdateActivity(
-      customID,
+      "ff8e8845-0cc9-42fa-810f-b09bba7469ff",
       data,
       removeWhenAppIsKilled: true,
     );
@@ -168,15 +168,18 @@ class DevPage extends HookConsumerWidget {
     Map<String, dynamic> data = {
       'progress': 1,
       'state': 'printing',
-      'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(const Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
+      'file':
+          'Some/more/more/more/more/long/er/Very-Long/Folder-Strct/here/now/even/miore../asd/12--222--2m-22Benchy.gcode' ??
+              'Unknown',
+      // 'file': 'Benchy.gcode' ?? 'Unknown',
+      'eta': DateTime.now().add(const Duration(seconds: 60 * 20)).secondsSinceEpoch ?? -1,
 
       // Not sure yet if I want to use this
       'printStartTime': DateTime.now().secondsSinceEpoch ?? -1,
 
       // Labels
-      'primary_color_dark': Colors.red.value,
-      'primary_color_light': Colors.pinkAccent.value,
+      'primary_color_dark': Colors.lightBlueAccent.value,
+      'primary_color_light': Colors.blueGrey.value,
       'machine_name': 'Voronator',
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),

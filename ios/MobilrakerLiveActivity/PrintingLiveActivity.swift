@@ -37,138 +37,72 @@ let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
-            let state = context.state.printState ??  sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
-            let file = context.state.file ??  sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
-            
-            let progress = state == "complete" ?  1 : context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
-            
-            //let isPrintDone = abs(progress - 1) < 0.0001 || state == "complete"
-            
-            
-            
-            let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key: "eta"))
-            let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
-            
-            
-            let printStartUnix = sharedDefault.integer(forKey: context.attributes.prefixedKey(key: "printStartTime"))
-            let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
-            
-            let primaryColor = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"primary_color_light"))
-            let machineName = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"machine_name"))!
-            let elapsedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"elapsed_label"))!
-            let stateLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"\(state)_label"))!
-            
-            
-            let backgroundColor = Color.black.opacity(0.55)
-            
-            let labelColor = Color(UIColor.label.dark)
-            let secondaryLabel = Color(UIColor.secondaryLabel.dark)
-            
-            // Lock screen/banner UI goes here
-            VStack(alignment: .leading, spacing: 8.0) {
-                if (state == "printing") {
-                    HStack{
-                        VStack(alignment: .leading){
-                            PrintEndView(activityContext: context, etaDate: etaDate)
-                                .font(.title)
-                                .fontWeight(.medium)
-                                .foregroundStyle(labelColor)
-                            Text(file)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(secondaryLabel)
-                                .lineLimit(2)
-                                .truncationMode(.tail)
-                            
-                        }
-                        //TODO: Add image herer!
-                    }
-                } else {
-                    Text(file)
-                        .font(.subheadline)
-                        .foregroundStyle(labelColor)
-                        .fontWeight(.bold)
-                        .lineLimit(2)
-                        .truncationMode(.tail)
-                }
-                ProgressView(value: progress)
-                    .tint(colorWithRGBA(primaryColor))
-                HStack{
-                    Text(machineName)
-                    Spacer()
-                    if (state != "printing") {
-                        Text(stateLabel)
-                            .foregroundStyle(state == "complete" ? .green : state == "error" ? .red : secondaryLabel)
-                            .fontWeight(.bold)
-                    } else if let eta = etaDate, shouldShowAsTimer(eta) {
-                        FormattedDateTextView(eta: eta)
-                    } else {
-                        Text(String(format: "%.0f%%", progress*100))
-                            .monospacedDigit()
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(secondaryLabel)
-                .fontWeight(.light)
-                    
-                
-            }
-            
-            .padding(.all)
+        let backgroundColor = Color.black.opacity(0.55)
+        let labelColor = Color(UIColor.label.dark)
+        
+         OperationLockScreenView(activityContext: context)
+            .padding(14)
             .activityBackgroundTint(backgroundColor)
-            //.activityBackgroundTint(Color(UIColor.systemBackground).opacity(0.25))
-            //.activityBackgroundTint(colorScheme == .dark ? Color.red : Color.yellow)
             .activitySystemActionForegroundColor(labelColor)
-            
         } dynamicIsland: { context in
-            let state = context.state.printState ?? sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
-            let file = context.state.file ??  sharedDefault.string(forKey: context.attributes.prefixedKey(key:"file"))!
-            let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"eta"))
-            let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
-            let primaryColor = sharedDefault.integer(forKey:context.attributes.prefixedKey(key: "primary_color_dark"))
-            let machineName = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"machine_name"))!
-
             return DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
                 // various regions, like leading/trailing/center/bottom
                 DynamicIslandExpandedRegion(.leading) {
-                    Text(machineName)
+                    Text(context.printerName)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .lineLimit(1)
-                        .padding(.leading, 2.0);
+                        .padding(.leading);
                     
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    PrintStatusIndicator(activityContext: context, widthHeight: 25, progressLineWidth: 3.3)
-                        .padding(.horizontal)
+                    PrintStatusIndicatorView(activityContext: context, widthHeight: 25, progressLineWidth: 3.3)
+                        .padding(.trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading) {
-                        Text(file)
-                        if state == "printing" {
-                            EtaDisplayView(activityContext: context, etaDate: etaDate)
+                        Text(context.fileName)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
+                        if context.printerState == "printing" {
+                            HStack(alignment: .center) {
+                                Text(shouldShowAsTimer(context.etaDate) ? context.remainingLabel : context.etaLabel)
+                                    
+                                Spacer()
+                                PrintJobEtaView(etaDate: context.etaDate)
+                                    .multilineTextAlignment(.trailing)
+                            }
                             .frame(maxWidth: .infinity, alignment: .leading) // Expand to fill available space
+                            .font(.title2)
+                            .fontWeight(.light)
                         }
                     }
+                    .padding(.horizontal)
                 }
             } compactLeading: {
-                if state == "complete" {
-                 Image("mr_logo")
-                     .resizable()
-                     .scaledToFit()
+                if context.printerState != "complete", let eta = context.etaDate, shouldShowAsTimer(eta, delta: 1) {
+                    // Workaround because .timer is broken and takes up to much space...
+                    Text("00:00")
+                        .hidden()
+                        .overlay(alignment: .leading) {
+                            DateTimerView(date: eta)
+                        }
                 } else {
-                    EtaDisplayViewCompact(etaDate: etaDate, width: 50)
-                        .padding(.horizontal, 2.0)
+                    Image("mr_logo")
+                        .resizable()
+                        .scaledToFit()
                 }
             } compactTrailing: {
-                PrintStatusIndicator(activityContext: context, widthHeight: 15, progressLineWidth: 2.5)
+                PrintStatusIndicatorView(activityContext: context, widthHeight: 15, progressLineWidth: 2.5)
+                    .scaledToFit()
                     .padding(.horizontal, 2.0)
             } minimal: {
-                PrintStatusIndicator(activityContext: context, widthHeight: 15, progressLineWidth: 2.5)
+                PrintStatusIndicatorView(activityContext: context, widthHeight: 15, progressLineWidth: 2.5)
+                    .scaledToFit()
                     .padding(.horizontal, 2.0)
             }
-            .keylineTint(colorWithRGBA(primaryColor))
+            .keylineTint(colorWithRGBA(context.printerColorDark))
         }
     }
 }

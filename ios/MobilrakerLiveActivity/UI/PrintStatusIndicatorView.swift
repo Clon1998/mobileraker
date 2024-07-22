@@ -10,26 +10,14 @@ import WidgetKit
 import Foundation
 
 
-struct PrintStatusIndicator: View {
+struct PrintStatusIndicatorView: View {
     let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
     let widthHeight: Double;
     let progressLineWidth: Double;
     
-    var printerState: String {
-        return sharedDefault.string(forKey: activityContext.attributes.prefixedKey(key:"state"))!
-    }
-    
-    var primaryColor: Int {
-        return sharedDefault.integer(forKey: activityContext.attributes.prefixedKey(key:"primary_color_dark"))
-    }
-    
-    var progress: Double {
-        printerState == "complete" ? 1: activityContext.state.progress ?? sharedDefault.double(forKey: activityContext.attributes.prefixedKey(key: "progress"))
-    }
-    
     var body: some View {
         
-        switch(printerState) {
+        switch(activityContext.printerState) {
         case "complete":
             createStatusImage(systemName: "checkmark.circle")
         case "paused":
@@ -37,7 +25,7 @@ struct PrintStatusIndicator: View {
         case "error":
             createStatusImage(systemName: "exclamationmark.triangle")
         default:
-            CircularProgressView(progress: progress, widthHeight: widthHeight, lineWidth: progressLineWidth, color_int: UInt32(primaryColor))
+            CircularProgressView(progress: activityContext.printProgress, widthHeight: widthHeight, lineWidth: progressLineWidth, color_int: UInt32(activityContext.printerColorDark))
         }
     }
     
@@ -46,6 +34,6 @@ struct PrintStatusIndicator: View {
         Image(systemName: systemName)
             .resizable()
             .frame(width: widthHeight, height: widthHeight)
-            .foregroundColor(colorWithRGBA(primaryColor))
+            .foregroundColor(colorWithRGBA(activityContext.printerColorDark))
     }
 }
