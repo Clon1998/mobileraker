@@ -94,6 +94,23 @@ class _Body extends ConsumerWidget {
                   activeColor: themeData.colorScheme.primary,
                 ),
                 FormBuilderSwitch(
+                  name: 'confirmGCode',
+                  title: const Text('pages.setting.general.confirm_gcode').tr(),
+                  subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
+                  onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.confirmMacroExecution,
+                    b ?? false,
+                  ),
+                  initialValue: ref.read(
+                    boolSettingProvider(AppSettingKeys.confirmMacroExecution),
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                  ),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
                   name: 'useTextInputForNum',
                   title: const Text('pages.setting.general.num_edit').tr(),
                   subtitle: const Text('pages.setting.general.num_edit_hint').tr(),
@@ -144,23 +161,7 @@ class _Body extends ConsumerWidget {
                   ),
                   activeColor: themeData.colorScheme.primary,
                 ),
-                FormBuilderSwitch(
-                  name: 'confirmGCode',
-                  title: const Text('pages.setting.general.confirm_gcode').tr(),
-                  subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
-                  onChanged: (b) => settingService.writeBool(
-                    AppSettingKeys.confirmMacroExecution,
-                    b ?? false,
-                  ),
-                  initialValue: ref.read(
-                    boolSettingProvider(AppSettingKeys.confirmMacroExecution),
-                  ),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                  ),
-                  activeColor: themeData.colorScheme.primary,
-                ),
+
                 FormBuilderFilterChip(
                   name: AppSettingKeys.etaSources.key,
                   onChanged: controller.onEtaSourcesChanged,
