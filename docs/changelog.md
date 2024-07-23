@@ -6,6 +6,8 @@
 
 - **Collapsible Macros**: The macro group card is now limited to a maximum of 3 rows. If this limit is exceeded, it will
   provide a button to show all macros.
+- **Nozzle Heating Shortcut**: Enhanced the extruder card by replacing the spool button with a direct nozzle heating
+  button. This improvement allows users to quickly heat the nozzle without changing the page.
 
 ## [2.7.1] - 2024-07-16
 
