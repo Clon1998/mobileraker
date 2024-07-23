@@ -170,7 +170,7 @@ class _MessageCard extends HookConsumerWidget {
                 children: [
                   Expanded(child: Text(message.title, style: themeData.textTheme.labelLarge)),
                   MobilerakerIconButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    padding: const EdgeInsets.all(4.0),
                     onPressed: () {
                       if (animate) {
                         animCtrl.animateTo(0).then((value) => dismissNotifcation());
@@ -178,7 +178,7 @@ class _MessageCard extends HookConsumerWidget {
                         dismissNotifcation();
                       }
                     }.unless(animCtrl.isAnimating),
-                    icon: const Icon(Icons.close, size: 22),
+                    icon: const Icon(Icons.close, size: 24),
                   ),
                 ],
               ),
