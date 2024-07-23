@@ -56,6 +56,7 @@ Future<String> fcmToken(FcmTokenRef ref) async {
 class NotificationService {
   static const String _notificationTappedPortName = 'onNoti';
   static const String _fcmTokenUpdatedPortName = 'tknUpdat';
+  static const String _marketingTopic = 'marketing';
 
   NotificationService(this._ref)
       : _machineService = _ref.watch(machineServiceProvider),
@@ -248,6 +249,7 @@ class NotificationService {
           onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
           licenseKeys: licenseKeys);
       allMachines.forEach(_setupMachineFcmUpdater);
+      _setupFcmTopicNotifications();
     }
   }
 
@@ -362,12 +364,40 @@ class NotificationService {
         enableLights: false,
         importance: NotificationImportance.Low,
         defaultColor: Colors.white,
+      ),
+      NotificationChannel(
+        icon: 'resource://drawable/res_mobileraker_logo',
+        channelKey: machine.printProgressBarChannelKey,
+        channelName: 'Print Progressbar Updates - ${machine.name}',
+        channelDescription: 'Permanent Progressbar, indicating the print progress.',
+        channelGroupKey: machine.uuid,
+        playSound: false,
+        enableVibration: false,
+        enableLights: false,
+        importance: NotificationImportance.Low,
+        defaultColor: Colors.white,
       )
     ];
   }
 
   NotificationChannelGroup _channelGroupForMachine(Machine machine) {
     return NotificationChannelGroup(channelGroupKey: machine.uuid, channelGroupName: 'Printer ${machine.name}');
+  }
+
+  void _setupFcmTopicNotifications() {
+    logger.i('Setting up FCM topic notifications');
+    _fcmUpdateListeners[_marketingTopic]?.close();
+
+    _fcmUpdateListeners[_marketingTopic] =
+        _ref.listen(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications), (previous, next) {
+      if (next == true) {
+        logger.i('Subscribing to marketing topic');
+        _notifyFCM.subscribeToTopic(_marketingTopic);
+      } else {
+        logger.i('Unsubscribing from marketing topic');
+        _notifyFCM.unsubscribeToTopic(_marketingTopic);
+      }
+    }, fireImmediately: true);
   }
 
   void _setupMachineFcmUpdater(Machine machine) {
