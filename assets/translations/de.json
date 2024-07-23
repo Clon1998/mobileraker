@@ -996,6 +996,9 @@
           "subtitle": "Eine Filamentspitze formen"
         }
       }
+    },
+    "heater_temperature": {
+      "title": "{} Temperatur [°C]"
     }
   },
   "bottom_sheets": {

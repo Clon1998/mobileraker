@@ -572,7 +572,7 @@ class _Controller extends _$Controller {
       type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
           ? DialogType.numEdit
           : DialogType.rangeEdit,
-      title: 'Edit ${beautifyName(heater.name)} Temperature',
+      title: tr('dialogs.heater_temperature.title', args: [beautifyName(heater.name)]),
       dismissLabel: tr('general.cancel'),
       actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
@@ -600,9 +600,7 @@ class _Controller extends _$Controller {
           type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
               ? DialogType.numEdit
               : DialogType.rangeEdit,
-          title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
-          dismissLabel: tr('general.cancel'),
-          actionLabel: tr('general.confirm'),
+          title: tr('dialogs.heater_temperature.title', args: [beautifyName(temperatureFan.name)]),
           data: NumberEditDialogArguments(
             current: temperatureFan.target.round(),
             min: (configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,

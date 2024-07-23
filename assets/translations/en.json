@@ -996,6 +996,9 @@
           "subtitle": "Forming a filament tip"
         }
       }
+    },
+    "heater_temperature": {
+      "title": "{} Temperature [°C]"
     }
   },
   "bottom_sheets": {

@@ -556,8 +556,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           ? DialogType.numEdit
           : DialogType.rangeEdit,
       title: tr('dialogs.extruder_feedrate.title'),
-      dismissLabel: tr('general.cancel'),
-      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: state.requireValue.extruderVelocity,
         min: 0.1,
@@ -616,9 +614,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
           ? DialogType.numEdit
           : DialogType.rangeEdit,
-      title: 'Edit ${beautifyName(cur.activeExtruder!.name)} Temperature',
-      dismissLabel: tr('general.cancel'),
-      actionLabel: tr('general.confirm'),
+      title: tr('dialogs.heater_temperature.title', args: [beautifyName(cur.activeExtruder!.name)]),
       data: NumberEditDialogArguments(
         current: cur.activeExtruder!.target,
         min: 0,
