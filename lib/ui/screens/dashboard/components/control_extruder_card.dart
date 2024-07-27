@@ -410,21 +410,42 @@ class _ToolSelector extends ConsumerWidget {
     final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).requireValue());
     final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
+    final theme = Theme.of(context);
+
+    final sel = theme.useMaterial3
+        ? SegmentedButton<GcodeMacro>(
+            showSelectedIcon: false,
+            segments: [
+              for (var tool in model.toolchangeMacros) _buildButtonSegment((tool)),
+            ],
+            selected: model.toolchangeMacros.where((e) => e.vars['active'] == true).toSet(),
+            onSelectionChanged: model.klippyCanReceiveCommands ? controller.onToolSetSelected : null,
+          )
+        : ToggleButtons(
+            isSelected: [
+              for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
+            ],
+            onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
+            children: [
+              for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
+            ],
+          );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(),
-        child: ToggleButtons(
-          isSelected: [
-            for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
-          ],
-          onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
-          children: [
-            for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
-          ],
-        ),
-      ),
+      child:
+          SingleChildScrollView(scrollDirection: Axis.horizontal, physics: const ClampingScrollPhysics(), child: sel),
+    );
+  }
+
+  ButtonSegment<GcodeMacro> _buildButtonSegment(GcodeMacro tool) {
+    final Object? val = tool.vars['color'] ?? tool.vars['colour'];
+    final color = val?.let((t) => Color(int.parse(t.toString(), radix: 16) | 0xFF000000));
+
+    return ButtonSegment(
+      value: tool,
+      label: Text(tool.name),
+      icon: Icon(Icons.circle, color: color, size: 12).only(color != null),
     );
   }
 }
@@ -601,6 +622,13 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
   void onToolSelected(int toolIdx) {
     final tool = state.requireValue.toolchangeMacros.elementAtOrNull(toolIdx);
+    if (tool == null) return;
+    _printerService.gCode(tool.name);
+  }
+
+  void onToolSetSelected(Set<GcodeMacro> selected) {
+    if (selected.isEmpty || selected.length > 1) return;
+    final tool = selected.firstOrNull;
     if (tool == null) return;
     _printerService.gCode(tool.name);
   }
