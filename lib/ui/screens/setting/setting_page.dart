@@ -199,6 +199,7 @@ class _Body extends ConsumerWidget {
                 const _SectionHeader(title: 'UI'),
                 const _ThemeSelector(),
                 const _ThemeModeSelector(),
+                if (context.canBecomeLargerThanCompact) const _ToggleMediumUI(),
                 FormBuilderSwitch(
                   name: 'alwaysShowBaby',
                   title: const Text('pages.setting.general.always_baby').tr(),
@@ -668,6 +669,31 @@ class _ThemeModeSelector extends ConsumerWidget {
         labelText: tr('pages.setting.general.system_theme_mode'),
       ),
       onChanged: (ThemeMode? themeMode) => themeService.selectThemeMode(themeMode ?? ThemeMode.system),
+    );
+  }
+}
+
+class _ToggleMediumUI extends ConsumerWidget {
+  const _ToggleMediumUI({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FormBuilderSwitch(
+      name: 'enableMediumUI',
+      title: const Text('pages.setting.general.medium_ui').tr(),
+      subtitle: const Text('pages.setting.general.medium_ui_hint').tr(),
+      onChanged: (b) => ref.read(settingServiceProvider).writeBool(
+            AppSettingKeys.useMediumUI,
+            b ?? false,
+          ),
+      initialValue: ref.read(
+        boolSettingProvider(AppSettingKeys.useMediumUI),
+      ),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        isCollapsed: true,
+      ),
+      activeColor: Theme.of(context).colorScheme.primary,
     );
   }
 }

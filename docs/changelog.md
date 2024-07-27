@@ -8,6 +8,8 @@
   provide a button to show all macros.
 - **Nozzle Heating Shortcut**: Enhanced the extruder card by replacing the spool button with a direct nozzle heating
   button. This improvement allows users to quickly heat the nozzle without changing the page.
+- **Toogle Tablet Layout**: If the app is running on a device that supports the tablet layout, users can now disable the
+  tablet layout if they which to do so.
 
 ## [2.7.1] - 2024-07-16
 

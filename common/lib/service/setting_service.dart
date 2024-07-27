@@ -152,6 +152,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   confirmMacroExecution('confirmMacroExecution'),
   useProgressbarNotifications('useProgressNotifications'),
   etaSources('etaCalS', ['slicer', 'filament']),
+  useMediumUI('useMediumUI', true),
   ;
 
   @override

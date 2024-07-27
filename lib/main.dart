@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/misc_providers.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -109,12 +110,7 @@ class MyApp extends ConsumerWidget {
             ThemeData? darkTheme,
             ThemeMode? themeMode,
           ) {
-            return ResponsiveBreakpoints.builder(
-              breakpoints: [
-                const Breakpoint(start: 0, end: 600, name: COMPACT),
-                const Breakpoint(start: 601, end: 840, name: MEDIUM),
-                const Breakpoint(start: 841, end: 1200, name: EXPANDED),
-              ],
+            return _ResponsiveLayoutBuilder(
               child: MaterialApp.router(
                 debugShowCheckedModeBanner: false,
                 routerDelegate: goRouter.routerDelegate,
@@ -309,3 +305,27 @@ class _EmojiIndicator extends ConsumerWidget {
 
 Color splashBgColorForBrightness(Brightness brightness) =>
     (brightness == Brightness.dark) ? const Color(0xff2A2A2A) : const Color(0xfff7f7f7);
+
+class _ResponsiveLayoutBuilder extends ConsumerWidget {
+  const _ResponsiveLayoutBuilder({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enableMediumUI = ref.watch(boolSettingProvider(AppSettingKeys.useMediumUI));
+
+    final breakpoints = [
+      if (enableMediumUI) const Breakpoint(start: 0, end: 600, name: COMPACT),
+      if (!enableMediumUI) const Breakpoint(start: 0, end: double.maxFinite, name: COMPACT),
+      const Breakpoint(start: 601, end: 840, name: MEDIUM),
+      const Breakpoint(start: 841, end: 1200, name: EXPANDED),
+    ];
+    logger.i('Using breakpoints: $breakpoints');
+    return ResponsiveBreakpoints(
+      key: ValueKey(enableMediumUI),
+      breakpoints: breakpoints,
+      child: child,
+    );
+  }
+}

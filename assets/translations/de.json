@@ -343,7 +343,9 @@
         "confirm_gcode": "Bestätige Makro-Ausführung",
         "confirm_gcode_hint": "Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird",
         "eta_sources": "ETA Quellen",
-        "eta_sources_hint": "Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen"
+        "eta_sources_hint": "Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen",
+        "medium_ui": "Tablet UI",
+        "medium_ui_hint": "Aktiviert das Tablet-UI für größere Bildschirme"
       },
       "notification": {
         "title": "Benachrichtigung",
