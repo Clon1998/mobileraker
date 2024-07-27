@@ -32,7 +32,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
-import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/components/single_value_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table.dart';
 import 'package:overflow_view/overflow_view.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -496,7 +496,7 @@ class _StepSelectorWidget extends ConsumerWidget {
           '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
           textAlign: TextAlign.center,
         ),
-        RangeSelector(
+        SingleValueSelector(
           selectedIndex: selected,
           onSelected: klippyCanReceiveCommands ? controller.onSelectedChanged : null,
           values: [for (var step in steps) numberFormat.format(step)],

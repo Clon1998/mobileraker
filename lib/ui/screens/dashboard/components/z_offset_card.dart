@@ -30,7 +30,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../components/IconElevatedButton.dart';
-import '../../../components/range_selector.dart';
+import '../../../components/single_value_selector.dart';
 
 part 'z_offset_card.freezed.dart';
 part 'z_offset_card.g.dart';
@@ -211,7 +211,7 @@ class _CardBody extends ConsumerWidget {
                 '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
               ),
             ),
-            RangeSelector(
+            SingleValueSelector(
               selectedIndex: selected,
               onSelected: klippyCanReceiveCommands ? controller.onSelectedChanged : null,
               values: [for (var step in steps) numberFormat.format(step)],

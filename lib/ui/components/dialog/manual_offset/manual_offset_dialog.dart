@@ -14,7 +14,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_controller.dart';
-import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/components/single_value_selector.dart';
 
 class ManualOffsetDialog extends HookConsumerWidget {
   static final List<double> offsetSteps = [0.001, 0.01, 0.05, 0.1, 1];
@@ -116,7 +116,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                     ),
                                     border: InputBorder.none,
                                   ),
-                                  child: RangeSelector(
+                                  child: SingleValueSelector(
                                     onSelected: (idx) => selectedStep.value = idx,
                                     values: offsetSteps.map((e) => numberFormat.format(e)),
                                     selectedIndex: selectedStep.value,

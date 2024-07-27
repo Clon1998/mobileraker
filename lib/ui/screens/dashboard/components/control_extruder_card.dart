@@ -37,7 +37,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/components/single_value_selector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -343,7 +343,7 @@ class _CardBody extends ConsumerWidget {
           '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]',
         ),
         const SizedBox(height: 8),
-        RangeSelector(
+        SingleValueSelector(
           selectedIndex: model.stepIndex,
           onSelected: canExtrude ? controller.onSelectedStepChanged : null,
           values: [for (var step in model.steps) step.toString()],
