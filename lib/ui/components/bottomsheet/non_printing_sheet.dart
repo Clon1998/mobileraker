@@ -82,6 +82,8 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
             sizeDuration: animDuration,
             fadeDuration: animDuration,
             sizeCurve: Curves.easeInOut,
+            fadeInCurve: Curves.easeInOut,
+            fadeOutCurve: Curves.easeInOut,
             alignment: Alignment.bottomCenter,
             child: switch (value) {
               1 => _ManageServices(
