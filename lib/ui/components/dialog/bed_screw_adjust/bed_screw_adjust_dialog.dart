@@ -9,6 +9,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog_controller.dart';
-import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:vector_math/vector_math.dart' as vec;
 
 class BedScrewAdjustDialog extends HookConsumerWidget {
@@ -66,110 +66,106 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
           naviator.pop();
         }
       },
-      child: Dialog(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Text(
-                  request.title ?? tr('dialogs.bed_screw_adjust.title'),
-                  style: themeData.textTheme.headlineSmall,
-                ),
+      child: MobilerakerDialog(
+        footer: _Footer(dialogCompleter: completer),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Text(
+                request.title ?? tr('dialogs.bed_screw_adjust.title'),
+                style: themeData.textTheme.headlineSmall,
               ),
-              Flexible(
-                child: AnimatedSwitcher(
-                  switchInCurve: Curves.easeInCirc,
-                  switchOutCurve: Curves.easeOutExpo,
-                  transitionBuilder: (child, anim) => SizeAndFadeTransition(
-                    sizeAndFadeFactor: anim,
-                    child: child,
-                  ),
-                  duration: kThemeAnimationDuration,
-                  child: ref.watch(bedScrewAdjustDialogControllerProvider).when(
-                        data: (data) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Flexible(
-                                      child: _ScrewLocationIndicator(),
+            ),
+            Flexible(
+              child: AnimatedSwitcher(
+                switchInCurve: Curves.easeInCirc,
+                switchOutCurve: Curves.easeOutExpo,
+                transitionBuilder: (child, anim) => SizeAndFadeTransition(
+                  sizeAndFadeFactor: anim,
+                  child: child,
+                ),
+                duration: kThemeAnimationDuration,
+                child: ref.watch(bedScrewAdjustDialogControllerProvider).when(
+                      data: (data) => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Flexible(
+                                    child: _ScrewLocationIndicator(),
+                                  ),
+                                  InputDecorator(
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.only(top: 8),
+                                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                                      label: const Text(
+                                        'dialogs.bed_screw_adjust.active_screw_title',
+                                      ).tr(),
+                                      border: InputBorder.none,
                                     ),
-                                    InputDecorator(
-                                      decoration: InputDecoration(
-                                        isDense: true,
-                                        contentPadding: const EdgeInsets.only(top: 8),
-                                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                                        label: const Text(
-                                          'dialogs.bed_screw_adjust.active_screw_title',
-                                        ).tr(),
-                                        border: InputBorder.none,
-                                      ),
-                                      child: Text(data.config.configBedScrews!.screws[data.bedScrew.currentScrew].name),
+                                    child: Text(data.config.configBedScrews!.screws[data.bedScrew.currentScrew].name),
+                                  ),
+                                  InputDecorator(
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.only(top: 8),
+                                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                                      label: const Text(
+                                        'dialogs.bed_screw_adjust.accept_screw_title',
+                                      ).tr(),
+                                      border: InputBorder.none,
                                     ),
-                                    InputDecorator(
-                                      decoration: InputDecoration(
-                                        isDense: true,
-                                        contentPadding: const EdgeInsets.only(top: 8),
-                                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                                        label: const Text(
-                                          'dialogs.bed_screw_adjust.accept_screw_title',
-                                        ).tr(),
-                                        border: InputBorder.none,
-                                      ),
-                                      child: const Text(
-                                        'dialogs.bed_screw_adjust.accept_screw_value',
-                                      ).tr(args: [
-                                        data.bedScrew.acceptedScrews.toString(),
-                                        data.config.configBedScrews!.screws.length.toString(),
-                                      ]),
-                                    ),
-                                  ],
-                                ),
+                                    child: const Text(
+                                      'dialogs.bed_screw_adjust.accept_screw_value',
+                                    ).tr(args: [
+                                      data.bedScrew.acceptedScrews.toString(),
+                                      data.config.configBedScrews!.screws.length.toString(),
+                                    ]),
+                                  ),
+                                ],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: LinearProgressIndicator(
-                                minHeight: 6,
-                                backgroundColor: themeData.colorScheme.primaryContainer,
-                                value: data.bedScrew.acceptedScrews /
-                                    data.config.configBedScrews!.screws.length,
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: LinearProgressIndicator(
+                              minHeight: 6,
+                              backgroundColor: themeData.colorScheme.primaryContainer,
+                              value: data.bedScrew.acceptedScrews / data.config.configBedScrews!.screws.length,
                             ),
-                            Text(
-                              'dialogs.bed_screw_adjust.hint',
-                              textAlign: TextAlign.center,
-                              style: themeData.textTheme.bodySmall,
-                            ).tr(),
-                          ],
-                        ),
-                        error: (e, s) => IntrinsicHeight(
-                          child: ErrorCard(
-                            title: const Text('Error loading Bed Screw'),
-                            body: Text(e.toString()),
                           ),
-                        ),
-                        loading: () => IntrinsicHeight(
-                          child: SpinKitWave(
-                            size: 33,
-                            color: themeData.colorScheme.primary,
-                          ),
-                        ),
-                        skipLoadingOnReload: true,
+                          Text(
+                            'dialogs.bed_screw_adjust.hint',
+                            textAlign: TextAlign.center,
+                            style: themeData.textTheme.bodySmall,
+                          ).tr(),
+                        ],
                       ),
-                ),
+                      error: (e, s) => IntrinsicHeight(
+                        child: ErrorCard(
+                          title: const Text('Error loading Bed Screw'),
+                          body: Text(e.toString()),
+                        ),
+                      ),
+                      loading: () => IntrinsicHeight(
+                        child: SpinKitWave(
+                          size: 33,
+                          color: themeData.colorScheme.primary,
+                        ),
+                      ),
+                      skipLoadingOnReload: true,
+                    ),
               ),
-              _Footer(dialogCompleter: completer),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -178,6 +174,7 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
 
 class _Footer extends ConsumerWidget {
   const _Footer({super.key, required this.dialogCompleter});
+
   final DialogCompleter dialogCompleter;
 
   @override
@@ -186,43 +183,33 @@ class _Footer extends ConsumerWidget {
     var bedScrewAndConfig = ref.watch(bedScrewAdjustDialogControllerProvider).valueOrNull;
 
     var themeData = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton(
-            onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAbortPressed,
-            child: const Text('general.abort').tr(),
-          ),
-          // IconButton(
-          //     tooltip: 'Klipper\'s Bed Screw Adjust Documentation',
-          //     color: Theme.of(context).textTheme.bodySmall?.color,
-          //     onPressed: null,
-          //     icon: const Icon(
-          //       Icons.quiz_outlined,
-          //       size: 20,
-          //     )),
-          if (bedScrewAndConfig != null)
-            EaseIn(
-              child: Row(
-                children: [
-                  TextButton(
-                    onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
-                    child: const Text('dialogs.bed_screw_adjust.adjusted_btn').tr(),
-                  ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: themeData.colorScheme.secondary,
-                    ),
-                    onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
-                    child: const Text('general.accept').tr(),
-                  ),
-                ],
+
+    return OverflowBar(
+      alignment: MainAxisAlignment.spaceBetween,
+      overflowAlignment: OverflowBarAlignment.end,
+      overflowDirection: VerticalDirection.up,
+      children: [
+        TextButton(
+          onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAbortPressed,
+          child: const Text('general.abort').tr(),
+        ),
+        if (bedScrewAndConfig != null)
+          OverflowBar(
+            children: [
+              TextButton(
+                onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
+                child: const Text('dialogs.bed_screw_adjust.adjusted_btn').tr(),
               ),
-            ),
-        ],
-      ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: themeData.colorScheme.secondary,
+                ),
+                onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
+                child: const Text('general.accept').tr(),
+              ),
+            ],
+          ),
+      ],
     );
   }
 }
