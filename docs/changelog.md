@@ -10,6 +10,9 @@
   button. This improvement allows users to quickly heat the nozzle without changing the page.
 - **Toogle Tablet Layout**: If the app is running on a device that supports the tablet layout, users can now disable the
   tablet layout if they which to do so.
+- **Progress Bar Categories on Android**: Progressbar notifications now have their own category. This allows users to
+  customize notification settings for text-based progress and progressbar notifications separately in the system
+  settings.
 
 ## [2.7.1] - 2024-07-16
 
