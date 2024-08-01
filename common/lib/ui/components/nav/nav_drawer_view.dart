@@ -54,6 +54,7 @@ class NavigationDrawerWidget extends HookConsumerWidget {
                               text: entry.label,
                               icon: entry.icon,
                               routeName: entry.route,
+                              routeMatcher: entry.routeMatcherOrDefault,
                             ),
                   ],
                 ),
@@ -235,11 +236,13 @@ class _DrawerItem extends ConsumerWidget {
     required this.text,
     required this.icon,
     required this.routeName,
+    required this.routeMatcher,
   });
 
   final String text;
   final IconData icon;
   final String routeName;
+  final String routeMatcher;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -248,8 +251,12 @@ class _DrawerItem extends ConsumerWidget {
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.25);
 
+    final goRouter = ref.watch(goRouterProvider);
+
+    final matcher = RegExp(routeMatcher);
+
     return ListTile(
-      selected: ref.watch(goRouterProvider).location == routeName,
+      selected: matcher.hasMatch(goRouter.location),
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onSurface,

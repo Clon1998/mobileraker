@@ -213,7 +213,8 @@ class _NavEntryState extends State<_NavEntry> {
 
   @override
   Widget build(BuildContext context) {
-    final isActive = _currentRoute == widget.entry.route;
+    final matcher = RegExp(widget.entry.routeMatcherOrDefault);
+    final isActive = matcher.hasMatch(_currentRoute ?? '');
     return InkWell(
       onTap: widget.onTap,
       child: Ink(
