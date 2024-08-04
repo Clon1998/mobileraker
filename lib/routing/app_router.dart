@@ -16,6 +16,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_transitions/go_transitions.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
@@ -105,6 +106,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+      GoTransition.observer,
     ],
     // redirect: (state) {
     //
@@ -150,9 +152,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: 'add',
             name: AppRoute.printerAdd.name,
-            builder: (context, state) =>
-                // TestPage(),
-                const PrinterAddPage(),
+            builder: (context, state) => const PrinterAddPage(),
           ),
         ],
       ),
@@ -160,111 +160,30 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/files',
         name: AppRoute.fileManager.name,
         builder: (context, state) => const FileManagerPage(filePath: 'gcodes'),
-        pageBuilder: (context, state) {
-          var path = 'gcodes';
-
-          return MaterialPage(child: FileManagerPage(filePath: path!));
-// Cant use MateiralPage because this will cause a transition after the first page is loaded...
-          //MaterialPage
-          // MaterialPage
-          // return CustomTransitionPage(
-          //   key: const ValueKey('files'),
-          //   // transitionDuration: const Duration(milliseconds: 3000),
-          //   // reverseTransitionDuration: const Duration(milliseconds: 3000),
-          //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          //     return SlideTransition(
-          //       position: Tween<Offset>(
-          //         begin: const Offset(0.0, .05),
-          //         end: Offset.zero,
-          //       ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(animation),
-          //       child: SlideTransition(
-          //         position: Tween<Offset>(
-          //           begin: Offset.zero,
-          //           end: const Offset(0.0, -.1),
-          //         ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(secondaryAnimation),
-          //         child: FadeTransition(
-          //           opacity: CurveTween(curve: Curves.easeInOutExpo).animate(animation),
-          //           child: child,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          //   child: FileManagerPage(filePath: path),
-          // );
-        },
+        // pageBuilder: GoTransitions.theme.build(
+        //   settings: GoTransitionSettings(
+        //     duration: const Duration(milliseconds: 3000),
+        //     reverseDuration: const Duration(milliseconds: 3000),
+        //   ),
+        // ),
         routes: [
           GoRoute(
             path: ':path',
             name: AppRoute.fileManager_explorer.name,
             builder: (context, state) => FileManagerPage(filePath: state.pathParameters['path']!),
-            pageBuilder: (context, state) {
-              var path = state.pathParameters['path'];
-              return MaterialPage(child: FileManagerPage(filePath: path!));
-
-              // return CustomTransitionPage(
-              //   key: const ValueKey('files').only(path?.split('/').length == 1),
-              //   // transitionDuration: const Duration(milliseconds: 3000),
-              //   // reverseTransitionDuration: const Duration(milliseconds: 3000),
-              //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              //     final goRouter = GoRouter.of(context);
-              //     final isSearchOnTop = goRouter.location.endsWith('search');
-              //
-              //     // Best would be to build my own transition/PageRouteBuilder!!!
-              //     if (isSearchOnTop) {
-              //       return child;
-              //     }
-              //
-              //     return SlideTransition(
-              //       position: Tween<Offset>(
-              //         begin: const Offset(0.0, .05),
-              //         end: Offset.zero,
-              //       ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
-              //       child: SlideTransition(
-              //         position: Tween<Offset>(
-              //           begin: Offset.zero,
-              //           end: const Offset(0.0, -.1),
-              //         ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(secondaryAnimation),
-              //         child: FadeTransition(
-              //           opacity: CurveTween(curve: Curves.easeInOutCubicEmphasized).animate(animation),
-              //           child: child,
-              //         ),
-              //       ),
-              //     );
-              //   },
-              //   child: FileManagerPage(filePath: path!),
-              // );
-            },
+            // pageBuilder: GoTransitions.theme.build(
+            //   settings: GoTransitionSettings(
+            //     duration: const Duration(milliseconds: 3000),
+            //     reverseDuration: const Duration(milliseconds: 3000),
+            //   ),
+            // ),
             routes: [
               GoRoute(
                 path: 'search',
                 name: AppRoute.fileManager_exlorer_search.name,
                 builder: (context, state) => FileManagerSearchPage(
-                    machineUUID: state.uri.queryParameters['machineUUID']!, path: state.uri.queryParameters['path']!),
-                pageBuilder: (context, state) {
-                  final machineUUID = state.uri.queryParameters['machineUUID'];
-                  final path = state.pathParameters['path'];
-
-                  return MaterialPage(
-                    fullscreenDialog: true,
-                    child: FileManagerSearchPage(machineUUID: machineUUID!, path: path!),
-                  );
-
-                  // return CustomTransitionPage(
-                  //   fullscreenDialog: true,
-                  //   // transitionDuration: const Duration(milliseconds: 3000),
-                  //   // reverseTransitionDuration: const Duration(milliseconds: 3000),
-                  //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  //     return SlideTransition(
-                  //       position: Tween<Offset>(
-                  //         begin: const Offset(0, 1),
-                  //         end: Offset.zero,
-                  //       ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
-                  //       child: child,
-                  //     );
-                  //   },
-                  //   child: FileManagerSearchPage(machineUUID: machineUUID!, path: path!),
-                  // );
-                },
+                    machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
+                pageBuilder: GoTransitions.fullscreenDialog,
               ),
               GoRoute(
                 path: 'gcode-details',
