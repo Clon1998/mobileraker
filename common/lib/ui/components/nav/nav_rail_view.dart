@@ -8,7 +8,6 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -143,8 +142,6 @@ class _Body extends ConsumerWidget {
     final controller = ref.watch(navWidgetControllerProvider.notifier);
     final model = ref.watch(navWidgetControllerProvider);
 
-    final current = GoRouter.of(context).routeInformationProvider.value.uri.toString();
-    logger.i('Current Route: $current');
     return Align(
       alignment: Alignment.center,
       child: Material(
@@ -205,10 +202,10 @@ class _NavEntryState extends State<_NavEntry> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _goRouter?.removeListener(_onRouteChanged);
+    _goRouter?.routerDelegate.removeListener(_onRouteChanged);
     _goRouter = GoRouter.of(context);
-    _currentRoute = _goRouter!.location;
-    _goRouter!.addListener(_onRouteChanged);
+    _currentRoute = GoRouterState.of(context).uri.toString();
+    _goRouter!.routerDelegate.addListener(_onRouteChanged);
   }
 
   @override
@@ -232,13 +229,13 @@ class _NavEntryState extends State<_NavEntry> {
 
   void _onRouteChanged() {
     setState(() {
-      _currentRoute = _goRouter?.location;
+      _currentRoute = GoRouterState.of(context).uri.toString();
     });
   }
 
   @override
   void dispose() {
-    _goRouter?.removeListener(_onRouteChanged);
+    _goRouter?.routerDelegate.removeListener(_onRouteChanged);
     super.dispose();
   }
 }

@@ -51,7 +51,7 @@ dependencies:
   #    path: ../../flutter_live_activities
 
   #routing
-  go_router: ^6.2.0
+  go_router: ^14.2.2
 
   #architecture
   freezed_annotation: ^2.4.1

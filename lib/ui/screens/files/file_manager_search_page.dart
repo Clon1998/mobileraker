@@ -240,19 +240,19 @@ class _SearchResults extends ConsumerWidget {
   void _onTap(BuildContext context, RemoteFile file) {
     switch (file) {
       case GCodeFile():
-        context.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name, params: {'path': path}, extra: file);
+        context.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name, pathParameters: {'path': path}, extra: file);
         break;
       case Folder():
-        context.pushNamed(AppRoute.fileManager_explorer.name, params: {'path': file.absolutPath});
+        context.pushNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': file.absolutPath});
         break;
       case RemoteFile(isVideo: true):
-        context.pushNamed(AppRoute.fileManager_exlorer_videoPlayer.name, params: {'path': path}, extra: file);
+        context.pushNamed(AppRoute.fileManager_exlorer_videoPlayer.name, pathParameters: {'path': path}, extra: file);
         break;
       case RemoteFile(isImage: true):
-        context.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name, params: {'path': path}, extra: file);
+        context.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name, pathParameters: {'path': path}, extra: file);
         break;
       default:
-        context.pushNamed(AppRoute.fileManager_exlorer_editor.name, params: {'path': path}, extra: file);
+        context.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': path}, extra: file);
     }
   }
 }

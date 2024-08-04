@@ -11,7 +11,6 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/info_card.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -163,95 +162,108 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         builder: (context, state) => const FileManagerPage(filePath: 'gcodes'),
         pageBuilder: (context, state) {
           var path = 'gcodes';
+
+          return MaterialPage(child: FileManagerPage(filePath: path!));
 // Cant use MateiralPage because this will cause a transition after the first page is loaded...
           //MaterialPage
-
-          return CustomTransitionPage(
-            key: const ValueKey('files'),
-            // transitionDuration: const Duration(milliseconds: 3000),
-            // reverseTransitionDuration: const Duration(milliseconds: 3000),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, .05),
-                  end: Offset.zero,
-                ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(animation),
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: Offset.zero,
-                    end: const Offset(0.0, -.1),
-                  ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(secondaryAnimation),
-                  child: FadeTransition(
-                    opacity: CurveTween(curve: Curves.easeInOutExpo).animate(animation),
-                    child: child,
-                  ),
-                ),
-              );
-            },
-            child: FileManagerPage(filePath: path),
-          );
+          // MaterialPage
+          // return CustomTransitionPage(
+          //   key: const ValueKey('files'),
+          //   // transitionDuration: const Duration(milliseconds: 3000),
+          //   // reverseTransitionDuration: const Duration(milliseconds: 3000),
+          //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          //     return SlideTransition(
+          //       position: Tween<Offset>(
+          //         begin: const Offset(0.0, .05),
+          //         end: Offset.zero,
+          //       ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(animation),
+          //       child: SlideTransition(
+          //         position: Tween<Offset>(
+          //           begin: Offset.zero,
+          //           end: const Offset(0.0, -.1),
+          //         ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(secondaryAnimation),
+          //         child: FadeTransition(
+          //           opacity: CurveTween(curve: Curves.easeInOutExpo).animate(animation),
+          //           child: child,
+          //         ),
+          //       ),
+          //     );
+          //   },
+          //   child: FileManagerPage(filePath: path),
+          // );
         },
         routes: [
           GoRoute(
             path: ':path',
             name: AppRoute.fileManager_explorer.name,
+            builder: (context, state) => FileManagerPage(filePath: state.pathParameters['path']!),
             pageBuilder: (context, state) {
-              var path = state.params['path'];
-              return CustomTransitionPage(
-                key: const ValueKey('files').only(path?.split('/').length == 1),
-                // transitionDuration: const Duration(milliseconds: 3000),
-                // reverseTransitionDuration: const Duration(milliseconds: 3000),
-                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                  final goRouter = GoRouter.of(context);
-                  final isSearchOnTop = goRouter.location.endsWith('search');
+              var path = state.pathParameters['path'];
+              return MaterialPage(child: FileManagerPage(filePath: path!));
 
-                  // Best would be to build my own transition/PageRouteBuilder!!!
-                  if (isSearchOnTop) {
-                    return child;
-                  }
-
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.0, .05),
-                      end: Offset.zero,
-                    ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: Offset.zero,
-                        end: const Offset(0.0, -.1),
-                      ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(secondaryAnimation),
-                      child: FadeTransition(
-                        opacity: CurveTween(curve: Curves.easeInOutCubicEmphasized).animate(animation),
-                        child: child,
-                      ),
-                    ),
-                  );
-                },
-                child: FileManagerPage(filePath: path!),
-              );
+              // return CustomTransitionPage(
+              //   key: const ValueKey('files').only(path?.split('/').length == 1),
+              //   // transitionDuration: const Duration(milliseconds: 3000),
+              //   // reverseTransitionDuration: const Duration(milliseconds: 3000),
+              //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              //     final goRouter = GoRouter.of(context);
+              //     final isSearchOnTop = goRouter.location.endsWith('search');
+              //
+              //     // Best would be to build my own transition/PageRouteBuilder!!!
+              //     if (isSearchOnTop) {
+              //       return child;
+              //     }
+              //
+              //     return SlideTransition(
+              //       position: Tween<Offset>(
+              //         begin: const Offset(0.0, .05),
+              //         end: Offset.zero,
+              //       ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
+              //       child: SlideTransition(
+              //         position: Tween<Offset>(
+              //           begin: Offset.zero,
+              //           end: const Offset(0.0, -.1),
+              //         ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(secondaryAnimation),
+              //         child: FadeTransition(
+              //           opacity: CurveTween(curve: Curves.easeInOutCubicEmphasized).animate(animation),
+              //           child: child,
+              //         ),
+              //       ),
+              //     );
+              //   },
+              //   child: FileManagerPage(filePath: path!),
+              // );
             },
             routes: [
               GoRoute(
                 path: 'search',
                 name: AppRoute.fileManager_exlorer_search.name,
+                builder: (context, state) => FileManagerSearchPage(
+                    machineUUID: state.uri.queryParameters['machineUUID']!, path: state.uri.queryParameters['path']!),
                 pageBuilder: (context, state) {
-                  final machineUUID = state.queryParams['machineUUID'];
-                  final path = state.params['path'];
-                  return CustomTransitionPage(
+                  final machineUUID = state.uri.queryParameters['machineUUID'];
+                  final path = state.pathParameters['path'];
+
+                  return MaterialPage(
                     fullscreenDialog: true,
-                    // transitionDuration: const Duration(milliseconds: 3000),
-                    // reverseTransitionDuration: const Duration(milliseconds: 3000),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      return SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 1),
-                          end: Offset.zero,
-                        ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
-                        child: child,
-                      );
-                    },
                     child: FileManagerSearchPage(machineUUID: machineUUID!, path: path!),
                   );
+
+                  // return CustomTransitionPage(
+                  //   fullscreenDialog: true,
+                  //   // transitionDuration: const Duration(milliseconds: 3000),
+                  //   // reverseTransitionDuration: const Duration(milliseconds: 3000),
+                  //   transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  //     return SlideTransition(
+                  //       position: Tween<Offset>(
+                  //         begin: const Offset(0, 1),
+                  //         end: Offset.zero,
+                  //       ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
+                  //       child: child,
+                  //     );
+                  //   },
+                  //   child: FileManagerSearchPage(machineUUID: machineUUID!, path: path!),
+                  // );
                 },
               ),
               GoRoute(

@@ -53,7 +53,6 @@ import '../../components/connection/machine_connection_guard.dart';
 import '../../components/dialog/text_input/text_input_dialog.dart';
 
 part 'file_manager_page.freezed.dart';
-
 part 'file_manager_page.g.dart';
 
 class FileManagerPage extends ConsumerWidget {
@@ -222,7 +221,7 @@ class _Header extends ConsumerWidget {
             label: Text(labelText, style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13)),
             icon: AnimatedRotation(
               duration: kThemeAnimationDuration,
-              curve: Curves.easeInOutCubicEmphasized,
+              curve: Curves.easeInOut,
               turns: sortCfg?.kind == SortKind.ascending ? 0 : 0.5,
               child: Icon(Icons.arrow_upward, size: 16, color: themeData.textTheme.bodySmall?.color),
             ),
@@ -531,19 +530,22 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     switch (file) {
       case GCodeFile():
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name, params: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name,
+            pathParameters: {'path': filePath}, extra: file);
         break;
       case Folder():
-        _goRouter.pushNamed(AppRoute.fileManager_explorer.name, params: {'path': file.absolutPath});
+        _goRouter.pushNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': file.absolutPath});
         break;
       case RemoteFile(isVideo: true):
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_videoPlayer.name, params: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_videoPlayer.name,
+            pathParameters: {'path': filePath}, extra: file);
         break;
       case RemoteFile(isImage: true):
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name, params: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name,
+            pathParameters: {'path': filePath}, extra: file);
         break;
       default:
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, params: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, extra: file);
     }
   }
 
@@ -552,13 +554,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     switch (index) {
       case 1:
-        _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, params: {'path': 'config'});
+        _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'config'});
         break;
       case 2:
-        _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, params: {'path': 'timelapse'});
+        _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'timelapse'});
         break;
       default:
-        _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, params: {'path': 'gcodes'});
+        _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'gcodes'});
     }
   }
 
@@ -636,7 +638,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     logger.i('[ModernFileManagerController] search');
 
     _goRouter.pushNamed(AppRoute.fileManager_exlorer_search.name,
-        params: {'path': filePath}, queryParams: {'machineUUID': machineUUID});
+        pathParameters: {'path': filePath}, queryParameters: {'machineUUID': machineUUID});
     // _dialogService.show(DialogRequest(type: DialogType.searchFullscreen));
   }
 

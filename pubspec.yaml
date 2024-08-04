@@ -68,7 +68,8 @@ dependencies:
 
 
   #routing
-  go_router: ^6.2.0
+  go_router: ^14.2.2
+  go_transitions: ^0.5.2
 
   #util
   rxdart: ^0.27.3

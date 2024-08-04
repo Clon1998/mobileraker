@@ -54,7 +54,7 @@ class NavWidgetController extends _$NavWidgetController {
         label: tr('pages.files.title'),
         icon: Icons.file_present,
         route: '/files',
-        routeMatcher: r'^\/files\/.*$',
+        routeMatcher: r'^\/files(\/)?.*$',
       ),
       if (showSpoolman)
         NavEntry(
