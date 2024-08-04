@@ -16,6 +16,7 @@ import 'package:common/data/dto/files/moonraker/file_roots.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/enums/file_action_enum.dart';
+import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/dio_provider.dart';
@@ -23,6 +24,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/path_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -32,6 +34,7 @@ import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../data/dto/files/moonraker/file_item.dart';
 import '../../network/http_client_factory.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
@@ -43,11 +46,23 @@ typedef FileListChangedListener = Function(Map<String, dynamic> item, Map<String
 
 @freezed
 class FolderContentWrapper with _$FolderContentWrapper {
+  const FolderContentWrapper._();
+
   const factory FolderContentWrapper(
     String folderPath, [
     @Default([]) List<Folder> folders,
     @Default([]) List<RemoteFile> files,
   ]) = _FolderContentWrapper;
+
+  bool get isEmpty => folders.isEmpty && files.isEmpty;
+
+  bool get isNotEmpty => !isEmpty;
+
+  bool get hasContent => folders.isNotEmpty || files.isNotEmpty;
+
+  int get totalItems => folders.length + files.length;
+
+  List<RemoteFile> get unwrapped => [...folders, ...files];
 }
 
 @riverpod
@@ -117,6 +132,49 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }
+}
+
+@riverpod
+Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String machineUUID, String path) {
+  ref.keepAliveFor();
+
+  ref.listen(
+      fileNotificationsProvider(machineUUID),
+      (prev, next) => next.whenData((notification) {
+            FileItem item = notification.item;
+            var itemWithInLevel = isWithin(path, item.fullPath);
+
+            FileItem? srcItem = notification.sourceItem;
+            var srcItemWithInLevel = isWithin(path, srcItem?.fullPath ?? '');
+
+            // This needs to be reevaluated. Because if we move files this might be faulty
+            if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {
+              return;
+            }
+
+            logger.i('[FileApiResponse ($machineUUID, $path)] Will refresh due to notification: $notification');
+
+            ref.invalidateSelf();
+          }));
+
+  return ref.watch(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
+}
+
+@riverpod
+Future<FolderContentWrapper> moonrakerFolderContent(
+    MoonrakerFolderContentRef ref, String machineUUID, String path, SortConfiguration sortConfig) async {
+  ref.keepAliveFor();
+  // await Future.delayed(const Duration(milliseconds: 5000));
+  final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
+
+  List<Folder> folders = apiResponse.folders.toList();
+  List<RemoteFile> files = apiResponse.files.toList();
+
+  final comp = sortConfig.comparator;
+
+  files.sort(comp);
+  folders.sort(comp);
+  return FolderContentWrapper(apiResponse.folderPath, folders, files);
 }
 
 /// The FileService handles all file changes of the different roots of moonraker
@@ -220,7 +278,7 @@ class FileService {
     logger.i('Creating Folder "$filePath"');
 
     try {
-      var rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory',
+      final rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory',
           params: {'path': filePath}, timeout: _apiRequestTimeout);
       return FileActionResponse.fromJson(rpcResponse.result);
     } on JRpcError catch (e) {

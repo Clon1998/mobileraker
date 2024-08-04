@@ -11,6 +11,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,8 @@ import 'package:mobileraker/ui/screens/dev/dev_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
-import 'package:mobileraker/ui/screens/files/files_page.dart';
+import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
+import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
@@ -56,23 +58,30 @@ enum AppRoute implements RouteDefinitionMixin {
   printerAdd,
   qrScanner,
   console,
-  files,
   settings,
   imprint,
-  gcodeDetail,
-  configDetail,
-  imageViewer,
+  files, //
+  gcodeDetail, //
+  configDetail, //
+  imageViewer, //
+  videoPlayer, //
   dev,
   faq,
   changelog,
   supportDev,
-  videoPlayer,
   tool,
   beltTuner,
   spoolman,
   spoolman_vendorDetails,
   spoolman_spoolDetails,
-  spoolman_filamentDetails;
+  spoolman_filamentDetails,
+  fileManager,
+  fileManager_explorer,
+  fileManager_exlorer_search,
+  fileManager_exlorer_gcodeDetail,
+  fileManager_exlorer_editor,
+  fileManager_exlorer_videoPlayer,
+  fileManager_exlorer_imageViewer,
 }
 
 @riverpod
@@ -150,28 +159,122 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       ),
       GoRoute(
         path: '/files',
-        name: AppRoute.files.name,
-        builder: (context, state) => const FilesPage(),
+        name: AppRoute.fileManager.name,
+        builder: (context, state) => const FileManagerPage(filePath: 'gcodes'),
+        pageBuilder: (context, state) {
+          var path = 'gcodes';
+// Cant use MateiralPage because this will cause a transition after the first page is loaded...
+          //MaterialPage
+
+          return CustomTransitionPage(
+            key: const ValueKey('files'),
+            // transitionDuration: const Duration(milliseconds: 3000),
+            // reverseTransitionDuration: const Duration(milliseconds: 3000),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, .05),
+                  end: Offset.zero,
+                ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(animation),
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset.zero,
+                    end: const Offset(0.0, -.1),
+                  ).chain(CurveTween(curve: Curves.easeInOutExpo)).animate(secondaryAnimation),
+                  child: FadeTransition(
+                    opacity: CurveTween(curve: Curves.easeInOutExpo).animate(animation),
+                    child: child,
+                  ),
+                ),
+              );
+            },
+            child: FileManagerPage(filePath: path),
+          );
+        },
         routes: [
           GoRoute(
-            path: 'gcode-details',
-            name: AppRoute.gcodeDetail.name,
-            builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
-          ),
-          GoRoute(
-            path: 'config-details',
-            name: AppRoute.configDetail.name,
-            builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
-          ),
-          GoRoute(
-            path: 'video-player',
-            name: AppRoute.videoPlayer.name,
-            builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
-          ),
-          GoRoute(
-            path: 'image-viewer',
-            name: AppRoute.imageViewer.name,
-            builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
+            path: ':path',
+            name: AppRoute.fileManager_explorer.name,
+            pageBuilder: (context, state) {
+              var path = state.params['path'];
+              return CustomTransitionPage(
+                key: const ValueKey('files').only(path?.split('/').length == 1),
+                // transitionDuration: const Duration(milliseconds: 3000),
+                // reverseTransitionDuration: const Duration(milliseconds: 3000),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  final goRouter = GoRouter.of(context);
+                  final isSearchOnTop = goRouter.location.endsWith('search');
+
+                  // Best would be to build my own transition/PageRouteBuilder!!!
+                  if (isSearchOnTop) {
+                    return child;
+                  }
+
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, .05),
+                      end: Offset.zero,
+                    ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset.zero,
+                        end: const Offset(0.0, -.1),
+                      ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(secondaryAnimation),
+                      child: FadeTransition(
+                        opacity: CurveTween(curve: Curves.easeInOutCubicEmphasized).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                  );
+                },
+                child: FileManagerPage(filePath: path!),
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'search',
+                name: AppRoute.fileManager_exlorer_search.name,
+                pageBuilder: (context, state) {
+                  final machineUUID = state.queryParams['machineUUID'];
+                  final path = state.params['path'];
+                  return CustomTransitionPage(
+                    fullscreenDialog: true,
+                    // transitionDuration: const Duration(milliseconds: 3000),
+                    // reverseTransitionDuration: const Duration(milliseconds: 3000),
+                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 1),
+                          end: Offset.zero,
+                        ).chain(CurveTween(curve: Curves.easeInOutCubicEmphasized)).animate(animation),
+                        child: child,
+                      );
+                    },
+                    child: FileManagerSearchPage(machineUUID: machineUUID!, path: path!),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'gcode-details',
+                name: AppRoute.fileManager_exlorer_gcodeDetail.name,
+                builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
+              ),
+              GoRoute(
+                path: 'editor',
+                name: AppRoute.fileManager_exlorer_editor.name,
+                builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
+              ),
+              GoRoute(
+                path: 'video-player',
+                name: AppRoute.fileManager_exlorer_videoPlayer.name,
+                builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+              ),
+              GoRoute(
+                path: 'image-viewer',
+                name: AppRoute.fileManager_exlorer_imageViewer.name,
+                builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
+              ),
+            ],
           ),
         ],
       ),

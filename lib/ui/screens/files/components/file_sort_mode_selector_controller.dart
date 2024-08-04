@@ -29,7 +29,7 @@ class FileSortController extends _$FileSortController {
   // Just have a fallback
   String _suffix = 'fallback';
 
-  KeyValueStoreKey get _key => CompositeKey.keyWithString(UtilityKeys.fileSortingIndex, _suffix);
+  KeyValueStoreKey get _key => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, _suffix);
 
   @override
   FileSort build() {

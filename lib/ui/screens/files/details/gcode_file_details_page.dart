@@ -25,6 +25,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -183,7 +184,7 @@ class _CompactBody extends HookConsumerWidget {
               leadingIcon: const Icon(Icons.scale),
               title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
               subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                  .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+                  .tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
             ),
             Card(
               child: Column(
@@ -227,9 +228,9 @@ class _CompactBody extends HookConsumerWidget {
                       '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
                       '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
                       if (model.file.filamentWeightTotal != null)
-                        '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                        '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
                       if (model.file.filamentTotal != null)
-                        '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                        '${tr('pages.files.details.meta_card.filament_length')}: ${numFormat.formatMillimeters(model.file.filamentTotal!)}',
                     ].join('\n'),
                   ),
                   _PropertyTile(
@@ -419,7 +420,7 @@ class _MediumBody extends HookConsumerWidget {
                       leadingIcon: const Icon(Icons.scale),
                       title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
                       subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                          .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+                          .tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
                     ),
                     Card(
                       child: Column(
@@ -436,9 +437,9 @@ class _MediumBody extends HookConsumerWidget {
                               '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
                               '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
                               if (model.file.filamentWeightTotal != null)
-                                '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                                '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
                               if (model.file.filamentTotal != null)
-                                '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                                '${tr('pages.files.details.meta_card.filament_length')}: ${numFormat.formatMillimeters(model.file.filamentTotal!)}',
                             ].join('\n'),
                           ),
                           _PropertyTile(

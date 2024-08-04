@@ -12,7 +12,7 @@ import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -276,11 +276,11 @@ class _SpoolInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.remaining_weight'),
-        property: spool.remainingWeight?.let((it) => it.formatGramms(numberFormatDouble)) ?? '-',
+        property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '-',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.used_weight'),
-        property: spool.usedWeight.formatGramms(numberFormatDouble),
+        property: numberFormatDouble.formatGrams(spool.usedWeight),
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.location'),

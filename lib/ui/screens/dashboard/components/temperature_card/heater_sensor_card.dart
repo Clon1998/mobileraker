@@ -24,6 +24,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -476,7 +477,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
                 style: themeData.textTheme.titleLarge,
               ),
               Text(
-                zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
+                numberFormat.formatMillimeters(zThermalAdjust.currentZAdjust, useMicro: true),
               ),
             ],
           ),

@@ -167,7 +167,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
 enum UtilityKeys implements KeyValueStoreKey {
   gCodeIndex('selGCodeGrp'),
   webcamIndex('selWebcamGrp'),
-  fileSortingIndex('selFileSrt'),
+  fileExplorerSortCfg('selFileSrt'),
   requestedNotifyPermission('reqNotifyPerm'),
   recentColors('selectedColors'),
   nonSupporterDismiss('nSWDismiss'),

@@ -121,5 +121,15 @@ void main() {
       final result = 'fam'.isKlipperObject(ConfigFileObjectIdentifiers.extruder);
       expect(result, false);
     });
+
+    test('levenshteinDistance returns correct distance', () {
+      final result = 'FAB365'.levenshteinDistance('FAB365');
+      expect(result, 0);
+    });
+
+    test('levenshteinDistance returns correct distance', () {
+      final result = 'Fab365_StarWars_Star-Destroyer_Bridge-A_PC-PBT GF_14m3s.gcode'.levenshteinDistance('FAB365');
+      expect(result, 0);
+    });
   });
 }

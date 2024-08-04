@@ -7,6 +7,8 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -167,11 +169,11 @@ class _FilamentInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.weight'),
-        property: filament.weight?.let((it) => it.formatGramms(numberFormatDouble)) ?? '-',
+        property: filament.weight?.let(numberFormatDouble.formatGrams) ?? '-',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.spool_weight'),
-        property: filament.spoolWeight?.let((it) => it.formatGramms(numberFormatDouble)) ?? '-',
+        property: filament.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '-',
       ),
       PropertyWithTitle.text(
         title: tr('pages.printer_edit.presets.hotend_temp'),

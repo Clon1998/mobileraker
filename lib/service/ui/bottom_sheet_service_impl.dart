@@ -9,6 +9,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
@@ -31,6 +32,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   bedMeshSettings,
   dashboardCards,
   dashobardLayout,
+  sortMode,
   ;
 }
 
@@ -66,6 +68,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
             DashboardLayoutBottomSheet(machineUUID: machineUUID, currentLayout: layout),
           _ => throw ArgumentError('Invalid data type for ProSheetType.dashobardLayout: $data'),
         },
+    SheetType.sortMode: (ctx, data) => SortModeBottomSheet(arguments: data as SortModeSheetArgs),
   };
 
   @override

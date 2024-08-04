@@ -39,6 +39,7 @@ import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
+import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -49,6 +50,10 @@ class FilesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return FileManagerPage(
+      filePath: 'gcodes',
+    );
+
     Widget body = MachineConnectionGuard(
       onConnected: (_, machineUUID) => _FilesBody(machineUUID: machineUUID),
       skipKlipperReady: true,

@@ -34,7 +34,7 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/text_input/text_input_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
-import 'package:mobileraker/util/path_utils.dart';
+import 'package:common/util/path_utils.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

@@ -4,9 +4,11 @@
  */
 
 mixin RemoteFile {
-  static int nameComparator(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
+  static int nameComparator(RemoteFile a, RemoteFile b) => a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
-  static int modifiedComparator(RemoteFile a, RemoteFile b) => b.modified.compareTo(a.modified);
+  static int modifiedComparator(RemoteFile a, RemoteFile b) => a.modified.compareTo(b.modified);
+
+  static int sizeComparator(RemoteFile a, RemoteFile b) => a.size.compareTo(b.size);
 
   String get name;
 
