@@ -41,6 +41,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
+import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
@@ -188,7 +189,6 @@ class _ManagerBody extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Header(machineUUID: machineUUID, filePath: filePath),
         Expanded(child: _FileList(machineUUID: machineUUID, filePath: filePath)),
       ],
     );
@@ -212,33 +212,35 @@ class _Header extends ConsumerWidget {
     final labelText = sortCfg != null ? tr(sortCfg.mode.translation) : tr('pages.files.sort_by');
 
     final themeData = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          TextButton.icon(
-            onPressed: controller.onSortMode.only(sortCfg != null),
-            label: Text(labelText, style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13)),
-            icon: AnimatedRotation(
-              duration: kThemeAnimationDuration,
-              curve: Curves.easeInOut,
-              turns: sortCfg?.kind == SortKind.ascending ? 0 : 0.5,
-              child: Icon(Icons.arrow_upward, size: 16, color: themeData.textTheme.bodySmall?.color),
+    return DecoratedBox(
+      decoration: BoxDecoration(color: themeData.colorScheme.surface),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            TextButton.icon(
+              onPressed: controller.onSortMode.only(sortCfg != null),
+              label: Text(labelText, style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13)),
+              icon: AnimatedRotation(
+                duration: kThemeAnimationDuration,
+                curve: Curves.easeInOut,
+                turns: sortCfg?.kind == SortKind.ascending ? 0 : 0.5,
+                child: Icon(Icons.arrow_upward, size: 16, color: themeData.textTheme.bodySmall?.color),
+              ),
+              iconAlignment: IconAlignment.end,
             ),
-            iconAlignment: IconAlignment.end,
-          ),
-          // Icon(Icons.arrow_upward, size: 17, color: themeData.textTheme.bodySmall?.color),
-          // const _Search(),
-          const Spacer(),
+            // Icon(Icons.arrow_upward, size: 17, color: themeData.textTheme.bodySmall?.color),
+            // const _Search(),
+            const Spacer(),
 
-          IconButton(
-            padding: const EdgeInsets.only(right: 6),
-            // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-            onPressed: controller.onCreateFolder.only(sortCfg != null),
-            // icon: Icon(Icons.more_horiz,size: 22),
-            icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
-          ),
-        ],
+            IconButton(
+              padding: const EdgeInsets.only(right: 12),
+              // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
+              onPressed: controller.onCreateFolder.only(sortCfg != null),
+              icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -253,53 +255,87 @@ class _FileListLoading extends StatelessWidget {
     return Shimmer.fromColors(
       baseColor: Colors.grey,
       highlightColor: themeData.colorScheme.background,
-      child: ListView.separated(
-        separatorBuilder: (context, index) => const Divider(
-          height: 0,
-          indent: 18,
-          endIndent: 18,
-        ),
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          return const ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 14),
-            horizontalTitleGap: 8,
-            leading: SizedBox(
-              width: 42,
-              height: 42,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: Colors.red),
-              ),
-            ),
-            trailing: Padding(
-              padding: EdgeInsets.all(13),
-              child: SizedBox(
-                width: 22,
-                height: 22,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(color: Colors.white),
+      child: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(
+            child: SizedBox(
+              height: 48,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 80,
+                      height: 20,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(color: Colors.white),
+                      ),
+                    ),
+                    Spacer(),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                      child: SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            title: FractionallySizedBox(
-              alignment: Alignment.bottomLeft,
-              widthFactor: 0.7,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: Colors.white),
-                child: Text(' '),
-              ),
+          ),
+          SliverList.separated(
+            separatorBuilder: (context, index) => const Divider(
+              height: 0,
+              indent: 18,
+              endIndent: 18,
             ),
-            dense: true,
-            subtitle: FractionallySizedBox(
-              alignment: Alignment.bottomLeft,
-              widthFactor: 0.42,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: Colors.white),
-                child: Text(' '),
-              ),
-            ),
-          );
-        },
+            itemCount: 20,
+            itemBuilder: (context, index) {
+              return const ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 14),
+                horizontalTitleGap: 8,
+                leading: SizedBox(
+                  width: 42,
+                  height: 42,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: Colors.red),
+                  ),
+                ),
+                trailing: Padding(
+                  padding: EdgeInsets.all(13),
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Colors.white),
+                    ),
+                  ),
+                ),
+                title: FractionallySizedBox(
+                  alignment: Alignment.bottomLeft,
+                  widthFactor: 0.7,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Text(' '),
+                  ),
+                ),
+                dense: true,
+                subtitle: FractionallySizedBox(
+                  alignment: Alignment.bottomLeft,
+                  widthFactor: 0.42,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Text(' '),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -362,16 +398,16 @@ class _FileListState extends ConsumerState<_FileList> {
           // header: const WaterDropMaterialHeader(),
           header: ClassicHeader(
             textStyle: TextStyle(color: themeData.colorScheme.onBackground),
-            idleIcon: Icon(
-              Icons.arrow_upward,
-              color: themeData.colorScheme.onBackground,
-            ),
+            // idleIcon: Icon(
+            //   Icons.arrow_upward,
+            //   color: themeData.colorScheme.onBackground,
+            // ),
             completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
             releaseIcon: Icon(
               Icons.refresh,
               color: themeData.colorScheme.onBackground,
             ),
-            idleText: tr('components.pull_to_refresh.pull_up_idle'),
+            // idleText: tr('components.pull_to_refresh.pull_up_idle'),
           ),
           controller: _refreshController,
           onRefresh: () {
@@ -385,25 +421,55 @@ class _FileListState extends ConsumerState<_FileList> {
               },
             );
           },
-          child: ListView.separated(
+          child: CustomScrollView(
             key: PageStorageKey('${widget.filePath}:${data.sortConfiguration.mode}:${data.sortConfiguration.kind}'),
-            separatorBuilder: (context, index) => const Divider(
-              height: 0,
-              indent: 18,
-              endIndent: 18,
-            ),
-            itemCount: content.length,
-            itemBuilder: (context, index) {
-              final file = content[index];
-              return _FileItem(
-                key: ValueKey(file),
-                machineUUID: widget.machineUUID,
-                file: file,
-                dateFormat: dateFormat,
-                sortMode: data.sortConfiguration.mode,
-              );
-            },
+            slivers: [
+              AdaptiveHeightSliverPersistentHeader(
+                floating: true,
+                initialHeight: 48,
+                needRepaint: true,
+                child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
+              ),
+              SliverList.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  height: 0,
+                  indent: 18,
+                  endIndent: 18,
+                ),
+                itemCount: content.length,
+                itemBuilder: (context, index) {
+                  final file = content[index];
+                  return _FileItem(
+                    key: ValueKey(file),
+                    machineUUID: widget.machineUUID,
+                    file: file,
+                    dateFormat: dateFormat,
+                    sortMode: data.sortConfiguration.mode,
+                  );
+                },
+              ),
+            ],
           ),
+
+          // ListView.separated(
+          //   key: PageStorageKey('${widget.filePath}:${data.sortConfiguration.mode}:${data.sortConfiguration.kind}'),
+          //   separatorBuilder: (context, index) => const Divider(
+          //     height: 0,
+          //     indent: 18,
+          //     endIndent: 18,
+          //   ),
+          //   itemCount: content.length,
+          //   itemBuilder: (context, index) {
+          //     final file = content[index];
+          //     return _FileItem(
+          //       key: ValueKey(file),
+          //       machineUUID: widget.machineUUID,
+          //       file: file,
+          //       dateFormat: dateFormat,
+          //       sortMode: data.sortConfiguration.mode,
+          //     );
+          //   },
+          // ),
         );
       },
     );
