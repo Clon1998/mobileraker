@@ -5,6 +5,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../util/logger.dart';
+
 class AdaptiveDraggableScrollableSheet extends StatefulWidget {
   const AdaptiveDraggableScrollableSheet({
     super.key,
@@ -46,7 +48,7 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
       // 2. paddingOf.bottom -> SafeArea padding, which is the padding of the bottom
       // 3. viewInsets.bottom, which is the height of the keyboard -> IF keyboard open, it should extend the sheet if needed
       // We clmap the value between min and max child size
-      // logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
+      logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
 
       maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) / sizeOf.height)
           .clamp(widget.minChildSize, widget.maxChildSize);
@@ -74,7 +76,7 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
       setState(() {
         _bodyHeight = renderObject.size.height;
       });
-      // logger.i('Body height: $_bodyHeight');
+      logger.i('Body height: $_bodyHeight');
     }
   }
 }

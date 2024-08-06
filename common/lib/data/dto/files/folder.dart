@@ -17,9 +17,7 @@ part 'folder.g.dart';
 class Folder with _$Folder, RemoteFile {
   const Folder._();
 
-  @JsonSerializable(
-    fieldRename: FieldRename.snake,
-  )
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory Folder({
     required String parentPath,
     required double modified,

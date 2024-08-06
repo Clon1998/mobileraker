@@ -63,6 +63,7 @@ class _Entry extends StatelessWidget {
       padding: themeData.useMaterial3 ? const EdgeInsets.only(right: 8.0) : EdgeInsets.zero,
       child: ListTile(
         leading: ico,
+        visualDensity: VisualDensity.compact,
         horizontalTitleGap: 0,
         title: Text(mode.translation).tr(),
         selectedTileColor: themeData.colorScheme.secondaryFixed.withOpacity(0.9),

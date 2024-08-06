@@ -8,6 +8,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
@@ -33,6 +34,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   dashboardCards,
   dashobardLayout,
   sortMode,
+  actions,
   ;
 }
 
@@ -69,6 +71,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
           _ => throw ArgumentError('Invalid data type for ProSheetType.dashobardLayout: $data'),
         },
     SheetType.sortMode: (ctx, data) => SortModeBottomSheet(arguments: data as SortModeSheetArgs),
+    SheetType.actions: (ctx, data) => ActionBottomSheet(arguments: data as ActionBottomSheetArgs),
   };
 
   @override
@@ -78,7 +81,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
     var result = await showModalBottomSheet<BottomSheetResult>(
       context: ctx!,
       builder: (ctx) => availableSheets[config.type]!(ctx, config.data),
-      clipBehavior: Theme.of(ctx).bottomSheetTheme.shape != null ? Clip.antiAlias : Clip.none,
+      clipBehavior: Clip.antiAlias,
       isScrollControlled: config.isScrollControlled,
       useSafeArea: true,
     );

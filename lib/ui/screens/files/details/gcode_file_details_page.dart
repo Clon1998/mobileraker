@@ -21,9 +21,9 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/warning_card.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -528,7 +528,7 @@ class _PreHeatBtn extends ConsumerWidget {
 
     return IconButton(
       onPressed: canPreheat ? controller.onPreHeatPrinterTap : null,
-      icon: const Icon(FlutterIcons.fire_alt_faw5s),
+      icon: const Icon(MobilerakerIcons.nozzle_heat),
       tooltip: 'pages.files.details.preheat'.tr(),
     );
   }

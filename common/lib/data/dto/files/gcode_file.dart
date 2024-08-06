@@ -69,9 +69,7 @@ class GCodeFile with _$GCodeFile, RemoteFile {
 
   const GCodeFile._();
 
-  @JsonSerializable(
-    fieldRename: FieldRename.snake,
-  )
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory GCodeFile({
     @JsonKey(name: 'filename') required String name,
     required String parentPath,

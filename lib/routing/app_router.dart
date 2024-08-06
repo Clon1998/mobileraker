@@ -46,6 +46,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
+import '../ui/screens/files/file_manager_move_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
@@ -78,6 +79,7 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager,
   fileManager_explorer,
   fileManager_exlorer_search,
+  fileManager_exlorer_move,
   fileManager_exlorer_gcodeDetail,
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
@@ -171,7 +173,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: ':path',
             name: AppRoute.fileManager_explorer.name,
             builder: (context, state) => FileManagerPage(filePath: state.pathParameters['path']!),
-            // pageBuilder: GoTransitions.theme.build(
+            // pageBuilder: GoTransitions.theme.withSlide.build()
             //   settings: GoTransitionSettings(
             //     duration: const Duration(milliseconds: 3000),
             //     reverseDuration: const Duration(milliseconds: 3000),
@@ -183,6 +185,13 @@ GoRouter goRouterImpl(GoRouterRef ref) {
                 name: AppRoute.fileManager_exlorer_search.name,
                 builder: (context, state) => FileManagerSearchPage(
                     machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+              GoRoute(
+                path: 'move',
+                name: AppRoute.fileManager_exlorer_move.name,
+                builder: (context, state) => FileManagerMovePage(
+                    machineUUID: state.uri.queryParameters['machineUUID']!, filePath: state.pathParameters['path']!),
                 pageBuilder: GoTransitions.fullscreenDialog,
               ),
               GoRoute(

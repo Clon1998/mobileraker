@@ -137,6 +137,7 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #ui
+  gap: ^3.0.1
   persistent_header_adaptive: ^2.1.0
   extended_wrap: ^0.1.5
   overflow_view: ^0.3.1

@@ -7,9 +7,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/enums/file_action_sheet_action_enum.dart';
+import 'package:common/data/enums/gcode_file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -17,11 +22,15 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
@@ -41,17 +50,22 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
+import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:stringr/stringr.dart';
 
 import '../../../routing/app_router.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../../service/ui/dialog_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
 import '../../components/connection/machine_connection_guard.dart';
 import '../../components/dialog/text_input/text_input_dialog.dart';
+import 'components/remote_file_icon.dart';
+import 'components/sorted_file_list_header.dart';
 
 part 'file_manager_page.freezed.dart';
 part 'file_manager_page.g.dart';
@@ -82,31 +96,44 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final title = filePath.split('/').last;
+    final split = filePath.split('/');
+    final isRoot = split.length == 1;
+    final title = split.last;
     final selMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final themeData = Theme.of(context);
+
+    final actions = [
+      if (selMachine != null)
+        Consumer(builder: (context, ref, _) {
+          final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+          final enabled = ref
+                  .watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath)
+                      .selectAs((data) => data.folderContent.isNotEmpty))
+                  .whenOrNull(
+                    skipLoadingOnRefresh: true,
+                    skipLoadingOnReload: true,
+                    data: (d) => d,
+                  ) ??
+              false;
+
+          return IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: controller.onSearch.only(enabled),
+          );
+        }),
+    ];
+
+    if (isRoot) {
+      return SwitchPrinterAppBar(
+        centerTitle: themeData.platform == TargetPlatform.iOS || themeData.platform == TargetPlatform.macOS,
+        title: title.capitalize(),
+        actions: actions,
+      );
+    }
 
     return AppBar(
       title: Text(title.capitalize()),
-      actions: [
-        if (selMachine != null)
-          Consumer(builder: (context, ref, _) {
-            final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
-            final enabled = ref
-                    .watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath)
-                        .selectAs((data) => data.folderContent.isNotEmpty))
-                    .whenOrNull(
-                      skipLoadingOnRefresh: true,
-                      skipLoadingOnReload: true,
-                      data: (d) => d,
-                    ) ??
-                false;
-
-            return IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: controller.onSearch.only(enabled),
-            );
-          }),
-      ],
+      actions: actions,
     );
   }
 
@@ -209,38 +236,16 @@ class _Header extends ConsumerWidget {
         .watch(_modernFileManagerControllerProvider(machineUUID, filePath).selectAs((data) => data.sortConfiguration))
         .valueOrNull;
 
-    final labelText = sortCfg != null ? tr(sortCfg.mode.translation) : tr('pages.files.sort_by');
-
     final themeData = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(color: themeData.colorScheme.surface),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            TextButton.icon(
-              onPressed: controller.onSortMode.only(sortCfg != null),
-              label: Text(labelText, style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13)),
-              icon: AnimatedRotation(
-                duration: kThemeAnimationDuration,
-                curve: Curves.easeInOut,
-                turns: sortCfg?.kind == SortKind.ascending ? 0 : 0.5,
-                child: Icon(Icons.arrow_upward, size: 16, color: themeData.textTheme.bodySmall?.color),
-              ),
-              iconAlignment: IconAlignment.end,
-            ),
-            // Icon(Icons.arrow_upward, size: 17, color: themeData.textTheme.bodySmall?.color),
-            // const _Search(),
-            const Spacer(),
 
-            IconButton(
-              padding: const EdgeInsets.only(right: 12),
-              // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-              onPressed: controller.onCreateFolder.only(sortCfg != null),
-              icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
-            ),
-          ],
-        ),
+    return SortedFileListHeader(
+      activeSortConfig: sortCfg,
+      onTapSortMode: controller.onSortMode.only(sortCfg != null),
+      trailing: IconButton(
+        padding: const EdgeInsets.only(right: 12),
+        // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
+        onPressed: controller.onCreateFolder.only(sortCfg != null),
+        icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
       ),
     );
   }
@@ -512,9 +517,7 @@ class _FileItem extends ConsumerWidget {
         subtitle: subtitle,
         trailing: IconButton(
           icon: const Icon(Icons.more_horiz, size: 22),
-          onPressed: () {
-            //TODO
-          },
+          onPressed: () => controller.onClickFileAction(file),
         ),
         onTap: () => controller.onClickFile(file));
   }
@@ -553,9 +556,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
+
   SettingService get _settingService => ref.read(settingServiceProvider);
 
   FileService get _fileService => ref.read(fileServiceProvider(machineUUID));
+
+  JobQueueService get _jobQueueService => ref.read(jobQueueServiceProvider(machineUUID));
+
+  PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   // ignore: avoid-unsafe-collection-methods
   String get _root => filePath.split('/').first;
@@ -615,6 +624,89 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
+  void onClickFileAction(RemoteFile file) async {
+    final klippyReady = ref.read(klipperProvider(machineUUID)).valueOrNull?.klippyCanReceiveCommands == true;
+    final canStartPrint = ref
+        .read(printerProvider(machineUUID))
+        .valueOrNull
+        // .also((d) => logger.w('State: ${d?.print.state}'))
+        .let((d) => d != null && (d.print.state != PrintState.printing && d.print.state != PrintState.paused));
+
+    // logger.w('Klipper ready: $klippyReady, can start print: $canStartPrint');
+
+    final arg = ActionBottomSheetArgs(
+      title: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: file.fileExtension?.let((ext) => Text(ext.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis)),
+      leading: SizedBox.square(
+        dimension: 33,
+        child: RemoteFileIcon(
+          machineUUID: machineUUID,
+          file: file,
+          alignment: Alignment.centerLeft,
+          imageBuilder: (BuildContext context, ImageProvider imageProvider) {
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(7)),
+                image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+              ),
+            );
+          },
+        ),
+      ),
+      actions: [
+        if (file case GCodeFile()) ...[
+          GcodeFileSheetAction.submitPrintJob.let((t) => canStartPrint && klippyReady ? t : t.disable),
+          GcodeFileSheetAction.preheat
+              .let((t) => file.firstLayerTempBed != null && canStartPrint && klippyReady ? t : t.disable),
+          GcodeFileSheetAction.addToQueue,
+          DividerSheetAction.divider,
+        ],
+        if (file is! Folder) ...[
+          FileSheetAction.download,
+          DividerSheetAction.divider,
+        ],
+        FileSheetAction.rename,
+        FileSheetAction.move,
+        FileSheetAction.delete,
+      ],
+    );
+
+    final resp =
+        await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
+    if (resp.confirmed) {
+      logger.i('[ModernFileManagerController] action confirmed: ${resp.data}');
+
+      // Wait for the bottom sheet to close
+      await Future.delayed(kThemeAnimationDuration);
+
+      switch (resp.data) {
+        case FileSheetAction.delete:
+          _deleteFileAction(file);
+          break;
+        case FileSheetAction.rename:
+          _renameFileAction(file);
+          break;
+        case GcodeFileSheetAction.addToQueue:
+          _addToQueueAction(file as GCodeFile);
+          break;
+        case GcodeFileSheetAction.preheat when file is GCodeFile:
+          _preheatAction(file);
+          break;
+        case GcodeFileSheetAction.submitPrintJob when file is GCodeFile:
+          _submitJobAction(file);
+          break;
+        case FileSheetAction.download:
+          _downloadFileAction(file);
+          break;
+        case FileSheetAction.move:
+          _moveAction(file);
+          break;
+        default:
+          logger.w('Action not implemented: $resp');
+      }
+    }
+  }
+
   void onBottomItemTapped(int index) {
     logger.i('[ModernFileManagerController] bottom nav item tapped: $index');
 
@@ -633,7 +725,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   void onCreateFolder() async {
     logger.i('[ModernFileManagerController] creating folder');
 
-    final usedNames = state.requireValue.folderContent.unwrapped.map((e) => e.name).toList();
+    final usedNames = state.requireValue.folderContent.folderFileNames;
 
     var dialogResponse = await _dialogService.show(
       DialogRequest(
@@ -664,11 +756,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       try {
         final res = await _fileService.createDir('$filePath/$newName');
         final folder = Folder.fromFileItem(res.item);
-        state = state.whenData((data) {
-          final updatedFolders = [...data.folderContent.folders, folder].sorted(data.sortConfiguration.comparator);
-
-          return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
-        });
+        _insertFolder(folder);
       } on JRpcError {
         // _snackBarService.showCustomSnackBar(
         //     variant: SnackbarType.error,
@@ -711,6 +799,262 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   Future<void> refreshApiResponse() async {
     logger.i('[ModernFileManagerController] refreshing api response');
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
+  }
+
+  //////////////////// STATE-CHANGING METHODS ////////////////////
+  // These methods are used to change the state of the controller
+  // and trigger a rebuild of the UI.
+  // They are called by the actions and should not be called directly.
+  //////////////////// STATE-CHANGING METHODS ////////////////////
+
+  void _insertFolder(Folder folder) {
+    state = state.whenData((data) {
+      final updatedFolders = [...data.folderContent.folders, folder].sorted(data.sortConfiguration.comparator);
+
+      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
+    });
+  }
+
+  void _insertFile(RemoteFile file) {
+    state = state.whenData((data) {
+      final updatedFiles = [...data.folderContent.files, file].sorted(data.sortConfiguration.comparator);
+
+      return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
+    });
+  }
+
+  void _removeFolder(Folder folder) {
+    state = state.whenData((data) {
+      final updatedFolders = data.folderContent.folders.where((e) => e != folder).toList();
+
+      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
+    });
+  }
+
+  void _removeFile(RemoteFile file) {
+    state = state.whenData((data) {
+      final updatedFiles = data.folderContent.files.where((e) => e != file).toList();
+
+      return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
+    });
+  }
+
+  void _replaceFile(RemoteFile oldFile, RemoteFile newFile) {
+    logger.i('Replacing file $oldFile with $newFile');
+    state = state.whenData((data) {
+      final updatedFiles =
+          data.folderContent.files.map((e) => e == oldFile ? newFile : e).sorted(data.sortConfiguration.comparator);
+
+      return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
+    });
+  }
+
+  void _replaceFolder(Folder oldFolder, Folder newFolder) {
+    state = state.whenData((data) {
+      final updatedFolders = data.folderContent.folders
+          .map((e) => e == oldFolder ? newFolder : e)
+          .sorted(data.sortConfiguration.comparator);
+
+      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
+    });
+  }
+
+  //////////////////// ACTIONS ////////////////////
+  Future<void> _deleteFileAction(RemoteFile file) async {
+    var dialogResponse = await _dialogService.showConfirm(
+      title: tr('dialogs.delete_folder.title'),
+      body: tr(
+        file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
+        args: [file.name],
+      ),
+      actionLabel: tr('general.delete'),
+    );
+
+    if (dialogResponse?.confirmed == true) {
+      // state = FilePageState.loading(state.path);
+
+      try {
+        if (file is Folder) {
+          await _fileService.deleteDirForced('$filePath/${file.name}');
+          _removeFolder(file);
+        } else {
+          await _fileService.deleteFile('$filePath/${file.name}');
+          _removeFile(file);
+        }
+      } on JRpcError catch (e) {
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          message: 'Could not delete File.\n${e.message}',
+        ));
+      }
+    }
+  }
+
+  Future<void> _renameFileAction(RemoteFile file) async {
+    var fileNames = state.requireValue.folderContent.folderFileNames;
+    fileNames.remove(file.name);
+
+    var dialogResponse = await _dialogService.show(
+      DialogRequest(
+        type: DialogType.textInput,
+        title: file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
+        actionLabel: tr('general.rename'),
+        data: TextInputDialogArguments(
+          initialValue: file.fileName,
+          labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
+          suffixText: file.fileExtension,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.match(
+              '^[\\w.-]+\$',
+              errorText: tr('pages.files.no_matches_file_pattern'),
+            ),
+            notContains(
+              fileNames,
+              errorText: tr('pages.files.file_name_in_use'),
+            ),
+          ]),
+        ),
+      ),
+    );
+
+    if (dialogResponse?.confirmed == true) {
+      String newName = dialogResponse!.data;
+      if (file.fileExtension != null) newName = '$newName.${file.fileExtension!}';
+      if (newName == file.name) return;
+      // state = state.copyWith(files: state.files.toLoading());
+
+      try {
+        await _fileService.moveFile(
+          '$filePath/${file.name}',
+          '$filePath/$newName',
+        );
+
+        final replacement = switch (file) {
+          Folder() => file.copyWith(name: newName),
+          GCodeFile() => (file).copyWith(name: newName),
+          GenericFile() => file.copyWith(name: newName),
+          _ => throw UnimplementedError("Not implemented for ${file.runtimeType}"),
+        };
+
+        if (file is Folder) {
+          _replaceFolder(file, replacement as Folder);
+        } else {
+          _replaceFile(file, replacement);
+        }
+      } on JRpcError catch (e) {
+        logger.e('Could not perform rename.', e);
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          message: 'Could not rename File.\n${e.message}',
+        ));
+      }
+    }
+  }
+
+  Future<void> _addToQueueAction(GCodeFile file) async {
+    final isSup = await ref.read(isSupporterAsyncProvider.future);
+    if (!isSup) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.job_queue'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+
+    try {
+      await _jobQueueService.enqueueJob(file.pathForPrint);
+    } on JRpcError catch (e) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        message: 'Could not add File to Queue.\n${e.message}',
+      ));
+    }
+  }
+
+  Future<void> _preheatAction(GCodeFile file) async {
+    final tempArgs = [
+      '170',
+      file.firstLayerTempBed?.toStringAsFixed(0) ?? '60',
+    ];
+    final resp = await _dialogService.showConfirm(
+      title: 'pages.files.details.preheat_dialog.title'.tr(),
+      body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
+      actionLabel: 'pages.files.details.preheat'.tr(),
+    );
+    if (resp?.confirmed != true) return;
+    _printerService.setHeaterTemperature('extruder', 170);
+    if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ?? false) {
+      _printerService.setHeaterTemperature(
+        'heater_bed',
+        (file.firstLayerTempBed ?? 60.0).toInt(),
+      );
+    }
+    _snackBarService.show(SnackBarConfig(
+      title: tr('pages.files.details.preheat_snackbar.title'),
+      message: tr(
+        'pages.files.details.preheat_snackbar.body',
+        args: tempArgs,
+      ),
+    ));
+  }
+
+  Future<void> _submitJobAction(GCodeFile file) async {
+    await _printerService.startPrintFile(file);
+    _goRouter.goNamed(AppRoute.dashBoard.name);
+  }
+
+  Future<void> _downloadFileAction(RemoteFile file) async {
+    if (file case Folder()) {
+      //TODO: ZIP the folder first automatically!
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: 'Error',
+        message: 'Cannot share folders. Please ZIP the folder first.',
+      ));
+      return;
+    }
+    // await _printerService.startPrintFile(file);
+    // _goRouter.goNamed(AppRoute.dashBoard.name);
+
+    try {
+      var result = await _fileService.downloadFile(filePath: file.absolutPath).last;
+      var downloadFile = result as FileDownloadComplete;
+
+      String mimeType = switch (file.fileExtension) {
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'jpg' || 'jpeg' => 'image/jpeg',
+        'mp4' => 'video/mp4',
+        _ => 'text/plain',
+      };
+
+      // final box = ctx.findRenderObject() as RenderBox?;
+      // final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+      Share.shareXFiles(
+        [XFile(downloadFile.file.path, mimeType: mimeType)],
+        subject: file.name,
+        // sharePositionOrigin: pos,
+      ).ignore();
+    } catch (e) {
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.error,
+            title: 'Error while downloading file for sharing.',
+            message: e.toString(),
+          ));
+    } finally {}
+  }
+
+  Future<void> _moveAction(RemoteFile file) async {
+    // await _printerService.startPrintFile(file);
+    _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_move.name,
+      pathParameters: {'path': filePath.split('/').first},
+      queryParameters: {'machineUUID': machineUUID},
+    );
   }
 }
 

@@ -54,15 +54,23 @@ class FolderContentWrapper with _$FolderContentWrapper {
     @Default([]) List<RemoteFile> files,
   ]) = _FolderContentWrapper;
 
+  /// Returns if the folder has no content
   bool get isEmpty => folders.isEmpty && files.isEmpty;
 
+  /// Returns if the folder has any content
   bool get isNotEmpty => !isEmpty;
 
+  /// Returns if the folder has any content
   bool get hasContent => folders.isNotEmpty || files.isNotEmpty;
 
+  /// Returns the total amount of items in the folder
   int get totalItems => folders.length + files.length;
 
+  /// Returns a list of all files and folders in the folder
   List<RemoteFile> get unwrapped => [...folders, ...files];
+
+  /// Returns a list of all file names in the folder. Including folders and files
+  List<String> get folderFileNames => unwrapped.map((e) => e.name).toList();
 }
 
 @riverpod
