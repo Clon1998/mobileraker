@@ -11,6 +11,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -191,8 +192,18 @@ GoRouter goRouterImpl(GoRouterRef ref) {
                 path: 'move',
                 name: AppRoute.fileManager_exlorer_move.name,
                 builder: (context, state) => FileManagerMovePage(
-                    machineUUID: state.uri.queryParameters['machineUUID']!, filePath: state.pathParameters['path']!),
-                pageBuilder: GoTransitions.fullscreenDialog,
+                    machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
+                pageBuilder: (context, state) {
+                  final path = state.pathParameters['path'] as String;
+                  final parts = path.split('/');
+
+                  if (parts.length > 1) {
+                    logger.w('MOVING OUTSIDE!!!');
+                    return GoTransitions.cupertino(context, state);
+                  }
+
+                  return GoTransitions.fullscreenDialog(context, state);
+                },
               ),
               GoRoute(
                 path: 'gcode-details',

@@ -10,6 +10,7 @@ import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -31,7 +32,9 @@ import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.da
 import 'package:mobileraker/ui/screens/files/components/sorted_file_list_header.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:stringr/stringr.dart';
 
+import '../../../routing/app_router.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../../service/ui/dialog_service_impl.dart';
 import '../../components/bottomsheet/sort_mode_bottom_sheet.dart';
@@ -41,10 +44,10 @@ part 'file_manager_move_page.freezed.dart';
 part 'file_manager_move_page.g.dart';
 
 class FileManagerMovePage extends HookWidget {
-  const FileManagerMovePage({super.key, required this.machineUUID, required this.filePath});
+  const FileManagerMovePage({super.key, required this.machineUUID, required this.path});
 
   final String machineUUID;
-  final String filePath;
+  final String path;
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +59,9 @@ class FileManagerMovePage extends HookWidget {
         //   icon: Icon(Icons.arrow_back),
         //   onPressed: context.pop,
         // ),
-        title: Text('Move file: $filePath'),
+        title: Text(path.split('/').last.capitalize()),
       ),
-      body: SafeArea(child: _Body(machineUUID: machineUUID, root: filePath)),
+      body: SafeArea(child: _Body(machineUUID: machineUUID, root: path)),
     );
   }
 }
@@ -78,10 +81,12 @@ class _Body extends HookConsumerWidget {
       }
     });
 
+    final controller = ref.watch(_fileManagerMovePageControllerProvider(machineUUID, root).notifier);
+
     return Column(
       children: [
         Expanded(child: _FolderList(machineUUID: machineUUID, root: root)),
-        const _Footer(),
+        _Footer(onMoveHere: controller.onMoveHere),
       ],
     );
   }
@@ -148,6 +153,7 @@ class _FolderList extends ConsumerWidget {
                   key: ValueKey(folder),
                   machineUUID: machineUUID,
                   subtitle: subtitle,
+                  onTap: () => controller.onTapFolder(folder),
                   file: folder,
                   useHero: false,
                 );
@@ -161,7 +167,9 @@ class _FolderList extends ConsumerWidget {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({super.key});
+  const _Footer({super.key, required this.onMoveHere});
+
+  final VoidCallback? onMoveHere;
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +179,7 @@ class _Footer extends StatelessWidget {
       children: [
         TextButton(onPressed: () => context.pop(), child: Text(MaterialLocalizations.of(context).cancelButtonLabel)),
         const Gap(16),
-        TextButton(onPressed: () => null, child: const Text('Move here')),
+        TextButton(onPressed: onMoveHere, child: const Text('Move here')),
         const Gap(16),
       ],
     );
@@ -180,6 +188,8 @@ class _Footer extends StatelessWidget {
 
 @riverpod
 class _FileManagerMovePageController extends _$FileManagerMovePageController {
+  GoRouter get _goRouter => ref.read(goRouterProvider);
+
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   FileService get _fileService => ref.read(fileServiceProvider(machineUUID));
@@ -187,12 +197,12 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
   @override
-  FutureOr<_Model> build(String machineUUID, String root) async {
+  FutureOr<_Model> build(String machineUUID, String filePath) async {
     final sortConfiguration = state.whenOrNull(
           data: (data) => data.sortConfig,
         ) ??
         const SortConfiguration(SortMode.name, SortKind.ascending);
-    final apiResp = await ref.watch(moonrakerFolderContentProvider(machineUUID, root, sortConfiguration).future);
+    final apiResp = await ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration).future);
 
     return _Model(folderContent: apiResp, sortConfig: sortConfiguration);
   }
@@ -214,6 +224,16 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
       state = state.whenData((data) => data.copyWith(sortConfig: res.data));
       ref.invalidateSelf();
     }
+  }
+
+  Future<void> onTapFolder(Folder folder) async {
+    final res = await _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_move.name,
+      pathParameters: {'path': folder.absolutPath},
+      queryParameters: {'machineUUID': machineUUID},
+    );
+    if (res == null) return;
+    _goRouter.pop(res);
   }
 
   void onCreateFolder() async {
@@ -248,7 +268,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
       String newName = dialogResponse!.data;
 
       try {
-        final res = await _fileService.createDir('$root/$newName');
+        final res = await _fileService.createDir('$filePath/$newName');
         final folder = Folder.fromFileItem(res.item);
         _insertFolder(folder);
       } on JRpcError {
@@ -259,6 +279,10 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
         //     message: 'Could not create folder!\n${e.message}');
       }
     }
+  }
+
+  void onMoveHere() {
+    _goRouter.pop(filePath);
   }
 
   void _insertFolder(Folder folder) {

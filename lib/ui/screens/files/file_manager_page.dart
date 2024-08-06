@@ -833,7 +833,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   void _removeFile(RemoteFile file) {
     state = state.whenData((data) {
-      final updatedFiles = data.folderContent.files.where((e) => e != file).toList();
+      final updatedFiles = data.folderContent.files.where((e) {
+        if (e == file) logger.wtf('FOUND FILE TO DELETE: $e');
+        return e != file;
+      }).toList();
 
       return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
     });
@@ -875,10 +878,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
       try {
         if (file is Folder) {
-          await _fileService.deleteDirForced('$filePath/${file.name}');
+          await _fileService.deleteDirForced(file.absolutPath);
           _removeFolder(file);
         } else {
-          await _fileService.deleteFile('$filePath/${file.name}');
+          await _fileService.deleteFile(file.absolutPath);
           _removeFile(file);
         }
       } on JRpcError catch (e) {
@@ -926,8 +929,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
       try {
         await _fileService.moveFile(
-          '$filePath/${file.name}',
-          '$filePath/$newName',
+          file.absolutPath,
+          '${file.parentPath}/$newName',
         );
 
         final replacement = switch (file) {
@@ -1050,11 +1053,22 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   Future<void> _moveAction(RemoteFile file) async {
     // await _printerService.startPrintFile(file);
-    _goRouter.pushNamed(
+    final res = await _goRouter.pushNamed(
       AppRoute.fileManager_exlorer_move.name,
       pathParameters: {'path': filePath.split('/').first},
       queryParameters: {'machineUUID': machineUUID},
     );
+
+    if (res case String()) {
+      if (file.parentPath == res) return;
+      logger.i('[ModernFileManagerController] moving file ${file.name} to $res');
+      await _fileService.moveFile(file.absolutPath, res);
+      if (file is Folder) {
+        _removeFolder(file);
+      } else {
+        _removeFile(file);
+      }
+    }
   }
 }
 
