@@ -20,7 +20,8 @@ class SortedFileListHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final labelText = activeSortConfig != null ? tr(activeSortConfig!.mode.translation) : tr('pages.files.sort_by');
+    final labelText =
+        activeSortConfig != null ? tr(activeSortConfig!.mode.translation) : tr('pages.files.sort_by.sort_by');
 
     final themeData = Theme.of(context);
     return DecoratedBox(

@@ -76,7 +76,7 @@ class _Body extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState) {
+      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
         context.pop();
         logger.i('Closing search screen due to client state change');
       }
@@ -128,8 +128,8 @@ class _FolderList extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('This folder is empty', style: themeData.textTheme.titleMedium),
-                Text('No files found', style: themeData.textTheme.bodySmall),
+                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
               ],
             ),
           );
@@ -162,7 +162,9 @@ class _FolderList extends ConsumerWidget {
                 Widget subtitle = switch (data.sortConfig.mode) {
                   SortMode.size => Text(numberFormat.formatFileSize(folder.size)),
                   SortMode.lastModified => Text(folder.modifiedDate?.let(dateFormat.format) ?? '--'),
-                  _ => Text('@:pages.files.last_mod: ${folder.modifiedDate?.let(dateFormat.format) ?? '--'}').tr(),
+                  _ =>
+                    Text('@:pages.files.sort_by.last_modified: ${folder.modifiedDate?.let(dateFormat.format) ?? '--'}')
+                        .tr(),
                 };
 
                 return RemoteFileListTile(
@@ -193,9 +195,9 @@ class _Footer extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        TextButton(onPressed: () => context.pop(), child: Text(MaterialLocalizations.of(context).cancelButtonLabel)),
+        TextButton(onPressed: () => context.pop(), child: const Text('general.cancel').tr()),
         const Gap(16),
-        TextButton(onPressed: onMoveHere, child: const Text('Move here')),
+        TextButton(onPressed: onMoveHere, child: const Text('pages.files.move_here').tr()),
         const Gap(16),
       ],
     );

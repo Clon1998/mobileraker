@@ -31,7 +31,7 @@ class SortModeBottomSheet extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Text('pages.files.sort_by', style: themeData.textTheme.bodyLarge).tr(),
+              child: Text('pages.files.sort_by.sort_by', style: themeData.textTheme.bodyLarge).tr(),
             ),
             const Divider(),
             for (final entry in arguments.toShow)

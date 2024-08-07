@@ -54,8 +54,8 @@ class FileManagerSearchPage extends HookWidget {
               duration: kThemeAnimationDuration,
               child: value.text.isNotEmpty
                   ? IconButton(
-                      tooltip: tr('pages.files.clear_search'),
-                      icon: Icon(Icons.search_off),
+                      tooltip: tr('pages.files.search.clear_search'),
+                      icon: const Icon(Icons.search_off),
                       onPressed: textController.clear,
                     )
                   : const SizedBox.shrink(),
@@ -68,7 +68,7 @@ class FileManagerSearchPage extends HookWidget {
           cursorColor: onBackground,
           style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
           decoration: InputDecoration(
-            hintText: '${tr('pages.files.search_files')}...',
+            hintText: tr('@:pages.files.search_files…'),
             hintStyle: themeData.textTheme.titleLarge?.copyWith(color: onBackground.withOpacity(0.4)),
             border: InputBorder.none,
           ),
@@ -89,7 +89,7 @@ class _Body extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState) {
+      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
         context.pop();
         logger.i('Closing search screen due to client state change');
       }
@@ -112,7 +112,7 @@ class _Body extends HookConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text('Waiting to search!', style: themeData.textTheme.titleMedium),
+            Text('pages.files.search.waiting', style: themeData.textTheme.titleMedium).tr(),
           ],
         ),
       );
@@ -131,7 +131,6 @@ class _SearchResults extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.e('searchTerm: $searchTerm');
     final apiData = ref.watch(fileApiResponseProvider(machineUUID, path));
     final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
 
@@ -154,8 +153,8 @@ class _SearchResults extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('No files found', style: themeData.textTheme.titleMedium),
-                Text('Try a different search term', style: themeData.textTheme.bodySmall),
+                Text('pages.files.search.no_results.title', style: themeData.textTheme.titleMedium).tr(),
+                Text('pages.files.search.no_results.subtitle', style: themeData.textTheme.bodySmall).tr(),
               ],
             ),
           );
@@ -163,7 +162,7 @@ class _SearchResults extends ConsumerWidget {
 
         return Column(
           children: [
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
                 itemCount: combined.length,
@@ -175,7 +174,9 @@ class _SearchResults extends ConsumerWidget {
                     file: file,
                     onTap: () => _onTap(context, file),
                     useHero: false,
-                    subtitle: Text('@:pages.files.last_mod: ${file.modifiedDate?.let(dateFormat.format) ?? '--'}').tr(),
+                    subtitle: Text(
+                            '@:pages.files.sort_by.last_modified: ${file.modifiedDate?.let(dateFormat.format) ?? '--'}')
+                        .tr(),
                   );
                 },
               ),

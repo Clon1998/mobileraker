@@ -257,18 +257,28 @@
     },
     "files": {
       "title": "Dateien",
-      "search_files": "Dateien durchsuchen",
-      "clear_search": "Suche löschen",
-      "sort_by": "Sortieren nach",
-      "name": "Name",
-      "last_mod": "Zuletzt bearbeitet",
-      "last_printed": "Zuletzt gedruckt",
-      "not_printed": "Nicht gedruckt",
-      "file_size": "Dateigröße",
-
-      "no_files_found": "Keine Datei gefunden!",
+      "empty_folder": {
+        "title": "Dieser Ordner ist leer",
+        "subtitle": "Keine Dateien gefunden"
+      },
+      "sort_by": {
+        "sort_by": "Sortieren nach",
+        "name": "Name",
+        "last_modified": "Zuletzt bearbeitet",
+        "last_printed": "Zuletzt gedruckt",
+        "file_size": "Dateigröße"
+      },
+      "search_files": "Im Ordner suchen",
+      "search": {
+        "clear_search": "Suche löschen",
+        "waiting": "Warten auf Suche!",
+        "no_results": {
+          "title": "Keine Dateien gefunden",
+          "subtitle": "Versuchen Sie einen anderen Suchbegriff"
+        }
+      },
+      "move_here": "Hierhin verschieben",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",
-      "file_name_in_use": "Der Dateiname wird bereits verwendet!",
       "gcode_tab": "GCodes",
       "config_tab": "Konfigs",
       "timelapse_tab": "Zeitraffer",
@@ -1221,7 +1231,8 @@
   },
   "form_validators": {
     "simple_url": "Die Eingabe erlaubt nur URL-Komponenten: Hostname und Port",
-    "disallow_mdns": "mDNS (.local) Adressen werden nicht unterstützt"
+    "disallow_mdns": "mDNS (.local) Adressen werden nicht unterstützt",
+    "file_name_in_use": "Dateiname wird bereits verwendet"
   },
   "date": {
     "year": {

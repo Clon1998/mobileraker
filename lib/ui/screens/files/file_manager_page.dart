@@ -79,7 +79,7 @@ class FileManagerPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: _AppBar(filePath: filePath),
-      drawer: const NavigationDrawerWidget().unless(filePath!.split('/').length > 1),
+      drawer: const NavigationDrawerWidget().unless(filePath.split('/').length > 1),
       bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
       // floatingActionButton: fab.unless(context.isLargerThanCompact),
       body: MachineConnectionGuard(
@@ -117,6 +117,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
               false;
 
           return IconButton(
+            tooltip: tr('pages.files.search_files'),
             icon: const Icon(Icons.search),
             onPressed: controller.onSearch.only(enabled),
           );
@@ -131,10 +132,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       );
     }
 
-    return AppBar(
-      title: Text(title.capitalize()),
-      actions: actions,
-    );
+    return AppBar(title: Text(title.capitalize()), actions: actions);
   }
 
   @override
@@ -392,27 +390,23 @@ class _FileListState extends ConsumerState<_FileList> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('This folder is empty', style: themeData.textTheme.titleMedium),
-                Text('No files found', style: themeData.textTheme.bodySmall),
+                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
               ],
             ),
           );
         }
+
         // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
         return SmartRefresher(
           // header: const WaterDropMaterialHeader(),
           header: ClassicHeader(
             textStyle: TextStyle(color: themeData.colorScheme.onBackground),
-            // idleIcon: Icon(
-            //   Icons.arrow_upward,
-            //   color: themeData.colorScheme.onBackground,
-            // ),
             completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
             releaseIcon: Icon(
               Icons.refresh,
               color: themeData.colorScheme.onBackground,
             ),
-            // idleText: tr('components.pull_to_refresh.pull_up_idle'),
           ),
           controller: _refreshController,
           onRefresh: () {
@@ -455,26 +449,6 @@ class _FileListState extends ConsumerState<_FileList> {
               ),
             ],
           ),
-
-          // ListView.separated(
-          //   key: PageStorageKey('${widget.filePath}:${data.sortConfiguration.mode}:${data.sortConfiguration.kind}'),
-          //   separatorBuilder: (context, index) => const Divider(
-          //     height: 0,
-          //     indent: 18,
-          //     endIndent: 18,
-          //   ),
-          //   itemCount: content.length,
-          //   itemBuilder: (context, index) {
-          //     final file = content[index];
-          //     return _FileItem(
-          //       key: ValueKey(file),
-          //       machineUUID: widget.machineUUID,
-          //       file: file,
-          //       dateFormat: dateFormat,
-          //       sortMode: data.sortConfiguration.mode,
-          //     );
-          //   },
-          // ),
         );
       },
     );
@@ -508,7 +482,7 @@ class _FileItem extends ConsumerWidget {
         Text((file as GCodeFile).lastPrintDate?.let(dateFormat.format) ?? '--'),
       SortMode.lastPrinted => const Text('--'),
       SortMode.lastModified => Text(file.modifiedDate?.let(dateFormat.format) ?? '--'),
-      _ => Text('@:pages.files.last_mod: ${file.modifiedDate?.let(dateFormat.format) ?? '--'}').tr(),
+      _ => Text('@:pages.files.sort_by.last_modified: ${file.modifiedDate?.let(dateFormat.format) ?? '--'}').tr(),
     };
 
     return RemoteFileListTile(
@@ -591,7 +565,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // ignore: avoid-unsafe-collection-methods
     final sortConfiguration = SortConfiguration(supportedModes[sortModeIdx], SortKind.values[sortKindIdx]);
 
-    //TODO: Add search term!
     final apiResp = await ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration).future);
 
     return _Model(
@@ -743,7 +716,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             ),
             notContains(
               usedNames,
-              errorText: tr('pages.files.file_name_in_use'),
+              errorText: tr('form_validators.file_name_in_use'),
             ),
           ]),
         ),
