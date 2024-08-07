@@ -47,7 +47,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
-import '../ui/screens/files/file_manager_move_page.dart';
+import '../ui/screens/files/move_file_destination_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
@@ -174,7 +174,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: ':path',
             name: AppRoute.fileManager_explorer.name,
             builder: (context, state) => FileManagerPage(filePath: state.pathParameters['path']!),
-            // pageBuilder: GoTransitions.theme.withSlide.build()
+            // pageBuilder: GoTransitions.theme.withSlide.withBackGesture.build(
             //   settings: GoTransitionSettings(
             //     duration: const Duration(milliseconds: 3000),
             //     reverseDuration: const Duration(milliseconds: 3000),
@@ -191,7 +191,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
               GoRoute(
                 path: 'move',
                 name: AppRoute.fileManager_exlorer_move.name,
-                builder: (context, state) => FileManagerMovePage(
+                builder: (context, state) => MoveFileDestinationPage(
                     machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
                 pageBuilder: (context, state) {
                   final path = state.pathParameters['path'] as String;
@@ -199,7 +199,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
 
                   if (parts.length > 1) {
                     logger.w('MOVING OUTSIDE!!!');
-                    return GoTransitions.cupertino(context, state);
+                    return GoTransitions.theme(context, state);
                   }
 
                   return GoTransitions.fullscreenDialog(context, state);

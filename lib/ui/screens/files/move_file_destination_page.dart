@@ -22,6 +22,7 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
@@ -40,11 +41,11 @@ import '../../../service/ui/dialog_service_impl.dart';
 import '../../components/bottomsheet/sort_mode_bottom_sheet.dart';
 import '../../components/dialog/text_input/text_input_dialog.dart';
 
-part 'file_manager_move_page.freezed.dart';
-part 'file_manager_move_page.g.dart';
+part 'move_file_destination_page.freezed.dart';
+part 'move_file_destination_page.g.dart';
 
-class FileManagerMovePage extends HookWidget {
-  const FileManagerMovePage({super.key, required this.machineUUID, required this.path});
+class MoveFileDestinationPage extends HookWidget {
+  const MoveFileDestinationPage({super.key, required this.machineUUID, required this.path});
 
   final String machineUUID;
   final String path;
@@ -113,12 +114,27 @@ class _FolderList extends ConsumerWidget {
       data: (data) {
         final folders = data.folderContent.folders;
 
+        final themeData = Theme.of(context);
+
         if (folders.isEmpty) {
-          //TODO: Proper with Svg
-          return const Center(child: Text('No folders found'));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FractionallySizedBox(
+                    heightFactor: 0.3,
+                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('This folder is empty', style: themeData.textTheme.titleMedium),
+                Text('No files found', style: themeData.textTheme.bodySmall),
+              ],
+            ),
+          );
         }
 
-        final themeData = Theme.of(context);
 
         return CustomScrollView(
           slivers: [
