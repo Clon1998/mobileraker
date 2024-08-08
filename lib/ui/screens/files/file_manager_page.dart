@@ -4,10 +4,8 @@
  */
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
-import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/file_action_sheet_action_enum.dart';
@@ -106,15 +104,8 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       if (selMachine != null)
         Consumer(builder: (context, ref, _) {
           final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
-          final enabled = ref
-                  .watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath)
-                      .selectAs((data) => data.folderContent.isNotEmpty))
-                  .whenOrNull(
-                    skipLoadingOnRefresh: true,
-                    skipLoadingOnReload: true,
-                    data: (d) => d,
-                  ) ??
-              false;
+          final enabled = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath)
+              .select((data) => data.folderContent.valueOrNull?.isNotEmpty == true));
 
           return IconButton(
             tooltip: tr('pages.files.search_files'),
@@ -230,9 +221,8 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
-    final sortCfg = ref
-        .watch(_modernFileManagerControllerProvider(machineUUID, filePath).selectAs((data) => data.sortConfiguration))
-        .valueOrNull;
+    final sortCfg =
+        ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.sortConfiguration));
 
     final themeData = Theme.of(context);
 
@@ -370,11 +360,12 @@ class _FileListState extends ConsumerState<_FileList> {
 
     return AsyncValueWidget(
       debugLabel: 'ModernFileManager._FileListState',
-      value: model,
+      value: model.folderContent,
       skipLoadingOnReload: true,
+      // skipLoadingOnRefresh: true,
       loading: () => const _FileListLoading(),
       data: (data) {
-        final content = data.folderContent.unwrapped;
+        final content = data.unwrapped;
 
         if (content.isEmpty) {
           final themeData = Theme.of(context);
@@ -421,13 +412,20 @@ class _FileListState extends ConsumerState<_FileList> {
             );
           },
           child: CustomScrollView(
-            key: PageStorageKey('${widget.filePath}:${data.sortConfiguration.mode}:${data.sortConfiguration.kind}'),
+            key: PageStorageKey('${widget.filePath}:${model.sortConfiguration.mode}:${model.sortConfiguration.kind}'),
             slivers: [
               AdaptiveHeightSliverPersistentHeader(
                 floating: true,
                 initialHeight: 48,
                 needRepaint: true,
                 child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
+              ),
+              AdaptiveHeightSliverPersistentHeader(
+                key: ValueKey(model.folderContent.isReloading),
+                initialHeight: 4,
+                pinned: true,
+                child: LinearProgressIndicator(
+                    value: model.folderContent.isReloading ? null : 0, backgroundColor: Colors.transparent),
               ),
               SliverList.separated(
                 separatorBuilder: (context, index) => const Divider(
@@ -443,7 +441,7 @@ class _FileListState extends ConsumerState<_FileList> {
                     machineUUID: widget.machineUUID,
                     file: file,
                     dateFormat: dateFormat,
-                    sortMode: data.sortConfiguration.mode,
+                    sortMode: model.sortConfiguration.mode,
                   );
                 },
               ),
@@ -491,7 +489,12 @@ class _FileItem extends ConsumerWidget {
         subtitle: subtitle,
         trailing: IconButton(
           icon: const Icon(Icons.more_horiz, size: 22),
-          onPressed: () => controller.onClickFileAction(file),
+          onPressed: () {
+            final box = context.findRenderObject() as RenderBox?;
+            final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+            controller.onClickFileAction(file, pos);
+          },
         ),
         onTap: () => controller.onClickFile(file));
   }
@@ -553,7 +556,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   CompositeKey get _sortKindKey => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, 'kind:$_root');
 
   @override
-  FutureOr<_Model> build(String machineUUID, [String filePath = 'gcodes']) async {
+  _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
 
     logger.i('[ModernFileManagerController] fetching directory info for $filePath');
@@ -565,7 +568,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // ignore: avoid-unsafe-collection-methods
     final sortConfiguration = SortConfiguration(supportedModes[sortModeIdx], SortKind.values[sortKindIdx]);
 
-    final apiResp = await ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration).future);
+    final apiResp = ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration));
 
     return _Model(
       folderContent: apiResp,
@@ -597,7 +600,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onClickFileAction(RemoteFile file) async {
+  void onClickFileAction(RemoteFile file, Rect origin) async {
     final klippyReady = ref.read(klipperProvider(machineUUID)).valueOrNull?.klippyCanReceiveCommands == true;
     final canStartPrint = ref
         .read(printerProvider(machineUUID))
@@ -669,10 +672,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           _submitJobAction(file);
           break;
         case FileSheetAction.download:
-          _downloadFileAction(file);
+          _downloadFileAction(file, origin);
           break;
         case FileSheetAction.move:
-          _moveAction(file);
+          _moveFileAction(file);
           break;
         default:
           logger.w('Action not implemented: $resp');
@@ -698,7 +701,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   void onCreateFolder() async {
     logger.i('[ModernFileManagerController] creating folder');
 
-    final usedNames = state.requireValue.folderContent.folderFileNames;
+    final usedNames = state.folderContent.requireValue.folderFileNames;
 
     var dialogResponse = await _dialogService.show(
       DialogRequest(
@@ -726,26 +729,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     if (dialogResponse?.confirmed == true) {
       String newName = dialogResponse!.data;
 
-      try {
-        final res = await _fileService.createDir('$filePath/$newName');
-        final folder = Folder.fromFileItem(res.item);
-        _insertFolder(folder);
-      } on JRpcError {
-        // _snackBarService.showCustomSnackBar(
-        //     variant: SnackbarType.error,
-        //     duration: const Duration(seconds: 5),
-        //     title: 'Error',
-        //     message: 'Could not create folder!\n${e.message}');
-      }
+      state = state.copyWith(folderContent: state.folderContent.toLoading(false));
+      _fileService.createDir('$filePath/$newName').ignore();
     }
   }
 
   Future<void> onSortMode() async {
     logger.i('[ModernFileManagerController] sort mode');
-    final model = state.requireValue;
     final args = SortModeSheetArgs(
       toShow: _availableSortModes,
-      active: model.sortConfiguration,
+      active: state.sortConfiguration,
     );
 
     final res = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.sortMode, data: args));
@@ -754,14 +747,14 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       logger.i('SortModeSheet confirmed: ${res.data}');
 
       // This is required to already show the new sort mode before the data is updated
-      state = state.whenData((data) => data.copyWith(sortConfiguration: res.data));
+      state = state.copyWith(sortConfiguration: res.data);
       // This will trigger a rebuild!
       _settingService.writeInt(_sortModeKey, res.data.mode.index);
       _settingService.writeInt(_sortKindKey, res.data.kind.index);
     }
   }
 
-  Future<void> onSearch() async {
+  void onSearch() {
     logger.i('[ModernFileManagerController] search');
 
     _goRouter.pushNamed(AppRoute.fileManager_exlorer_search.name,
@@ -772,67 +765,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   Future<void> refreshApiResponse() async {
     logger.i('[ModernFileManagerController] refreshing api response');
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
-  }
-
-  //////////////////// STATE-CHANGING METHODS ////////////////////
-  // These methods are used to change the state of the controller
-  // and trigger a rebuild of the UI.
-  // They are called by the actions and should not be called directly.
-  //////////////////// STATE-CHANGING METHODS ////////////////////
-
-  void _insertFolder(Folder folder) {
-    state = state.whenData((data) {
-      final updatedFolders = [...data.folderContent.folders, folder].sorted(data.sortConfiguration.comparator);
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
-    });
-  }
-
-  void _insertFile(RemoteFile file) {
-    state = state.whenData((data) {
-      final updatedFiles = [...data.folderContent.files, file].sorted(data.sortConfiguration.comparator);
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
-    });
-  }
-
-  void _removeFolder(Folder folder) {
-    state = state.whenData((data) {
-      final updatedFolders = data.folderContent.folders.where((e) => e != folder).toList();
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
-    });
-  }
-
-  void _removeFile(RemoteFile file) {
-    state = state.whenData((data) {
-      final updatedFiles = data.folderContent.files.where((e) {
-        if (e == file) logger.wtf('FOUND FILE TO DELETE: $e');
-        return e != file;
-      }).toList();
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
-    });
-  }
-
-  void _replaceFile(RemoteFile oldFile, RemoteFile newFile) {
-    logger.i('Replacing file $oldFile with $newFile');
-    state = state.whenData((data) {
-      final updatedFiles =
-          data.folderContent.files.map((e) => e == oldFile ? newFile : e).sorted(data.sortConfiguration.comparator);
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(files: updatedFiles));
-    });
-  }
-
-  void _replaceFolder(Folder oldFolder, Folder newFolder) {
-    state = state.whenData((data) {
-      final updatedFolders = data.folderContent.folders
-          .map((e) => e == oldFolder ? newFolder : e)
-          .sorted(data.sortConfiguration.comparator);
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
-    });
   }
 
   //////////////////// ACTIONS ////////////////////
@@ -850,12 +782,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       // state = FilePageState.loading(state.path);
 
       try {
+        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
         if (file is Folder) {
           await _fileService.deleteDirForced(file.absolutPath);
-          _removeFolder(file);
         } else {
           await _fileService.deleteFile(file.absolutPath);
-          _removeFile(file);
         }
       } on JRpcError catch (e) {
         _snackBarService.show(SnackBarConfig(
@@ -867,7 +798,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> _renameFileAction(RemoteFile file) async {
-    var fileNames = state.requireValue.folderContent.folderFileNames;
+    var fileNames = state.folderContent.requireValue.folderFileNames;
     fileNames.remove(file.name);
 
     var dialogResponse = await _dialogService.show(
@@ -898,26 +829,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       String newName = dialogResponse!.data;
       if (file.fileExtension != null) newName = '$newName.${file.fileExtension!}';
       if (newName == file.name) return;
-      // state = state.copyWith(files: state.files.toLoading());
 
       try {
+        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
         await _fileService.moveFile(
           file.absolutPath,
           '${file.parentPath}/$newName',
         );
-
-        final replacement = switch (file) {
-          Folder() => file.copyWith(name: newName),
-          GCodeFile() => (file).copyWith(name: newName),
-          GenericFile() => file.copyWith(name: newName),
-          _ => throw UnimplementedError("Not implemented for ${file.runtimeType}"),
-        };
-
-        if (file is Folder) {
-          _replaceFolder(file, replacement as Folder);
-        } else {
-          _replaceFile(file, replacement);
-        }
       } on JRpcError catch (e) {
         logger.e('Could not perform rename.', e);
         _snackBarService.show(SnackBarConfig(
@@ -925,6 +843,22 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           message: 'Could not rename File.\n${e.message}',
         ));
       }
+    }
+  }
+
+  Future<void> _moveFileAction(RemoteFile file) async {
+    // await _printerService.startPrintFile(file);
+    final res = await _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_move.name,
+      pathParameters: {'path': filePath.split('/').first},
+      queryParameters: {'machineUUID': machineUUID},
+    );
+
+    if (res case String()) {
+      if (file.parentPath == res) return;
+      logger.i('[ModernFileManagerController] moving file ${file.name} to $res');
+      state = state.copyWith(folderContent: state.folderContent.toLoading(true));
+      _fileService.moveFile(file.absolutPath, res).ignore();
     }
   }
 
@@ -982,7 +916,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     _goRouter.goNamed(AppRoute.dashBoard.name);
   }
 
-  Future<void> _downloadFileAction(RemoteFile file) async {
+  Future<void> _downloadFileAction(RemoteFile file, Rect origin) async {
     if (file case Folder()) {
       //TODO: ZIP the folder first automatically!
       _snackBarService.show(SnackBarConfig(
@@ -1007,13 +941,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         _ => 'text/plain',
       };
 
-      // final box = ctx.findRenderObject() as RenderBox?;
-      // final pos = box!.localToGlobal(Offset.zero) & box.size;
 
       Share.shareXFiles(
         [XFile(downloadFile.file.path, mimeType: mimeType)],
         subject: file.name,
-        // sharePositionOrigin: pos,
+        sharePositionOrigin: origin,
       ).ignore();
     } catch (e) {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
@@ -1023,26 +955,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           ));
     } finally {}
   }
-
-  Future<void> _moveAction(RemoteFile file) async {
-    // await _printerService.startPrintFile(file);
-    final res = await _goRouter.pushNamed(
-      AppRoute.fileManager_exlorer_move.name,
-      pathParameters: {'path': filePath.split('/').first},
-      queryParameters: {'machineUUID': machineUUID},
-    );
-
-    if (res case String()) {
-      if (file.parentPath == res) return;
-      logger.i('[ModernFileManagerController] moving file ${file.name} to $res');
-      await _fileService.moveFile(file.absolutPath, res);
-      if (file is Folder) {
-        _removeFolder(file);
-      } else {
-        _removeFile(file);
-      }
-    }
-  }
 }
 
 @freezed
@@ -1050,7 +962,7 @@ class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
-    required FolderContentWrapper folderContent,
+    required AsyncValue<FolderContentWrapper> folderContent,
     required SortConfiguration sortConfiguration,
   }) = __Model;
 }

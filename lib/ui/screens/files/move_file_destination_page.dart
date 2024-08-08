@@ -3,7 +3,6 @@
  * All rights reserved.
  */
 
-import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
@@ -15,6 +14,7 @@ import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -135,7 +135,6 @@ class _FolderList extends ConsumerWidget {
           );
         }
 
-
         return CustomScrollView(
           slivers: [
             AdaptiveHeightSliverPersistentHeader(
@@ -152,6 +151,12 @@ class _FolderList extends ConsumerWidget {
                   icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
                 ),
               ),
+            ),
+            AdaptiveHeightSliverPersistentHeader(
+              key: ValueKey(model.isReloading),
+              initialHeight: 4,
+              pinned: true,
+              child: LinearProgressIndicator(value: model.isReloading ? null : 0, backgroundColor: Colors.transparent),
             ),
             SliverList.separated(
               itemCount: folders.length,
@@ -250,6 +255,8 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
       pathParameters: {'path': folder.absolutPath},
       queryParameters: {'machineUUID': machineUUID},
     );
+
+    //TODO: Add an result. Because we can not handle the path + cancel + back button...
     if (res == null) return;
     _goRouter.pop(res);
   }
@@ -284,31 +291,13 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
 
     if (dialogResponse?.confirmed == true) {
       String newName = dialogResponse!.data;
-
-      try {
-        final res = await _fileService.createDir('$filePath/$newName');
-        final folder = Folder.fromFileItem(res.item);
-        _insertFolder(folder);
-      } on JRpcError {
-        // _snackBarService.showCustomSnackBar(
-        //     variant: SnackbarType.error,
-        //     duration: const Duration(seconds: 5),
-        //     title: 'Error',
-        //     message: 'Could not create folder!\n${e.message}');
-      }
+      state = state.toLoading(false);
+      _fileService.createDir('$filePath/$newName').ignore();
     }
   }
 
   void onMoveHere() {
     _goRouter.pop(filePath);
-  }
-
-  void _insertFolder(Folder folder) {
-    state = state.whenData((data) {
-      final updatedFolders = [...data.folderContent.folders, folder].sorted(data.sortConfig.comparator);
-
-      return data.copyWith(folderContent: data.folderContent.copyWith(folders: updatedFolders));
-    });
   }
 }
 
