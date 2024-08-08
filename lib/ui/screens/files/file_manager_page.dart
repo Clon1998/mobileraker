@@ -221,18 +221,18 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
-    final sortCfg =
-        ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.sortConfiguration));
+    final (sortCfg, apiLoading) = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
+        .select((data) => (data.sortConfiguration, data.folderContent.isLoading)));
 
     final themeData = Theme.of(context);
 
     return SortedFileListHeader(
       activeSortConfig: sortCfg,
-      onTapSortMode: controller.onSortMode.only(sortCfg != null),
+      onTapSortMode: controller.onSortMode.only(!apiLoading),
       trailing: IconButton(
         padding: const EdgeInsets.only(right: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-        onPressed: controller.onCreateFolder.only(sortCfg != null),
+        onPressed: controller.onCreateFolder.only(!apiLoading),
         icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
       ),
     );
@@ -362,7 +362,7 @@ class _FileListState extends ConsumerState<_FileList> {
       debugLabel: 'ModernFileManager._FileListState',
       value: model.folderContent,
       skipLoadingOnReload: true,
-      // skipLoadingOnRefresh: true,
+      skipLoadingOnRefresh: true,
       loading: () => const _FileListLoading(),
       data: (data) {
         final content = data.unwrapped;
@@ -425,7 +425,13 @@ class _FileListState extends ConsumerState<_FileList> {
                 initialHeight: 4,
                 pinned: true,
                 child: LinearProgressIndicator(
-                    value: model.folderContent.isReloading ? null : 0, backgroundColor: Colors.transparent),
+                  backgroundColor: Colors.transparent,
+                  value: switch (model) {
+                    _Model(folderContent: AsyncValue(isReloading: true)) => null,
+                    _Model(download: FileDownloadProgress(:final progress)) => progress / 100,
+                    _ => 0,
+                  },
+                ),
               ),
               SliverList.separated(
                 separatorBuilder: (context, index) => const Divider(
@@ -438,6 +444,7 @@ class _FileListState extends ConsumerState<_FileList> {
                   final file = content[index];
                   return _FileItem(
                     key: ValueKey(file),
+                    enabled: !model.folderContent.isLoading,
                     machineUUID: widget.machineUUID,
                     file: file,
                     dateFormat: dateFormat,
@@ -460,13 +467,19 @@ class _FileListState extends ConsumerState<_FileList> {
 }
 
 class _FileItem extends ConsumerWidget {
-  const _FileItem(
-      {super.key, required this.machineUUID, required this.file, required this.dateFormat, required this.sortMode});
+  const _FileItem({super.key,
+    required this.machineUUID,
+    required this.file,
+    required this.dateFormat,
+    required this.sortMode,
+    this.enabled = true});
 
   final String machineUUID;
   final RemoteFile file;
   final DateFormat dateFormat;
   final SortMode sortMode;
+
+  final bool enabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -484,19 +497,22 @@ class _FileItem extends ConsumerWidget {
     };
 
     return RemoteFileListTile(
-        machineUUID: machineUUID,
-        file: file,
-        subtitle: subtitle,
-        trailing: IconButton(
-          icon: const Icon(Icons.more_horiz, size: 22),
-          onPressed: () {
-            final box = context.findRenderObject() as RenderBox?;
-            final pos = box!.localToGlobal(Offset.zero) & box.size;
+      machineUUID: machineUUID,
+      file: file,
+      subtitle: subtitle,
+      trailing: IconButton(
+        icon: const Icon(Icons.more_horiz, size: 22),
+        onPressed: () {
+          final box = context.findRenderObject() as RenderBox?;
+          final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-            controller.onClickFileAction(file, pos);
-          },
-        ),
-        onTap: () => controller.onClickFile(file));
+          controller.onClickFileAction(file, pos);
+        }.only(enabled),
+      ),
+      onTap: () {
+        controller.onClickFile(file);
+      }.only(enabled),
+    );
   }
 
   Widget buildLeading(
@@ -568,7 +584,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // ignore: avoid-unsafe-collection-methods
     final sortConfiguration = SortConfiguration(supportedModes[sortModeIdx], SortKind.values[sortKindIdx]);
 
-    final apiResp = ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration));
+    var apiResp = ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration));
+
+    logger.i('[ModernFileManagerController] The api response is: $apiResp ');
+    logger.i('[ModernFileManagerController] and the current state is: $stateOrNull');
+
+    // Required to get a smoother UX and to prevent the folder content from beeing empty!
+    if (stateOrNull != null) {
+      apiResp = apiResp.copyWithPrevious(stateOrNull!.folderContent, isRefresh: apiResp.isRefreshing);
+    }
 
     return _Model(
       folderContent: apiResp,
@@ -762,8 +786,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // _dialogService.show(DialogRequest(type: DialogType.searchFullscreen));
   }
 
-  Future<void> refreshApiResponse() async {
+  Future<void> refreshApiResponse() {
     logger.i('[ModernFileManagerController] refreshing api response');
+    // ref.invalidate(fileApiResponseProvider(machineUUID, filePath));
+    ref.invalidate(moonrakerFolderContentProvider);
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
   }
 
@@ -930,8 +956,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // _goRouter.goNamed(AppRoute.dashBoard.name);
 
     try {
-      var result = await _fileService.downloadFile(filePath: file.absolutPath).last;
-      var downloadFile = result as FileDownloadComplete;
+      final downloadStream = _fileService.downloadFile(filePath: file.absolutPath);
+
+      await for (var download in downloadStream) {
+        if (download is FileDownloadProgress) {
+          logger.i('Downloading ${download.progress}%');
+        }
+        state = state.copyWith(download: download);
+      }
+
+      final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
 
       String mimeType = switch (file.fileExtension) {
         'png' => 'image/png',
@@ -941,9 +975,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         _ => 'text/plain',
       };
 
-
       Share.shareXFiles(
-        [XFile(downloadFile.file.path, mimeType: mimeType)],
+        [XFile(downloadedFilePath, mimeType: mimeType)],
         subject: file.name,
         sharePositionOrigin: origin,
       ).ignore();
@@ -964,5 +997,6 @@ class _Model with _$Model {
   const factory _Model({
     required AsyncValue<FolderContentWrapper> folderContent,
     required SortConfiguration sortConfiguration,
+    FileDownload? download,
   }) = __Model;
 }

@@ -37,7 +37,8 @@ class AsyncValueWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (debugLabel != null) {
-      logger.i('Rebuilding AsyncValueWidget: $debugLabel with $value');
+      logger.i(
+          'Rebuilding AsyncValueWidget: $debugLabel with ${value.isLoading ? '(isRefresh: ${value.isRefreshing}, isReload: ${value.isReloading}, initialLoading: ${!value.isRefreshing && !value.isReloading}) ' : ''}$value');
     }
 
     return value.when(

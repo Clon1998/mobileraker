@@ -171,7 +171,7 @@ Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String mach
 @riverpod
 Future<FolderContentWrapper> moonrakerFolderContent(
     MoonrakerFolderContentRef ref, String machineUUID, String path, SortConfiguration sortConfig) async {
-  ref.keepAliveFor();
+  ref.keepAliveFor(Duration(seconds: 5));
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
 
