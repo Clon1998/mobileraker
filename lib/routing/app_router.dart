@@ -4,6 +4,7 @@
  */
 // ignore_for_file: prefer-match-file-name
 
+import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
@@ -172,7 +173,8 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: ':path',
             name: AppRoute.fileManager_explorer.name,
-            builder: (context, state) => FileManagerPage(filePath: state.pathParameters['path']!),
+            builder: (context, state) =>
+                FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
             // pageBuilder: GoTransitions.theme.withSlide.withBackGesture.build(
             //   settings: GoTransitionSettings(
             //     duration: const Duration(milliseconds: 3000),

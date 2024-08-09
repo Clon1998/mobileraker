@@ -120,8 +120,46 @@ FileService fileService(FileServiceRef ref, String machineUUID) {
 }
 
 @riverpod
-Stream<FileActionResponse> fileNotifications(FileNotificationsRef ref, String machineUUID) {
+Stream<FileActionResponse> _rawFileNotifications(_RawFileNotificationsRef ref, String machineUUID, [String? path]) {
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
+}
+
+@riverpod
+Stream<FileActionResponse> fileNotifications(FileNotificationsRef ref, String machineUUID, [String? path]) {
+  StreamController<FileActionResponse> streamController = StreamController();
+  ref.onDispose(streamController.close);
+
+  if (path != null) {
+    // This code checks if the notification is related to the provided path
+    // This means:
+    // 1. If the path is the same as the notification path
+    // 2. If an item in the path is a child of the notification path
+
+    ref.listen(
+        _rawFileNotificationsProvider(machineUUID),
+        (prev, next) => next.whenData((notification) {
+              // Original File (Src)
+              FileItem? srcItem = notification.sourceItem;
+              var srcItemWithInLevel = isWithin(path, srcItem?.fullPath ?? '');
+              // Destination File (Dest)
+              FileItem destItem = notification.item;
+              var itemWithInLevel = isWithin(path, destItem.fullPath);
+
+              // Check if src or dest are in current path (Items moved in/out of current folder)
+              // if the src is the same as the current path (Current folder was modified)
+              if (itemWithInLevel != 0 &&
+                  srcItemWithInLevel != 0 &&
+                  srcItem?.fullPath != path &&
+                  destItem.fullPath != path) {
+                return;
+              }
+              if (!streamController.isClosed) {
+                streamController.add(notification);
+              }
+            }));
+  }
+
+  return streamController.stream;
 }
 
 @riverpod
@@ -142,37 +180,23 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 }
 
 @riverpod
-Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String machineUUID, String path) {
+Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String machineUUID, String path) async {
+  // Invalidation of the cache is done by the fileNotificationsProvider
+  ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
+
+  var fetchDirectoryInfo = await ref.watch(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
   ref.keepAliveFor();
-
-  ref.listen(
-      fileNotificationsProvider(machineUUID),
-      (prev, next) => next.whenData((notification) {
-            FileItem item = notification.item;
-            var itemWithInLevel = isWithin(path, item.fullPath);
-
-            FileItem? srcItem = notification.sourceItem;
-            var srcItemWithInLevel = isWithin(path, srcItem?.fullPath ?? '');
-
-            // This needs to be reevaluated. Because if we move files this might be faulty
-            if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {
-              return;
-            }
-
-            logger.i('[FileApiResponse ($machineUUID, $path)] Will refresh due to notification: $notification');
-
-            ref.invalidateSelf();
-          }));
-
-  return ref.watch(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
+  return fetchDirectoryInfo;
 }
 
 @riverpod
 Future<FolderContentWrapper> moonrakerFolderContent(
     MoonrakerFolderContentRef ref, String machineUUID, String path, SortConfiguration sortConfig) async {
-  ref.keepAliveFor();
+  ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
+
+  ref.keepAliveFor();
 
   List<Folder> folders = apiResponse.folders.toList();
   List<RemoteFile> files = apiResponse.files.toList();

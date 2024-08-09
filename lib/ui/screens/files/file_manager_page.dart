@@ -8,8 +8,10 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/data/enums/file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/gcode_file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
@@ -42,6 +44,7 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/src/cache_manager.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -72,14 +75,15 @@ part 'file_manager_page.freezed.dart';
 part 'file_manager_page.g.dart';
 
 class FileManagerPage extends ConsumerWidget {
-  const FileManagerPage({super.key, required this.filePath});
+  const FileManagerPage({super.key, required this.filePath, this.folder});
 
   final String filePath;
+  final Folder? folder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: _AppBar(filePath: filePath),
+      appBar: _AppBar(filePath: filePath, folder: folder),
       drawer: const NavigationDrawerWidget().unless(filePath.split('/').length > 1),
       bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
       // floatingActionButton: fab.unless(context.isLargerThanCompact),
@@ -91,9 +95,11 @@ class FileManagerPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key, required this.filePath});
+  const _AppBar({super.key, required this.filePath, this.folder});
 
   final String filePath;
+
+  final Folder? folder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -103,17 +109,31 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final selMachine = ref.watch(selectedMachineProvider).valueOrNull;
     final themeData = Theme.of(context);
 
-    final actions = [
-      if (selMachine != null)
+    final actions = (selMachine == null)
+        ? <Widget>[]
+        : [
+            Consumer(builder: (context, ref, _) {
+              final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+
+              return IconButton(
+          tooltip: tr('pages.files.search_files'),
+          icon: const Icon(Icons.search),
+          onPressed: controller.onSearch,
+        );
+      }),
+      if (folder != null && !isRoot)
         Consumer(builder: (context, ref, _) {
           final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
-          final enabled = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath)
-              .select((data) => data.folderContent.valueOrNull?.isNotEmpty == true));
 
           return IconButton(
             tooltip: tr('pages.files.search_files'),
-            icon: const Icon(Icons.search),
-            onPressed: controller.onSearch.only(enabled),
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              final box = context.findRenderObject() as RenderBox?;
+              final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+              controller.onClickFileAction(folder!, pos);
+            },
           );
         }),
     ];
@@ -351,6 +371,8 @@ class _FileList extends ConsumerStatefulWidget {
 class _FileListState extends ConsumerState<_FileList> {
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
+  ValueNotifier<bool> _isUserRefresh = ValueNotifier(false);
+
   @override
   Widget build(BuildContext context) {
     final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
@@ -367,6 +389,7 @@ class _FileListState extends ConsumerState<_FileList> {
       value: folderContent,
       skipLoadingOnReload: true,
       skipLoadingOnRefresh: true,
+      skipError: true,
       loading: () => const _FileListLoading(),
       data: (data) {
         final content = data.unwrapped;
@@ -374,21 +397,36 @@ class _FileListState extends ConsumerState<_FileList> {
         if (content.isEmpty) {
           final themeData = Theme.of(context);
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: FractionallySizedBox(
-                    heightFactor: 0.3,
-                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+          return Column(
+            children: [
+              SortedFileListHeader(
+                activeSortConfig: null,
+                trailing: IconButton(
+                  padding: const EdgeInsets.only(right: 12),
+                  // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
+                  onPressed: controller.onCreateFolder.only(!folderContent.isLoading),
+                  icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: FractionallySizedBox(
+                          heightFactor: 0.3,
+                          child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                      Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
-                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
-              ],
-            ),
+              ),
+            ],
           );
         }
 
@@ -405,6 +443,7 @@ class _FileListState extends ConsumerState<_FileList> {
           ),
           controller: _refreshController,
           onRefresh: () {
+            _isUserRefresh.value = true;
             controller.refreshApiResponse().then(
               (_) {
                 _refreshController.refreshCompleted();
@@ -413,7 +452,7 @@ class _FileListState extends ConsumerState<_FileList> {
                 logger.e(e, s);
                 _refreshController.refreshFailed();
               },
-            );
+            ).whenComplete(() => _isUserRefresh.value = false);
           },
           child: CustomScrollView(
             key: PageStorageKey('${widget.filePath}:${sortConfiguration.mode}:${sortConfiguration.kind}'),
@@ -427,7 +466,8 @@ class _FileListState extends ConsumerState<_FileList> {
               AdaptiveHeightSliverPersistentHeader(
                 initialHeight: 4,
                 pinned: true,
-                child: _LoadingIndicator(machineUUID: widget.machineUUID, filePath: widget.filePath),
+                child: _LoadingIndicator(
+                    machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
               ),
               SliverList.separated(
                 separatorBuilder: (context, index) => const Divider(
@@ -462,19 +502,25 @@ class _FileListState extends ConsumerState<_FileList> {
   }
 }
 
-class _LoadingIndicator extends ConsumerWidget {
-  const _LoadingIndicator({super.key, required this.machineUUID, required this.filePath});
+class _LoadingIndicator extends HookConsumerWidget {
+  const _LoadingIndicator({super.key, required this.machineUUID, required this.filePath, required this.isUserRefresh});
 
   final String machineUUID;
 
   final String filePath;
 
+  final ValueNotifier<bool> isUserRefresh;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath));
 
+    final wasUser = useValueListenable(isUserRefresh);
+
     double? value = switch (model) {
-      _Model(folderContent: AsyncValue(isReloading: true)) || _Model(download: FileDownloadKeepAlive()) => null,
+      _Model(folderContent: AsyncValue(isLoading: true)) ||
+      _Model(download: FileDownloadKeepAlive()) when !wasUser =>
+        null,
       _Model(download: FileDownloadProgress(:final progress)) => progress,
       _ => 0,
     };
@@ -600,6 +646,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
     ref.onDispose(dispose);
+    ref.listen(fileNotificationsProvider(machineUUID, filePath),
+        (prev, next) => next.whenData((notification) => _onFileNotification(notification)));
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
@@ -636,7 +684,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             pathParameters: {'path': filePath}, extra: file);
         break;
       case Folder():
-        _goRouter.pushNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': file.absolutPath});
+        _goRouter.pushNamed(AppRoute.fileManager_explorer.name,
+            pathParameters: {'path': file.absolutPath}, extra: file);
         break;
       case RemoteFile(isVideo: true):
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_videoPlayer.name,
@@ -1024,6 +1073,30 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           ));
     } finally {
       state = state.copyWith(download: null);
+    }
+  }
+
+  void _onFileNotification(FileActionResponse notification) {
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
+
+    // Check if the notifications are only related to the current folder
+
+    switch (notification.action) {
+      case FileAction.delete_dir when notification.item.fullPath == filePath:
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was deleted, will move to parent');
+        _goRouter.pop();
+        ref.invalidateSelf();
+        break;
+      case FileAction.move_dir when notification.sourceItem?.fullPath == filePath:
+        final folder = Folder.fromFileItem(notification.item);
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was moved to ${folder.absolutPath}');
+        // _goRouter.pushReplacement(notification.item.fullPath, extra: folder);
+        _goRouter.pushReplacementNamed(AppRoute.fileManager_explorer.name,
+            pathParameters: {'path': folder.absolutPath}, extra: folder);
+        ref.invalidateSelf();
+      default:
+        // Do Nothing!
+        break;
     }
   }
 

@@ -4,6 +4,8 @@
  */
 
 import 'package:common/data/dto/files/folder.dart';
+import 'package:common/data/dto/files/moonraker/file_action_response.dart';
+import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/sort_configuration.dart';
@@ -117,21 +119,36 @@ class _FolderList extends ConsumerWidget {
         final themeData = Theme.of(context);
 
         if (folders.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: FractionallySizedBox(
-                    heightFactor: 0.3,
-                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+          return Column(
+            children: [
+              SortedFileListHeader(
+                activeSortConfig: null,
+                trailing: IconButton(
+                  padding: const EdgeInsets.only(right: 12),
+                  // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
+                  onPressed: controller.onCreateFolder.only(!model.isLoading),
+                  icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: FractionallySizedBox(
+                          heightFactor: 0.3,
+                          child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                      Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
-                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
-              ],
-            ),
+              ),
+            ],
           );
         }
 
@@ -221,6 +238,9 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
 
   @override
   FutureOr<_Model> build(String machineUUID, String filePath) async {
+    ref.listen(fileNotificationsProvider(machineUUID, filePath),
+        (prev, next) => next.whenData((notification) => _onFileNotification(notification)));
+
     final sortConfiguration = state.whenOrNull(
           data: (data) => data.sortConfig,
         ) ??
@@ -231,7 +251,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   }
 
   Future<void> onSortMode() async {
-    logger.i('[ModernFileManagerController] sort mode');
+    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] sort mode');
     final model = state.requireValue;
     final args = SortModeSheetArgs(
       toShow: [SortMode.name, SortMode.lastModified, SortMode.size],
@@ -241,7 +261,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
     final res = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.sortMode, data: args));
 
     if (res.confirmed == true) {
-      logger.i('SortModeSheet confirmed: ${res.data}');
+      logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] SortModeSheet confirmed: ${res.data}');
 
       // This is required to already show the new sort mode before the data is updated
       state = state.whenData((data) => data.copyWith(sortConfig: res.data));
@@ -262,7 +282,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   }
 
   void onCreateFolder() async {
-    logger.i('[ModernFileManagerController] creating folder');
+    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] creating folder');
 
     final usedNames = state.requireValue.folderContent.folderFileNames;
 
@@ -298,6 +318,27 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
 
   void onMoveHere() {
     _goRouter.pop(filePath);
+  }
+
+  void _onFileNotification(FileActionResponse notification) {
+    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] Got a file notification: $notification');
+
+    // Check if the notifications are only related to the current folder
+
+    switch (notification.action) {
+      case FileAction.delete_dir when notification.item.fullPath == filePath:
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was deleted, will move to parent');
+        _goRouter.pop();
+        ref.invalidateSelf();
+        break;
+      case FileAction.move_dir when notification.sourceItem?.fullPath == filePath:
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was moved, will move to new location');
+        _goRouter.pop();
+        ref.invalidateSelf();
+      default:
+        // Do Nothing!
+        break;
+    }
   }
 }
 
