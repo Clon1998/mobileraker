@@ -116,27 +116,27 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
               final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
 
               return IconButton(
-          tooltip: tr('pages.files.search_files'),
-          icon: const Icon(Icons.search),
-          onPressed: controller.onSearch,
-        );
-      }),
-      if (folder != null && !isRoot)
-        Consumer(builder: (context, ref, _) {
-          final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+                tooltip: tr('pages.files.search_files'),
+                icon: const Icon(Icons.search),
+                onPressed: controller.onSearch,
+              );
+            }),
+            if (folder != null && !isRoot)
+              Consumer(builder: (context, ref, _) {
+                final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
 
-          return IconButton(
+                return IconButton(
             tooltip: tr('pages.files.search_files'),
             icon: const Icon(Icons.more_vert),
             onPressed: () {
               final box = context.findRenderObject() as RenderBox?;
               final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-              controller.onClickFileAction(folder!, pos);
-            },
-          );
-        }),
-    ];
+                    controller.onClickFileAction(folder!, pos);
+                  },
+                );
+              }),
+          ];
 
     if (isRoot) {
       return SwitchPrinterAppBar(
