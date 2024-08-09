@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
@@ -36,6 +38,7 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/src/cache_manager.dart';
@@ -354,13 +357,14 @@ class _FileListState extends ConsumerState<_FileList> {
 
     final controller = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath).notifier);
 
-    final model = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath));
-
+    final (folderContent, sortConfiguration) = ref.watch(
+        _modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
+            .select((data) => (data.folderContent, data.sortConfiguration)));
     final themeData = Theme.of(context);
 
     return AsyncValueWidget(
-      debugLabel: 'ModernFileManager._FileListState',
-      value: model.folderContent,
+      debugLabel: 'ModernFileManager._FileListState(${widget.machineUUID}, ${widget.filePath})',
+      value: folderContent,
       skipLoadingOnReload: true,
       skipLoadingOnRefresh: true,
       loading: () => const _FileListLoading(),
@@ -412,7 +416,7 @@ class _FileListState extends ConsumerState<_FileList> {
             );
           },
           child: CustomScrollView(
-            key: PageStorageKey('${widget.filePath}:${model.sortConfiguration.mode}:${model.sortConfiguration.kind}'),
+            key: PageStorageKey('${widget.filePath}:${sortConfiguration.mode}:${sortConfiguration.kind}'),
             slivers: [
               AdaptiveHeightSliverPersistentHeader(
                 floating: true,
@@ -421,17 +425,9 @@ class _FileListState extends ConsumerState<_FileList> {
                 child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
               ),
               AdaptiveHeightSliverPersistentHeader(
-                key: ValueKey(model.folderContent.isReloading),
                 initialHeight: 4,
                 pinned: true,
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.transparent,
-                  value: switch (model) {
-                    _Model(folderContent: AsyncValue(isReloading: true)) => null,
-                    _Model(download: FileDownloadProgress(:final progress)) => progress / 100,
-                    _ => 0,
-                  },
-                ),
+                child: _LoadingIndicator(machineUUID: widget.machineUUID, filePath: widget.filePath),
               ),
               SliverList.separated(
                 separatorBuilder: (context, index) => const Divider(
@@ -444,11 +440,11 @@ class _FileListState extends ConsumerState<_FileList> {
                   final file = content[index];
                   return _FileItem(
                     key: ValueKey(file),
-                    enabled: !model.folderContent.isLoading,
+                    enabled: !folderContent.isLoading,
                     machineUUID: widget.machineUUID,
                     file: file,
                     dateFormat: dateFormat,
-                    sortMode: model.sortConfiguration.mode,
+                    sortMode: sortConfiguration.mode,
                   );
                 },
               ),
@@ -466,13 +462,38 @@ class _FileListState extends ConsumerState<_FileList> {
   }
 }
 
+class _LoadingIndicator extends ConsumerWidget {
+  const _LoadingIndicator({super.key, required this.machineUUID, required this.filePath});
+
+  final String machineUUID;
+
+  final String filePath;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final model = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath));
+
+    double? value = switch (model) {
+      _Model(folderContent: AsyncValue(isReloading: true)) || _Model(download: FileDownloadKeepAlive()) => null,
+      _Model(download: FileDownloadProgress(:final progress)) => progress,
+      _ => 0,
+    };
+    return LinearProgressIndicator(
+      backgroundColor: Colors.transparent,
+      value: value,
+    );
+  }
+}
+
 class _FileItem extends ConsumerWidget {
-  const _FileItem({super.key,
+  const _FileItem({
+    super.key,
     required this.machineUUID,
     required this.file,
     required this.dateFormat,
     required this.sortMode,
-    this.enabled = true});
+    this.enabled = true,
+  });
 
   final String machineUUID;
   final RemoteFile file;
@@ -483,7 +504,7 @@ class _FileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, 'gcodes').notifier);
+    final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).notifier);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
@@ -571,11 +592,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   CompositeKey get _sortKindKey => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, 'kind:$_root');
 
+  bool _disposed = false;
+
+  CancelToken? _downloadToken;
+
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
+    ref.onDispose(dispose);
 
-    logger.i('[ModernFileManagerController] fetching directory info for $filePath');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
     final supportedModes = _availableSortModes;
     final sortModeIdx = ref.watch(intSettingProvider(_sortModeKey)).clamp(0, supportedModes.length - 1);
@@ -586,8 +612,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     var apiResp = ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration));
 
-    logger.i('[ModernFileManagerController] The api response is: $apiResp ');
-    logger.i('[ModernFileManagerController] and the current state is: $stateOrNull');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] The api response is: $apiResp ');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] and the current state is: $stateOrNull');
 
     // Required to get a smoother UX and to prevent the folder content from beeing empty!
     if (stateOrNull != null) {
@@ -597,11 +623,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     return _Model(
       folderContent: apiResp,
       sortConfiguration: sortConfiguration,
+      download: stateOrNull?.download,
     );
   }
 
   void onClickFile(RemoteFile file) {
-    logger.i('[ModernFileManagerController] opening file ${file.name} (${file.runtimeType})');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] opening file ${file.name} (${file.runtimeType})');
 
     switch (file) {
       case GCodeFile():
@@ -674,7 +701,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final resp =
         await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
     if (resp.confirmed) {
-      logger.i('[ModernFileManagerController] action confirmed: ${resp.data}');
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] action confirmed: ${resp.data}');
 
       // Wait for the bottom sheet to close
       await Future.delayed(kThemeAnimationDuration);
@@ -708,7 +735,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onBottomItemTapped(int index) {
-    logger.i('[ModernFileManagerController] bottom nav item tapped: $index');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] bottom nav item tapped: $index');
 
     switch (index) {
       case 1:
@@ -723,7 +750,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onCreateFolder() async {
-    logger.i('[ModernFileManagerController] creating folder');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating folder');
 
     final usedNames = state.folderContent.requireValue.folderFileNames;
 
@@ -759,7 +786,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> onSortMode() async {
-    logger.i('[ModernFileManagerController] sort mode');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] sort mode');
     final args = SortModeSheetArgs(
       toShow: _availableSortModes,
       active: state.sortConfiguration,
@@ -779,7 +806,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onSearch() {
-    logger.i('[ModernFileManagerController] search');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] search');
 
     _goRouter.pushNamed(AppRoute.fileManager_exlorer_search.name,
         pathParameters: {'path': filePath}, queryParameters: {'machineUUID': machineUUID});
@@ -787,7 +814,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> refreshApiResponse() {
-    logger.i('[ModernFileManagerController] refreshing api response');
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] refreshing api response');
     // ref.invalidate(fileApiResponseProvider(machineUUID, filePath));
     ref.invalidate(moonrakerFolderContentProvider);
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
@@ -882,7 +909,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     if (res case String()) {
       if (file.parentPath == res) return;
-      logger.i('[ModernFileManagerController] moving file ${file.name} to $res');
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving file ${file.name} to $res');
       state = state.copyWith(folderContent: state.folderContent.toLoading(true));
       _fileService.moveFile(file.absolutPath, res).ignore();
     }
@@ -955,16 +982,25 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // await _printerService.startPrintFile(file);
     // _goRouter.goNamed(AppRoute.dashBoard.name);
 
+    bool setToken = false;
     try {
-      final downloadStream = _fileService.downloadFile(filePath: file.absolutPath);
+      final downloadStream = _fileService.downloadFile(filePath: file.absolutPath).distinct((a, b) {
+        // If both are Download Progress, only update in 0.01 steps:
+        const epsilon = 0.01;
+        if (a is FileDownloadProgress && b is FileDownloadProgress) {
+          return (b.progress - a.progress) < epsilon;
+        }
+
+        return a == b;
+      });
 
       await for (var download in downloadStream) {
-        if (download is FileDownloadProgress) {
-          logger.i('Downloading ${download.progress}%');
-        }
+        if (_disposed) break;
+        if (!setToken) _downloadToken = download.token;
         state = state.copyWith(download: download);
       }
 
+      if (_disposed) return;
       final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
 
       String mimeType = switch (file.fileExtension) {
@@ -975,18 +1011,25 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         _ => 'text/plain',
       };
 
-      Share.shareXFiles(
+      await Share.shareXFiles(
         [XFile(downloadedFilePath, mimeType: mimeType)],
         subject: file.name,
         sharePositionOrigin: origin,
-      ).ignore();
+      ).catchError((_) => null);
     } catch (e) {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
             type: SnackbarType.error,
             title: 'Error while downloading file for sharing.',
             message: e.toString(),
           ));
-    } finally {}
+    } finally {
+      state = state.copyWith(download: null);
+    }
+  }
+
+  void dispose() {
+    _disposed = true;
+    _downloadToken?.cancel();
   }
 }
 

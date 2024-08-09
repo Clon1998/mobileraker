@@ -18,7 +18,6 @@ import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
-import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -171,7 +170,7 @@ Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String mach
 @riverpod
 Future<FolderContentWrapper> moonrakerFolderContent(
     MoonrakerFolderContentRef ref, String machineUUID, String path, SortConfiguration sortConfig) async {
-  ref.keepAliveFor(Duration(seconds: 5));
+  ref.keepAliveFor();
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
 
@@ -248,7 +247,7 @@ class FileService {
           '.gco',
         };
       } else if (path.startsWith('config')) {
-        allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt', '.jpeg', '.jpg', '.png'};
+        allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt', '.jpeg', '.jpg', '.png', '.mp4'};
       } else if (path.startsWith('timelapse')) {
         allowedFileType = {'.mp4'};
       }
@@ -358,19 +357,34 @@ class FileService {
       // yield await download;
 
       // This code is not using a seperate isolate. Lets see how it goes lol
-
+      //TLDR: Very good, it must use an isolate tho!
       StreamController<FileDownload> ctrler = StreamController();
+
+      final token = CancelToken();
+
+      Completer<bool>? debounceKeepAlive;
       _dio.download(
         '/server/files/$filePath',
         file.path,
-        // options: Options(receiveTimeout: Duration(seconds: 300)), // This is requried because of a bug in dio
+        cancelToken: token,
         onReceiveProgress: (received, total) {
-          if (total <= 0) return;
-          logger.i('Progress for $filePath: ${received / total * 100}');
-          ctrler.add(FileDownloadProgress(received / total));
+          if (total <= 0) {
+            // logger.i('Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+            // Debounce the keep alive to not spam the stream
+            if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
+              debounceKeepAlive = Completer();
+              Future.delayed(const Duration(seconds: 1), () {
+                debounceKeepAlive?.complete(true);
+              });
+              ctrler.add(FileDownloadKeepAlive(token: token));
+            }
+            return;
+          }
+          // logger.i('Progress for $filePath: ${received / total * 100}');
+          ctrler.add(FileDownloadProgress(received / total, token: token));
         },
       ).then((response) {
-        ctrler.add(FileDownloadComplete(file));
+        ctrler.add(FileDownloadComplete(file, token: token));
       }).catchError((e, s) {
         logger.e('Error while downloading file cought in catchError', e);
         ctrler.addError(e, s);
@@ -465,56 +479,72 @@ class FileService {
     _fileActionStreamCtrler.close();
   }
 }
+//
+// Future<FileDownload> isolateDownloadFile({
+//   required BaseOptions dioBaseOptions,
+//   required String urlPath,
+//   required String savePath,
+//   required SendPort port,
+//   bool overWriteLocal = false,
+// }) async {
+//   var dio = Dio(dioBaseOptions);
+//   logger.i(
+//       'Created new dio instance for download with options: ${dioBaseOptions.connectTimeout}, ${dioBaseOptions.receiveTimeout}, ${dioBaseOptions.sendTimeout}');
+//   try {
+//     var file = File(savePath);
+//     if (!overWriteLocal && await file.exists()) {
+//       logger.i('File already exists, skipping download');
+//       return FileDownloadComplete(file, token: );
+//     }
+//     logger.i('Starting download of $urlPath to $savePath');
+//     var progress = FileDownloadProgress(0);
+//     port.send(progress);
+//     await file.create(recursive: true);
+//
+//     var response = await dio.download(
+//       urlPath,
+//       savePath,
+//       onReceiveProgress: (received, total) {
+//         if (total <= 0) return;
+//         port.send(FileDownloadProgress(received / total));
+//       },
+//     );
+//
+//     logger.i('Download complete');
+//     return FileDownloadComplete(file);
+//   } on DioException {
+//     rethrow;
+//   } catch (e) {
+//     logger.e('Error inside of isolate', e);
+//     throw MobilerakerException('Error while downloading file', parentException: e);
+//   } finally {
+//     logger.i('Closing dio instance');
+//     dio.close();
+//   }
+// }
 
-Future<FileDownload> isolateDownloadFile({
-  required BaseOptions dioBaseOptions,
-  required String urlPath,
-  required String savePath,
-  required SendPort port,
-  bool overWriteLocal = false,
-}) async {
-  var dio = Dio(dioBaseOptions);
-  logger.i(
-      'Created new dio instance for download with options: ${dioBaseOptions.connectTimeout}, ${dioBaseOptions.receiveTimeout}, ${dioBaseOptions.sendTimeout}');
-  try {
-    var file = File(savePath);
-    if (!overWriteLocal && await file.exists()) {
-      logger.i('File already exists, skipping download');
-      return FileDownloadComplete(file);
-    }
-    logger.i('Starting download of $urlPath to $savePath');
-    var progress = FileDownloadProgress(0);
-    port.send(progress);
-    await file.create(recursive: true);
-
-    var response = await dio.download(
-      urlPath,
-      savePath,
-      onReceiveProgress: (received, total) {
-        if (total <= 0) return;
-        port.send(FileDownloadProgress(received / total));
-      },
-    );
-
-    logger.i('Download complete');
-    return FileDownloadComplete(file);
-  } on DioException {
-    rethrow;
-  } catch (e) {
-    logger.e('Error inside of isolate', e);
-    throw MobilerakerException('Error while downloading file', parentException: e);
-  } finally {
-    logger.i('Closing dio instance');
-    dio.close();
-  }
+sealed class FileDownload {
+  CancelToken get token;
 }
 
-sealed class FileDownload {}
-
 class FileDownloadProgress extends FileDownload {
-  FileDownloadProgress(this.progress);
+  FileDownloadProgress(this.progress, {required this.token});
 
   final double progress;
+
+  @override
+  final CancelToken token;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FileDownloadProgress &&
+          runtimeType == other.runtimeType &&
+          (identical(progress, other.progress) || progress == other.progress) &&
+          (identical(token, other.token) || token == other.token);
+
+  @override
+  int get hashCode => Object.hash(progress, token);
 
   @override
   String toString() {
@@ -522,10 +552,46 @@ class FileDownloadProgress extends FileDownload {
   }
 }
 
+class FileDownloadKeepAlive extends FileDownload {
+  FileDownloadKeepAlive({required this.token}) : timeStamp = DateTime.now();
+  final DateTime timeStamp;
+  @override
+  final CancelToken token;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FileDownloadKeepAlive &&
+          runtimeType == other.runtimeType &&
+          (identical(timeStamp, other.timeStamp) || timeStamp == other.timeStamp) &&
+          (identical(token, other.token) || token == other.token);
+
+  @override
+  int get hashCode => Object.hash(timeStamp, token);
+
+  @override
+  String toString() {
+    return 'FileDownloadKeepAlive{timeStamp: $timeStamp}';
+  }
+}
+
 class FileDownloadComplete extends FileDownload {
-  FileDownloadComplete(this.file);
+  FileDownloadComplete(this.file, {required this.token});
 
   final File file;
+  @override
+  final CancelToken token;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FileDownloadComplete &&
+          runtimeType == other.runtimeType &&
+          (identical(file, other.file) || file == other.file) &&
+          (identical(token, other.token) || token == other.token);
+
+  @override
+  int get hashCode => Object.hash(file, token);
 
   @override
   String toString() {
