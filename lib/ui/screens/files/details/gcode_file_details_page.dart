@@ -201,6 +201,10 @@ class _CompactBody extends HookConsumerWidget {
                     subtitle: model.file.absolutPath,
                   ),
                   _PropertyTile(
+                    title: 'pages.files.sort_by.file_size'.tr(),
+                    subtitle: model.file.size?.let(numFormat.formatFileSize) ?? 'general.unknown'.tr(),
+                  ),
+                  _PropertyTile(
                     title: 'pages.files.details.general_card.last_mod'.tr(),
                     subtitle: model.file.modifiedDate?.let(dateFormatGeneral.format) ?? 'general.unknown'.tr(),
                   ),
