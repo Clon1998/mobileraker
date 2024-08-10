@@ -32,6 +32,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -49,12 +50,15 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -82,14 +86,19 @@ class FileManagerPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Widget body = MachineConnectionGuard(
+        onConnected: (ctx, machineUUID) => _ManagerBody(machineUUID: machineUUID, filePath: filePath));
+    final fab = _Fab(filePath: filePath);
+    if (context.isLargerThanCompact) {
+      body = NavigationRailView(leading: fab, page: body);
+    }
+
     return Scaffold(
       appBar: _AppBar(filePath: filePath, folder: folder),
       drawer: const NavigationDrawerWidget().unless(filePath.split('/').length > 1),
       bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
-      // floatingActionButton: fab.unless(context.isLargerThanCompact),
-      body: MachineConnectionGuard(
-        onConnected: (_, machineUUID) => _ManagerBody(machineUUID: machineUUID, filePath: filePath),
-      ),
+      floatingActionButton: fab.unless(context.isLargerThanCompact),
+      body: body,
     );
   }
 }
@@ -126,11 +135,11 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
                 final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
 
                 return IconButton(
-            tooltip: tr('pages.files.search_files'),
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              final box = context.findRenderObject() as RenderBox?;
-              final pos = box!.localToGlobal(Offset.zero) & box.size;
+                  tooltip: tr('pages.files.search_files'),
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () {
+                    final box = context.findRenderObject() as RenderBox?;
+                    final pos = box!.localToGlobal(Offset.zero) & box.size;
 
                     controller.onClickFileAction(folder!, pos);
                   },
@@ -151,6 +160,52 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _Fab extends ConsumerWidget {
+  const _Fab({super.key, required this.filePath});
+
+  final String filePath;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selMachine = ref.watch(selectedMachineProvider).valueOrNull;
+
+    if (selMachine == null) {
+      return const SizedBox.shrink();
+    }
+
+    final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        if (filePath == 'gcodes')
+          AnimatedSwitcher(
+            duration: kThemeAnimationDuration,
+            switchInCurve: Curves.easeInOutCubicEmphasized,
+            switchOutCurve: Curves.easeInOutCubicEmphasized,
+            // duration: kThemeAnimationDuration,
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: animation,
+              child: child,
+            ),
+            child: JobQueueFab(
+              machineUUID: selMachine.uuid,
+              onPressed: controller.onJobQueueFab,
+              mini: true,
+              hideIfEmpty: true,
+            ),
+          ),
+        const Gap(4),
+        FloatingActionButton(
+          heroTag: null,
+          onPressed: () => null,
+          child: const Icon(Icons.add),
+        ),
+      ],
+    );
+  }
 }
 
 class _BottomNav extends ConsumerWidget {
@@ -867,6 +922,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // ref.invalidate(fileApiResponseProvider(machineUUID, filePath));
     ref.invalidate(moonrakerFolderContentProvider);
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
+  }
+
+  void onJobQueueFab() {
+    ref
+        .read(bottomSheetServiceProvider)
+        .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true));
   }
 
   //////////////////// ACTIONS ////////////////////
