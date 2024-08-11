@@ -17,7 +17,9 @@ class RemoteFileListTile extends ConsumerWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
+    this.onLongPress,
     this.useHero = true,
+    this.selected = false,
   });
 
   final String machineUUID;
@@ -25,27 +27,61 @@ class RemoteFileListTile extends ConsumerWidget {
   final Widget? subtitle;
   final Widget? trailing;
   final GestureTapCallback? onTap;
+  final GestureLongPressCallback? onLongPress;
   final bool useHero;
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
+      selected: selected,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14),
       horizontalTitleGap: 8,
       leading: SizedBox(
         width: 42,
         height: 42,
-        child: RemoteFileIcon(
-          machineUUID: machineUUID,
+          child: _Leading(
+            machineUUID: machineUUID,
           file: file,
           useHero: useHero,
-        ),
-      ),
+            selected: selected,
+          )),
       trailing: trailing,
       title: Text(file.name, overflow: TextOverflow.ellipsis, maxLines: 1),
       dense: true,
       subtitle: subtitle,
       onTap: onTap,
+      onLongPress: onLongPress,
+    );
+  }
+}
+
+class _Leading extends StatelessWidget {
+  const _Leading(
+      {super.key, required this.machineUUID, required this.file, required this.useHero, required this.selected});
+
+  final String machineUUID;
+  final RemoteFile file;
+  final bool useHero;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    var widget = selected
+        ? const Align(alignment: Alignment.center, child: Icon(Icons.check_circle))
+        : RemoteFileIcon(
+            machineUUID: machineUUID,
+            file: file,
+            useHero: useHero,
+          );
+    return AnimatedSwitcher(
+      key: ValueKey(file),
+      transitionBuilder: (child, animation) =>
+          ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child)),
+      switchInCurve: Curves.easeInOutCubicEmphasized,
+      switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+      duration: kThemeAnimationDuration,
+      child: widget,
     );
   }
 }

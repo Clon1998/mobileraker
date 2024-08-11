@@ -623,14 +623,19 @@ class _FileListState extends ConsumerState<_FileList> {
                 itemCount: content.length,
                 itemBuilder: (context, index) {
                   final file = content[index];
-                  return _FileItem(
-                    key: ValueKey(file),
-                    enabled: !folderContent.isLoading,
-                    machineUUID: widget.machineUUID,
-                    file: file,
-                    dateFormat: dateFormat,
-                    sortMode: sortConfiguration.mode,
-                  );
+                  return Consumer(builder: (context, ref, _) {
+                    final selected = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
+                        .select((d) => d.selectedFiles.contains(file)));
+                    return _FileItem(
+                      key: ValueKey(file),
+                      enabled: !folderContent.isLoading,
+                      selected: selected,
+                      machineUUID: widget.machineUUID,
+                      file: file,
+                      dateFormat: dateFormat,
+                      sortMode: sortConfiguration.mode,
+                    );
+                  });
                 },
               ),
             ],
@@ -692,6 +697,7 @@ class _FileItem extends ConsumerWidget {
     required this.dateFormat,
     required this.sortMode,
     this.enabled = true,
+    this.selected = false,
   });
 
   final String machineUUID;
@@ -700,6 +706,7 @@ class _FileItem extends ConsumerWidget {
   final SortMode sortMode;
 
   final bool enabled;
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -717,22 +724,25 @@ class _FileItem extends ConsumerWidget {
     };
 
     return RemoteFileListTile(
-      machineUUID: machineUUID,
-      file: file,
-      subtitle: subtitle,
-      trailing: IconButton(
-        icon: const Icon(Icons.more_horiz, size: 22),
-        onPressed: () {
-          final box = context.findRenderObject() as RenderBox?;
-          final pos = box!.localToGlobal(Offset.zero) & box.size;
+        machineUUID: machineUUID,
+        file: file,
+        selected: selected,
+        subtitle: subtitle,
+        trailing: IconButton(
+          icon: const Icon(Icons.more_horiz, size: 22),
+          onPressed: () {
+            final box = context.findRenderObject() as RenderBox?;
+            final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-          controller.onClickFileAction(file, pos);
+            controller.onClickFileAction(file, pos);
+          }.only(enabled),
+        ),
+        onTap: () {
+          controller.onClickFile(file);
         }.only(enabled),
-      ),
-      onTap: () {
-        controller.onClickFile(file);
-      }.only(enabled),
-    );
+        onLongPress: () {
+          controller.onLongClickFile(file);
+        }.only(enabled));
   }
 
   Widget buildLeading(
@@ -851,6 +861,19 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         break;
       default:
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, extra: file);
+    }
+  }
+
+  void onLongClickFile(RemoteFile file) {
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] file longPress: ${file.name}');
+    // _goRouter.pushNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': file.absolutPath});
+
+    // if not in selected, add
+    if (!state.selectedFiles.contains(file)) {
+      state = state.copyWith(selectedFiles: [...state.selectedFiles, file]);
+    } else {
+      // if in selected, remove
+      state = state.copyWith(selectedFiles: state.selectedFiles.where((it) => it != file).toList());
     }
   }
 
@@ -1434,5 +1457,6 @@ class _Model with _$Model {
     required SortConfiguration sortConfiguration,
     FileOperation? download,
     FileOperation? upload,
+    @Default([]) List<RemoteFile> selectedFiles,
   }) = __Model;
 }
