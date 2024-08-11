@@ -33,6 +33,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -182,15 +183,15 @@ class _Fab extends ConsumerWidget {
     }
 
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
-    final (isDownloading, isUploading, isFilesLoading) =
+    final (isDownloading, isUploading, isFilesLoading, isSelecting) =
         ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
-      return (data.download != null, data.upload != null, data.folderContent.isLoading);
+      return (data.download != null, data.upload != null, data.folderContent.isLoading, data.selectionMode);
     }));
     final connected =
         ref.watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
     final isUpOrDownloading = isDownloading || isUploading;
 
-    if (!connected || filePath == 'timelapse') {
+    if (!connected || filePath == 'timelapse' || isSelecting) {
       return const SizedBox.shrink();
     }
 
@@ -255,6 +256,9 @@ class _BottomNav extends ConsumerWidget {
 
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
+    final inSelectionMode = ref.watch(
+        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
+
     // 1 => 'config',
     // 2 => 'timelapse',
     // _ => 'gcodes',
@@ -270,7 +274,8 @@ class _BottomNav extends ConsumerWidget {
 
     // ref.watch(provider)
 
-    return BottomNavigationBar(
+    var navigationBar = BottomNavigationBar(
+      key: Key('file_manager_bottom_nav'),
       showSelectedLabels: true,
       currentIndex: activeIndex,
       // onTap: ref.read(filePageProvider.notifier).onPageTapped,
@@ -293,6 +298,15 @@ class _BottomNav extends ConsumerWidget {
             icon: const Icon(Icons.subscriptions_outlined),
           ),
       ],
+    );
+    const dur = kThemeAnimationDuration;
+    return AnimatedSizeAndFade(
+      fadeDuration: dur,
+      sizeDuration: dur,
+      fadeInCurve: Curves.easeInOutCubicEmphasized,
+      fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+      sizeCurve: Curves.easeInOutCubicEmphasized,
+      child: inSelectionMode ? SizedBox.shrink(key: Key('file_manager_bottom_nav-hidden')) : navigationBar,
     );
   }
 }
@@ -623,19 +637,13 @@ class _FileListState extends ConsumerState<_FileList> {
                 itemCount: content.length,
                 itemBuilder: (context, index) {
                   final file = content[index];
-                  return Consumer(builder: (context, ref, _) {
-                    final selected = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
-                        .select((d) => d.selectedFiles.contains(file)));
-                    return _FileItem(
-                      key: ValueKey(file),
-                      enabled: !folderContent.isLoading,
-                      selected: selected,
-                      machineUUID: widget.machineUUID,
-                      file: file,
-                      dateFormat: dateFormat,
-                      sortMode: sortConfiguration.mode,
-                    );
-                  });
+                  return _FileItem(
+                    key: ValueKey(file),
+                    machineUUID: widget.machineUUID,
+                    file: file,
+                    dateFormat: dateFormat,
+                    sortMode: sortConfiguration.mode,
+                  );
                 },
               ),
             ],
@@ -696,8 +704,6 @@ class _FileItem extends ConsumerWidget {
     required this.file,
     required this.dateFormat,
     required this.sortMode,
-    this.enabled = true,
-    this.selected = false,
   });
 
   final String machineUUID;
@@ -705,12 +711,14 @@ class _FileItem extends ConsumerWidget {
   final DateFormat dateFormat;
   final SortMode sortMode;
 
-  final bool enabled;
-  final bool selected;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).notifier);
+
+    final (selected, selectionMode, enabled) = ref.watch(
+        _modernFileManagerControllerProvider(machineUUID, file.parentPath)
+            .select((d) => (d.selectedFiles.contains(file), d.selectionMode, d.folderContent.isLoading == false)));
+
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
@@ -728,17 +736,31 @@ class _FileItem extends ConsumerWidget {
         file: file,
         selected: selected,
         subtitle: subtitle,
-        trailing: IconButton(
-          icon: const Icon(Icons.more_horiz, size: 22),
-          onPressed: () {
-            final box = context.findRenderObject() as RenderBox?;
-            final pos = box!.localToGlobal(Offset.zero) & box.size;
+        trailing: AnimatedSizeAndFade(
+          fadeDuration: kThemeAnimationDuration,
+          sizeDuration: kThemeAnimationDuration,
+          fadeInCurve: Curves.easeInOutCubicEmphasized,
+          fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+          sizeCurve: Curves.easeInOutCubicEmphasized,
+          child: selectionMode
+              ? const SizedBox.shrink()
+              : IconButton(
+                  key: Key('file_item_more_button_${file.hashCode}'),
+                  icon: const Icon(Icons.more_horiz, size: 22),
+                  onPressed: () {
+                    final box = context.findRenderObject() as RenderBox?;
+                    final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-            controller.onClickFileAction(file, pos);
-          }.only(enabled),
+                    controller.onClickFileAction(file, pos);
+            }.only(enabled),
+          ),
         ),
         onTap: () {
-          controller.onClickFile(file);
+          if (selectionMode) {
+            controller.onLongClickFile(file);
+          } else {
+            controller.onClickFile(file);
+          }
         }.only(enabled),
         onLongPress: () {
           controller.onLongClickFile(file);
@@ -1459,4 +1481,6 @@ class _Model with _$Model {
     FileOperation? upload,
     @Default([]) List<RemoteFile> selectedFiles,
   }) = __Model;
+
+  bool get selectionMode => selectedFiles.isNotEmpty;
 }

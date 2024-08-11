@@ -64,7 +64,7 @@ class _Entry extends StatelessWidget {
       child: ListTile(
         leading: ico,
         visualDensity: VisualDensity.compact,
-        horizontalTitleGap: 0,
+        horizontalTitleGap: 16,
         title: Text(mode.translation).tr(),
         selectedTileColor: themeData.colorScheme.secondaryFixed.withOpacity(0.9),
         selectedColor: themeData.colorScheme.onSecondaryFixed,
