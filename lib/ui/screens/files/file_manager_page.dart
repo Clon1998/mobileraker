@@ -896,6 +896,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           DividerSheetAction.divider,
         ],
         FileSheetAction.rename,
+        FileSheetAction.copy,
         FileSheetAction.move,
         FileSheetAction.delete,
       ],
@@ -930,6 +931,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           break;
         case FileSheetAction.move:
           _moveFileAction(file);
+        case FileSheetAction.copy:
+          _copyFileAction(file);
           break;
         default:
           logger.w('Action not implemented: $resp');
@@ -968,7 +971,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              '^[\\w.\\-]+\$',
+              r'^\w?[\w .-]*[\w-]$',
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
             notContains(
@@ -1113,11 +1116,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         data: TextInputDialogArguments(
           initialValue: file.fileName,
           labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
-          suffixText: file.fileExtension,
+          suffixText: file.fileExtension?.let((it) => '.$it'),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              '^[\\w.-]+\$',
+              r'^\w?[\w .-]*[\w-]$',
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
             notContains(
@@ -1155,7 +1158,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final res = await _goRouter.pushNamed(
       AppRoute.fileManager_exlorer_move.name,
       pathParameters: {'path': filePath.split('/').first},
-      queryParameters: {'machineUUID': machineUUID},
+      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.move_here')},
     );
 
     if (res case String()) {
@@ -1163,6 +1166,52 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving file ${file.name} to $res');
       state = state.copyWith(folderContent: state.folderContent.toLoading(true));
       _fileService.moveFile(file.absolutPath, res).ignore();
+    }
+  }
+
+  Future<void> _copyFileAction(RemoteFile file) async {
+    // First name of the new copy
+    var dialogResponse = await _dialogService.show(
+      DialogRequest(
+        type: DialogType.textInput,
+        title: file is Folder ? tr('dialogs.copy_folder.title') : tr('dialogs.copy_file.title'),
+        actionLabel: tr('pages.files.file_actions.copy'),
+        data: TextInputDialogArguments(
+          initialValue: '${file.fileName}_copy${file.fileExtension?.let((it) => '.$it') ?? ''}',
+          labelText: file is Folder ? tr('dialogs.copy_file.label') : tr('dialogs.copy_file.label'),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.match(
+              r'^\w?[\w .-]*[\w-]$',
+              errorText: tr('pages.files.no_matches_file_pattern'),
+            ),
+            notContains(
+              state.folderContent.requireValue.folderFileNames,
+              errorText: tr('pages.files.file_name_in_use'),
+            ),
+          ]),
+        ),
+      ),
+    );
+
+    if (dialogResponse?.confirmed == false) return;
+    final copyName = dialogResponse!.data;
+
+    final res = await _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_move.name,
+      pathParameters: {'path': filePath.split('/').first},
+      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.copy_here')},
+    );
+
+    if (res case String()) {
+      final copyPath = '$res/$copyName';
+      logger
+          .i('[ModernFileManagerController($machineUUID, $filePath)] creating copy of file ${file.name} at $copyPath');
+      await _fileService.copyFile(file.absolutPath, copyPath);
+      _snackBarService.show(SnackBarConfig(
+        title: tr('pages.files.file_operation.copy_created.title'),
+        message: tr('pages.files.file_operation.copy_created.body', args: [copyPath]),
+      ));
     }
   }
 

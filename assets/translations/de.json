@@ -271,6 +271,7 @@
       "file_actions": {
         "download": "Herunterladen",
         "delete": "Löschen",
+        "copy": "Kopieren",
         "move": "Verschieben",
         "rename": "Umbenennen",
         "create_folder": "Ordner erstellen",
@@ -302,6 +303,10 @@
         "upload_failed": {
           "title": "Upload fehlgeschlagen",
           "body": "Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        },
+        "copy_created": {
+          "title": "Kopie erstellt",
+          "body": "Die Datei wurde erfolgreich nach '{}' kopiert."
         }
       },
       "search_files": "Im Ordner suchen",
@@ -318,6 +323,7 @@
         "download": "Download abbrechen"
       },
       "move_here": "Hierhin verschieben",
+      "copy_here": "Hierhin kopieren",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",
       "gcode_tab": "GCodes",
       "config_tab": "Konfigs",
@@ -877,11 +883,19 @@
       "title": "Ordner umbenennen",
       "label": "Ordnername"
     },
+    "copy_folder": {
+      "title": "Ordner kopieren",
+      "label": "Ordnername"
+    },
     "delete_file": {
       "description": "Bestätigen Sie die Löschung der Datei '{}'."
     },
     "rename_file": {
       "title": "Datei umbenennen",
+      "label": "Dateiname"
+    },
+    "copy_file": {
+      "title": "Datei kopieren",
       "label": "Dateiname"
     },
     "exclude_object": {

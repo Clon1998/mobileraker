@@ -47,10 +47,11 @@ part 'move_file_destination_page.freezed.dart';
 part 'move_file_destination_page.g.dart';
 
 class MoveFileDestinationPage extends HookWidget {
-  const MoveFileDestinationPage({super.key, required this.machineUUID, required this.path});
+  const MoveFileDestinationPage({super.key, required this.machineUUID, required this.path, required this.submitLabel});
 
   final String machineUUID;
   final String path;
+  final String submitLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -64,16 +65,17 @@ class MoveFileDestinationPage extends HookWidget {
         // ),
         title: Text(path.split('/').last.capitalize()),
       ),
-      body: SafeArea(child: _Body(machineUUID: machineUUID, root: path)),
+      body: SafeArea(child: _Body(machineUUID: machineUUID, root: path, submitLabel: submitLabel)),
     );
   }
 }
 
 class _Body extends HookConsumerWidget {
-  const _Body({super.key, required this.machineUUID, required this.root});
+  const _Body({super.key, required this.machineUUID, required this.root, required this.submitLabel});
 
   final String machineUUID;
   final String root;
+  final String submitLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,27 +86,28 @@ class _Body extends HookConsumerWidget {
       }
     });
 
-    final controller = ref.watch(_fileManagerMovePageControllerProvider(machineUUID, root).notifier);
+    final controller = ref.watch(_fileManagerMovePageControllerProvider(machineUUID, root, submitLabel).notifier);
 
     return Column(
       children: [
-        Expanded(child: _FolderList(machineUUID: machineUUID, root: root)),
-        _Footer(onMoveHere: controller.onMoveHere),
+        Expanded(child: _FolderList(machineUUID: machineUUID, root: root, submitLabel: submitLabel)),
+        _Footer(onMoveHere: controller.onMoveHere, submitLabel: submitLabel),
       ],
     );
   }
 }
 
 class _FolderList extends ConsumerWidget {
-  const _FolderList({super.key, required this.machineUUID, required this.root});
+  const _FolderList({super.key, required this.machineUUID, required this.root, required this.submitLabel});
 
   final String machineUUID;
   final String root;
+  final String submitLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(_fileManagerMovePageControllerProvider(machineUUID, root));
-    final controller = ref.read(_fileManagerMovePageControllerProvider(machineUUID, root).notifier);
+    final model = ref.watch(_fileManagerMovePageControllerProvider(machineUUID, root, submitLabel));
+    final controller = ref.read(_fileManagerMovePageControllerProvider(machineUUID, root, submitLabel).notifier);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
     final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
@@ -207,9 +210,11 @@ class _FolderList extends ConsumerWidget {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({super.key, required this.onMoveHere});
+  const _Footer({super.key, required this.onMoveHere, required this.submitLabel});
 
   final VoidCallback? onMoveHere;
+
+  final String submitLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +224,7 @@ class _Footer extends StatelessWidget {
       children: [
         TextButton(onPressed: () => context.pop(), child: const Text('general.cancel').tr()),
         const Gap(16),
-        TextButton(onPressed: onMoveHere, child: const Text('pages.files.move_here').tr()),
+        TextButton(onPressed: onMoveHere, child: Text(submitLabel)),
         const Gap(16),
       ],
     );
@@ -237,7 +242,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
   @override
-  FutureOr<_Model> build(String machineUUID, String filePath) async {
+  FutureOr<_Model> build(String machineUUID, String filePath, String submitLabel) async {
     ref.listen(fileNotificationsProvider(machineUUID, filePath),
         (prev, next) => next.whenData((notification) => _onFileNotification(notification)));
 
@@ -273,7 +278,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
     final res = await _goRouter.pushNamed(
       AppRoute.fileManager_exlorer_move.name,
       pathParameters: {'path': folder.absolutPath},
-      queryParameters: {'machineUUID': machineUUID},
+      queryParameters: {'machineUUID': machineUUID, 'submitLabel': submitLabel},
     );
 
     //TODO: Add an result. Because we can not handle the path + cancel + back button...

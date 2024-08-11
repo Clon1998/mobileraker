@@ -363,6 +363,18 @@ class FileService {
     }
   }
 
+  Future<FileActionResponse> copyFile(String origin, String destination) async {
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Copying file from $origin to $destination');
+
+    try {
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.copy',
+          params: {'source': origin, 'dest': destination}, timeout: _apiRequestTimeout);
+      return FileActionResponse.fromJson(rpcResponse.result);
+    } on JRpcError catch (e) {
+      throw FileActionException('Jrpc error while trying to copy file.', reqPath: origin, parent: e);
+    }
+  }
+
   Stream<FileOperation> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');

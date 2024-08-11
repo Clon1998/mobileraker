@@ -193,7 +193,10 @@ GoRouter goRouterImpl(GoRouterRef ref) {
                 path: 'move',
                 name: AppRoute.fileManager_exlorer_move.name,
                 builder: (context, state) => MoveFileDestinationPage(
-                    machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
+                  machineUUID: state.uri.queryParameters['machineUUID']!,
+                  path: state.pathParameters['path']!,
+                  submitLabel: state.uri.queryParameters['submitLabel']!,
+                ),
                 pageBuilder: (context, state) {
                   final path = state.pathParameters['path'] as String;
                   final parts = path.split('/');

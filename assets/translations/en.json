@@ -271,6 +271,7 @@
       "file_actions": {
         "download": "Download",
         "delete": "Delete",
+        "copy": "Copy",
         "move": "Move",
         "rename": "Rename",
         "create_folder": "Create Folder",
@@ -302,6 +303,10 @@
         "upload_failed": {
           "title": "Upload failed",
           "body": "An error occurred while trying to upload the file. Please retry later."
+        },
+        "copy_created": {
+          "title": "Copy created",
+          "body": "The copy was successfully created at '{}'."
         }
       },
       "search_files": "Search in folder",
@@ -318,6 +323,7 @@
         "download": "Cancel Download"
       },
       "move_here": "Move here",
+      "copy_here": "Copy here",
       "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
       "gcode_tab": "GCodes",
       "config_tab": "Configs",
@@ -877,11 +883,19 @@
       "title": "Rename Folder",
       "label": "Folder Name"
     },
+    "copy_folder": {
+      "title": "Copy Folder",
+      "label": "Folder Name"
+    },
     "delete_file": {
       "description": "Confirm deletion of file '{}'."
     },
     "rename_file": {
       "title": "Rename File",
+      "label": "File Name"
+    },
+    "copy_file": {
+      "title": "Copy File",
       "label": "File Name"
     },
     "exclude_object": {
