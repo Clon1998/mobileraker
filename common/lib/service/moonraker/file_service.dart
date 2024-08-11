@@ -246,7 +246,7 @@ class FileService {
   final Duration _apiRequestTimeout;
 
   Future<List<FileRoot>> fetchRoots() async {
-    logger.i('Fetching roots');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Fetching roots');
 
     try {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.roots', timeout: _apiRequestTimeout);
@@ -257,13 +257,13 @@ class FileService {
         return FileRoot.fromJson(element);
       });
     } on JRpcError catch (e) {
-      logger.w('Error while fetching roots', e);
+      logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Error while fetching roots', e);
       throw FileFetchException('Jrpc error while trying to fetch roots.', parent: e);
     }
   }
 
   Future<FolderContentWrapper> fetchDirectoryInfo(String path, [bool extended = false]) async {
-    logger.i('Fetching for `$path` [extended:$extended]');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Fetching for `$path` [extended:$extended]');
 
     try {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
@@ -294,7 +294,7 @@ class FileService {
   }
 
   Future<GCodeFile> getGCodeMetadata(String filename) async {
-    logger.i('Getting meta for file: `$filename`');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filename`');
 
     final parentPathParts = filename.split('/')
       ..removeLast()
@@ -308,7 +308,7 @@ class FileService {
       return GCodeFile.fromJson(blockingResp.result, parentPath);
     } on JRpcError catch (e) {
       if (e.message.contains('Metadata not available for')) {
-        logger.w('Metadata not available for $filename');
+        logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filename');
         return GCodeFile(name: filename, parentPath: parentPath, modified: -1, size: -1);
       }
 
@@ -317,7 +317,7 @@ class FileService {
   }
 
   Future<FileActionResponse> createDir(String filePath) async {
-    logger.i('Creating Folder "$filePath"');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Creating Folder "$filePath"');
 
     try {
       final rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory',
@@ -329,7 +329,7 @@ class FileService {
   }
 
   Future<FileActionResponse> deleteFile(String filePath) async {
-    logger.i('Deleting File "$filePath"');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Deleting File "$filePath"');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.delete_file',
@@ -341,7 +341,7 @@ class FileService {
   }
 
   Future<FileActionResponse> deleteDirForced(String filePath) async {
-    logger.i('Deleting Folder-Forced "$filePath"');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Deleting Folder-Forced "$filePath"');
     try {
       RpcResponse rpcResponse =
           await _jRpcClient.sendJRpcMethod('server.files.delete_directory', params: {'path': filePath, 'force': true});
@@ -352,7 +352,7 @@ class FileService {
   }
 
   Future<FileActionResponse> moveFile(String origin, String destination) async {
-    logger.i('Moving file from $origin to $destination');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Moving file from $origin to $destination');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.move',
@@ -369,7 +369,7 @@ class FileService {
     final StreamController<FileOperation> updateProgress = StreamController();
     final token = CancelToken();
 
-    logger.i('Starting download of $filePath to ${file.path}');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
 
     Completer<bool>? debounceKeepAlive;
     // I can not await this because I need to use the callbacks to fill my streamController
@@ -379,7 +379,7 @@ class FileService {
       cancelToken: token,
       onReceiveProgress: (received, total) {
         if (total <= 0) {
-          // logger.i('Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+          // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
           // Debounce the keep alive to not spam the stream
           if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
             debounceKeepAlive = Completer();
@@ -390,24 +390,26 @@ class FileService {
           }
           return;
         }
-        // logger.i('Progress for $filePath: ${received / total * 100}');
+        // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
         updateProgress.add(FileOperationProgress(received / total, token: token));
       },
     ).then((response) {
-      logger.i('Download of "$filePath" completed');
+      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" completed');
       updateProgress.add(FileDownloadComplete(file, token: token));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
-        logger.i('Download of "$filePath" was canceled');
+        logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" was canceled');
         updateProgress.add(FileOperationCanceled(token: token));
       } else {
-        logger.e('Error while downloading file "$filePath" caught in catchError', e);
+        logger.e(
+            '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while downloading file "$filePath" caught in catchError',
+            e);
         updateProgress.addError(e, s);
       }
     }).whenComplete(updateProgress.close);
 
     yield* updateProgress.stream;
-    logger.i('File download completed');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File download completed');
   }
 
   Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent) async* {
@@ -419,7 +421,8 @@ class FileService {
     final StreamController<FileOperation> updateStream = StreamController();
     final token = CancelToken();
 
-    logger.i('Starting upload of ${uploadContent.filename ?? 'unknown'} to $filePath');
+    logger.i(
+        '[FileService($_machineUUID, ${_jRpcClient.uri})] Starting upload of ${uploadContent.filename ?? 'unknown'} to $filePath');
 
     Completer<bool>? debounceKeepAlive;
 
@@ -431,7 +434,7 @@ class FileService {
       cancelToken: token,
       onSendProgress: (sent, total) {
         if (total <= 0) {
-          // logger.i('Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+          // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
           // Debounce the keep alive to not spam the stream
           if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
             debounceKeepAlive = Completer();
@@ -442,27 +445,30 @@ class FileService {
           }
           return;
         }
-        // logger.i('Progress for $filePath: ${received / total * 100}');
+        // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
         updateStream.add(FileOperationProgress(sent / total, token: token));
       },
     ).then((response) {
       final res = FileActionResponse.fromJson(response.data);
-      logger.i('Upload of ${uploadContent.filename ?? 'unknown'} to $filePath completed');
-      logger.i('Response: $res');
+      logger.i(
+          '[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of ${uploadContent.filename ?? 'unknown'} to $filePath completed');
+      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Response: $res');
 
       updateStream.add(FileUploadComplete(res.item.fullPath, token: token));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
-        logger.i('Upload of "$filePath" was canceled');
+        logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of "$filePath" was canceled');
         updateStream.add(FileOperationCanceled(token: token));
       } else {
-        logger.e('Error while uploading file "$filePath" caught in catchError', e);
+        logger.e(
+            '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while uploading file "$filePath" caught in catchError',
+            e);
         updateStream.addError(e, s);
       }
     }).whenComplete(updateStream.close);
 
     yield* updateStream.stream;
-    logger.i('File upload completed');
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File upload completed');
   }
 
   _onFileListChanged(AsyncValue<Map<String, dynamic>>? previous, AsyncValue<Map<String, dynamic>> next) {
@@ -534,10 +540,10 @@ class FileService {
 //   try {
 //     var file = File(savePath);
 //     if (!overWriteLocal && await file.exists()) {
-//       logger.i('File already exists, skipping download');
+//       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
 //       return FileDownloadComplete(file, token: );
 //     }
-//     logger.i('Starting download of $urlPath to $savePath');
+//     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $urlPath to $savePath');
 //     var progress = FileDownloadProgress(0);
 //     port.send(progress);
 //     await file.create(recursive: true);
@@ -551,15 +557,15 @@ class FileService {
 //       },
 //     );
 //
-//     logger.i('Download complete');
+//     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download complete');
 //     return FileDownloadComplete(file);
 //   } on DioException {
 //     rethrow;
 //   } catch (e) {
-//     logger.e('Error inside of isolate', e);
+//     logger.e('[FileService($_machineUUID, ${_jRpcClient.uri})] Error inside of isolate', e);
 //     throw MobilerakerException('Error while downloading file', parentException: e);
 //   } finally {
-//     logger.i('Closing dio instance');
+//     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Closing dio instance');
 //     dio.close();
 //   }
 // }
