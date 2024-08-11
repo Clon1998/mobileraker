@@ -8,16 +8,17 @@ import 'package:flutter_icons/flutter_icons.dart';
 
 import '../model/sheet_action_mixin.dart';
 
+/// Actions specific to Gcode files.
 enum GcodeFileSheetAction with BottomSheetAction {
-  submitPrintJob('Submit Print Job', FlutterIcons.printer_3d_nozzle_mco),
-  preheat('Preheat', MobilerakerIcons.nozzle_heat),
-  addToQueue('Add to Print-Queue', Icons.queue),
+  submitPrintJob('pages.files.gcode_file_actions.submit', FlutterIcons.printer_3d_nozzle_mco),
+  preheat('pages.files.gcode_file_actions.preheat', MobilerakerIcons.nozzle_heat),
+  addToQueue('pages.files.gcode_file_actions.enqueue', Icons.queue),
   ;
 
-  const GcodeFileSheetAction(this.label, this.icon);
+  const GcodeFileSheetAction(this.labelTranslationKey, this.icon);
 
   @override
-  final String label;
+  final String labelTranslationKey;
 
   @override
   final IconData icon;

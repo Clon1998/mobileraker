@@ -20,6 +20,8 @@ mixin RemoteFile {
 
   String get absolutPath => '$parentPath/$name';
 
+  String get relativeToRoot => absolutPath.split('/').skip(1).join('/');
+
   String get fileName => name.split('.').first;
 
   String? get fileExtension => name.split('.').length > 1 ? name.split('.').last : null;

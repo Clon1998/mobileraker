@@ -8,6 +8,7 @@ import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/bottomsheet/adaptive_draggable_scrollable_sheet.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,18 +39,20 @@ class ActionBottomSheet extends ConsumerWidget {
               const Gap(10),
               // _Header(title: arguments.title, subtitle: arguments.subtitle, leading: arguments.leading),
               // Divider(),
-              ListTile(
-                visualDensity: VisualDensity.compact,
-                titleAlignment: ListTileTitleAlignment.center,
-                leading: arguments.leading,
-                iconColor: themeData.colorScheme.primary,
-                // leading: arguments.leading,
-                horizontalTitleGap: 8,
-                title: arguments.title,
-                subtitle: arguments.subtitle,
-                minLeadingWidth: 42,
-              ),
-              const Divider(),
+              if (arguments.title != null) ...[
+                ListTile(
+                  visualDensity: VisualDensity.compact,
+                  titleAlignment: ListTileTitleAlignment.center,
+                  leading: arguments.leading,
+                  iconColor: themeData.colorScheme.primary,
+                  // leading: arguments.leading,
+                  horizontalTitleGap: 8,
+                  title: arguments.title,
+                  subtitle: arguments.subtitle,
+                  minLeadingWidth: 42,
+                ),
+                const Divider(),
+              ],
               for (final action in arguments.actions) _Entry(action: action),
             ],
           ),
@@ -127,7 +130,7 @@ class _Entry extends StatelessWidget {
             leading: Icon(action.icon),
             horizontalTitleGap: 24,
             // horizontalTitleGap: 8,
-            title: Text(action.label),
+            title: Text(action.labelTranslationKey).tr(),
             minLeadingWidth: 42,
             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(44)))
                 .only(themeData.useMaterial3),
@@ -141,9 +144,9 @@ class _Entry extends StatelessWidget {
 }
 
 class ActionBottomSheetArgs {
-  const ActionBottomSheetArgs({required this.title, required this.actions, this.leading, this.subtitle});
+  const ActionBottomSheetArgs({this.title, required this.actions, this.leading, this.subtitle});
 
-  final Widget title;
+  final Widget? title;
   final Widget? subtitle;
   final Widget? leading;
   final List<BottomSheetAction> actions;

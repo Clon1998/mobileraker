@@ -124,7 +124,7 @@ class _FolderList extends ConsumerWidget {
               SortedFileListHeader(
                 activeSortConfig: null,
                 trailing: IconButton(
-                  padding: const EdgeInsets.only(right: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
                   onPressed: controller.onCreateFolder.only(!model.isLoading),
                   icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),

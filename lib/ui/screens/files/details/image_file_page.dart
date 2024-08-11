@@ -5,6 +5,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/data/model/file_operation.dart';
 import 'package:common/network/dio_provider.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/selected_machine_service.dart';

@@ -268,6 +268,42 @@
         "last_printed": "Zuletzt gedruckt",
         "file_size": "Dateigröße"
       },
+      "file_actions": {
+        "download": "Herunterladen",
+        "delete": "Löschen",
+        "move": "Verschieben",
+        "rename": "Umbenennen",
+        "create_folder": "Ordner erstellen",
+        "upload": "Datei hochladen",
+        "upload_bulk": "Dateien hochladen"
+      },
+      "gcode_file_actions": {
+        "submit": "Datei drucken",
+        "preheat": "Vorheizen",
+        "enqueue": "Zur Warteschlange hinzufügen"
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "Download abgebrochen",
+          "body": "Der Download wurde abgebrochen."
+        },
+        "download_failed": {
+          "title": "Download fehlgeschlagen",
+          "body": "Beim Herunterladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        },
+        "upload_canceled": {
+          "title": "Upload abgebrochen",
+          "body": "Der Upload wurde abgebrochen."
+        },
+        "upload_success": {
+          "title": "Upload erfolgreich",
+          "body": "Die Datei wurde erfolgreich hochgeladen."
+        },
+        "upload_failed": {
+          "title": "Upload fehlgeschlagen",
+          "body": "Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        }
+      },
       "search_files": "Im Ordner suchen",
       "search": {
         "clear_search": "Suche löschen",
@@ -276,6 +312,10 @@
           "title": "Keine Dateien gefunden",
           "subtitle": "Versuchen Sie einen anderen Suchbegriff"
         }
+      },
+      "cancel_fab": {
+        "upload": "Upload abbrechen",
+        "download": "Download abbrechen"
       },
       "move_here": "Hierhin verschieben",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",

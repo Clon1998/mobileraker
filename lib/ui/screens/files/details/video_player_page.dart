@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:common/data/dto/files/generic_file.dart';
+import 'package:common/data/model/file_operation.dart';
 import 'package:common/network/dio_provider.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/payment_service.dart';
@@ -152,7 +153,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     downloadStreamSub?.cancel();
     downloadStreamSub = ref.read(fileServiceSelectedProvider).downloadFile(filePath: widget.file.absolutPath).listen(
       (event) async {
-        if (event is FileDownloadProgress) {
+        if (event is FileOperationProgress) {
           setState(() {
             fileDownloadProgress = event.progress;
           });

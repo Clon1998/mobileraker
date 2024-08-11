@@ -35,7 +35,7 @@ dependencies:
   firebase_auth: ^4.19.2
 
   #purchases
-  purchases_flutter: ^6.5.1
+  purchases_flutter: ^7.0.1
 
   #notification
   awesome_notifications_core: ^0.9.3

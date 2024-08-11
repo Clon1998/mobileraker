@@ -268,6 +268,42 @@
         "last_printed": "Last printed",
         "file_size": "Size"
       },
+      "file_actions": {
+        "download": "Download",
+        "delete": "Delete",
+        "move": "Move",
+        "rename": "Rename",
+        "create_folder": "Create Folder",
+        "upload": "Upload File",
+        "upload_bulk": "Upload Files"
+      },
+      "gcode_file_actions": {
+        "submit": "Submit Print Job",
+        "preheat": "Preheat",
+        "enqueue": "Add to Print Queue"
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "Download canceled",
+          "body": "The download was canceled."
+        },
+        "download_failed": {
+          "title": "Download failed",
+          "body": "An error occurred while trying to download the file. Please retry later."
+        },
+        "upload_canceled": {
+          "title": "Upload canceled",
+          "body": "The upload was canceled."
+        },
+        "upload_success": {
+          "title": "Upload successful",
+          "body": "The file was successfully uploaded."
+        },
+        "upload_failed": {
+          "title": "Upload failed",
+          "body": "An error occurred while trying to upload the file. Please retry later."
+        }
+      },
       "search_files": "Search in folder",
       "search": {
         "clear_search": "Clear search",
@@ -276,6 +312,10 @@
           "title": "No files found",
           "subtitle": "Try a different search term"
         }
+      },
+      "cancel_fab": {
+        "upload": "Cancel Upload",
+        "download": "Cancel Download"
       },
       "move_here": "Move here",
       "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",

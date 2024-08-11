@@ -16,8 +16,10 @@ import 'package:common/data/enums/file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/gcode_file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
+import 'package:common/data/model/file_operation.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/data/model/sort_configuration.dart';
+import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
@@ -31,8 +33,10 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -43,6 +47,8 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -169,18 +175,30 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
 
-    if (selMachine == null) {
+    if (selectedMachine == null) {
       return const SizedBox.shrink();
     }
 
-    final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+    final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
+    final (isDownloading, isUploading, isFilesLoading) =
+        ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
+      return (data.download != null, data.upload != null, data.folderContent.isLoading);
+    }));
+    final connected =
+        ref.watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
+    final isUpOrDownloading = isDownloading || isUploading;
+
+    if (!connected || filePath == 'timelapse') {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        if (filePath == 'gcodes')
+        if (filePath == 'gcodes') ...[
           AnimatedSwitcher(
             duration: kThemeAnimationDuration,
             switchInCurve: Curves.easeInOutCubicEmphasized,
@@ -191,18 +209,26 @@ class _Fab extends ConsumerWidget {
               child: child,
             ),
             child: JobQueueFab(
-              machineUUID: selMachine.uuid,
+              machineUUID: selectedMachine.uuid,
               onPressed: controller.onJobQueueFab,
               mini: true,
               hideIfEmpty: true,
             ),
           ),
-        const Gap(4),
-        FloatingActionButton(
-          heroTag: null,
-          onPressed: () => null,
-          child: const Icon(Icons.add),
-        ),
+          const Gap(4),
+        ],
+        if (!isUpOrDownloading)
+          FloatingActionButton(
+            heroTag: '${selectedMachine.uuid}-main',
+            onPressed: controller.onAddFile.only(!isFilesLoading),
+            child: const Icon(Icons.add),
+          ),
+        if (isUpOrDownloading)
+          FloatingActionButton.extended(
+            heroTag: '${selectedMachine.uuid}-main',
+            onPressed: controller.onCancelUpOrDownload,
+            label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
+          ),
       ],
     );
   }
@@ -308,7 +334,7 @@ class _Header extends ConsumerWidget {
       activeSortConfig: sortCfg,
       onTapSortMode: controller.onSortMode.only(!apiLoading),
       trailing: IconButton(
-        padding: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
         onPressed: controller.onCreateFolder.only(!apiLoading),
         icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
@@ -405,6 +431,70 @@ class _FileListLoading extends StatelessWidget {
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FileListError extends ConsumerWidget {
+  const _FileListError({
+    super.key,
+    required this.machineUUID,
+    required this.filePath,
+    required this.error,
+    required this.stack,
+  });
+
+  final String machineUUID;
+  final String filePath;
+  final Object error;
+  final StackTrace stack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (error is FileFetchException) {
+      FileFetchException ffe = error as FileFetchException;
+      String message = ffe.message;
+      if (ffe.parent != null) {
+        message += '\n${ffe.parent}';
+      }
+
+      var themeData = Theme.of(context);
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SimpleErrorWidget(
+            title: Text('Unable to fetch files!', style: themeData.textTheme.titleMedium),
+            body: Text(message, textAlign: TextAlign.center, style: themeData.textTheme.bodySmall),
+            action: TextButton.icon(
+              onPressed: () => ref
+                  .read(_modernFileManagerControllerProvider(machineUUID, filePath).notifier)
+                  .refreshApiResponse(true),
+              icon: const Icon(Icons.restart_alt_outlined),
+              label: const Text('general.retry').tr(),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ErrorCard(
+      title: const Text('Unable to fetch files!'),
+      body: Column(
+        children: [
+          Text(
+            'The following error occued while trying to fetch files:n$error',
+          ),
+          TextButton(
+            // onPressed: model.showPrinterFetchingErrorDialog,
+            onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                  type: CommonDialogs.stacktrace,
+                  title: error.runtimeType.toString(),
+                  body: 'Exception:\n$error\n\n$stack',
+                )),
+            child: const Text('Show Full Error'),
           ),
         ],
       ),
@@ -547,6 +637,12 @@ class _FileListState extends ConsumerState<_FileList> {
           ),
         );
       },
+      error: (e, s) => _FileListError(
+        machineUUID: widget.machineUUID,
+        filePath: widget.filePath,
+        error: e,
+        stack: s,
+      ),
     );
   }
 
@@ -573,10 +669,12 @@ class _LoadingIndicator extends HookConsumerWidget {
     final wasUser = useValueListenable(isUserRefresh);
 
     double? value = switch (model) {
+      _Model(download: FileOperationProgress(:final progress)) ||
+      _Model(upload: FileOperationProgress(:final progress)) =>
+        progress,
       _Model(folderContent: AsyncValue(isLoading: true)) ||
-      _Model(download: FileDownloadKeepAlive()) when !wasUser =>
+      _Model(download: FileOperationKeepAlive()) when !wasUser =>
         null,
-      _Model(download: FileDownloadProgress(:final progress)) => progress,
       _ => 0,
     };
     return LinearProgressIndicator(
@@ -684,6 +782,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   // ignore: avoid-unsafe-collection-methods
   String get _root => filePath.split('/').first;
 
+  String get _relativeToRoot => filePath.split('/').skip(1).join('/');
+
   List<SortMode> get _availableSortModes => switch (_root) {
         'gcodes' => [SortMode.name, SortMode.lastModified, SortMode.lastPrinted, SortMode.size],
         _ => [SortMode.name, SortMode.lastModified, SortMode.size],
@@ -693,14 +793,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   CompositeKey get _sortKindKey => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, 'kind:$_root');
 
-  bool _disposed = false;
-
   CancelToken? _downloadToken;
+  CancelToken? _uploadToken;
 
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
-    ref.onDispose(dispose);
     ref.listen(fileNotificationsProvider(machineUUID, filePath),
         (prev, next) => next.whenData((notification) => _onFileNotification(notification)));
 
@@ -727,6 +825,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       folderContent: apiResp,
       sortConfiguration: sortConfiguration,
       download: stateOrNull?.download,
+      upload: stateOrNull?.upload,
     );
   }
 
@@ -917,9 +1016,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // _dialogService.show(DialogRequest(type: DialogType.searchFullscreen));
   }
 
-  Future<void> refreshApiResponse() {
+  Future<void> refreshApiResponse([bool forceLoad = false]) {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] refreshing api response');
     // ref.invalidate(fileApiResponseProvider(machineUUID, filePath));
+    if (forceLoad) {
+      state = state.copyWith(folderContent: const AsyncLoading());
+    }
+
     ref.invalidate(moonrakerFolderContentProvider);
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
   }
@@ -928,6 +1031,44 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     ref
         .read(bottomSheetServiceProvider)
         .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true));
+  }
+
+  Future<void> onAddFile() async {
+    const args = ActionBottomSheetArgs(actions: [
+      FileSheetAction.newFolder,
+      FileSheetAction.newFile,
+      DividerSheetAction.divider,
+      FileSheetAction.uploadFile,
+      FileSheetAction.uploadFiles,
+    ]);
+
+    final res = await ref
+        .read(bottomSheetServiceProvider)
+        .show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: args));
+
+    if (res.confirmed != true) return;
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] create-action confirmed: ${res.data}');
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case FileSheetAction.newFolder:
+        onCreateFolder();
+        break;
+
+      case FileSheetAction.uploadFiles:
+      case FileSheetAction.uploadFile:
+        final allowed = _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
+
+        _uploadFile(allowed, res.data == FileSheetAction.uploadFiles);
+        break;
+
+      default:
+    }
+  }
+
+  void onCancelUpOrDownload() {
+    _downloadToken?.cancel();
+    _uploadToken?.cancel();
   }
 
   //////////////////// ACTIONS ////////////////////
@@ -1097,20 +1238,24 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       final downloadStream = _fileService.downloadFile(filePath: file.absolutPath).distinct((a, b) {
         // If both are Download Progress, only update in 0.01 steps:
         const epsilon = 0.01;
-        if (a is FileDownloadProgress && b is FileDownloadProgress) {
+        if (a is FileOperationProgress && b is FileOperationProgress) {
           return (b.progress - a.progress) < epsilon;
         }
 
         return a == b;
       });
 
+      ref.onCancel(() => _downloadToken?.cancel());
       await for (var download in downloadStream) {
-        if (_disposed) break;
         if (!setToken) _downloadToken = download.token;
         state = state.copyWith(download: download);
       }
 
-      if (_disposed) return;
+      if (state.download is FileOperationCanceled) {
+        _onOperationCanceled(false);
+        return;
+      }
+
       final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
 
       String mimeType = switch (file.fileExtension) {
@@ -1126,16 +1271,65 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         subject: file.name,
         sharePositionOrigin: origin,
       ).catchError((_) => null);
-    } catch (e) {
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error,
-            title: 'Error while downloading file for sharing.',
-            message: e.toString(),
-          ));
+    } catch (e, s) {
+      _onOperationError(e, s, false);
     } finally {
       state = state.copyWith(download: null);
     }
   }
+
+  Future<void> _uploadFile(List<String> allowed, [bool multiple = false]) async {
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] uploading file. Allowed: $allowed');
+
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: kDebugMode ? FileType.any : FileType.custom,
+        allowedExtensions: allowed.unless(kDebugMode),
+        withReadStream: true,
+        allowMultiple: multiple,
+        withData: false,
+      );
+
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] FilePicker result: $result');
+      if (result == null || result.count == 0) return;
+      for (var toUpload in result.files) {
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Selected file: ${toUpload.name}');
+
+        final uploadStream = _fileService.uploadFile(
+          filePath,
+          MultipartFile.fromStream(() => toUpload.readStream!, toUpload.size,
+              filename: '$_relativeToRoot/${toUpload.name}'),
+        );
+
+        bool setToken = false;
+        ref.onCancel(() => _uploadToken?.cancel());
+        await for (var update in uploadStream) {
+          if (!setToken) _uploadToken = update.token;
+          state = state.copyWith(upload: update);
+        }
+
+        if (state.upload is FileOperationCanceled) {
+          _onOperationCanceled(true);
+          return;
+        }
+
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] File uploaded');
+
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.info,
+          title: tr('pages.files.file_operation.upload_success.title'),
+          message: tr('pages.files.file_operation.upload_success.body'),
+        ));
+      }
+    } catch (e, s) {
+      logger.e('Could not upload file.', e, s);
+      _onOperationError(e, s, true);
+    } finally {
+      state = state.copyWith(upload: null);
+    }
+  }
+
+  //////////////////// NOTIFICATIONS ////////////////////
 
   void _onFileNotification(FileActionResponse notification) {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
@@ -1161,9 +1355,24 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void dispose() {
-    _disposed = true;
-    _downloadToken?.cancel();
+  void _onOperationCanceled(bool isUpload) {
+    final prefix = isUpload ? 'upload' : 'download';
+    ref.read(snackBarServiceProvider).show(SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('pages.files.file_operation.${prefix}_canceled.title'),
+          message: tr('pages.files.file_operation.${prefix}_canceled.body'),
+        ));
+  }
+
+  void _onOperationError(Object error, StackTrace stack, bool isUpload) {
+    final prefix = isUpload ? 'upload' : 'download';
+    ref.read(snackBarServiceProvider).show(SnackBarConfig.stacktraceDialog(
+          dialogService: _dialogService,
+          snackTitle: tr('pages.files.file_operation.${prefix}_failed.title'),
+          snackMessage: tr('pages.files.file_operation.${prefix}_failed.body'),
+          exception: error,
+          stack: stack,
+        ));
   }
 }
 
@@ -1174,6 +1383,7 @@ class _Model with _$Model {
   const factory _Model({
     required AsyncValue<FolderContentWrapper> folderContent,
     required SortConfiguration sortConfiguration,
-    FileDownload? download,
+    FileOperation? download,
+    FileOperation? upload,
   }) = __Model;
 }

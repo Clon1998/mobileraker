@@ -12,7 +12,8 @@ mixin BottomSheetAction {
   /// Utility method to disable the action. Useful in cases where the mixin is used by enums that can't have methods.
   BottomSheetAction get disable => enabled ? _ToggleSheetAction._(this, false) : this;
 
-  String get label;
+  /// The translation key for the label of the action.
+  String get labelTranslationKey;
 
   IconData get icon;
 
@@ -25,7 +26,7 @@ final class DividerSheetAction with BottomSheetAction {
   static const divider = DividerSheetAction._();
 
   @override
-  String get label => '';
+  String get labelTranslationKey => '';
 
   @override
   IconData get icon => Icons.more_horiz;
@@ -40,7 +41,7 @@ final class _ToggleSheetAction with BottomSheetAction {
   final bool enabled;
 
   @override
-  String get label => _action.label;
+  String get labelTranslationKey => _action.labelTranslationKey;
 
   @override
   IconData get icon => _action.icon;

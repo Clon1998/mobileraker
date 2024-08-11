@@ -5,9 +5,8 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
-import 'dart:ui';
 
+import 'package:common/common.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
@@ -24,7 +23,6 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/path_utils.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -34,6 +32,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/files/moonraker/file_item.dart';
+import '../../data/model/file_operation.dart';
 import '../../network/http_client_factory.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
@@ -42,6 +41,18 @@ part 'file_service.freezed.dart';
 part 'file_service.g.dart';
 
 typedef FileListChangedListener = Function(Map<String, dynamic> item, Map<String, dynamic>? srcItem);
+
+const bakupFileExtensions = {'bak', 'backup'};
+
+const gcodeFileExtensions = {'gcode', 'g', 'gc', 'gco'};
+
+const configFileExtensions = {'conf', 'cfg'};
+
+const textFileExtensions = {'md', 'txt', 'log', 'json', 'xml', 'yaml', 'yml'};
+
+const imageFileExtensions = {'jpeg', 'jpg', 'png'};
+
+const videoFileExtensions = {'mp4'};
 
 @freezed
 class FolderContentWrapper with _$FolderContentWrapper {
@@ -264,16 +275,16 @@ class FileService {
       Set<String>? allowedFileType;
 
       if (path.startsWith('gcodes')) {
-        allowedFileType = {
-          '.gcode',
-          '.g',
-          '.gc',
-          '.gco',
-        };
+        allowedFileType = {...gcodeFileExtensions, ...bakupFileExtensions};
       } else if (path.startsWith('config')) {
-        allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt', '.jpeg', '.jpg', '.png', '.mp4'};
+        allowedFileType = {
+          ...configFileExtensions,
+          ...textFileExtensions,
+          ...bakupFileExtensions,
+          ...imageFileExtensions
+        };
       } else if (path.startsWith('timelapse')) {
-        allowedFileType = {'.mp4'};
+        allowedFileType = videoFileExtensions;
       }
 
       return _parseDirectory(blockingResp, path, allowedFileType);
@@ -352,100 +363,106 @@ class FileService {
     }
   }
 
-  Stream<FileDownload> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
+  Stream<FileOperation> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
-    final ReceivePort receiverPort = ReceivePort();
-    final String isolateSafePortName = '$_downloadReceiverPortName-${filePath.hashCode}';
-    final BaseOptions isolateSafeBaseOptions = _dio.options.copyWith();
-    IsolateNameServer.registerPortWithName(receiverPort.sendPort, isolateSafePortName);
-    try {
-      // logger.i('Will try to download $filePath to file $file');
-      //
-      // var download = workerManager.execute<FileDownload>(() async {
-      //   await setupIsolateLogger();
-      //   logger.i('Hello from worker ${file.path} - my port will be: $isolateSafePortName');
-      //   var port = IsolateNameServer.lookupPortByName(isolateSafePortName)!;
-      //
-      //   return await isolateDownloadFile(
-      //       dioBaseOptions: isolateSafeBaseOptions,
-      //       urlPath: '/server/files/$filePath',
-      //       savePath: file.path,
-      //       port: port,
-      //       overWriteLocal: true);
-      // });
-      //
-      //
-      // yield* receiverPort.takeUntil(download.asStream()).cast<FileDownload>();
-      // logger.i('blub');
-      // yield await download;
+    final StreamController<FileOperation> updateProgress = StreamController();
+    final token = CancelToken();
 
-      // This code is not using a seperate isolate. Lets see how it goes lol
-      //TLDR: Very good, it must use an isolate tho!
-      StreamController<FileDownload> ctrler = StreamController();
+    logger.i('Starting download of $filePath to ${file.path}');
 
-      final token = CancelToken();
-
-      Completer<bool>? debounceKeepAlive;
-      _dio.download(
-        '/server/files/$filePath',
-        file.path,
-        cancelToken: token,
-        onReceiveProgress: (received, total) {
-          if (total <= 0) {
-            // logger.i('Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
-            // Debounce the keep alive to not spam the stream
-            if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
-              debounceKeepAlive = Completer();
-              Future.delayed(const Duration(seconds: 1), () {
-                debounceKeepAlive?.complete(true);
-              });
-              ctrler.add(FileDownloadKeepAlive(token: token));
-            }
-            return;
+    Completer<bool>? debounceKeepAlive;
+    // I can not await this because I need to use the callbacks to fill my streamController
+    _dio.download(
+      '/server/files/$filePath',
+      file.path,
+      cancelToken: token,
+      onReceiveProgress: (received, total) {
+        if (total <= 0) {
+          // logger.i('Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+          // Debounce the keep alive to not spam the stream
+          if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
+            debounceKeepAlive = Completer();
+            Future.delayed(const Duration(seconds: 1), () {
+              debounceKeepAlive?.complete(true);
+            });
+            updateProgress.add(FileOperationKeepAlive(token: token));
           }
-          // logger.i('Progress for $filePath: ${received / total * 100}');
-          ctrler.add(FileDownloadProgress(received / total, token: token));
-        },
-      ).then((response) {
-        ctrler.add(FileDownloadComplete(file, token: token));
-      }).catchError((e, s) {
-        logger.e('Error while downloading file cought in catchError', e);
-        ctrler.addError(e, s);
-      }).then((value) => ctrler.close());
+          return;
+        }
+        // logger.i('Progress for $filePath: ${received / total * 100}');
+        updateProgress.add(FileOperationProgress(received / total, token: token));
+      },
+    ).then((response) {
+      logger.i('Download of "$filePath" completed');
+      updateProgress.add(FileDownloadComplete(file, token: token));
+    }).catchError((e, s) {
+      if (e case DioException(type: DioExceptionType.cancel)) {
+        logger.i('Download of "$filePath" was canceled');
+        updateProgress.add(FileOperationCanceled(token: token));
+      } else {
+        logger.e('Error while downloading file "$filePath" caught in catchError', e);
+        updateProgress.addError(e, s);
+      }
+    }).whenComplete(updateProgress.close);
 
-      yield* ctrler.stream;
-      logger.i('File download completed');
-    } catch (e) {
-      // This is only required for the isolate version, the non isolate version should handle the error in the catchError
-      logger.e('Error while downloading file', e);
-      rethrow;
-    } finally {
-      IsolateNameServer.removePortNameMapping(isolateSafePortName);
-      receiverPort.close();
-      logger.i('Removed port mapping and closed the port for $isolateSafePortName');
-    }
+    yield* updateProgress.stream;
+    logger.i('File download completed');
   }
 
-  Future<FileActionResponse> uploadAsFile(String filePath, String content) async {
-    assert(!filePath.startsWith('(gcodes|config)'), 'filePath needs to contain root folder config or gcodes!');
+  Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent) async* {
+    assert(!filePath.startsWith(r'(gcodes|config)'), 'filePath needs to contain root folder config or gcodes!');
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
+    final data = FormData.fromMap({'root': root, 'file': uploadContent});
 
-    logger.i('Trying upload of $filePath');
+    final StreamController<FileOperation> updateStream = StreamController();
+    final token = CancelToken();
 
-    var data = FormData.fromMap({
-      'root': root,
-      'file': MultipartFile.fromString(content, filename: fileSplit.join('/')),
-    });
+    logger.i('Starting upload of ${uploadContent.filename ?? 'unknown'} to $filePath');
 
-    var response = await _dio.post(
+    Completer<bool>? debounceKeepAlive;
+
+    _dio.post(
       '/server/files/upload',
       data: data,
-      options: Options(validateStatus: (status) => status == 201),
-    );
+      options: Options(validateStatus: (status) => status == 201, receiveTimeout: _apiRequestTimeout)
+        ..disableRetry = true,
+      cancelToken: token,
+      onSendProgress: (sent, total) {
+        if (total <= 0) {
+          // logger.i('Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+          // Debounce the keep alive to not spam the stream
+          if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
+            debounceKeepAlive = Completer();
+            Future.delayed(const Duration(seconds: 1), () {
+              debounceKeepAlive?.complete(true);
+            });
+            updateStream.add(FileOperationKeepAlive(token: token));
+          }
+          return;
+        }
+        // logger.i('Progress for $filePath: ${received / total * 100}');
+        updateStream.add(FileOperationProgress(sent / total, token: token));
+      },
+    ).then((response) {
+      final res = FileActionResponse.fromJson(response.data);
+      logger.i('Upload of ${uploadContent.filename ?? 'unknown'} to $filePath completed');
+      logger.i('Response: $res');
 
-    return FileActionResponse.fromJson(response.data);
+      updateStream.add(FileUploadComplete(res.item.fullPath, token: token));
+    }).catchError((e, s) {
+      if (e case DioException(type: DioExceptionType.cancel)) {
+        logger.i('Upload of "$filePath" was canceled');
+        updateStream.add(FileOperationCanceled(token: token));
+      } else {
+        logger.e('Error while uploading file "$filePath" caught in catchError', e);
+        updateStream.addError(e, s);
+      }
+    }).whenComplete(updateStream.close);
+
+    yield* updateStream.stream;
+    logger.i('File upload completed');
   }
 
   _onFileListChanged(AsyncValue<Map<String, dynamic>>? previous, AsyncValue<Map<String, dynamic>> next) {
@@ -480,8 +497,8 @@ class FileService {
 
     if (allowedFileType != null) {
       filesResponse.removeWhere((element) {
-        String name = element['filename'];
-        var regExp = RegExp('^.*(${allowedFileType.join('|')})\$', multiLine: true, caseSensitive: false);
+        final String name = element['filename'];
+        final regExp = RegExp('^.*\.(${allowedFileType.join('|')})\$', multiLine: true, caseSensitive: false);
         return !regExp.hasMatch(name);
       });
     }
@@ -546,79 +563,3 @@ class FileService {
 //     dio.close();
 //   }
 // }
-
-sealed class FileDownload {
-  CancelToken get token;
-}
-
-class FileDownloadProgress extends FileDownload {
-  FileDownloadProgress(this.progress, {required this.token});
-
-  final double progress;
-
-  @override
-  final CancelToken token;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FileDownloadProgress &&
-          runtimeType == other.runtimeType &&
-          (identical(progress, other.progress) || progress == other.progress) &&
-          (identical(token, other.token) || token == other.token);
-
-  @override
-  int get hashCode => Object.hash(progress, token);
-
-  @override
-  String toString() {
-    return 'FileDownloadProgress{progress: $progress}';
-  }
-}
-
-class FileDownloadKeepAlive extends FileDownload {
-  FileDownloadKeepAlive({required this.token}) : timeStamp = DateTime.now();
-  final DateTime timeStamp;
-  @override
-  final CancelToken token;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FileDownloadKeepAlive &&
-          runtimeType == other.runtimeType &&
-          (identical(timeStamp, other.timeStamp) || timeStamp == other.timeStamp) &&
-          (identical(token, other.token) || token == other.token);
-
-  @override
-  int get hashCode => Object.hash(timeStamp, token);
-
-  @override
-  String toString() {
-    return 'FileDownloadKeepAlive{timeStamp: $timeStamp}';
-  }
-}
-
-class FileDownloadComplete extends FileDownload {
-  FileDownloadComplete(this.file, {required this.token});
-
-  final File file;
-  @override
-  final CancelToken token;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FileDownloadComplete &&
-          runtimeType == other.runtimeType &&
-          (identical(file, other.file) || file == other.file) &&
-          (identical(token, other.token) || token == other.token);
-
-  @override
-  int get hashCode => Object.hash(file, token);
-
-  @override
-  String toString() {
-    return 'FileDownloadComplete{file: $file}';
-  }
-}
