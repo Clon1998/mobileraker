@@ -15,7 +15,8 @@ enum FileAction {
   move_file, // ignore: constant_identifier_names
   move_dir, // ignore: constant_identifier_names
   modify_file, // ignore: constant_identifier_names
-  root_update // ignore: constant_identifier_names
+  root_update, // ignore: constant_identifier_names
+  zip_files, // ignore: constant_identifier_names
   ;
 
   String toJsonEnum() => _$FileActionEnumMap[this]!;

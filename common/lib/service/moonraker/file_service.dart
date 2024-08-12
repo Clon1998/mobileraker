@@ -375,6 +375,25 @@ class FileService {
     }
   }
 
+  Future<FileItem> zipFiles(String? destination, List<String> origins, [bool compress = true]) async {
+    assert(origins.isNotEmpty, 'At least one origin needs to be provided');
+    assert(destination == null || destination.endsWith('.zip'), 'Destination needs to end with .zip if provided');
+
+    logger.i(
+        '[FileService($_machineUUID, ${_jRpcClient.uri})] Creating zip(compression=$compress) file at $destination from $origins');
+
+    try {
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
+        'server.files.zip',
+        params: {'dest': destination, 'items': origins, 'store_only': !compress},
+        timeout: _apiRequestTimeout,
+      );
+      return FileItem.fromJson(rpcResponse.result);
+    } on JRpcError catch (e) {
+      throw FileActionException('Jrpc error while trying to zip files.', reqPath: destination, parent: e);
+    }
+  }
+
   Stream<FileOperation> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
