@@ -83,6 +83,7 @@ import 'components/remote_file_icon.dart';
 import 'components/sorted_file_list_header.dart';
 
 part 'file_manager_page.freezed.dart';
+
 part 'file_manager_page.g.dart';
 
 class FileManagerPage extends ConsumerWidget {
@@ -1112,6 +1113,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
         _uploadFile(allowed, res.data == FileSheetAction.uploadFiles);
         break;
+      case FileSheetAction.newFile:
+        _newFile();
+        break;
 
       default:
     }
@@ -1378,52 +1382,93 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   Future<void> _uploadFile(List<String> allowed, [bool multiple = false]) async {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] uploading file. Allowed: $allowed');
 
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: kDebugMode ? FileType.any : FileType.custom,
+      allowedExtensions: allowed.unless(kDebugMode),
+      withReadStream: true,
+      allowMultiple: multiple,
+      withData: false,
+    );
+
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] FilePicker result: $result');
+    if (result == null || result.count == 0) return;
+    for (var toUpload in result.files) {
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Selected file: ${toUpload.name}');
+
+      final mPrt = MultipartFile.fromStream(() => toUpload.readStream!, toUpload.size,
+          filename: '$_relativeToRoot/${toUpload.name}');
+
+      final wasSuccessful = await _handleFileUpload(filePath, mPrt);
+      if (!wasSuccessful) return;
+    }
+  }
+
+  Future<void> _newFile() async {
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating new file');
+
+    // final allowedExtensions = _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
+
+    final res = await _dialogService.show(
+      DialogRequest(
+        type: DialogType.textInput,
+        title: tr('dialogs.create_file.title'),
+        actionLabel: tr('general.create'),
+        data: TextInputDialogArguments(
+          initialValue: '',
+          labelText: tr('dialogs.create_file.label'),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.match(
+              r'^\w?[\w .-]*[\w-]$',
+              errorText: tr('pages.files.no_matches_file_pattern'),
+            ),
+            notContains(
+              state.folderContent.requireValue.folderFileNames,
+              errorText: tr('pages.files.file_name_in_use'),
+            ),
+          ]),
+        ),
+      ),
+    );
+
+    if (res?.confirmed != true) return;
+    final fileName = res!.data;
+    final multipartFile = MultipartFile.fromString('', filename: '$_relativeToRoot/$fileName');
+
+    await _handleFileUpload(filePath, multipartFile);
+  }
+
+  Future<bool> _handleFileUpload(String path, MultipartFile toUpload) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: kDebugMode ? FileType.any : FileType.custom,
-        allowedExtensions: allowed.unless(kDebugMode),
-        withReadStream: true,
-        allowMultiple: multiple,
-        withData: false,
-      );
+      final uploadStream = _fileService.uploadFile(path, toUpload);
 
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] FilePicker result: $result');
-      if (result == null || result.count == 0) return;
-      for (var toUpload in result.files) {
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Selected file: ${toUpload.name}');
-
-        final uploadStream = _fileService.uploadFile(
-          filePath,
-          MultipartFile.fromStream(() => toUpload.readStream!, toUpload.size,
-              filename: '$_relativeToRoot/${toUpload.name}'),
-        );
-
-        bool setToken = false;
-        ref.onCancel(() => _uploadToken?.cancel());
-        await for (var update in uploadStream) {
-          if (!setToken) _uploadToken = update.token;
-          state = state.copyWith(upload: update);
-        }
-
-        if (state.upload is FileOperationCanceled) {
-          _onOperationCanceled(true);
-          return;
-        }
-
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] File uploaded');
-
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.info,
-          title: tr('pages.files.file_operation.upload_success.title'),
-          message: tr('pages.files.file_operation.upload_success.body'),
-        ));
+      bool setToken = false;
+      ref.onCancel(() => _uploadToken?.cancel());
+      await for (var update in uploadStream) {
+        if (!setToken) _uploadToken = update.token;
+        state = state.copyWith(upload: update);
       }
+
+      if (state.upload is FileOperationCanceled) {
+        _onOperationCanceled(true);
+        return false;
+      }
+
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] File uploaded');
+
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.files.file_operation.upload_success.title'),
+        message: tr('pages.files.file_operation.upload_success.body'),
+      ));
     } catch (e, s) {
       logger.e('Could not upload file.', e, s);
       _onOperationError(e, s, true);
+      return false;
     } finally {
       state = state.copyWith(upload: null);
     }
+    return true;
   }
 
   //////////////////// NOTIFICATIONS ////////////////////

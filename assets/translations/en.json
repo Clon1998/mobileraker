@@ -274,6 +274,7 @@
         "copy": "Copy",
         "move": "Move",
         "rename": "Rename",
+        "create_file": "Create File",
         "create_folder": "Create Folder",
         "upload": "Upload File",
         "upload_bulk": "Upload Files"
@@ -896,6 +897,10 @@
     },
     "copy_file": {
       "title": "Copy File",
+      "label": "File Name"
+    },
+    "create_file": {
+      "title": "Create File",
       "label": "File Name"
     },
     "exclude_object": {

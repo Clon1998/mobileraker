@@ -15,7 +15,7 @@ enum FileSheetAction with BottomSheetAction {
   newFolder('pages.files.file_actions.create_folder', Icons.folder),
   uploadFile('pages.files.file_actions.upload', Icons.upload_file_rounded),
   uploadFiles('pages.files.file_actions.upload_bulk', Icons.file_copy),
-  newFile('New File', Icons.note_add);
+  newFile('pages.files.file_actions.create_file', Icons.note_add);
 
   const FileSheetAction(this.labelTranslationKey, this.icon);
 

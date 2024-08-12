@@ -23,7 +23,7 @@ enum LengthUnit {
 }
 
 /// Units for file size
-enum FileSizeUnit { bits, kB, MB, GB, TB }
+enum FileSizeUnit { bytes, kB, MB, GB, TB }
 
 /// Extension on [NumberFormat] to provide additional formatting methods.
 extension UnitFormatting on NumberFormat {
@@ -65,7 +65,7 @@ extension UnitFormatting on NumberFormat {
     if (bits < 0) throw ArgumentError('File size cannot be negative');
 
     if (bits < _kibi) {
-      return '${format(bits)} ${FileSizeUnit.bits.name}';
+      return '${format(bits / 8)} ${FileSizeUnit.bytes.name}';
     } else {
       final exp = (math.log(bits) / math.log(_kibi)).floor();
       bits /= math.pow(_kibi, exp);

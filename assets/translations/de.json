@@ -274,6 +274,7 @@
         "copy": "Kopieren",
         "move": "Verschieben",
         "rename": "Umbenennen",
+        "create_file": "Datei erstellen",
         "create_folder": "Ordner erstellen",
         "upload": "Datei hochladen",
         "upload_bulk": "Dateien hochladen"
@@ -896,6 +897,10 @@
     },
     "copy_file": {
       "title": "Datei kopieren",
+      "label": "Dateiname"
+    },
+    "create_file": {
+      "title": "Datei erstellen",
       "label": "Dateiname"
     },
     "exclude_object": {
