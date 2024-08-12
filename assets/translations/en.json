@@ -841,7 +841,8 @@
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
       "printer_theme": "Sorry, printer specific themes are only available to Supporters.",
       "spoolman_page": "Sorry, the Spoolman page is only available to Supporters.",
-      "custom_dashboard": "Sorry, customizing the dashboard is only available to Supporters."
+      "custom_dashboard": "Sorry, customizing the dashboard is only available to Supporters.",
+      "full_file_management": "Sorry, full file management (Download, Upload…) is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",

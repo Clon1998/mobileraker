@@ -841,7 +841,8 @@
       "timelaps_share": "Das Teilen von Zeitrafferaufnahmen ist leider nur für Unterstützer möglich.",
       "printer_theme": "Druckerspezifische Designs sind leider nur für Supporter verfügbar.",
       "spoolman_page": "Die Spoolman-Seite ist leider nur für Supporter verfügbar.",
-      "custom_dashboard": "Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar."
+      "custom_dashboard": "Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar.",
+      "full_file_management": "Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar."
     },
     "machine_deletion_warning": {
       "title": "Maschinelle Löschung",

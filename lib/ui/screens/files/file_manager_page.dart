@@ -1396,6 +1396,17 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> _downloadFileAction(RemoteFile file, Rect origin) async {
+    final isSup = await ref.read(isSupporterAsyncProvider.future);
+    if (!isSup) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.full_file_management'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+
     if (file case Folder()) {
       //TODO: ZIP the folder first automatically!
       _snackBarService.show(SnackBarConfig(
@@ -1454,6 +1465,17 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> _uploadFile(List<String> allowed, [bool multiple = false]) async {
+    final isSup = await ref.read(isSupporterAsyncProvider.future);
+    if (!isSup) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.full_file_management'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] uploading file. Allowed: $allowed');
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
