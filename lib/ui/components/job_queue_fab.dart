@@ -28,8 +28,9 @@ class JobQueueFab extends ConsumerWidget {
         : badges.BadgePosition.bottomEnd(end: -7, bottom: -11);
 
     Widget widget = queueState == null || (hideIfEmpty && queueState.queuedJobs.isEmpty)
-        ? const SizedBox.shrink()
+        ? const SizedBox.shrink(key: Key('job_queue_fab_empty'))
         : FloatingActionButton(
+            key: const Key('job_queue_fab'),
             tooltip: tr('dialogs.supporter_perks.job_queue_perk.title'),
             onPressed: onPressed,
             mini: mini,

@@ -51,6 +51,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -84,7 +85,7 @@ import 'components/sorted_file_list_header.dart';
 part 'file_manager_page.freezed.dart';
 part 'file_manager_page.g.dart';
 
-class FileManagerPage extends ConsumerWidget {
+class FileManagerPage extends HookConsumerWidget {
   const FileManagerPage({super.key, required this.filePath, this.folder});
 
   final String filePath;
@@ -92,9 +93,15 @@ class FileManagerPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scrollController = useScrollController();
+
     Widget body = MachineConnectionGuard(
-        onConnected: (ctx, machineUUID) => _ManagerBody(machineUUID: machineUUID, filePath: filePath));
-    final fab = _Fab(filePath: filePath);
+        onConnected: (ctx, machineUUID) => _ManagerBody(
+              machineUUID: machineUUID,
+              filePath: filePath,
+              scrollController: scrollController,
+            ));
+    final fab = _Fab(filePath: filePath, scrollController: scrollController);
     if (context.isLargerThanCompact) {
       body = NavigationRailView(leading: fab, page: body);
     }
@@ -168,14 +175,36 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class _Fab extends ConsumerWidget {
-  const _Fab({super.key, required this.filePath});
+class _Fab extends HookConsumerWidget {
+  const _Fab({super.key, required this.filePath, required this.scrollController});
 
   final String filePath;
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
+
+    final isScrolling = useState(false);
+    useEffect(() {
+      double last = scrollController.hasClients ? scrollController.offset : 0;
+      isScrolling.value = false;
+      listener() {
+        if (scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+          if (!isScrolling.value && scrollController.offset - last > 25) {
+            isScrolling.value = true;
+          }
+        } else if (scrollController.position.userScrollDirection == ScrollDirection.forward) {
+          // check if delta is gt 10
+          last = scrollController.offset;
+          isScrolling.value = false;
+        }
+      }
+
+      scrollController.addListener(listener);
+      return () => scrollController.removeListener(listener);
+    }, [scrollController, filePath]);
 
     if (selectedMachine == null) {
       return const SizedBox.shrink();
@@ -194,9 +223,10 @@ class _Fab extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
+    final fab = Column(
+      key: const Key('file_manager_fab'),
       mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: isUpOrDownloading ? CrossAxisAlignment.end : CrossAxisAlignment.center,
       children: [
         if (filePath == 'gcodes') ...[
           AnimatedSwitcher(
@@ -230,6 +260,17 @@ class _Fab extends ConsumerWidget {
             label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
           ),
       ],
+    );
+    return AnimatedSwitcher(
+      duration: kThemeAnimationDuration,
+      switchInCurve: Curves.easeInOutCubicEmphasized,
+      switchOutCurve: Curves.easeInOutCubicEmphasized,
+      // duration: kThemeAnimationDuration,
+      transitionBuilder: (child, animation) => ScaleTransition(
+        scale: animation,
+        child: child,
+      ),
+      child: isScrolling.value ? const SizedBox.shrink(key: Key('file_manager_fab-hidden')) : fab,
     );
   }
 }
@@ -311,11 +352,13 @@ class _BottomNav extends ConsumerWidget {
 }
 
 class _ManagerBody extends ConsumerWidget {
-  const _ManagerBody({super.key, required this.machineUUID, required this.filePath});
+  const _ManagerBody({super.key, required this.machineUUID, required this.filePath, required this.scrollController});
 
   final String machineUUID;
 
   final String filePath;
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -330,6 +373,7 @@ class _ManagerBody extends ConsumerWidget {
           machineUUID: machineUUID,
           filePath: filePath,
           folderContent: content,
+          scrollController: scrollController,
         ),
       AsyncError(:final error, :final stackTrace) => _FileListError(
           key: Key('$filePath-list-error'),
@@ -544,13 +588,20 @@ class _FileListError extends ConsumerWidget {
 }
 
 class _FileList extends ConsumerStatefulWidget {
-  const _FileList({super.key, required this.machineUUID, required this.filePath, required this.folderContent});
+  const _FileList(
+      {super.key,
+      required this.machineUUID,
+      required this.filePath,
+      required this.folderContent,
+      required this.scrollController});
 
   final String machineUUID;
 
   final String filePath;
 
   final FolderContentWrapper folderContent;
+
+  final ScrollController scrollController;
 
   @override
   ConsumerState createState() => _FileListState();
@@ -595,6 +646,7 @@ class _FileListState extends ConsumerState<_FileList> {
       },
       child: CustomScrollView(
         key: PageStorageKey('${widget.filePath}:${sortConfiguration.mode}:${sortConfiguration.kind}'),
+        controller: widget.scrollController,
         slivers: [
           AdaptiveHeightSliverPersistentHeader(
             floating: true,
