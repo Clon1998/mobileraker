@@ -129,46 +129,86 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final isRoot = split.length == 1;
     final title = split.last;
     final selMachine = ref.watch(selectedMachineProvider).valueOrNull;
-    final themeData = Theme.of(context);
 
-    final actions = (selMachine == null)
-        ? <Widget>[]
-        : [
-            Consumer(builder: (context, ref, _) {
-              final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
-
-              return IconButton(
-                tooltip: tr('pages.files.search_files'),
-                icon: const Icon(Icons.search),
-                onPressed: controller.onSearch,
-              );
-            }),
-            if (folder != null && !isRoot)
-              Consumer(builder: (context, ref, _) {
-                final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
-
-                return IconButton(
-                  tooltip: tr('pages.files.search_files'),
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {
-                    final box = context.findRenderObject() as RenderBox?;
-                    final pos = box!.localToGlobal(Offset.zero) & box.size;
-
-                    controller.onClickFileAction(folder!, pos);
-                  },
-                );
-              }),
-          ];
-
-    if (isRoot) {
-      return SwitchPrinterAppBar(
-        centerTitle: themeData.platform == TargetPlatform.iOS || themeData.platform == TargetPlatform.macOS,
-        title: title.capitalize(),
-        actions: actions,
-      );
+    if (selMachine == null) {
+      return AppBar(title: Text(title.capitalize()));
     }
 
-    return AppBar(title: Text(title.capitalize()), actions: actions);
+    return Consumer(builder: (context, ref, _) {
+      final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+      final isSelecting = ref
+          .watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).select((data) => data.selectionMode));
+
+      final actions = [
+        IconButton(
+          tooltip: tr('pages.files.search_files'),
+          icon: const Icon(Icons.search),
+          onPressed: controller.onClickSearch,
+        ),
+        if (folder != null && !isRoot)
+          IconButton(
+            tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              final box = context.findRenderObject() as RenderBox?;
+              final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+              controller.onClickFileAction(folder!, pos);
+            },
+          )
+      ];
+
+      final defaultBar = isRoot
+          ? SwitchPrinterAppBar(
+              key: const Key('file_manager_app_bar'),
+              title: title.capitalize(),
+              actions: actions,
+            )
+          : AppBar(
+              key: const Key('file_manager_app_bar'),
+              title: Text(title.capitalize()),
+              actions: actions,
+            );
+
+      return AnimatedSwitcher(
+        duration: kThemeAnimationDuration,
+        child: isSelecting ? _buildSelectioAppBar(context, controller) : defaultBar,
+      );
+    });
+  }
+
+  Widget _buildSelectioAppBar(BuildContext context, _ModernFileManagerController controller) {
+    var materialLocalizations = MaterialLocalizations.of(context);
+    return AppBar(
+      key: const Key('file_manager_selection_app_bar'),
+      leading: IconButton(
+        tooltip: materialLocalizations.clearButtonTooltip,
+        icon: const Icon(Icons.close),
+        onPressed: controller.onClickClearSelection,
+      ),
+      actions: [
+        IconButton(
+          tooltip: tr('pages.files.file_actions.move'),
+          icon: const Icon(Icons.drive_file_move),
+          onPressed: controller.onClickMoveSelected,
+        ),
+        IconButton(
+          tooltip: materialLocalizations.selectAllButtonLabel,
+          icon: const Icon(Icons.select_all),
+          onPressed: controller.onClickSelectAll,
+        ),
+        // IconButton(
+        //   tooltip: materialLocalizations.moreButtonTooltip,
+        //   icon: const Icon(Icons.more_vert),
+        //   onPressed: () {
+        //     final box = context.findRenderObject() as RenderBox?;
+        //     final pos = box!.localToGlobal(Offset.zero) & box.size;
+        //
+        //     controller.onMoreSelected(pos);
+        //   },
+        // )
+      ],
+    );
   }
 
   @override
@@ -240,7 +280,7 @@ class _Fab extends HookConsumerWidget {
             ),
             child: JobQueueFab(
               machineUUID: selectedMachine.uuid,
-              onPressed: controller.onJobQueueFab,
+              onPressed: controller.onClickJobQueueFab,
               mini: true,
               hideIfEmpty: true,
             ),
@@ -250,13 +290,13 @@ class _Fab extends HookConsumerWidget {
         if (!isUpOrDownloading)
           FloatingActionButton(
             heroTag: '${selectedMachine.uuid}-main',
-            onPressed: controller.onAddFile.only(!isFilesLoading),
+            onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
             child: const Icon(Icons.add),
           ),
         if (isUpOrDownloading)
           FloatingActionButton.extended(
             heroTag: '${selectedMachine.uuid}-main',
-            onPressed: controller.onCancelUpOrDownload,
+            onPressed: controller.onClickCancelUpOrDownload,
             label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
           ),
       ],
@@ -319,7 +359,7 @@ class _BottomNav extends ConsumerWidget {
       showSelectedLabels: true,
       currentIndex: activeIndex,
       // onTap: ref.read(filePageProvider.notifier).onPageTapped,
-      onTap: controller.onBottomItemTapped,
+      onTap: controller.onClickBottomItem,
       items: [
         BottomNavigationBarItem(
           label: tr('pages.files.gcode_tab'),
@@ -410,20 +450,20 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
-    final (sortCfg, apiLoading) = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
-        .select((data) => (data.sortConfiguration, data.folderContent.isLoading)));
+    final (sortCfg, apiLoading, isSelecting) = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
+        .select((data) => (data.sortConfiguration, data.folderContent.isLoading, data.selectionMode)));
 
     final themeData = Theme.of(context);
 
     return SortedFileListHeader(
       activeSortConfig: sortCfg,
-      onTapSortMode: controller.onSortMode.only(!apiLoading),
+      onTapSortMode: controller.onClickSortMode.only(!apiLoading),
       trailing: IconButton(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-        onPressed: controller.onCreateFolder.only(!apiLoading),
+        onPressed: controller.onClickCreateFolder.only(!apiLoading),
         icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
-      ),
+      ).unless(isSelecting),
     );
   }
 }
@@ -714,7 +754,7 @@ class _FileListEmpty extends ConsumerWidget {
           trailing: IconButton(
             padding: const EdgeInsets.only(right: 12),
             // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-            onPressed: controller.onCreateFolder.only(enable),
+            onPressed: controller.onClickCreateFolder.only(enable),
             icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
           ),
         ),
@@ -904,6 +944,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   CompositeKey get _sortKindKey => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, 'kind:$_root');
 
   CancelToken? _downloadToken;
+
   CancelToken? _uploadToken;
 
   @override
@@ -1063,7 +1104,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onBottomItemTapped(int index) {
+  void onClickBottomItem(int index) {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] bottom nav item tapped: $index');
 
     switch (index) {
@@ -1078,7 +1119,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onCreateFolder() async {
+  void onClickCreateFolder() async {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating folder');
 
     final usedNames = state.folderContent.requireValue.folderFileNames;
@@ -1114,7 +1155,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  Future<void> onSortMode() async {
+  Future<void> onClickSortMode() async {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] sort mode');
     final args = SortModeSheetArgs(
       toShow: _availableSortModes,
@@ -1134,7 +1175,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onSearch() {
+  void onClickSearch() {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] search');
 
     _goRouter.pushNamed(AppRoute.fileManager_exlorer_search.name,
@@ -1153,13 +1194,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
   }
 
-  void onJobQueueFab() {
+  void onClickJobQueueFab() {
     ref
         .read(bottomSheetServiceProvider)
         .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true));
   }
 
-  Future<void> onAddFile() async {
+  Future<void> onClickAddFileFab() async {
     const args = ActionBottomSheetArgs(actions: [
       FileSheetAction.newFolder,
       FileSheetAction.newFile,
@@ -1178,27 +1219,73 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     await Future.delayed(kThemeAnimationDuration);
     switch (res.data) {
       case FileSheetAction.newFolder:
-        onCreateFolder();
+        onClickCreateFolder();
         break;
 
       case FileSheetAction.uploadFiles:
       case FileSheetAction.uploadFile:
         final allowed = _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
 
-        _uploadFile(allowed, res.data == FileSheetAction.uploadFiles);
+        _uploadFileAction(allowed, res.data == FileSheetAction.uploadFiles);
         break;
       case FileSheetAction.newFile:
-        _newFile();
+        _newFileAction();
         break;
 
       default:
     }
   }
 
-  void onCancelUpOrDownload() {
+  void onClickCancelUpOrDownload() {
     _downloadToken?.cancel();
     _uploadToken?.cancel();
   }
+
+  //////////////////// SELECTED FILES ////////////////////
+
+  void onClickClearSelection() {
+    state = state.copyWith(selectedFiles: []);
+  }
+
+  void onClickSelectAll() {
+    final files = state.folderContent.requireValue.files;
+    state = state.copyWith(selectedFiles: files);
+  }
+
+  Future<void> onClickMoveSelected() async {
+    final selectedFiles = state.selectedFiles;
+    if (selectedFiles.isEmpty) return;
+
+    final res = await _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_move.name,
+      pathParameters: {'path': filePath.split('/').first},
+      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.move_here')},
+    );
+
+    if (res case String()) {
+      final newPath = res;
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving files to $newPath');
+      state = state.copyWith(folderContent: state.folderContent.toLoading(true));
+
+      onError() {
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'Could not move Files.',
+          message: 'An error occured while moving the files.',
+        ));
+      }
+
+      final waitFor = <Future>[];
+      for (var file in selectedFiles) {
+        final f = _fileService.moveFile(file.absolutPath, '$newPath/${file.name}').catchError(onError);
+        waitFor.add(f);
+      }
+      await Future.wait(waitFor).catchError(() => null);
+      state = state.copyWith(selectedFiles: []);
+    }
+  }
+
+  void onClickMoreActionsSelected(Rect pos) {}
 
   //////////////////// ACTIONS ////////////////////
   Future<void> _deleteFileAction(RemoteFile file) async {
@@ -1464,7 +1551,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  Future<void> _uploadFile(List<String> allowed, [bool multiple = false]) async {
+  Future<void> _uploadFileAction(List<String> allowed, [bool multiple = false]) async {
     final isSup = await ref.read(isSupporterAsyncProvider.future);
     if (!isSup) {
       _snackBarService.show(SnackBarConfig(
@@ -1499,7 +1586,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  Future<void> _newFile() async {
+  Future<void> _newFileAction() async {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating new file');
 
     // final allowedExtensions = _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
@@ -1534,6 +1621,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     await _handleFileUpload(filePath, multipartFile);
   }
 
+  //////////////////// END ACTIONS ////////////////////
+
+  //////////////////// MISC ////////////////////
   Future<bool> _handleFileUpload(String path, MultipartFile toUpload) async {
     try {
       final uploadStream = _fileService.uploadFile(path, toUpload);
