@@ -964,6 +964,10 @@
       "custom_dashboard_perk": {
         "title": "Anpassbares Dashboards",
         "subtitle": "Passen Sie Ihr Dashboard an Ihre Bedürfnisse an!"
+      },
+      "full_file_management_perk": {
+        "title": "Vollständige Dateiverwaltung",
+        "subtitle": "Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien und mehr!"
       }
     },
     "bed_screw_adjust": {

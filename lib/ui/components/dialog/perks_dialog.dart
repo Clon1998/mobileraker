@@ -78,6 +78,15 @@ class PerksDialog extends ConsumerWidget {
                 ),
                 ListTile(
                   title: const Text(
+                    'dialogs.supporter_perks.full_file_management_perk.title',
+                  ).tr(),
+                  subtitle: const Text(
+                    'dialogs.supporter_perks.full_file_management_perk.subtitle',
+                  ).tr(),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                ),
+                ListTile(
+                  title: const Text(
                     'dialogs.supporter_perks.job_queue_perk.title',
                   ).tr(),
                   subtitle: const Text(

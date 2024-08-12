@@ -964,6 +964,10 @@
       "custom_dashboard_perk": {
         "title": "Custom Dashboard",
         "subtitle": "Customize the dashboard to your liking!"
+      },
+      "full_file_management_perk": {
+        "title": "Full File Management",
+        "subtitle": "Unlock the full file management capabilities of Mobileraker!"
       }
     },
     "bed_screw_adjust": {
