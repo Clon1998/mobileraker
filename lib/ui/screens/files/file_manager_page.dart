@@ -83,7 +83,6 @@ import 'components/remote_file_icon.dart';
 import 'components/sorted_file_list_header.dart';
 
 part 'file_manager_page.freezed.dart';
-
 part 'file_manager_page.g.dart';
 
 class FileManagerPage extends ConsumerWidget {
@@ -720,8 +719,8 @@ class _FileItem extends ConsumerWidget {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).notifier);
 
     final (selected, selectionMode, enabled) = ref.watch(
-        _modernFileManagerControllerProvider(machineUUID, file.parentPath)
-            .select((d) => (d.selectedFiles.contains(file), d.selectionMode, d.folderContent.isLoading == false)));
+        _modernFileManagerControllerProvider(machineUUID, file.parentPath).select((d) =>
+        (d.selectedFiles.contains(file), d.selectionMode, d.folderContent.isLoading == false && !d.isOperationActive)));
 
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
@@ -1531,4 +1530,10 @@ class _Model with _$Model {
   }) = __Model;
 
   bool get selectionMode => selectedFiles.isNotEmpty;
+
+  bool get isUploading => upload != null;
+
+  bool get isDownloading => download != null;
+
+  bool get isOperationActive => isUploading || isDownloading;
 }
