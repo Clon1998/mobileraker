@@ -275,7 +275,7 @@ class _BottomNav extends ConsumerWidget {
     // ref.watch(provider)
 
     var navigationBar = BottomNavigationBar(
-      key: Key('file_manager_bottom_nav'),
+      key: const Key('file_manager_bottom_nav'),
       showSelectedLabels: true,
       currentIndex: activeIndex,
       // onTap: ref.read(filePageProvider.notifier).onPageTapped,
@@ -306,7 +306,7 @@ class _BottomNav extends ConsumerWidget {
       fadeInCurve: Curves.easeInOutCubicEmphasized,
       fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
       sizeCurve: Curves.easeInOutCubicEmphasized,
-      child: inSelectionMode ? SizedBox.shrink(key: Key('file_manager_bottom_nav-hidden')) : navigationBar,
+      child: inSelectionMode ? const SizedBox.shrink(key: Key('file_manager_bottom_nav-hidden')) : navigationBar,
     );
   }
 }
@@ -628,23 +628,26 @@ class _FileListState extends ConsumerState<_FileList> {
                 child: _LoadingIndicator(
                     machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
               ),
-              SliverList.separated(
-                separatorBuilder: (context, index) => const Divider(
-                  height: 0,
-                  indent: 18,
-                  endIndent: 18,
+              SliverPadding(
+                padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
+                sliver: SliverList.separated(
+                  separatorBuilder: (context, index) => const Divider(
+                    height: 0,
+                    indent: 18,
+                    endIndent: 18,
+                  ),
+                  itemCount: content.length,
+                  itemBuilder: (context, index) {
+                    final file = content[index];
+                    return _FileItem(
+                      key: ValueKey(file),
+                      machineUUID: widget.machineUUID,
+                      file: file,
+                      dateFormat: dateFormat,
+                      sortMode: sortConfiguration.mode,
+                    );
+                  },
                 ),
-                itemCount: content.length,
-                itemBuilder: (context, index) {
-                  final file = content[index];
-                  return _FileItem(
-                    key: ValueKey(file),
-                    machineUUID: widget.machineUUID,
-                    file: file,
-                    dateFormat: dateFormat,
-                    sortMode: sortConfiguration.mode,
-                  );
-                },
               ),
             ],
           ),
@@ -752,8 +755,8 @@ class _FileItem extends ConsumerWidget {
                     final pos = box!.localToGlobal(Offset.zero) & box.size;
 
                     controller.onClickFileAction(file, pos);
-            }.only(enabled),
-          ),
+                  }.only(enabled),
+                ),
         ),
         onTap: () {
           if (selectionMode) {
