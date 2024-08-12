@@ -60,7 +60,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
@@ -320,10 +319,38 @@ class _ManagerBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final folderContent =
+        ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
+
+    final widget = switch (folderContent) {
+      AsyncValue(value: FolderContentWrapper(isEmpty: true)) =>
+        _FileListEmpty(key: Key('$filePath-list-empty'), machineUUID: machineUUID, filePath: filePath),
+      AsyncValue(value: FolderContentWrapper() && final content) => _FileList(
+          key: Key('$filePath-list'),
+          machineUUID: machineUUID,
+          filePath: filePath,
+          folderContent: content,
+        ),
+      AsyncError(:final error, :final stackTrace) => _FileListError(
+          key: Key('$filePath-list-error'),
+          machineUUID: machineUUID,
+          filePath: filePath,
+          error: error,
+          stack: stackTrace,
+        ),
+      _ => const _FileListLoading(),
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(child: _FileList(machineUUID: machineUUID, filePath: filePath)),
+        Expanded(
+            child: AnimatedSwitcher(
+          duration: kThemeAnimationDuration,
+          switchInCurve: Curves.easeInOutCubicEmphasized,
+          switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+          child: widget,
+        )),
       ],
     );
   }
@@ -517,11 +544,13 @@ class _FileListError extends ConsumerWidget {
 }
 
 class _FileList extends ConsumerStatefulWidget {
-  const _FileList({super.key, required this.machineUUID, required this.filePath});
+  const _FileList({super.key, required this.machineUUID, required this.filePath, required this.folderContent});
 
   final String machineUUID;
 
   final String filePath;
+
+  final FolderContentWrapper folderContent;
 
   @override
   ConsumerState createState() => _FileListState();
@@ -535,129 +564,72 @@ class _FileListState extends ConsumerState<_FileList> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
-
     final controller = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath).notifier);
+    final sortConfiguration = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
+        .select((data) => data.sortConfiguration));
 
-    final (folderContent, sortConfiguration) = ref.watch(
-        _modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
-            .select((data) => (data.folderContent, data.sortConfiguration)));
     final themeData = Theme.of(context);
-
-    return AsyncValueWidget(
-      debugLabel: 'ModernFileManager._FileListState(${widget.machineUUID}, ${widget.filePath})',
-      value: folderContent,
-      skipLoadingOnReload: true,
-      skipLoadingOnRefresh: true,
-      skipError: true,
-      loading: () => const _FileListLoading(),
-      data: (data) {
-        final content = data.unwrapped;
-
-        if (content.isEmpty) {
-          final themeData = Theme.of(context);
-
-          return Column(
-            children: [
-              SortedFileListHeader(
-                activeSortConfig: null,
-                trailing: IconButton(
-                  padding: const EdgeInsets.only(right: 12),
-                  // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-                  onPressed: controller.onCreateFolder.only(!folderContent.isLoading),
-                  icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
-                ),
+    // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
+    return SmartRefresher(
+      // header: const WaterDropMaterialHeader(),
+      header: ClassicHeader(
+        textStyle: TextStyle(color: themeData.colorScheme.onBackground),
+        completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
+        releaseIcon: Icon(
+          Icons.refresh,
+          color: themeData.colorScheme.onBackground,
+        ),
+      ),
+      controller: _refreshController,
+      onRefresh: () {
+        _isUserRefresh.value = true;
+        controller.refreshApiResponse().then(
+          (_) {
+            _refreshController.refreshCompleted();
+          },
+          onError: (e, s) {
+            logger.e(e, s);
+            _refreshController.refreshFailed();
+          },
+        ).whenComplete(() => _isUserRefresh.value = false);
+      },
+      child: CustomScrollView(
+        key: PageStorageKey('${widget.filePath}:${sortConfiguration.mode}:${sortConfiguration.kind}'),
+        slivers: [
+          AdaptiveHeightSliverPersistentHeader(
+            floating: true,
+            initialHeight: 48,
+            needRepaint: true,
+            child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
+          ),
+          AdaptiveHeightSliverPersistentHeader(
+            initialHeight: 4,
+            pinned: true,
+            child: _LoadingIndicator(
+                machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
+            sliver: SliverList.separated(
+              separatorBuilder: (context, index) => const Divider(
+                height: 0,
+                indent: 18,
+                endIndent: 18,
               ),
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: FractionallySizedBox(
-                          heightFactor: 0.3,
-                          child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
-                      Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
-        }
-
-        // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
-        return SmartRefresher(
-          // header: const WaterDropMaterialHeader(),
-          header: ClassicHeader(
-            textStyle: TextStyle(color: themeData.colorScheme.onBackground),
-            completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
-            releaseIcon: Icon(
-              Icons.refresh,
-              color: themeData.colorScheme.onBackground,
+              itemCount: widget.folderContent.totalItems,
+              itemBuilder: (context, index) {
+                final file = widget.folderContent.unwrapped[index];
+                return _FileItem(
+                  key: ValueKey(file),
+                  machineUUID: widget.machineUUID,
+                  file: file,
+                  dateFormat: dateFormat,
+                  sortMode: sortConfiguration.mode,
+                );
+              },
             ),
           ),
-          controller: _refreshController,
-          onRefresh: () {
-            _isUserRefresh.value = true;
-            controller.refreshApiResponse().then(
-              (_) {
-                _refreshController.refreshCompleted();
-              },
-              onError: (e, s) {
-                logger.e(e, s);
-                _refreshController.refreshFailed();
-              },
-            ).whenComplete(() => _isUserRefresh.value = false);
-          },
-          child: CustomScrollView(
-            key: PageStorageKey('${widget.filePath}:${sortConfiguration.mode}:${sortConfiguration.kind}'),
-            slivers: [
-              AdaptiveHeightSliverPersistentHeader(
-                floating: true,
-                initialHeight: 48,
-                needRepaint: true,
-                child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
-              ),
-              AdaptiveHeightSliverPersistentHeader(
-                initialHeight: 4,
-                pinned: true,
-                child: _LoadingIndicator(
-                    machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
-                sliver: SliverList.separated(
-                  separatorBuilder: (context, index) => const Divider(
-                    height: 0,
-                    indent: 18,
-                    endIndent: 18,
-                  ),
-                  itemCount: content.length,
-                  itemBuilder: (context, index) {
-                    final file = content[index];
-                    return _FileItem(
-                      key: ValueKey(file),
-                      machineUUID: widget.machineUUID,
-                      file: file,
-                      dateFormat: dateFormat,
-                      sortMode: sortConfiguration.mode,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      error: (e, s) => _FileListError(
-        machineUUID: widget.machineUUID,
-        filePath: widget.filePath,
-        error: e,
-        stack: s,
+        ],
       ),
     );
   }
@@ -666,6 +638,54 @@ class _FileListState extends ConsumerState<_FileList> {
   void dispose() {
     _refreshController.dispose();
     super.dispose();
+  }
+}
+
+class _FileListEmpty extends ConsumerWidget {
+  const _FileListEmpty({super.key, required this.machineUUID, required this.filePath});
+
+  final String machineUUID;
+  final String filePath;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
+    final enable = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
+        .select((d) => d.folderContent.isLoading == false && !d.isOperationActive));
+
+    final themeData = Theme.of(context);
+
+    return Column(
+      children: [
+        SortedFileListHeader(
+          activeSortConfig: null,
+          trailing: IconButton(
+            padding: const EdgeInsets.only(right: 12),
+            // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
+            onPressed: controller.onCreateFolder.only(enable),
+            icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FractionallySizedBox(
+                    heightFactor: 0.3,
+                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -718,8 +738,11 @@ class _FileItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).notifier);
 
-    final (selected, selectionMode, enabled) = ref.watch(
-        _modernFileManagerControllerProvider(machineUUID, file.parentPath).select((d) =>
+    final (
+      selected,
+      selectionMode,
+      enabled
+    ) = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).select((d) =>
         (d.selectedFiles.contains(file), d.selectionMode, d.folderContent.isLoading == false && !d.isOperationActive)));
 
     var numberFormat =
