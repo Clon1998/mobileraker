@@ -16,6 +16,7 @@ import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -88,11 +89,15 @@ class _Body extends HookConsumerWidget {
 
     final controller = ref.watch(_fileManagerMovePageControllerProvider(machineUUID, root, submitLabel).notifier);
 
-    return Column(
-      children: [
-        Expanded(child: _FolderList(machineUUID: machineUUID, root: root, submitLabel: submitLabel)),
-        _Footer(onMoveHere: controller.onMoveHere, submitLabel: submitLabel),
-      ],
+    return Center(
+      child: ResponsiveLimit(
+        child: Column(
+          children: [
+            Expanded(child: _FolderList(machineUUID: machineUUID, root: root, submitLabel: submitLabel)),
+            _Footer(onMoveHere: controller.onMoveHere, submitLabel: submitLabel),
+          ],
+        ),
+      ),
     );
   }
 }

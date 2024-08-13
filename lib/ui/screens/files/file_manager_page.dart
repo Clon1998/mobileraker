@@ -37,6 +37,7 @@ import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -94,23 +95,30 @@ class FileManagerPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
+    final isRoot = filePath.split('/').length == 1;
 
     Widget body = MachineConnectionGuard(
-        onConnected: (ctx, machineUUID) => _ManagerBody(
-              machineUUID: machineUUID,
-              filePath: filePath,
-              scrollController: scrollController,
-            ));
+      onConnected: (ctx, machineUUID) => _ManagerBody(
+        machineUUID: machineUUID,
+        filePath: filePath,
+        scrollController: scrollController,
+      ),
+    );
     final fab = _Fab(filePath: filePath, scrollController: scrollController);
-    if (context.isLargerThanCompact) {
-      body = NavigationRailView(leading: fab, page: body);
+    if (context.isLargerThanCompact && isRoot) {
+      body = NavigationRailView(
+          // leading: fab,
+          page: Padding(
+        padding: const EdgeInsets.only(left: 2.0),
+        child: body,
+      ));
     }
 
     return Scaffold(
       appBar: _AppBar(filePath: filePath, folder: folder),
-      drawer: const NavigationDrawerWidget().unless(filePath.split('/').length > 1),
+      drawer: const NavigationDrawerWidget().only(isRoot),
       bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
-      floatingActionButton: fab.unless(context.isLargerThanCompact),
+      floatingActionButton: fab,
       body: body,
     );
   }
@@ -263,12 +271,8 @@ class _Fab extends HookConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final fab = Column(
-      key: const Key('file_manager_fab'),
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: isUpOrDownloading ? CrossAxisAlignment.end : CrossAxisAlignment.center,
-      children: [
-        if (filePath == 'gcodes') ...[
+    final children = [
+      if (filePath == 'gcodes') ...[
           AnimatedSwitcher(
             duration: kThemeAnimationDuration,
             switchInCurve: Curves.easeInOutCubicEmphasized,
@@ -299,7 +303,12 @@ class _Fab extends HookConsumerWidget {
             onPressed: controller.onClickCancelUpOrDownload,
             label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
           ),
-      ],
+    ];
+    final fab = Column(
+      key: const Key('file_manager_fab'),
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: isUpOrDownloading ? CrossAxisAlignment.end : CrossAxisAlignment.center,
+      children: children,
     );
     return AnimatedSwitcher(
       duration: kThemeAnimationDuration,
@@ -339,6 +348,9 @@ class _BottomNav extends ConsumerWidget {
     final inSelectionMode = ref.watch(
         _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
 
+    final hasTimelapseComponent =
+        ref.watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent)).valueOrNull;
+
     // 1 => 'config',
     // 2 => 'timelapse',
     // _ => 'gcodes',
@@ -353,13 +365,12 @@ class _BottomNav extends ConsumerWidget {
     }
 
     // ref.watch(provider)
-
     var navigationBar = BottomNavigationBar(
       key: const Key('file_manager_bottom_nav'),
       showSelectedLabels: true,
       currentIndex: activeIndex,
       // onTap: ref.read(filePageProvider.notifier).onPageTapped,
-      onTap: controller.onClickBottomItem,
+      onTap: controller.onClickRootNavigation,
       items: [
         BottomNavigationBarItem(
           label: tr('pages.files.gcode_tab'),
@@ -369,10 +380,7 @@ class _BottomNav extends ConsumerWidget {
           label: tr('pages.files.config_tab'),
           icon: const Icon(FlutterIcons.file_code_faw5),
         ),
-        if (ref
-                .watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent))
-                .valueOrNull ==
-            true)
+        if (hasTimelapseComponent == true)
           BottomNavigationBarItem(
             label: tr('pages.files.timelapse_tab'),
             icon: const Icon(Icons.subscriptions_outlined),
@@ -387,6 +395,93 @@ class _BottomNav extends ConsumerWidget {
       fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
       sizeCurve: Curves.easeInOutCubicEmphasized,
       child: inSelectionMode ? const SizedBox.shrink(key: Key('file_manager_bottom_nav-hidden')) : navigationBar,
+    );
+  }
+}
+
+class _TabbarNav extends HookConsumerWidget {
+  const _TabbarNav({super.key, required this.filePath});
+
+  final String filePath;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tabController = useTabController(initialLength: 3);
+
+    final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
+
+    if (selectedMachine == null || filePath.split('/').length > 1) {
+      return const SizedBox.shrink();
+    }
+
+    final connected =
+        ref.watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
+    if (!connected) {
+      return const SizedBox.shrink();
+    }
+
+    final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
+
+    final inSelectionMode = ref.watch(
+        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
+    final hasTimelapseComponent =
+        ref.watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent)).valueOrNull;
+
+    // 1 => 'config',
+    // 2 => 'timelapse',
+    // _ => 'gcodes',
+    final int activeIndex;
+    if (filePath.startsWith('config')) {
+      activeIndex = 1;
+    } else if (filePath.startsWith('timelapse')) {
+      activeIndex = 2;
+    } else {
+      activeIndex = 0;
+    }
+
+    if (tabController.index != activeIndex && !tabController.indexIsChanging) {
+      tabController.index = activeIndex;
+    }
+
+    var themeData = Theme.of(context);
+    final tabBar = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TabBar(
+          key: const Key('file_manager_tabbar'),
+          indicatorColor: themeData.colorScheme.primary,
+          labelColor: themeData.colorScheme.primary,
+          unselectedLabelColor: themeData.disabledColor,
+          controller: tabController,
+          onTap: controller.onClickRootNavigation,
+          tabs: [
+            Tab(
+              text: tr('pages.files.gcode_tab'),
+              icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+            ),
+            Tab(
+              text: tr('pages.files.config_tab'),
+              icon: const Icon(FlutterIcons.file_code_faw5),
+            ),
+            if (hasTimelapseComponent == true)
+              Tab(
+                text: tr('pages.files.timelapse_tab'),
+                icon: const Icon(Icons.subscriptions_outlined),
+              ),
+          ],
+        ),
+        if (!themeData.useMaterial3) Divider(height: 1, thickness: 1, color: themeData.colorScheme.primary),
+      ],
+    );
+
+    const dur = kThemeAnimationDuration;
+    return AnimatedSizeAndFade(
+      fadeDuration: dur,
+      sizeDuration: dur,
+      fadeInCurve: Curves.easeInOutCubicEmphasized,
+      fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+      sizeCurve: Curves.easeInOutCubicEmphasized,
+      child: inSelectionMode ? const SizedBox.shrink(key: Key('file_manager_tabbar_off')) : tabBar,
     );
   }
 }
@@ -425,17 +520,21 @@ class _ManagerBody extends ConsumerWidget {
       _ => const _FileListLoading(),
     };
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
+    return ResponsiveLimit(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (context.isLargerThanCompact) _TabbarNav(filePath: filePath),
+          Expanded(
             child: AnimatedSwitcher(
-          duration: kThemeAnimationDuration,
-          switchInCurve: Curves.easeInOutCubicEmphasized,
-          switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
-          child: widget,
-        )),
-      ],
+              duration: kThemeAnimationDuration,
+              switchInCurve: Curves.easeInOutCubicEmphasized,
+              switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+              child: widget,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -628,12 +727,13 @@ class _FileListError extends ConsumerWidget {
 }
 
 class _FileList extends ConsumerStatefulWidget {
-  const _FileList(
-      {super.key,
-      required this.machineUUID,
-      required this.filePath,
-      required this.folderContent,
-      required this.scrollController});
+  const _FileList({
+    super.key,
+    required this.machineUUID,
+    required this.filePath,
+    required this.folderContent,
+    required this.scrollController,
+  });
 
   final String machineUUID;
 
@@ -1104,7 +1204,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onClickBottomItem(int index) {
+  void onClickRootNavigation(int index) {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] bottom nav item tapped: $index');
 
     switch (index) {
