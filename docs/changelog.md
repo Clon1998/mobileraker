@@ -4,6 +4,10 @@
 
 ### Enhancements
 
+- **Revamped FileManager**: Redesigned the file manager to provide a more intuitive and user-friendly experience. Users
+  can now easily navigate through their files and folders, with the option to create new folders, upload files, and
+  delete files or folders. The file manager also supports selecting multiple files and moving them to a different
+  folder.
 - **Collapsible Macros**: The macro group card is now limited to a maximum of 3 rows. If this limit is exceeded, it will
   provide a button to show all macros.
 - **Nozzle Heating Shortcut**: Enhanced the extruder card by replacing the spool button with a direct nozzle heating
