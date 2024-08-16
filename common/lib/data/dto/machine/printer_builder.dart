@@ -255,7 +255,7 @@ class PrinterBuilder {
 
     if (curFan is! ControllerFan) {
       logger.w('Fan $fanName is not a ControllerFan');
-      throw MobilerakerException('Fan $fanName is not a ControllerFan');
+      throw MobilerakerException('Fan $fanName is not a ControllerFan. Found ${_typeOrNull(curFan)}');
     }
 
     return builder..fans = {...builder.fans, fanName: ControllerFan.partialUpdate(curFan, fanJson)};
@@ -270,7 +270,7 @@ class PrinterBuilder {
 
     if (curLed is! AddressableLed) {
       logger.w('Led $led is not an AddressableLed');
-      throw MobilerakerException('Led $led is not an AddressableLed');
+      throw MobilerakerException('Led $led is not an AddressableLed. Found ${_typeOrNull(led)}');
     }
 
     return builder..leds = {...builder.leds, led: AddressableLed.partialUpdate(curLed, json)};
@@ -308,7 +308,7 @@ class PrinterBuilder {
 
     if (curFan is! GenericFan) {
       logger.w('Fan $fanName is not a GenericFan');
-      throw MobilerakerException('Fan $fanName is not a GenericFan');
+      throw MobilerakerException('Fan $fanName is not a GenericFan. Found ${_typeOrNull(curFan)}');
     }
 
     return builder..fans = {...builder.fans, fanName: GenericFan.partialUpdate(curFan, fanJson)};
@@ -319,7 +319,7 @@ class PrinterBuilder {
 
     if (filamentSensor is! FilamentMotionSensor) {
       logger.w('Sensor $sensor is not a FilamentMotionSensor');
-      throw MobilerakerException('Sensor $sensor is not a FilamentMotionSensor');
+      throw MobilerakerException('Sensor $sensor is not a FilamentMotionSensor. Found ${_typeOrNull(sensor)}');
     }
 
     return builder
@@ -333,7 +333,7 @@ class PrinterBuilder {
     final filamentSensor = builder.filamentSensors[sensor] ?? FilamentSwitchSensor(name: sensor);
     if (filamentSensor is! FilamentSwitchSensor) {
       logger.w('Sensor $sensor is not a FilamentSwitchSensor');
-      throw MobilerakerException('Sensor $sensor is not a FilamentSwitchSensor');
+      throw MobilerakerException('Sensor $sensor is not a FilamentSwitchSensor. Found ${_typeOrNull(sensor)}');
     }
 
     return builder
@@ -365,7 +365,7 @@ class PrinterBuilder {
 
     if (curFan is! HeaterFan) {
       logger.w('Fan $fanName is not a HeaterFan');
-      throw MobilerakerException('Fan $fanName is not a HeaterFan');
+      throw MobilerakerException('Fan $fanName is not a HeaterFan. Found ${_typeOrNull(curFan)}');
     }
 
     return builder..fans = {...builder.fans, fanName: HeaterFan.partialUpdate(curFan, fanJson)};
@@ -382,7 +382,7 @@ class PrinterBuilder {
 
     if (curLed is! DumbLed) {
       logger.w('Led $led is not an DumbLed');
-      throw MobilerakerException('Led $led is not an DumbLed');
+      throw MobilerakerException('Led $led is not an DumbLed. Found ${_typeOrNull(led)}');
     }
 
     return builder..leds = {...builder.leds, led: DumbLed.partialUpdate(curLed, json)};
@@ -414,7 +414,7 @@ class PrinterBuilder {
 
     if (curFan is! TemperatureFan) {
       logger.w('Fan $fanName is not a TemperatureFan');
-      throw MobilerakerException('Fan $fanName is not a TemperatureFan');
+      throw MobilerakerException('Fan $fanName is not a TemperatureFan. Found ${_typeOrNull(curFan)}');
     }
 
     return builder..fans = {...builder.fans, fanName: TemperatureFan.partialUpdate(curFan, fanJson)};
@@ -447,3 +447,5 @@ class PrinterBuilder {
 // END CODE to update fields  //
 ////////////////////////////////
 }
+
+String _typeOrNull(dynamic obj) => obj == null ? 'null' : obj.runtimeType.toString();
