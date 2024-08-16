@@ -88,3 +88,4 @@ class MoonrakerSpoolmanProxyException extends MobilerakerException {
     return 'MoonrakerSpoolmanProxyException{statusCode: $statusCode, message: $message, parentException: $parentException, parentStack: $parentStack}';
   }
 }
+
