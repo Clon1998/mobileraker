@@ -98,7 +98,7 @@ class FileManagerPage extends HookConsumerWidget {
     final isRoot = filePath.split('/').length == 1;
 
     Widget body = MachineConnectionGuard(
-      onConnected: (ctx, machineUUID) => _ManagerBody(
+      onConnected: (ctx, machineUUID) => _Body(
         machineUUID: machineUUID,
         filePath: filePath,
         scrollController: scrollController,
@@ -273,36 +273,36 @@ class _Fab extends HookConsumerWidget {
 
     final children = [
       if (filePath == 'gcodes') ...[
-          AnimatedSwitcher(
-            duration: kThemeAnimationDuration,
-            switchInCurve: Curves.easeInOutCubicEmphasized,
-            switchOutCurve: Curves.easeInOutCubicEmphasized,
-            // duration: kThemeAnimationDuration,
-            transitionBuilder: (child, animation) => ScaleTransition(
-              scale: animation,
-              child: child,
-            ),
-            child: JobQueueFab(
-              machineUUID: selectedMachine.uuid,
-              onPressed: controller.onClickJobQueueFab,
-              mini: true,
-              hideIfEmpty: true,
-            ),
+        AnimatedSwitcher(
+          duration: kThemeAnimationDuration,
+          switchInCurve: Curves.easeInOutCubicEmphasized,
+          switchOutCurve: Curves.easeInOutCubicEmphasized,
+          // duration: kThemeAnimationDuration,
+          transitionBuilder: (child, animation) => ScaleTransition(
+            scale: animation,
+            child: child,
           ),
-          const Gap(4),
-        ],
-        if (!isUpOrDownloading)
-          FloatingActionButton(
-            heroTag: '${selectedMachine.uuid}-main',
-            onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
-            child: const Icon(Icons.add),
+          child: JobQueueFab(
+            machineUUID: selectedMachine.uuid,
+            onPressed: controller.onClickJobQueueFab,
+            mini: true,
+            hideIfEmpty: true,
           ),
-        if (isUpOrDownloading)
-          FloatingActionButton.extended(
-            heroTag: '${selectedMachine.uuid}-main',
-            onPressed: controller.onClickCancelUpOrDownload,
-            label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
-          ),
+        ),
+        const Gap(4),
+      ],
+      if (!isUpOrDownloading)
+        FloatingActionButton(
+          heroTag: '${selectedMachine.uuid}-main',
+          onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
+          child: const Icon(Icons.add),
+        ),
+      if (isUpOrDownloading)
+        FloatingActionButton.extended(
+          heroTag: '${selectedMachine.uuid}-main',
+          onPressed: controller.onClickCancelUpOrDownload,
+          label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
+        ),
     ];
     final fab = Column(
       key: const Key('file_manager_fab'),
@@ -486,8 +486,8 @@ class _TabbarNav extends HookConsumerWidget {
   }
 }
 
-class _ManagerBody extends ConsumerWidget {
-  const _ManagerBody({super.key, required this.machineUUID, required this.filePath, required this.scrollController});
+class _Body extends StatelessWidget {
+  const _Body({super.key, required this.machineUUID, required this.filePath, required this.scrollController});
 
   final String machineUUID;
 
@@ -496,42 +496,14 @@ class _ManagerBody extends ConsumerWidget {
   final ScrollController scrollController;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final folderContent =
-        ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
-
-    final widget = switch (folderContent) {
-      AsyncValue(value: FolderContentWrapper(isEmpty: true)) =>
-        _FileListEmpty(key: Key('$filePath-list-empty'), machineUUID: machineUUID, filePath: filePath),
-      AsyncValue(value: FolderContentWrapper() && final content) => _FileList(
-          key: Key('$filePath-list'),
-          machineUUID: machineUUID,
-          filePath: filePath,
-          folderContent: content,
-          scrollController: scrollController,
-        ),
-      AsyncError(:final error, :final stackTrace) => _FileListError(
-          key: Key('$filePath-list-error'),
-          machineUUID: machineUUID,
-          filePath: filePath,
-          error: error,
-          stack: stackTrace,
-        ),
-      _ => const _FileListLoading(),
-    };
-
+  Widget build(BuildContext context) {
     return ResponsiveLimit(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (context.isLargerThanCompact) _TabbarNav(filePath: filePath),
           Expanded(
-            child: AnimatedSwitcher(
-              duration: kThemeAnimationDuration,
-              switchInCurve: Curves.easeInOutCubicEmphasized,
-              switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
-              child: widget,
-            ),
+            child: _FileList(machineUUID: machineUUID, filePath: filePath, scrollController: scrollController),
           ),
         ],
       ),
@@ -563,6 +535,49 @@ class _Header extends ConsumerWidget {
         onPressed: controller.onClickCreateFolder.only(!apiLoading),
         icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
       ).unless(isSelecting),
+    );
+  }
+}
+
+class _FileList extends ConsumerWidget {
+  const _FileList({super.key, required this.machineUUID, required this.filePath, required this.scrollController});
+
+  final String machineUUID;
+
+  final String filePath;
+
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final folderContent =
+        ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
+
+    final widget = switch (folderContent) {
+      AsyncValue(value: FolderContentWrapper(isEmpty: true)) =>
+        _FileListEmpty(key: Key('$filePath-list-empty'), machineUUID: machineUUID, filePath: filePath),
+      AsyncValue(value: FolderContentWrapper() && final content) => _FileListData(
+          key: Key('$filePath-list'),
+          machineUUID: machineUUID,
+          filePath: filePath,
+          folderContent: content,
+          scrollController: scrollController,
+        ),
+      AsyncError(:final error, :final stackTrace) => _FileListError(
+          key: Key('$filePath-list-error'),
+          machineUUID: machineUUID,
+          filePath: filePath,
+          error: error,
+          stack: stackTrace,
+        ),
+      _ => const _FileListLoading(),
+    };
+
+    return AnimatedSwitcher(
+      duration: kThemeAnimationDuration,
+      switchInCurve: Curves.easeInOutCubicEmphasized,
+      switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+      child: widget,
     );
   }
 }
@@ -726,8 +741,8 @@ class _FileListError extends ConsumerWidget {
   }
 }
 
-class _FileList extends ConsumerStatefulWidget {
-  const _FileList({
+class _FileListData extends ConsumerStatefulWidget {
+  const _FileListData({
     super.key,
     required this.machineUUID,
     required this.filePath,
@@ -747,7 +762,7 @@ class _FileList extends ConsumerStatefulWidget {
   ConsumerState createState() => _FileListState();
 }
 
-class _FileListState extends ConsumerState<_FileList> {
+class _FileListState extends ConsumerState<_FileListData> {
   final RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   ValueNotifier<bool> _isUserRefresh = ValueNotifier(false);
