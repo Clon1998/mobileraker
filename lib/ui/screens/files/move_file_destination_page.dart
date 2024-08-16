@@ -82,7 +82,7 @@ class _Body extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
       if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
-        context.pop();
+        if (context.canPop()) context.pop();
         logger.i('Closing search screen due to client state change');
       }
     });
