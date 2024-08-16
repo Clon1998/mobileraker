@@ -309,6 +309,7 @@ class _ChipsWrapState extends State<_ChipsWrap> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_lastChildKey.currentContext != null) {
         final RenderBox renderBox = _lastChildKey.currentContext!.findRenderObject()! as RenderBox;
+        if (!renderBox.hasSize) return;
         final Size size = renderBox.size;
         widget.hasMoreMacros(size.width == 0 && size.height == 0);
       }
