@@ -94,7 +94,8 @@ class FileManagerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scrollController = useScrollController();
+    // final scrollController = useScrollController();
+    final scrollController = PrimaryScrollController.of(context);
     final isRoot = filePath.split('/').length == 1;
 
     Widget body = MachineConnectionGuard(
