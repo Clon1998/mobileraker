@@ -251,8 +251,8 @@ class _BodyState extends ConsumerState<_Body> {
     _subscription = ref.listenManual(
       _dashboardPageControllerProvider(machineUUID),
       (previous, next) {
-        logger.wtf('previous: ${previous?.valueOrNull?.activeIndex}, next: ${next.valueOrNull?.activeIndex}');
-        logger.wtf('pageController.hasClients: ${pageController.hasClients}, _lastPage: $_lastPage');
+        // logger.wtf('previous: ${previous?.valueOrNull?.activeIndex}, next: ${next.valueOrNull?.activeIndex}');
+        // logger.wtf('pageController.hasClients: ${pageController.hasClients}, _lastPage: $_lastPage');
         if (next.valueOrNull != null &&
             previous?.valueOrNull?.activeIndex != next.value!.activeIndex &&
             _lastPage != next.value!.activeIndex) {
