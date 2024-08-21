@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -16,7 +15,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/dto/power/power_device.dart';
 import '../../data/enums/power_state_enum.dart';
 import '../../network/jrpc_client_provider.dart';
-import '../selected_machine_service.dart';
 
 part 'power_service.g.dart';
 
@@ -31,21 +29,6 @@ Stream<List<PowerDevice>> powerDevices(PowerDevicesRef ref, String machineUUID) 
   return ref.watch(powerServiceProvider(machineUUID)).devices;
 }
 
-@riverpod
-PowerService powerServiceSelected(PowerServiceSelectedRef ref) {
-  return ref.watch(powerServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
-}
-
-@riverpod
-Stream<List<PowerDevice>> powerDevicesSelected(PowerDevicesSelectedRef ref) async* {
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-    yield* ref.watchAsSubject(powerDevicesProvider(machine.uuid));
-  } on StateError catch (_) {
-// Just catch it. It is expected that the future/where might not complete!
-  }
-}
 
 /// The PowerService handels interactions with Moonraker's Power API
 /// For more information check out

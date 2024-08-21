@@ -8,7 +8,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/moonraker_database_client.dart';
-import '../../../service/selected_machine_service.dart';
 import '../../model/moonraker_db/fcm/notification_settings.dart';
 import '../fcm/notification_settings_repository.dart';
 
@@ -18,12 +17,6 @@ part 'notification_settings_repository_impl.g.dart';
 NotificationSettingsRepository notificationSettingsRepository(
         NotificationSettingsRepositoryRef ref, String machineUUID) =>
     NotificationSettingsRepositoryImpl(ref, machineUUID);
-
-@riverpod
-NotificationSettingsRepository notificationSettingsRepositorySelected(
-    NotificationSettingsRepositorySelectedRef ref) {
-  return ref.watch(notificationSettingsRepositoryProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
-}
 
 class NotificationSettingsRepositoryImpl extends NotificationSettingsRepository {
   NotificationSettingsRepositoryImpl(AutoDisposeRef ref, String machineUUID)

@@ -94,8 +94,7 @@ class FileManagerPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final scrollController = useScrollController();
-    final scrollController = PrimaryScrollController.of(context);
+    final scrollController = useScrollController(keys: [filePath]);
     final isRoot = filePath.split('/').length == 1;
 
     Widget body = MachineConnectionGuard(
@@ -108,19 +107,23 @@ class FileManagerPage extends HookConsumerWidget {
     final fab = _Fab(filePath: filePath, scrollController: scrollController);
     if (context.isLargerThanCompact && isRoot) {
       body = NavigationRailView(
-          // leading: fab,
-          page: Padding(
-        padding: const EdgeInsets.only(left: 2.0),
-        child: body,
-      ));
+        // leading: fab,
+        page: Padding(
+          padding: const EdgeInsets.only(left: 2.0),
+          child: body,
+        ),
+      );
     }
 
-    return Scaffold(
-      appBar: _AppBar(filePath: filePath, folder: folder),
-      drawer: const NavigationDrawerWidget().only(isRoot),
-      bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
-      floatingActionButton: fab,
-      body: body,
+    return PrimaryScrollController(
+      controller: scrollController,
+      child: Scaffold(
+        appBar: _AppBar(filePath: filePath, folder: folder),
+        drawer: const NavigationDrawerWidget().only(isRoot),
+        bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
+        floatingActionButton: fab,
+        body: body,
+      ),
     );
   }
 }
