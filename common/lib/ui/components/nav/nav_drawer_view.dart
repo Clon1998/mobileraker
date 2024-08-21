@@ -42,6 +42,7 @@ class NavigationDrawerWidget extends HookConsumerWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
+              primary: false,
               child: Material(
                 type: MaterialType.transparency,
                 child: Column(
