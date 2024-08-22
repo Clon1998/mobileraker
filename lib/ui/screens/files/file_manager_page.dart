@@ -578,7 +578,7 @@ class _FileList extends ConsumerWidget {
     };
 
     return AnimatedSwitcher(
-      duration: kThemeAnimationDuration,
+      duration: const Duration(milliseconds: 480),
       switchInCurve: Curves.easeInOutCubicEmphasized,
       switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
       child: widget,
