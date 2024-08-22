@@ -458,7 +458,11 @@ class _ToolItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Object? val = tool.vars['color'] ?? tool.vars['colour'];
-    final color = val?.let((t) => Color(int.parse(t.toString(), radix: 16) | 0xFF000000));
+    Color? color = switch (val) {
+      String a when a.isNotEmpty => Color(int.parse(a, radix: 16) | 0xFF000000),
+      int hexValue => Color(hexValue | 0xFF000000),
+      _ => null,
+    };
 
     return Row(
       mainAxisSize: MainAxisSize.min,
