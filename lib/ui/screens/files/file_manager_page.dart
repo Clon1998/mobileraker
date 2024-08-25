@@ -637,7 +637,7 @@ class _FileListLoading extends StatelessWidget {
                   width: 42,
                   height: 42,
                   child: DecoratedBox(
-                    decoration: BoxDecoration(color: Colors.red),
+                    decoration: BoxDecoration(color: Colors.white),
                   ),
                 ),
                 trailing: Padding(
