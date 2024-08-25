@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-- **Revamped FileManager**: Redesigned the file manager to provide a more intuitive and user-friendly experience. Users
+- **Revamped File Manager**: Redesigned the file manager to provide a more intuitive and user-friendly experience. Users
   can now easily navigate through their files and folders, with the option to create new folders, upload files, and
   delete files or folders. The file manager also supports selecting multiple files and moving them to a different
   folder.
@@ -17,6 +17,13 @@
 - **Progress Bar Categories on Android**: Progressbar notifications now have their own category. This allows users to
   customize notification settings for text-based progress and progressbar notifications separately in the system
   settings.
+- **Tablet UI Beta**: The tablet UI prooffed to be stable enough. Therefore, the warning card on the dashboard is now
+  removed.
+
+### Bug Fixes
+
+- **Tool Selector**: Fixed an issue where the tool selector broke the extruder card if the tool was using an invalid
+  color variable. [#397](https://github.com/Clon1998/mobileraker/pull/397)
 
 ## [2.7.1] - 2024-07-16
 
