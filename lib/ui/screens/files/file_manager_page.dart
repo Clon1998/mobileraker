@@ -478,15 +478,7 @@ class _TabbarNav extends HookConsumerWidget {
       ],
     );
 
-    const dur = kThemeAnimationDuration;
-    return AnimatedSizeAndFade(
-      fadeDuration: dur,
-      sizeDuration: dur,
-      fadeInCurve: Curves.easeInOutCubicEmphasized,
-      fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
-      sizeCurve: Curves.easeInOutCubicEmphasized,
-      child: inSelectionMode ? const SizedBox.shrink(key: Key('file_manager_tabbar_off')) : tabBar,
-    );
+    return IgnorePointer(ignoring: inSelectionMode, child: tabBar);
   }
 }
 
@@ -578,9 +570,11 @@ class _FileList extends ConsumerWidget {
     };
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 480),
-      switchInCurve: Curves.easeInOutCubicEmphasized,
-      switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+      duration: kThemeAnimationDuration,
+      switchInCurve: Curves.easeInOutSine,
+      switchOutCurve: Curves.easeInOutSine.flipped,
+      // switchInCurve: Curves.easeInOutCubicEmphasized,
+      // switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
       child: widget,
     );
   }
@@ -596,6 +590,7 @@ class _FileListLoading extends StatelessWidget {
       baseColor: Colors.grey,
       highlightColor: themeData.colorScheme.background,
       child: CustomScrollView(
+        physics: const RangeMaintainingScrollPhysics(),
         slivers: [
           const SliverToBoxAdapter(
             child: SizedBox(
