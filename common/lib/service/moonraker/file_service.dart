@@ -192,22 +192,22 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 
 @riverpod
 Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String machineUUID, String path) async {
+  ref.keepAliveFor();
   // Invalidation of the cache is done by the fileNotificationsProvider
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
 
-  var fetchDirectoryInfo = await ref.watch(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
-  ref.keepAliveFor();
+  final fetchDirectoryInfo = await ref.watch(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
   return fetchDirectoryInfo;
 }
 
 @riverpod
 Future<FolderContentWrapper> moonrakerFolderContent(
     MoonrakerFolderContentRef ref, String machineUUID, String path, SortConfiguration sortConfig) async {
+  ref.keepAliveFor();
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
 
-  ref.keepAliveFor();
 
   List<Folder> folders = apiResponse.folders.toList();
   List<RemoteFile> files = apiResponse.files.toList();
