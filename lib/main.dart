@@ -8,14 +8,12 @@ import 'dart:io';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/misc_providers.dart';
-import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/locale_spy.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
@@ -31,10 +29,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/app_setup.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/ui/snackbar_service_impl.dart';
+import 'package:mobileraker/ui/components/responsive_builder.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
 import 'service/ui/dialog_service_impl.dart';
@@ -110,27 +108,25 @@ class MyApp extends ConsumerWidget {
             ThemeData? darkTheme,
             ThemeMode? themeMode,
           ) {
-            return _ResponsiveLayoutBuilder(
-              child: MaterialApp.router(
-                debugShowCheckedModeBanner: false,
-                routerDelegate: goRouter.routerDelegate,
-                routeInformationProvider: goRouter.routeInformationProvider,
-                routeInformationParser: goRouter.routeInformationParser,
-                title: 'Mobileraker',
-                theme: regularTheme,
-                darkTheme: darkTheme,
-                themeMode: themeMode,
-                localizationsDelegates: [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                  FormBuilderLocalizations.delegate,
-                  ...context.localizationDelegates,
-                  RefreshLocalizations.delegate,
-                ],
-                supportedLocales: context.supportedLocales,
-                locale: context.locale,
-              ),
+            return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              routerDelegate: goRouter.routerDelegate,
+              routeInformationProvider: goRouter.routeInformationProvider,
+              routeInformationParser: goRouter.routeInformationParser,
+              title: 'Mobileraker',
+              theme: regularTheme,
+              darkTheme: darkTheme,
+              themeMode: themeMode,
+              localizationsDelegates: [
+                ...context.localizationDelegates,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                FormBuilderLocalizations.delegate,
+                RefreshLocalizations.delegate,
+              ],
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
             );
           },
         ),
@@ -155,7 +151,7 @@ class _WarmUp extends HookConsumerWidget {
       child: ref.watch(warmupProviderProvider).when(
             data: (step) {
               if (step == StartUpStep.complete) {
-                return const MyApp();
+                return const ResponsiveBuilder(child: MyApp());
               }
               return const _LoadingSplashScreen();
             },
@@ -305,27 +301,3 @@ class _EmojiIndicator extends ConsumerWidget {
 
 Color splashBgColorForBrightness(Brightness brightness) =>
     (brightness == Brightness.dark) ? const Color(0xff2A2A2A) : const Color(0xfff7f7f7);
-
-class _ResponsiveLayoutBuilder extends ConsumerWidget {
-  const _ResponsiveLayoutBuilder({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final enableMediumUI = ref.watch(boolSettingProvider(AppSettingKeys.useMediumUI));
-
-    final breakpoints = [
-      if (enableMediumUI) const Breakpoint(start: 0, end: 600, name: COMPACT),
-      if (!enableMediumUI) const Breakpoint(start: 0, end: double.maxFinite, name: COMPACT),
-      const Breakpoint(start: 601, end: 840, name: MEDIUM),
-      const Breakpoint(start: 841, end: 1200, name: EXPANDED),
-    ];
-    logger.i('Using breakpoints: $breakpoints');
-    return ResponsiveBreakpoints(
-      key: ValueKey(enableMediumUI),
-      breakpoints: breakpoints,
-      child: child,
-    );
-  }
-}

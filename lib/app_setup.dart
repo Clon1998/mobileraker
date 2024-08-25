@@ -288,7 +288,8 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   }
 
   FlutterError.onError = (FlutterErrorDetails details) {
-    logger.e('FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
+    if (!kDebugMode)
+      logger.e('FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
     FirebaseCrashlytics.instance.recordFlutterError(details).ignore();
   };
   PlatformDispatcher.instance.onError = (error, stack) {
