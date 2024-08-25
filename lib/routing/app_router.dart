@@ -160,10 +160,11 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         ],
       ),
       GoRoute(
-        path: '/files',
-        name: AppRoute.fileManager.name,
-        builder: (context, state) => const FileManagerPage(filePath: 'gcodes'),
-        // pageBuilder: GoTransitions.theme.build(
+        path: '/files/:path',
+        name: AppRoute.fileManager_explorer.name,
+        builder: (context, state) =>
+            FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
+        // pageBuilder: GoTransitions.theme.withSlide.withBackGesture.build(
         //   settings: GoTransitionSettings(
         //     duration: const Duration(milliseconds: 3000),
         //     reverseDuration: const Duration(milliseconds: 3000),
@@ -171,64 +172,50 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         // ),
         routes: [
           GoRoute(
-            path: ':path',
-            name: AppRoute.fileManager_explorer.name,
-            builder: (context, state) =>
-                FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
-            // pageBuilder: GoTransitions.theme.withSlide.withBackGesture.build(
-            //   settings: GoTransitionSettings(
-            //     duration: const Duration(milliseconds: 3000),
-            //     reverseDuration: const Duration(milliseconds: 3000),
-            //   ),
-            // ),
-            routes: [
-              GoRoute(
-                path: 'search',
-                name: AppRoute.fileManager_exlorer_search.name,
-                builder: (context, state) => FileManagerSearchPage(
-                    machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
-                pageBuilder: GoTransitions.fullscreenDialog,
-              ),
-              GoRoute(
-                path: 'move',
-                name: AppRoute.fileManager_exlorer_move.name,
-                builder: (context, state) => MoveFileDestinationPage(
-                  machineUUID: state.uri.queryParameters['machineUUID']!,
-                  path: state.pathParameters['path']!,
-                  submitLabel: state.uri.queryParameters['submitLabel']!,
-                ),
-                pageBuilder: (context, state) {
-                  final path = state.pathParameters['path'] as String;
-                  final parts = path.split('/');
+            path: 'search',
+            name: AppRoute.fileManager_exlorer_search.name,
+            builder: (context, state) => FileManagerSearchPage(
+                machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
+            pageBuilder: GoTransitions.fullscreenDialog,
+          ),
+          GoRoute(
+            path: 'move',
+            name: AppRoute.fileManager_exlorer_move.name,
+            builder: (context, state) => MoveFileDestinationPage(
+              machineUUID: state.uri.queryParameters['machineUUID']!,
+              path: state.pathParameters['path']!,
+              submitLabel: state.uri.queryParameters['submitLabel']!,
+            ),
+            pageBuilder: (context, state) {
+              final path = state.pathParameters['path'] as String;
+              final parts = path.split('/');
 
-                  if (parts.length > 1) {
-                    return GoTransitions.theme(context, state);
-                  }
+              if (parts.length > 1) {
+                return GoTransitions.theme(context, state);
+              }
 
-                  return GoTransitions.fullscreenDialog(context, state);
-                },
-              ),
-              GoRoute(
-                path: 'gcode-details',
-                name: AppRoute.fileManager_exlorer_gcodeDetail.name,
-                builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
-              ),
-              GoRoute(
-                path: 'editor',
-                name: AppRoute.fileManager_exlorer_editor.name,
-                builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
-              ),
-              GoRoute(
-                path: 'video-player',
-                name: AppRoute.fileManager_exlorer_videoPlayer.name,
-                builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
-              ),
-              GoRoute(
-                path: 'image-viewer',
-                name: AppRoute.fileManager_exlorer_imageViewer.name,
-                builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
-              ),
-            ],
+              return GoTransitions.fullscreenDialog(context, state);
+            },
+          ),
+          GoRoute(
+            path: 'gcode-details',
+            name: AppRoute.fileManager_exlorer_gcodeDetail.name,
+            builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
+          ),
+          GoRoute(
+            path: 'editor',
+            name: AppRoute.fileManager_exlorer_editor.name,
+            builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'video-player',
+            name: AppRoute.fileManager_exlorer_videoPlayer.name,
+            builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'image-viewer',
+            name: AppRoute.fileManager_exlorer_imageViewer.name,
+            builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
           ),
         ],
       ),

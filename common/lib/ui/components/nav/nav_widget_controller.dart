@@ -53,7 +53,7 @@ class NavWidgetController extends _$NavWidgetController {
       NavEntry(
         label: tr('pages.files.title'),
         icon: Icons.file_present,
-        route: '/files',
+        route: '/files/gcodes',
         routeMatcher: r'^\/files(\/)?.*$',
       ),
       if (showSpoolman)
