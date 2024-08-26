@@ -12,7 +12,7 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
-import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
@@ -24,6 +24,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -476,7 +477,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
                 style: themeData.textTheme.titleLarge,
               ),
               Text(
-                zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
+                numberFormat.formatMillimeters(zThermalAdjust.currentZAdjust, useMicro: true),
               ),
             ],
           ),
@@ -572,7 +573,7 @@ class _Controller extends _$Controller {
       type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
           ? DialogType.numEdit
           : DialogType.rangeEdit,
-      title: 'Edit ${beautifyName(heater.name)} Temperature',
+      title: tr('dialogs.heater_temperature.title', args: [beautifyName(heater.name)]),
       dismissLabel: tr('general.cancel'),
       actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
@@ -600,9 +601,7 @@ class _Controller extends _$Controller {
           type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
               ? DialogType.numEdit
               : DialogType.rangeEdit,
-          title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
-          dismissLabel: tr('general.cancel'),
-          actionLabel: tr('general.confirm'),
+          title: tr('dialogs.heater_temperature.title', args: [beautifyName(temperatureFan.name)]),
           data: NumberEditDialogArguments(
             current: temperatureFan.target.round(),
             min: (configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,

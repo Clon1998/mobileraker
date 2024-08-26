@@ -14,6 +14,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
     required this.value,
     required this.data,
     this.loading,
+    this.error,
     this.skipLoadingOnRefresh = false,
     this.skipLoadingOnReload = false,
     this.skipError = false,
@@ -26,6 +27,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
   // output builder function
   final Widget Function(T) data;
   final Widget Function()? loading;
+  final Widget Function(Object error, StackTrace stackTrace)? error;
 
   final bool skipLoadingOnRefresh;
   final bool skipLoadingOnReload;
@@ -37,7 +39,8 @@ class AsyncValueWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (debugLabel != null) {
-      logger.i('Rebuilding AsyncValueWidget: $debugLabel with $value');
+      logger.i(
+          'Rebuilding AsyncValueWidget: $debugLabel with ${value.isLoading ? '(isRefresh: ${value.isRefreshing}, isReload: ${value.isReloading}, initialLoading: ${!value.isRefreshing && !value.isReloading}) ' : ''}$value');
     }
 
     return value.when(
@@ -47,6 +50,9 @@ class AsyncValueWidget<T> extends StatelessWidget {
       data: data,
       loading: loading ?? () => const Center(child: CircularProgressIndicator.adaptive()),
       error: (e, s) {
+        if (error != null) {
+          return error!(e, s);
+        }
         logger.e('Error in Widget', e, s);
         return Center(
           child: Column(

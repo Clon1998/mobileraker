@@ -264,7 +264,7 @@ class JsonRpcClient {
         uri,
         headers: headers,
         pingInterval: const Duration(seconds: pingInterval),
-        connectTimeout: Duration(seconds: timeout.inSeconds),
+        connectTimeout: timeout,
         customClient: _httpClient,
       );
     } catch (e) {

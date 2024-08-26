@@ -4,7 +4,6 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/theme_service.dart';
@@ -16,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -42,6 +42,7 @@ class NavigationDrawerWidget extends HookConsumerWidget {
           Expanded(
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
+              primary: false,
               child: Material(
                 type: MaterialType.transparency,
                 child: Column(
@@ -54,6 +55,7 @@ class NavigationDrawerWidget extends HookConsumerWidget {
                               text: entry.label,
                               icon: entry.icon,
                               routeName: entry.route,
+                              routeMatcher: entry.routeMatcherOrDefault,
                             ),
                   ],
                 ),
@@ -235,11 +237,13 @@ class _DrawerItem extends ConsumerWidget {
     required this.text,
     required this.icon,
     required this.routeName,
+    required this.routeMatcher,
   });
 
   final String text;
   final IconData icon;
   final String routeName;
+  final String routeMatcher;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -248,8 +252,11 @@ class _DrawerItem extends ConsumerWidget {
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.25);
 
+
+    final matcher = RegExp(routeMatcher);
+
     return ListTile(
-      selected: ref.watch(goRouterProvider).location == routeName,
+      selected: matcher.hasMatch(GoRouterState.of(context).uri.toString()),
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onSurface,

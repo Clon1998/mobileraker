@@ -6,7 +6,6 @@
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -73,14 +72,14 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
     _value = widget.request.data!.current;
 
     _controller.addListener(() {
-      logger.i('Controller changed: ${_controller.text}');
+      // logger.i('Controller changed: ${_controller.text}');
       setState(() {
         _validation = _validate(_controller.text);
         if (_isValid) {
           __value = num.tryParse(_controller.text) ?? 0;
         }
       });
-      logger.i('Validation: $_validation');
+      // logger.i('Validation: $_validation');
       // setState(() {
       //   if (_isValid) {
       //     _value = num.tryParse(_controller.text) ?? 0;

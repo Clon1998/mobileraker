@@ -22,6 +22,8 @@ enum WebcamServiceType {
   webRtcCamStreamer(true, true),
   @JsonValue('webrtc-go2rtc')
   webRtcGo2Rtc(true, true),
+  @JsonValue('webrtc-mediamtx')
+  webRtcMediaMtx(true, true),
   // This is a special case to make it possible to show "Preview" in the UI
   @JsonValue('_MrPrev_')
   preview(true, true),

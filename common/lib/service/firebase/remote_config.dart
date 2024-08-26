@@ -10,7 +10,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 
 part 'remote_config.g.dart';
 
@@ -163,6 +162,7 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'spoolman_page': true,
         'spoolman_page_pay': true,
         'developer_announcements': json.encode({'enabled': false, 'messages': []}),
+        'clear_live_activity_on_done': false,
       });
       fetchAndActivate().then((value) {
         logger.i(

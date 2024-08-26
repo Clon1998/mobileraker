@@ -21,10 +21,11 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/warning_card.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -183,7 +184,7 @@ class _CompactBody extends HookConsumerWidget {
               leadingIcon: const Icon(Icons.scale),
               title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
               subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                  .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+                  .tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
             ),
             Card(
               child: Column(
@@ -198,6 +199,10 @@ class _CompactBody extends HookConsumerWidget {
                   _PropertyTile(
                     title: 'pages.files.details.general_card.path'.tr(),
                     subtitle: model.file.absolutPath,
+                  ),
+                  _PropertyTile(
+                    title: 'pages.files.sort_by.file_size'.tr(),
+                    subtitle: model.file.size?.let(numFormat.formatFileSize) ?? 'general.unknown'.tr(),
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.general_card.last_mod'.tr(),
@@ -227,9 +232,9 @@ class _CompactBody extends HookConsumerWidget {
                       '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
                       '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
                       if (model.file.filamentWeightTotal != null)
-                        '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                        '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
                       if (model.file.filamentTotal != null)
-                        '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                        '${tr('pages.files.details.meta_card.filament_length')}: ${numFormat.formatMillimeters(model.file.filamentTotal!)}',
                     ].join('\n'),
                   ),
                   _PropertyTile(
@@ -419,7 +424,7 @@ class _MediumBody extends HookConsumerWidget {
                       leadingIcon: const Icon(Icons.scale),
                       title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
                       subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                          .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+                          .tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
                     ),
                     Card(
                       child: Column(
@@ -436,9 +441,9 @@ class _MediumBody extends HookConsumerWidget {
                               '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
                               '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
                               if (model.file.filamentWeightTotal != null)
-                                '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                                '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
                               if (model.file.filamentTotal != null)
-                                '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                                '${tr('pages.files.details.meta_card.filament_length')}: ${numFormat.formatMillimeters(model.file.filamentTotal!)}',
                             ].join('\n'),
                           ),
                           _PropertyTile(
@@ -527,7 +532,7 @@ class _PreHeatBtn extends ConsumerWidget {
 
     return IconButton(
       onPressed: canPreheat ? controller.onPreHeatPrinterTap : null,
-      icon: const Icon(FlutterIcons.fire_alt_faw5s),
+      icon: const Icon(MobilerakerIcons.nozzle_heat),
       tooltip: 'pages.files.details.preheat'.tr(),
     );
   }

@@ -327,44 +327,17 @@ class LiveActivityService {
 
   Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine,
       [bool createIfMissing = true]) async {
-    // Check if an activity is already running for this machine and if we can still address it
-    if (_machineLiveActivityMap.containsKey(machine.uuid)) {
-      var activityEntry = _machineLiveActivityMap[machine.uuid]!;
+    // API handles both updating and creating
+    var activityId =
+        await _liveActivityAPI.createOrUpdateActivity(machine.uuid, activityData, removeWhenAppIsKilled: true);
 
-      LiveActivityState? activityState = await _liveActivityAPI.getActivityState(activityEntry.id);
-
-      logger.i('LiveActivityState for ${machine.name} is $activityState');
-
-      // If the activity is still active we can update it and return
-      if (activityState == LiveActivityState.active) {
-        logger.i('Can update LiveActivity for ${machine.name} with id: $activityEntry');
-        await _liveActivityAPI.updateActivity(activityEntry.id, activityData);
-        return activityEntry.id;
-      }
-      // Okay we can not update the activity remove and end it
-      await _liveActivityAPI.endActivity(activityEntry.id);
-      _machineLiveActivityMap.remove(machine.uuid);
-    }
-
-    // If we are not allowed to create a new activity we can just return null
-    if (!createIfMissing) {
-      logger.i('Not allowed to create a new LiveActivity for ${machine.name} since createIfMissing is false');
-      return null;
-    }
-
-    if (_machineLiveActivityMap.length >= 5) {
-      logger.i('Not allowed to create a new LiveActivity for ${machine.name} since we are at the limit of 5');
-      return null;
-    }
-
-    // Okay I guess we need to create a new activity for this machine
-    var activityId = await _liveActivityAPI.createActivity(activityData, removeWhenAppIsKilled: true);
-    if (activityId != null) {
+    if (activityId case String()) {
       _machineLiveActivityMap[machine.uuid] = _ActivityEntry(activityId);
+      logger.i('Created new LiveActivity for ${machine.name} with id: $activityId');
+      return activityId;
     }
-    logger.i('Created new LiveActivity for ${machine.name} with id: $activityId');
-    _backupLiveActivityMap();
-    return activityId;
+    logger.i('Updated LiveActivity for ${machine.name}');
+    return null;
   }
 
   _endLiveActivity(Machine machine) {

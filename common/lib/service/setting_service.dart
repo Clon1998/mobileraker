@@ -152,6 +152,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   confirmMacroExecution('confirmMacroExecution'),
   useProgressbarNotifications('useProgressNotifications'),
   etaSources('etaCalS', ['slicer', 'filament']),
+  useMediumUI('useMediumUI', true),
   ;
 
   @override
@@ -166,7 +167,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
 enum UtilityKeys implements KeyValueStoreKey {
   gCodeIndex('selGCodeGrp'),
   webcamIndex('selWebcamGrp'),
-  fileSortingIndex('selFileSrt'),
+  fileExplorerSortCfg('selFileSrt'),
   requestedNotifyPermission('reqNotifyPerm'),
   recentColors('selectedColors'),
   nonSupporterDismiss('nSWDismiss'),
@@ -197,6 +198,7 @@ enum UiKeys implements KeyValueStoreKey {
   hadWebcam('hWebcam'),
   hadPowerAPI('hPower'),
   hadFirmwareRetraction('hFwRetr'),
+  hadMoreMacros('hMoreMacros'),
   ;
 
   @override

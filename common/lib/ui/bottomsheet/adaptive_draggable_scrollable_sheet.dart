@@ -35,17 +35,20 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
 
   @override
   Widget build(BuildContext context) {
-    var viewInsets = MediaQuery.viewInsetsOf(context);
-
     var maxHeight = widget.maxChildSize;
-    var sizeOf = MediaQuery.maybeSizeOf(context);
+    final sizeOf = MediaQuery.maybeSizeOf(context);
     if (sizeOf != null && _bodyHeight != null) {
+      final viewInsets = MediaQuery.viewInsetsOf(context);
+      final paddingOf = MediaQuery.paddingOf(context);
+
       // We calculate the max height, based of the
       // 1. body height of the content
-      // 2. 70 a constant because of safe area padding?
+      // 2. paddingOf.bottom -> SafeArea padding, which is the padding of the bottom
       // 3. viewInsets.bottom, which is the height of the keyboard -> IF keyboard open, it should extend the sheet if needed
       // We clmap the value between min and max child size
-      maxHeight = (((_bodyHeight! + 70 + viewInsets.bottom) / sizeOf.height) * widget.maxChildSize)
+      // logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
+
+      maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) / sizeOf.height)
           .clamp(widget.minChildSize, widget.maxChildSize);
     }
 
@@ -71,6 +74,7 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
       setState(() {
         _bodyHeight = renderObject.size.height;
       });
+      // logger.i('Body height: $_bodyHeight');
     }
   }
 }

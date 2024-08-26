@@ -53,7 +53,8 @@ class NavWidgetController extends _$NavWidgetController {
       NavEntry(
         label: tr('pages.files.title'),
         icon: Icons.file_present,
-        route: '/files',
+        route: '/files/gcodes',
+        routeMatcher: r'^\/files(\/)?.*$',
       ),
       if (showSpoolman)
         NavEntry(
@@ -151,7 +152,10 @@ class NavEntry with _$NavEntry {
     required String label,
     required IconData icon,
     required String route,
+    String? routeMatcher,
   }) = _NavEntry;
 
   bool get isDivider => label.isEmpty && icon == Icons.space_bar && route.isEmpty;
+
+  String get routeMatcherOrDefault => routeMatcher ?? '^${RegExp.escape(route)}\$';
 }

@@ -168,7 +168,8 @@
         "macro_card": {
           "title": "Gcode - Macros",
           "no_macros": "No macros are currently visible in this group",
-          "add_grp_hint": "You can create different groups to organize your macros. Just go to the printer settings and add a new group."
+          "add_grp_hint": "You can create different groups to organize your macros. Just go to the printer settings and add a new group.",
+          "show_all_tooltip": "Show all macros"
         },
         "pin_card": {
           "title_misc": "Miscellaneous",
@@ -256,16 +257,75 @@
     },
     "files": {
       "title": "Files",
-      "search_files": "Search files",
-      "clear_search": "Clear search",
-      "name": "Name",
-      "last_mod": "Last modified",
-      "last_printed": "Last printed",
-      "not_printed": "Not printed",
-      "fetching_files": "@:general.fetching Files…",
-      "no_files_found": "No files found!",
+      "empty_folder": {
+        "title": "This folder is empty",
+        "subtitle": "No files found"
+      },
+      "sort_by": {
+        "sort_by": "Sort by",
+        "name": "Name",
+        "last_modified": "Last modified",
+        "last_printed": "Last printed",
+        "file_size": "Size"
+      },
+      "file_actions": {
+        "download": "Download",
+        "delete": "Delete",
+        "copy": "Copy",
+        "move": "Move",
+        "rename": "Rename",
+        "create_file": "Create File",
+        "create_folder": "Create Folder",
+        "upload": "Upload File",
+        "upload_bulk": "Upload Files"
+      },
+      "gcode_file_actions": {
+        "submit": "Submit Print Job",
+        "preheat": "Preheat",
+        "enqueue": "Add to Print Queue"
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "Download canceled",
+          "body": "The download was canceled."
+        },
+        "download_failed": {
+          "title": "Download failed",
+          "body": "An error occurred while trying to download the file. Please retry later."
+        },
+        "upload_canceled": {
+          "title": "Upload canceled",
+          "body": "The upload was canceled."
+        },
+        "upload_success": {
+          "title": "Upload successful",
+          "body": "The file was successfully uploaded."
+        },
+        "upload_failed": {
+          "title": "Upload failed",
+          "body": "An error occurred while trying to upload the file. Please retry later."
+        },
+        "copy_created": {
+          "title": "Copy created",
+          "body": "The copy was successfully created at '{}'."
+        }
+      },
+      "search_files": "Search in folder",
+      "search": {
+        "clear_search": "Clear search",
+        "waiting": "Waiting to search!",
+        "no_results": {
+          "title": "No files found",
+          "subtitle": "Try a different search term"
+        }
+      },
+      "cancel_fab": {
+        "upload": "Cancel Upload",
+        "download": "Cancel Download"
+      },
+      "move_here": "Move here",
+      "copy_here": "Copy here",
       "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
-      "file_name_in_use": "File name already in use!",
       "gcode_tab": "GCodes",
       "config_tab": "Configs",
       "timelapse_tab": "Timelapses",
@@ -342,7 +402,9 @@
         "confirm_gcode": "Confirm Macro Execution",
         "confirm_gcode_hint": "Always show a confirmation dialog before executing a GCode-Macro on the dashboard",
         "eta_sources": "ETA Calculation",
-        "eta_sources_hint": "Select the source that should be used for the ETA calculation"
+        "eta_sources_hint": "Select the source that should be used for the ETA calculation",
+        "medium_ui": "Tablet UI",
+        "medium_ui_hint": "Toggle if the tablet UI should be used on larger screens or landscape mode"
       },
       "notification": {
         "title": "Notification",
@@ -779,7 +841,8 @@
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
       "printer_theme": "Sorry, printer specific themes are only available to Supporters.",
       "spoolman_page": "Sorry, the Spoolman page is only available to Supporters.",
-      "custom_dashboard": "Sorry, customizing the dashboard is only available to Supporters."
+      "custom_dashboard": "Sorry, customizing the dashboard is only available to Supporters.",
+      "full_file_management": "Sorry, full file management (Download, Upload…) is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",
@@ -822,11 +885,23 @@
       "title": "Rename Folder",
       "label": "Folder Name"
     },
+    "copy_folder": {
+      "title": "Copy Folder",
+      "label": "Folder Name"
+    },
     "delete_file": {
       "description": "Confirm deletion of file '{}'."
     },
     "rename_file": {
       "title": "Rename File",
+      "label": "File Name"
+    },
+    "copy_file": {
+      "title": "Copy File",
+      "label": "File Name"
+    },
+    "create_file": {
+      "title": "Create File",
       "label": "File Name"
     },
     "exclude_object": {
@@ -889,6 +964,10 @@
       "custom_dashboard_perk": {
         "title": "Custom Dashboard",
         "subtitle": "Customize the dashboard to your liking!"
+      },
+      "full_file_management_perk": {
+        "title": "Full File Management",
+        "subtitle": "Unlock the full file management capabilities of Mobileraker!"
       }
     },
     "bed_screw_adjust": {
@@ -995,6 +1074,9 @@
           "subtitle": "Forming a filament tip"
         }
       }
+    },
+    "heater_temperature": {
+      "title": "{} Temperature [°C]"
     }
   },
   "bottom_sheets": {
@@ -1213,7 +1295,8 @@
   },
   "form_validators": {
     "simple_url": "Input only allows URL components: Hostname and Port",
-    "disallow_mdns": "mDNS (.local) addresses are not supported"
+    "disallow_mdns": "mDNS (.local) addresses are not supported",
+    "file_name_in_use": "File name already in use"
   },
   "date": {
     "year": {

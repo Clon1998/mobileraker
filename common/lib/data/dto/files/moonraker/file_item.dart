@@ -21,7 +21,17 @@ class FileItem with _$FileItem {
       double? modified,
       String? permissions}) = _FileItem;
 
+  // E.g. /gcodes/FOLDER/file-name
   String get fullPath => '$root/$path';
+
+  // E.g. file-name
+  String get name => path.split('/').last;
+
+  // E.g. /gcodes/FOLDER
+  String get parentPath {
+    final split = fullPath.split('/');
+    return split.sublist(0, split.length - 1).join('/');
+  }
 
   factory FileItem.fromJson(Map<String, dynamic> json) => _$FileItemFromJson(json);
 }

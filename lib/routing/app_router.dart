@@ -4,6 +4,7 @@
  */
 // ignore_for_file: prefer-match-file-name
 
+import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
@@ -16,13 +17,15 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:go_transitions/go_transitions.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
-import 'package:mobileraker/ui/screens/files/files_page.dart';
+import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
+import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
@@ -44,6 +47,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
+import '../ui/screens/files/move_file_destination_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
@@ -56,23 +60,25 @@ enum AppRoute implements RouteDefinitionMixin {
   printerAdd,
   qrScanner,
   console,
-  files,
   settings,
   imprint,
-  gcodeDetail,
-  configDetail,
-  imageViewer,
   dev,
   faq,
   changelog,
   supportDev,
-  videoPlayer,
   tool,
   beltTuner,
   spoolman,
   spoolman_vendorDetails,
   spoolman_spoolDetails,
-  spoolman_filamentDetails;
+  spoolman_filamentDetails,
+  fileManager_explorer,
+  fileManager_exlorer_search,
+  fileManager_exlorer_move,
+  fileManager_exlorer_gcodeDetail,
+  fileManager_exlorer_editor,
+  fileManager_exlorer_videoPlayer,
+  fileManager_exlorer_imageViewer,
 }
 
 @riverpod
@@ -97,6 +103,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+      GoTransition.observer,
     ],
     // redirect: (state) {
     //
@@ -142,35 +149,66 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: 'add',
             name: AppRoute.printerAdd.name,
-            builder: (context, state) =>
-                // TestPage(),
-                const PrinterAddPage(),
+            builder: (context, state) => const PrinterAddPage(),
           ),
         ],
       ),
       GoRoute(
-        path: '/files',
-        name: AppRoute.files.name,
-        builder: (context, state) => const FilesPage(),
+        path: '/files/:path',
+        name: AppRoute.fileManager_explorer.name,
+        builder: (context, state) =>
+            FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
+        // pageBuilder: GoTransitions.theme.withSlide.withBackGesture.build(
+        //   settings: GoTransitionSettings(
+        //     duration: const Duration(milliseconds: 3000),
+        //     reverseDuration: const Duration(milliseconds: 3000),
+        //   ),
+        // ),
         routes: [
           GoRoute(
+            path: 'search',
+            name: AppRoute.fileManager_exlorer_search.name,
+            builder: (context, state) => FileManagerSearchPage(
+                machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
+            pageBuilder: GoTransitions.fullscreenDialog,
+          ),
+          GoRoute(
+            path: 'move',
+            name: AppRoute.fileManager_exlorer_move.name,
+            builder: (context, state) => MoveFileDestinationPage(
+              machineUUID: state.uri.queryParameters['machineUUID']!,
+              path: state.pathParameters['path']!,
+              submitLabel: state.uri.queryParameters['submitLabel']!,
+            ),
+            pageBuilder: (context, state) {
+              final path = state.pathParameters['path'] as String;
+              final parts = path.split('/');
+
+              if (parts.length > 1) {
+                return GoTransitions.theme(context, state);
+              }
+
+              return GoTransitions.fullscreenDialog(context, state);
+            },
+          ),
+          GoRoute(
             path: 'gcode-details',
-            name: AppRoute.gcodeDetail.name,
+            name: AppRoute.fileManager_exlorer_gcodeDetail.name,
             builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
           ),
           GoRoute(
-            path: 'config-details',
-            name: AppRoute.configDetail.name,
+            path: 'editor',
+            name: AppRoute.fileManager_exlorer_editor.name,
             builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
           ),
           GoRoute(
             path: 'video-player',
-            name: AppRoute.videoPlayer.name,
+            name: AppRoute.fileManager_exlorer_videoPlayer.name,
             builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
           ),
           GoRoute(
             path: 'image-viewer',
-            name: AppRoute.imageViewer.name,
+            name: AppRoute.fileManager_exlorer_imageViewer.name,
             builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
           ),
         ],

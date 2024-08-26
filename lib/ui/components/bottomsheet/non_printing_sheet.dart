@@ -14,6 +14,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -70,16 +71,21 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
 
   @override
   Widget build(BuildContext context) {
+    const animDuration = kThemeAnimationDuration;
+    // final animDuration = const Duration(milliseconds: 5000);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
-        child: AnimatedSize(
-          duration: kThemeAnimationDuration,
-          curve: Curves.easeInOut,
-          alignment: Alignment.bottomCenter,
-          child: ValueListenableBuilder(
-            valueListenable: _page,
-            builder: (ctx, value, _) => switch (value) {
+        child: ValueListenableBuilder(
+          valueListenable: _page,
+          builder: (ctx, value, _) => AnimatedSizeAndFade(
+            sizeDuration: animDuration,
+            fadeDuration: animDuration,
+            sizeCurve: Curves.easeInOut,
+            fadeInCurve: Curves.easeInOut,
+            fadeOutCurve: Curves.easeInOut,
+            alignment: Alignment.bottomCenter,
+            child: switch (value) {
               1 => _ManageServices(
                   key: const Key('npMs'),
                   defaultHeight: _sheetHeight,

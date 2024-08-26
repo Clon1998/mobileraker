@@ -43,7 +43,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
     ref.listenManual(
       boolSettingProvider(AppSettingKeys.filamentSensorDialog, true),
       (previous, next) {
-        logger.w('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
+        logger.i('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
         if (next != _enabled) {
           _enabled = next;
           if (_enabled) {

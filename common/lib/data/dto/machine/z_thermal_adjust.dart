@@ -39,9 +39,7 @@ class ZThermalAdjust with _$ZThermalAdjust, SensorMixin {
 
   factory ZThermalAdjust.fromJson(Map<String, dynamic> json) => _$ZThermalAdjustFromJson(json);
 
-  factory ZThermalAdjust.partialUpdate(ZThermalAdjust? current, Map<String, dynamic> partialJson) {
-    if (current == null) return ZThermalAdjust.fromJson(partialJson);
-
+  factory ZThermalAdjust.partialUpdate(ZThermalAdjust current, Map<String, dynamic> partialJson) {
     var mergedJson = {...current.toJson(), ...partialJson};
 
     // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares

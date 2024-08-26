@@ -64,14 +64,12 @@ class GCodeFile with _$GCodeFile, RemoteFile {
   static int lastPrintedComparator(RemoteFile a, RemoteFile b) {
     if (a is! GCodeFile || b is! GCodeFile) return 0;
 
-    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
+    return a.printStartTime?.compareTo(b.printStartTime ?? 0) ?? -1;
   }
 
   const GCodeFile._();
 
-  @JsonSerializable(
-    fieldRename: FieldRename.snake,
-  )
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory GCodeFile({
     @JsonKey(name: 'filename') required String name,
     required String parentPath,

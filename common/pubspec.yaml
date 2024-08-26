@@ -35,19 +35,23 @@ dependencies:
   firebase_auth: ^4.19.2
 
   #purchases
-  purchases_flutter: ^6.5.1
+  purchases_flutter: ^7.0.1
 
   #notification
   awesome_notifications_core: ^0.9.3
   awesome_notifications: ^0.9.3
   awesome_notifications_fcm: ^0.9.3
-  #  live_activities: ^1.9.0
+  #  live_activities: ^1.9.3
   live_activities:
     git:
       url: https://github.com/Clon1998/flutter_live_activities
-      ref: feature/multi-state-req
+  #        ref: main
+  #      ref: feature/multi-state-req
+  #  live_activities:
+  #    path: ../../flutter_live_activities
+
   #routing
-  go_router: ^6.2.0
+  go_router: ^14.2.2
 
   #architecture
   freezed_annotation: ^2.4.1

@@ -168,7 +168,8 @@
         "macro_card": {
           "title": "Gcode - Macros",
           "no_macros": "In dieser Gruppe sind derzeit keine Makros sichtbar",
-          "add_grp_hint": "Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an."
+          "add_grp_hint": "Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an.",
+          "show_all_tooltip": "Alle Makros anzeigen"
         },
         "pin_card": {
           "title_misc": "Verschiedenes",
@@ -256,16 +257,75 @@
     },
     "files": {
       "title": "Dateien",
-      "search_files": "Dateien durchsuchen",
-      "clear_search": "Suche löschen",
-      "name": "Name",
-      "last_mod": "Zuletzt bearbeitet",
-      "last_printed": "Zuletzt gedruckt",
-      "not_printed": "Nicht gedruckt",
-      "fetching_files": "@:general.fetching Dateien…",
-      "no_files_found": "Keine Datei gefunden!",
+      "empty_folder": {
+        "title": "Dieser Ordner ist leer",
+        "subtitle": "Keine Dateien gefunden"
+      },
+      "sort_by": {
+        "sort_by": "Sortieren nach",
+        "name": "Name",
+        "last_modified": "Zuletzt bearbeitet",
+        "last_printed": "Zuletzt gedruckt",
+        "file_size": "Dateigröße"
+      },
+      "file_actions": {
+        "download": "Herunterladen",
+        "delete": "Löschen",
+        "copy": "Kopieren",
+        "move": "Verschieben",
+        "rename": "Umbenennen",
+        "create_file": "Datei erstellen",
+        "create_folder": "Ordner erstellen",
+        "upload": "Datei hochladen",
+        "upload_bulk": "Dateien hochladen"
+      },
+      "gcode_file_actions": {
+        "submit": "Datei drucken",
+        "preheat": "Vorheizen",
+        "enqueue": "Zur Warteschlange hinzufügen"
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "Download abgebrochen",
+          "body": "Der Download wurde abgebrochen."
+        },
+        "download_failed": {
+          "title": "Download fehlgeschlagen",
+          "body": "Beim Herunterladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        },
+        "upload_canceled": {
+          "title": "Upload abgebrochen",
+          "body": "Der Upload wurde abgebrochen."
+        },
+        "upload_success": {
+          "title": "Upload erfolgreich",
+          "body": "Die Datei wurde erfolgreich hochgeladen."
+        },
+        "upload_failed": {
+          "title": "Upload fehlgeschlagen",
+          "body": "Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        },
+        "copy_created": {
+          "title": "Kopie erstellt",
+          "body": "Die Datei wurde erfolgreich nach '{}' kopiert."
+        }
+      },
+      "search_files": "Im Ordner suchen",
+      "search": {
+        "clear_search": "Suche löschen",
+        "waiting": "Warten auf Suche!",
+        "no_results": {
+          "title": "Keine Dateien gefunden",
+          "subtitle": "Versuchen Sie einen anderen Suchbegriff"
+        }
+      },
+      "cancel_fab": {
+        "upload": "Upload abbrechen",
+        "download": "Download abbrechen"
+      },
+      "move_here": "Hierhin verschieben",
+      "copy_here": "Hierhin kopieren",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",
-      "file_name_in_use": "Der Dateiname wird bereits verwendet!",
       "gcode_tab": "GCodes",
       "config_tab": "Konfigs",
       "timelapse_tab": "Zeitraffer",
@@ -342,7 +402,9 @@
         "confirm_gcode": "Bestätige Makro-Ausführung",
         "confirm_gcode_hint": "Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird",
         "eta_sources": "ETA Quellen",
-        "eta_sources_hint": "Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen"
+        "eta_sources_hint": "Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen",
+        "medium_ui": "Tablet UI",
+        "medium_ui_hint": "Aktiviert das Tablet-UI für größere Bildschirme"
       },
       "notification": {
         "title": "Benachrichtigung",
@@ -779,7 +841,8 @@
       "timelaps_share": "Das Teilen von Zeitrafferaufnahmen ist leider nur für Unterstützer möglich.",
       "printer_theme": "Druckerspezifische Designs sind leider nur für Supporter verfügbar.",
       "spoolman_page": "Die Spoolman-Seite ist leider nur für Supporter verfügbar.",
-      "custom_dashboard": "Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar."
+      "custom_dashboard": "Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar.",
+      "full_file_management": "Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar."
     },
     "machine_deletion_warning": {
       "title": "Maschinelle Löschung",
@@ -822,11 +885,23 @@
       "title": "Ordner umbenennen",
       "label": "Ordnername"
     },
+    "copy_folder": {
+      "title": "Ordner kopieren",
+      "label": "Ordnername"
+    },
     "delete_file": {
       "description": "Bestätigen Sie die Löschung der Datei '{}'."
     },
     "rename_file": {
       "title": "Datei umbenennen",
+      "label": "Dateiname"
+    },
+    "copy_file": {
+      "title": "Datei kopieren",
+      "label": "Dateiname"
+    },
+    "create_file": {
+      "title": "Datei erstellen",
       "label": "Dateiname"
     },
     "exclude_object": {
@@ -889,6 +964,10 @@
       "custom_dashboard_perk": {
         "title": "Anpassbares Dashboards",
         "subtitle": "Passen Sie Ihr Dashboard an Ihre Bedürfnisse an!"
+      },
+      "full_file_management_perk": {
+        "title": "Vollständige Dateiverwaltung",
+        "subtitle": "Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien und mehr!"
       }
     },
     "bed_screw_adjust": {
@@ -995,6 +1074,9 @@
           "subtitle": "Eine Filamentspitze formen"
         }
       }
+    },
+    "heater_temperature": {
+      "title": "{} Temperatur [°C]"
     }
   },
   "bottom_sheets": {
@@ -1213,7 +1295,8 @@
   },
   "form_validators": {
     "simple_url": "Die Eingabe erlaubt nur URL-Komponenten: Hostname und Port",
-    "disallow_mdns": "mDNS (.local) Adressen werden nicht unterstützt"
+    "disallow_mdns": "mDNS (.local) Adressen werden nicht unterstützt",
+    "file_name_in_use": "Dateiname wird bereits verwendet"
   },
   "date": {
     "year": {

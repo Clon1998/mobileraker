@@ -7,7 +7,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
+import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -20,15 +22,14 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
-import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,10 +37,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/range_selector.dart';
-import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
-import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
+import 'package:mobileraker/ui/components/single_value_selector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
@@ -172,9 +170,9 @@ class _ControlExtruderLoading extends StatelessWidget {
                       RangeSelectorSkeleton(itemCount: 5),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   // Loading/Unloading part
-                  const Divider(),
+                  Divider(),
                   OverflowBar(
                     alignment: MainAxisAlignment.spaceEvenly,
                     overflowAlignment: OverflowBarAlignment.center,
@@ -189,9 +187,14 @@ class _ControlExtruderLoading extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SpoolWidget(
-                        height: 32,
-                        width: 32,
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 4),
@@ -231,7 +234,7 @@ class _CardTitle extends ConsumerWidget {
         children: [
           const Text('pages.dashboard.control.extrude_card.title').tr(),
           AnimatedOpacity(
-            opacity: model.minExtrudeTempReached ? 0 : 1,
+            opacity: model.activeExtruder == null || model.minExtrudeTempReached ? 0 : 1,
             duration: kThemeAnimationDuration,
             child: Padding(
               padding: const EdgeInsets.only(left: 5),
@@ -240,7 +243,7 @@ class _CardTitle extends ConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 64.0),
                 message: tr(
                   'pages.dashboard.control.extrude_card.cold_extrude_error',
-                  args: [model.minExtrudeTemp.toStringAsFixed(0)],
+                  args: [(model.activeExtruderConfig?.minExtrudeTemp ?? 180).toStringAsFixed(0)],
                 ),
                 child: Icon(
                   Icons.severe_cold,
@@ -340,7 +343,7 @@ class _CardBody extends ConsumerWidget {
           '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]',
         ),
         const SizedBox(height: 8),
-        RangeSelector(
+        SingleValueSelector(
           selectedIndex: model.stepIndex,
           onSelected: canExtrude ? controller.onSelectedStepChanged : null,
           values: [for (var step in model.steps) step.toString()],
@@ -349,7 +352,9 @@ class _CardBody extends ConsumerWidget {
         const Divider(),
         LayoutBuilder(
           builder: (context, constraints) {
-            double width = (constraints.maxWidth - 20) / 2;
+            final theme = Theme.of(context);
+            final icoSize = (theme.iconTheme.size ?? 24) + 24;
+            double width = (constraints.maxWidth - icoSize) / 2;
 
             return OverflowBar(
               alignment: MainAxisAlignment.spaceEvenly,
@@ -368,13 +373,10 @@ class _CardBody extends ConsumerWidget {
                     ],
                   ),
                 ),
-                GestureDetector(
-                  onTap: controller.onSpoolManagement,
-                  child: SpoolWidget(
-                    height: 32,
-                    width: 20,
-                    color: model.activeSpool?.filament.colorHex ?? themeData.colorScheme.secondary.hexCode.substring(2),
-                  ),
+                MobilerakerIconButton(
+                  onPressed: controller.onHeatingButtonPressed,
+                  icon: const Icon(MobilerakerIcons.nozzle_heat_outline),
+                  color: themeData.colorScheme.primary,
                 ),
                 ConstrainedBox(
                   constraints: BoxConstraints(minWidth: width),
@@ -408,21 +410,42 @@ class _ToolSelector extends ConsumerWidget {
     final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).requireValue());
     final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
+    final theme = Theme.of(context);
+
+    final sel = theme.useMaterial3
+        ? SegmentedButton<GcodeMacro>(
+            showSelectedIcon: false,
+            segments: [
+              for (var tool in model.toolchangeMacros) _buildButtonSegment((tool)),
+            ],
+            selected: model.toolchangeMacros.where((e) => e.vars['active'] == true).toSet(),
+            onSelectionChanged: model.klippyCanReceiveCommands ? controller.onToolSetSelected : null,
+          )
+        : ToggleButtons(
+            isSelected: [
+              for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
+            ],
+            onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
+            children: [
+              for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
+            ],
+          );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(),
-        child: ToggleButtons(
-          isSelected: [
-            for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
-          ],
-          onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
-          children: [
-            for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
-          ],
-        ),
-      ),
+      child:
+          SingleChildScrollView(scrollDirection: Axis.horizontal, physics: const ClampingScrollPhysics(), child: sel),
+    );
+  }
+
+  ButtonSegment<GcodeMacro> _buildButtonSegment(GcodeMacro tool) {
+    final Object? val = tool.vars['color'] ?? tool.vars['colour'];
+    final color = val?.let((t) => Color(int.parse(t.toString(), radix: 16) | 0xFF000000));
+
+    return ButtonSegment(
+      value: tool,
+      label: Text(tool.name),
+      icon: Icon(Icons.circle, color: color, size: 12).only(color != null),
     );
   }
 }
@@ -435,7 +458,11 @@ class _ToolItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Object? val = tool.vars['color'] ?? tool.vars['colour'];
-    final color = val?.let((t) => Color(int.parse(t.toString(), radix: 16) | 0xFF000000));
+    Color? color = switch (val) {
+      String a when a.isNotEmpty => Color(int.parse(a, radix: 16) | 0xFF000000),
+      int hexValue => Color(hexValue | 0xFF000000),
+      _ => null,
+    };
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -474,8 +501,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     var activeExtruder =
         await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex));
 
-    var activeSpool = await ref.watch(activeSpoolProvider(machineUUID).selectAsync((s) => s));
-
     var showCard =
         ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.print.state != PrintState.printing));
 
@@ -494,26 +519,23 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       steps,
       showCard,
       (a, b, c, d) {
-        var idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
-        var velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
+        final velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
+        final idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
 
-        var minExtrudeTemp = b.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170;
         return _Model(
-          activeSpool: activeSpool,
           showCard: d,
           klippyCanReceiveCommands: a.klippyCanReceiveCommands,
-          hasSpoolman: a.hasSpoolmanComponent,
           extruderCount: b.extruderCount,
           extruderIndex: activeExtruder,
           stepIndex: min(max(0, idx), c.length - 1),
           steps: c,
-          minExtrudeTemp: minExtrudeTemp,
-          minExtrudeTempReached: (b.extruders.elementAtOrNull(activeExtruder)?.temperature ?? 0) >= minExtrudeTemp,
-          extruderVelocity: velocity,
           toolchangeMacros: b.gcodeMacros.values.where((e) => _toolchangeMacroRegex.hasMatch(e.name)).sortedByCompare(
                 (e) => int.tryParse(e.name.substring(1)) ?? 0,
                 (i, j) => i.compareTo(j),
               ),
+          extruderVelocity: velocity,
+          activeExtruder: b.extruders[activeExtruder],
+          activeExtruderConfig: b.configFile.extruderForIndex(activeExtruder)!,
         );
       },
     );
@@ -559,8 +581,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           ? DialogType.numEdit
           : DialogType.rangeEdit,
       title: tr('dialogs.extruder_feedrate.title'),
-      dismissLabel: tr('general.cancel'),
-      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: state.requireValue.extruderVelocity,
         min: 0.1,
@@ -604,26 +624,48 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
         )));
   }
 
-  void onSpoolManagement() {
-    if (state.valueOrNull?.hasSpoolman != true) return;
-    _bottomSheetService.show(BottomSheetConfig(
-      type: ProSheetType.selectSpoolman,
-      data: machineUUID,
-      isScrollControlled: true,
-    ));
-  }
-
   void onToolSelected(int toolIdx) {
     final tool = state.requireValue.toolchangeMacros.elementAtOrNull(toolIdx);
     if (tool == null) return;
     _printerService.gCode(tool.name);
+  }
+
+  void onToolSetSelected(Set<GcodeMacro> selected) {
+    if (selected.isEmpty || selected.length > 1) return;
+    final tool = selected.firstOrNull;
+    if (tool == null) return;
+    _printerService.gCode(tool.name);
+  }
+
+  void onHeatingButtonPressed() {
+    final cur = state.requireValue;
+    if (cur.activeExtruder == null || cur.activeExtruderConfig == null) return;
+
+    _dialogService
+        .show(DialogRequest(
+      type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+          ? DialogType.numEdit
+          : DialogType.rangeEdit,
+      title: tr('dialogs.heater_temperature.title', args: [beautifyName(cur.activeExtruder!.name)]),
+      data: NumberEditDialogArguments(
+        current: cur.activeExtruder!.target,
+        min: 0,
+        max: cur.activeExtruderConfig!.maxTemp ?? 150,
+      ),
+    ))
+        .then((value) {
+      if (value == null || !value.confirmed || value.data == null) return;
+
+      num v = value.data;
+      _printerService.setHeaterTemperature(cur.activeExtruder!.name, v.toInt());
+    });
   }
 }
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
   @override
   Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(
+    state = AsyncValue.data(
       _Model(
         showCard: true,
         klippyCanReceiveCommands: true,
@@ -631,9 +673,20 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
         extruderIndex: 0,
         stepIndex: 0,
         steps: [1, 5, 10, 20, 50],
-        minExtrudeTemp: 170,
-        minExtrudeTempReached: true,
         extruderVelocity: 10,
+        activeExtruder: Extruder.empty(),
+        activeExtruderConfig: const ConfigExtruder(
+          name: 'extruder',
+          nozzleDiameter: 0.4,
+          maxExtrudeOnlyDistance: 100,
+          minTemp: 40,
+          minExtrudeTemp: -1,
+          maxTemp: 340,
+          maxPower: 1,
+          filamentDiameter: 1.75,
+          maxExtrudeOnlyVelocity: 100,
+          maxExtrudeOnlyAccel: 100,
+        ),
       ),
     );
 
@@ -671,18 +724,18 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
   }
 
   @override
-  void onSpoolManagement() {
+  void onToolSelected(int toolIdx) {
     // Do nothing preview
   }
 
   @override
-  void onToolSelected(int toolIdx) {
-    // Do nothing preview
-  }
+  void onHeatingButtonPressed() {}
 }
 
 @freezed
 class _Model with _$Model {
+  const _Model._();
+
   const factory _Model({
     required bool showCard,
     required bool klippyCanReceiveCommands,
@@ -690,11 +743,14 @@ class _Model with _$Model {
     required int extruderIndex,
     required int stepIndex,
     required List<int> steps,
-    @Default(170) double minExtrudeTemp,
-    @Default(false) bool minExtrudeTempReached,
-    required double extruderVelocity,
-    @Default(false) bool hasSpoolman,
-    Spool? activeSpool,
     @Default([]) List<GcodeMacro> toolchangeMacros,
+    required double extruderVelocity,
+    required Extruder? activeExtruder,
+    required ConfigExtruder? activeExtruderConfig,
   }) = __Model;
+
+  bool get minExtrudeTempReached =>
+      activeExtruder != null &&
+      activeExtruderConfig != null &&
+      activeExtruder!.temperature >= activeExtruderConfig!.minExtrudeTemp;
 }

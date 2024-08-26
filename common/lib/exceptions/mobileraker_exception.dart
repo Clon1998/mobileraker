@@ -30,7 +30,7 @@ class MobilerakerDioException extends DioException implements MobilerakerExcepti
     super.message,
   }) : _parent = null;
 
-  MobilerakerDioException.fromDio(DioException dioException)
+  MobilerakerDioException.fromDio(DioException dioException, [String? message])
       : _parent = dioException,
         super(
           requestOptions: dioException.requestOptions,
@@ -38,7 +38,8 @@ class MobilerakerDioException extends DioException implements MobilerakerExcepti
           type: dioException.type,
           error: dioException.error,
           stackTrace: dioException.stackTrace,
-          message: dioException.message,
+          message: message ?? dioException.message,
+          // message: message?.let((it) => '$it | Dio: ${dioException.message}') ?? dioException.message,
         );
 
   /// In this case, the [DioException] is the parent exception. While the [DioException.error] is the wrapped error reason

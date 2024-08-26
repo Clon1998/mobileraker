@@ -13,11 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SwitchPrinterAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
-  const SwitchPrinterAppBar({super.key, required this.title, required this.actions, this.bottom});
+  const SwitchPrinterAppBar({super.key, required this.title, required this.actions, this.bottom, this.centerTitle});
 
   final String title;
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
+
+  final bool? centerTitle;
 
   @override
   ConsumerState createState() => _SwitchPrinterAppBarState();
@@ -38,7 +40,7 @@ class _SwitchPrinterAppBarState extends ConsumerState<SwitchPrinterAppBar> {
         ref.watch(allMachinesProvider.selectAs((data) => data.length > 1)).valueOrNull == true;
 
     return AppBar(
-      centerTitle: context.isLargerThanCompact,
+      centerTitle: widget.centerTitle ?? context.isLargerThanCompact,
       title: GestureDetector(
         onHorizontalDragEnd: onHorizontalDragEnd,
         onTap: multipleMachinesAvailable ? onTap : null,

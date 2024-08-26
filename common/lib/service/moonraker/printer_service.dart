@@ -7,39 +7,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:common/data/dto/config/config_file.dart';
-import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
-import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
-import 'package:common/data/dto/machine/bed_screw.dart';
-import 'package:common/data/dto/machine/display_status.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
-import 'package:common/data/dto/machine/fans/controller_fan.dart';
-import 'package:common/data/dto/machine/fans/generic_fan.dart';
-import 'package:common/data/dto/machine/fans/heater_fan.dart';
-import 'package:common/data/dto/machine/fans/named_fan.dart';
-import 'package:common/data/dto/machine/fans/print_fan.dart';
-import 'package:common/data/dto/machine/fans/temperature_fan.dart';
-import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
-import 'package:common/data/dto/machine/gcode_macro.dart';
-import 'package:common/data/dto/machine/gcode_move.dart';
-import 'package:common/data/dto/machine/heaters/extruder.dart';
-import 'package:common/data/dto/machine/heaters/generic_heater.dart';
-import 'package:common/data/dto/machine/heaters/heater_bed.dart';
-import 'package:common/data/dto/machine/leds/addressable_led.dart';
-import 'package:common/data/dto/machine/leds/dumb_led.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
-import 'package:common/data/dto/machine/manual_probe.dart';
-import 'package:common/data/dto/machine/motion_report.dart';
-import 'package:common/data/dto/machine/output_pin.dart';
-import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
-import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
-import 'package:common/data/dto/machine/temperature_sensor.dart';
-import 'package:common/data/dto/machine/toolhead.dart';
-import 'package:common/data/dto/machine/virtual_sd_card.dart';
 import 'package:common/exceptions/gcode_exception.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -55,9 +28,7 @@ import 'package:stringr/stringr.dart';
 
 import '../../data/dto/console/command.dart';
 import '../../data/dto/console/console_entry.dart';
-import '../../data/dto/machine/filament_sensors/filament_sensor.dart';
-import '../../data/dto/machine/firmware_retraction.dart';
-import '../../data/dto/machine/z_thermal_adjust.dart';
+import '../../data/dto/machine/printer_builder.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
@@ -78,14 +49,24 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
   // ref.keepAlive();
   var printerService = ref.watch(printerServiceProvider(machineUUID));
   ref.listenSelf((previous, next) {
-    var previousFileName = previous?.valueOrNull?.print.filename;
-    var nextFileName = next.valueOrNull?.print.filename;
+    final previousFileName = previous?.valueOrNull?.print.filename;
+    final nextFileName = next.valueOrNull?.print.filename;
     // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
     if (previousFileName != nextFileName ||
         next.hasValue &&
             (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
                 nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
       printerService.updateCurrentFile(nextFileName).ignore();
+    }
+
+    final prevMessage = previous?.valueOrNull?.print.message;
+    final nextMessage = next.valueOrNull?.print.message;
+    if (prevMessage != nextMessage && nextMessage?.isNotEmpty == true) {
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.warning,
+            title: 'Klippy-Message',
+            message: nextMessage,
+          ));
     }
   });
   return printerService.printerStream;
@@ -155,40 +136,6 @@ class PrinterService {
 
   /// This map defines how different printerObjects will be parsed
   /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
-  late final Map<String, Function?> _subToPrinterObjects = {
-    'toolhead': _updateToolhead,
-    'extruder': _updateExtruder,
-    'gcode_move': _updateGCodeMove,
-    'motion_report': _updateMotionReport,
-    'display_status': _updateDisplayStatus,
-    'heater_bed': _updateHeaterBed,
-    'virtual_sdcard': _updateVirtualSd,
-    'configfile': _updateConfigFile,
-    'print_stats': _updatePrintStat,
-    'fan': _updatePrintFan,
-    'heater_fan': _updateFan,
-    'controller_fan': _updateFan,
-    'temperature_fan': _updateFan,
-    'fan_generic': _updateFan,
-    'output_pin': _updateOutputPin,
-    'temperature_sensor': _updateTemperatureSensor,
-    'exclude_object': _updateExcludeObject,
-    'led': _updateLed,
-    'neopixel': _updateLed,
-    'dotstar': _updateLed,
-    'pca9533': _updateLed,
-    'pca9632': _updateLed,
-    'manual_probe': _updateManualProbe,
-    'bed_screws': _updateBedScrew,
-    'screws_tilt_adjust': _updateScrewsTiltAdjust,
-    'heater_generic': _updateGenericHeater,
-    'firmware_retraction': _updateFirmwareRetraction,
-    'bed_mesh': _updateBedMesh,
-    'filament_switch_sensor': _updateFilamentSensor,
-    'filament_motion_sensor': _updateFilamentSensor,
-    'z_thermal_adjust': _updateZThermalAdjust,
-    'gcode_macro': _updateGcodeMacro,
-  };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
 
@@ -554,19 +501,23 @@ class PrinterService {
     // printerStream.value = Printer();
     logger.i('>>>Querying printers object list');
     RpcResponse resp = await _jRpcClient.sendJRpcMethod('printer.objects.list');
+    final result = resp.result;
 
-    return _parsePrinterObjectsList(resp.result);
+    logger.i('<<<Received printer objects list!');
+    logger.v('PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
+
+    return PrinterBuilder()..queryableObjects = List.unmodifiable(result['objects'].cast<String>());
   }
 
   /// Method Handler for registered in the Websocket wrapper.
   /// Handles all incoming messages and maps the correct method to it!
 
-  _onNotifyGcodeResponse(Map<String, dynamic> rawMessage) {
+  void _onNotifyGcodeResponse(Map<String, dynamic> rawMessage) {
     String message = rawMessage['params'][0];
     _gCodeResponseStreamController.add(message);
   }
 
-  _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
+  void _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
     if (!hasCurrent) {
       logger.w('Received statusUpdate before a printer was parsed initially!');
@@ -581,26 +532,11 @@ class PrinterService {
     current = printerBuilder.build();
   }
 
-  _parseObjectType(String key, Map<String, dynamic> json, PrinterBuilder printer) {
+  void _parseObjectType(String key, Map<String, dynamic> json, PrinterBuilder builder) {
     // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-    var klipperObjectIdentifier = key.toKlipperObjectIdentifier();
-    var objectIdentifier = klipperObjectIdentifier.$1;
-    var objectName = klipperObjectIdentifier.$2;
 
     try {
-      if (_subToPrinterObjects.containsKey(objectIdentifier)) {
-        var method = _subToPrinterObjects[objectIdentifier];
-        if (method != null) {
-          if (objectName != null) {
-            method(objectName, json[key], printer: printer);
-          } else {
-            method(json[key], printer: printer);
-          }
-        }
-      } else if (objectIdentifier.startsWith('extruder')) {
-        // Note that extruder will be handled above!
-        _updateExtruder(json[key], printer: printer, num: int.tryParse(objectIdentifier.substring(8)) ?? 0);
-      }
+      builder.partialUpdateField(key, json);
     } catch (e, s) {
       logger.e('Error while parsing $key object', e, s);
       _printerStreamCtler.addError(e, s);
@@ -610,93 +546,7 @@ class PrinterService {
     }
   }
 
-  /// Parses the list of printer objects received from the server.
-  ///
-  /// This method takes a Map of printer objects and processes each object
-  /// based on its type. It creates a new PrinterBuilder and populates it
-  /// with the parsed printer objects.
-  ///
-  /// The method handles different types of printer objects including
-  /// extruders, fans, temperature sensors, output pins, LEDs, heaters, etc.
-  /// For each type of object, it calls the appropriate method to parse
-  /// the object and add it to the PrinterBuilder.
-  ///
-  /// @param result A Map of printer objects received from the server.
-  /// Each key in the Map is the name of a printer object and the value
-  /// is a Map of properties for that object.
-  ///
-  /// @return A PrinterBuilder populated with the parsed printer objects.
-  _parsePrinterObjectsList(Map<String, dynamic> result) {
-    logger.i('<<<Received printer objects list!');
-    logger.v('PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
-    PrinterBuilder printerBuilder = PrinterBuilder();
-
-    List<String> objects = result['objects'].cast<String>();
-    List<String> qObjects = [];
-    int extruderCnt = 0;
-
-    for (String rawObject in objects) {
-      qObjects.add(rawObject);
-      var klipperObjectIdentifier = rawObject.toKlipperObjectIdentifier();
-      String objectIdentifier = klipperObjectIdentifier.$1;
-      String objectName = klipperObjectIdentifier.$2 ?? klipperObjectIdentifier.$1;
-
-      if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.gcode_macro)) {
-        printerBuilder.gcodeMacros[objectName] = GcodeMacro(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.extruder)) {
-        int extNum = int.tryParse(objectIdentifier.substring(8)) ?? 0;
-        extruderCnt = max(extNum + 1, extruderCnt);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_fan)) {
-        printerBuilder.fans[objectName] = HeaterFan(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.controller_fan)) {
-        printerBuilder.fans[objectName] = ControllerFan(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.temperature_fan)) {
-        printerBuilder.fans[objectName] = TemperatureFan(
-          name: objectName,
-          lastHistory: DateTime(1990),
-        );
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.fan_generic)) {
-        printerBuilder.fans[objectName] = GenericFan(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.output_pin)) {
-        printerBuilder.outputPins[objectName] = OutputPin(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.temperature_sensor)) {
-        printerBuilder.temperatureSensors[objectName] = TemperatureSensor(
-          name: objectName,
-          lastHistory: DateTime(1990),
-        );
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.led)) {
-        printerBuilder.leds[objectName] = DumbLed(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.pca9533)) {
-        printerBuilder.leds[objectName] = DumbLed(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.pca9632)) {
-        printerBuilder.leds[objectName] = DumbLed(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.neopixel)) {
-        printerBuilder.leds[objectName] = AddressableLed(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.dotstar)) {
-        printerBuilder.leds[objectName] = AddressableLed(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_generic)) {
-        printerBuilder.genericHeaters[objectName] = GenericHeater(
-          name: objectName,
-          lastHistory: DateTime(1990),
-        );
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.bed_mesh)) {
-        printerBuilder.bedMesh = const BedMesh();
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.filament_switch_sensor)) {
-        printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.filament_motion_sensor)) {
-        printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.z_thermal_adjust)) {
-        printerBuilder.zThermalAdjust = ZThermalAdjust(lastHistory: DateTime(1990));
-      }
-    }
-    printerBuilder.extruders =
-        List.generate(extruderCnt, (index) => Extruder(num: index, lastHistory: DateTime(1990)), growable: false);
-    printerBuilder.queryableObjects = List.unmodifiable(qObjects);
-
-    return printerBuilder;
-  }
-
-  _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
+  void _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
     logger.i('<<<Received queried printer objects');
     logger.v('PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
     Map<String, dynamic> data = response['status'];
@@ -706,162 +556,18 @@ class PrinterService {
     });
   }
 
-  _updatePrintFan(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.printFan = PrintFan.partialUpdate(printer.printFan, jsonResponse);
-  }
-
-  _updateFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
-    final curFan = printer.fans[fanName];
-
-    if (curFan == null) {
-      logger.e('Fan $fanName not found in printer.fans');
-      throw MobilerakerException('Fan $fanName not found in printer.fans');
-    }
-
-    NamedFan updated = NamedFan.partialUpdate(curFan, fanJson);
-    printer.fans = {...printer.fans, fanName: updated};
-  }
-
-  _updateTemperatureSensor(String sensorName, Map<String, dynamic> sensorJson, {required PrinterBuilder printer}) {
-    TemperatureSensor current = printer.temperatureSensors[sensorName]!;
-
-    printer.temperatureSensors = {
-      ...printer.temperatureSensors,
-      sensorName: TemperatureSensor.partialUpdate(current, sensorJson)
-    };
-  }
-
-  _updateOutputPin(String pin, Map<String, dynamic> pinJson, {required PrinterBuilder printer}) {
-    OutputPin curPin = printer.outputPins[pin]!;
-
-    printer.outputPins = {...printer.outputPins, pin: OutputPin.partialUpdate(curPin, pinJson)};
-  }
-
-  _updateGCodeMove(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.gCodeMove = GCodeMove.partialUpdate(printer.gCodeMove, jsonResponse);
-  }
-
-  _updateMotionReport(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.motionReport = MotionReport.partialUpdate(printer.motionReport, jsonResponse);
-  }
-
-  _updateDisplayStatus(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.displayStatus = DisplayStatus.partialUpdate(
-      printer.displayStatus,
-      jsonResponse,
-    );
-  }
-
-  _updateVirtualSd(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.virtualSdCard = VirtualSdCard.partialUpdate(printer.virtualSdCard, jsonResponse);
-  }
-
-  _updatePrintStat(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    if (jsonResponse.containsKey('message')) {
-      _onMessage(jsonResponse['message']!);
-    }
-
-    printer.print = PrintStats.partialUpdate(printer.print, jsonResponse);
-  }
-
-  _updateConfigFile(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    var config = printer.configFile ?? ConfigFile();
-    if (jsonResponse.containsKey('settings')) {
-      config = ConfigFile.parse(jsonResponse['settings']);
-    }
-    if (jsonResponse.containsKey('save_config_pending')) {
-      config.saveConfigPending = jsonResponse['save_config_pending'];
-    }
-    printer.configFile = config;
-  }
-
-  _updateHeaterBed(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.heaterBed = HeaterBed.partialUpdate(printer.heaterBed, jsonResponse);
-  }
-
-  _updateGenericHeater(String configName, Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.genericHeaters = {
-      ...printer.genericHeaters,
-      configName: GenericHeater.partialUpdate(printer.genericHeaters[configName]!, jsonResponse)
-    };
-  }
-
-  _updateExtruder(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer, int num = 0}) {
-    List<Extruder> extruders = printer.extruders;
-    Extruder extruder = printer.extruders[num];
-
-    Extruder newExtruder = Extruder.partialUpdate(extruder, jsonResponse);
-
-    printer.extruders = extruders.mapIndex((e, i) => i == num ? newExtruder : e).toList(growable: false);
-  }
-
-  _updateToolhead(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.toolhead = Toolhead.partialUpdate(printer.toolhead, jsonResponse);
-  }
-
-  _updateExcludeObject(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.excludeObject = ExcludeObject.partialUpdate(printer.excludeObject, jsonResponse);
-  }
-
-  _updateLed(String led, Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.leds = {...printer.leds, led: Led.partialUpdate(printer.leds[led]!, jsonResponse)};
-  }
-
-  _updateManualProbe(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.manualProbe = ManualProbe.partialUpdate(printer.manualProbe, jsonResponse);
-  }
-
-  _updateBedScrew(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.bedScrew = BedScrew.partialUpdate(printer.bedScrew, jsonResponse);
-  }
-
-  _updateScrewsTiltAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.screwsTiltAdjust = ScrewsTiltAdjust.partialUpdate(printer.screwsTiltAdjust, jsonResponse);
-  }
-
-  _updateFirmwareRetraction(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.firmwareRetraction = FirmwareRetraction.partialUpdate(printer.firmwareRetraction, jsonResponse);
-  }
-
-  _updateBedMesh(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.bedMesh = BedMesh.partialUpdate(printer.bedMesh, jsonResponse);
-  }
-
-  _updateFilamentSensor(String sensor, Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.filamentSensors = {
-      ...printer.filamentSensors,
-      sensor: FilamentSensor.partialUpdate(printer.filamentSensors[sensor]!, jsonResponse)
-    };
-  }
-
-  _updateZThermalAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
-    printer.zThermalAdjust = ZThermalAdjust.partialUpdate(printer.zThermalAdjust, jsonResponse);
-  }
-
-  _updateGcodeMacro(String macro, Map<String, dynamic> inputJson, {required PrinterBuilder printer}) {
-    final curObj = printer.gcodeMacros[macro]!;
-
-    printer.gcodeMacros = {...printer.gcodeMacros, macro: GcodeMacro.partialUpdate(curObj, inputJson)};
-  }
-
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {
-    Map<String, List<String>?> queryObjects = {};
-    for (String ele in queryableObjects) {
-      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-      var klipperObjectIdentifier = ele.toKlipperObjectIdentifier();
-      String objTypeKey = klipperObjectIdentifier.$1;
-
-      if (_subToPrinterObjects.keys.contains(objTypeKey)) {
-        queryObjects[ele] = null;
-      } else if (ele.startsWith('extruder')) {
-        queryObjects[ele] = null;
-      }
+    final Map<String, List<String>?> queryObjects = {};
+    for (String obj in queryableObjects) {
+      final (cIdentifier, _) = obj.toKlipperObjectIdentifierNEW();
+      if (cIdentifier == null) continue;
+      queryObjects[obj] = null;
     }
     return queryObjects;
   }
 
   /// Query the state of queryable printer objects once!
-  _printerObjectsQuery(PrinterBuilder printer) async {
+  Future<void> _printerObjectsQuery(PrinterBuilder printer) async {
     if (disposed) return;
     logger.i('>>>Querying Printer Objects!');
     Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer.queryableObjects);
@@ -896,11 +602,6 @@ class PrinterService {
     return '$axis${value <= 0 ? '' : '+'}${value.toStringAsFixed(2)}';
   }
 
-  _onMessage(String message) {
-    if (message.isEmpty) return;
-    _snackBarService.show(SnackBarConfig(type: SnackbarType.warning, title: 'Klippy-Message', message: message));
-  }
-
   void _showExceptionSnackbar(Object e, StackTrace s) {
     _snackBarService.show(SnackBarConfig.stacktraceDialog(
       dialogService: _dialogService,
@@ -927,7 +628,7 @@ class PrinterService {
         }));
   }
 
-  dispose() {
+  void dispose() {
     _removeJrpcHandlers();
 
     _printerStreamCtler.close();

@@ -17,6 +17,7 @@ import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -416,7 +417,7 @@ class _GCodeSuggestions extends HookConsumerWidget {
       }
 
       // Apply Levenshtein distance for additional similarity check
-      int levenshteinScore = _levenshteinDistance(lowerSuggestion, text);
+      int levenshteinScore = lowerSuggestion.levenshteinDistance(text);
       score -= levenshteinScore;
 
       // Assign score to the suggestion
@@ -432,24 +433,6 @@ class _GCodeSuggestions extends HookConsumerWidget {
     return sortedSuggestions;
   }
 
-  /// This function calculates the Levenshtein distance between two strings.
-  /// The Levenshtein distance is a measure of the difference between two strings,
-  /// defined as the minimum number of single-character edits (insertions, deletions, or substitutions) required to change one string into the other.
-  /// This function is used in the `_calculateSuggestedMacros` function to reduce the score of a command based on how different it is from the `currentInput`.
-  int _levenshteinDistance(String s1, String s2) {
-    var dp = List.generate(s1.length + 1, (_) => List<int>.filled(s2.length + 1, 0), growable: false);
-
-    for (var i = 0; i <= s1.length; i++) dp[i][0] = i;
-    for (var j = 0; j <= s2.length; j++) dp[0][j] = j;
-
-    for (var i = 1; i <= s1.length; i++) {
-      for (var j = 1; j <= s2.length; j++) {
-        var cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
-        dp[i][j] = [dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost].reduce((a, b) => a < b ? a : b);
-      }
-    }
-    return dp[s1.length][s2.length];
-  }
 }
 
 class _Console extends ConsumerWidget {
