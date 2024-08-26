@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.7.2] - 2024-08-xx
+## [2.7.2] - 2024-08-26
 
 ### Enhancements
 
