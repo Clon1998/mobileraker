@@ -10,6 +10,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -178,7 +179,7 @@ class _Body extends ConsumerWidget {
               ),
             );
           }
-          final borderSize = BorderSide(width: 0.5, color: themeData.colorScheme.primary);
+
           final list = switch (page) {
             1 => SpoolmanScrollPagination(
                 machineUUID: machineUUID,
@@ -197,27 +198,16 @@ class _Body extends ConsumerWidget {
               ),
           };
 
-          return Container(
-            margin: const EdgeInsets.all(4.0),
-            decoration: BoxDecoration(
-              // color: Colors.yellow,
-              color: themeData.colorScheme.surface,
-              border: Border(bottom: borderSize, left: borderSize, right: borderSize),
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-              boxShadow: [
-                if (themeData.brightness == Brightness.light)
-                  const BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(0.0, 4.0), //(x,y)
-                    blurRadius: 1.0,
-                  ),
-              ],
-            ),
+          return ResponsiveLimit(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _Header(machineUUID: machineUUID),
+                if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
                 Expanded(
-                  child: list,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: list,
+                  ),
                 ),
               ],
             ),
@@ -245,49 +235,34 @@ class _Header extends HookConsumerWidget {
     }
 
     final themeData = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(color: themeData.colorScheme.primary),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (context.isLargerThanCompact)
-            TabBar(
-              onTap: controller.onBottomItemTapped,
-              controller: tabController,
-              labelStyle: themeData.textTheme.labelLarge,
-              labelColor: themeData.colorScheme.onPrimary,
-              dividerHeight: 0.5,
-              indicatorColor: themeData.colorScheme.onPrimary,
-              enableFeedback: true,
-              tabs: [
-                Tab(
-                  icon: const Icon(Icons.spoke_outlined),
-                  text: plural('pages.spoolman.spool', 2),
-                ),
-                Tab(
-                  icon: const Icon(Icons.color_lens_outlined),
-                  text: plural('pages.spoolman.filament', 2),
-                ),
-                Tab(
-                  icon: const Icon(Icons.factory_outlined),
-                  text: plural('pages.spoolman.vendor', 2),
-                ),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TabBar(
+          onTap: controller.onBottomItemTapped,
+          controller: tabController,
+          // labelStyle: themeData.textTheme.labelLarge,
+          indicatorColor: themeData.colorScheme.primary,
+          labelColor: themeData.colorScheme.primary,
+          unselectedLabelColor: themeData.disabledColor,
+          enableFeedback: true,
+          tabs: [
+            Tab(
+              icon: const Icon(Icons.spoke_outlined),
+              text: plural('pages.spoolman.spool', 2),
             ),
-          if (!context.isLargerThanCompact)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-              child: Text(
-                switch (page) {
-                  1 => 'pages.spoolman.filament',
-                  2 => 'pages.spoolman.vendor',
-                  _ => 'pages.spoolman.spool',
-                },
-                style: themeData.textTheme.titleSmall?.copyWith(color: themeData.colorScheme.onPrimary),
-              ).plural(2),
+            Tab(
+              icon: const Icon(Icons.color_lens_outlined),
+              text: plural('pages.spoolman.filament', 2),
             ),
-        ],
-      ),
+            Tab(
+              icon: const Icon(Icons.factory_outlined),
+              text: plural('pages.spoolman.vendor', 2),
+            ),
+          ],
+        ),
+        if (!themeData.useMaterial3) Divider(height: 1, thickness: 1, color: themeData.colorScheme.primary),
+      ],
     );
   }
 }

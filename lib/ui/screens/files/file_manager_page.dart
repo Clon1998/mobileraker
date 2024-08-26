@@ -458,6 +458,7 @@ class _TabbarNav extends HookConsumerWidget {
           unselectedLabelColor: themeData.disabledColor,
           controller: tabController,
           onTap: controller.onClickRootNavigation,
+          enableFeedback: true,
           tabs: [
             Tab(
               text: tr('pages.files.gcode_tab'),
