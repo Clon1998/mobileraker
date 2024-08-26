@@ -104,6 +104,7 @@ class Webcam extends HookConsumerWidget {
 
       case WebcamServiceType.webRtcGo2Rtc:
       case WebcamServiceType.webRtcCamStreamer:
+      case WebcamServiceType.webRtcMediaMtx:
         return WebcamWebRtc(
           machine: machine,
           webcamInfo: webcamInfo,

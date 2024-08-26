@@ -19,6 +19,8 @@
   settings.
 - **Tablet UI Beta**: The tablet UI prooffed to be stable enough. Therefore, the warning card on the dashboard is now
   removed.
+- **MediaMtx Support**: Added support for the MediaMtx based webcam streamer. This allows users to use the MediaMtx
+  webcam streamer with Mobileraker.
 
 ### Bug Fixes
 
