@@ -4,23 +4,29 @@
 
 ### Enhancements
 
-- **Revamped File Manager**: Redesigned the file manager to provide a more intuitive and user-friendly experience. Users
-  can now easily navigate through their files and folders, with the option to create new folders, upload files, and
-  delete files or folders. The file manager also supports selecting multiple files and moving them to a different
-  folder.
-- **Collapsible Macros**: The macro group card is now limited to a maximum of 3 rows. If this limit is exceeded, it will
-  provide a button to show all macros.
+- **Revamped File Manager**: Redesigned the file manager for a more intuitive and user-friendly experience. Users can
+  now easily navigate through files and folders, create new folders, upload files, and delete files or folders. The file
+  manager also supports selecting multiple files and moving them to different folders.
+
+- **Collapsible Macros**: The macro group card is now limited to a maximum of 3 rows. If this limit is exceeded, a
+  button will be provided to show all macros within the group.
+
 - **Nozzle Heating Shortcut**: Enhanced the extruder card by replacing the spool button with a direct nozzle heating
-  button. This improvement allows users to quickly heat the nozzle without changing the page.
-- **Toogle Tablet Layout**: If the app is running on a device that supports the tablet layout, users can now disable the
-  tablet layout if they which to do so.
-- **Progress Bar Categories on Android**: Progressbar notifications now have their own category. This allows users to
-  customize notification settings for text-based progress and progressbar notifications separately in the system
-  settings.
-- **Tablet UI Beta**: The tablet UI prooffed to be stable enough. Therefore, the warning card on the dashboard is now
-  removed.
-- **MediaMtx Support**: Added support for the MediaMtx based webcam streamer. This allows users to use the MediaMtx
-  webcam streamer with Mobileraker.
+  button. This improvement allows users to quickly heat the nozzle without having to
+
+- **Toggle Tablet Layout**: For devices that support the tablet layout, users can now toggle it on or off in the app
+  settings. This feature allows users to switch between the tablet and phone layout based on their preference.
+
+- **Progress Bar Categories on Android**: Progress bar notifications now have their own category on Android. This allows
+  users to
+  customize notification settings for text-based progress and progress bar notifications separately in the system
+  settings. (Android only)
+
+- **Tablet UI Beta**: The tablet UI has proven to be stable enough. Therefore, the warning card on the dashboard has
+  been removed.
+
+- **MediaMTX Support**: Added support for the MediaMTX-based webcam streamer. This allows users to use the MediaMTX
+  webcam streamer with Mobileraker. [#349](https://github.com/Clon1998/mobileraker/pull/349)
 
 ### Bug Fixes
 
