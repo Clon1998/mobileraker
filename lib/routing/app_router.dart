@@ -62,11 +62,6 @@ enum AppRoute implements RouteDefinitionMixin {
   console,
   settings,
   imprint,
-  files, //
-  gcodeDetail, //
-  configDetail, //
-  imageViewer, //
-  videoPlayer, //
   dev,
   faq,
   changelog,
@@ -77,7 +72,6 @@ enum AppRoute implements RouteDefinitionMixin {
   spoolman_vendorDetails,
   spoolman_spoolDetails,
   spoolman_filamentDetails,
-  fileManager,
   fileManager_explorer,
   fileManager_exlorer_search,
   fileManager_exlorer_move,
