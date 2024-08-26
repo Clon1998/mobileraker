@@ -160,7 +160,7 @@ class _SearchResults extends ConsumerWidget {
                       file: file,
                       onTap: () => controller.onTapFile(file),
                       useHero: false,
-                      subtitle: Text(file.relativeToRoot),
+                      subtitle: Text('/${file.parentPath}'),
                     );
                   },
                 ),
