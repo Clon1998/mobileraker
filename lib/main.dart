@@ -151,7 +151,7 @@ class _WarmUp extends HookConsumerWidget {
       child: ref.watch(warmupProviderProvider).when(
             data: (step) {
               if (step == StartUpStep.complete) {
-                return const ResponsiveBuilder(child: MyApp());
+                return ResponsiveBuilder(childBuilder: (context) => const MyApp());
               }
               return const _LoadingSplashScreen();
             },

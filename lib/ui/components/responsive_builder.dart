@@ -12,9 +12,9 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 /// Widget used to init and handle changes to the responsive breakpoints
 class ResponsiveBuilder extends ConsumerWidget {
-  const ResponsiveBuilder({super.key, required this.child});
+  const ResponsiveBuilder({super.key, required this.childBuilder});
 
-  final Widget child;
+  final WidgetBuilder childBuilder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,19 +28,11 @@ class ResponsiveBuilder extends ConsumerWidget {
     ];
     logger.i('Using breakpoints!!!: $breakpoints');
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 800) * 4,
+      duration: const Duration(milliseconds: 800),
       child: ResponsiveBreakpoints(
         key: ValueKey(enableMediumUI),
         breakpoints: breakpoints,
-        child: Builder(
-          key: ValueKey(enableMediumUI),
-          builder: (inner) {
-            logger.w('BUILDING INNER');
-            var x = ResponsiveBreakpoints.of(inner);
-            logger.w('INNER Breakpoint: ${x.breakpoints}');
-            return child;
-          },
-        ),
+        child: Builder(builder: childBuilder),
       ),
     );
   }
