@@ -34,39 +34,46 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
   }
 
   @override
-  Widget build(BuildContext context) {
-    var maxHeight = widget.maxChildSize;
-    final sizeOf = MediaQuery.maybeSizeOf(context);
-    if (sizeOf != null && _bodyHeight != null) {
-      final viewInsets = MediaQuery.viewInsetsOf(context);
-      final paddingOf = MediaQuery.paddingOf(context);
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) {
+          var maxHeight = widget.maxChildSize;
+          final viewInsets = MediaQuery.maybeViewInsetsOf(context);
+          final paddingOf = MediaQuery.maybePaddingOf(context);
+          if (_bodyHeight != null && viewInsets != null && paddingOf != null) {
+            // We calculate the max height, based of the
+            // 1. body height of the content
+            // 2. paddingOf.bottom -> SafeArea padding, which is the padding of the bottom
+            // 3. viewInsets.bottom, which is the height of the keyboard -> IF keyboard open, it should extend the sheet if needed
+            // We clmap the value between min and max child size
+            // logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
 
-      // We calculate the max height, based of the
-      // 1. body height of the content
-      // 2. paddingOf.bottom -> SafeArea padding, which is the padding of the bottom
-      // 3. viewInsets.bottom, which is the height of the keyboard -> IF keyboard open, it should extend the sheet if needed
-      // We clmap the value between min and max child size
-      // logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
+            // !! Note: We need to use constraints because
+            maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) / constraints.maxHeight)
+                .clamp(widget.minChildSize, widget.maxChildSize);
+            // logger.w('body.height: $_bodyHeight\n'
+            //     // 'mediaQuery.height: ${sizeOf.height}\n'
+            //     'constraints: $constraints\n'
+            //     'paddingOf: $paddingOf\n'
+            //     'viewInsets: $viewInsets\n'
+            //     'maxHeight: $maxHeight');
+          }
 
-      maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) / sizeOf.height)
-          .clamp(widget.minChildSize, widget.maxChildSize);
-    }
-
-    return DraggableScrollableSheet(
-      expand: false,
-      maxChildSize: maxHeight,
-      initialChildSize: maxHeight,
-      minChildSize: widget.minChildSize,
-      builder: (ctx, scrollController) {
-        return Scaffold(
-          body: KeyedSubtree(
-            key: _contentKey,
-            child: widget.builder(ctx, scrollController),
-          ),
-        );
-      },
-    );
-  }
+          return DraggableScrollableSheet(
+            expand: false,
+            maxChildSize: maxHeight,
+            initialChildSize: maxHeight,
+            minChildSize: widget.minChildSize,
+            builder: (ctx, scrollController) {
+              return Scaffold(
+                body: KeyedSubtree(
+                  key: _contentKey,
+                  child: widget.builder(ctx, scrollController),
+                ),
+              );
+            },
+          );
+        },
+      );
 
   _updateHeight() {
     var renderObject = _contentKey.currentContext?.findRenderObject();
