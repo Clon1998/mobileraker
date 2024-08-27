@@ -343,7 +343,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
     if (fileName.startsWith(searchTerm)) score += 200;
 
     // Token matching
-    var fileTokens = fileName.split(RegExp(r'[\s_-]+'));
+    var fileTokens = fileName.split(RegExp(r'[.\s_-]+'));
     for (var searchToken in searchTokens) {
       if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 150;
       if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 130;
