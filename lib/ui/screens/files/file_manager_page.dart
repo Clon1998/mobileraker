@@ -1068,7 +1068,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
     ref.listen(fileNotificationsProvider(machineUUID, filePath),
-        (prev, next) => next.whenData((notification) => _onFileNotification(notification)));
+        (_, next) => next.whenData((notification) => _onFileNotification(notification)));
+
+    ref.listen(jrpcClientStateProvider(machineUUID), (_, next) => next.whenData((s) => _onJrpcStateNotification(s)));
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
@@ -1973,6 +1975,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       default:
         // Do Nothing!
         break;
+    }
+  }
+
+  void _onJrpcStateNotification(ClientState nextState) {
+    if (nextState != ClientState.connected) {
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode');
+      state = state.copyWith(selectedFiles: []);
     }
   }
 
