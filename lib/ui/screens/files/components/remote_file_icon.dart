@@ -57,6 +57,7 @@ class RemoteFileIcon extends ConsumerWidget {
         ),
       RemoteFile(isImage: true) => Align(alignment: alignment, child: const Icon(Icons.image)),
       RemoteFile(isVideo: true) => Align(alignment: alignment, child: const Icon(Icons.video_file)),
+      RemoteFile(isArchive: true) => Align(alignment: alignment, child: const Icon(Icons.folder_zip)),
       _ => Align(alignment: alignment, child: const Icon(Icons.description)),
     };
   }

@@ -54,6 +54,8 @@ const imageFileExtensions = {'jpeg', 'jpg', 'png'};
 
 const videoFileExtensions = {'mp4'};
 
+const archiveFileExtensions = {'zip', 'tar', 'gz', '7z'};
+
 @freezed
 class FolderContentWrapper with _$FolderContentWrapper {
   const FolderContentWrapper._();
@@ -275,13 +277,14 @@ class FileService {
       Set<String>? allowedFileType;
 
       if (path.startsWith('gcodes')) {
-        allowedFileType = {...gcodeFileExtensions, ...bakupFileExtensions};
+        allowedFileType = {...gcodeFileExtensions, ...bakupFileExtensions, ...archiveFileExtensions};
       } else if (path.startsWith('config')) {
         allowedFileType = {
           ...configFileExtensions,
           ...textFileExtensions,
           ...bakupFileExtensions,
-          ...imageFileExtensions
+          ...imageFileExtensions,
+          ...archiveFileExtensions,
         };
       } else if (path.startsWith('timelapse')) {
         allowedFileType = videoFileExtensions;
@@ -388,7 +391,7 @@ class FileService {
         params: {'dest': destination, 'items': origins, 'store_only': !compress},
         timeout: _apiRequestTimeout,
       );
-      return FileItem.fromJson(rpcResponse.result);
+      return FileItem.fromJson(rpcResponse.result['destination']);
     } on JRpcError catch (e) {
       throw FileActionException('Jrpc error while trying to zip files.', reqPath: destination, parent: e);
     }

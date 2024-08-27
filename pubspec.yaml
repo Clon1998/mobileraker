@@ -54,7 +54,6 @@ dependencies:
   firebase_remote_config: ^4.4.2
   cloud_firestore: ^4.17.0
 
-
   firebase_auth: ^4.19.2
 
 
@@ -68,7 +67,7 @@ dependencies:
 
   #routing
   go_router: ^14.2.2
-  go_transitions: ^0.6.0
+  go_transitions: ^0.7.0
 
   #util
   rxdart: ^0.27.3

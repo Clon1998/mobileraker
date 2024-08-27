@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.7.3] - 2024-09-xx
+
+### Enhancements
+
+- **Missing File Operations**: The file manager now also supports zipping of files and folders. In addition, while
+  selecting files it is now also possible to delete, download and zip the file selection.
+
 ## [2.7.2] - 2024-08-26
 
 ### Enhancements
