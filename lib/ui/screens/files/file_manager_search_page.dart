@@ -345,9 +345,9 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
     // Token matching
     var fileTokens = fileName.split(RegExp(r'[\s_-]+'));
     for (var searchToken in searchTokens) {
-      if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 100;
-      if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 90;
-      if (fileTokens.any((fileToken) => fileToken.endsWith(searchToken))) score += 80;
+      if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 150;
+      if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 130;
+      if (fileTokens.any((fileToken) => fileToken.endsWith(searchToken))) score += 110;
     }
 
     // Jaro-Winkler similarity
