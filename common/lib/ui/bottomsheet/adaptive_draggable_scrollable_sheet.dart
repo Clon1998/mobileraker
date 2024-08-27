@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class AdaptiveDraggableScrollableSheet extends StatefulWidget {
@@ -39,7 +41,8 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
           var maxHeight = widget.maxChildSize;
           final viewInsets = MediaQuery.maybeViewInsetsOf(context);
           final paddingOf = MediaQuery.maybePaddingOf(context);
-          if (_bodyHeight != null && viewInsets != null && paddingOf != null) {
+          final sizeOf = MediaQuery.maybeSizeOf(context);
+          if (_bodyHeight != null && viewInsets != null && paddingOf != null && sizeOf != null) {
             // We calculate the max height, based of the
             // 1. body height of the content
             // 2. paddingOf.bottom -> SafeArea padding, which is the padding of the bottom
@@ -48,10 +51,11 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
             // logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
 
             // !! Note: We need to use constraints because
-            maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) / constraints.maxHeight)
+            maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) /
+                    (Platform.isIOS ? sizeOf.height : constraints.maxHeight))
                 .clamp(widget.minChildSize, widget.maxChildSize);
             // logger.w('body.height: $_bodyHeight\n'
-            //     // 'mediaQuery.height: ${sizeOf.height}\n'
+            //     'mediaQuery.height: ${sizeOf.height}\n'
             //     'constraints: $constraints\n'
             //     'paddingOf: $paddingOf\n'
             //     'viewInsets: $viewInsets\n'
