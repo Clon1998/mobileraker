@@ -19,6 +19,8 @@ import '../../../service/app_router.dart';
 import '../../../service/machine_service.dart';
 import '../responsive_limit.dart';
 
+/// A widget that guards the provided child widget with a Klippy provider.
+/// It listens to the Klippy provider state and displays an error widget if an error occurs.
 class KlippyProviderGuard extends HookConsumerWidget {
   const KlippyProviderGuard({
     super.key,
