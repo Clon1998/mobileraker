@@ -10,7 +10,6 @@
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
@@ -25,7 +24,6 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
@@ -258,69 +256,69 @@ class CaseB extends _$CaseB {
     return v ?? -1;
   }
 }
-
-class _TestAd extends ConsumerWidget {
-  const _TestAd({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var ad = ref.watch(bannerAdProvider(AdSize.banner));
-
-    if (ad case AsyncData(value: AdWithView() && final banner)) {
-      logger.i('Got ad: ${banner.responseInfo}');
-      return SizedBox(
-        height: AdSize.banner.height.toDouble(),
-        width: AdSize.banner.width.toDouble(),
-        child: AdWidget(ad: banner),
-      );
-    }
-
-    logger.i('No ad available');
-    return SizedBox.shrink();
-  }
-}
-
-class _Consent extends ConsumerWidget {
-  const _Consent({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(onPressed: onPressed, child: Text('Consent'));
-  }
-
-  void onPressed() {
-    final params = ConsentRequestParameters();
-
-    logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
-
-    ConsentInformation.instance.requestConsentInfoUpdate(
-      params,
-      () async {
-        // TODO: Load and present the privacy message form.
-
-        logger.i('ConsentStatusSuccess');
-        ConsentInformation.instance.requestConsentInfoUpdate(
-          params,
-          () async {
-            // TODO: Load and present the privacy message form.
-            logger.i('ConsentStatusSuccess');
-            final status = await ConsentInformation.instance.getConsentStatus();
-
-            logger.i('ConsentStatus: $status');
-
-            if (status == ConsentStatus.required) {
-              ConsentForm.loadAndShowConsentFormIfRequired((_) => null);
-            } else {}
-          },
-          (FormError? error) {
-            logger.e('requestConsentInfoUpdate ConsentStatusError: $error');
-          },
-        );
-      },
-      (FormError error) {
-        logger.e('ConsentStatusError: $error');
-        // Handle the error.
-      },
-    );
-  }
-}
+//
+// class _TestAd extends ConsumerWidget {
+//   const _TestAd({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     var ad = ref.watch(bannerAdProvider(AdSize.banner));
+//
+//     if (ad case AsyncData(value: AdWithView() && final banner)) {
+//       logger.i('Got ad: ${banner.responseInfo}');
+//       return SizedBox(
+//         height: AdSize.banner.height.toDouble(),
+//         width: AdSize.banner.width.toDouble(),
+//         child: AdWidget(ad: banner),
+//       );
+//     }
+//
+//     logger.i('No ad available');
+//     return SizedBox.shrink();
+//   }
+// }
+//
+// class _Consent extends ConsumerWidget {
+//   const _Consent({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return ElevatedButton(onPressed: onPressed, child: Text('Consent'));
+//   }
+//
+//   void onPressed() {
+//     final params = ConsentRequestParameters();
+//
+//     logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
+//
+//     ConsentInformation.instance.requestConsentInfoUpdate(
+//       params,
+//       () async {
+//         // TODO: Load and present the privacy message form.
+//
+//         logger.i('ConsentStatusSuccess');
+//         ConsentInformation.instance.requestConsentInfoUpdate(
+//           params,
+//           () async {
+//             // TODO: Load and present the privacy message form.
+//             logger.i('ConsentStatusSuccess');
+//             final status = await ConsentInformation.instance.getConsentStatus();
+//
+//             logger.i('ConsentStatus: $status');
+//
+//             if (status == ConsentStatus.required) {
+//               ConsentForm.loadAndShowConsentFormIfRequired((_) => null);
+//             } else {}
+//           },
+//           (FormError? error) {
+//             logger.e('requestConsentInfoUpdate ConsentStatusError: $error');
+//           },
+//         );
+//       },
+//       (FormError error) {
+//         logger.e('ConsentStatusError: $error');
+//         // Handle the error.
+//       },
+//     );
+//   }
+// }
