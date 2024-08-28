@@ -13,7 +13,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../responsive_limit.dart';
 
-/// This widget watches the ASYNCVALUE (AsyncError) of the printerProvider and handles the error state of the provider to prevent any issues down the widget tree
+/// A widget that guards the provided child widget with a printer provider.
+/// It listens to the printer provider state and displays an error widget if an error occurs.
 class PrinterProviderGuard extends ConsumerWidget {
   const PrinterProviderGuard({
     super.key,
@@ -26,23 +27,15 @@ class PrinterProviderGuard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var printer = ref.watch(printerProvider(machineUUID).select((state) => state.runtimeType));
+    final (hasError, error) = ref.watch(printerProvider(machineUUID).select((it) => (it is AsyncError, it.error)));
 
-    logger.i('Rebuilding PrinterProviderGuard $printer');
+    logger.i('PrinterProviderGuard($machineUUID): hasError: $hasError, error: $error');
 
-    return switch (printer) {
-      AsyncError(:final error) => _ProviderError(key: const Key('ppErr'), machineUUID: machineUUID, error: error),
-      _ => child,
-    };
+    if (hasError) {
+      return _ProviderError(key: const Key('ppErr'), machineUUID: machineUUID, error: error!);
+    }
 
-    // return AnimatedSwitcher(
-    //   // duration: Duration(milliseconds: 2200),
-    //   duration: kThemeAnimationDuration,
-    //   child: switch (printer) {
-    //     AsyncError(:final error) => _ProviderError(key: const Key('ppErr'), error: error),
-    //     _ => child,
-    //   },
-    // );
+    return child;
   }
 }
 
