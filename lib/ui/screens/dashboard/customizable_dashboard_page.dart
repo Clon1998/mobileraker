@@ -351,6 +351,10 @@ class _PrintingFAB extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     AsyncValue<JobQueueStatus> jobQueueState = ref.watch(jobQueueProvider(machineUUID));
     ThemeData themeData = Theme.of(context);
+
+    final printerService = ref.watch(printerServiceProvider(machineUUID));
+    final dialogService = ref.read(dialogServiceProvider);
+
     return SpeedDial(
       icon: FlutterIcons.options_vertical_sli,
       activeIcon: Icons.close,
@@ -364,7 +368,20 @@ class _PrintingFAB extends ConsumerWidget {
           backgroundColor: themeData.colorScheme.error,
           foregroundColor: themeData.colorScheme.onError,
           label: tr('general.cancel'),
-          onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
+          onTap: () {
+            dialogService
+                .showDangerConfirm(
+              dismissLabel: tr('general.abort'),
+              actionLabel: tr('general.cancel'),
+              title: tr('dialogs.confirm_print_cancelation.title'),
+              body: tr('dialogs.confirm_print_cancelation.body'),
+            )
+                .then((res) {
+              if (res?.confirmed == true) {
+                printerService.cancelPrint();
+              }
+            });
+          },
         ),
         if (printState == PrintState.paused)
           SpeedDialChild(
@@ -374,7 +391,7 @@ class _PrintingFAB extends ConsumerWidget {
             ),
             backgroundColor: themeData.colorScheme.primaryContainer,
             label: tr('general.resume'),
-            onTap: ref.watch(printerServiceSelectedProvider).resumePrint,
+            onTap: printerService.resumePrint,
           ),
         if (printState == PrintState.printing)
           SpeedDialChild(
@@ -384,7 +401,7 @@ class _PrintingFAB extends ConsumerWidget {
             ),
             backgroundColor: themeData.colorScheme.primaryContainer,
             label: tr('general.pause'),
-            onTap: ref.watch(printerServiceSelectedProvider).pausePrint,
+            onTap: printerService.pausePrint,
           ),
         if (jobQueueState.valueOrNull?.queuedJobs.isNotEmpty ?? false)
           SpeedDialChild(

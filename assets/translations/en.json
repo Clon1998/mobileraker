@@ -1098,6 +1098,10 @@
     },
     "heater_temperature": {
       "title": "{} Temperature [°C]"
+    },
+    "confirm_print_cancelation": {
+      "title": "Cancel Print?",
+      "body": "You are about to cancel the print job.\n\nConfirm your action."
     }
   },
   "bottom_sheets": {

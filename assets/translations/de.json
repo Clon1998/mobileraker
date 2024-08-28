@@ -1098,6 +1098,10 @@
     },
     "heater_temperature": {
       "title": "{} Temperatur [°C]"
+    },
+    "confirm_print_cancelation": {
+      "title": "Druck abbrechen",
+      "body": "Sind Sie sicher, dass Sie den Druck abbrechen möchten?"
     }
   },
   "bottom_sheets": {
