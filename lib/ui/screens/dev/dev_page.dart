@@ -50,7 +50,7 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-        _Consent(),
+        // _Consent(),
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
         // PowerApiCardLoading(),
