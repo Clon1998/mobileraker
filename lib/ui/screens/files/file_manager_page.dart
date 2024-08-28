@@ -351,11 +351,9 @@ class _BottomNav extends ConsumerWidget {
 
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
-    final inSelectionMode = ref.watch(
-        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
-
-    final hasTimelapseComponent =
-        ref.watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent)).valueOrNull;
+    final (inSelectionMode, hasTimelapseComponent) = ref.watch(
+        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath)
+            .select((data) => (data.selectionMode, data.hasTimelapseComponent)));
 
     // 1 => 'config',
     // 2 => 'timelapse',
@@ -386,7 +384,7 @@ class _BottomNav extends ConsumerWidget {
           label: tr('pages.files.config_tab'),
           icon: const Icon(FlutterIcons.file_code_faw5),
         ),
-        if (hasTimelapseComponent == true)
+        if (hasTimelapseComponent)
           BottomNavigationBarItem(
             label: tr('pages.files.timelapse_tab'),
             icon: const Icon(Icons.subscriptions_outlined),
@@ -412,8 +410,6 @@ class _TabbarNav extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tabController = useTabController(initialLength: 3);
-
     final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
 
     if (selectedMachine == null || filePath.split('/').length > 1) {
@@ -428,10 +424,9 @@ class _TabbarNav extends HookConsumerWidget {
 
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
-    final inSelectionMode = ref.watch(
-        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
-    final hasTimelapseComponent =
-        ref.watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent)).valueOrNull;
+    final (inSelectionMode, hasTimelapseComponent) = ref.watch(
+        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath)
+            .select((data) => (data.selectionMode, data.hasTimelapseComponent)));
 
     // 1 => 'config',
     // 2 => 'timelapse',
@@ -439,11 +434,12 @@ class _TabbarNav extends HookConsumerWidget {
     final int activeIndex;
     if (filePath.startsWith('config')) {
       activeIndex = 1;
-    } else if (filePath.startsWith('timelapse')) {
+    } else if (filePath.startsWith('timelapse') && hasTimelapseComponent) {
       activeIndex = 2;
     } else {
       activeIndex = 0;
     }
+    final tabController = useTabController(initialLength: hasTimelapseComponent ? 3 : 2, initialIndex: activeIndex);
 
     if (tabController.index != activeIndex && !tabController.indexIsChanging) {
       tabController.index = activeIndex;
@@ -470,7 +466,7 @@ class _TabbarNav extends HookConsumerWidget {
               text: tr('pages.files.config_tab'),
               icon: const Icon(FlutterIcons.file_code_faw5),
             ),
-            if (hasTimelapseComponent == true)
+            if (hasTimelapseComponent)
               Tab(
                 text: tr('pages.files.timelapse_tab'),
                 icon: const Icon(Icons.subscriptions_outlined),
@@ -1067,16 +1063,18 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
-    ref.listen(fileNotificationsProvider(machineUUID, filePath),
-        (_, next) => next.whenData((notification) => _onFileNotification(notification)));
-
-    ref.listen(jrpcClientStateProvider(machineUUID), (_, next) => next.whenData((s) => _onJrpcStateNotification(s)));
+    ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification);
+    ref.listen(jrpcClientStateProvider(machineUUID), _onJrpcStateNotification);
+    ref.listenSelf(_onModelChanged);
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
     final supportedModes = _availableSortModes;
     final sortModeIdx = ref.watch(intSettingProvider(_sortModeKey)).clamp(0, supportedModes.length - 1);
     final sortKindIdx = ref.watch(intSettingProvider(_sortKindKey)).clamp(0, SortKind.values.length - 1);
+
+    final hasTimelapseComponent =
+        ref.watch(klipperProvider(machineUUID).select((d) => d.valueOrNull?.hasTimelapseComponent == true));
 
     // ignore: avoid-unsafe-collection-methods
     final sortConfiguration = SortConfiguration(supportedModes[sortModeIdx], SortKind.values[sortKindIdx]);
@@ -1096,6 +1094,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       sortConfiguration: sortConfiguration,
       download: stateOrNull?.download,
       upload: stateOrNull?.upload,
+      hasTimelapseComponent: hasTimelapseComponent,
     );
   }
 
@@ -1954,7 +1953,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   //////////////////// NOTIFICATIONS ////////////////////
 
-  void _onFileNotification(FileActionResponse notification) {
+  void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
+    final notification = next.valueOrNull;
+    if (notification == null) return;
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
 
     // Check if the notifications are only related to the current folder
@@ -1978,10 +1979,21 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void _onJrpcStateNotification(ClientState nextState) {
+  void _onJrpcStateNotification(AsyncValue<ClientState>? prev, AsyncValue<ClientState> next) {
+    var nextState = next.valueOrNull;
+    if (nextState == null) return;
+
     if (nextState != ClientState.connected) {
       logger.i('[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode');
       state = state.copyWith(selectedFiles: []);
+    }
+  }
+
+  void _onModelChanged(_Model? prev, _Model next) {
+    if (!next.hasTimelapseComponent && filePath.startsWith('timelapse')) {
+      logger.i(
+          '[ModernFileManagerController($machineUUID, $filePath)] Timelapse component was removed/not available anymore, will move to gcodes');
+      _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'gcodes'});
     }
   }
 
@@ -2015,6 +2027,7 @@ class _Model with _$Model {
     FileOperation? download,
     FileOperation? upload,
     @Default([]) List<RemoteFile> selectedFiles,
+    @Default(false) bool hasTimelapseComponent,
   }) = __Model;
 
   bool get selectionMode => selectedFiles.isNotEmpty;
