@@ -99,12 +99,18 @@ class _DashboardView extends HookConsumerWidget {
 
     Widget body = MachineConnectionGuard(
       onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+        key: Key('PrinterProviderGuard:$machineUUID'),
         machineUUID: machineUUID,
         child: PrinterCalibrationWatcher(
+          key: Key('PrinterCalibrationWatcher:$machineUUID'),
           machineUUID: machineUUID,
           child: FilamentSensorWatcher(
+            key: Key('FilamentSensorWatcher:$machineUUID'),
             machineUUID: machineUUID,
-            child: _Body(machineUUID: machineUUID),
+            child: _Body(
+              key: Key('Body:$machineUUID'),
+              machineUUID: machineUUID,
+            ),
           ),
         ),
       ),
