@@ -6,6 +6,9 @@
 
 - **Missing File Operations**: The file manager now also supports zipping of files and folders. In addition, while
   selecting files it is now also possible to delete, download and zip the file selection.
+- **Printed Indicator**: Added a printed indicator, a green checkmark, to the file browser within the file manager
+  making
+  it easier to see which files have already been printed.
 
 ## [2.7.2] - 2024-08-26
 

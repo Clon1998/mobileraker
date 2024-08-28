@@ -967,6 +967,7 @@ class _FileItem extends ConsumerWidget {
         file: file,
         selected: selected,
         subtitle: subtitle,
+        showPrintedIndicator: true,
         trailing: AnimatedSizeAndFade(
           fadeDuration: kThemeAnimationDuration,
           sizeDuration: kThemeAnimationDuration,

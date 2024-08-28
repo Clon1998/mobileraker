@@ -8,7 +8,9 @@ import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ class RemoteFileIcon extends ConsumerWidget {
     this.useHero = true,
     this.imageBuilder,
     this.alignment = Alignment.center,
+    this.showPrintedIndicator = false,
   });
 
   final String machineUUID;
@@ -30,6 +33,7 @@ class RemoteFileIcon extends ConsumerWidget {
   final bool useHero;
   final Alignment alignment;
   final ImageWidgetBuilder? imageBuilder;
+  final bool showPrintedIndicator;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,7 +50,7 @@ class RemoteFileIcon extends ConsumerWidget {
       GCodeFile(bigImagePath: final path?) && final gCodeFile when machineImageUri != null => _wrapWithHero(
           'gCodeImage-${file.hashCode}',
           buildLeading(gCodeFile.constructBigImageUri(machineImageUri)!, machineImageUriHeaders, cacheManager),
-        ),
+        ).let((it) => showPrintedIndicator && gCodeFile.printStartTime != null ? buildPrintedIndicator(it) : it),
       GCodeFile() => Align(
           alignment: alignment,
           child: const Icon(Icons.insert_drive_file),
@@ -60,6 +64,35 @@ class RemoteFileIcon extends ConsumerWidget {
       RemoteFile(isArchive: true) => Align(alignment: alignment, child: const Icon(Icons.folder_zip)),
       _ => Align(alignment: alignment, child: const Icon(Icons.description)),
     };
+  }
+
+  Widget buildPrintedIndicator(Widget child) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final iconSize = (constraints.maxWidth / 2).clamp(10, 18).toDouble();
+
+      final themeData = Theme.of(context);
+
+      return Stack(
+        children: [
+          child,
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(iconSize / 2),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: themeData.extension<CustomColors>()?.onSuccess?.withOpacity(0.93),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.check_circle_outline,
+                    color: themeData.extension<CustomColors>()?.success, size: iconSize),
+              ),
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   Widget buildLeading(
