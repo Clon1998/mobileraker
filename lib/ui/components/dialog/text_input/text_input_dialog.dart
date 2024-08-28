@@ -23,6 +23,7 @@ class TextInputDialogArguments with _$TextInputDialogArguments {
     String? helperText,
     String? hintText,
     String? suffixText,
+    ValueTransformer<String?>? valueTransformer,
   }) = _TextInputDialogArguments;
 }
 
@@ -71,6 +72,7 @@ class TextInputDialog extends HookWidget {
               initialValue: dialogArgs.initialValue,
               name: 'newValue',
               keyboardType: TextInputType.text,
+              valueTransformer: dialogArgs.valueTransformer,
               onChanged: (value) {
                 isValid.value = formKey.value.currentState!.saveAndValidate();
               },

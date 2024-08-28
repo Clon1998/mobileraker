@@ -20,6 +20,7 @@ class RemoteFileListTile extends ConsumerWidget {
     this.onLongPress,
     this.useHero = true,
     this.selected = false,
+    this.showPrintedIndicator = false,
   });
 
   final String machineUUID;
@@ -30,6 +31,7 @@ class RemoteFileListTile extends ConsumerWidget {
   final GestureLongPressCallback? onLongPress;
   final bool useHero;
   final bool selected;
+  final bool showPrintedIndicator;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,12 +42,14 @@ class RemoteFileListTile extends ConsumerWidget {
       leading: SizedBox(
         width: 42,
         height: 42,
-          child: _Leading(
-            machineUUID: machineUUID,
+        child: _Leading(
+          machineUUID: machineUUID,
           file: file,
           useHero: useHero,
-            selected: selected,
-          )),
+          selected: selected,
+          showPrintedIndicator: showPrintedIndicator,
+        ),
+      ),
       trailing: trailing,
       title: Text(file.name, overflow: TextOverflow.ellipsis, maxLines: 1),
       dense: true,
@@ -57,13 +61,20 @@ class RemoteFileListTile extends ConsumerWidget {
 }
 
 class _Leading extends StatelessWidget {
-  const _Leading(
-      {super.key, required this.machineUUID, required this.file, required this.useHero, required this.selected});
+  const _Leading({
+    super.key,
+    required this.machineUUID,
+    required this.file,
+    required this.useHero,
+    required this.selected,
+    required this.showPrintedIndicator,
+  });
 
   final String machineUUID;
   final RemoteFile file;
   final bool useHero;
   final bool selected;
+  final bool showPrintedIndicator;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +84,7 @@ class _Leading extends StatelessWidget {
             machineUUID: machineUUID,
             file: file,
             useHero: useHero,
+            showPrintedIndicator: showPrintedIndicator,
           );
     return AnimatedSwitcher(
       key: ValueKey(file),

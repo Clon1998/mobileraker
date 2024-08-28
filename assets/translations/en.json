@@ -277,7 +277,8 @@
         "create_file": "Create File",
         "create_folder": "Create Folder",
         "upload": "Upload File",
-        "upload_bulk": "Upload Files"
+        "upload_bulk": "Upload Files",
+        "zip_file": "Create Archive"
       },
       "gcode_file_actions": {
         "submit": "Submit Print Job",
@@ -305,6 +306,14 @@
           "title": "Upload failed",
           "body": "An error occurred while trying to upload the file. Please retry later."
         },
+        "zipping_success": {
+          "title": "Zipping successful",
+          "body": "The archive was successfully created."
+        },
+        "zipping_failed": {
+          "title": "Zipping failed",
+          "body": "An error occurred while trying to create the archive. Please retry later."
+        },
         "copy_created": {
           "title": "Copy created",
           "body": "The copy was successfully created at '{}'."
@@ -329,6 +338,10 @@
       "gcode_tab": "GCodes",
       "config_tab": "Configs",
       "timelapse_tab": "Timelapses",
+      "element": {
+        "one": "Element",
+        "other": "Elements"
+      },
       "details": {
         "preheat": "Preheat",
         "print": "Print",
@@ -904,6 +917,14 @@
       "title": "Create File",
       "label": "File Name"
     },
+    "create_archive": {
+      "title": "Create Archive",
+      "label": "Archive Name"
+    },
+    "delete_files": {
+      "title": "Delete Files",
+      "description": "Confirm deletion of {} files."
+    },
     "exclude_object": {
       "title": "Exclude Object from Print",
       "label": "Object to exclude",
@@ -1077,6 +1098,10 @@
     },
     "heater_temperature": {
       "title": "{} Temperature [°C]"
+    },
+    "confirm_print_cancelation": {
+      "title": "Cancel Print?",
+      "body": "You are about to cancel the print job.\n\nConfirm your action."
     }
   },
   "bottom_sheets": {

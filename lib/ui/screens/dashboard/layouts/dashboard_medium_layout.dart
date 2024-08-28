@@ -158,10 +158,11 @@ class DashboardMediumLayout extends HookConsumerWidget {
                   if (i == 0) ...staticWidgets,
                   for (var component in tabs[i].components)
                     KeyedSubtree(
-                      key: Key('NE-$i:${component.uuid}'),
+                      key: Key('NE-$i:${component.uuid}-$machineUUID'),
                       child: GestureDetector(
                         onLongPress: onRequestedEdit,
                         child: DasboardCard(
+                          key: Key('DashCard-${component.uuid}-$machineUUID'),
                           component: component,
                           machineUUID: machineUUID,
                         ),

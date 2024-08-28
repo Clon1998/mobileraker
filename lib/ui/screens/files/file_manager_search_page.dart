@@ -160,6 +160,7 @@ class _SearchResults extends ConsumerWidget {
                       file: file,
                       onTap: () => controller.onTapFile(file),
                       useHero: false,
+                      showPrintedIndicator: true,
                       subtitle: Text('/${file.parentPath}'),
                     );
                   },
@@ -343,11 +344,11 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
     if (fileName.startsWith(searchTerm)) score += 200;
 
     // Token matching
-    var fileTokens = fileName.split(RegExp(r'[\s_-]+'));
+    var fileTokens = fileName.split(RegExp(r'[.\s_-]+'));
     for (var searchToken in searchTokens) {
-      if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 100;
-      if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 90;
-      if (fileTokens.any((fileToken) => fileToken.endsWith(searchToken))) score += 80;
+      if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 150;
+      if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 130;
+      if (fileTokens.any((fileToken) => fileToken.endsWith(searchToken))) score += 110;
     }
 
     // Jaro-Winkler similarity

@@ -86,6 +86,8 @@ import 'components/sorted_file_list_header.dart';
 part 'file_manager_page.freezed.dart';
 part 'file_manager_page.g.dart';
 
+final _zipDateFormat = DateFormat('yyyy-MM-dd_HH-mm-ss');
+
 class FileManagerPage extends HookConsumerWidget {
   const FileManagerPage({super.key, required this.filePath, this.folder});
 
@@ -209,16 +211,16 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.select_all),
           onPressed: controller.onClickSelectAll,
         ),
-        // IconButton(
-        //   tooltip: materialLocalizations.moreButtonTooltip,
-        //   icon: const Icon(Icons.more_vert),
-        //   onPressed: () {
-        //     final box = context.findRenderObject() as RenderBox?;
-        //     final pos = box!.localToGlobal(Offset.zero) & box.size;
-        //
-        //     controller.onMoreSelected(pos);
-        //   },
-        // )
+        IconButton(
+          tooltip: materialLocalizations.moreButtonTooltip,
+          icon: const Icon(Icons.more_vert),
+          onPressed: () {
+            final box = context.findRenderObject() as RenderBox?;
+            final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+            controller.onClickMoreActionsSelected(pos);
+          },
+        ),
       ],
     );
   }
@@ -349,11 +351,9 @@ class _BottomNav extends ConsumerWidget {
 
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
-    final inSelectionMode = ref.watch(
-        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
-
-    final hasTimelapseComponent =
-        ref.watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent)).valueOrNull;
+    final (inSelectionMode, hasTimelapseComponent) = ref.watch(
+        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath)
+            .select((data) => (data.selectionMode, data.hasTimelapseComponent)));
 
     // 1 => 'config',
     // 2 => 'timelapse',
@@ -384,7 +384,7 @@ class _BottomNav extends ConsumerWidget {
           label: tr('pages.files.config_tab'),
           icon: const Icon(FlutterIcons.file_code_faw5),
         ),
-        if (hasTimelapseComponent == true)
+        if (hasTimelapseComponent)
           BottomNavigationBarItem(
             label: tr('pages.files.timelapse_tab'),
             icon: const Icon(Icons.subscriptions_outlined),
@@ -410,8 +410,6 @@ class _TabbarNav extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tabController = useTabController(initialLength: 3);
-
     final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
 
     if (selectedMachine == null || filePath.split('/').length > 1) {
@@ -426,10 +424,9 @@ class _TabbarNav extends HookConsumerWidget {
 
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
-    final inSelectionMode = ref.watch(
-        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) => data.selectionMode));
-    final hasTimelapseComponent =
-        ref.watch(klipperProvider(selectedMachine.uuid).selectAs((data) => data.hasTimelapseComponent)).valueOrNull;
+    final (inSelectionMode, hasTimelapseComponent) = ref.watch(
+        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath)
+            .select((data) => (data.selectionMode, data.hasTimelapseComponent)));
 
     // 1 => 'config',
     // 2 => 'timelapse',
@@ -437,11 +434,12 @@ class _TabbarNav extends HookConsumerWidget {
     final int activeIndex;
     if (filePath.startsWith('config')) {
       activeIndex = 1;
-    } else if (filePath.startsWith('timelapse')) {
+    } else if (filePath.startsWith('timelapse') && hasTimelapseComponent) {
       activeIndex = 2;
     } else {
       activeIndex = 0;
     }
+    final tabController = useTabController(initialLength: hasTimelapseComponent ? 3 : 2, initialIndex: activeIndex);
 
     if (tabController.index != activeIndex && !tabController.indexIsChanging) {
       tabController.index = activeIndex;
@@ -468,7 +466,7 @@ class _TabbarNav extends HookConsumerWidget {
               text: tr('pages.files.config_tab'),
               icon: const Icon(FlutterIcons.file_code_faw5),
             ),
-            if (hasTimelapseComponent == true)
+            if (hasTimelapseComponent)
               Tab(
                 text: tr('pages.files.timelapse_tab'),
                 icon: const Icon(Icons.subscriptions_outlined),
@@ -969,6 +967,7 @@ class _FileItem extends ConsumerWidget {
         file: file,
         selected: selected,
         subtitle: subtitle,
+        showPrintedIndicator: true,
         trailing: AnimatedSizeAndFade(
           fadeDuration: kThemeAnimationDuration,
           sizeDuration: kThemeAnimationDuration,
@@ -1065,14 +1064,18 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
-    ref.listen(fileNotificationsProvider(machineUUID, filePath),
-        (prev, next) => next.whenData((notification) => _onFileNotification(notification)));
+    ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification);
+    ref.listen(jrpcClientStateProvider(machineUUID), _onJrpcStateNotification);
+    ref.listenSelf(_onModelChanged);
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
     final supportedModes = _availableSortModes;
     final sortModeIdx = ref.watch(intSettingProvider(_sortModeKey)).clamp(0, supportedModes.length - 1);
     final sortKindIdx = ref.watch(intSettingProvider(_sortKindKey)).clamp(0, SortKind.values.length - 1);
+
+    final hasTimelapseComponent =
+        ref.watch(klipperProvider(machineUUID).select((d) => d.valueOrNull?.hasTimelapseComponent == true));
 
     // ignore: avoid-unsafe-collection-methods
     final sortConfiguration = SortConfiguration(supportedModes[sortModeIdx], SortKind.values[sortKindIdx]);
@@ -1092,6 +1095,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       sortConfiguration: sortConfiguration,
       download: stateOrNull?.download,
       upload: stateOrNull?.upload,
+      hasTimelapseComponent: hasTimelapseComponent,
     );
   }
 
@@ -1170,10 +1174,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           GcodeFileSheetAction.addToQueue,
           DividerSheetAction.divider,
         ],
-        if (file is! Folder) ...[
-          FileSheetAction.download,
-          DividerSheetAction.divider,
-        ],
+        FileSheetAction.zipFile,
+        FileSheetAction.download,
+        DividerSheetAction.divider,
         FileSheetAction.rename,
         FileSheetAction.copy,
         FileSheetAction.move,
@@ -1212,6 +1215,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           _moveFileAction(file);
         case FileSheetAction.copy:
           _copyFileAction(file);
+          break;
+        case FileSheetAction.zipFile:
+          _zipFilesAction([file]);
           break;
         default:
           logger.w('Action not implemented: $resp');
@@ -1371,36 +1377,47 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final selectedFiles = state.selectedFiles;
     if (selectedFiles.isEmpty) return;
 
-    final res = await _goRouter.pushNamed(
-      AppRoute.fileManager_exlorer_move.name,
-      pathParameters: {'path': filePath.split('/').first},
-      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.move_here')},
-    );
-
-    if (res case String()) {
-      final newPath = res;
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving files to $newPath');
-      state = state.copyWith(folderContent: state.folderContent.toLoading(true));
-
-      onError() {
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Could not move Files.',
-          message: 'An error occured while moving the files.',
-        ));
-      }
-
-      final waitFor = <Future>[];
-      for (var file in selectedFiles) {
-        final f = _fileService.moveFile(file.absolutPath, '$newPath/${file.name}').catchError(onError);
-        waitFor.add(f);
-      }
-      await Future.wait(waitFor).catchError(() => null);
-      state = state.copyWith(selectedFiles: []);
-    }
+    _moveFilesAction(selectedFiles);
   }
 
-  void onClickMoreActionsSelected(Rect pos) {}
+  void onClickMoreActionsSelected(Rect pos) async {
+    final selectedFiles = state.selectedFiles;
+
+    final arg = ActionBottomSheetArgs(
+      title: Text('${selectedFiles.length} ${plural('pages.files.element', selectedFiles.length)}',
+          maxLines: 1, overflow: TextOverflow.ellipsis),
+      actions: [
+        FileSheetAction.zipFile,
+        FileSheetAction.download,
+        DividerSheetAction.divider,
+        FileSheetAction.move,
+        FileSheetAction.delete,
+      ],
+    );
+
+    final resp =
+        await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
+    if (resp.confirmed) {
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] selectedfiles-action confirmed: ${resp.data}');
+      // Wait for the bottom sheet to close
+      await Future.delayed(kThemeAnimationDuration);
+
+      switch (resp.data) {
+        case FileSheetAction.delete:
+          _deleteFilesAction(selectedFiles);
+          break;
+        case FileSheetAction.move:
+          _moveFilesAction(selectedFiles);
+          break;
+        case FileSheetAction.zipFile:
+          _zipFilesAction(selectedFiles);
+          break;
+        case FileSheetAction.download:
+          _downloadFilesAction(selectedFiles, pos);
+          break;
+      }
+    }
+  }
 
   //////////////////// ACTIONS ////////////////////
   Future<void> _deleteFileAction(RemoteFile file) async {
@@ -1432,6 +1449,39 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
+  Future<void> _deleteFilesAction(List<RemoteFile> files) async {
+    var dialogResponse = await _dialogService.showConfirm(
+      title: tr('dialogs.delete_files.title'),
+      body: tr('dialogs.delete_files.description', args: [files.length.toString()]),
+      actionLabel: tr('general.delete'),
+    );
+
+    if (dialogResponse?.confirmed == true) {
+      // state = FilePageState.loading(state.path);
+
+      state = state.copyWith(folderContent: state.folderContent.toLoading(false));
+
+      delete(RemoteFile file) async {
+        try {
+          if (file is Folder) {
+            await _fileService.deleteDirForced(file.absolutPath);
+          } else {
+            await _fileService.deleteFile(file.absolutPath);
+          }
+        } on JRpcError catch (e) {
+          _snackBarService.show(SnackBarConfig(
+            type: SnackbarType.error,
+            message: 'Could not delete ${file.name}.\n${e.message}',
+          ));
+        }
+      }
+
+      for (var file in files) {
+        delete(file);
+      }
+    }
+  }
+
   Future<void> _renameFileAction(RemoteFile file) async {
     var fileNames = state.folderContent.requireValue.folderFileNames;
     fileNames.remove(file.name);
@@ -1453,7 +1503,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             ),
             notContains(
               fileNames,
-              errorText: tr('pages.files.file_name_in_use'),
+              errorText: tr('form_validators.file_name_in_use'),
             ),
           ]),
         ),
@@ -1497,6 +1547,36 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
+  Future<void> _moveFilesAction(List<RemoteFile> files) async {
+    final res = await _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_move.name,
+      pathParameters: {'path': filePath.split('/').first},
+      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.move_here')},
+    );
+
+    if (res case String()) {
+      final newPath = res;
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving files to $newPath');
+      state = state.copyWith(folderContent: state.folderContent.toLoading(true));
+
+      onError() {
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'Could not move Files.',
+          message: 'An error occured while moving the files.',
+        ));
+      }
+
+      final waitFor = <Future>[];
+      for (var file in files) {
+        final f = _fileService.moveFile(file.absolutPath, '$newPath/${file.name}').catchError(onError);
+        waitFor.add(f);
+      }
+      await Future.wait(waitFor).catchError(() => null);
+      state = state.copyWith(selectedFiles: []);
+    }
+  }
+
   Future<void> _copyFileAction(RemoteFile file) async {
     // First name of the new copy
     var dialogResponse = await _dialogService.show(
@@ -1512,10 +1592,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             FormBuilderValidators.match(
               r'^\w?[\w .-]*[\w-]$',
               errorText: tr('pages.files.no_matches_file_pattern'),
-            ),
-            notContains(
-              state.folderContent.requireValue.folderFileNames,
-              errorText: tr('pages.files.file_name_in_use'),
             ),
           ]),
         ),
@@ -1609,21 +1685,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       return;
     }
 
-    if (file case Folder()) {
-      //TODO: ZIP the folder first automatically!
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        title: 'Error',
-        message: 'Cannot share folders. Please ZIP the folder first.',
-      ));
-      return;
-    }
-    // await _printerService.startPrintFile(file);
-    // _goRouter.goNamed(AppRoute.dashBoard.name);
-
     bool setToken = false;
     try {
-      final downloadStream = _fileService.downloadFile(filePath: file.absolutPath).distinct((a, b) {
+      var fileToDownload = file.absolutPath;
+      if (file case Folder()) {
+        final zip = '${file.absolutPath}-${_zipDateFormat.format(DateTime.now())}.zip';
+        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
+        await _handleZipOperation(zip, [file.absolutPath], false);
+        fileToDownload = zip;
+      }
+      final downloadStream = _fileService.downloadFile(filePath: fileToDownload).distinct((a, b) {
         // If both are Download Progress, only update in 0.01 steps:
         const epsilon = 0.01;
         if (a is FileOperationProgress && b is FileOperationProgress) {
@@ -1660,7 +1731,62 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         sharePositionOrigin: origin,
       ).catchError((_) => null);
     } catch (e, s) {
-      _onOperationError(e, s, false);
+      _onOperationError(e, s, 'download');
+    } finally {
+      state = state.copyWith(download: null);
+    }
+  }
+
+  Future<void> _downloadFilesAction(List<RemoteFile> files, Rect origin) async {
+    final isSup = await ref.read(isSupporterAsyncProvider.future);
+    if (!isSup) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.full_file_management'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+
+    bool setToken = false;
+    try {
+      final zipName = '${_zipDateFormat.format(DateTime.now())}.zip';
+      final zipPath = '${files.first.parentPath}/$zipName';
+      state = state.copyWith(folderContent: state.folderContent.toLoading(false));
+
+      await _handleZipOperation(zipPath, files.map((e) => e.absolutPath).toList(), false);
+
+      final downloadStream = _fileService.downloadFile(filePath: zipPath).distinct((a, b) {
+        // If both are Download Progress, only update in 0.01 steps:
+        const epsilon = 0.01;
+        if (a is FileOperationProgress && b is FileOperationProgress) {
+          return (b.progress - a.progress) < epsilon;
+        }
+
+        return a == b;
+      });
+
+      ref.onCancel(() => _downloadToken?.cancel());
+      await for (var download in downloadStream) {
+        if (!setToken) _downloadToken = download.token;
+        state = state.copyWith(download: download);
+      }
+
+      if (state.download is FileOperationCanceled) {
+        _onOperationCanceled(false);
+        return;
+      }
+
+      final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
+
+      await Share.shareXFiles(
+        [XFile(downloadedFilePath, mimeType: 'application/zip')],
+        subject: zipName,
+        sharePositionOrigin: origin,
+      ).catchError((_) => null);
+    } catch (e, s) {
+      _onOperationError(e, s, 'download');
     } finally {
       state = state.copyWith(download: null);
     }
@@ -1722,7 +1848,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             ),
             notContains(
               state.folderContent.requireValue.folderFileNames,
-              errorText: tr('pages.files.file_name_in_use'),
+              errorText: tr('form_validators.file_name_in_use'),
             ),
           ]),
         ),
@@ -1734,6 +1860,39 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final multipartFile = MultipartFile.fromString('', filename: '$_relativeToRoot/$fileName');
 
     await _handleFileUpload(filePath, multipartFile);
+  }
+
+  Future<void> _zipFilesAction(List<RemoteFile> toZip) async {
+    logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating new archive for files');
+
+    final initialName = toZip.length == 1 ? toZip.first.name : _zipDateFormat.format(DateTime.now());
+
+    final res = await _dialogService.show(
+      DialogRequest(
+        type: DialogType.textInput,
+        title: tr('dialogs.create_archive.title'),
+        actionLabel: tr('general.create'),
+        data: TextInputDialogArguments(
+          initialValue: initialName,
+          labelText: tr('dialogs.create_archive.label'),
+          suffixText: '.zip',
+          valueTransformer: (value) => value?.let((it) => '$it.zip'),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.match(
+              r'^\w?[\w .-]*[\w-]$',
+              errorText: tr('pages.files.no_matches_file_pattern'),
+            ),
+          ]),
+        ),
+      ),
+    );
+
+    if (res?.confirmed != true) return;
+
+    final archiveDest = '${toZip.first.parentPath}/${res!.data as String}';
+
+    await _handleZipOperation(archiveDest, toZip.map((e) => e.absolutPath).toList());
   }
 
   //////////////////// END ACTIONS ////////////////////
@@ -1763,8 +1922,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         message: tr('pages.files.file_operation.upload_success.body'),
       ));
     } catch (e, s) {
-      logger.e('Could not upload file.', e, s);
-      _onOperationError(e, s, true);
+      logger.e('[ModernFileManagerController($machineUUID, $filePath)] Could not upload file.', e, s);
+      _onOperationError(e, s, 'upload');
       return false;
     } finally {
       state = state.copyWith(upload: null);
@@ -1772,9 +1931,32 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     return true;
   }
 
+  Future<bool> _handleZipOperation(String dest, List<String> targets, [bool showSnack = true]) async {
+    try {
+      await _fileService.zipFiles(dest, targets);
+
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Files zipped');
+
+      if (showSnack) {
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.info,
+          title: tr('pages.files.file_operation.zipping_success.title'),
+          message: tr('pages.files.file_operation.zipping_success.body'),
+        ));
+      }
+    } catch (e, s) {
+      logger.e('[ModernFileManagerController($machineUUID, $filePath)] Could not zip files.', e, s);
+      _onOperationError(e, s, 'zipping');
+      return false;
+    }
+    return true;
+  }
+
   //////////////////// NOTIFICATIONS ////////////////////
 
-  void _onFileNotification(FileActionResponse notification) {
+  void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
+    final notification = next.valueOrNull;
+    if (notification == null) return;
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
 
     // Check if the notifications are only related to the current folder
@@ -1798,6 +1980,24 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
+  void _onJrpcStateNotification(AsyncValue<ClientState>? prev, AsyncValue<ClientState> next) {
+    var nextState = next.valueOrNull;
+    if (nextState == null) return;
+
+    if (nextState != ClientState.connected) {
+      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode');
+      state = state.copyWith(selectedFiles: []);
+    }
+  }
+
+  void _onModelChanged(_Model? prev, _Model next) {
+    if (!next.hasTimelapseComponent && filePath.startsWith('timelapse')) {
+      logger.i(
+          '[ModernFileManagerController($machineUUID, $filePath)] Timelapse component was removed/not available anymore, will move to gcodes');
+      _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'gcodes'});
+    }
+  }
+
   void _onOperationCanceled(bool isUpload) {
     final prefix = isUpload ? 'upload' : 'download';
     ref.read(snackBarServiceProvider).show(SnackBarConfig(
@@ -1807,12 +2007,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         ));
   }
 
-  void _onOperationError(Object error, StackTrace stack, bool isUpload) {
-    final prefix = isUpload ? 'upload' : 'download';
+  void _onOperationError(Object error, StackTrace stack, String operation) {
     ref.read(snackBarServiceProvider).show(SnackBarConfig.stacktraceDialog(
           dialogService: _dialogService,
-          snackTitle: tr('pages.files.file_operation.${prefix}_failed.title'),
-          snackMessage: tr('pages.files.file_operation.${prefix}_failed.body'),
+          snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
+          snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
           exception: error,
           stack: stack,
         ));
@@ -1829,6 +2028,7 @@ class _Model with _$Model {
     FileOperation? download,
     FileOperation? upload,
     @Default([]) List<RemoteFile> selectedFiles,
+    @Default(false) bool hasTimelapseComponent,
   }) = __Model;
 
   bool get selectionMode => selectedFiles.isNotEmpty;

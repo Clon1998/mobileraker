@@ -31,9 +31,12 @@ class ConfirmationDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (dialogRequest.title != null)
-            Text(
-              dialogRequest.title!,
-              style: Theme.of(context).textTheme.titleLarge,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text(
+                dialogRequest.title!,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
           if (dialogRequest.body != null) Text(dialogRequest.body!),
         ],

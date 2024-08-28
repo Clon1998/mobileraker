@@ -277,7 +277,8 @@
         "create_file": "Datei erstellen",
         "create_folder": "Ordner erstellen",
         "upload": "Datei hochladen",
-        "upload_bulk": "Dateien hochladen"
+        "upload_bulk": "Dateien hochladen",
+        "zip_file": "Archiv erstellen"
       },
       "gcode_file_actions": {
         "submit": "Datei drucken",
@@ -305,6 +306,14 @@
           "title": "Upload fehlgeschlagen",
           "body": "Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
         },
+        "zipping_success": {
+          "title": "Archiv erstellt",
+          "body": "Das Archiv wurde erfolgreich erstellt."
+        },
+        "zipping_failed": {
+          "title": "Archivierung fehlgeschlagen",
+          "body": "Beim Erstellen des Archivs ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        },
         "copy_created": {
           "title": "Kopie erstellt",
           "body": "Die Datei wurde erfolgreich nach '{}' kopiert."
@@ -329,6 +338,10 @@
       "gcode_tab": "GCodes",
       "config_tab": "Konfigs",
       "timelapse_tab": "Zeitraffer",
+      "element": {
+        "one": "Element",
+        "other": "Elemente"
+      },
       "details": {
         "preheat": "Vorheizen",
         "print": "Drucken",
@@ -904,6 +917,14 @@
       "title": "Datei erstellen",
       "label": "Dateiname"
     },
+    "create_archive": {
+      "title": "Archiv erstellen",
+      "label": "Archivname"
+    },
+    "delete_files": {
+      "title": "Dateien löschen",
+      "description": "Bestätigen Sie die Löschung von {} ausgewählten Dateien."
+    },
     "exclude_object": {
       "title": "Objekt vom Druck ausschließen",
       "label": "Objekt ausschließen",
@@ -1077,6 +1098,10 @@
     },
     "heater_temperature": {
       "title": "{} Temperatur [°C]"
+    },
+    "confirm_print_cancelation": {
+      "title": "Druck abbrechen",
+      "body": "Sind Sie sicher, dass Sie den Druck abbrechen möchten?"
     }
   },
   "bottom_sheets": {
