@@ -34,7 +34,6 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
-import 'package:common/ui/components/connection/printer_provider_guard.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -101,13 +100,10 @@ class FileManagerPage extends HookConsumerWidget {
     final isRoot = filePath.split('/').length == 1;
 
     Widget body = MachineConnectionGuard(
-      onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+      onConnected: (ctx, machineUUID) => _Body(
         machineUUID: machineUUID,
-        child: _Body(
-          machineUUID: machineUUID,
-          filePath: filePath,
-          scrollController: scrollController,
-        ),
+        filePath: filePath,
+        scrollController: scrollController,
       ),
     );
     final fab = _Fab(filePath: filePath, scrollController: scrollController);
@@ -1073,6 +1069,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
+    // Since this might be used with file actions!
+    ref.keepAliveExternally(printerProvider(machineUUID));
     ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification);
     ref.listen(jrpcClientStateProvider(machineUUID), _onJrpcStateNotification);
     ref.listenSelf(_onModelChanged);
@@ -1147,9 +1145,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickFileAction(RemoteFile file, Rect origin) async {
-    final klippyReady = ref.read(klipperProvider(machineUUID).selectRequireValue((d) => d.klippyCanReceiveCommands));
-    final canStartPrint = ref.read(printerProvider(machineUUID)
-        .selectRequireValue((d) => d.print.state != PrintState.printing && d.print.state != PrintState.paused));
+    final klippyReady =
+        ref.read(klipperProvider(machineUUID).select((d) => d.valueOrNull?.klippyCanReceiveCommands == true));
+    final canStartPrint = ref.read(printerProvider(machineUUID).select((d) =>
+        d.valueOrNull != null &&
+        d.valueOrNull!.print.state != PrintState.printing &&
+        d.valueOrNull!.print.state != PrintState.paused));
 
     // logger.w('Klipper ready: $klippyReady, can start print: $canStartPrint');
 
