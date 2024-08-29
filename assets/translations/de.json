@@ -761,7 +761,7 @@
       "learn_more_link": "GitHub Seite.",
       "no_spools": "Keine Spulen gefunden!",
       "no_filaments": "Keine Filamente gefunden!",
-      "no_vendors": "Keine Anbieter gefunden!",
+      "no_vendors": "Keine Hersteller gefunden!",
       "error_loading_spools": "Fehler beim Laden der Spulen",
       "error_loading_filaments": "Fehler beim Laden der Filamente",
       "spool": {
@@ -773,8 +773,8 @@
         "other": "Filamente"
       },
       "vendor": {
-        "one": "Anbieter",
-        "other": "Anbieter"
+        "one": "Hersteller",
+        "other": "Hersteller"
       },
       "properties": {
         "id": "ID",

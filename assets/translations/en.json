@@ -761,7 +761,7 @@
       "learn_more_link": "GitHub page.",
       "no_spools": "No spools found!",
       "no_filaments": "No filaments found!",
-      "no_vendors": "No vendors found!",
+      "no_vendors": "No manufacturers found!",
       "error_loading_spools": "Error loading spools",
       "error_loading_filaments": "Error loading filaments",
       "spool": {
@@ -773,8 +773,8 @@
         "other": "Filaments"
       },
       "vendor": {
-        "one": "Vendor",
-        "other": "Vendors"
+        "one": "Manufacturer",
+        "other": "Manufacturers"
       },
       "properties": {
         "id": "ID",
@@ -796,10 +796,10 @@
         "lot_number": "Lot Number"
       },
       "vendor_details": {
-        "page_title": "Vendor {}",
-        "info_card": "Vendor Info",
-        "filaments_card": "Filaments by Vendor",
-        "spools_card": "Spools by Vendor"
+        "page_title": "Manufacturer {}",
+        "info_card": "Manufacturer Info",
+        "filaments_card": "Filaments by Manufacturer",
+        "spools_card": "Spools by Manufacturer"
       },
       "filament_details": {
         "info_card": "Filament Info",
