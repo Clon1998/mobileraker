@@ -104,17 +104,20 @@ class NavWidgetController extends _$NavWidgetController {
 
   navigateTo(String route, {dynamic arguments}) {
     if (goRouter.canPop()) goRouter.pop();
+    logger.i('Navigating to $route');
     goRouter.go(route, extra: arguments);
   }
 
   pushingTo(String route, {dynamic arguments}) async {
     if (goRouter.canPop()) goRouter.pop();
 
+    logger.i('Pushing route to $route');
     await goRouter.push(route, extra: arguments);
   }
 
   replace(String route, {dynamic arguments}) async {
     // if (goRouter.canPop()) goRouter.pop();
+    logger.i('Replacing route to $route');
 
     goRouter.replace(route, extra: arguments);
   }

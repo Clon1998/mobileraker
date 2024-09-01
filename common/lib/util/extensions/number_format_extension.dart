@@ -31,16 +31,16 @@ extension UnitFormatting on NumberFormat {
   static const _kibi = 1024;
 
   /// Formats a given weight in grams to a string with appropriate units.
-  String formatGrams(num g) {
+  String formatGrams(num g, [bool addUnit = true]) {
     if (g < 0) throw ArgumentError('Weight cannot be negative');
 
     if (g < _kilo) {
-      return '${format(g)} ${WeightUnit.g.name}';
+      return addUnit ? '${format(g)} ${WeightUnit.g.name}' : format(g);
     } else {
       final exp = (math.log(g) / math.log(_kilo)).floor();
       g /= math.pow(_kilo, exp);
       final unit = WeightUnit.values[exp.clamp(0, WeightUnit.values.length - 1)];
-      return '${format(g)} ${unit.name}';
+      return addUnit ? '${format(g)} ${unit.name}' : format(g);
     }
   }
 

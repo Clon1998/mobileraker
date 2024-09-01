@@ -764,6 +764,19 @@
       "no_vendors": "No manufacturers found!",
       "error_loading_spools": "Error loading spools",
       "error_loading_filaments": "Error loading filaments",
+      "create": {
+        "success": {
+          "title": "{} created!",
+          "message": {
+            "one": "The {} was successfully created.",
+            "other": "The {} were successfully created."
+          }
+        },
+        "error": {
+          "title": "Error creating {}!",
+          "message": "Unexpected error, please try again later."
+        }
+      },
       "spool": {
         "one": "Spool",
         "other": "Spools"
@@ -792,8 +805,18 @@
         "last_used": "Last Used",
         "remaining_weight": "Remaining Weight",
         "used_weight": "Used Weight",
+        "remaining_length": "Remaining Length",
+        "used_length": "Used Length",
         "location": "Location",
-        "lot_number": "Lot Number"
+        "lot_number": "Lot Number",
+        "color": "Color"
+      },
+      "property_sections": {
+        "basic": "Basic Information",
+        "usage": "Usage Details",
+        "additional": "Additional Information",
+        "physical": "Physical Properties",
+        "print_settings": "Print Settings"
       },
       "vendor_details": {
         "page_title": "Manufacturer {}",
@@ -812,6 +835,31 @@
         "archived_warning": {
           "title": "Spool is archived",
           "body": "This spool is archived and can not be used for new prints."
+        }
+      },
+      "spool_form": {
+        "create_page_title": "Create Spool",
+        "helper": {
+          "price": "@:pages.spoolman.filament_form.helper.price Defaults to the filament's price if not set",
+          "initial_weight": "@:pages.spoolman.filament_form.helper.initial_weight Defaults to the filament's weight if not set",
+          "empty_weight": "@:pages.spoolman.filament_form.helper.empty_weight Defaults to the filament's or manufacturer's spool weight if not set",
+          "used_weight": "The weight of the used filament. A value of 0 grams means that the spool is unused",
+          "location": "The location where you store the spool",
+          "lot_number": "The manufacturer's lot number. Can be used to ensure a print has a consistent colour when using multiple spools."
+        }
+      },
+      "filament_form": {
+        "create_page_title": "Create Filament",
+        "helper": {
+          "price": "The price of a spool of filament.",
+          "initial_weight": "The net weight of the filament in a full spool, excluding the spool. This is usually written on the packaging.",
+          "empty_weight": "The empty weight of the spool."
+        }
+      },
+      "vendor_form": {
+        "create_page_title": "Create Manufacturer",
+        "helper": {
+          "empty_weight": "The weight of an empty spool from this manufacturer."
         }
       }
     }
@@ -1273,6 +1321,12 @@
       "falsy_import_snackbar": {
         "title": "Error while importing layout!",
         "body": "The layout could not be imported. Please make sure the clipboard contains a valid layout."
+      }
+    },
+    "selections": {
+      "no_selections": {
+        "title": "No results found",
+        "subtitle": "Try a different search term"
       }
     }
   },

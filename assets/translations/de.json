@@ -764,6 +764,19 @@
       "no_vendors": "Keine Hersteller gefunden!",
       "error_loading_spools": "Fehler beim Laden der Spulen",
       "error_loading_filaments": "Fehler beim Laden der Filamente",
+      "create": {
+        "success": {
+          "title": "{} erstellt!",
+          "message": {
+            "one": "{} wurde erfolgreich erstellt.",
+            "other": "{} wurden erfolgreich erstellt."
+          }
+        },
+        "error": {
+          "title": "Fehler beim Erstellen von {}!",
+          "message": "Unerwarteter Fehler, bitte versuchen Sie es später noch einmal."
+        }
+      },
       "spool": {
         "one": "Spule",
         "other": "Spulen"
@@ -792,11 +805,21 @@
         "last_used": "Zuletzt verwendet",
         "remaining_weight": "Verbleibendes Gewicht",
         "used_weight": "Benutztes Gewicht",
+        "remaining_length": "Verbleibende Länge",
+        "used_length": "Benutzte Länge",
         "location": "Standort",
-        "lot_number": "Lot Nummer"
+        "lot_number": "Chargennummer",
+        "color": "Farbe"
+      },
+      "property_sections": {
+        "basic": "Grundlegende Informationen",
+        "usage": "Details zur Nutzung",
+        "additional": "Zusätzliche Informationen",
+        "physical": "Physische Eigenschaften",
+        "print_settings": "Druckeinstellungen"
       },
       "vendor_details": {
-        "page_title": "Lieferant {}",
+        "page_title": "Anbieter {}",
         "info_card": "Anbieter Details",
         "filaments_card": "Filamente nach Anbieter",
         "spools_card": "Spulen nach Anbieter"
@@ -812,6 +835,33 @@
         "archived_warning": {
           "title": "Spool ist archiviert",
           "body": "Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden."
+        }
+      },
+      "spool_form": {
+        "create_page_title": "Spule erstellen",
+        "section": {
+        },
+        "helper": {
+          "price": "@:pages.spoolman.filament_form.helper.price Fällt auf den Filamentpreis zurück, wenn nicht gesetzt",
+          "initial_weight": "@:pages.spoolman.filament_form.helper.initial_weight Fällt auf das Filamentgewicht zurück, wenn nicht gesetzt",
+          "empty_weight": "@:pages.spoolman.filament_form.helper.empty_weight Fällt auf das Filament- oder Hersteller-Spulengewicht zurück, wenn nicht gesetzt",
+          "used_weight": "Das Gewicht des verbrauchten Filaments. Ein Wert von 0 Gramm bedeutet, dass die Spule unbenutzt ist",
+          "location": "Der Ort, an dem Sie die Spule lagern",
+          "lot_number": "Chargennummer des Herstellers. Kann verwendet werden, um sicherzustellen, dass ein Druck bei Verwendung mehrerer Spulen eine konsistente Farbe aufweist"
+        }
+      },
+      "filament_form": {
+        "create_page_title": "Filament erstellen",
+        "helper": {
+          "price": "Der Preis einer Spule.",
+          "initial_weight": "Das Nettogewicht des Filaments auf einer vollen Spule, ohne die Spule. Dies ist normalerweise auf der Verpackung angegeben.",
+          "empty_weight": "Das Leergewicht der Spule."
+        }
+      },
+      "vendor_form": {
+        "create_page_title": "Hersteller erstellen",
+        "helper": {
+          "empty_weight": "Das Leergewicht einer Spule dieses Herstellers."
         }
       }
     }
@@ -1273,6 +1323,12 @@
       "falsy_import_snackbar": {
         "title": "Fehler beim Importieren",
         "body": "Das Layout konnte nicht importiert werden. Bitte stellen Sie sicher, dass die Zwischenablage ein gültiges Layout enthält."
+      }
+    },
+    "selections": {
+      "no_selections": {
+        "title": "Keine Ergebnisse gefunden",
+        "subtitle": "Versuchen Sie einen anderen Suchbegriff"
       }
     }
   },

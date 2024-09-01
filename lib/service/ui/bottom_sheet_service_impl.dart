@@ -23,6 +23,7 @@ import '../../ui/components/bottomsheet/dashboard_layout_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
+import '../../ui/components/bottomsheet/selection_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/user_bottom_sheet.dart';
 
 enum SheetType implements BottomSheetIdentifierMixin {
@@ -35,6 +36,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   dashobardLayout,
   sortMode,
   actions,
+  selections,
   ;
 }
 
@@ -72,6 +74,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
         },
     SheetType.sortMode: (ctx, data) => SortModeBottomSheet(arguments: data as SortModeSheetArgs),
     SheetType.actions: (ctx, data) => ActionBottomSheet(arguments: data as ActionBottomSheetArgs),
+    SheetType.selections: (ctx, data) => SelectionBottomSheet(arguments: data as SelectionBottomSheetArgs),
   };
 
   @override

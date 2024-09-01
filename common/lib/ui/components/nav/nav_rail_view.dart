@@ -69,7 +69,7 @@ class _Rail extends StatelessWidget {
                 child: CustomScrollView(
                   // shrinkWrap: true,
                   primary: false,
-                  physics: const ClampingScrollPhysics(),
+                  physics: const RangeMaintainingScrollPhysics(parent: ClampingScrollPhysics()),
                   slivers: [
                     SliverToBoxAdapter(
                       child: _Leading(

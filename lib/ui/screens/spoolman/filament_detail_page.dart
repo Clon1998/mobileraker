@@ -6,8 +6,6 @@
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/ui/components/spool_widget.dart';
-import 'package:common/util/extensions/double_extension.dart';
-import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,9 +15,10 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_dto_mixin.dart';
 import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
@@ -43,9 +42,10 @@ class FilamentDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-        // Make sure we are able to access the vendor in all places
-        overrides: [_filamentProvider.overrideWithValue(filament)],
-        child: _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID));
+      // Make sure we are able to access the vendor in all places
+      overrides: [_filamentProvider.overrideWithValue(filament)],
+      child: _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID),
+    );
   }
 }
 
@@ -102,12 +102,14 @@ class _FilamentInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final spoolmanCurrency = ref.watch(spoolmanCurrencyProvider(machineUUID));
     var controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
     var filament = ref.watch(_filamentProvider);
     var dateFormatService = ref.watch(dateFormatServiceProvider);
     var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatPrice = NumberFormat('0.##', context.locale.toStringWithSeparator());
+    var numberFormatPrice =
+        NumberFormat.simpleCurrency(locale: context.locale.toStringWithSeparator(), name: spoolmanCurrency);
     var numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
@@ -187,10 +189,6 @@ class _FilamentInfo extends ConsumerWidget {
         title: tr('pages.spoolman.properties.article_number'),
         property: filament.articleNumber ?? '-',
       ),
-      PropertyWithTitle.text(
-        title: tr('pages.spoolman.properties.comment'),
-        property: filament.comment ?? '-',
-      ),
     ];
 
     return Card(
@@ -206,7 +204,7 @@ class _FilamentInfo extends ConsumerWidget {
           ),
           const Divider(),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: AlignedGridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -217,6 +215,13 @@ class _FilamentInfo extends ConsumerWidget {
               itemBuilder: (BuildContext context, int index) {
                 return properties[index];
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            child: PropertyWithTitle.text(
+              title: tr('pages.spoolman.properties.comment'),
+              property: filament.comment ?? '-',
             ),
           ),
         ],
@@ -245,12 +250,14 @@ class _FilamentSpools extends HookConsumerWidget {
             title: const Text('pages.spoolman.filament_details.spools_card').tr(),
           ),
           const Divider(),
-          SpoolmanStaticPagination(
-            // key: ValueKey(filters),
-            machineUUID: machineUUID,
-            type: SpoolmanListType.spools,
-            filters: {'filament.id': model.id},
-            onEntryTap: controller.onEntryTap,
+          Flexible(
+            child: SpoolmanStaticPagination(
+              // key: ValueKey(filters),
+              machineUUID: machineUUID,
+              type: SpoolmanListType.spools,
+              filters: {'filament.id': model.id},
+              onEntryTap: controller.onEntryTap,
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -268,16 +275,16 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController {
     return filament;
   }
 
-  void onEntryTap(SpoolmanDtoMixin dto) async {
+  void onEntryTap(SpoolmanEntityDtoMixin dto) async {
     switch (dto) {
       case Spool spool:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_spoolDetails.name, extra: [machineUUID, spool]);
+        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
       case Filament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_filamentDetails.name, extra: [machineUUID, filament]);
+        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
       case Vendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_vendorDetails.name, extra: [machineUUID, vendor]);
+        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }
   }

@@ -158,13 +158,15 @@ class ActionBottomSheetArgs {
           runtimeType == other.runtimeType &&
           const DeepCollectionEquality().equals(other.actions, actions) &&
           leading == other.leading &&
-          title == other.title;
+          title == other.title &&
+          subtitle == other.subtitle;
 
   @override
   int get hashCode => Object.hash(
         const DeepCollectionEquality().hash(actions),
         leading,
         title,
+        subtitle,
       );
 
   @override

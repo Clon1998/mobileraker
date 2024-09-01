@@ -139,4 +139,56 @@ extension MobilerakerString on String {
 
     return union == 0 ? 0 : intersection / union;
   }
+
+  /// This function calculates a search score for a given search term.
+  /// The search score is a measure of how well a string matches a search term.
+  ///
+  /// The search score is calculated as follows:
+  /// - Exact match: 1000
+  /// - Full token match: 500
+  /// - Prefix match: 200
+  /// - Token matching: 150
+  /// - Jaro-Winkler similarity: 100
+  /// - Trigram similarity for longer search terms: 50
+  ///
+  /// The search score is a double value between 0 and 1000.
+  /// A higher score indicates a better match.
+  ///
+  /// Note: For now the search is case-insensitive.
+  double searchScore(String searchTerm, Iterable<String> searchTokens) {
+    searchTerm = searchTerm.toLowerCase();
+    // We dont want duplicates
+    searchTokens = searchTokens.map((token) => token.toLowerCase()).toSet();
+    final normalized = toLowerCase();
+    // Exact match
+    if (normalized == searchTerm) return 1000; // Highest possible score
+
+    double score = 0;
+
+    // Full token match
+    if (searchTokens.length > 1 && searchTokens.every((token) => normalized.contains(token))) {
+      score += 500; // High score, but less than exact match
+    }
+
+    // Prefix match
+    if (normalized.startsWith(searchTerm)) score += 200;
+
+    // Token matching
+    var fileTokens = normalized.split(RegExp(r'[(),.\s_-]+'));
+    for (var searchToken in searchTokens) {
+      if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 150;
+      if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 130;
+      if (fileTokens.any((fileToken) => fileToken.endsWith(searchToken))) score += 110;
+    }
+
+    // Jaro-Winkler similarity
+    score += normalized.jaroWinkler(searchTerm) * 100;
+
+    // Trigram similarity for longer search terms
+    if (searchTerm.length > 3) {
+      score += normalized.trigramSimilarity(searchTerm) * 50;
+    }
+
+    return score;
+  }
 }

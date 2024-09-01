@@ -2040,16 +2040,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   void _onOperationCanceled(bool isUpload) {
     final prefix = isUpload ? 'upload' : 'download';
-    ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          type: SnackbarType.warning,
+    _snackBarService.show(SnackBarConfig(
+      type: SnackbarType.warning,
           title: tr('pages.files.file_operation.${prefix}_canceled.title'),
           message: tr('pages.files.file_operation.${prefix}_canceled.body'),
         ));
   }
 
   void _onOperationError(Object error, StackTrace stack, String operation) {
-    ref.read(snackBarServiceProvider).show(SnackBarConfig.stacktraceDialog(
-          dialogService: _dialogService,
+    _snackBarService.show(SnackBarConfig.stacktraceDialog(
+      dialogService: _dialogService,
           snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
           snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
           exception: error,

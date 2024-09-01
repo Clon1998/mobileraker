@@ -20,6 +20,14 @@ Future<String> _svg(_SvgRef ref) async {
 @Riverpod(keepAlive: true)
 Future<String> _coloredSpool(_ColoredSpoolRef ref, String color, Brightness brightness) async {
   var rawSvg = await ref.watch(_svgProvider.future);
+
+  // Extract alpha channel from color
+  var alpha = 1.0;
+  if (color.length == 8) {
+    alpha = int.parse(color.substring(0, 2), radix: 16) / 255;
+    color = color.substring(2, 8);
+  }
+
   // A color variant of the fill color to ensure the spool is visible on any background
   var colorVariant = _getColorVariant(color);
 
@@ -29,8 +37,11 @@ Future<String> _coloredSpool(_ColoredSpoolRef ref, String color, Brightness brig
     rawSvg = rawSvg.replaceAll('fill="#282828"', 'fill="#5B5B5B"').replaceAll('fill="#1E1E1E"', 'fill="#4E4E4E"');
   }
 
-  // Change the spool's filament color to the selected color
-  return rawSvg.replaceAll('fill="#FCEE21"', 'fill="#$color"').replaceAll('fill="#FFCD00"', 'fill="#$colorVariant"');
+  // Change the spool's filament color to the selected color + add transparency
+  return rawSvg
+      .replaceAll('fill="#FCEE21"', 'fill="#$color"')
+      .replaceAll('fill="#FFCD00"', 'fill="#$colorVariant"')
+      .replaceAll('fill-opacity="1"', 'fill-opacity="$alpha"');
 }
 
 String? _getColorVariant(String color) {
@@ -44,7 +55,10 @@ String? _getColorVariant(String color) {
 class SpoolWidget extends ConsumerWidget {
   const SpoolWidget({super.key, String? color, this.height = 55, double? width})
       : color = color ?? '333333',
-        width = width ?? 0.45 * height;
+        width = width ?? 0.45 * height,
+        assert(color == null || color.length == 6 || color.length == 8,
+            'If color is provided, it must be a hex color code with or without alpha channel'),
+        assert(height > 0, 'height must be greater than 0');
 
   final String color;
   final double height;

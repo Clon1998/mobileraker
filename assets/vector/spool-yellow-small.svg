@@ -22,16 +22,16 @@
          <rect id="svg_6" y="0" x="181" width="31" height="494" fill="#1E1E1E"/>
   </g>
      <g id="Layer_7">
-         <rect id="svg_7" y="63" x="41" width="14" height="374" fill="#FCEE21"/>
-         <rect id="svg_8" y="63" x="55" width="14" height="374" fill="#FFCD00"/>
-         <rect id="svg_9" y="63" x="69" width="14" height="374" fill="#FCEE21"/>
-         <rect id="svg_10" y="63" x="83" width="14" height="374" fill="#FFCD00"/>
-         <rect id="svg_11" y="63" x="97" width="14" height="374" fill="#FCEE21"/>
-         <rect id="svg_12" y="63" x="111" width="14" height="374" fill="#FFCD00"/>
-         <rect id="svg_13" y="63" x="125" width="14" height="374" fill="#FCEE21"/>
-         <rect id="svg_14" y="63" x="139" width="14" height="374" fill="#FFCD00"/>
-         <rect id="svg_15" y="63" x="153" width="14" height="374" fill="#FCEE21"/>
-         <rect id="svg_16" y="63" x="167" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_7" y="63" x="41" width="14" height="374" fill="#FCEE21" fill-opacity="1"/>
+         <rect id="svg_8" y="63" x="55" width="14" height="374" fill="#FFCD00" fill-opacity="1"/>
+         <rect id="svg_9" y="63" x="69" width="14" height="374" fill="#FCEE21" fill-opacity="1"/>
+         <rect id="svg_10" y="63" x="83" width="14" height="374" fill="#FFCD00" fill-opacity="1"/>
+         <rect id="svg_11" y="63" x="97" width="14" height="374" fill="#FCEE21" fill-opacity="1"/>
+         <rect id="svg_12" y="63" x="111" width="14" height="374" fill="#FFCD00" fill-opacity="1"/>
+         <rect id="svg_13" y="63" x="125" width="14" height="374" fill="#FCEE21" fill-opacity="1"/>
+         <rect id="svg_14" y="63" x="139" width="14" height="374" fill="#FFCD00" fill-opacity="1"/>
+         <rect id="svg_15" y="63" x="153" width="14" height="374" fill="#FCEE21" fill-opacity="1"/>
+         <rect id="svg_16" y="63" x="167" width="14" height="374" fill="#FFCD00" fill-opacity="1"/>
     </g>
  </g>
 </svg>
