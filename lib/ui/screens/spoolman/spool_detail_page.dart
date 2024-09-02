@@ -32,10 +32,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
@@ -50,7 +51,7 @@ part 'spool_detail_page.freezed.dart';
 part 'spool_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-Spool _spool(_SpoolRef ref) {
+GetSpool _spool(_SpoolRef ref) {
   throw UnimplementedError();
 }
 
@@ -58,7 +59,7 @@ class SpoolDetailPage extends StatelessWidget {
   const SpoolDetailPage({super.key, required this.machineUUID, required this.spool});
 
   final String machineUUID;
-  final Spool spool;
+  final GetSpool spool;
 
   @override
   Widget build(BuildContext context) {
@@ -361,9 +362,9 @@ class _SpoolInfo extends ConsumerWidget {
           ),
           if (spool.progress != null)
             LinearProgressIndicator(
-            backgroundColor: spool.filament.color,
-            value: spool.progress,
-          ),
+              backgroundColor: spool.filament.color,
+              value: spool.progress,
+            ),
           if (spool.progress == null) const Divider(),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
@@ -447,15 +448,15 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
     );
   }
 
-  void onEntryTap(SpoolmanEntityDtoMixin dto) async {
+  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
     switch (dto) {
-      case Spool spool:
+      case GetSpool spool:
         _goRouter.goNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
-      case Filament filament:
+      case GetFilament filament:
         _goRouter.pushNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
-      case Vendor vendor:
+      case GetVendor vendor:
         _goRouter.pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }
@@ -515,6 +516,15 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
         await _goRouter.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool]);
         ref.invalidateSelf();
         break;
+      case SpoolSpoolmanSheetAction.clone:
+        // await _goRouter.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool], queryParameters: {});
+        // ref.invalidateSelf();
+        break;
+      case SpoolSpoolmanSheetAction.delete:
+        //TODO : Add confirmation dialog
+        await ref.read(spoolmanServiceProvider(machineUUID)).deleteSpool(spool);
+        _goRouter.pop();
+        break;
     }
   }
 
@@ -571,7 +581,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
-    required Spool spool,
-    Spool? activeSpool,
+    required GetSpool spool,
+    GetSpool? activeSpool,
   }) = __Model;
 }

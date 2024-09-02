@@ -24,10 +24,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -317,15 +317,15 @@ class _SpoolmanPageController extends _$SpoolmanPageController {
     state = index;
   }
 
-  void onEntryTap(SpoolmanEntityDtoMixin dto) async {
+  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
     switch (dto) {
-      case Spool spool:
+      case GetSpool spool:
         ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
-      case Filament filament:
+      case GetFilament filament:
         ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
-      case Vendor vendor:
+      case GetVendor vendor:
         ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }

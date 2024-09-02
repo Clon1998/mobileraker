@@ -28,8 +28,8 @@ import 'package:mobileraker/ui/components/bottomsheet/selection_bottom_sheet.dar
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -52,7 +52,7 @@ enum _SpoolFormFormComponent {
 }
 
 @Riverpod(dependencies: [])
-Spool? _spool(_SpoolRef ref) {
+GetSpool? _spool(_SpoolRef ref) {
   throw UnimplementedError();
 }
 
@@ -60,7 +60,7 @@ class SpoolFormPage extends StatelessWidget {
   const SpoolFormPage({super.key, required this.machineUUID, this.spool, this.isCopy = false});
 
   final String machineUUID;
-  final Spool? spool;
+  final GetSpool? spool;
   final bool isCopy;
 
   @override
@@ -420,7 +420,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       BottomSheetConfig(
         type: SheetType.selections,
         isScrollControlled: true,
-        data: SelectionBottomSheetArgs<Filament>(
+        data: SelectionBottomSheetArgs<GetFilament>(
           options: [
             for (final filament in filaments.sortedBy((e) {
               if (e.vendor == null) return 'zzz'; //Kinda hacky
@@ -432,6 +432,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
               SelectionOption(
                 value: filament,
                 label: filament.displayNameWithDetails(numberFormat),
+                subtitle: filament.vendor?.name,
                 leading: SpoolWidget(color: filament.colorHex, height: 30),
               ),
           ],
@@ -440,12 +441,12 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       ),
     );
 
-    if (!res.confirmed || res.data is! Filament) return;
-    final resFila = res.data as Filament;
+    if (!res.confirmed || res.data is! GetFilament) return;
+    final resFila = res.data as GetFilament;
     state = state.copyWith(selectedFilament: resFila);
   }
 
-  CreateSpool _dtoFromForm(Map<String, dynamic> formData, Filament filament) {
+  CreateSpool _dtoFromForm(Map<String, dynamic> formData, GetFilament filament) {
     return CreateSpool(
       firstUsed: formData[_SpoolFormFormComponent.firstUsed.name],
       lastUsed: formData[_SpoolFormFormComponent.lastUsed.name],
@@ -465,9 +466,9 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
-    required Spool? source,
-    required AsyncValue<List<Filament>> filaments,
-    Filament? selectedFilament,
+    required GetSpool? source,
+    required AsyncValue<List<GetFilament>> filaments,
+    GetFilament? selectedFilament,
     @Default(false) isSaving,
   }) = __Model;
 }

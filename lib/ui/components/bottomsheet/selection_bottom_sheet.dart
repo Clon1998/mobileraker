@@ -167,6 +167,7 @@ class _Entry extends StatelessWidget {
         //TODO: make this configurable?
         // horizontalTitleGap: 8,
         title: Text(option.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: option.subtitle != null ? Text(option.subtitle!) : null,
         minLeadingWidth: 42,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(44)))
             .only(themeData.useMaterial3),
@@ -202,10 +203,11 @@ class SelectionBottomSheetArgs<T> {
 
 @immutable
 class SelectionOption<T> {
-  const SelectionOption({required this.value, required this.label, this.leading, this.enabled = true});
+  const SelectionOption({required this.value, required this.label, this.subtitle, this.leading, this.enabled = true});
 
   final T value;
   final String label;
+  final String? subtitle;
   final Widget? leading;
   final bool enabled;
 

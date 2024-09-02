@@ -18,7 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_vendor.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../printers/components/section_header.dart';
@@ -37,7 +37,7 @@ class VendorFormPage extends StatelessWidget {
   const VendorFormPage({super.key, required this.machineUUID, this.vendor, this.isCopy = false});
 
   final String machineUUID;
-  final Vendor? vendor;
+  final GetVendor? vendor;
   final bool isCopy;
 
   @override

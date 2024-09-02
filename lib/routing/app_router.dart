@@ -40,9 +40,9 @@ import 'package:mobileraker/ui/screens/spoolman/spool_detail_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/vendor_detail_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
@@ -289,7 +289,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: 'details/spool',
             name: AppRoute.spoolman_details_spool.name,
             builder: (context, state) => switch (state.extra) {
-              [String machineUUID, Spool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
+              [String machineUUID, GetSpool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
             },
           ),
@@ -297,7 +297,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: 'details/filament',
             name: AppRoute.spoolman_details_filament.name,
             builder: (context, state) => switch (state.extra) {
-              [String machineUUID, Filament filament] =>
+              [String machineUUID, GetFilament filament] =>
                 FilamentDetailPage(filament: filament, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
             },
@@ -306,7 +306,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: 'details/vendor',
             name: AppRoute.spoolman_details_vendor.name,
             builder: (context, state) => switch (state.extra) {
-              [String machineUUID, Vendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
+              [String machineUUID, GetVendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
             },
           ),
@@ -315,7 +315,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             name: AppRoute.spoolman_form_spool.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID] => SpoolFormPage(machineUUID: machineUUID),
-              [String machineUUID, Spool spool] => SpoolFormPage(
+              [String machineUUID, GetSpool spool] => SpoolFormPage(
                   machineUUID: machineUUID,
                   spool: spool,
                   isCopy: state.uri.queryParameters['isCopy'] == 'true',
@@ -329,7 +329,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             name: AppRoute.spoolman_form_filament.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID] => FilamentFormPage(machineUUID: machineUUID),
-              [String machineUUID, Filament filament] => FilamentFormPage(
+              [String machineUUID, GetFilament filament] => FilamentFormPage(
                   machineUUID: machineUUID,
                   filament: filament,
                   isCopy: state.uri.queryParameters['isCopy'] == 'true',
@@ -343,7 +343,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             name: AppRoute.spoolman_form_vendor.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID] => VendorFormPage(machineUUID: machineUUID),
-              [String machineUUID, Vendor vendor] => VendorFormPage(
+              [String machineUUID, GetVendor vendor] => VendorFormPage(
                   machineUUID: machineUUID,
                   vendor: vendor,
                   isCopy: state.uri.queryParameters['isCopy'] == 'true',

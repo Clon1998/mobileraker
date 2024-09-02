@@ -25,8 +25,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -56,7 +56,7 @@ class FilamentFormPage extends StatelessWidget {
   const FilamentFormPage({super.key, required this.machineUUID, this.filament, this.isCopy = false});
 
   final String machineUUID;
-  final Filament? filament;
+  final GetFilament? filament;
   final bool isCopy;
 
   @override
@@ -421,7 +421,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       BottomSheetConfig(
         type: SheetType.selections,
         isScrollControlled: true,
-        data: SelectionBottomSheetArgs<Vendor>(
+        data: SelectionBottomSheetArgs<GetVendor>(
           options: [
             for (final vendor in vendors.sortedBy((e) => e.name)) SelectionOption(value: vendor, label: vendor.name),
           ],
@@ -430,11 +430,11 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       ),
     );
 
-    if (!res.confirmed || res.data is! Vendor) return;
-    state = state.copyWith(selectedVendor: res.data as Vendor);
+    if (!res.confirmed || res.data is! GetVendor) return;
+    state = state.copyWith(selectedVendor: res.data as GetVendor);
   }
 
-  CreateFilament _dtoFromForm(Map<String, dynamic> formData, Vendor vendor) {
+  CreateFilament _dtoFromForm(Map<String, dynamic> formData, GetVendor vendor) {
     return CreateFilament(
       name: formData[_FilamentFormFormComponent.name.name],
       vendor: vendor,
@@ -456,9 +456,9 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
-    required Filament? source,
-    required AsyncValue<List<Vendor>> vendors,
-    Vendor? selectedVendor,
+    required GetFilament? source,
+    required AsyncValue<List<GetVendor>> vendors,
+    GetVendor? selectedVendor,
     @Default(false) isSaving,
   }) = __Model;
 }

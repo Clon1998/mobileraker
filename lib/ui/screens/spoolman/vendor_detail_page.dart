@@ -13,10 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
@@ -27,7 +27,7 @@ import '../../../routing/app_router.dart';
 part 'vendor_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-Vendor _vendor(_VendorRef ref) {
+GetVendor _vendor(_VendorRef ref) {
   throw UnimplementedError();
 }
 
@@ -36,7 +36,7 @@ class VendorDetailPage extends StatelessWidget {
 
   final String machineUUID;
 
-  final Vendor vendor;
+  final GetVendor vendor;
 
   @override
   Widget build(BuildContext context) {
@@ -249,20 +249,20 @@ class _VendorSpools extends HookConsumerWidget {
 @Riverpod(dependencies: [_vendor])
 class _VendorDetailPageController extends _$VendorDetailPageController {
   @override
-  Vendor build(String machineUUID) {
+  GetVendor build(String machineUUID) {
     var vendor = ref.watch(_vendorProvider);
     return vendor;
   }
 
-  void onEntryTap(SpoolmanEntityDtoMixin dto) async {
+  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
     switch (dto) {
-      case Spool spool:
+      case GetSpool spool:
         ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
-      case Filament filament:
+      case GetFilament filament:
         ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
-      case Vendor vendor:
+      case GetVendor vendor:
         ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }
