@@ -14,6 +14,7 @@ general:
   use: Verwenden
   restart: Neu starten
   shutdown: Herunterfahren
+  firmware: Firmware
   fetching: Hole
   loading: Lädt
   unknown: Unbekannt
@@ -26,6 +27,9 @@ general:
   retry: Erneut versuchen
   supported: Unterstützt
   unsupported: Nicht unterstützt
+  details: Details
+  google_play: GooglePlay
+  ios_store: AppStore
   active: Aktiv
   canceled: Abgebrochen
   monthly: Monatlich
@@ -39,6 +43,7 @@ general:
   one_time: Einmalig
   delete: Löschen
   clear: Zurücksetzen
+  unlink: Unlink
   save: Speichern
   apply: Anwenden
   completed: Abgeschlossen
@@ -59,10 +64,12 @@ general:
   finish: Abschließen
 pages:
   dashboard:
+    title: Dashboard
     ems_btn: Not-Aus
     ems_confirmation:
       title: Not-Aus bestätigen
       body: Sie sind im Begriff, einen Not-Aus-Befehl an den Drucker zu senden. Dadurch werden alle Motoren und Heizelemente sofort angehalten.
+      confirm: STOP!
     server_status:
       unavailable: Kein Server verfügbar
       available: Serverstatus ist {} und Klippy ist {}
@@ -74,9 +81,11 @@ pages:
         printing_for: 'Drucke: {}'
         speed: Geschwindigkeit
         layer: Schicht
+        eta: ETA
         current_object: Aktuelles Objekt
         elapsed: Verstrichen
         flow: Fluss
+        filament: Filament
         filament_tooltip: '{} % Filament Verwendet, dass ist {} m der vorhergesagten {} m.'
         eta_tooltip: |-
           Verbleibende Zeit:
@@ -86,6 +95,7 @@ pages:
           Filament: {filament}
         remaining: Verbleibend
       cam_card:
+        webcam: Webcam
         fullscreen: Vollbild
         error_connecting: |-
           Fehler beim Verbinden mit {}.
@@ -93,12 +103,16 @@ pages:
       temp_card:
         title: Thermik
         presets_btn: Voreinstellungen
+        hotend: Hotend
         bed: Bett
         temp_presets: Temperaturvoreinstellungen
         sensors: Sensoren
         heater_on: "{} °C Ziel"
+        btn_thermistor: Sensor
       temp_preset_card:
         cooloff: Abkühlen
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Achsen Steuerung
         home_xy_tooltip: Home X- und Y-Achse
@@ -106,16 +120,22 @@ pages:
         home_all_tooltip: Alle Homen
         home_all_btn: Alle
         qgl_tooltip: Führe Quad-Gantry-Leveling aus
+        qgl_btn: QGL
         mesh_tooltip: Führe eine Bettnetz-Kalibrierung aus
+        mesh_btn: Mesh
         m84_tooltip: Motoren deaktivieren
+        m84_btn: M84
         step_size: Schrittlänge
         stc_tooltip: Führe Screws-Tilt aus
+        stc_btn: STC
         ztilt_tooltip: Führe die Z-Tilt-Kalibrierung aus
+        ztilt_btn: zTilt
         poff_tooltip: Führe Probe Versatzkalibrierung aus
         poff_btn: Probe Kalibrierung
         zoff_tooltip: Führe Z-Endstop Versatzkalibrierung aus
         zoff_btn: Z-Endstop Kalibrierung
         bsa_tooltip: Führe Bed Screw Adjust Kalibrierung aus
+        bsa_btn: Bed Screw Adjust
         save_tooltip: Kalibrierungsergebnisse speichern
         save_btn: Konfig speichern
         more_btn: Mehr
@@ -134,29 +154,37 @@ pages:
         part_fan: Part Lüfter
         static_fan_btn: Lüfter
       extrude_card:
+        title: Extruder
         extrude: Extrudieren
         retract: Rückzug
         extrude_len: "Extrudiere Länge"
         cold_extrude_error: Extruder zu kalt.  min_extrode_temp von {}°C noch nicht erreicht!
       macro_card:
+        title: Gcode - Macros
         no_macros: In dieser Gruppe sind derzeit keine Makros sichtbar
         add_grp_hint: Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an.
         show_all_tooltip: Alle Makros anzeigen
       pin_card:
         title_misc: Verschiedenes
+        pin_btn: Pin
         filament_sensor:
           detected: Erkannt
           not_detected: Leer
       power_card:
         title: Schalttafel
+        pin_btn: Pin
         provider_error_title: Fehler beim ladern der Schalttafel
       multipl_card:
         title: Multiplikatoren
         flow: Fluss
+        press_adv: Pressure Advance
+        smooth_time: Smooth Time
       limit_card:
         title: Grenzwerte
         velocity: Geschwindigkeit
         accel: Beschleunigung
+        sq_corn_vel: Square Corner Velocity
+        accel_to_decel: Accel to Decel
       fw_retraction_card:
         title: Firmware Rückzug
         retract_length: Rückzuglänge
@@ -171,6 +199,7 @@ pages:
           probed: Zeige abgetasteten-Matrix
           mesh: Zeige Bettnetz-Matrix
       spoolman_card:
+        title: Spoolman
         no_spool: |-
           Keine Spule ausgewählt.
           Filamentverbrauch wird nicht nachverfolgt.
@@ -210,6 +239,7 @@ pages:
       subtitle: Keine Dateien gefunden
     sort_by:
       sort_by: Sortieren nach
+      name: Name
       last_modified: Zuletzt bearbeitet
       last_printed: Zuletzt gedruckt
       file_size: Dateigröße
@@ -266,9 +296,11 @@ pages:
     move_here: Hierhin verschieben
     copy_here: Hierhin kopieren
     no_matches_file_pattern: Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!
+    gcode_tab: GCodes
     config_tab: Konfigs
     timelapse_tab: Zeitraffer
     element:
+      one: Element
       other: Elemente
     details:
       preheat: Vorheizen
@@ -280,6 +312,7 @@ pages:
         no_data: Keine Daten
       meta_card:
         title: GCode Meta Daten
+        filament: Filament
         filament_type: Filament-Typ
         filament_name: Filament-Name
         filament_weight: Gewicht
@@ -291,9 +324,13 @@ pages:
         first_layer: Erste Schicht
         others: Rest
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperaturen"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statistiken
       preheat_dialog:
+        title: "@:pages.files.details.preheat ?"
         body: |-
           Zieltemperaturen
           Extruder: {}°C
@@ -342,6 +379,7 @@ pages:
       confirm_gcode_hint: Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird
       eta_sources: ETA Quellen
       eta_sources_hint: Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen
+      medium_ui: Tablet UI
       medium_ui_hint: Aktiviert das Tablet-UI für größere Bildschirme
     notification:
       title: Benachrichtigung
@@ -407,6 +445,7 @@ pages:
       theme_unavailable: Drucker UI-Design ist nur für Supporter verfügbar
     ssl:
       title: SSL - Einstellungen
+      pin_certificate_label: Certificate Fingerprint Pinning
       pin_certificate_helper: Wählen Sie eine Zertifikatsdatei im PEM-Format für SSL-Pinning
       self_signed: Selbstsignierten Zertifikaten vertrauen
     motion_system:
@@ -422,6 +461,7 @@ pages:
       speed_z: Geschwindigkeit Z - Achse
       speed_z_short: Geschwindigkeit Z
       steps_move: Bewegungs-Schritte
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Z-Offset Stufen
       steps_baby_short: Z-Schritte
     extruders:
@@ -429,6 +469,7 @@ pages:
       feedrate: Extruder Vorschubgeschwindigkeit
       feedrate_short: Vorschubgeschwindigkeit
       steps_extrude: Extrudier-Schritte
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Extruder-Düsen Abstand
         loading_distance_helper: Abstand von der Düse zum Extruder. Wird zum Laden und Entladen des Filaments verwendet
@@ -442,6 +483,8 @@ pages:
       target_fps: Ziel FPS
       new_cam: Neue Webcam
       no_webcams: Keine Webcams hinzugefügt!
+      stream_url: Stream URL
+      snapshot_url: Snapshot URL
       default_url: Standard URL
       flip_vertical: Vertikal spiegeln
       flip_horizontal: Horizontal spiegeln
@@ -472,10 +515,14 @@ pages:
       body: "Sie sind dabei, die Registrierungen für die Push-Mitteilungen zurückzusetzen. Diese werden genutzt um die Geräte zu bestimmt, an die der Companion Push-Meldungen sendet.\nUm ein Gerät wieder zu registrieren, müssen Sie die App auf allen Geräten neu starten und sie erneut mit dem Gerät verbinden. \n\nBestätigen Sie die Aktion."
     confirm_remote_interface_removal:
       title:
+        oe: Unlink {}?
         other: Verbindung entfernen?
       body:
         oe: Bitte bestätigen Sie das Unlinken des Druckers {} von OctoEverywhere.
         other: Bitte bestätigen Sie das Entfernen des Fernzugriffs vom Drucker {}.
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
     remote_interface_exists:
       title: Fernzugriff gefunden
       body:
@@ -498,6 +545,7 @@ pages:
 
         Tippen Sie, um die Erlaubnis zu erteilen.
     local_ssid:
+      section_header: Smart Switching
       no_ssids: Kein WiFi-Name hinzugefügt!
       helper: Mit der Smart Switching Funktion wechselt die App, basierend auf dem aktuellen Wifi-Netz, automatisch zwischen der lokalen und der Fernzugriffs Verbindung. Zum aktivieren dieser Funktion, fügen sie den Namen ihres Lokalen Wifi-Netzes hinzu.
       dialog:
@@ -524,6 +572,7 @@ pages:
     steps:
       mode: Modus
       input: Eingabe
+      test: Test
       done: Fertig
     title: Fügen Sie einen neuen Drucker hinzu
     initial_name: Mein Drucker
@@ -544,6 +593,7 @@ pages:
       http_helper: Bitte geben Sie den HTTP-Endpunkt von Moonraker ein
       ws_helper: Optional, WebSocket-Endpunkt von Moonraker
       section_security: Sicherheit
+      section_headers: HTTP-Headers
       empty_headers: Keine Header hinzugefügt!
     test_connection:
       section_connection: Verbindungsdaten
@@ -578,8 +628,13 @@ pages:
     no_entries: Keine Maschine gefunden
     add_machine: Maschine hinzufügen
   markdown:
+    loading: "@:general.loading {}…"
     error: Beim Abrufen von {} ist ein Fehler aufgetreten;
     open_in_browser: '@:pages.faq.title im Browser öffnen'
+  faq:
+    title: FAQ
+  changelog:
+    title: Changelog
   paywall:
     manage_view:
       title: Vielen Dank für die Unterstützung!
@@ -598,6 +653,9 @@ pages:
       error_body: Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Supporter-Tiers konnten nicht geladen werden. Bitte versuchen Sie es später erneut!
     contact_dialog:
       title: Entwickler-Kontakt
+      body: |-
+        Mail: {}
+        Discord: {}
     title: Unterstützen Sie den Dev!
     calling_store: Anfrage wird bearbeitet…
     promo_title: Werbung
@@ -609,6 +667,8 @@ pages:
     restore_sign_in: Wiederherstellen / Anmelden
   video_player:
     downloading_for_sharing: Lade das Video zum Teilen herunter… ({})
+  tool:
+    title: Tools
   beltTuner:
     title: Zahnriemen-Tuner
     description: Die richtige Riemenspannung ist für eine optimale Leistung des 3D-Druckers unerlässlich. Eine falsche Spannung, ob zu stark oder zu schwach, kann zu mechanischen Problemen, frühzeitiger Ermüdung und verminderter Druckqualität führen. Die angegebenen Werte dienen als Richtwerte; es wird jedoch empfohlen, die Empfehlungen des Herstellers zu beachten, um konkrete, auf Ihr Druckermodell zugeschnittene Richtwerte zu erhalten. Anpassungen sollten sowohl auf der Grundlage dieser empfohlenen Werte als auch auf der Grundlage der individuellen Anforderungen und Bedingungen des Druckers vorgenommen werden.
@@ -621,6 +681,7 @@ pages:
 
         Tippen Sie, um die Erlaubnis zu erteilen.
   spoolman:
+    title: Spoolman
     not_available: "Spoolman ist für diesen Drucker nicht verfügbar.\nBitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist."
     learn_more: Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die 
     learn_more_link: GitHub Seite.
@@ -642,13 +703,17 @@ pages:
       one: Spule
       other: Spulen
     filament:
+      one: Filament
       other: Filamente
     vendor:
       one: Hersteller
       other: Hersteller
     properties:
+      id: ID
+      name: Name
       registered: Registriert
       comment: Kommentar
+      material: Material
       price: Preis
       density: Dichte
       diameter: Durchmesser
@@ -706,6 +771,7 @@ pages:
         empty_weight: Das Leergewicht einer Spule dieses Herstellers.
 components:
   app_version_display:
+    version: 'Version:'
     installed_version: 'Installierte Version:'
   pull_to_refresh:
     pull_up_idle: Nach oben wischen, zum aktualisieren
@@ -853,6 +919,7 @@ dialogs:
       title: Vollständige Dateiverwaltung
       subtitle: Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien und mehr!
   bed_screw_adjust:
+    title: Bed Screw Adjust
     xy_plane: 'Drucker X/Y-Ebene:'
     active_screw_title: 'Aktive Schraube:'
     accept_screw_title: 'Akzeptierte Schrauben:'
@@ -870,6 +937,8 @@ dialogs:
     amount_label: Trinkgeldbetrag
     tip: Geben
   http_header:
+    title: Http-Header
+    header: Header
     header_hint: Der Name des HTTP-Headers
     value: Header-Wert
     value_hint: Der Wert des HTTP-Headers
@@ -953,6 +1022,10 @@ bottom_sheets:
       title: Vorhandene Konfiguration gefunden!
       body: Derzeit verwenden Sie {} als Fernzugriffsdienst. Löschen Sie diesen, bevor Sie einen neuen hinzufügen.
     octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: Link OctoEverywhere
+      unlink: Unlink OctoEverywhere
       description: OctoEverywhere.com ist ein Community-Projekt, welches es Ihnen erlaubt, eine sichere Verbindung zu Ihrem Drucker von überall aus herzustellen. OctoEverywhere bietet der Community außerdem kostenlose AI-Druckfehlererkennung, Benachrichtigungen, Live-Streaming und mehr. Das Setup benötigt nur 20 Sekunden!
     manual:
       service_name: Manueller Fernzugriff
@@ -961,6 +1034,10 @@ bottom_sheets:
       address_label: Alternative Adresse
       address_hint: Die Basisadresse für den Fernzugriff
     obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: Link Obico
+      unlink: Unlink Obico
       description: Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware. Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten Druckfehlererkennung.
       self_hosted:
         title: Selbstgehostete Obico-Instanz
@@ -1020,6 +1097,7 @@ bottom_sheets:
   select_spool:
     header:
       spools: Spulen
+      qr: QR-Code
     no_spools: Es wurden keine Spulen gefunden. Bitte fügen Sie Spulen zu Spoolman hinzu
     error: 'Beim laden der Spulen ist ein Fehler aufgetreten: {}'
     qr_loading: QR-Scanner wird geladen...
@@ -1047,6 +1125,7 @@ bottom_sheets:
     title: Karte hinzufügen
     subtitle: Wählen Sie eine Karte aus, die Sie hinzufügen möchten
   dashboard_layout:
+    title: Dashboard Layout
     subtitle: 'Aktuelles Layout:'
     available_layouts:
       label: 'Verfügbare Layouts:'
@@ -1056,6 +1135,7 @@ bottom_sheets:
       not_saved: Nicht gespeichert
     rename_layout:
       title: Layout umbenennen
+      label: Layout Name
     delete_layout:
       title: Layout löschen
       body: |-
@@ -1080,6 +1160,7 @@ klipper_state:
   initializing: Initialisierung
   not_connected: Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen Sie, ob Klipper auf Ihrem System läuft.
 print_state:
+  standby: Standby
   printing: Drucken
   paused: Pausiert
   complete: Abgeschlossen
@@ -1088,6 +1169,7 @@ print_state:
 theme_mode:
   light: Hell
   dark: Dunkel
+  system: System
 notifications:
   channel_printer_grp: Drucker {}
   channels:
