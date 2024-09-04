@@ -14,7 +14,7 @@
     "use": "Folosește",
     "restart": "Repornire",
     "shutdown": "Oprire",
-    "firmware": "Firmware",
+    "firmware": "",
     "fetching": "Descarcă",
     "loading": "Încarcă",
     "unknown": "Necunoscut",
@@ -22,12 +22,56 @@
     "confirm": "Confirmă",
     "cancel": "Anulează",
     "close": "Închide",
-    "edit": "Editează"
+    "edit": "Editează",
+    "preview": "",
+    "retry": "",
+    "supported": "",
+    "unsupported": "",
+    "details": "",
+    "google_play": "",
+    "ios_store": "",
+    "active": "",
+    "canceled": "",
+    "monthly": "",
+    "restore": "",
+    "accept": "",
+    "abort": "",
+    "offset": "",
+    "valid": "",
+    "invalid": "",
+    "free": "",
+    "one_time": "",
+    "delete": "",
+    "clear": "",
+    "unlink": "",
+    "save": "",
+    "apply": "",
+    "completed": "",
+    "activate": "",
+    "stop": "",
+    "start": "",
+    "repeat": "",
+    "load_more": "",
+    "archived": "",
+    "leave": "",
+    "export": "",
+    "import": "",
+    "current": "",
+    "load": "",
+    "unload": "",
+    "discard": "",
+    "hide": "",
+    "finish": ""
   },
   "pages": {
     "dashboard": {
       "title": "Bord",
       "ems_btn": "Oprire de urgență",
+      "ems_confirmation": {
+        "title": "",
+        "body": "",
+        "confirm": ""
+      },
       "server_status": {
         "unavailable": "Nici un server disponibil",
         "available": "Starea server este {} și Klippy este {}"
@@ -36,24 +80,28 @@
       "general": {
         "print_card": {
           "reset": "Resetează",
+          "reprint": "",
           "printing_for": "Tipărește: {}",
           "speed": "Viteză",
           "layer": "Strat",
-          "eta": "ETA",
+          "eta": "",
           "current_object": "Obiect Curent",
           "elapsed": "Timp Scurs",
           "flow": "Flux",
-          "filament": "Filament",
-          "filament_tooltip": "Utilizat {} % din Filament, adică {} m din cei {} m estimați."
+          "filament": "",
+          "filament_tooltip": "Utilizat {} % din Filament, adică {} m din cei {} m estimați.",
+          "eta_tooltip": "",
+          "remaining": ""
         },
         "cam_card": {
           "webcam": "Cameră web",
-          "fullscreen": "Ecran complet"
+          "fullscreen": "Ecran complet",
+          "error_connecting": ""
         },
         "temp_card": {
           "title": "Control Temperaturi",
           "presets_btn": "Predefinite",
-          "hotend": "Hotend",
+          "hotend": "",
           "bed": "Pat",
           "temp_presets": "Șabloane temperaturi",
           "sensors": "Senzori",
@@ -62,8 +110,8 @@
         },
         "temp_preset_card": {
           "cooloff": "Răcire",
-          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
-          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+          "h_temp": "",
+          "b_temp": ""
         },
         "move_card": {
           "title": "Mișcă Axe",
@@ -72,22 +120,33 @@
           "home_all_tooltip": "Origine toate axele",
           "home_all_btn": "Toate",
           "qgl_tooltip": "Rulează autonivelare Quad-Gantry",
-          "qgl_btn": "QGL",
+          "qgl_btn": "",
           "mesh_tooltip": "Rulează calibrarea-pânză a patului",
           "mesh_btn": "Pânză",
           "m84_tooltip": "Dezactivează Motoare",
-          "m84_btn": "M84",
+          "m84_btn": "",
           "step_size": "Dimensiune pas",
           "stc_tooltip": "Rulează calibrarea Înclinație-Șurub",
-          "stc_btn": "STC",
+          "stc_btn": "",
           "ztilt_tooltip": "Rulează calibrarea Înclinație-Z",
-          "ztilt_btn": "zTilt"
+          "ztilt_btn": "",
+          "poff_tooltip": "",
+          "poff_btn": "",
+          "zoff_tooltip": "",
+          "zoff_btn": "",
+          "bsa_tooltip": "",
+          "bsa_btn": "",
+          "save_tooltip": "",
+          "save_btn": "",
+          "more_btn": "",
+          "homed": ""
         },
         "baby_step_card": {
-          "title": "Reglaj fin axă Z"
+          "title": "Reglaj fin axă Z",
+          "z_offset": ""
         },
         "restart_klipper": "Repornește Klipper",
-        "restart_mcu": "@:general.restart @:general.firmware"
+        "restart_mcu": ""
       },
       "control": {
         "fan_card": {
@@ -100,27 +159,30 @@
           "static_fan_btn": "Ventilator"
         },
         "extrude_card": {
-          "title": "Extruder",
+          "title": "",
           "extrude": "Extrudează",
           "retract": "Retractează",
-          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
+          "extrude_len": "",
           "cold_extrude_error": "Extruderul nu a atins încă temperatura de min_extrude_temp {}°C !"
         },
         "macro_card": {
-          "title": "Gcode - Macro-uri"
+          "title": "Gcode - Macro-uri",
+          "no_macros": "",
+          "add_grp_hint": "",
+          "show_all_tooltip": ""
         },
         "pin_card": {
-          "title": {
-            "zero": "Pin Ieșire",
-            "one": "Pin Ieșire",
-            "two": "Pini Ieșire",
-            "other": "Pini Ieșire"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "",
+          "pin_btn": "",
+          "filament_sensor": {
+            "detected": "",
+            "not_detected": ""
+          }
         },
         "power_card": {
           "title": "Panou Alimentare",
-          "pin_btn": "Pin"
+          "pin_btn": "",
+          "provider_error_title": ""
         },
         "multipl_card": {
           "title": "Multiplicatori",
@@ -134,19 +196,152 @@
           "accel": "Accelerație",
           "sq_corn_vel": "Viteză Colț Pătrat",
           "accel_to_decel": "Accel spre Decel"
+        },
+        "fw_retraction_card": {
+          "title": "",
+          "retract_length": "",
+          "retract_speed": "",
+          "extra_unretract_length": "",
+          "unretract_speed": ""
+        },
+        "bed_mesh_card": {
+          "title": "",
+          "profiles": "",
+          "range_tooltip": "",
+          "showing_matrix": {
+            "probed": "",
+            "mesh": ""
+          }
+        },
+        "spoolman_card": {
+          "title": "",
+          "no_spool": "",
+          "select_spool": "",
+          "used": "",
+          "provider_error_title": ""
         }
+      }
+    },
+    "customizing_dashboard": {
+      "title": "",
+      "cancel_confirm": {
+        "title": "",
+        "body": ""
+      },
+      "add_card": "",
+      "remove_page": "",
+      "saved_snack": {
+        "title": "",
+        "body": ""
+      },
+      "cant_remove_snack": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_removal": {
+        "title": "",
+        "body": ""
+      },
+      "editing_card": {
+        "title": "",
+        "body": ""
+      },
+      "error_save_snack": {
+        "title": "",
+        "body": ""
+      },
+      "error_no_components": {
+        "title": "",
+        "body": ""
       }
     },
     "files": {
       "title": "Fișiere",
+      "empty_folder": {
+        "title": "",
+        "subtitle": ""
+      },
+      "sort_by": {
+        "sort_by": "",
+        "name": "",
+        "last_modified": "",
+        "last_printed": "",
+        "file_size": ""
+      },
+      "file_actions": {
+        "download": "",
+        "delete": "",
+        "copy": "",
+        "move": "",
+        "rename": "",
+        "create_file": "",
+        "create_folder": "",
+        "upload": "",
+        "upload_bulk": "",
+        "zip_file": ""
+      },
+      "gcode_file_actions": {
+        "submit": "",
+        "preheat": "",
+        "enqueue": ""
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "download_failed": {
+          "title": "",
+          "body": ""
+        },
+        "upload_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "upload_success": {
+          "title": "",
+          "body": ""
+        },
+        "upload_failed": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_success": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_failed": {
+          "title": "",
+          "body": ""
+        },
+        "copy_created": {
+          "title": "",
+          "body": ""
+        }
+      },
       "search_files": "Caută fișiere",
-      "clear_search": "Șterge căutarea",
-      "name": "Nume",
-      "last_mod": "Ultima modificare",
-      "last_printed": "Ultima tipărire",
-      "not_printed": "Netipărit",
-      "fetching_files": "@:general.fetching Fișiere...",
-      "no_files_found": "Nu s-au găsit fișiere!",
+      "search": {
+        "clear_search": "",
+        "waiting": "",
+        "no_results": {
+          "title": "",
+          "subtitle": ""
+        }
+      },
+      "cancel_fab": {
+        "upload": "",
+        "download": ""
+      },
+      "move_here": "",
+      "copy_here": "",
+      "no_matches_file_pattern": "",
+      "gcode_tab": "",
+      "config_tab": "",
+      "timelapse_tab": "",
+      "element": {
+        "one": "",
+        "other": ""
+      },
       "details": {
         "preheat": "Preîncălzire",
         "print": "Tipărire",
@@ -157,10 +352,12 @@
           "no_data": "Nu există informații"
         },
         "meta_card": {
-          "title": "GCode Meta Data",
-          "filament": "Filament",
+          "title": "",
+          "filament": "",
           "filament_type": "Tip Filament",
           "filament_name": "Nume Filament",
+          "filament_weight": "",
+          "filament_length": "",
           "est_print_time": "Timp Estimat Tipărire",
           "slicer": "Slicer folosit",
           "nozzle_diameter": "Diametru Duză",
@@ -168,18 +365,24 @@
           "first_layer": "Primul Strat",
           "others": "Altele",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperaturi",
-          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+          "first_layer_temps_value": ""
         },
         "stat_card": {
           "title": "Statistici"
         },
         "preheat_dialog": {
-          "title": "@:pages.files.details.preheat ?",
+          "title": "",
           "body": "Temperaturi Țintă\nExtruder: {}°C\nPat: {}°C"
         },
         "preheat_snackbar": {
           "title": "Preîncălzire Începută",
           "body": "Extruder: {}°C\nPat: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "",
+          "insufficient_filament_body": "",
+          "material_mismatch_title": "",
+          "material_mismatch_body": ""
         }
       }
     },
@@ -188,12 +391,33 @@
       "general": {
         "title": "Generale",
         "ems_confirm": "Confirmă Oprire-Urgentă",
+        "ems_confirm_hint": "",
         "always_baby": "Arată mereu reglaj fin",
+        "always_baby_hint": "",
         "num_edit": "Folosește tastatură pentru introducerea numerelor",
+        "num_edit_hint": "",
         "start_with_overview": "Arată @:pages.overview.title implicit",
+        "start_with_overview_hint": "",
         "use_offset_pos": "Arată coordonate cu decalaj aplicat.",
+        "use_offset_pos_hint": "",
+        "lcFullCam": "",
+        "lcFullCam_hint": "",
         "language": "Limbă",
-        "companion": "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi Mobileraker Companion "
+        "companion": "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi Mobileraker Companion ",
+        "sliders_grouping": "",
+        "sliders_grouping_hint": "",
+        "time_format": "",
+        "system_theme": "",
+        "system_theme_mode": "",
+        "printer_theme_warning": "",
+        "filament_sensor_dialog": "",
+        "filament_sensor_dialog_hint": "",
+        "confirm_gcode": "",
+        "confirm_gcode_hint": "",
+        "eta_sources": "",
+        "eta_sources_hint": "",
+        "medium_ui": "",
+        "medium_ui_hint": ""
       },
       "notification": {
         "title": "Notificare",
@@ -203,8 +427,22 @@
         "state_helper": "Stări care declanșează o notificare",
         "no_permission_title": "Nu există permisiuni pentru notificări!",
         "no_permission_desc": "Nu pot afișa notificări.\nSolicită permisiunea cu un click!",
+        "no_firebase_title": "",
+        "no_firebase_desc": "",
         "ios_notifications_title": "Livrare notificări IOS",
-        "ios_notifications_desc": "Notificările necesită ca Mobileraker să fie deschis cel puțin o data și să fie activ în fundal.\nAnumite notificări pot fi în continuare blocate de sistemul de operare!"
+        "ios_notifications_desc": "Notificările necesită ca Mobileraker să fie deschis cel puțin o data și să fie activ în fundal.\nAnumite notificări pot fi în continuare blocate de sistemul de operare!",
+        "missing_companion_title": "",
+        "missing_companion_body": "",
+        "enable_live_activity": "",
+        "enable_live_activity_helper": "",
+        "opt_out_marketing": "",
+        "opt_out_marketing_helper": "",
+        "use_progressbar_notification": "",
+        "use_progressbar_notification_helper": ""
+      },
+      "developer": {
+        "title": "",
+        "crashlytics": ""
       },
       "imprint": "Confidențialitate/Impressum"
     },
@@ -216,6 +454,17 @@
       "fetching_additional_settings": "@:general.fetching setări adiționale din rețea...",
       "could_not_fetch_additional": "Nu am putut descărca setările adiționale!",
       "fetch_error_hint": "Asigură-te că imprimanta este accesibilă și Mobileraker este conectat la ea.",
+      "reset_notification_registry": "",
+      "configure_remote_connection": "",
+      "store_error": {
+        "title": "",
+        "message": "",
+        "unexpected_error": ""
+      },
+      "confirm_deletion": {
+        "title": "",
+        "body": ""
+      },
       "general": {
         "displayname": "Nume afișat",
         "printer_addr": "Imprimantă - Adresă",
@@ -223,7 +472,17 @@
         "moonraker_api_key": "Moonraker - cheie API",
         "moonraker_api_desc": "Necesar doar dacă folosiți clienți de încredere. Obligatoriu pentru FluiddPI!",
         "full_url": "URL Complet",
-        "self_signed": "Acceptă certificate auto-semnate"
+        "timeout_label": "",
+        "timeout_helper": "",
+        "theme": "",
+        "theme_helper": "",
+        "theme_unavailable": ""
+      },
+      "ssl": {
+        "title": "",
+        "pin_certificate_label": "",
+        "pin_certificate_helper": "",
+        "self_signed": ""
       },
       "motion_system": {
         "title": "Sistem Axe",
@@ -238,7 +497,7 @@
         "speed_z": "Viteză axa Z",
         "speed_z_short": "Viteză Z",
         "steps_move": "Pași mișcare",
-        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_move_short": "",
         "steps_baby": "Reglaj fin axa Z",
         "steps_baby_short": "Reglaj fin"
       },
@@ -247,52 +506,188 @@
         "feedrate": "Rată alimentare Extruder",
         "feedrate_short": "Rată alimentare",
         "steps_extrude": "Pași Extruder",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "",
+        "filament": {
+          "loading_distance": "",
+          "loading_distance_helper": "",
+          "loading_speed": "",
+          "loading_speed_helper": "",
+          "purge_amount": "",
+          "purge_amount_helper": "",
+          "purge_speed": "",
+          "purge_speed_helper": ""
+        }
       },
       "cams": {
         "target_fps": "Țintă FPS",
         "new_cam": "Webcam nou",
         "no_webcams": "Nu s-a adăugat un webcam!",
-        "webcam_addr": "Webcam - Adresă",
-        "default_addr": "Adresă implicită",
+        "stream_url": "",
+        "snapshot_url": "",
+        "default_url": "",
         "flip_vertical": "Răstoarnă vertical",
         "flip_horizontal": "Răstoarnă orizontal",
         "cam_mode": "Mod cameră",
-        "cam_mofde": "Cam fasff",
-        "cam_rotate": "Rotește"
+        "cam_rotate": "Rotește",
+        "read_only": ""
       },
       "macros": {
+        "default_grp": "",
         "new_macro_grp": "Grup macro nou",
         "no_macros_available": "Nu există macro-uri!",
         "no_macros_found": "Nu s-au găsit mcro-uri!",
+        "no_macros_in_grp": "",
+        "deleted_grp": "",
+        "macros": "",
+        "default_name": "",
         "macros_to_default": {
           "one": "S-a mutat un macro în grupul implicit!",
           "two": "S-au mutat două macro în grupul implicit!",
           "other": "S-au mutat {} macro în grupul implicit!"
-        }
+        },
+        "macro_removed": ""
       },
       "presets": {
         "no_presets": "Nu s-au adăugat valori predefinite!",
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperatură",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperatură",
         "new_preset": "Valoare nouă predefinită"
+      },
+      "confirm_fcm_reset": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "",
+          "other": ""
+        },
+        "body": {
+          "oe": "",
+          "other": ""
+        },
+        "button": {
+          "oe": "",
+          "other": ""
+        }
+      },
+      "remote_interface_exists": {
+        "title": "",
+        "body": {
+          "oe": "",
+          "obico": "",
+          "other": ""
+        }
+      },
+      "remote_interface_removed": {
+        "title": "",
+        "body": ""
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "",
+          "obico": "",
+          "other": ""
+        },
+        "body": ""
+      },
+      "wifi_access_warning": {
+        "title": "",
+        "subtitle": ""
+      },
+      "local_ssid": {
+        "section_header": "",
+        "no_ssids": "",
+        "helper": "",
+        "dialog": {
+          "title_add": "",
+          "title_edit": "",
+          "label": "",
+          "quick_add_hint": ""
+        },
+        "error_fetching_snackbar": {
+          "title": "",
+          "body": ""
+        }
+      },
+      "temp_ordering": {
+        "title": "",
+        "helper": "",
+        "no_sensors": ""
+      },
+      "fan_ordering": {
+        "title": "",
+        "helper": "",
+        "no_fans": ""
+      },
+      "misc_ordering": {
+        "title": "",
+        "helper": "",
+        "no_controls": ""
       }
     },
     "printer_add": {
+      "steps": {
+        "mode": "",
+        "input": "",
+        "test": "",
+        "done": ""
+      },
       "title": "Adaugă Imprimantă Nouă",
-      "printer_add_helper": "Nume, IP sau URL complet",
-      "resulting_ws_url": "URL WebSocket rezultat: {}",
-      "misc": "Altele",
-      "test_ws": "Testează conexiune WebSocket",
-      "result_ws_test": "Rezultat: {}",
-      "run_test_btn": "Testează"
+      "initial_name": "",
+      "select_mode": {
+        "title": "",
+        "body": "",
+        "simple": "",
+        "advanced": "",
+        "add_via_oe": "",
+        "add_via_obico": ""
+      },
+      "simple_form": {
+        "hint_title": "",
+        "hint_body": "",
+        "url_hint": ""
+      },
+      "advanced_form": {
+        "hint_title": "",
+        "hint_body": "",
+        "http_helper": "",
+        "ws_helper": "",
+        "section_security": "",
+        "section_headers": "",
+        "empty_headers": ""
+      },
+      "test_connection": {
+        "section_connection": "",
+        "ws_url_label": "",
+        "http_url_label": "",
+        "section_test": "",
+        "http_label": "",
+        "ws_label": "",
+        "awaiting": "",
+        "continue": "",
+        "continue_anyway": "",
+        "proceed_warning": "",
+        "button": ""
+      },
+      "confirmed": {
+        "title": "",
+        "to_dashboard": ""
+      }
     },
     "console": {
       "title": "Consolă",
+      "card_title": "",
       "no_entries": "Nu s-au găsit comenzi",
       "fetching_console": "@:general.fetching intrări consolă...",
+      "macro_suggestions": "",
+      "no_suggestions": "",
       "command_input": {
         "hint": "Introdu comanda pentru consolă"
+      },
+      "provider_error": {
+        "title": "",
+        "body": ""
       }
     },
     "overview": {
@@ -301,14 +696,131 @@
       "no_entries": "No s-au găsit mașini",
       "add_machine": "Adaugă Mașină"
     },
+    "markdown": {
+      "loading": "",
+      "error": "",
+      "open_in_browser": ""
+    },
     "faq": {
-      "title": "FAQ",
-      "loading": "@:general.loading FAQ...",
-      "error":"A apărut o eroare la descărcarea FAQ",
-      "open_in_browser": "Deschide @:pages.faq.title în Browser"
+      "title": ""
+    },
+    "changelog": {
+      "title": ""
+    },
+    "paywall": {
+      "manage_view": {
+        "title": "",
+        "list_title": "",
+        "store_btn": "",
+        "sub_warning": ""
+      },
+      "subscribe_view": {
+        "title": "",
+        "info": "",
+        "list_title": "",
+        "subscription_info": ""
+      },
+      "supporter_tier_list": {
+        "error_title": "",
+        "error_body": ""
+      },
+      "contact_dialog": {
+        "title": "",
+        "body": ""
+      },
+      "title": "",
+      "calling_store": "",
+      "promo_title": "",
+      "free_phase": "",
+      "intro_phase": "",
+      "iap_offer": "",
+      "tip_developer": "",
+      "trial_disclaimer": "",
+      "restore_sign_in": ""
+    },
+    "video_player": {
+      "downloading_for_sharing": ""
+    },
+    "tool": {
+      "title": ""
+    },
+    "beltTuner": {
+      "title": "",
+      "description": "",
+      "beltType": "",
+      "target": "",
+      "permissionWarning": {
+        "title": "",
+        "subtitle": ""
+      }
+    },
+    "spoolman": {
+      "title": "",
+      "not_available": "",
+      "learn_more": "",
+      "learn_more_link": "",
+      "no_spools": "",
+      "no_filaments": "",
+      "no_vendors": "",
+      "error_loading_spools": "",
+      "error_loading_filaments": "",
+      "spool": {
+        "one": "",
+        "other": ""
+      },
+      "filament": {
+        "one": "",
+        "other": ""
+      },
+      "vendor": {
+        "one": "",
+        "other": ""
+      },
+      "properties": {
+        "id": "",
+        "name": "",
+        "registered": "",
+        "comment": "",
+        "material": "",
+        "price": "",
+        "density": "",
+        "diameter": "",
+        "weight": "",
+        "spool_weight": "",
+        "article_number": "",
+        "first_used": "",
+        "last_used": "",
+        "remaining_weight": "",
+        "used_weight": "",
+        "location": "",
+        "lot_number": ""
+      },
+      "vendor_details": {
+        "page_title": "",
+        "info_card": "",
+        "filaments_card": "",
+        "spools_card": ""
+      },
+      "filament_details": {
+        "info_card": "",
+        "spools_card": ""
+      },
+      "spool_details": {
+        "page_title": "",
+        "info_card": "",
+        "set_active": "",
+        "archived_warning": {
+          "title": "",
+          "body": ""
+        }
+      }
     }
   },
   "components": {
+    "app_version_display": {
+      "version": "",
+      "installed_version": ""
+    },
     "pull_to_refresh": {
       "pull_up_idle": "Trage în sus pentru actualizare"
     },
@@ -323,7 +835,44 @@
       "trying_connect": "Încerc să mă conectez...",
       "trying_connect_remote": "Încerc să utilizez client de la distanță...",
       "server_starting": "Serverul pornește...",
-      "more_details": "Mai multe detalii"
+      "more_details": "Mai multe detalii",
+      "add_printer": ""
+    },
+    "octo_indicator": {
+      "tooltip": ""
+    },
+    "supporter_add": {
+      "title": "",
+      "subtitle": ""
+    },
+    "supporter_only_feature": {
+      "dialog_title": "",
+      "button": "",
+      "webcam": "",
+      "printer_add": "",
+      "job_queue": "",
+      "timelaps_share": "",
+      "printer_theme": "",
+      "spoolman_page": "",
+      "custom_dashboard": "",
+      "full_file_management": ""
+    },
+    "machine_deletion_warning": {
+      "title": "",
+      "subtitle": ""
+    },
+    "remote_connection_indicator": {
+      "title": ""
+    },
+    "web_rtc": {
+      "renderer_missing": "",
+      "oe_warning": ""
+    },
+    "ri_indicator": {
+      "tooltip": ""
+    },
+    "obico_indicator": {
+      "tooltip": ""
     }
   },
   "dialogs": {
@@ -349,6 +898,10 @@
       "title": "Redenumește Dosar",
       "label": "Nume Dosar"
     },
+    "copy_folder": {
+      "title": "",
+      "label": ""
+    },
     "delete_file": {
       "description": "Confirmă ștergerea fișierului '{}'."
     },
@@ -356,12 +909,28 @@
       "title": "Redenumește Fișier",
       "label": "Nume Fișier"
     },
+    "copy_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_archive": {
+      "title": "",
+      "label": ""
+    },
+    "delete_files": {
+      "title": "",
+      "description": ""
+    },
     "exclude_object": {
       "title": "Exclude Obiect de la Tipărire",
       "label": "Obiect de exclus",
       "confirm_tile_title": "Ești sigur(ă)?",
       "confirm_tile_subtitle": "Această operațiune nu poate fi anulată!",
-      "exclude": "Exclude",
+      "exclude": "",
       "no_visualization": "Nu sunt disponibile date de vizualizare!"
     },
     "ws_input_help": {
@@ -369,10 +938,342 @@
       "body": "Poți introduce o adresă IP, URL sau URI complet către interfața web sau a instanței WebSocket oferită de Moonraker.\n\nExemple valide:"
     },
     "gcode_params": {
-      "hint": "Indiciu: Poți de asemenea ține lung apăsat pentru a trimite macro cu valorile implicite!"
+      "hint": "Indiciu: Poți de asemenea ține lung apăsat pentru a trimite macro cu valorile implicite!",
+      "confirm_title": "",
+      "confirm_body": ""
     },
     "rgbw": {
       "recent_colors": "Culori Recente"
+    },
+    "select_machine": {
+      "title": "",
+      "active_machine": "",
+      "hint": ""
+    },
+    "supporter_perks": {
+      "title": "",
+      "body": "",
+      "hint": "",
+      "theme_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "contact_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "notification_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "webrtc_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "job_queue_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "unlimited_printers_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "printer_theme_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "custom_dashboard_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "full_file_management_perk": {
+        "title": "",
+        "subtitle": ""
+      }
+    },
+    "bed_screw_adjust": {
+      "title": "",
+      "xy_plane": "",
+      "active_screw_title": "",
+      "accept_screw_title": "",
+      "accept_screw_value": "",
+      "hint": "",
+      "adjusted_btn": ""
+    },
+    "manual_offset": {
+      "title": "",
+      "hint_tooltip": "",
+      "snackbar_title": "",
+      "snackbar_message": ""
+    },
+    "tipping": {
+      "title": "",
+      "body": "",
+      "amount_label": "",
+      "tip": ""
+    },
+    "http_header": {
+      "title": "",
+      "header": "",
+      "header_hint": "",
+      "value": "",
+      "value_hint": ""
+    },
+    "macro_settings": {
+      "show_while_printing": "",
+      "visible": ""
+    },
+    "extruder_feedrate": {
+      "title": ""
+    },
+    "fan_speed": {
+      "title": ""
+    },
+    "filament_sensor_triggered": {
+      "title": "",
+      "body": ""
+    },
+    "screws_tilt_adjust": {
+      "title": "",
+      "base": "",
+      "hint": ""
+    },
+    "dashboard_page_settings": {
+      "title": "",
+      "icon_label": ""
+    },
+    "filament_switch": {
+      "title": {
+        "load": "",
+        "unload": ""
+      },
+      "controls": {
+        "heat_up": "",
+        "change_temp": "",
+        "purge": "",
+        "repeat_load": "",
+        "repeat_unload": "",
+        "repeat_purge": ""
+      },
+      "steps": {
+        "set_temps": {
+          "title": "",
+          "subtitle": ""
+        },
+        "heat_up": {
+          "title": "",
+          "subtitle": ""
+        },
+        "move": {
+          "title": {
+            "load": "",
+            "unload": ""
+          },
+          "subtitle": {
+            "load": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            },
+            "unload": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            }
+          }
+        },
+        "purge": {
+          "title": "",
+          "subtitle": {
+            "idle": "",
+            "processing": "",
+            "processed": ""
+          }
+        },
+        "tip_form": {
+          "title": "",
+          "subtitle": ""
+        }
+      }
+    },
+    "heater_temperature": {
+      "title": ""
+    },
+    "confirm_print_cancelation": {
+      "title": "",
+      "body": ""
+    }
+  },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "next": "",
+      "empty": "",
+      "start_queue": "",
+      "pause_queue": "",
+      "remove_all": "",
+      "remove_all_confirm": ""
+    },
+    "add_remote_con": {
+      "disclosure": "",
+      "active_service_info": {
+        "title": "",
+        "body": ""
+      },
+      "octoeverywehre": {
+        "service_name": "",
+        "tab_name": "",
+        "link": "",
+        "unlink": "",
+        "description": ""
+      },
+      "manual": {
+        "service_name": "",
+        "tab_name": "",
+        "description": "",
+        "address_label": "",
+        "address_hint": ""
+      },
+      "obico": {
+        "service_name": "",
+        "tab_name": "",
+        "link": "",
+        "unlink": "",
+        "description": "",
+        "self_hosted": {
+          "title": "",
+          "description": "",
+          "url_label": "",
+          "url_hint": ""
+        }
+      }
+    },
+    "manage_macros_in_grp": {
+      "title": "",
+      "hint": ""
+    },
+    "signIn": {
+      "subtitle": "",
+      "forgot_password": "",
+      "forgot_password_success": "",
+      "hint": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "action": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "email": {
+        "label": "",
+        "hint": ""
+      },
+      "password": {
+        "label": "",
+        "hint": ""
+      },
+      "confirm_password": {
+        "label": "",
+        "hint": "",
+        "error": ""
+      }
+    },
+    "profile": {
+      "title": "",
+      "description": "",
+      "restore_purchases": "",
+      "restore_success": "",
+      "sign_out": "",
+      "delete_account": "",
+      "email_verification": {
+        "title": {
+          "pending": "",
+          "not_verified": ""
+        },
+        "description": "",
+        "send": ""
+      },
+      "delete_account_dialog": {
+        "title": "",
+        "body": ""
+      }
+    },
+    "bedMesh": {
+      "no_mesh_loaded": "",
+      "load_bed_mesh_profile": "",
+      "currently_active": "",
+      "no_profile_active": "",
+      "no_mesh": "",
+      "clear_loaded_profile": "",
+      "range_between_highest_and_lowest_point": "",
+      "cant_render": ""
+    },
+    "select_spool": {
+      "header": {
+        "spools": "",
+        "qr": ""
+      },
+      "no_spools": "",
+      "error": "",
+      "qr_loading": "",
+      "qr_error": "",
+      "scan_again": "",
+      "set_active": "",
+      "spool_id_not_found": ""
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "",
+        "no_services": "",
+        "provider_error": ""
+      },
+      "confirm_action": {
+        "title": "",
+        "hint": {
+          "long_press": ""
+        },
+        "body": {
+          "pi_restart": "",
+          "pi_shutdown": "",
+          "fw_restart": "",
+          "service_start": "",
+          "service_restart": "",
+          "service_stop": ""
+        }
+      }
+    },
+    "dashboard_cards": {
+      "title": "",
+      "subtitle": ""
+    },
+    "dashboard_layout": {
+      "title": "",
+      "subtitle": "",
+      "available_layouts": {
+        "label": "",
+        "empty": "",
+        "add_empty": ""
+      },
+      "layout_preview": {
+        "not_saved": ""
+      },
+      "rename_layout": {
+        "title": "",
+        "label": ""
+      },
+      "delete_layout": {
+        "title": "",
+        "body": ""
+      },
+      "import_snackbar": {
+        "title": "",
+        "body": ""
+      },
+      "falsy_import_snackbar": {
+        "title": "",
+        "body": ""
+      }
     }
   },
   "klipper_state": {
@@ -381,7 +1282,22 @@
     "starting": "Pornire",
     "disconnected": "Deconectat",
     "error": "Eroare",
-    "unauthorized": "Neautorizat"
+    "unauthorized": "Neautorizat",
+    "initializing": "",
+    "not_connected": ""
+  },
+  "print_state": {
+    "standby": "",
+    "printing": "",
+    "paused": "",
+    "complete": "",
+    "cancelled": "",
+    "error": ""
+  },
+  "theme_mode": {
+    "light": "",
+    "dark": "",
+    "system": ""
   },
   "notifications": {
     "channel_printer_grp": "Imprimantă {}",
@@ -402,745 +1318,790 @@
       }
     }
   },
+  "form_validators": {
+    "simple_url": "",
+    "disallow_mdns": "",
+    "file_name_in_use": ""
+  },
+  "date": {
+    "year": {
+      "one": "",
+      "other": ""
+    },
+    "month": {
+      "one": "",
+      "other": ""
+    },
+    "week": {
+      "one": "",
+      "other": ""
+    },
+    "day": {
+      "one": "",
+      "other": ""
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "",
+      "other": ""
+    },
+    "month": {
+      "one": "",
+      "other": ""
+    },
+    "week": {
+      "one": "",
+      "other": ""
+    },
+    "day": {
+      "one": "",
+      "other": ""
+    }
+  },
   "languages": {
     "languageCode": {
       "ab": {
-        "name": "Abkhaz",
-        "nativeName": "аҧсуа"
+        "name": "",
+        "nativeName": ""
       },
       "aa": {
-        "name": "Afar",
-        "nativeName": "Afaraf"
+        "name": "",
+        "nativeName": ""
       },
       "af": {
-        "name": "Afrikaans",
-        "nativeName": "Afrikaans"
+        "name": "",
+        "nativeName": ""
       },
       "ak": {
-        "name": "Akan",
-        "nativeName": "Akan"
+        "name": "",
+        "nativeName": ""
       },
       "sq": {
-        "name": "Albanian",
-        "nativeName": "Shqip"
+        "name": "",
+        "nativeName": ""
       },
       "am": {
-        "name": "Amharic",
-        "nativeName": "አማርኛ"
+        "name": "",
+        "nativeName": ""
       },
       "ar": {
-        "name": "Arabic",
-        "nativeName": "العربية"
+        "name": "",
+        "nativeName": ""
       },
       "an": {
-        "name": "Aragonese",
-        "nativeName": "Aragonés"
+        "name": "",
+        "nativeName": ""
       },
       "hy": {
-        "name": "Armenian",
-        "nativeName": "Հայերեն"
+        "name": "",
+        "nativeName": ""
       },
       "as": {
-        "name": "Assamese",
-        "nativeName": "অসমীয়া"
+        "name": "",
+        "nativeName": ""
       },
       "av": {
-        "name": "Avaric",
-        "nativeName": "авар мацӀ, магӀарул мацӀ"
+        "name": "",
+        "nativeName": ""
       },
       "ae": {
-        "name": "Avestan",
-        "nativeName": "avesta"
+        "name": "",
+        "nativeName": ""
       },
       "ay": {
-        "name": "Aymara",
-        "nativeName": "aymar aru"
+        "name": "",
+        "nativeName": ""
       },
       "az": {
-        "name": "Azerbaijani",
-        "nativeName": "azərbaycan dili"
+        "name": "",
+        "nativeName": ""
       },
       "bm": {
-        "name": "Bambara",
-        "nativeName": "bamanankan"
+        "name": "",
+        "nativeName": ""
       },
       "ba": {
-        "name": "Bashkir",
-        "nativeName": "башҡорт теле"
+        "name": "",
+        "nativeName": ""
       },
       "eu": {
-        "name": "Basque",
-        "nativeName": "euskara, euskera"
+        "name": "",
+        "nativeName": ""
       },
       "be": {
-        "name": "Belarusian",
-        "nativeName": "Беларуская"
+        "name": "",
+        "nativeName": ""
       },
       "bn": {
-        "name": "Bengali",
-        "nativeName": "বাংলা"
+        "name": "",
+        "nativeName": ""
       },
       "bh": {
-        "name": "Bihari",
-        "nativeName": "भोजपुरी"
+        "name": "",
+        "nativeName": ""
       },
       "bi": {
-        "name": "Bislama",
-        "nativeName": "Bislama"
+        "name": "",
+        "nativeName": ""
       },
       "bs": {
-        "name": "Bosnian",
-        "nativeName": "bosanski jezik"
+        "name": "",
+        "nativeName": ""
       },
       "br": {
-        "name": "Breton",
-        "nativeName": "brezhoneg"
+        "name": "",
+        "nativeName": ""
       },
       "bg": {
-        "name": "Bulgarian",
-        "nativeName": "български език"
+        "name": "",
+        "nativeName": ""
       },
       "my": {
-        "name": "Burmese",
-        "nativeName": "ဗမာစာ"
+        "name": "",
+        "nativeName": ""
       },
       "ca": {
-        "name": "Catalan; Valencian",
-        "nativeName": "Català"
+        "name": "",
+        "nativeName": ""
       },
       "ch": {
-        "name": "Chamorro",
-        "nativeName": "Chamoru"
+        "name": "",
+        "nativeName": ""
       },
       "ce": {
-        "name": "Chechen",
-        "nativeName": "нохчийн мотт"
+        "name": "",
+        "nativeName": ""
       },
       "ny": {
-        "name": "Chichewa; Chewa; Nyanja",
-        "nativeName": "chiCheŵa, chinyanja"
+        "name": "",
+        "nativeName": ""
       },
       "zh": {
-        "name": "Chinese",
-        "nativeName": "中文"
+        "name": "",
+        "nativeName": ""
       },
       "cv": {
-        "name": "Chuvash",
-        "nativeName": "чӑваш чӗлхи"
+        "name": "",
+        "nativeName": ""
       },
       "kw": {
-        "name": "Cornish",
-        "nativeName": "Kernewek"
+        "name": "",
+        "nativeName": ""
       },
       "co": {
-        "name": "Corsican",
-        "nativeName": "corsu, lingua corsa"
+        "name": "",
+        "nativeName": ""
       },
       "cr": {
-        "name": "Cree",
-        "nativeName": "ᓀᐦᐃᔭᐍᐏᐣ"
+        "name": "",
+        "nativeName": ""
       },
       "hr": {
-        "name": "Croatian",
-        "nativeName": "hrvatski"
+        "name": "",
+        "nativeName": ""
       },
       "cs": {
-        "name": "Czech",
-        "nativeName": "česky, čeština"
+        "name": "",
+        "nativeName": ""
       },
       "da": {
-        "name": "Danish",
-        "nativeName": "dansk"
+        "name": "",
+        "nativeName": ""
       },
       "dv": {
-        "name": "Divehi; Dhivehi; Maldivian;",
-        "nativeName": "ދިވެހި"
+        "name": "",
+        "nativeName": ""
       },
       "nl": {
-        "name": "Dutch",
-        "nativeName": "Nederlands, Vlaams"
+        "name": "",
+        "nativeName": ""
       },
       "en": {
-        "name": "English",
-        "nativeName": "English"
+        "name": "",
+        "nativeName": ""
       },
       "eo": {
-        "name": "Esperanto",
-        "nativeName": "Esperanto"
+        "name": "",
+        "nativeName": ""
       },
       "et": {
-        "name": "Estonian",
-        "nativeName": "eesti, eesti keel"
+        "name": "",
+        "nativeName": ""
       },
       "ee": {
-        "name": "Ewe",
-        "nativeName": "Eʋegbe"
+        "name": "",
+        "nativeName": ""
       },
       "fo": {
-        "name": "Faroese",
-        "nativeName": "føroyskt"
+        "name": "",
+        "nativeName": ""
       },
       "fj": {
-        "name": "Fijian",
-        "nativeName": "vosa Vakaviti"
+        "name": "",
+        "nativeName": ""
       },
       "fi": {
-        "name": "Finnish",
-        "nativeName": "suomi, suomen kieli"
+        "name": "",
+        "nativeName": ""
       },
       "fr": {
-        "name": "French",
-        "nativeName": "français, langue française"
+        "name": "",
+        "nativeName": ""
       },
       "ff": {
-        "name": "Fula; Fulah; Pulaar; Pular",
-        "nativeName": "Fulfulde, Pulaar, Pular"
+        "name": "",
+        "nativeName": ""
       },
       "gl": {
-        "name": "Galician",
-        "nativeName": "Galego"
+        "name": "",
+        "nativeName": ""
       },
       "ka": {
-        "name": "Georgian",
-        "nativeName": "ქართული"
+        "name": "",
+        "nativeName": ""
       },
       "de": {
-        "name": "German",
-        "nativeName": "Deutsch"
+        "name": "",
+        "nativeName": ""
       },
       "el": {
-        "name": "Greek, Modern",
-        "nativeName": "Ελληνικά"
+        "name": "",
+        "nativeName": ""
       },
       "gn": {
-        "name": "Guaraní",
-        "nativeName": "Avañeẽ"
+        "name": "",
+        "nativeName": ""
       },
       "gu": {
-        "name": "Gujarati",
-        "nativeName": "ગુજરાતી"
+        "name": "",
+        "nativeName": ""
       },
       "ht": {
-        "name": "Haitian; Haitian Creole",
-        "nativeName": "Kreyòl ayisyen"
+        "name": "",
+        "nativeName": ""
       },
       "ha": {
-        "name": "Hausa",
-        "nativeName": "Hausa, هَوُسَ"
+        "name": "",
+        "nativeName": ""
       },
       "he": {
-        "name": "Hebrew (modern)",
-        "nativeName": "עברית"
+        "name": "",
+        "nativeName": ""
       },
       "hz": {
-        "name": "Herero",
-        "nativeName": "Otjiherero"
+        "name": "",
+        "nativeName": ""
       },
       "hi": {
-        "name": "Hindi",
-        "nativeName": "हिन्दी, हिंदी"
+        "name": "",
+        "nativeName": ""
       },
       "ho": {
-        "name": "Hiri Motu",
-        "nativeName": "Hiri Motu"
+        "name": "",
+        "nativeName": ""
       },
       "hu": {
-        "name": "Hungarian",
-        "nativeName": "Magyar"
+        "name": "",
+        "nativeName": ""
       },
       "ia": {
-        "name": "Interlingua",
-        "nativeName": "Interlingua"
+        "name": "",
+        "nativeName": ""
       },
       "id": {
-        "name": "Indonesian",
-        "nativeName": "Bahasa Indonesia"
+        "name": "",
+        "nativeName": ""
       },
       "ie": {
-        "name": "Interlingue",
-        "nativeName": "Originally called Occidental; then Interlingue after WWII"
+        "name": "",
+        "nativeName": ""
       },
       "ga": {
-        "name": "Irish",
-        "nativeName": "Gaeilge"
+        "name": "",
+        "nativeName": ""
       },
       "ig": {
-        "name": "Igbo",
-        "nativeName": "Asụsụ Igbo"
+        "name": "",
+        "nativeName": ""
       },
       "ik": {
-        "name": "Inupiaq",
-        "nativeName": "Iñupiaq, Iñupiatun"
+        "name": "",
+        "nativeName": ""
       },
       "io": {
-        "name": "Ido",
-        "nativeName": "Ido"
+        "name": "",
+        "nativeName": ""
       },
       "is": {
-        "name": "Icelandic",
-        "nativeName": "Íslenska"
+        "name": "",
+        "nativeName": ""
       },
       "it": {
-        "name": "Italian",
-        "nativeName": "Italiano"
+        "name": "",
+        "nativeName": ""
       },
       "iu": {
-        "name": "Inuktitut",
-        "nativeName": "ᐃᓄᒃᑎᑐᑦ"
+        "name": "",
+        "nativeName": ""
       },
       "ja": {
-        "name": "Japanese",
-        "nativeName": "日本語 (にほんご／にっぽんご)"
+        "name": "",
+        "nativeName": ""
       },
       "jv": {
-        "name": "Javanese",
-        "nativeName": "basa Jawa"
+        "name": "",
+        "nativeName": ""
       },
       "kl": {
-        "name": "Kalaallisut, Greenlandic",
-        "nativeName": "kalaallisut, kalaallit oqaasii"
+        "name": "",
+        "nativeName": ""
       },
       "kn": {
-        "name": "Kannada",
-        "nativeName": "ಕನ್ನಡ"
+        "name": "",
+        "nativeName": ""
       },
       "kr": {
-        "name": "Kanuri",
-        "nativeName": "Kanuri"
+        "name": "",
+        "nativeName": ""
       },
       "ks": {
-        "name": "Kashmiri",
-        "nativeName": "कश्मीरी, كشميري‎"
+        "name": "",
+        "nativeName": ""
       },
       "kk": {
-        "name": "Kazakh",
-        "nativeName": "Қазақ тілі"
+        "name": "",
+        "nativeName": ""
       },
       "km": {
-        "name": "Khmer",
-        "nativeName": "ភាសាខ្មែរ"
+        "name": "",
+        "nativeName": ""
       },
       "ki": {
-        "name": "Kikuyu, Gikuyu",
-        "nativeName": "Gĩkũyũ"
+        "name": "",
+        "nativeName": ""
       },
       "rw": {
-        "name": "Kinyarwanda",
-        "nativeName": "Ikinyarwanda"
+        "name": "",
+        "nativeName": ""
       },
       "ky": {
-        "name": "Kirghiz, Kyrgyz",
-        "nativeName": "кыргыз тили"
+        "name": "",
+        "nativeName": ""
       },
       "kv": {
-        "name": "Komi",
-        "nativeName": "коми кыв"
+        "name": "",
+        "nativeName": ""
       },
       "kg": {
-        "name": "Kongo",
-        "nativeName": "KiKongo"
+        "name": "",
+        "nativeName": ""
       },
       "ko": {
-        "name": "Korean",
-        "nativeName": "한국어 (韓國語), 조선말 (朝鮮語)"
+        "name": "",
+        "nativeName": ""
       },
       "ku": {
-        "name": "Kurdish",
-        "nativeName": "Kurdî, كوردی‎"
+        "name": "",
+        "nativeName": ""
       },
       "kj": {
-        "name": "Kwanyama, Kuanyama",
-        "nativeName": "Kuanyama"
+        "name": "",
+        "nativeName": ""
       },
       "la": {
-        "name": "Latin",
-        "nativeName": "latine, lingua latina"
+        "name": "",
+        "nativeName": ""
       },
       "lb": {
-        "name": "Luxembourgish, Letzeburgesch",
-        "nativeName": "Lëtzebuergesch"
+        "name": "",
+        "nativeName": ""
       },
       "lg": {
-        "name": "Luganda",
-        "nativeName": "Luganda"
+        "name": "",
+        "nativeName": ""
       },
       "li": {
-        "name": "Limburgish, Limburgan, Limburger",
-        "nativeName": "Limburgs"
+        "name": "",
+        "nativeName": ""
       },
       "ln": {
-        "name": "Lingala",
-        "nativeName": "Lingála"
+        "name": "",
+        "nativeName": ""
       },
       "lo": {
-        "name": "Lao",
-        "nativeName": "ພາສາລາວ"
+        "name": "",
+        "nativeName": ""
       },
       "lt": {
-        "name": "Lithuanian",
-        "nativeName": "lietuvių kalba"
+        "name": "",
+        "nativeName": ""
       },
       "lu": {
-        "name": "Luba-Katanga",
+        "name": "",
         "nativeName": ""
       },
       "lv": {
-        "name": "Latvian",
-        "nativeName": "latviešu valoda"
+        "name": "",
+        "nativeName": ""
       },
       "gv": {
-        "name": "Manx",
-        "nativeName": "Gaelg, Gailck"
+        "name": "",
+        "nativeName": ""
       },
       "mk": {
-        "name": "Macedonian",
-        "nativeName": "македонски јазик"
+        "name": "",
+        "nativeName": ""
       },
       "mg": {
-        "name": "Malagasy",
-        "nativeName": "Malagasy fiteny"
+        "name": "",
+        "nativeName": ""
       },
       "ms": {
-        "name": "Malay",
-        "nativeName": "bahasa Melayu, بهاس ملايو‎"
+        "name": "",
+        "nativeName": ""
       },
       "ml": {
-        "name": "Malayalam",
-        "nativeName": "മലയാളം"
+        "name": "",
+        "nativeName": ""
       },
       "mt": {
-        "name": "Maltese",
-        "nativeName": "Malti"
+        "name": "",
+        "nativeName": ""
       },
       "mi": {
-        "name": "Māori",
-        "nativeName": "te reo Māori"
+        "name": "",
+        "nativeName": ""
       },
       "mr": {
-        "name": "Marathi (Marāṭhī)",
-        "nativeName": "मराठी"
+        "name": "",
+        "nativeName": ""
       },
       "mh": {
-        "name": "Marshallese",
-        "nativeName": "Kajin M̧ajeļ"
+        "name": "",
+        "nativeName": ""
       },
       "mn": {
-        "name": "Mongolian",
-        "nativeName": "монгол"
+        "name": "",
+        "nativeName": ""
       },
       "na": {
-        "name": "Nauru",
-        "nativeName": "Ekakairũ Naoero"
+        "name": "",
+        "nativeName": ""
       },
       "nv": {
-        "name": "Navajo, Navaho",
-        "nativeName": "Diné bizaad, Dinékʼehǰí"
+        "name": "",
+        "nativeName": ""
       },
       "nb": {
-        "name": "Norwegian Bokmål",
-        "nativeName": "Norsk bokmål"
+        "name": "",
+        "nativeName": ""
       },
       "nd": {
-        "name": "North Ndebele",
-        "nativeName": "isiNdebele"
+        "name": "",
+        "nativeName": ""
       },
       "ne": {
-        "name": "Nepali",
-        "nativeName": "नेपाली"
+        "name": "",
+        "nativeName": ""
       },
       "ng": {
-        "name": "Ndonga",
-        "nativeName": "Owambo"
+        "name": "",
+        "nativeName": ""
       },
       "nn": {
-        "name": "Norwegian Nynorsk",
-        "nativeName": "Norsk nynorsk"
+        "name": "",
+        "nativeName": ""
       },
       "no": {
-        "name": "Norwegian",
-        "nativeName": "Norsk"
+        "name": "",
+        "nativeName": ""
       },
       "ii": {
-        "name": "Nuosu",
-        "nativeName": "ꆈꌠ꒿ Nuosuhxop"
+        "name": "",
+        "nativeName": ""
       },
       "nr": {
-        "name": "South Ndebele",
-        "nativeName": "isiNdebele"
+        "name": "",
+        "nativeName": ""
       },
       "oc": {
-        "name": "Occitan",
-        "nativeName": "Occitan"
+        "name": "",
+        "nativeName": ""
       },
       "oj": {
-        "name": "Ojibwe, Ojibwa",
-        "nativeName": "ᐊᓂᔑᓈᐯᒧᐎᓐ"
+        "name": "",
+        "nativeName": ""
       },
       "cu": {
-        "name": "Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic",
-        "nativeName": "ѩзыкъ словѣньскъ"
+        "name": "",
+        "nativeName": ""
       },
       "om": {
-        "name": "Oromo",
-        "nativeName": "Afaan Oromoo"
+        "name": "",
+        "nativeName": ""
       },
       "or": {
-        "name": "Oriya",
-        "nativeName": "ଓଡ଼ିଆ"
+        "name": "",
+        "nativeName": ""
       },
       "os": {
-        "name": "Ossetian, Ossetic",
-        "nativeName": "ирон æвзаг"
+        "name": "",
+        "nativeName": ""
       },
       "pa": {
-        "name": "Panjabi, Punjabi",
-        "nativeName": "ਪੰਜਾਬੀ, پنجابی‎"
+        "name": "",
+        "nativeName": ""
       },
       "pi": {
-        "name": "Pāli",
-        "nativeName": "पाऴि"
+        "name": "",
+        "nativeName": ""
       },
       "fa": {
-        "name": "Persian",
-        "nativeName": "فارسی"
+        "name": "",
+        "nativeName": ""
       },
       "pl": {
-        "name": "Polish",
-        "nativeName": "polski"
+        "name": "",
+        "nativeName": ""
       },
       "ps": {
-        "name": "Pashto, Pushto",
-        "nativeName": "پښتو"
+        "name": "",
+        "nativeName": ""
       },
       "pt": {
-        "name": "Portuguese",
-        "nativeName": "Português"
+        "name": "",
+        "nativeName": ""
       },
       "qu": {
-        "name": "Quechua",
-        "nativeName": "Runa Simi, Kichwa"
+        "name": "",
+        "nativeName": ""
       },
       "rm": {
-        "name": "Romansh",
-        "nativeName": "rumantsch grischun"
+        "name": "",
+        "nativeName": ""
       },
       "rn": {
-        "name": "Kirundi",
-        "nativeName": "kiRundi"
+        "name": "",
+        "nativeName": ""
       },
       "ro": {
-        "name": "Romanian, Moldavian, Moldovan",
-        "nativeName": "română"
+        "name": "",
+        "nativeName": ""
       },
       "ru": {
-        "name": "Russian",
-        "nativeName": "русский язык"
+        "name": "",
+        "nativeName": ""
       },
       "sa": {
-        "name": "Sanskrit (Saṁskṛta)",
-        "nativeName": "संस्कृतम्"
+        "name": "",
+        "nativeName": ""
       },
       "sc": {
-        "name": "Sardinian",
-        "nativeName": "sardu"
+        "name": "",
+        "nativeName": ""
       },
       "sd": {
-        "name": "Sindhi",
-        "nativeName": "सिन्धी, سنڌي، سندھی‎"
+        "name": "",
+        "nativeName": ""
       },
       "se": {
-        "name": "Northern Sami",
-        "nativeName": "Davvisámegiella"
+        "name": "",
+        "nativeName": ""
       },
       "sm": {
-        "name": "Samoan",
-        "nativeName": "gagana faa Samoa"
+        "name": "",
+        "nativeName": ""
       },
       "sg": {
-        "name": "Sango",
-        "nativeName": "yângâ tî sängö"
+        "name": "",
+        "nativeName": ""
       },
       "sr": {
-        "name": "Serbian",
-        "nativeName": "српски језик"
+        "name": "",
+        "nativeName": ""
       },
       "gd": {
-        "name": "Scottish Gaelic; Gaelic",
-        "nativeName": "Gàidhlig"
+        "name": "",
+        "nativeName": ""
       },
       "sn": {
-        "name": "Shona",
-        "nativeName": "chiShona"
+        "name": "",
+        "nativeName": ""
       },
       "si": {
-        "name": "Sinhala, Sinhalese",
-        "nativeName": "සිංහල"
+        "name": "",
+        "nativeName": ""
       },
       "sk": {
-        "name": "Slovak",
-        "nativeName": "slovenčina"
+        "name": "",
+        "nativeName": ""
       },
       "sl": {
-        "name": "Slovene",
-        "nativeName": "slovenščina"
+        "name": "",
+        "nativeName": ""
       },
       "so": {
-        "name": "Somali",
-        "nativeName": "Soomaaliga, af Soomaali"
+        "name": "",
+        "nativeName": ""
       },
       "st": {
-        "name": "Southern Sotho",
-        "nativeName": "Sesotho"
+        "name": "",
+        "nativeName": ""
       },
       "es": {
-        "name": "Spanish; Castilian",
-        "nativeName": "español, castellano"
+        "name": "",
+        "nativeName": ""
       },
       "su": {
-        "name": "Sundanese",
-        "nativeName": "Basa Sunda"
+        "name": "",
+        "nativeName": ""
       },
       "sw": {
-        "name": "Swahili",
-        "nativeName": "Kiswahili"
+        "name": "",
+        "nativeName": ""
       },
       "ss": {
-        "name": "Swati",
-        "nativeName": "SiSwati"
+        "name": "",
+        "nativeName": ""
       },
       "sv": {
-        "name": "Swedish",
-        "nativeName": "svenska"
+        "name": "",
+        "nativeName": ""
       },
       "ta": {
-        "name": "Tamil",
-        "nativeName": "தமிழ்"
+        "name": "",
+        "nativeName": ""
       },
       "te": {
-        "name": "Telugu",
-        "nativeName": "తెలుగు"
+        "name": "",
+        "nativeName": ""
       },
       "tg": {
-        "name": "Tajik",
-        "nativeName": "тоҷикӣ, toğikī, تاجیکی‎"
+        "name": "",
+        "nativeName": ""
       },
       "th": {
-        "name": "Thai",
-        "nativeName": "ไทย"
+        "name": "",
+        "nativeName": ""
       },
       "ti": {
-        "name": "Tigrinya",
-        "nativeName": "ትግርኛ"
+        "name": "",
+        "nativeName": ""
       },
       "bo": {
-        "name": "Tibetan Standard, Tibetan, Central",
-        "nativeName": "བོད་ཡིག"
+        "name": "",
+        "nativeName": ""
       },
       "tk": {
-        "name": "Turkmen",
-        "nativeName": "Türkmen, Түркмен"
+        "name": "",
+        "nativeName": ""
       },
       "tl": {
-        "name": "Tagalog",
-        "nativeName": "Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔"
+        "name": "",
+        "nativeName": ""
       },
       "tn": {
-        "name": "Tswana",
-        "nativeName": "Setswana"
+        "name": "",
+        "nativeName": ""
       },
       "to": {
-        "name": "Tonga (Tonga Islands)",
-        "nativeName": "faka Tonga"
+        "name": "",
+        "nativeName": ""
       },
       "tr": {
-        "name": "Turkish",
-        "nativeName": "Türkçe"
+        "name": "",
+        "nativeName": ""
       },
       "ts": {
-        "name": "Tsonga",
-        "nativeName": "Xitsonga"
+        "name": "",
+        "nativeName": ""
       },
       "tt": {
-        "name": "Tatar",
-        "nativeName": "татарча, tatarça, تاتارچا‎"
+        "name": "",
+        "nativeName": ""
       },
       "tw": {
-        "name": "Twi",
-        "nativeName": "Twi"
+        "name": "",
+        "nativeName": ""
       },
       "ty": {
-        "name": "Tahitian",
-        "nativeName": "Reo Tahiti"
+        "name": "",
+        "nativeName": ""
       },
       "ug": {
-        "name": "Uighur, Uyghur",
-        "nativeName": "Uyƣurqə, ئۇيغۇرچە‎"
+        "name": "",
+        "nativeName": ""
       },
       "uk": {
-        "name": "Ukrainian",
-        "nativeName": "українська"
+        "name": "",
+        "nativeName": ""
       },
       "ur": {
-        "name": "Urdu",
-        "nativeName": "اردو"
+        "name": "",
+        "nativeName": ""
       },
       "uz": {
-        "name": "Uzbek",
-        "nativeName": "zbek, Ўзбек, أۇزبېك‎"
+        "name": "",
+        "nativeName": ""
       },
       "ve": {
-        "name": "Venda",
-        "nativeName": "Tshivenḓa"
+        "name": "",
+        "nativeName": ""
       },
       "vi": {
-        "name": "Vietnamese",
-        "nativeName": "Tiếng Việt"
+        "name": "",
+        "nativeName": ""
       },
       "vo": {
-        "name": "Volapük",
-        "nativeName": "Volapük"
+        "name": "",
+        "nativeName": ""
       },
       "wa": {
-        "name": "Walloon",
-        "nativeName": "Walon"
+        "name": "",
+        "nativeName": ""
       },
       "cy": {
-        "name": "Welsh",
-        "nativeName": "Cymraeg"
+        "name": "",
+        "nativeName": ""
       },
       "wo": {
-        "name": "Wolof",
-        "nativeName": "Wollof"
+        "name": "",
+        "nativeName": ""
       },
       "fy": {
-        "name": "Western Frisian",
-        "nativeName": "Frysk"
+        "name": "",
+        "nativeName": ""
       },
       "xh": {
-        "name": "Xhosa",
-        "nativeName": "isiXhosa"
+        "name": "",
+        "nativeName": ""
       },
       "yi": {
-        "name": "Yiddish",
-        "nativeName": "ייִדיש"
+        "name": "",
+        "nativeName": ""
       },
       "yo": {
-        "name": "Yoruba",
-        "nativeName": "Yorùbá"
+        "name": "",
+        "nativeName": ""
       },
       "za": {
-        "name": "Zhuang, Chuang",
-        "nativeName": "Saɯ cueŋƅ, Saw cuengh"
+        "name": "",
+        "nativeName": ""
       }
     },
     "countryCode": {
       "CN": {
-        "name": "Simplified",
-        "nativeName": "简体"
+        "name": "",
+        "nativeName": ""
       },
       "HK": {
-        "name": "Traditional",
-        "nativeName": "繁體"
+        "name": "",
+        "nativeName": ""
+      },
+      "BR": {
+        "name": "",
+        "nativeName": ""
       }
     }
   }
