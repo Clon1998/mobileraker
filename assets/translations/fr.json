@@ -1,6 +1,6 @@
 {
   "general": {
-    "pause": "Pause",
+    "pause": "",
     "resume": "Reprendre",
     "connected": "Connecté",
     "off": "Éteint",
@@ -14,7 +14,7 @@
     "use": "Utiliser",
     "restart": "Redémarrer",
     "shutdown": "Eteindre",
-    "firmware": "Firmware",
+    "firmware": "",
     "fetching": "Recherche",
     "loading": "Chargement",
     "unknown": "Inconnu",
@@ -27,10 +27,10 @@
     "retry": "Réessayer",
     "supported": "Pris en charge",
     "unsupported": "Non pris en charge",
-    "details": "Details",
-    "google_play": "GooglePlay",
-    "ios_store": "AppStore",
-    "active": "Active",
+    "details": "",
+    "google_play": "",
+    "ios_store": "",
+    "active": "",
     "canceled": "Annulé",
     "monthly": "Mensuel",
     "restore": "Restaurer",
@@ -47,12 +47,31 @@
     "save": "Sauvegarder",
     "apply": "Appliquer",
     "completed": "Achevé",
-    "activate": "Activer"
+    "activate": "Activer",
+    "stop": "",
+    "start": "",
+    "repeat": "",
+    "load_more": "",
+    "archived": "",
+    "leave": "",
+    "export": "",
+    "import": "",
+    "current": "",
+    "load": "",
+    "unload": "",
+    "discard": "",
+    "hide": "",
+    "finish": ""
   },
   "pages": {
     "dashboard": {
       "title": "Tableau de bord",
       "ems_btn": "Arrêt d'urgence",
+      "ems_confirmation": {
+        "title": "",
+        "body": "",
+        "confirm": ""
+      },
       "server_status": {
         "unavailable": "Pas de serveur disponible",
         "available": "Le statut serveur est {} et Klippy est {}"
@@ -65,23 +84,24 @@
           "printing_for": "Impression: {}",
           "speed": "Vitesse",
           "layer": "Couche",
-          "eta": "ETA",
+          "eta": "",
           "current_object": "Objet actuel",
           "elapsed": "Temps écoulé",
           "flow": "Débit",
-          "filament": "Filament",
+          "filament": "",
           "filament_tooltip": "{} % de filament utilisé, correspond à {} m sur les {} m prédit.",
           "eta_tooltip": "Temp restant:\nMoyenne: {avg}\nSlicer: {slicer}\nFichier: {file}\nFilament: {filament}",
           "remaining": "Restant"
         },
         "cam_card": {
           "webcam": "Caméra",
-          "fullscreen": "Plein écran"
+          "fullscreen": "Plein écran",
+          "error_connecting": ""
         },
         "temp_card": {
           "title": "Contrôles des températures",
           "presets_btn": "Préréglages",
-          "hotend": "Hotend",
+          "hotend": "",
           "bed": "Plateau",
           "temp_presets": "Températures préréglées",
           "sensors": "Capteurs",
@@ -89,9 +109,9 @@
           "btn_thermistor": "Capteur"
         },
         "temp_preset_card": {
-          "cooloff": "Cooloff",
-          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
-          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+          "cooloff": "",
+          "h_temp": "",
+          "b_temp": ""
         },
         "move_card": {
           "title": "Déplacer axe",
@@ -100,16 +120,16 @@
           "home_all_tooltip": "Home tout les axes",
           "home_all_btn": "Tous",
           "qgl_tooltip": "Lancer nivellement Quad-Gantry",
-          "qgl_btn": "QGL",
+          "qgl_btn": "",
           "mesh_tooltip": "Lancer nivellement",
-          "mesh_btn": "Mesh",
+          "mesh_btn": "",
           "m84_tooltip": "Désactiver les moteurs",
-          "m84_btn": "M84",
+          "m84_btn": "",
           "step_size": "Distance de déplacement",
           "stc_tooltip": "Lancer calcul de l'ajustement des vis",
-          "stc_btn": "STC",
+          "stc_btn": "",
           "ztilt_tooltip": "Lancer calibration Z-Tilt",
-          "ztilt_btn": "zTilt",
+          "ztilt_btn": "",
           "poff_tooltip": "Exécuter la calibration de l'offset de la buse",
           "poff_btn": "Calibration de la buse",
           "zoff_tooltip": "Calibration de l'offset de l'axe Z",
@@ -123,10 +143,10 @@
         },
         "baby_step_card": {
           "title": "Micro-step de l'axe Z",
-          "z_offset": "Z-Offset"
+          "z_offset": ""
         },
         "restart_klipper": "Redémarrer Klipper",
-        "restart_mcu": "@:general.restart @:general.firmware"
+        "restart_mcu": ""
       },
       "control": {
         "fan_card": {
@@ -146,25 +166,28 @@
           "cold_extrude_error": "L'extrudeur n'a pas atteint la temperature minimal d'extrusion de {}°C!"
         },
         "macro_card": {
-          "title": "Gcode - Macros"
+          "title": "",
+          "no_macros": "",
+          "add_grp_hint": "",
+          "show_all_tooltip": ""
         },
         "pin_card": {
-          "title": {
-            "zero": "Sortie",
-            "one": "Sortie",
-            "two": "Sorties",
-            "other": "Sorties"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "",
+          "pin_btn": "",
+          "filament_sensor": {
+            "detected": "",
+            "not_detected": ""
+          }
         },
         "power_card": {
           "title": "Tableau de commande",
-          "pin_btn": "Pin"
+          "pin_btn": "",
+          "provider_error_title": ""
         },
         "multipl_card": {
           "title": "Multiplicateurs",
           "flow": "Débit",
-          "press_adv": "Pressure Advance",
+          "press_adv": "",
           "smooth_time": "Temps de lissage"
         },
         "limit_card": {
@@ -183,7 +206,7 @@
         },
         "bed_mesh_card": {
           "title": "Maillage du plateau",
-          "profiles": "Profiles",
+          "profiles": "",
           "range_tooltip": "Distance entre le point la plus bas et le plus haut",
           "showing_matrix": {
             "probed": "Afficher la matrice",
@@ -194,22 +217,131 @@
           "title": "Gestionnaire de bobine",
           "no_spool": "Aucune bobine selectionnée\nL'utilisation du filament ne sera pas suivi.",
           "select_spool": "Sélectionner la bobine",
-          "used": "Utilisé: {}"
+          "used": "Utilisé: {}",
+          "provider_error_title": ""
         }
+      }
+    },
+    "customizing_dashboard": {
+      "title": "",
+      "cancel_confirm": {
+        "title": "",
+        "body": ""
+      },
+      "add_card": "",
+      "remove_page": "",
+      "saved_snack": {
+        "title": "",
+        "body": ""
+      },
+      "cant_remove_snack": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_removal": {
+        "title": "",
+        "body": ""
+      },
+      "editing_card": {
+        "title": "",
+        "body": ""
+      },
+      "error_save_snack": {
+        "title": "",
+        "body": ""
+      },
+      "error_no_components": {
+        "title": "",
+        "body": ""
       }
     },
     "files": {
       "title": "Fichiers",
+      "empty_folder": {
+        "title": "",
+        "subtitle": ""
+      },
+      "sort_by": {
+        "sort_by": "",
+        "name": "",
+        "last_modified": "",
+        "last_printed": "",
+        "file_size": ""
+      },
+      "file_actions": {
+        "download": "",
+        "delete": "",
+        "copy": "",
+        "move": "",
+        "rename": "",
+        "create_file": "",
+        "create_folder": "",
+        "upload": "",
+        "upload_bulk": "",
+        "zip_file": ""
+      },
+      "gcode_file_actions": {
+        "submit": "",
+        "preheat": "",
+        "enqueue": ""
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "download_failed": {
+          "title": "",
+          "body": ""
+        },
+        "upload_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "upload_success": {
+          "title": "",
+          "body": ""
+        },
+        "upload_failed": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_success": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_failed": {
+          "title": "",
+          "body": ""
+        },
+        "copy_created": {
+          "title": "",
+          "body": ""
+        }
+      },
       "search_files": "Chercher un fichier",
-      "clear_search": "Supprimer la recherche",
-      "name": "Nom",
-      "last_mod": "Dernière modification",
-      "last_printed": "Dernière impression",
-      "not_printed": "Non imprimé",
-      "fetching_files": "@:general.fetching de fichiers...",
-      "no_files_found": "Aucun fichier trouvé!",
+      "search": {
+        "clear_search": "",
+        "waiting": "",
+        "no_results": {
+          "title": "",
+          "subtitle": ""
+        }
+      },
+      "cancel_fab": {
+        "upload": "",
+        "download": ""
+      },
+      "move_here": "",
+      "copy_here": "",
       "no_matches_file_pattern": "Seules les lettres, chiffres, tiret (-), souligné (_) et point sont autorisés!",
-      "file_name_in_use": "Le nom du fihcier est déjà utilisé!",
+      "gcode_tab": "",
+      "config_tab": "",
+      "timelapse_tab": "",
+      "element": {
+        "one": "",
+        "other": ""
+      },
       "details": {
         "preheat": "Préchauffer",
         "print": "Imprimer",
@@ -220,8 +352,8 @@
           "no_data": "Pas de données"
         },
         "meta_card": {
-          "title": "GCode Meta Data",
-          "filament": "Filament",
+          "title": "",
+          "filament": "",
           "filament_type": "Type de filament",
           "filament_name": "Nom du Filament",
           "filament_weight": "Poids",
@@ -233,18 +365,18 @@
           "first_layer": "Première couche",
           "others": "Autres",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Températures",
-          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+          "first_layer_temps_value": ""
         },
         "stat_card": {
           "title": "Statistiques"
         },
         "preheat_dialog": {
-          "title": "@:pages.files.details.preheat ?",
-          "body": "Target Temperatures\nExtruder: {}°C\nBed: {}°C"
+          "title": "",
+          "body": ""
         },
         "preheat_snackbar": {
-          "title": "Started Preheating",
-          "body": "Extruder: {}°C\nBed: {}°C"
+          "title": "",
+          "body": ""
         },
         "spoolman_warnings": {
           "insufficient_filament_title": "Filament insuffisant",
@@ -259,17 +391,36 @@
       "general": {
         "title": "Général",
         "ems_confirm": "Confirmation de l'arrêt d'urgence",
+        "ems_confirm_hint": "",
         "always_baby": "Toujours afficher le micro stepping",
+        "always_baby_hint": "",
         "num_edit": "Utiliser le clavier pour la saisie des chiffres",
+        "num_edit_hint": "",
         "start_with_overview": "Show @:pages.overview.title by default",
+        "start_with_overview_hint": "",
         "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué",
+        "use_offset_pos_hint": "",
         "lcFullCam": "Orientation paysage lors de l'affichage de la webcam en plein écran",
+        "lcFullCam_hint": "",
         "language": "Langue",
         "companion": "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web.",
-        "sliders_grouping": "Présenter les réglages par curseur sous forme d'onglets"
+        "sliders_grouping": "Présenter les réglages par curseur sous forme d'onglets",
+        "sliders_grouping_hint": "",
+        "time_format": "",
+        "system_theme": "",
+        "system_theme_mode": "",
+        "printer_theme_warning": "",
+        "filament_sensor_dialog": "",
+        "filament_sensor_dialog_hint": "",
+        "confirm_gcode": "",
+        "confirm_gcode_hint": "",
+        "eta_sources": "",
+        "eta_sources_hint": "",
+        "medium_ui": "",
+        "medium_ui_hint": ""
       },
       "notification": {
-        "title": "Notification",
+        "title": "",
         "progress_label": "Notifications d'avancement",
         "progress_helper": "Intervalle de mise à jour pour la notification de la progression de l'impression",
         "state_label": "Notifications de changement d'état",
@@ -282,7 +433,12 @@
         "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !",
         "missing_companion_title": "Companion introuvable!",
         "missing_companion_body": "Il semble que le companion ne soit pas installé, les machines suivantes ne peuvent donc pas envoyer de notification: {}\n\nCliquez pour en apprendre davantage!",
-        "enable_live_activity": "Activer Live Activity"
+        "enable_live_activity": "Activer Live Activity",
+        "enable_live_activity_helper": "",
+        "opt_out_marketing": "",
+        "opt_out_marketing_helper": "",
+        "use_progressbar_notification": "",
+        "use_progressbar_notification_helper": ""
       },
       "developer": {
         "title": "Développeur",
@@ -327,7 +483,6 @@
         "pin_certificate_label": "Épinglage des empreintes digitales des certificats",
         "pin_certificate_helper": "Sélectionner un fichier de certificat au format PEM pour l'épinglage SSL",
         "self_signed": "Faire confiance aux certificats auto-signés"
-
       },
       "motion_system": {
         "title": "Système de mouvement",
@@ -342,7 +497,7 @@
         "speed_z": "Vitesse de l'axe Z",
         "speed_z_short": "Vitesse Z",
         "steps_move": "Déplacements",
-        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_move_short": "",
         "steps_baby": "Micro step de l'axe Z",
         "steps_baby_short": "Micro step"
       },
@@ -351,7 +506,17 @@
         "feedrate": "Vitesse d'alimentation de l'extrudeuse",
         "feedrate_short": "Vitesse d'alimentation",
         "steps_extrude": "Extruder",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "",
+        "filament": {
+          "loading_distance": "",
+          "loading_distance_helper": "",
+          "loading_speed": "",
+          "loading_speed_helper": "",
+          "purge_amount": "",
+          "purge_amount_helper": "",
+          "purge_speed": "",
+          "purge_speed_helper": ""
+        }
       },
       "cams": {
         "target_fps": "Nombre d'image par seconde",
@@ -363,27 +528,29 @@
         "flip_vertical": "Retournement vertical",
         "flip_horizontal": "Retournement horizontal",
         "cam_mode": "Mode caméra",
-        "cam_rotate": "Rotation",
+        "cam_rotate": "",
         "read_only": "La Webcam est en lecture seul"
       },
       "macros": {
+        "default_grp": "",
         "new_macro_grp": "Nouveau groupe de macro",
         "no_macros_available": "Aucune macro disponible!",
         "no_macros_found": "Aucune macro trouvée!",
         "no_macros_in_grp": "Aucune macro dans le groupe!",
         "deleted_grp": "Effacer le groupe {}",
-        "macros": "Macros",
+        "macros": "",
         "default_name": "Nouvelle Macro",
         "macros_to_default": {
           "one": "Déplacement d'une macro vers le groupe par défaut !",
           "two": "Déplacement de deux macros vers le groupe par défaut !",
           "other": "Déplacement de {} vers le groupe par défaut !"
-        }
+        },
+        "macro_removed": ""
       },
       "presets": {
         "no_presets": "Aucun préréglage ajouté !",
-        "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
-        "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
+        "hotend_temp": "",
+        "bed_temp": "",
         "new_preset": "Nouveau préréglage"
       },
       "confirm_fcm_reset": {
@@ -400,8 +567,8 @@
           "other": "Veuillez confirmer la suppression de la connexion à distance de l'imprimante {}."
         },
         "button": {
-          "oe": "@:general.unlink",
-          "other": "@:general.remove"
+          "oe": "",
+          "other": ""
         }
       },
       "remote_interface_exists": {
@@ -418,9 +585,9 @@
       },
       "remote_interface_added": {
         "title": {
-          "oe": "Linked to OctoEverywhere.",
-          "obico": "Linked to Obico.",
-          "other": "Remote connection Added."
+          "oe": "",
+          "obico": "",
+          "other": ""
         },
         "body": "Veillez à enregistrer l'imprimante pour appliquer les modifications."
       },
@@ -442,13 +609,28 @@
           "title": "Erreur lors de la recherche du nom du WiFi !",
           "body": "Assurez-vous que l'application dispose des autorisations nécessaires pour accéder à l'état WiFi de l'appareil."
         }
+      },
+      "temp_ordering": {
+        "title": "",
+        "helper": "",
+        "no_sensors": ""
+      },
+      "fan_ordering": {
+        "title": "",
+        "helper": "",
+        "no_fans": ""
+      },
+      "misc_ordering": {
+        "title": "",
+        "helper": "",
+        "no_controls": ""
       }
     },
     "printer_add": {
       "steps": {
-        "mode": "Mode",
+        "mode": "",
         "input": "Entrée",
-        "test": "Test",
+        "test": "",
         "done": "Terminé"
       },
       "title": "Ajouter une nouvelle imprimante",
@@ -456,7 +638,7 @@
       "select_mode": {
         "title": "Choisissez un mode d'entrée :",
         "body": "Si vous êtes novice en la matière, il est préférable de vous en tenir au mode simple. En revanche, si vous êtes expérimenté et que vous avez besoin d'utiliser des en-têtes, des certificats, etc. personnalisés, le mode expert est fait pour vous. Gardez à l'esprit que le mode que vous choisissez n'affecte pas l'application elle-même, mais qu'il détermine la manière dont les données sont validées et affichées, ainsi que les options disponibles lors de l'ajout d'une machine.",
-        "simple": "Simple",
+        "simple": "",
         "advanced": "Avancé",
         "add_via_oe": "Installation d'OctoEverywhere en un clic",
         "add_via_obico": "Configuration d'Obico en un clic"
@@ -480,8 +662,8 @@
         "ws_url_label": "WebSocket-URL résultant",
         "http_url_label": "HTTP-URL résultant",
         "section_test": "Tests de connexion",
-        "http_label": "Http Endpoint - Test",
-        "ws_label": "Websocket Endpoint - Test",
+        "http_label": "",
+        "ws_label": "",
         "awaiting": "En attente du résultat...",
         "continue": "Continuer",
         "continue_anyway": "Continuer quoi qu'il en soit",
@@ -494,11 +676,18 @@
       }
     },
     "console": {
-      "title": "Console",
+      "title": "",
+      "card_title": "",
       "no_entries": "Aucune commande en cache n'a été trouvée",
       "fetching_console": "@:general.fetching console entries...",
+      "macro_suggestions": "",
+      "no_suggestions": "",
       "command_input": {
         "hint": "Entrer la commande console"
+      },
+      "provider_error": {
+        "title": "",
+        "body": ""
       }
     },
     "overview": {
@@ -508,15 +697,15 @@
       "add_machine": "Ajouter une machine"
     },
     "markdown": {
-      "loading": "@:general.loading {}…",
+      "loading": "",
       "error": "Une erreur s'est produite lors de la recherche de {} ;",
       "open_in_browser": "Ouvrir @:pages.faq.title dans le navigateur"
     },
     "faq": {
-      "title": "FAQ"
+      "title": ""
     },
     "changelog": {
-      "title": "Changelog"
+      "title": ""
     },
     "paywall": {
       "manage_view": {
@@ -537,11 +726,11 @@
       },
       "contact_dialog": {
         "title": "Contact développeur",
-        "body": "Mail: {}\nDiscord: {}"
+        "body": ""
       },
       "title": "Soutenez le développeur !",
       "calling_store": "Traitement de la demande...",
-      "promo_title": "Promotion",
+      "promo_title": "",
       "free_phase": "Premier {} gratuit",
       "intro_phase": "Profitez de {} à {} de réduction",
       "iap_offer": "{} sur le prix d'origine",
@@ -564,12 +753,73 @@
         "title": "Autorisation du micro requise",
         "subtitle": "L'accordeur de ceinture utilise le microphone de votre téléphone pour analyser la fréquence de vos ceintures.\n\nAppuyez pour accorder la permission."
       }
+    },
+    "spoolman": {
+      "title": "",
+      "not_available": "",
+      "learn_more": "",
+      "learn_more_link": "",
+      "no_spools": "",
+      "no_filaments": "",
+      "no_vendors": "",
+      "error_loading_spools": "",
+      "error_loading_filaments": "",
+      "spool": {
+        "one": "",
+        "other": ""
+      },
+      "filament": {
+        "one": "",
+        "other": ""
+      },
+      "vendor": {
+        "one": "",
+        "other": ""
+      },
+      "properties": {
+        "id": "",
+        "name": "",
+        "registered": "",
+        "comment": "",
+        "material": "",
+        "price": "",
+        "density": "",
+        "diameter": "",
+        "weight": "",
+        "spool_weight": "",
+        "article_number": "",
+        "first_used": "",
+        "last_used": "",
+        "remaining_weight": "",
+        "used_weight": "",
+        "location": "",
+        "lot_number": ""
+      },
+      "vendor_details": {
+        "page_title": "",
+        "info_card": "",
+        "filaments_card": "",
+        "spools_card": ""
+      },
+      "filament_details": {
+        "info_card": "",
+        "spools_card": ""
+      },
+      "spool_details": {
+        "page_title": "",
+        "info_card": "",
+        "set_active": "",
+        "archived_warning": {
+          "title": "",
+          "body": ""
+        }
+      }
     }
   },
   "components": {
     "app_version_display": {
-      "version": "Version:",
-      "installed_version": "Installed Version:"
+      "version": "",
+      "installed_version": ""
     },
     "pull_to_refresh": {
       "pull_up_idle": "Tirez vers le haut pour rafraîchir"
@@ -602,7 +852,10 @@
       "printer_add": "Vous avez atteint la limite de machines. Seuls les supporteurs de Mobileraker peuvent ajouter plus de {} machines.",
       "job_queue": "Désolé, la file d'attente n'est accessible qu'aux supporters.",
       "timelaps_share": "Désolé, le partage de timelapses n'est disponible que pour les supporters.",
-      "printer_theme": "Désolé, les thèmes spécifiques aux imprimantes ne sont disponibles que pour les supporters."
+      "printer_theme": "Désolé, les thèmes spécifiques aux imprimantes ne sont disponibles que pour les supporters.",
+      "spoolman_page": "",
+      "custom_dashboard": "",
+      "full_file_management": ""
     },
     "machine_deletion_warning": {
       "title": "Suppression de la machine",
@@ -645,12 +898,32 @@
       "title": "Renommer dossier",
       "label": "Nom du dossier"
     },
+    "copy_folder": {
+      "title": "",
+      "label": ""
+    },
     "delete_file": {
       "description": "Confirmer la suppression du fichier '{}'."
     },
     "rename_file": {
       "title": "Renommer fichier",
       "label": "Nom du fichier"
+    },
+    "copy_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_archive": {
+      "title": "",
+      "label": ""
+    },
+    "delete_files": {
+      "title": "",
+      "description": ""
     },
     "exclude_object": {
       "title": "Exclure un objet de l'impression",
@@ -665,7 +938,9 @@
       "body": "Vous pouvez entrer une IP, une URL ou une URI complète vers votre interface web ou directement vers l'instance websocket fournie par moonraker.\n\nExamples valides:"
     },
     "gcode_params": {
-      "hint": "Conseil : vous pouvez également appuyer sur la touche longue si vous souhaitez soumettre la macro avec les valeurs par défaut !"
+      "hint": "Conseil : vous pouvez également appuyer sur la touche longue si vous souhaitez soumettre la macro avec les valeurs par défaut !",
+      "confirm_title": "",
+      "confirm_body": ""
     },
     "rgbw": {
       "recent_colors": "Couleurs récentes"
@@ -706,6 +981,14 @@
       "printer_theme_perk": {
         "title": "Thèmes basés sur l'imprimante",
         "subtitle": "Choisissez un thème différent pour chaque imprimante !"
+      },
+      "custom_dashboard_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "full_file_management_perk": {
+        "title": "",
+        "subtitle": ""
       }
     },
     "bed_screw_adjust": {
@@ -718,7 +1001,7 @@
       "adjusted_btn": "Ajusté"
     },
     "manual_offset": {
-      "title": "@:general.offset Calibration",
+      "title": "",
       "hint_tooltip": "Documentation du test avec le papier",
       "snackbar_title": "Étalonnage effectué",
       "snackbar_message": "Veillez à conserver le décalage via l'action Save Config."
@@ -738,10 +1021,87 @@
     },
     "macro_settings": {
       "show_while_printing": "Afficher lors de l'impression",
-      "visible": "Visible"
+      "visible": ""
     },
     "extruder_feedrate": {
       "title": "Vitesse de l'extrudeur [mm/s]"
+    },
+    "fan_speed": {
+      "title": ""
+    },
+    "filament_sensor_triggered": {
+      "title": "",
+      "body": ""
+    },
+    "screws_tilt_adjust": {
+      "title": "",
+      "base": "",
+      "hint": ""
+    },
+    "dashboard_page_settings": {
+      "title": "",
+      "icon_label": ""
+    },
+    "filament_switch": {
+      "title": {
+        "load": "",
+        "unload": ""
+      },
+      "controls": {
+        "heat_up": "",
+        "change_temp": "",
+        "purge": "",
+        "repeat_load": "",
+        "repeat_unload": "",
+        "repeat_purge": ""
+      },
+      "steps": {
+        "set_temps": {
+          "title": "",
+          "subtitle": ""
+        },
+        "heat_up": {
+          "title": "",
+          "subtitle": ""
+        },
+        "move": {
+          "title": {
+            "load": "",
+            "unload": ""
+          },
+          "subtitle": {
+            "load": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            },
+            "unload": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            }
+          }
+        },
+        "purge": {
+          "title": "",
+          "subtitle": {
+            "idle": "",
+            "processing": "",
+            "processed": ""
+          }
+        },
+        "tip_form": {
+          "title": "",
+          "subtitle": ""
+        }
+      }
+    },
+    "heater_temperature": {
+      "title": ""
+    },
+    "confirm_print_cancelation": {
+      "title": "",
+      "body": ""
     }
   },
   "bottom_sheets": {
@@ -760,8 +1120,8 @@
         "body": "Vous utilisez actuellement {} comme service de connexion à distance. Supprimez-le avant d'en ajouter un nouveau."
       },
       "octoeverywehre": {
-        "service_name": "OctoEverywhere",
-        "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
+        "service_name": "",
+        "tab_name": "",
         "link": "Lier OctoEverywhere",
         "unlink": "Délier OctoEverywhere",
         "description": "OctoEverywhere.com est un projet communautaire qui vous permet de vous connecter en toute sécurité à votre imprimante depuis n'importe où. OctoEverywhere fournit également à la communauté une détection gratuite des pannes d'impression par IA, des notifications, une diffusion en direct, et bien plus encore. L'installation ne prend que 20 secondes !"
@@ -774,11 +1134,17 @@
         "address_hint": "Adresse de base de la connexion à distance à utiliser"
       },
       "obico": {
-        "service_name": "Obico",
-        "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
+        "service_name": "",
+        "tab_name": "",
         "link": "Lier Obico",
         "unlink": "Délier Obico",
-        "description": "Obico est un logiciel d'impression 3D communautaire et entièrement libre. Il vous permet de contrôler et de surveiller votre imprimante Klipper depuis n'importe où, et ce gratuitement. Il s'agit de l'une des solutions pionnières en matière de détection des pannes basée sur l'IA, qui utilise uniquement la webcam de votre imprimante."
+        "description": "Obico est un logiciel d'impression 3D communautaire et entièrement libre. Il vous permet de contrôler et de surveiller votre imprimante Klipper depuis n'importe où, et ce gratuitement. Il s'agit de l'une des solutions pionnières en matière de détection des pannes basée sur l'IA, qui utilise uniquement la webcam de votre imprimante.",
+        "self_hosted": {
+          "title": "",
+          "description": "",
+          "url_label": "",
+          "url_hint": ""
+        }
       }
     },
     "manage_macros_in_grp": {
@@ -786,7 +1152,32 @@
       "hint": "Sélectionner les macros pour le groupe {}"
     },
     "signIn": {
-      "subtitle": "Bien que la création d'un compte soit facultative, elle est nécessaire pour restaurer les achats effectués sur un autre appareil ou une autre plateforme."
+      "subtitle": "Bien que la création d'un compte soit facultative, elle est nécessaire pour restaurer les achats effectués sur un autre appareil ou une autre plateforme.",
+      "forgot_password": "",
+      "forgot_password_success": "",
+      "hint": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "action": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "email": {
+        "label": "",
+        "hint": ""
+      },
+      "password": {
+        "label": "",
+        "hint": ""
+      },
+      "confirm_password": {
+        "label": "",
+        "hint": "",
+        "error": ""
+      }
     },
     "profile": {
       "title": "Vous êtes inscrit.",
@@ -815,12 +1206,13 @@
       "no_profile_active": "Pas de profil actif",
       "no_mesh": "Aucun maillage",
       "clear_loaded_profile": "Effacer le profil chargé",
-      "range_between_highest_and_lowest_point": "Gamme entre le point le plus haut et le point le plus bas"
+      "range_between_highest_and_lowest_point": "Gamme entre le point le plus haut et le point le plus bas",
+      "cant_render": ""
     },
     "select_spool": {
       "header": {
         "spools": "Bobines",
-        "qr": "QR-Code"
+        "qr": ""
       },
       "no_spools": "Aucune bobine n'a été trouvé. Veuillez ajouter une bobine au gestionnaire de bobines",
       "error": "Une erreur s'est produite lors du chargement des bobines.: {}",
@@ -829,6 +1221,59 @@
       "scan_again": "Encore un Scan",
       "set_active": "Actif",
       "spool_id_not_found": "Désolé, aucune bobine n'a été trouvé avec l'ID spécifié. #{}."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "",
+        "no_services": "",
+        "provider_error": ""
+      },
+      "confirm_action": {
+        "title": "",
+        "hint": {
+          "long_press": ""
+        },
+        "body": {
+          "pi_restart": "",
+          "pi_shutdown": "",
+          "fw_restart": "",
+          "service_start": "",
+          "service_restart": "",
+          "service_stop": ""
+        }
+      }
+    },
+    "dashboard_cards": {
+      "title": "",
+      "subtitle": ""
+    },
+    "dashboard_layout": {
+      "title": "",
+      "subtitle": "",
+      "available_layouts": {
+        "label": "",
+        "empty": "",
+        "add_empty": ""
+      },
+      "layout_preview": {
+        "not_saved": ""
+      },
+      "rename_layout": {
+        "title": "",
+        "label": ""
+      },
+      "delete_layout": {
+        "title": "",
+        "body": ""
+      },
+      "import_snackbar": {
+        "title": "",
+        "body": ""
+      },
+      "falsy_import_snackbar": {
+        "title": "",
+        "body": ""
+      }
     }
   },
   "klipper_state": {
@@ -840,6 +1285,19 @@
     "unauthorized": "Non autorisé",
     "initializing": "Initialisation",
     "not_connected": "Moonraker ne peut pas établir de connexion avec Klipper. Veuillez vérifier que Klipper fonctionne sur votre système."
+  },
+  "print_state": {
+    "standby": "",
+    "printing": "",
+    "paused": "",
+    "complete": "",
+    "cancelled": "",
+    "error": ""
+  },
+  "theme_mode": {
+    "light": "",
+    "dark": "",
+    "system": ""
   },
   "notifications": {
     "channel_printer_grp": "Imprimante {}",
@@ -862,7 +1320,8 @@
   },
   "form_validators": {
     "simple_url": "La saisie n'autorise que les composants URL : Nom d'hôte et Port",
-    "disallow_mdns": "Les adresses mDNS (.local) ne sont pas prises en charge."
+    "disallow_mdns": "Les adresses mDNS (.local) ne sont pas prises en charge.",
+    "file_name_in_use": ""
   },
   "date": {
     "year": {
@@ -898,6 +1357,752 @@
     "day": {
       "one": "Quotidiennement",
       "other": "Jours"
+    }
+  },
+  "languages": {
+    "languageCode": {
+      "ab": {
+        "name": "",
+        "nativeName": ""
+      },
+      "aa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "af": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ak": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sq": {
+        "name": "",
+        "nativeName": ""
+      },
+      "am": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ar": {
+        "name": "",
+        "nativeName": ""
+      },
+      "an": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "as": {
+        "name": "",
+        "nativeName": ""
+      },
+      "av": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ae": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ay": {
+        "name": "",
+        "nativeName": ""
+      },
+      "az": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ba": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "be": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "br": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "my": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ca": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ch": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ce": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ny": {
+        "name": "",
+        "nativeName": ""
+      },
+      "zh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "co": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "da": {
+        "name": "",
+        "nativeName": ""
+      },
+      "dv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "en": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "et": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ee": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ff": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ka": {
+        "name": "",
+        "nativeName": ""
+      },
+      "de": {
+        "name": "",
+        "nativeName": ""
+      },
+      "el": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ht": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ha": {
+        "name": "",
+        "nativeName": ""
+      },
+      "he": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ho": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ia": {
+        "name": "",
+        "nativeName": ""
+      },
+      "id": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ie": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ga": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ig": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ik": {
+        "name": "",
+        "nativeName": ""
+      },
+      "io": {
+        "name": "",
+        "nativeName": ""
+      },
+      "is": {
+        "name": "",
+        "nativeName": ""
+      },
+      "it": {
+        "name": "",
+        "nativeName": ""
+      },
+      "iu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ja": {
+        "name": "",
+        "nativeName": ""
+      },
+      "jv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ks": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "km": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ki": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ky": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ko": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ku": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "la": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "li": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ln": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ms": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ml": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "na": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ne": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ng": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "no": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ii": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "om": {
+        "name": "",
+        "nativeName": ""
+      },
+      "or": {
+        "name": "",
+        "nativeName": ""
+      },
+      "os": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ps": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "qu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ro": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ru": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "se": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "si": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "so": {
+        "name": "",
+        "nativeName": ""
+      },
+      "st": {
+        "name": "",
+        "nativeName": ""
+      },
+      "es": {
+        "name": "",
+        "nativeName": ""
+      },
+      "su": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ss": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ta": {
+        "name": "",
+        "nativeName": ""
+      },
+      "te": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "th": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ti": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "to": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ts": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ty": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ug": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ur": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ve": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "xh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "za": {
+        "name": "",
+        "nativeName": ""
+      }
+    },
+    "countryCode": {
+      "CN": {
+        "name": "",
+        "nativeName": ""
+      },
+      "HK": {
+        "name": "",
+        "nativeName": ""
+      },
+      "BR": {
+        "name": "",
+        "nativeName": ""
+      }
     }
   }
 }
