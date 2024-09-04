@@ -3,8 +3,8 @@
     "pause": "Pausa",
     "resume": "Riprendi",
     "connected": "Connesso",
-    "off": "Off",
-    "on": "On",
+    "off": "",
+    "on": "",
     "none": "Nessuno",
     "add": "Aggiungi",
     "create": "Crea",
@@ -14,7 +14,7 @@
     "use": "Utilizza",
     "restart": "Riavvia",
     "shutdown": "Spegni",
-    "firmware": "Firmware",
+    "firmware": "",
     "fetching": "Recupera",
     "loading": "Caricamento",
     "unknown": "Sconosciuto",
@@ -28,25 +28,50 @@
     "supported": "Supportato",
     "unsupported": "Non Supportato",
     "details": "Dettagli",
-    "google_play": "GooglePlay",
-    "ios_store": "AppStore",
+    "google_play": "",
+    "ios_store": "",
     "active": "Attivo",
     "canceled": "Cancellato",
     "monthly": "Mensile",
     "restore": "Ripristino",
     "accept": "Accetta",
     "abort": "Abortire",
-    "offset": "Offset",
+    "offset": "",
     "valid": "Valido",
     "invalid": "Non Valido",
     "free": "Gratis",
     "one_time": "Una volta",
-    "delete": "Elimina"
+    "delete": "Elimina",
+    "clear": "",
+    "unlink": "",
+    "save": "",
+    "apply": "",
+    "completed": "",
+    "activate": "",
+    "stop": "",
+    "start": "",
+    "repeat": "",
+    "load_more": "",
+    "archived": "",
+    "leave": "",
+    "export": "",
+    "import": "",
+    "current": "",
+    "load": "",
+    "unload": "",
+    "discard": "",
+    "hide": "",
+    "finish": ""
   },
   "pages": {
     "dashboard": {
       "title": "Pannello di Controllo",
       "ems_btn": "Stop-Emergenza",
+      "ems_confirmation": {
+        "title": "",
+        "body": "",
+        "confirm": ""
+      },
       "server_status": {
         "unavailable": "Nessun Server disponibile",
         "available": "Lo stato del Server è {} e Klippy è {}"
@@ -59,21 +84,23 @@
           "printing_for": "Stampa in corso: {}",
           "speed": "Velocità",
           "layer": "Strato",
-          "eta": "ETA",
+          "eta": "",
           "current_object": "Oggetto corrente",
           "elapsed": "Trascorso",
           "flow": "Flusso",
           "filament": "Filamento",
           "filament_tooltip": "Usato {} % del Filamento, che è {} m dei {} m previsti.",
-          "eta_tooltip": "Tempo restante:\nMedia: {avg}\nSlicer: {slicer}\nFile: {file}\nFilamento: {filament}"
+          "eta_tooltip": "Tempo restante:\nMedia: {avg}\nSlicer: {slicer}\nFile: {file}\nFilamento: {filament}",
+          "remaining": ""
         },
         "cam_card": {
-          "webcam": "Webcam",
-          "fullscreen": "Schermo intero"
+          "webcam": "",
+          "fullscreen": "Schermo intero",
+          "error_connecting": ""
         },
         "temp_card": {
           "title": "Controllo Temperature",
-          "presets_btn": "Presets",
+          "presets_btn": "",
           "hotend": "Ugello",
           "bed": "Piatto",
           "temp_presets": "Preset Temperature",
@@ -83,8 +110,8 @@
         },
         "temp_preset_card": {
           "cooloff": "Raffredda",
-          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
-          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+          "h_temp": "",
+          "b_temp": ""
         },
         "move_card": {
           "title": "Muovi Assi",
@@ -93,31 +120,33 @@
           "home_all_tooltip": "Posiziona tutti gli assi",
           "home_all_btn": "Tutti",
           "qgl_tooltip": "Avvia livellamento quattro angoli",
-          "qgl_btn": "QGL",
+          "qgl_btn": "",
           "mesh_tooltip": "Avvia calibrazione Bed-Mesh",
-          "mesh_btn": "Mesh",
+          "mesh_btn": "",
           "m84_tooltip": "Disabilita Motori",
-          "m84_btn": "M84",
+          "m84_btn": "",
           "step_size": "Dimensioni Step",
           "stc_tooltip": "Avvia calcolo Rotazione-Viti",
-          "stc_btn": "STC",
+          "stc_btn": "",
           "ztilt_tooltip": "Avvia calibrazione Inclinazione-Z",
-          "ztilt_btn": "zTilt",
+          "ztilt_btn": "",
           "poff_tooltip": "Avvia calibrazione Offset con Sonda",
           "poff_btn": "Calibrazione Sonda",
           "zoff_tooltip": "Avvia calibrazione Offset Finecorsa Z",
           "zoff_btn": "Calibrazione Finecorsa-Z",
           "bsa_tooltip": "Avvia calibrazione Bed Screw Adjust",
-          "bsa_btn": "Bed Screw Adjust",
+          "bsa_btn": "",
           "save_tooltip": "Salva risultati di calibrazione",
           "save_btn": "Salva Config",
-          "more_btn": "Altro"
+          "more_btn": "Altro",
+          "homed": ""
         },
         "baby_step_card": {
-          "title": "Micro-Step Asse-Z"
+          "title": "Micro-Step Asse-Z",
+          "z_offset": ""
         },
         "restart_klipper": "Riavvia Klipper",
-        "restart_mcu": "@:general.restart @:general.firmware"
+        "restart_mcu": ""
       },
       "control": {
         "fan_card": {
@@ -126,7 +155,7 @@
             "one": "Ventola",
             "other": "Ventole"
           },
-          "part_fan": "Part Fan",
+          "part_fan": "",
           "static_fan_btn": "Ventola"
         },
         "extrude_card": {
@@ -137,46 +166,182 @@
           "cold_extrude_error": "Estrusore non ha ancora raggiunto min_extrude_temp di {}°C!"
         },
         "macro_card": {
-          "title": "Gcode - Macros"
+          "title": "",
+          "no_macros": "",
+          "add_grp_hint": "",
+          "show_all_tooltip": ""
         },
         "pin_card": {
-          "title": {
-            "zero": "Output Pin",
-            "one": "Output Pin",
-            "two": "Output Pins",
-            "other": "Output Pins"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "",
+          "pin_btn": "",
+          "filament_sensor": {
+            "detected": "",
+            "not_detected": ""
+          }
         },
         "power_card": {
           "title": "Pannello Alimentazioni",
-          "pin_btn": "Pin"
+          "pin_btn": "",
+          "provider_error_title": ""
         },
         "multipl_card": {
           "title": "Moltiplicatori",
           "flow": "Flusso",
-          "press_adv": "Pressure Advance",
-          "smooth_time": "Smooth Time"
+          "press_adv": "",
+          "smooth_time": ""
         },
         "limit_card": {
           "title": "Limiti",
           "velocity": "Velocità",
           "accel": "Accelerazione",
-          "sq_corn_vel": "Square Corner Velocity",
-          "accel_to_decel": "Accel to Decel"
+          "sq_corn_vel": "",
+          "accel_to_decel": ""
+        },
+        "fw_retraction_card": {
+          "title": "",
+          "retract_length": "",
+          "retract_speed": "",
+          "extra_unretract_length": "",
+          "unretract_speed": ""
+        },
+        "bed_mesh_card": {
+          "title": "",
+          "profiles": "",
+          "range_tooltip": "",
+          "showing_matrix": {
+            "probed": "",
+            "mesh": ""
+          }
+        },
+        "spoolman_card": {
+          "title": "",
+          "no_spool": "",
+          "select_spool": "",
+          "used": "",
+          "provider_error_title": ""
         }
       }
     },
+    "customizing_dashboard": {
+      "title": "",
+      "cancel_confirm": {
+        "title": "",
+        "body": ""
+      },
+      "add_card": "",
+      "remove_page": "",
+      "saved_snack": {
+        "title": "",
+        "body": ""
+      },
+      "cant_remove_snack": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_removal": {
+        "title": "",
+        "body": ""
+      },
+      "editing_card": {
+        "title": "",
+        "body": ""
+      },
+      "error_save_snack": {
+        "title": "",
+        "body": ""
+      },
+      "error_no_components": {
+        "title": "",
+        "body": ""
+      }
+    },
     "files": {
-      "title": "Files",
+      "title": "",
+      "empty_folder": {
+        "title": "",
+        "subtitle": ""
+      },
+      "sort_by": {
+        "sort_by": "",
+        "name": "",
+        "last_modified": "",
+        "last_printed": "",
+        "file_size": ""
+      },
+      "file_actions": {
+        "download": "",
+        "delete": "",
+        "copy": "",
+        "move": "",
+        "rename": "",
+        "create_file": "",
+        "create_folder": "",
+        "upload": "",
+        "upload_bulk": "",
+        "zip_file": ""
+      },
+      "gcode_file_actions": {
+        "submit": "",
+        "preheat": "",
+        "enqueue": ""
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "download_failed": {
+          "title": "",
+          "body": ""
+        },
+        "upload_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "upload_success": {
+          "title": "",
+          "body": ""
+        },
+        "upload_failed": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_success": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_failed": {
+          "title": "",
+          "body": ""
+        },
+        "copy_created": {
+          "title": "",
+          "body": ""
+        }
+      },
       "search_files": "Ricerca files",
-      "clear_search": "Cancella Ricerca",
-      "name": "Nome",
-      "last_mod": "Ultima Modifica",
-      "last_printed": "Ultima Stampa",
-      "not_printed": "Non Stampato",
-      "fetching_files": "@:general.fetching Files...",
-      "no_files_found": "Nessun file trovato!",
+      "search": {
+        "clear_search": "",
+        "waiting": "",
+        "no_results": {
+          "title": "",
+          "subtitle": ""
+        }
+      },
+      "cancel_fab": {
+        "upload": "",
+        "download": ""
+      },
+      "move_here": "",
+      "copy_here": "",
+      "no_matches_file_pattern": "",
+      "gcode_tab": "",
+      "config_tab": "",
+      "timelapse_tab": "",
+      "element": {
+        "one": "",
+        "other": ""
+      },
       "details": {
         "preheat": "Preriscalda",
         "print": "Stampa",
@@ -187,10 +352,12 @@
           "no_data": "Nessun Dato"
         },
         "meta_card": {
-          "title": "GCode Meta Data",
+          "title": "",
           "filament": "Filamento",
           "filament_type": "Tipo Filamento",
           "filament_name": "Nome Filamento",
+          "filament_weight": "",
+          "filament_length": "",
           "est_print_time": "Tempo di Stampa Stimato",
           "slicer": "Slicer utilizzato",
           "nozzle_diameter": "Diametro Ugello",
@@ -198,18 +365,24 @@
           "first_layer": "Primo Strato",
           "others": "Altri",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperature",
-          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+          "first_layer_temps_value": ""
         },
         "stat_card": {
           "title": "Statistiche"
         },
         "preheat_dialog": {
-          "title": "@:pages.files.details.preheat ?",
+          "title": "",
           "body": "Obbiettivo Temperature\nEstrusore: {}°C\nPiatto: {}°C"
         },
         "preheat_snackbar": {
           "title": "Preriscaldamento Avviato",
           "body": "Estrusore: {}°C\nPiatto: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "",
+          "insufficient_filament_body": "",
+          "material_mismatch_title": "",
+          "material_mismatch_body": ""
         }
       }
     },
@@ -218,13 +391,33 @@
       "general": {
         "title": "Generale",
         "ems_confirm": "Conferma Stop-Emergenza",
+        "ems_confirm_hint": "",
         "always_baby": "Mostra opzioni Z-Offset",
+        "always_baby_hint": "",
         "num_edit": "Utilizza la tastiera per l'inserimento dei numeri",
+        "num_edit_hint": "",
         "start_with_overview": "Mostra @:pages.overview.title predefinita",
+        "start_with_overview_hint": "",
         "use_offset_pos": "Mostra le coordinate con l'offset applicato.",
+        "use_offset_pos_hint": "",
         "lcFullCam": "Webcam a Schermo Intero in Orizzontale",
+        "lcFullCam_hint": "",
         "language": "Lingua",
-        "companion": "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion"
+        "companion": "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion",
+        "sliders_grouping": "",
+        "sliders_grouping_hint": "",
+        "time_format": "",
+        "system_theme": "",
+        "system_theme_mode": "",
+        "printer_theme_warning": "",
+        "filament_sensor_dialog": "",
+        "filament_sensor_dialog_hint": "",
+        "confirm_gcode": "",
+        "confirm_gcode_hint": "",
+        "eta_sources": "",
+        "eta_sources_hint": "",
+        "medium_ui": "",
+        "medium_ui_hint": ""
       },
       "notification": {
         "title": "Notifiche",
@@ -239,13 +432,19 @@
         "ios_notifications_title": "Consegna delle notifiche IOS",
         "ios_notifications_desc": "Le notifiche richiedono che mobileraker sia aperto almeno una volta e sia in background.\nAlcune notifiche potrebbero essere bloccate dal sistema operativo!",
         "missing_companion_title": "Companion non trovata!",
-        "missing_companion_body": "Sembra che la Companion non sia stata installata, pertanto la stampante non può inviare le notifiche: {}\nClicca per saperne di piu!"
+        "missing_companion_body": "Sembra che la Companion non sia stata installata, pertanto la stampante non può inviare le notifiche: {}\nClicca per saperne di piu!",
+        "enable_live_activity": "",
+        "enable_live_activity_helper": "",
+        "opt_out_marketing": "",
+        "opt_out_marketing_helper": "",
+        "use_progressbar_notification": "",
+        "use_progressbar_notification_helper": ""
       },
       "developer": {
         "title": "Sviluppatore",
         "crashlytics": "Attiva la segnalazione dei Crashlytics"
       },
-      "imprint": "Privacy/Impressum"
+      "imprint": ""
     },
     "printer_edit": {
       "title": "Modifica {}",
@@ -255,6 +454,8 @@
       "fetching_additional_settings": "@:general.fetching impostazioni aggiuntive dalla rete...",
       "could_not_fetch_additional": "Impossibile recuperare impostazioni aggiuntive!",
       "fetch_error_hint": "Assicurati che la stampante sia raggiungibile e che Mobileraker sia connesso.",
+      "reset_notification_registry": "",
+      "configure_remote_connection": "",
       "store_error": {
         "title": "Salvataggio fallito!",
         "message": "Alcuni campi contengono valori non validi!\nAssicurati che tutti i campi siano validi.",
@@ -264,27 +465,24 @@
         "title": "Cancella {}?",
         "body": "Stai per rimuovere la stampante '{}' connessa a '{}'. \n\nConferma la tua azione."
       },
-      "success_oe_link": {
-        "title": "Connessa {}",
-        "body": "Connessa con successo {} con OctoEverywhere!"
-      },
-      "confirm_oe_unlink": {
-        "title": "Disconnettere {}?",
-        "body": "Confermare la disconnessione della stampante {} da OctoEverywhere.",
-        "button": "Disconnetti"
-      },
-      "success_oe_unlink": {
-        "title": "Disconnessa {}",
-        "body": "Disconnessa con successo {} da OctoEverywhere!"
-      },
       "general": {
         "displayname": "Nome da visualizzare",
         "printer_addr": "Stampante - Indirizzo",
         "ws_addr": "Websocket - Indirizzo",
-        "moonraker_api_key": "Moonraker - API Key",
+        "moonraker_api_key": "",
         "moonraker_api_desc": "Necessario solo se utilizzi client fidati. FluiddPI lo impone!",
         "full_url": "URL Completo",
-        "self_signed": "Fidati dei Certificati Autofirmati"
+        "timeout_label": "",
+        "timeout_helper": "",
+        "theme": "",
+        "theme_helper": "",
+        "theme_unavailable": ""
+      },
+      "ssl": {
+        "title": "",
+        "pin_certificate_label": "",
+        "pin_certificate_helper": "",
+        "self_signed": ""
       },
       "motion_system": {
         "title": "Sistema di movimento",
@@ -295,20 +493,30 @@
         "invert_z": "Inverti - Asse Z",
         "invert_z_short": "Inverti Z",
         "speed_xy": "Velocità - Assi X/Y",
-        "speed_xy_short": "Speed X/Y",
+        "speed_xy_short": "",
         "speed_z": "Velocità - Asse Z",
         "speed_z_short": "Velocità Z",
         "steps_move": "Muovi step",
-        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Z-Offset steps",
-        "steps_baby_short": "Z-Steps"
+        "steps_move_short": "",
+        "steps_baby": "",
+        "steps_baby_short": ""
       },
       "extruders": {
         "title": "Estrusore/i",
         "feedrate": "Velocità Avanzamento Estrusore",
         "feedrate_short": "Velocità di Avanzamento",
         "steps_extrude": "Estrudi step",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "",
+        "filament": {
+          "loading_distance": "",
+          "loading_distance_helper": "",
+          "loading_speed": "",
+          "loading_speed_helper": "",
+          "purge_amount": "",
+          "purge_amount_helper": "",
+          "purge_speed": "",
+          "purge_speed_helper": ""
+        }
       },
       "cams": {
         "target_fps": "Obbiettivo FPS",
@@ -320,30 +528,109 @@
         "flip_vertical": "Ruota in Verticale",
         "flip_horizontal": "Ruota in Orizzontale",
         "cam_mode": "Modalità Videocamera",
-        "cam_rotate": "Rotazione"
+        "cam_rotate": "Rotazione",
+        "read_only": ""
       },
       "macros": {
+        "default_grp": "",
         "new_macro_grp": "Nuova Macro - Gruppo",
         "no_macros_available": "Nessuna Macro disponibile!",
         "no_macros_found": "Nessuna Macro trovata!",
+        "no_macros_in_grp": "",
+        "deleted_grp": "",
+        "macros": "",
+        "default_name": "",
         "macros_to_default": {
           "one": "Una macro spostata nel gruppo predefinito!",
           "two": "Due macro spostate nel gruppo predefinito!",
           "other": "Spostate {} macro nel gruppo predefinito!"
-        }
+        },
+        "macro_removed": ""
       },
       "presets": {
         "no_presets": "Nessun Preset aggiunto!",
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperatura",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperatura",
         "new_preset": "Nuovo Preset"
+      },
+      "confirm_fcm_reset": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "",
+          "other": ""
+        },
+        "body": {
+          "oe": "",
+          "other": ""
+        },
+        "button": {
+          "oe": "",
+          "other": ""
+        }
+      },
+      "remote_interface_exists": {
+        "title": "",
+        "body": {
+          "oe": "",
+          "obico": "",
+          "other": ""
+        }
+      },
+      "remote_interface_removed": {
+        "title": "",
+        "body": ""
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "",
+          "obico": "",
+          "other": ""
+        },
+        "body": ""
+      },
+      "wifi_access_warning": {
+        "title": "",
+        "subtitle": ""
+      },
+      "local_ssid": {
+        "section_header": "",
+        "no_ssids": "",
+        "helper": "",
+        "dialog": {
+          "title_add": "",
+          "title_edit": "",
+          "label": "",
+          "quick_add_hint": ""
+        },
+        "error_fetching_snackbar": {
+          "title": "",
+          "body": ""
+        }
+      },
+      "temp_ordering": {
+        "title": "",
+        "helper": "",
+        "no_sensors": ""
+      },
+      "fan_ordering": {
+        "title": "",
+        "helper": "",
+        "no_fans": ""
+      },
+      "misc_ordering": {
+        "title": "",
+        "helper": "",
+        "no_controls": ""
       }
     },
     "printer_add": {
       "steps": {
         "mode": "Modalità",
-        "input": "Input",
-        "test": "Test",
+        "input": "",
+        "test": "",
         "done": "Fatto"
       },
       "title": "Aggiungi Nuova Stampante",
@@ -353,7 +640,8 @@
         "body": "Se sei alle prime armi, è meglio attenersi alla modalità semplice. Tuttavia, se sei esperto e hai bisogno di utilizzare intestazioni personalizzate, certificati, ecc., allora la modalità esperto fa per te. Tieni presente che la modalità che scegli non influirà sull'app stessa, ma determinerà come l'input viene convalidato e visualizzato e quali opzioni sono disponibili mentre aggiungi una stampante.",
         "simple": "semplice",
         "advanced": "Avanzata",
-        "add_via_oe": "Installa OctoEverywhere in un Click"
+        "add_via_oe": "Installa OctoEverywhere in un Click",
+        "add_via_obico": ""
       },
       "simple_form": {
         "hint_title": "Suggerimento - modalità Semplice",
@@ -374,8 +662,8 @@
         "ws_url_label": "Risultato WebSocket-URL",
         "http_url_label": "Risultato HTTP-URL",
         "section_test": "Test di connessione",
-        "http_label": "Http Endpoint - Test",
-        "ws_label": "Websocket Endpoint - Test",
+        "http_label": "",
+        "ws_label": "",
         "awaiting": "In attesa dei risultati...",
         "continue": "Continua",
         "continue_anyway": "Continua Comunque",
@@ -388,11 +676,18 @@
       }
     },
     "console": {
-      "title": "Console",
+      "title": "",
+      "card_title": "",
       "no_entries": "Nessun comando trovato nella cache",
       "fetching_console": "@:general.fetching voci di console...",
+      "macro_suggestions": "",
+      "no_suggestions": "",
       "command_input": {
         "hint": "Inserisci comando"
+      },
+      "provider_error": {
+        "title": "",
+        "body": ""
       }
     },
     "overview": {
@@ -407,7 +702,7 @@
       "open_in_browser": "Apri @:pages.faq.title nel Browser"
     },
     "faq": {
-      "title": "FAQ"
+      "title": ""
     },
     "changelog": {
       "title": "Registro delle modifiche"
@@ -422,7 +717,8 @@
       "subscribe_view": {
         "title": "Diventa un Sostenitore di Mobileraker!",
         "info": "Mobileraker mira a fornire un'interfaccia utente mobile veloce e affidabile per Klipper, guidata dallo spirito di RepRap, che software e hardware open source possono avere un impatto positivo.\nPoiché Mobileraker è sviluppato da un singolo sviluppatore e offerto gratuitamente, si basa su finanziamenti comunitari per coprire i costi operativi e di sviluppo.",
-        "list_title": "Scegli il livello di Sostenitore:"
+        "list_title": "Scegli il livello di Sostenitore:",
+        "subscription_info": ""
       },
       "supporter_tier_list": {
         "error_title": "Errore durante il caricamento dei livelli di Sostenitore!",
@@ -430,7 +726,7 @@
       },
       "contact_dialog": {
         "title": "Contatta Sviluppatore",
-        "body": "Mail: {}\nDiscord: {}"
+        "body": ""
       },
       "title": "Sostieni lo Sviluppatore!",
       "calling_store": "Elaborazione richiesta...",
@@ -438,7 +734,86 @@
       "free_phase": "Primo {} gratis",
       "intro_phase": "Godi {} con {} di sconto",
       "iap_offer": "{} di sconto sul prezzo originale",
-      "tip_developer": "Suggerimento Sviluppatore"
+      "tip_developer": "Suggerimento Sviluppatore",
+      "trial_disclaimer": "",
+      "restore_sign_in": ""
+    },
+    "video_player": {
+      "downloading_for_sharing": ""
+    },
+    "tool": {
+      "title": ""
+    },
+    "beltTuner": {
+      "title": "",
+      "description": "",
+      "beltType": "",
+      "target": "",
+      "permissionWarning": {
+        "title": "",
+        "subtitle": ""
+      }
+    },
+    "spoolman": {
+      "title": "",
+      "not_available": "",
+      "learn_more": "",
+      "learn_more_link": "",
+      "no_spools": "",
+      "no_filaments": "",
+      "no_vendors": "",
+      "error_loading_spools": "",
+      "error_loading_filaments": "",
+      "spool": {
+        "one": "",
+        "other": ""
+      },
+      "filament": {
+        "one": "",
+        "other": ""
+      },
+      "vendor": {
+        "one": "",
+        "other": ""
+      },
+      "properties": {
+        "id": "",
+        "name": "",
+        "registered": "",
+        "comment": "",
+        "material": "",
+        "price": "",
+        "density": "",
+        "diameter": "",
+        "weight": "",
+        "spool_weight": "",
+        "article_number": "",
+        "first_used": "",
+        "last_used": "",
+        "remaining_weight": "",
+        "used_weight": "",
+        "location": "",
+        "lot_number": ""
+      },
+      "vendor_details": {
+        "page_title": "",
+        "info_card": "",
+        "filaments_card": "",
+        "spools_card": ""
+      },
+      "filament_details": {
+        "info_card": "",
+        "spools_card": ""
+      },
+      "spool_details": {
+        "page_title": "",
+        "info_card": "",
+        "set_active": "",
+        "archived_warning": {
+          "title": "",
+          "body": ""
+        }
+      }
     }
   },
   "components": {
@@ -471,13 +846,33 @@
       "subtitle": "Clicca qui! Per sapere come puoi sostenere lo sviluppo!"
     },
     "supporter_only_feature": {
+      "dialog_title": "",
       "button": "Diventa un Sostenitore di Mobileraker",
       "webcam": "Siamo spiacenti, le Webcam di tipo {} sono disponibili solo per i Sostenitori.",
-      "printer_add": "Spiacenti, la gestione di più di {} stampanti è disponibile solo per i Sostenitori."
+      "printer_add": "Spiacenti, la gestione di più di {} stampanti è disponibile solo per i Sostenitori.",
+      "job_queue": "",
+      "timelaps_share": "",
+      "printer_theme": "",
+      "spoolman_page": "",
+      "custom_dashboard": "",
+      "full_file_management": ""
     },
     "machine_deletion_warning": {
       "title": "Cancellazione Stampante",
       "subtitle": "Sembra che tu non sia un Sostenitore. Solo i sostenitori possono avere più di {} stampanti. Hai {} giorni prima che le stampanti in eccesso vengano rimosse."
+    },
+    "remote_connection_indicator": {
+      "title": ""
+    },
+    "web_rtc": {
+      "renderer_missing": "",
+      "oe_warning": ""
+    },
+    "ri_indicator": {
+      "tooltip": ""
+    },
+    "obico_indicator": {
+      "tooltip": ""
     }
   },
   "dialogs": {
@@ -503,12 +898,32 @@
       "title": "Rinomina Cartella",
       "label": "Nome Cartella"
     },
+    "copy_folder": {
+      "title": "",
+      "label": ""
+    },
     "delete_file": {
       "description": "Conferma l'eliminazione del file '{}'."
     },
     "rename_file": {
       "title": "Rinomina File",
       "label": "Nome File"
+    },
+    "copy_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_archive": {
+      "title": "",
+      "label": ""
+    },
+    "delete_files": {
+      "title": "",
+      "description": ""
     },
     "exclude_object": {
       "title": "Escludi Oggetto dalla Stampa",
@@ -523,7 +938,9 @@
       "body": "Puoi inserire un IP, URL o URI completo nella tua interfaccia web o direttamente nell'istanza websocket fornita da moonraker.\n\nEsempi validi:"
     },
     "gcode_params": {
-      "hint": "Suggerimento: puoi anche premere a lungo se desideri inviare la macro con i valori predefiniti!"
+      "hint": "Suggerimento: puoi anche premere a lungo se desideri inviare la macro con i valori predefiniti!",
+      "confirm_title": "",
+      "confirm_body": ""
     },
     "rgbw": {
       "recent_colors": "Colori Recenti"
@@ -552,10 +969,30 @@
       "webrtc_perk": {
         "title": "Supporto WebRtc",
         "subtitle": "Consente l'utilizzo delle webcam WebRtc!"
+      },
+      "job_queue_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "unlimited_printers_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "printer_theme_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "custom_dashboard_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "full_file_management_perk": {
+        "title": "",
+        "subtitle": ""
       }
     },
     "bed_screw_adjust": {
-      "title": "Bed Screw Adjust",
+      "title": "",
       "xy_plane": "Piano X/Y della Stampante:",
       "active_screw_title": "Vite attiva:",
       "accept_screw_title": "Viti accettate:",
@@ -576,11 +1013,267 @@
       "tip": "Mancia"
     },
     "http_header": {
-      "title": "Http-Header",
-      "header": "Header",
+      "title": "",
+      "header": "",
       "header_hint": "The HTTP-Header nam",
-      "value": "Header-Value",
-      "value_hint": "The value of the header"
+      "value": "",
+      "value_hint": ""
+    },
+    "macro_settings": {
+      "show_while_printing": "",
+      "visible": ""
+    },
+    "extruder_feedrate": {
+      "title": ""
+    },
+    "fan_speed": {
+      "title": ""
+    },
+    "filament_sensor_triggered": {
+      "title": "",
+      "body": ""
+    },
+    "screws_tilt_adjust": {
+      "title": "",
+      "base": "",
+      "hint": ""
+    },
+    "dashboard_page_settings": {
+      "title": "",
+      "icon_label": ""
+    },
+    "filament_switch": {
+      "title": {
+        "load": "",
+        "unload": ""
+      },
+      "controls": {
+        "heat_up": "",
+        "change_temp": "",
+        "purge": "",
+        "repeat_load": "",
+        "repeat_unload": "",
+        "repeat_purge": ""
+      },
+      "steps": {
+        "set_temps": {
+          "title": "",
+          "subtitle": ""
+        },
+        "heat_up": {
+          "title": "",
+          "subtitle": ""
+        },
+        "move": {
+          "title": {
+            "load": "",
+            "unload": ""
+          },
+          "subtitle": {
+            "load": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            },
+            "unload": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            }
+          }
+        },
+        "purge": {
+          "title": "",
+          "subtitle": {
+            "idle": "",
+            "processing": "",
+            "processed": ""
+          }
+        },
+        "tip_form": {
+          "title": "",
+          "subtitle": ""
+        }
+      }
+    },
+    "heater_temperature": {
+      "title": ""
+    },
+    "confirm_print_cancelation": {
+      "title": "",
+      "body": ""
+    }
+  },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "next": "",
+      "empty": "",
+      "start_queue": "",
+      "pause_queue": "",
+      "remove_all": "",
+      "remove_all_confirm": ""
+    },
+    "add_remote_con": {
+      "disclosure": "",
+      "active_service_info": {
+        "title": "",
+        "body": ""
+      },
+      "octoeverywehre": {
+        "service_name": "",
+        "tab_name": "",
+        "link": "",
+        "unlink": "",
+        "description": ""
+      },
+      "manual": {
+        "service_name": "",
+        "tab_name": "",
+        "description": "",
+        "address_label": "",
+        "address_hint": ""
+      },
+      "obico": {
+        "service_name": "",
+        "tab_name": "",
+        "link": "",
+        "unlink": "",
+        "description": "",
+        "self_hosted": {
+          "title": "",
+          "description": "",
+          "url_label": "",
+          "url_hint": ""
+        }
+      }
+    },
+    "manage_macros_in_grp": {
+      "title": "",
+      "hint": ""
+    },
+    "signIn": {
+      "subtitle": "",
+      "forgot_password": "",
+      "forgot_password_success": "",
+      "hint": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "action": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "email": {
+        "label": "",
+        "hint": ""
+      },
+      "password": {
+        "label": "",
+        "hint": ""
+      },
+      "confirm_password": {
+        "label": "",
+        "hint": "",
+        "error": ""
+      }
+    },
+    "profile": {
+      "title": "",
+      "description": "",
+      "restore_purchases": "",
+      "restore_success": "",
+      "sign_out": "",
+      "delete_account": "",
+      "email_verification": {
+        "title": {
+          "pending": "",
+          "not_verified": ""
+        },
+        "description": "",
+        "send": ""
+      },
+      "delete_account_dialog": {
+        "title": "",
+        "body": ""
+      }
+    },
+    "bedMesh": {
+      "no_mesh_loaded": "",
+      "load_bed_mesh_profile": "",
+      "currently_active": "",
+      "no_profile_active": "",
+      "no_mesh": "",
+      "clear_loaded_profile": "",
+      "range_between_highest_and_lowest_point": "",
+      "cant_render": ""
+    },
+    "select_spool": {
+      "header": {
+        "spools": "",
+        "qr": ""
+      },
+      "no_spools": "",
+      "error": "",
+      "qr_loading": "",
+      "qr_error": "",
+      "scan_again": "",
+      "set_active": "",
+      "spool_id_not_found": ""
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "",
+        "no_services": "",
+        "provider_error": ""
+      },
+      "confirm_action": {
+        "title": "",
+        "hint": {
+          "long_press": ""
+        },
+        "body": {
+          "pi_restart": "",
+          "pi_shutdown": "",
+          "fw_restart": "",
+          "service_start": "",
+          "service_restart": "",
+          "service_stop": ""
+        }
+      }
+    },
+    "dashboard_cards": {
+      "title": "",
+      "subtitle": ""
+    },
+    "dashboard_layout": {
+      "title": "",
+      "subtitle": "",
+      "available_layouts": {
+        "label": "",
+        "empty": "",
+        "add_empty": ""
+      },
+      "layout_preview": {
+        "not_saved": ""
+      },
+      "rename_layout": {
+        "title": "",
+        "label": ""
+      },
+      "delete_layout": {
+        "title": "",
+        "body": ""
+      },
+      "import_snackbar": {
+        "title": "",
+        "body": ""
+      },
+      "falsy_import_snackbar": {
+        "title": "",
+        "body": ""
+      }
     }
   },
   "klipper_state": {
@@ -589,7 +1282,22 @@
     "starting": "Avvio",
     "disconnected": "Disconnesso",
     "error": "Errore",
-    "unauthorized": "Non Autorizzato"
+    "unauthorized": "Non Autorizzato",
+    "initializing": "",
+    "not_connected": ""
+  },
+  "print_state": {
+    "standby": "",
+    "printing": "",
+    "paused": "",
+    "complete": "",
+    "cancelled": "",
+    "error": ""
+  },
+  "theme_mode": {
+    "light": "",
+    "dark": "",
+    "system": ""
   },
   "notifications": {
     "channel_printer_grp": "Stampante {}",
@@ -611,8 +1319,9 @@
     }
   },
   "form_validators": {
-    "simple_url": "Input only allows URL components: Hostname and Port",
-    "disallow_mdns": "MDNs (.local) addresses are not supported"
+    "simple_url": "",
+    "disallow_mdns": "MDNs (.local) addresses are not supported",
+    "file_name_in_use": ""
   },
   "date": {
     "year": {
@@ -649,6 +1358,751 @@
       "one": "Quotidiano",
       "other": "Giorni"
     }
+  },
+  "languages": {
+    "languageCode": {
+      "ab": {
+        "name": "",
+        "nativeName": ""
+      },
+      "aa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "af": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ak": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sq": {
+        "name": "",
+        "nativeName": ""
+      },
+      "am": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ar": {
+        "name": "",
+        "nativeName": ""
+      },
+      "an": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "as": {
+        "name": "",
+        "nativeName": ""
+      },
+      "av": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ae": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ay": {
+        "name": "",
+        "nativeName": ""
+      },
+      "az": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ba": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "be": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "br": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "my": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ca": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ch": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ce": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ny": {
+        "name": "",
+        "nativeName": ""
+      },
+      "zh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "co": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "da": {
+        "name": "",
+        "nativeName": ""
+      },
+      "dv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "en": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "et": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ee": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ff": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ka": {
+        "name": "",
+        "nativeName": ""
+      },
+      "de": {
+        "name": "",
+        "nativeName": ""
+      },
+      "el": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ht": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ha": {
+        "name": "",
+        "nativeName": ""
+      },
+      "he": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ho": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ia": {
+        "name": "",
+        "nativeName": ""
+      },
+      "id": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ie": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ga": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ig": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ik": {
+        "name": "",
+        "nativeName": ""
+      },
+      "io": {
+        "name": "",
+        "nativeName": ""
+      },
+      "is": {
+        "name": "",
+        "nativeName": ""
+      },
+      "it": {
+        "name": "",
+        "nativeName": ""
+      },
+      "iu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ja": {
+        "name": "",
+        "nativeName": ""
+      },
+      "jv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ks": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "km": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ki": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ky": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ko": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ku": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "la": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "li": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ln": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ms": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ml": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "na": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ne": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ng": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "no": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ii": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "om": {
+        "name": "",
+        "nativeName": ""
+      },
+      "or": {
+        "name": "",
+        "nativeName": ""
+      },
+      "os": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ps": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "qu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ro": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ru": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "se": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "si": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "so": {
+        "name": "",
+        "nativeName": ""
+      },
+      "st": {
+        "name": "",
+        "nativeName": ""
+      },
+      "es": {
+        "name": "",
+        "nativeName": ""
+      },
+      "su": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ss": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ta": {
+        "name": "",
+        "nativeName": ""
+      },
+      "te": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "th": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ti": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "to": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ts": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ty": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ug": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ur": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ve": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "xh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "za": {
+        "name": "",
+        "nativeName": ""
+      }
+    },
+    "countryCode": {
+      "CN": {
+        "name": "",
+        "nativeName": ""
+      },
+      "HK": {
+        "name": "",
+        "nativeName": ""
+      },
+      "BR": {
+        "name": "",
+        "nativeName": ""
+      }
+    }
   }
-  
 }
