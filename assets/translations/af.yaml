@@ -1,0 +1,470 @@
+---
+general:
+  pause: Pouse
+  resume: Hervat
+  connected: Gekonnekteer
+  'off': Af
+  'on': Aan
+  none: Geen
+  add: Voeg by
+  create: Skep
+  rename: Herbenoem
+  remove: Verwyder
+  set: Stel
+  use: Gebruik
+  restart: Herlaai
+  shutdown: Skakel af
+  firmware: Fermware
+  fetching: Haal tans op
+  loading: Laai tans
+  unknown: Onbekend
+  disabled: Uitgeskakel
+  confirm: Bevestig
+  cancel: Kanselleer
+  close: Maak toe
+  edit: Redigeer
+  preview: Voorskou
+  retry: Probeer weer
+  supported: Word ondersteun
+  unsupported: Word nie ondersteun
+  details: Besonderhede
+  google_play: GooglePlay
+  ios_store: AppStore
+  active: Aktief
+  canceled: Gekanselleer
+  monthly: Maandeliks
+  restore: Herstel
+  accept: Aanvaar
+  abort: Staak
+  offset: Afset
+pages:
+  dashboard:
+    title: Paneelskerm
+    ems_btn: Noodstop
+    server_status:
+      unavailable: Geen bediener is beskikbaar
+      available: Bedienertoestand is {} en Klippy is {}
+    fetching_printer: "@:general.fetching drukker..."
+    general:
+      print_card:
+        reset: Herstel
+        printing_for: 'Druk tans: {}'
+        speed: Spoed
+        layer: Laag
+        eta: ETA
+        current_object: Huidige Objek
+        elapsed: Verloop
+        flow: Vloei
+        filament: Filament
+        filament_tooltip: Het {} % Filament gebruik, dit is {} m van die geskatte
+          {} m.
+        eta_tooltip: 'Oorblywende tyd: {} '
+      cam_card:
+        webcam: Webcam
+        fullscreen: Volskerm
+      temp_card:
+        title: Temperatuurkontrole
+        presets_btn: Voorafinstellings
+        hotend: Warmpunt
+        bed: Bed
+        temp_presets: Temperatuur voorafinstellings
+        sensors: Sensors
+        heater_on: "{} °C teikin"
+        btn_thermistor: Sensor
+      temp_preset_card:
+        cooloff: Koel af
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
+      move_card:
+        title: Beweeg Asse
+        home_xy_tooltip: Bring X-en-Y-asse tuis
+        home_z_tooltip: Bring Z-as tuis
+        home_all_tooltip: Bring all asse tuis
+        home_all_btn: Almal
+        qgl_tooltip: Loop Quad-Spoor-Vlakstelling
+        qgl_btn: QGL
+        mesh_tooltip: Loop Bedmaas-kalibrasie
+        mesh_btn: Maas
+        m84_tooltip: Skakel Motors Uit
+        m84_btn: M84
+        step_size: Stapgrootte
+        stc_tooltip: Loop Skroefhelling-berekening
+        stc_btn: STC
+        ztilt_tooltip: Loop Z-Helling-berekening
+        ztilt_btn: zHelling
+        poff_tooltip: Loop Probe-Afset-Kalibrasie
+        poff_btn: Probe Kalibrasie
+        zoff_tooltip: Loop Z-Endstopafset-Kalibrasie
+        zoff_btn: Z-Endstop Kalibrasie
+        bsa_tooltip: Loop Bedskroefstelling-Kalibrasie
+        bsa_btn: Bedskroefstelling
+        save_tooltip: Stoor Kalibrasieresultate
+        save_btn: Stoor Konfigurasie
+        more_btn: Meer
+      baby_step_card:
+        title: Babastap Z-As
+      restart_klipper: Herbegin Klipper
+      restart_mcu: "@:general.restart @:general.firmware"
+    control:
+      fan_card:
+        title:
+          zero: Waaier
+          one: Waaier
+          other: Waaiers
+        part_fan: Onderdeelwaaier
+        static_fan_btn: Waaier
+      extrude_card:
+        title: Ekstruder
+        extrude: Druk uit
+        retract: Trek terug
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude lengte"
+        cold_extrude_error: Extruder het nog nie reach min_extrude_temp of {}°C bereik
+          nie!
+      macro_card:
+        title: Gcode - Makro's
+      pin_card:
+        title:
+          zero: Uittreepen
+          one: Uittreepen
+          two: Uittreepenne
+          other: Uittreepenne
+        pin_btn: Pen
+      power_card:
+        title: Kragpaneel
+        pin_btn: Pen
+      multipl_card:
+        title: Vermenigvuldigers
+        flow: Vloei
+        press_adv: Druk-vooruitgang
+        smooth_time: Uitgladtyd
+      limit_card:
+        title: Limiete
+        velocity: Snelheid
+        accel: Versnelling
+        sq_corn_vel: Reghoeksnelheid
+        accel_to_decel: Versnel. na Vertraag.
+  files:
+    title: Lêers
+    search_files: Deursoek lêers
+    clear_search: Maak soektog skoon
+    name: Naam
+    last_mod: Laas verander
+    last_printed: Laas gedruk
+    not_printed: Nie gedruk
+    fetching_files: "@:general.fetching Lêers..."
+    no_files_found: Geen lêers gevind!
+    details:
+      preheat: Voorverhit
+      print: Druk
+      general_card:
+        path: Pad
+        last_mod: Laas Verander
+        last_printed: Laas Gedruk
+        no_data: Geen data
+      meta_card:
+        title: GCode-Metadata
+        filament: Filament
+        filament_type: Filamenttipe
+        filament_name: Filamentnaam
+        est_print_time: Geskatte Druktyd
+        slicer: Slicer Gebruik
+        nozzle_diameter: Monddiameter
+        layer_higher: Laaghoogte
+        first_layer: Eerste Laag
+        others: Ander
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperature"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
+      stat_card:
+        title: Statistiek
+      preheat_dialog:
+        title: "@:pages.files.details.preheat ?"
+        body: |-
+          Teikentemperature
+          Ekstruder: {}°C
+          Bed: {}°C
+      preheat_snackbar:
+        title: Voorverhitting het begin
+        body: |-
+          Ekstruder: {}°C
+          Bed: {}°C
+  setting:
+    title: Toep - Instellings
+    general:
+      title: Algemeen
+      ems_confirm: Bevestig Noodstop
+      always_baby: Wys Altyd Babastapkaart
+      num_edit: Gebruik skeutelbord om nommers in te voer
+      start_with_overview: Wys @:pages.overview.title by verstek
+      use_offset_pos: Wys koördinate met afset ingesluit.
+      lcFullCam: Volskerm-Webcam in Landskap
+      language: Taal
+      companion: "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker
+        se Hulpgenoot op te stel op "
+    notification:
+      title: Kennisgewing
+      progress_label: Vorderingskennisgewing
+      progress_helper: Opdateerinterval van die druktaakvorderingskennisgewing
+      state_label: Toestandkennisgewing
+      state_helper: Toestande wat 'n kennisgewing sal stuur wanneer dit verander
+      no_permission_title: Geen Magtiging vir Kennisgewings nie!
+      no_permission_desc: |-
+        Kan nie kennisgewings vertoon nie.
+        Vra vir toestemming deur te klik!
+      no_firebase_title: Kan nie kennisgewings vertoon nie
+      no_firebase_desc: |-
+        Mobileraker kan nie enige kennisgewings aan die toestel stuur nie.
+        Jou toestel het dalk nie Google Play dienste nie of dit blok Firebase konneksies!
+      ios_notifications_title: IOS Kennisgewing is Afgelewer
+      ios_notifications_desc: |-
+        Kennisgewings vereis dat mobileraker ten minste een keer oopgemaak word en in die agtergrond bly loop.
+        Sommige kennisgewings mag steeds geblok word deur die OS!
+      missing_companion_title: Hulpgenoot nie gevind!
+      missing_companion_body: |-
+        Dit lyk of die hulpgenoot dalk nie geïnstalleer is nie en daarom kan die volgende masjiene nie kennisgewings stuur nie: {}
+        Druk om meer hieroor te leer!
+    developer:
+      title: Onwikkelaar
+      crashlytics: Skakel Crashlytics rapportering aan
+    imprint: Privaatheid/Impressum
+  printer_edit:
+    title: Redigeer {}
+    import_settings: Invoerstellings
+    remove_printer: Verwyder Drukker
+    no_values_found: Geen waardes is gevind!
+    fetching_additional_settings: "@:general.fetching addisionele instellings vanaf
+      die netwerk..."
+    could_not_fetch_additional: Kon nie addisionele instellings gaan haal nie!
+    fetch_error_hint: Maak seker dat die masjien bereikbaar is, en dat Mobileraker
+      daaraan gekoppel is.
+    store_error:
+      title: Kon nie gestoor word!
+      message: |-
+        Sommige velde bevat ongeldige waardes!
+        Maak asb seker al die velde is geldig.
+    general:
+      displayname: Vertoonnaam
+      printer_addr: Drukker - Adres
+      ws_addr: Websok - Adres
+      moonraker_api_key: Moonraker - API Sleutel
+      moonraker_api_desc: Slegs nogdig as jy van betroubare kliënte gebruik maak.
+        FluiddPI dwing die vereiste af!
+      full_url: Volledige URL
+      self_signed: Aanvaar Self-Getekende Sertifikate
+    motion_system:
+      title: Bewegingstelsel
+      invert_x: Keer X-As Om
+      invert_x_short: Keer X om
+      invert_y: Keer Y-As Om
+      invert_y_short: Invert Y
+      invert_z: Keer Z-As Om
+      invert_z_short: Keer Z Om
+      speed_xy: Spoed X/Y - Asse
+      speed_xy_short: Spoed X/Y
+      speed_z: Spoed Z-As
+      speed_z_short: Spoed Z
+      steps_move: Stapbewegings
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
+      steps_baby: Babastap Z-stappe
+      steps_baby_short: Babastappe
+    extruders:
+      title: Ekstruder(s)
+      feedrate: Ekstruder voertempe
+      feedrate_short: Voertempo
+      steps_extrude: Ekstrusiestappe
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
+    cams:
+      target_fps: Teiken FPS
+      new_cam: Nuwe Webcam
+      no_webcams: Geen Webcams bygevoeg!
+      stream_url: Stroom URL
+      snapshot_url: Foto URL
+      default_url: Verstel URL
+      flip_vertical: Keer vertikaal om
+      flip_horizontal: Keer horisontaal om
+      cam_mode: Cam Modus
+      cam_rotate: Rotasie
+    macros:
+      new_macro_grp: Nuwe Makro-groep
+      no_macros_available: Geen Makro's beskikbaar!
+      no_macros_found: Geen Makro's gevind!
+      macros_to_default:
+        one: Een makro na verstekgroep geskuif!
+        two: Twee makro's na verstekgroep geskuif!
+        other: "{} makro's na verstekgroep geskuif!"
+    presets:
+      no_presets: Geen Voorafinstellings bygevoeg nie!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperatuur"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Temperatuur"
+      new_preset: Nuwe Voorafinstalling
+  printer_add:
+    title: Voeg nuwe drukker by
+    printer_add_helper: Host, IP, of volle URL
+    resulting_ws_url: 'Resultaat WebSocket-URL: {}'
+    misc: Misc
+    test_ws: Toets websok-konneksie
+    result_ws_test: 'resultaat: {}'
+    run_test_btn: Toets
+  console:
+    title: Konsole
+    no_entries: Geen vorige opdrage gevind nie
+    fetching_console: "@:general.fetching konsole inskrywings..."
+    command_input:
+      hint: Voer konsole-opdrag in
+  overview:
+    title: Oorsig
+    fetching_machines: "@:general.fetching masjiene..."
+    no_entries: Geen masjiene gevind
+    add_machine: Voeg Masjien By
+  markdown:
+    loading: "@:general.loading {}..."
+    error: Daar was 'n fout met die laai van {};
+    open_in_browser: Open @:pages.faq.title in Webblaaier
+  faq:
+    title: FAQ
+  changelog:
+    title: Veranderingslog
+  paywall:
+    title: Ondersteun die onwikkelaar!
+    calling_store: Verwerk versoek...
+    manage_view:
+      title: Dankie vir jou ondersteuning!
+      list_title: 'Verander ondersteunersvlak :'
+      store_btn: Kanselleer Intekening van {}
+    subscribe_view:
+      title: Word 'n Mobileraker ondersteuner!
+      info: |-
+        Mobileraker poog om 'n blitsige en betroubare mobiele UI vir Klipper te bied, aangespoor in die gees van RapRap, dat oopbron harde-en-sagtewre 'n positiewe bydrae kan lewer.
+        Aangesien Mobileraker deur 'n enkele persoon ontwikkel en gratis beskikbaar gestel word, is dit afhanklik van bydraes en onderstuening uit die gemeenskap om ontwikkeling-en-beryfskostes te dek.
+      list_title: 'Kies Ondersteunersvlak:'
+    supporter_tier_list:
+      error_title: Probleem met die laai van ondersteunersvlakke!
+      error_body: Jammer, daar was 'n onvoorsiene fout. Ondersteunersvlakke kon nie
+        gelaai word nie. Probeer weer later!
+    contact_dialog:
+      title: Kontak Ontwikkelaar
+      body: |-
+        E-Pos: {}
+        Discord: {}
+components:
+  pull_to_refresh:
+    pull_up_idle: Trek op om te vervris
+  nav_drawer:
+    printer_settings: Drukkerinstellings
+    manage_printers: Bestuur Drukkers
+    fetching_printers: "@:general.fetching drukkers..."
+    footer: |-
+      Gemaak met ❤️ deur Patrick Schmidt
+      Gaan kyk na die projek se
+  connection_watcher:
+    reconnect: Herkonnekteer
+    trying_connect: Probeer tans konnekteer...
+    trying_connect_remote: Probeer tans konnekteer m.b.v. die afstandskliënt...
+    server_starting: Bediener begin tans...
+    more_details: Meer Besonderhede
+  octo_indicator:
+    tooltip: Gebruik OctoEveryWhere!
+  supporter_add:
+    title: Hou jy van Mobileraker?
+    subtitle: Tik my om te leer hoe jy die ontwikkelaar kan ondersteun!
+dialogs:
+  rate_my_app:
+    title: Beoordeel Mobileraker?
+    message: As jy van Mobileraker hou en die oopbronontwikkeling wil ondersteun,
+      gee jou terugvoer!
+  import_setting:
+    fetching: Haal tans bronne op...
+    fetching_error_title: Kon nie instellings ophaal nie!
+    fetching_error_sub: Maak seker die ander masjiene is gekonnekteer.
+    select_source: Kies Bron
+  create_folder:
+    title: Skep Vouer
+    label: Vouernaam
+  delete_folder:
+    title: Is jy seker?
+    description: |-
+      Alle lêers in die vouer gaan uitgevee word!
+
+      Bevestig dat jy '/{}' vouer wil uitvee.
+  rename_folder:
+    title: Herbenoem Vouer
+    label: Vouernaam
+  delete_file:
+    description: Bevestig dat jy '{}' lêer wil uitvee.
+  rename_file:
+    title: Herbenoem Lêer
+    label: Lêernaam
+  exclude_object:
+    title: Sluit voorwerp daarvan uit om te druk
+    label: Voorwerpe om uit te sluit
+    confirm_tile_title: Is jy seker?
+    confirm_tile_subtitle: Hierdie aksie kan nie ongedaag gemaak word nie!
+    exclude: Sluit uit
+    no_visualization: Geen visualiseringsdata is beskikbaar nie!
+  ws_input_help:
+    title: URL Invoerhulp
+    body: |-
+      Jy kan 'n IP, URL of volledige URI na jou webkoppelvlak voorsien, of die direkte websokinstansie van moonraker gee.
+
+      Geldige voorbeelde:
+  gcode_params:
+    hint: 'Wenk: Gebruik ''n langdruk om die makro in te dien met verstek waardes.'
+  rgbw:
+    recent_colors: Onlangse Kleure
+  select_machine:
+    title: Kies Masjien
+    active_machine: 'Aktiewe Masjien: {}'
+    hint: Tik om 'n masjien aktief te maak.
+  supporter_perks:
+    title: Ondersteunersvoordele
+    body: 'Deur Mobileraker te ondersteun, verseker jy dat die toep gratis aan die
+      gemeenskap gebied kan word. Daarbenewens ontvang ondersteuners ook die volgende
+      lys voordele:'
+    hint: 'Wenk: Perke is tans volgens toestel. Hierdie mag in die toekoms verander.'
+    theme_perk:
+      title: Ondersteunerstema
+      subtitle: Eksklusiewe tema deur die gebruik van Material 3
+    contact_perk:
+      title: Kontak Ontwikkelaar
+      subtitle: Dis maklik om die ontwikkelaar te kontak!
+    notification_perk:
+      title: Fotokennisgewings
+      subtitle: Statuskennisgewing sluit 'n Webcamfoto in
+  bed_screw_adjust:
+    title: Bedskroef-aanpassing
+    xy_plane: 'Drukker X/Y-vlak:'
+    active_screw_title: 'Aktiewe Skroef:'
+    accept_screw_title: 'Aanvaarde Skroef:'
+    accept_screw_value: "{} van {}"
+    hint: Klik Aangepas as 'n noemenswaardige verstelling van die huidige skroef nodig
+      is; anders, klink Aanvaar om te begin.
+    adjusted_btn: Aangepas
+  manual_offset:
+    title: "@:general.offset Kalibrasie"
+    hint_tooltip: Klipper se papiertoets dokumentasie
+    snackbar_title: Kalibrasie is voltooi
+    snackbar_message: As jy die afset permanent wil maak, onthou om die konfigurasie
+      te stoor.
+klipper_state:
+  ready: Gereed
+  shutdown: Skakel af
+  starting: Begin tans
+  disconnected: Gediskonnekteer
+  error: Fout
+  unauthorized: Ongemagtig
+notifications:
+  channel_printer_grp: Drukker {}
+  channels:
+    status:
+      name: Drukwerkstatus opdaterings - {}
+      desc: Kennisgewing rakende die drukwerk se status.
+      title: "{} drukwerk se status het verander!"
+      body_printing: 'Lêer het begin druk: "{}"'
+      body_paused: 'Drukwerk is op pouse geplaas: "{}"'
+      body_complete: 'Drukwerk is klaar: "{}"'
+      body_error: 'Fout gedurende die druk van lêer: "{}"'
+    progress:
+      name: Drukwerkvordering - {}
+      desc: Kennisgewing oor die drukwerk se vordering.
+      title: Drukwerkvordering van {}

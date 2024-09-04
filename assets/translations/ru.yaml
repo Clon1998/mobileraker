@@ -1,0 +1,895 @@
+---
+general:
+  resume: Продолжить
+  connected: Подключено
+  'off': Выкл
+  'on': Вкл
+  none: Отсутствует
+  add: Добавить
+  create: Создать
+  rename: Переименовать
+  remove: Удалить
+  set: Установить
+  use: Использовать
+  restart: Перезагрузка
+  shutdown: Выключение
+  firmware: Прошивка
+  fetching: Получение
+  unknown: Неизвестно
+  disabled: Выключено
+  confirm: Подтвердить
+pages:
+  dashboard:
+    title: Панель
+    ems_btn: Аварийное выключение
+    server_status:
+      unavailable: Нет доступных серверов
+      available: Состояние сервера {} и Klippy {}
+    fetching_printer: "@:general.fetching printer..."
+    general:
+      print_card:
+        reset: Сброс
+        printing_for: 'Печать: {}'
+        speed: Скорость
+        layer: Слой
+        eta: ETA
+        current_object: Текущий объект
+        elapsed: Прошло
+        flow: Поток
+        filament: Филамент
+        filament_tooltip: Использовано {} % Филамента, т.е {} m из {} m прогнозированного.
+      cam_card:
+        webcam: Веб-камера
+        fullscreen: Полноэкранный
+      temp_card:
+        title: Управление Температурой
+        presets_btn: Предустановки
+        hotend: Хотэнд
+        bed: Стол
+        temp_presets: Предустановки температуры
+        sensors: Датчики
+        heater_on: "{} °C установленная"
+        btn_thermistor: Датчик
+      temp_preset_card:
+        cooloff: Охлаждение
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
+      move_card:
+        title: Движение Осей
+        home_xy_tooltip: Парковка осей X и Y
+        home_z_tooltip: Парковка оси Z
+        home_all_tooltip: Парковка всех осей
+        home_all_btn: Все
+        qgl_tooltip: Run Quad-Gantry leveling
+        qgl_btn: QGL
+        mesh_tooltip: Запуск калибровки Med-Mesh
+        mesh_btn: Сетка
+        m84_tooltip: Отключить моторы
+        m84_btn: M84
+        step_size: Размер шага
+        stc_tooltip: Run Screws-Tilt calculation
+        stc_btn: STC
+        ztilt_tooltip: Запуск Z-Tilt калибровки
+        ztilt_btn: zTilt
+      baby_step_card:
+        title: Micro-Step Z-Axis
+      restart_klipper: Перезагрузка Klipper
+      restart_mcu: "@:general.restart @:general.firmware"
+    control:
+      fan_card:
+        title:
+          zero: Вентилятор
+          one: Вентилятор
+          other: Вентиляторы
+        part_fan: Part Fan
+        static_fan_btn: Fan
+      extrude_card:
+        title: Экструдер
+        extrude: Выдавить
+        retract: Втянуть
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude длина"
+        cold_extrude_error: Экструдер не достиг min_extrude_temp из {}°C!
+      macro_card:
+        title: Gcode - Макросы
+      pin_card:
+        title:
+          zero: Output Pin
+          one: Output Pin
+          two: Output Pins
+          other: Output Pins
+        pin_btn: Pin
+      power_card:
+        title: Панель питания
+        pin_btn: Pin
+      multipl_card:
+        title: Множители
+        flow: Поток
+        press_adv: Pressure Advance
+        smooth_time: Время сглаживания
+      limit_card:
+        title: Лимиты
+        velocity: Скорость
+        accel: Ускорение
+        sq_corn_vel: Угловая Скорость
+        accel_to_decel: Ускорение до замедления
+  files:
+    title: Файлы
+    search_files: Поиск файлов
+    clear_search: Очистить поиск
+    name: Имя
+    last_mod: Последнее изменение
+    last_printed: Последняя печать
+    fetching_files: "@:general.fetching Files..."
+    no_files_found: No files found!
+    details:
+      preheat: Преднагрев
+      print: Печать
+      general_card:
+        path: Путь
+        last_mod: Последнее изменение
+        last_printed: Последняя печать
+        no_data: Нет информации
+      meta_card:
+        title: GCode Meta Data
+        filament: Филамент
+        filament_type: Тип филамента
+        filament_name: Имя филамента
+        est_print_time: Расчетное время печати
+        slicer: Использованный слайсер
+        nozzle_diameter: Диаметр сопла
+        layer_higher: Высота слоя
+        first_layer: Первый слой
+        others: Прочее
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Температуры"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
+      stat_card:
+        title: Статистика
+      preheat_dialog:
+        title: "@:pages.files.details.preheat ?"
+        body: |-
+          Установленные Температуры
+          Экструдер: {}°C
+          Кровать: {}°C
+      preheat_snackbar:
+        title: Начат преднагрев
+        body: |-
+          Экструдер: {}°C
+          Стол: {}°C
+  setting:
+    title: Настройки приложения
+    general:
+      title: Основное
+      ems_confirm: Подтверждение Аварийной остановки
+      always_baby: Always show Z-Offset Card
+      num_edit: Использовать клавиатуру для ввода чисел
+      start_with_overview: Показать @:pages.overview.title по умолчанию
+      use_offset_pos: Показать координаты с примененным смещением.
+      language: Язык
+      companion: "Хотите получать удаленные уведомления?\nПрочтите как настроить Mobileraker's
+        Companion "
+    notification:
+      title: Уведомления
+      progress_label: Уведомления о ходе печати
+      progress_helper: Интервал обновления для уведомления о ходе печати
+      no_permission_title: Нет разрешения на уведомления!
+      no_permission_desc: |-
+        Не возможно отобразить уведомления.
+        Запрос разрешения по нажатию!
+      ios_notifications_title: Доставка уведомлений на IOS
+      ios_notifications_desc: |-
+        Уведомления требуют, чтобы mobileraker был открыт хотя бы один раз и работал в фоновом режиме..
+        Тем не менее, некоторые уведомления могут быть заблокированы ОС.!
+    imprint: Конфиденциальность/Выходные данные
+  printer_edit:
+    title: Редактировать {}
+    import_settings: Импорт настроек
+    remove_printer: Удалить принтер
+    no_values_found: Значения не найдены!
+    fetching_additional_settings: "@:general.fetching additional settings from network..."
+    could_not_fetch_additional: Не удалось получить дополнительные настройки!
+    fetch_error_hint: Убедитесь, что машина доступна и к ней подключен Mobileraker.
+    general:
+      displayname: Отображаемое имя
+      printer_addr: Принтер - Адрес
+      ws_addr: Веб-сокет - Адрес
+      moonraker_api_key: Moonraker - API Ключ
+      moonraker_api_desc: Требуется только в том случае, если вы используете доверенных
+        клиентов. FluiddPI обеспечивает это!
+      full_url: Полный URL
+      self_signed: Доверять самоподписанным сертификатам
+    motion_system:
+      title: Система движения
+      invert_x: Инвертировать ось - X
+      invert_x_short: Инвертировать X
+      invert_y: Инвертировать ось - Y
+      invert_y_short: Инвертировать Y
+      invert_z: 'Инвертировать ось - Z '
+      invert_z_short: Инвертировать Z
+      speed_xy: Скоровть осей - X/Y
+      speed_xy_short: Скорость X/Y
+      speed_z: Скрость оси - Z
+      speed_z_short: Скорость Z
+      steps_move: Шаги перемещения
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
+      steps_baby: Z-Offset steps
+      steps_baby_short: Z-Steps
+    extruders:
+      title: Extruder(s)
+      feedrate: Extruder feed rate
+      feedrate_short: Feed rate
+      steps_extrude: Extrude steps
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
+    cams:
+      target_fps: Установленный FPS
+      new_cam: Новая веб-камера
+      no_webcams: Нет добавленных веб-камер!
+      webcam_addr: Веб-камера - Адрес
+      default_addr: Адрес по умолчанию
+      flip_vertical: Отобразить вертикально
+      flip_horizontal: Отобразить горизонтально
+      cam_mode: Режим камеры
+    macros:
+      new_macro_grp: New Macro - Group
+      no_macros_available: No Macros available!
+      no_macros_found: No Macros found!
+      macros_to_default:
+        one: Moved one macro to default group!
+        two: Moved two macro to default group!
+        other: Moved {} macros to default group!
+    presets:
+      no_presets: Нет добавленных предустановок!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Температура"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Температура"
+      new_preset: Новая предустановка
+  printer_add:
+    title: Добавить новый принтер
+    printer_add_helper: Хост, IP или полный URL
+    resulting_ws_url: 'Результирующий WebSocket-URL: {}'
+    misc: Разное
+    test_ws: Проверка соединения по веб-сокету
+    result_ws_test: 'Результат: {}'
+    run_test_btn: Тест
+  console:
+    title: Консоль
+    no_entries: Не найдены кэшированные команды
+    fetching_console: "@:general.fetching console entries..."
+    command_input:
+      hint: Введите команду
+  overview:
+    title: Overview
+    fetching_machines: "@:general.fetching machines..."
+    no_entries: No machines found
+    add_machine: Add Machine
+components:
+  pull_to_refresh:
+    pull_up_idle: Потяните вверх, чтобы обновить
+  nav_drawer:
+    printer_settings: Printer Settings
+    manage_printers: Manage Printers
+    fetching_printers: "@:general.fetching printers..."
+    footer: |-
+      Made with ❤️ by Patrick Schmidt
+      Checkout the project's
+  connection_watcher:
+    reconnect: Переподключение
+    trying_connect: Попытка подключения ...
+    server_starting: Запуск сервера...
+dialogs:
+  rate_my_app:
+    title: Rate Mobileraker?
+    message: If you like Mobileraker and want to support the open source development,
+      please consider rating Mobileraker!
+  import_setting:
+    fetching: Fetching sources...
+    fetching_error_title: Unable to fetch settings!
+    fetching_error_sub: Ensure other machines are connected.
+    select_source: Select Source
+  create_folder:
+    title: Create Folder
+    label: Folder Name
+  delete_folder:
+    title: Are you sure?
+    description: |-
+      All files contained in folder will be removed as well!
+
+      Confirm deletion of folder '/{}'.
+  rename_folder:
+    title: Rename Folder
+    label: Folder Name
+  delete_file:
+    description: Confirm deletion of file '{}'.
+  rename_file:
+    title: Rename File
+    label: File Name
+  exclude_object:
+    title: Exclude Object from Print
+    label: Object to exclude
+    confirm_tile_title: Are you sure?
+    confirm_tile_subtitle: This operation cannot be undone!
+    exclude: Exclude
+    no_visualization: No visualization data available!
+  ws_input_help:
+    title: URL Input Help
+    body: |-
+      You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.
+
+      Valid Examples:
+klipper_state:
+  ready: Ready
+  shutdown: Shutdown
+  starting: Starting
+  disconnected: Disconnected
+  error: Error
+notifications:
+  channel_printer_grp: Printer {}
+  channels:
+    status:
+      name: Print Status Updates - {}
+      desc: Notifications regarding the print status.
+      title: Print state of {} changed!
+      body_printing: 'Started to print file: "{}"'
+      body_paused: 'Paused printing file: "{}"'
+      body_complete: 'Finished printing: "{}"'
+      body_error: 'Error while printing file: "{}"'
+    progress:
+      name: Print Progress Updates - {}
+      desc: Notifications regarding the print progress.
+      title: Print progress of {}
+languages:
+  languageCode:
+    ab:
+      name: Abkhaz
+      nativeName: аҧсуа
+    aa:
+      name: Afar
+      nativeName: Afaraf
+    af:
+      name: Afrikaans
+      nativeName: Afrikaans
+    ak:
+      name: Akan
+      nativeName: Akan
+    sq:
+      name: Albanian
+      nativeName: Shqip
+    am:
+      name: Amharic
+      nativeName: አማርኛ
+    ar:
+      name: Arabic
+      nativeName: العربية
+    an:
+      name: Aragonese
+      nativeName: Aragonés
+    hy:
+      name: Armenian
+      nativeName: Հայերեն
+    as:
+      name: Assamese
+      nativeName: অসমীয়া
+    av:
+      name: Avaric
+      nativeName: авар мацӀ, магӀарул мацӀ
+    ae:
+      name: Avestan
+      nativeName: avesta
+    ay:
+      name: Aymara
+      nativeName: aymar aru
+    az:
+      name: Azerbaijani
+      nativeName: azərbaycan dili
+    bm:
+      name: Bambara
+      nativeName: bamanankan
+    ba:
+      name: Bashkir
+      nativeName: башҡорт теле
+    eu:
+      name: Basque
+      nativeName: euskara, euskera
+    be:
+      name: Belarusian
+      nativeName: Беларуская
+    bn:
+      name: Bengali
+      nativeName: বাংলা
+    bh:
+      name: Bihari
+      nativeName: भोजपुरी
+    bi:
+      name: Bislama
+      nativeName: Bislama
+    bs:
+      name: Bosnian
+      nativeName: bosanski jezik
+    br:
+      name: Breton
+      nativeName: brezhoneg
+    bg:
+      name: Bulgarian
+      nativeName: български език
+    my:
+      name: Burmese
+      nativeName: ဗမာစာ
+    ca:
+      name: Catalan; Valencian
+      nativeName: Català
+    ch:
+      name: Chamorro
+      nativeName: Chamoru
+    ce:
+      name: Chechen
+      nativeName: нохчийн мотт
+    ny:
+      name: Chichewa; Chewa; Nyanja
+      nativeName: chiCheŵa, chinyanja
+    zh:
+      name: Chinese
+      nativeName: 中文
+    cv:
+      name: Chuvash
+      nativeName: чӑваш чӗлхи
+    kw:
+      name: Cornish
+      nativeName: Kernewek
+    co:
+      name: Corsican
+      nativeName: corsu, lingua corsa
+    cr:
+      name: Cree
+      nativeName: ᓀᐦᐃᔭᐍᐏᐣ
+    hr:
+      name: Croatian
+      nativeName: hrvatski
+    cs:
+      name: Czech
+      nativeName: česky, čeština
+    da:
+      name: Danish
+      nativeName: dansk
+    dv:
+      name: Divehi; Dhivehi; Maldivian;
+      nativeName: ދިވެހި
+    nl:
+      name: Dutch
+      nativeName: Nederlands, Vlaams
+    en:
+      name: English
+      nativeName: English
+    eo:
+      name: Esperanto
+      nativeName: Esperanto
+    et:
+      name: Estonian
+      nativeName: eesti, eesti keel
+    ee:
+      name: Ewe
+      nativeName: Eʋegbe
+    fo:
+      name: Faroese
+      nativeName: føroyskt
+    fj:
+      name: Fijian
+      nativeName: vosa Vakaviti
+    fi:
+      name: Finnish
+      nativeName: suomi, suomen kieli
+    fr:
+      name: French
+      nativeName: français, langue française
+    ff:
+      name: Fula; Fulah; Pulaar; Pular
+      nativeName: Fulfulde, Pulaar, Pular
+    gl:
+      name: Galician
+      nativeName: Galego
+    ka:
+      name: Georgian
+      nativeName: ქართული
+    de:
+      name: German
+      nativeName: Deutsch
+    el:
+      name: Greek, Modern
+      nativeName: Ελληνικά
+    gn:
+      name: Guaraní
+      nativeName: Avañeẽ
+    gu:
+      name: Gujarati
+      nativeName: ગુજરાતી
+    ht:
+      name: Haitian; Haitian Creole
+      nativeName: Kreyòl ayisyen
+    ha:
+      name: Hausa
+      nativeName: Hausa, هَوُسَ
+    he:
+      name: Hebrew (modern)
+      nativeName: עברית
+    hz:
+      name: Herero
+      nativeName: Otjiherero
+    hi:
+      name: Hindi
+      nativeName: हिन्दी, हिंदी
+    ho:
+      name: Hiri Motu
+      nativeName: Hiri Motu
+    hu:
+      name: Hungarian
+      nativeName: Magyar
+    ia:
+      name: Interlingua
+      nativeName: Interlingua
+    id:
+      name: Indonesian
+      nativeName: Bahasa Indonesia
+    ie:
+      name: Interlingue
+      nativeName: Originally called Occidental; then Interlingue after WWII
+    ga:
+      name: Irish
+      nativeName: Gaeilge
+    ig:
+      name: Igbo
+      nativeName: Asụsụ Igbo
+    ik:
+      name: Inupiaq
+      nativeName: Iñupiaq, Iñupiatun
+    io:
+      name: Ido
+      nativeName: Ido
+    is:
+      name: Icelandic
+      nativeName: Íslenska
+    it:
+      name: Italian
+      nativeName: Italiano
+    iu:
+      name: Inuktitut
+      nativeName: ᐃᓄᒃᑎᑐᑦ
+    ja:
+      name: Japanese
+      nativeName: 日本語 (にほんご／にっぽんご)
+    jv:
+      name: Javanese
+      nativeName: basa Jawa
+    kl:
+      name: Kalaallisut, Greenlandic
+      nativeName: kalaallisut, kalaallit oqaasii
+    kn:
+      name: Kannada
+      nativeName: ಕನ್ನಡ
+    kr:
+      name: Kanuri
+      nativeName: Kanuri
+    ks:
+      name: Kashmiri
+      nativeName: कश्मीरी, كشميري‎
+    kk:
+      name: Kazakh
+      nativeName: Қазақ тілі
+    km:
+      name: Khmer
+      nativeName: ភាសាខ្មែរ
+    ki:
+      name: Kikuyu, Gikuyu
+      nativeName: Gĩkũyũ
+    rw:
+      name: Kinyarwanda
+      nativeName: Ikinyarwanda
+    ky:
+      name: Kirghiz, Kyrgyz
+      nativeName: кыргыз тили
+    kv:
+      name: Komi
+      nativeName: коми кыв
+    kg:
+      name: Kongo
+      nativeName: KiKongo
+    ko:
+      name: Korean
+      nativeName: 한국어 (韓國語), 조선말 (朝鮮語)
+    ku:
+      name: Kurdish
+      nativeName: Kurdî, كوردی‎
+    kj:
+      name: Kwanyama, Kuanyama
+      nativeName: Kuanyama
+    la:
+      name: Latin
+      nativeName: latine, lingua latina
+    lb:
+      name: Luxembourgish, Letzeburgesch
+      nativeName: Lëtzebuergesch
+    lg:
+      name: Luganda
+      nativeName: Luganda
+    li:
+      name: Limburgish, Limburgan, Limburger
+      nativeName: Limburgs
+    ln:
+      name: Lingala
+      nativeName: Lingála
+    lo:
+      name: Lao
+      nativeName: ພາສາລາວ
+    lt:
+      name: Lithuanian
+      nativeName: lietuvių kalba
+    lu:
+      name: Luba-Katanga
+      nativeName: ''
+    lv:
+      name: Latvian
+      nativeName: latviešu valoda
+    gv:
+      name: Manx
+      nativeName: Gaelg, Gailck
+    mk:
+      name: Macedonian
+      nativeName: македонски јазик
+    mg:
+      name: Malagasy
+      nativeName: Malagasy fiteny
+    ms:
+      name: Malay
+      nativeName: bahasa Melayu, بهاس ملايو‎
+    ml:
+      name: Malayalam
+      nativeName: മലയാളം
+    mt:
+      name: Maltese
+      nativeName: Malti
+    mi:
+      name: Māori
+      nativeName: te reo Māori
+    mr:
+      name: Marathi (Marāṭhī)
+      nativeName: मराठी
+    mh:
+      name: Marshallese
+      nativeName: Kajin M̧ajeļ
+    mn:
+      name: Mongolian
+      nativeName: монгол
+    na:
+      name: Nauru
+      nativeName: Ekakairũ Naoero
+    nv:
+      name: Navajo, Navaho
+      nativeName: Diné bizaad, Dinékʼehǰí
+    nb:
+      name: Norwegian Bokmål
+      nativeName: Norsk bokmål
+    nd:
+      name: North Ndebele
+      nativeName: isiNdebele
+    ne:
+      name: Nepali
+      nativeName: नेपाली
+    ng:
+      name: Ndonga
+      nativeName: Owambo
+    nn:
+      name: Norwegian Nynorsk
+      nativeName: Norsk nynorsk
+    'no':
+      name: Norwegian
+      nativeName: Norsk
+    ii:
+      name: Nuosu
+      nativeName: ꆈꌠ꒿ Nuosuhxop
+    nr:
+      name: South Ndebele
+      nativeName: isiNdebele
+    oc:
+      name: Occitan
+      nativeName: Occitan
+    oj:
+      name: Ojibwe, Ojibwa
+      nativeName: ᐊᓂᔑᓈᐯᒧᐎᓐ
+    cu:
+      name: Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old
+        Slavonic
+      nativeName: ѩзыкъ словѣньскъ
+    om:
+      name: Oromo
+      nativeName: Afaan Oromoo
+    or:
+      name: Oriya
+      nativeName: ଓଡ଼ିଆ
+    os:
+      name: Ossetian, Ossetic
+      nativeName: ирон æвзаг
+    pa:
+      name: Panjabi, Punjabi
+      nativeName: ਪੰਜਾਬੀ, پنجابی‎
+    pi:
+      name: Pāli
+      nativeName: पाऴि
+    fa:
+      name: Persian
+      nativeName: فارسی
+    pl:
+      name: Polish
+      nativeName: polski
+    ps:
+      name: Pashto, Pushto
+      nativeName: پښتو
+    pt:
+      name: Portuguese
+      nativeName: Português
+    qu:
+      name: Quechua
+      nativeName: Runa Simi, Kichwa
+    rm:
+      name: Romansh
+      nativeName: rumantsch grischun
+    rn:
+      name: Kirundi
+      nativeName: kiRundi
+    ro:
+      name: Romanian, Moldavian, Moldovan
+      nativeName: română
+    ru:
+      name: Russian
+      nativeName: Русский язык
+    sa:
+      name: Sanskrit (Saṁskṛta)
+      nativeName: संस्कृतम्
+    sc:
+      name: Sardinian
+      nativeName: sardu
+    sd:
+      name: Sindhi
+      nativeName: सिन्धी, سنڌي، سندھی‎
+    se:
+      name: Northern Sami
+      nativeName: Davvisámegiella
+    sm:
+      name: Samoan
+      nativeName: gagana faa Samoa
+    sg:
+      name: Sango
+      nativeName: yângâ tî sängö
+    sr:
+      name: Serbian
+      nativeName: српски језик
+    gd:
+      name: Scottish Gaelic; Gaelic
+      nativeName: Gàidhlig
+    sn:
+      name: Shona
+      nativeName: chiShona
+    si:
+      name: Sinhala, Sinhalese
+      nativeName: සිංහල
+    sk:
+      name: Slovak
+      nativeName: slovenčina
+    sl:
+      name: Slovene
+      nativeName: slovenščina
+    so:
+      name: Somali
+      nativeName: Soomaaliga, af Soomaali
+    st:
+      name: Southern Sotho
+      nativeName: Sesotho
+    es:
+      name: Spanish; Castilian
+      nativeName: español, castellano
+    su:
+      name: Sundanese
+      nativeName: Basa Sunda
+    sw:
+      name: Swahili
+      nativeName: Kiswahili
+    ss:
+      name: Swati
+      nativeName: SiSwati
+    sv:
+      name: Swedish
+      nativeName: svenska
+    ta:
+      name: Tamil
+      nativeName: தமிழ்
+    te:
+      name: Telugu
+      nativeName: తెలుగు
+    tg:
+      name: Tajik
+      nativeName: тоҷикӣ, toğikī, تاجیکی‎
+    th:
+      name: Thai
+      nativeName: ไทย
+    ti:
+      name: Tigrinya
+      nativeName: ትግርኛ
+    bo:
+      name: Tibetan Standard, Tibetan, Central
+      nativeName: བོད་ཡིག
+    tk:
+      name: Turkmen
+      nativeName: Türkmen, Түркмен
+    tl:
+      name: Tagalog
+      nativeName: Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔
+    tn:
+      name: Tswana
+      nativeName: Setswana
+    to:
+      name: Tonga (Tonga Islands)
+      nativeName: faka Tonga
+    tr:
+      name: Turkish
+      nativeName: Türkçe
+    ts:
+      name: Tsonga
+      nativeName: Xitsonga
+    tt:
+      name: Tatar
+      nativeName: татарча, tatarça, تاتارچا‎
+    tw:
+      name: Twi
+      nativeName: Twi
+    ty:
+      name: Tahitian
+      nativeName: Reo Tahiti
+    ug:
+      name: Uighur, Uyghur
+      nativeName: Uyƣurqə, ئۇيغۇرچە‎
+    uk:
+      name: Ukrainian
+      nativeName: українська
+    ur:
+      name: Urdu
+      nativeName: اردو
+    uz:
+      name: Uzbek
+      nativeName: zbek, Ўзбек, أۇزبېك‎
+    ve:
+      name: Venda
+      nativeName: Tshivenḓa
+    vi:
+      name: Vietnamese
+      nativeName: Tiếng Việt
+    vo:
+      name: Volapük
+      nativeName: Volapük
+    wa:
+      name: Walloon
+      nativeName: Walon
+    cy:
+      name: Welsh
+      nativeName: Cymraeg
+    wo:
+      name: Wolof
+      nativeName: Wollof
+    fy:
+      name: Western Frisian
+      nativeName: Frysk
+    xh:
+      name: Xhosa
+      nativeName: isiXhosa
+    yi:
+      name: Yiddish
+      nativeName: ייִדיש
+    yo:
+      name: Yoruba
+      nativeName: Yorùbá
+    za:
+      name: Zhuang, Chuang
+      nativeName: Saɯ cueŋƅ, Saw cuengh
+  countryCode:
+    CN:
+      name: Simplified
+      nativeName: 简体
+    HK:
+      name: Traditional
+      nativeName: 繁體
