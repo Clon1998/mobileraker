@@ -54,7 +54,7 @@ pages:
         flow: Vloei
         filament_tooltip: Het {} % Filament gebruik, dit is {} m van die geskatte {} m.
         eta_tooltip: |-
-          Oorblywende tyd: {} 
+          Oorblywende tyd: {}
       cam_card:
         fullscreen: Volskerm
       temp_card:
