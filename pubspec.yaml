@@ -125,6 +125,7 @@ dependencies:
 
   #tranlation
   easy_localization: ^3.0.3
+  easy_localization_loader: ^2.0.2
 
   #purchases
   purchases_flutter: ^7.0.1
