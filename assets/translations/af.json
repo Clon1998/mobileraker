@@ -28,20 +28,50 @@
     "supported": "Word ondersteun",
     "unsupported": "Word nie ondersteun",
     "details": "Besonderhede",
-    "google_play": "GooglePlay",
-    "ios_store": "AppStore",
+    "google_play": "",
+    "ios_store": "",
     "active": "Aktief",
     "canceled": "Gekanselleer",
     "monthly": "Maandeliks",
     "restore": "Herstel",
     "accept": "Aanvaar",
     "abort": "Staak",
-    "offset": "Afset"
+    "offset": "Afset",
+    "valid": "",
+    "invalid": "",
+    "free": "",
+    "one_time": "",
+    "delete": "",
+    "clear": "",
+    "unlink": "",
+    "save": "",
+    "apply": "",
+    "completed": "",
+    "activate": "",
+    "stop": "",
+    "start": "",
+    "repeat": "",
+    "load_more": "",
+    "archived": "",
+    "leave": "",
+    "export": "",
+    "import": "",
+    "current": "",
+    "load": "",
+    "unload": "",
+    "discard": "",
+    "hide": "",
+    "finish": ""
   },
   "pages": {
     "dashboard": {
       "title": "Paneelskerm",
       "ems_btn": "Noodstop",
+      "ems_confirmation": {
+        "title": "",
+        "body": "",
+        "confirm": ""
+      },
       "server_status": {
         "unavailable": "Geen bediener is beskikbaar",
         "available": "Bedienertoestand is {} en Klippy is {}"
@@ -50,35 +80,38 @@
       "general": {
         "print_card": {
           "reset": "Herstel",
+          "reprint": "",
           "printing_for": "Druk tans: {}",
           "speed": "Spoed",
           "layer": "Laag",
-          "eta": "ETA",
+          "eta": "",
           "current_object": "Huidige Objek",
           "elapsed": "Verloop",
           "flow": "Vloei",
-          "filament": "Filament",
+          "filament": "",
           "filament_tooltip": "Het {} % Filament gebruik, dit is {} m van die geskatte {} m.",
-          "eta_tooltip": "Oorblywende tyd: {} "
+          "eta_tooltip": "Oorblywende tyd: {} ",
+          "remaining": ""
         },
         "cam_card": {
-          "webcam": "Webcam",
-          "fullscreen": "Volskerm"
+          "webcam": "",
+          "fullscreen": "Volskerm",
+          "error_connecting": ""
         },
         "temp_card": {
           "title": "Temperatuurkontrole",
           "presets_btn": "Voorafinstellings",
           "hotend": "Warmpunt",
-          "bed": "Bed",
+          "bed": "",
           "temp_presets": "Temperatuur voorafinstellings",
-          "sensors": "Sensors",
+          "sensors": "",
           "heater_on": "{} °C teikin",
-          "btn_thermistor": "Sensor"
+          "btn_thermistor": ""
         },
         "temp_preset_card": {
           "cooloff": "Koel af",
-          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
-          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+          "h_temp": "",
+          "b_temp": ""
         },
         "move_card": {
           "title": "Beweeg Asse",
@@ -87,14 +120,14 @@
           "home_all_tooltip": "Bring all asse tuis",
           "home_all_btn": "Almal",
           "qgl_tooltip": "Loop Quad-Spoor-Vlakstelling",
-          "qgl_btn": "QGL",
+          "qgl_btn": "",
           "mesh_tooltip": "Loop Bedmaas-kalibrasie",
           "mesh_btn": "Maas",
           "m84_tooltip": "Skakel Motors Uit",
-          "m84_btn": "M84",
+          "m84_btn": "",
           "step_size": "Stapgrootte",
           "stc_tooltip": "Loop Skroefhelling-berekening",
-          "stc_btn": "STC",
+          "stc_btn": "",
           "ztilt_tooltip": "Loop Z-Helling-berekening",
           "ztilt_btn": "zHelling",
           "poff_tooltip": "Loop Probe-Afset-Kalibrasie",
@@ -105,13 +138,15 @@
           "bsa_btn": "Bedskroefstelling",
           "save_tooltip": "Stoor Kalibrasieresultate",
           "save_btn": "Stoor Konfigurasie",
-          "more_btn": "Meer"
+          "more_btn": "Meer",
+          "homed": ""
         },
         "baby_step_card": {
-          "title": "Babastap Z-As"
+          "title": "Babastap Z-As",
+          "z_offset": ""
         },
         "restart_klipper": "Herbegin Klipper",
-        "restart_mcu": "@:general.restart @:general.firmware"
+        "restart_mcu": ""
       },
       "control": {
         "fan_card": {
@@ -131,20 +166,23 @@
           "cold_extrude_error": "Extruder het nog nie reach min_extrude_temp of {}°C bereik nie!"
         },
         "macro_card": {
-          "title": "Gcode - Makro's"
+          "title": "Gcode - Makro's",
+          "no_macros": "",
+          "add_grp_hint": "",
+          "show_all_tooltip": ""
         },
         "pin_card": {
-          "title": {
-            "zero": "Uittreepen",
-            "one": "Uittreepen",
-            "two": "Uittreepenne",
-            "other": "Uittreepenne"
-          },
-          "pin_btn": "Pen"
+          "title_misc": "",
+          "pin_btn": "Pen",
+          "filament_sensor": {
+            "detected": "",
+            "not_detected": ""
+          }
         },
         "power_card": {
           "title": "Kragpaneel",
-          "pin_btn": "Pen"
+          "pin_btn": "Pen",
+          "provider_error_title": ""
         },
         "multipl_card": {
           "title": "Vermenigvuldigers",
@@ -158,19 +196,152 @@
           "accel": "Versnelling",
           "sq_corn_vel": "Reghoeksnelheid",
           "accel_to_decel": "Versnel. na Vertraag."
+        },
+        "fw_retraction_card": {
+          "title": "",
+          "retract_length": "",
+          "retract_speed": "",
+          "extra_unretract_length": "",
+          "unretract_speed": ""
+        },
+        "bed_mesh_card": {
+          "title": "",
+          "profiles": "",
+          "range_tooltip": "",
+          "showing_matrix": {
+            "probed": "",
+            "mesh": ""
+          }
+        },
+        "spoolman_card": {
+          "title": "",
+          "no_spool": "",
+          "select_spool": "",
+          "used": "",
+          "provider_error_title": ""
         }
+      }
+    },
+    "customizing_dashboard": {
+      "title": "",
+      "cancel_confirm": {
+        "title": "",
+        "body": ""
+      },
+      "add_card": "",
+      "remove_page": "",
+      "saved_snack": {
+        "title": "",
+        "body": ""
+      },
+      "cant_remove_snack": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_removal": {
+        "title": "",
+        "body": ""
+      },
+      "editing_card": {
+        "title": "",
+        "body": ""
+      },
+      "error_save_snack": {
+        "title": "",
+        "body": ""
+      },
+      "error_no_components": {
+        "title": "",
+        "body": ""
       }
     },
     "files": {
       "title": "Lêers",
+      "empty_folder": {
+        "title": "",
+        "subtitle": ""
+      },
+      "sort_by": {
+        "sort_by": "",
+        "name": "",
+        "last_modified": "",
+        "last_printed": "",
+        "file_size": ""
+      },
+      "file_actions": {
+        "download": "",
+        "delete": "",
+        "copy": "",
+        "move": "",
+        "rename": "",
+        "create_file": "",
+        "create_folder": "",
+        "upload": "",
+        "upload_bulk": "",
+        "zip_file": ""
+      },
+      "gcode_file_actions": {
+        "submit": "",
+        "preheat": "",
+        "enqueue": ""
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "download_failed": {
+          "title": "",
+          "body": ""
+        },
+        "upload_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "upload_success": {
+          "title": "",
+          "body": ""
+        },
+        "upload_failed": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_success": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_failed": {
+          "title": "",
+          "body": ""
+        },
+        "copy_created": {
+          "title": "",
+          "body": ""
+        }
+      },
       "search_files": "Deursoek lêers",
-      "clear_search": "Maak soektog skoon",
-      "name": "Naam",
-      "last_mod": "Laas verander",
-      "last_printed": "Laas gedruk",
-      "not_printed": "Nie gedruk",
-      "fetching_files": "@:general.fetching Lêers...",
-      "no_files_found": "Geen lêers gevind!",
+      "search": {
+        "clear_search": "",
+        "waiting": "",
+        "no_results": {
+          "title": "",
+          "subtitle": ""
+        }
+      },
+      "cancel_fab": {
+        "upload": "",
+        "download": ""
+      },
+      "move_here": "",
+      "copy_here": "",
+      "no_matches_file_pattern": "",
+      "gcode_tab": "",
+      "config_tab": "",
+      "timelapse_tab": "",
+      "element": {
+        "one": "",
+        "other": ""
+      },
       "details": {
         "preheat": "Voorverhit",
         "print": "Druk",
@@ -182,9 +353,11 @@
         },
         "meta_card": {
           "title": "GCode-Metadata",
-          "filament": "Filament",
+          "filament": "",
           "filament_type": "Filamenttipe",
           "filament_name": "Filamentnaam",
+          "filament_weight": "",
+          "filament_length": "",
           "est_print_time": "Geskatte Druktyd",
           "slicer": "Slicer Gebruik",
           "nozzle_diameter": "Monddiameter",
@@ -192,18 +365,24 @@
           "first_layer": "Eerste Laag",
           "others": "Ander",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperature",
-          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+          "first_layer_temps_value": ""
         },
         "stat_card": {
           "title": "Statistiek"
         },
         "preheat_dialog": {
-          "title": "@:pages.files.details.preheat ?",
+          "title": "",
           "body": "Teikentemperature\nEkstruder: {}°C\nBed: {}°C"
         },
         "preheat_snackbar": {
           "title": "Voorverhitting het begin",
           "body": "Ekstruder: {}°C\nBed: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "",
+          "insufficient_filament_body": "",
+          "material_mismatch_title": "",
+          "material_mismatch_body": ""
         }
       }
     },
@@ -212,13 +391,33 @@
       "general": {
         "title": "Algemeen",
         "ems_confirm": "Bevestig Noodstop",
+        "ems_confirm_hint": "",
         "always_baby": "Wys Altyd Babastapkaart",
+        "always_baby_hint": "",
         "num_edit": "Gebruik skeutelbord om nommers in te voer",
+        "num_edit_hint": "",
         "start_with_overview": "Wys @:pages.overview.title by verstek",
+        "start_with_overview_hint": "",
         "use_offset_pos": "Wys koördinate met afset ingesluit.",
+        "use_offset_pos_hint": "",
         "lcFullCam": "Volskerm-Webcam in Landskap",
+        "lcFullCam_hint": "",
         "language": "Taal",
-        "companion": "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker se Hulpgenoot op te stel op "
+        "companion": "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker se Hulpgenoot op te stel op ",
+        "sliders_grouping": "",
+        "sliders_grouping_hint": "",
+        "time_format": "",
+        "system_theme": "",
+        "system_theme_mode": "",
+        "printer_theme_warning": "",
+        "filament_sensor_dialog": "",
+        "filament_sensor_dialog_hint": "",
+        "confirm_gcode": "",
+        "confirm_gcode_hint": "",
+        "eta_sources": "",
+        "eta_sources_hint": "",
+        "medium_ui": "",
+        "medium_ui_hint": ""
       },
       "notification": {
         "title": "Kennisgewing",
@@ -233,7 +432,13 @@
         "ios_notifications_title": "IOS Kennisgewing is Afgelewer",
         "ios_notifications_desc": "Kennisgewings vereis dat mobileraker ten minste een keer oopgemaak word en in die agtergrond bly loop.\nSommige kennisgewings mag steeds geblok word deur die OS!",
         "missing_companion_title": "Hulpgenoot nie gevind!",
-        "missing_companion_body": "Dit lyk of die hulpgenoot dalk nie geïnstalleer is nie en daarom kan die volgende masjiene nie kennisgewings stuur nie: {}\nDruk om meer hieroor te leer!"
+        "missing_companion_body": "Dit lyk of die hulpgenoot dalk nie geïnstalleer is nie en daarom kan die volgende masjiene nie kennisgewings stuur nie: {}\nDruk om meer hieroor te leer!",
+        "enable_live_activity": "",
+        "enable_live_activity_helper": "",
+        "opt_out_marketing": "",
+        "opt_out_marketing_helper": "",
+        "use_progressbar_notification": "",
+        "use_progressbar_notification_helper": ""
       },
       "developer": {
         "title": "Onwikkelaar",
@@ -249,9 +454,16 @@
       "fetching_additional_settings": "@:general.fetching addisionele instellings vanaf die netwerk...",
       "could_not_fetch_additional": "Kon nie addisionele instellings gaan haal nie!",
       "fetch_error_hint": "Maak seker dat die masjien bereikbaar is, en dat Mobileraker daaraan gekoppel is.",
+      "reset_notification_registry": "",
+      "configure_remote_connection": "",
       "store_error": {
         "title": "Kon nie gestoor word!",
-        "message": "Sommige velde bevat ongeldige waardes!\nMaak asb seker al die velde is geldig."
+        "message": "Sommige velde bevat ongeldige waardes!\nMaak asb seker al die velde is geldig.",
+        "unexpected_error": ""
+      },
+      "confirm_deletion": {
+        "title": "",
+        "body": ""
       },
       "general": {
         "displayname": "Vertoonnaam",
@@ -260,14 +472,24 @@
         "moonraker_api_key": "Moonraker - API Sleutel",
         "moonraker_api_desc": "Slegs nogdig as jy van betroubare kliënte gebruik maak. FluiddPI dwing die vereiste af!",
         "full_url": "Volledige URL",
-        "self_signed": "Aanvaar Self-Getekende Sertifikate"
+        "timeout_label": "",
+        "timeout_helper": "",
+        "theme": "",
+        "theme_helper": "",
+        "theme_unavailable": ""
+      },
+      "ssl": {
+        "title": "",
+        "pin_certificate_label": "",
+        "pin_certificate_helper": "",
+        "self_signed": ""
       },
       "motion_system": {
         "title": "Bewegingstelsel",
         "invert_x": "Keer X-As Om",
         "invert_x_short": "Keer X om",
         "invert_y": "Keer Y-As Om",
-        "invert_y_short": "Invert Y",
+        "invert_y_short": "",
         "invert_z": "Keer Z-As Om",
         "invert_z_short": "Keer Z Om",
         "speed_xy": "Spoed X/Y - Asse",
@@ -275,7 +497,7 @@
         "speed_z": "Spoed Z-As",
         "speed_z_short": "Spoed Z",
         "steps_move": "Stapbewegings",
-        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_move_short": "",
         "steps_baby": "Babastap Z-stappe",
         "steps_baby_short": "Babastappe"
       },
@@ -284,7 +506,17 @@
         "feedrate": "Ekstruder voertempe",
         "feedrate_short": "Voertempo",
         "steps_extrude": "Ekstrusiestappe",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "",
+        "filament": {
+          "loading_distance": "",
+          "loading_distance_helper": "",
+          "loading_speed": "",
+          "loading_speed_helper": "",
+          "purge_amount": "",
+          "purge_amount_helper": "",
+          "purge_speed": "",
+          "purge_speed_helper": ""
+        }
       },
       "cams": {
         "target_fps": "Teiken FPS",
@@ -296,40 +528,166 @@
         "flip_vertical": "Keer vertikaal om",
         "flip_horizontal": "Keer horisontaal om",
         "cam_mode": "Cam Modus",
-        "cam_rotate": "Rotasie"
+        "cam_rotate": "Rotasie",
+        "read_only": ""
       },
       "macros": {
+        "default_grp": "",
         "new_macro_grp": "Nuwe Makro-groep",
         "no_macros_available": "Geen Makro's beskikbaar!",
         "no_macros_found": "Geen Makro's gevind!",
+        "no_macros_in_grp": "",
+        "deleted_grp": "",
+        "macros": "",
+        "default_name": "",
         "macros_to_default": {
           "one": "Een makro na verstekgroep geskuif!",
           "two": "Twee makro's na verstekgroep geskuif!",
           "other": "{} makro's na verstekgroep geskuif!"
-        }
+        },
+        "macro_removed": ""
       },
       "presets": {
         "no_presets": "Geen Voorafinstellings bygevoeg nie!",
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperatuur",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperatuur",
         "new_preset": "Nuwe Voorafinstalling"
+      },
+      "confirm_fcm_reset": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "",
+          "other": ""
+        },
+        "body": {
+          "oe": "",
+          "other": ""
+        },
+        "button": {
+          "oe": "",
+          "other": ""
+        }
+      },
+      "remote_interface_exists": {
+        "title": "",
+        "body": {
+          "oe": "",
+          "obico": "",
+          "other": ""
+        }
+      },
+      "remote_interface_removed": {
+        "title": "",
+        "body": ""
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "",
+          "obico": "",
+          "other": ""
+        },
+        "body": ""
+      },
+      "wifi_access_warning": {
+        "title": "",
+        "subtitle": ""
+      },
+      "local_ssid": {
+        "section_header": "",
+        "no_ssids": "",
+        "helper": "",
+        "dialog": {
+          "title_add": "",
+          "title_edit": "",
+          "label": "",
+          "quick_add_hint": ""
+        },
+        "error_fetching_snackbar": {
+          "title": "",
+          "body": ""
+        }
+      },
+      "temp_ordering": {
+        "title": "",
+        "helper": "",
+        "no_sensors": ""
+      },
+      "fan_ordering": {
+        "title": "",
+        "helper": "",
+        "no_fans": ""
+      },
+      "misc_ordering": {
+        "title": "",
+        "helper": "",
+        "no_controls": ""
       }
     },
     "printer_add": {
+      "steps": {
+        "mode": "",
+        "input": "",
+        "test": "",
+        "done": ""
+      },
       "title": "Voeg nuwe drukker by",
-      "printer_add_helper": "Host, IP, of volle URL",
-      "resulting_ws_url": "Resultaat WebSocket-URL: {}",
-      "misc": "Misc",
-      "test_ws": "Toets websok-konneksie",
-      "result_ws_test": "resultaat: {}",
-      "run_test_btn": "Toets"
+      "initial_name": "",
+      "select_mode": {
+        "title": "",
+        "body": "",
+        "simple": "",
+        "advanced": "",
+        "add_via_oe": "",
+        "add_via_obico": ""
+      },
+      "simple_form": {
+        "hint_title": "",
+        "hint_body": "",
+        "url_hint": ""
+      },
+      "advanced_form": {
+        "hint_title": "",
+        "hint_body": "",
+        "http_helper": "",
+        "ws_helper": "",
+        "section_security": "",
+        "section_headers": "",
+        "empty_headers": ""
+      },
+      "test_connection": {
+        "section_connection": "",
+        "ws_url_label": "",
+        "http_url_label": "",
+        "section_test": "",
+        "http_label": "",
+        "ws_label": "",
+        "awaiting": "",
+        "continue": "",
+        "continue_anyway": "",
+        "proceed_warning": "",
+        "button": ""
+      },
+      "confirmed": {
+        "title": "",
+        "to_dashboard": ""
+      }
     },
     "console": {
       "title": "Konsole",
+      "card_title": "",
       "no_entries": "Geen vorige opdrage gevind nie",
       "fetching_console": "@:general.fetching konsole inskrywings...",
+      "macro_suggestions": "",
+      "no_suggestions": "",
       "command_input": {
         "hint": "Voer konsole-opdrag in"
+      },
+      "provider_error": {
+        "title": "",
+        "body": ""
       }
     },
     "overview": {
@@ -344,23 +702,23 @@
       "open_in_browser": "Open @:pages.faq.title in Webblaaier"
     },
     "faq": {
-      "title": "FAQ"
+      "title": ""
     },
     "changelog": {
       "title": "Veranderingslog"
     },
     "paywall": {
-      "title": "Ondersteun die onwikkelaar!",
-      "calling_store": "Verwerk versoek...",
       "manage_view": {
         "title": "Dankie vir jou ondersteuning!",
         "list_title": "Verander ondersteunersvlak :",
-        "store_btn": "Kanselleer Intekening van {}"
+        "store_btn": "Kanselleer Intekening van {}",
+        "sub_warning": ""
       },
       "subscribe_view": {
         "title": "Word 'n Mobileraker ondersteuner!",
         "info": "Mobileraker poog om 'n blitsige en betroubare mobiele UI vir Klipper te bied, aangespoor in die gees van RapRap, dat oopbron harde-en-sagtewre 'n positiewe bydrae kan lewer.\nAangesien Mobileraker deur 'n enkele persoon ontwikkel en gratis beskikbaar gestel word, is dit afhanklik van bydraes en onderstuening uit die gemeenskap om ontwikkeling-en-beryfskostes te dek.",
-        "list_title": "Kies Ondersteunersvlak:"
+        "list_title": "Kies Ondersteunersvlak:",
+        "subscription_info": ""
       },
       "supporter_tier_list": {
         "error_title": "Probleem met die laai van ondersteunersvlakke!",
@@ -369,10 +727,100 @@
       "contact_dialog": {
         "title": "Kontak Ontwikkelaar",
         "body": "E-Pos: {}\nDiscord: {}"
+      },
+      "title": "Ondersteun die onwikkelaar!",
+      "calling_store": "Verwerk versoek...",
+      "promo_title": "",
+      "free_phase": "",
+      "intro_phase": "",
+      "iap_offer": "",
+      "tip_developer": "",
+      "trial_disclaimer": "",
+      "restore_sign_in": ""
+    },
+    "video_player": {
+      "downloading_for_sharing": ""
+    },
+    "tool": {
+      "title": ""
+    },
+    "beltTuner": {
+      "title": "",
+      "description": "",
+      "beltType": "",
+      "target": "",
+      "permissionWarning": {
+        "title": "",
+        "subtitle": ""
+      }
+    },
+    "spoolman": {
+      "title": "",
+      "not_available": "",
+      "learn_more": "",
+      "learn_more_link": "",
+      "no_spools": "",
+      "no_filaments": "",
+      "no_vendors": "",
+      "error_loading_spools": "",
+      "error_loading_filaments": "",
+      "spool": {
+        "one": "",
+        "other": ""
+      },
+      "filament": {
+        "one": "",
+        "other": ""
+      },
+      "vendor": {
+        "one": "",
+        "other": ""
+      },
+      "properties": {
+        "id": "",
+        "name": "",
+        "registered": "",
+        "comment": "",
+        "material": "",
+        "price": "",
+        "density": "",
+        "diameter": "",
+        "weight": "",
+        "spool_weight": "",
+        "article_number": "",
+        "first_used": "",
+        "last_used": "",
+        "remaining_weight": "",
+        "used_weight": "",
+        "location": "",
+        "lot_number": ""
+      },
+      "vendor_details": {
+        "page_title": "",
+        "info_card": "",
+        "filaments_card": "",
+        "spools_card": ""
+      },
+      "filament_details": {
+        "info_card": "",
+        "spools_card": ""
+      },
+      "spool_details": {
+        "page_title": "",
+        "info_card": "",
+        "set_active": "",
+        "archived_warning": {
+          "title": "",
+          "body": ""
+        }
       }
     }
   },
   "components": {
+    "app_version_display": {
+      "version": "",
+      "installed_version": ""
+    },
     "pull_to_refresh": {
       "pull_up_idle": "Trek op om te vervris"
     },
@@ -387,7 +835,8 @@
       "trying_connect": "Probeer tans konnekteer...",
       "trying_connect_remote": "Probeer tans konnekteer m.b.v. die afstandskliënt...",
       "server_starting": "Bediener begin tans...",
-      "more_details": "Meer Besonderhede"
+      "more_details": "Meer Besonderhede",
+      "add_printer": ""
     },
     "octo_indicator": {
       "tooltip": "Gebruik OctoEveryWhere!"
@@ -395,6 +844,35 @@
     "supporter_add": {
       "title": "Hou jy van Mobileraker?",
       "subtitle": "Tik my om te leer hoe jy die ontwikkelaar kan ondersteun!"
+    },
+    "supporter_only_feature": {
+      "dialog_title": "",
+      "button": "",
+      "webcam": "",
+      "printer_add": "",
+      "job_queue": "",
+      "timelaps_share": "",
+      "printer_theme": "",
+      "spoolman_page": "",
+      "custom_dashboard": "",
+      "full_file_management": ""
+    },
+    "machine_deletion_warning": {
+      "title": "",
+      "subtitle": ""
+    },
+    "remote_connection_indicator": {
+      "title": ""
+    },
+    "web_rtc": {
+      "renderer_missing": "",
+      "oe_warning": ""
+    },
+    "ri_indicator": {
+      "tooltip": ""
+    },
+    "obico_indicator": {
+      "tooltip": ""
     }
   },
   "dialogs": {
@@ -420,12 +898,32 @@
       "title": "Herbenoem Vouer",
       "label": "Vouernaam"
     },
+    "copy_folder": {
+      "title": "",
+      "label": ""
+    },
     "delete_file": {
       "description": "Bevestig dat jy '{}' lêer wil uitvee."
     },
     "rename_file": {
       "title": "Herbenoem Lêer",
       "label": "Lêernaam"
+    },
+    "copy_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_archive": {
+      "title": "",
+      "label": ""
+    },
+    "delete_files": {
+      "title": "",
+      "description": ""
     },
     "exclude_object": {
       "title": "Sluit voorwerp daarvan uit om te druk",
@@ -440,7 +938,9 @@
       "body": "Jy kan 'n IP, URL of volledige URI na jou webkoppelvlak voorsien, of die direkte websokinstansie van moonraker gee.\n\nGeldige voorbeelde:"
     },
     "gcode_params": {
-      "hint": "Wenk: Gebruik 'n langdruk om die makro in te dien met verstek waardes."
+      "hint": "Wenk: Gebruik 'n langdruk om die makro in te dien met verstek waardes.",
+      "confirm_title": "",
+      "confirm_body": ""
     },
     "rgbw": {
       "recent_colors": "Onlangse Kleure"
@@ -465,6 +965,30 @@
       "notification_perk": {
         "title": "Fotokennisgewings",
         "subtitle": "Statuskennisgewing sluit 'n Webcamfoto in"
+      },
+      "webrtc_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "job_queue_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "unlimited_printers_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "printer_theme_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "custom_dashboard_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "full_file_management_perk": {
+        "title": "",
+        "subtitle": ""
       }
     },
     "bed_screw_adjust": {
@@ -481,6 +1005,275 @@
       "hint_tooltip": "Klipper se papiertoets dokumentasie",
       "snackbar_title": "Kalibrasie is voltooi",
       "snackbar_message": "As jy die afset permanent wil maak, onthou om die konfigurasie te stoor."
+    },
+    "tipping": {
+      "title": "",
+      "body": "",
+      "amount_label": "",
+      "tip": ""
+    },
+    "http_header": {
+      "title": "",
+      "header": "",
+      "header_hint": "",
+      "value": "",
+      "value_hint": ""
+    },
+    "macro_settings": {
+      "show_while_printing": "",
+      "visible": ""
+    },
+    "extruder_feedrate": {
+      "title": ""
+    },
+    "fan_speed": {
+      "title": ""
+    },
+    "filament_sensor_triggered": {
+      "title": "",
+      "body": ""
+    },
+    "screws_tilt_adjust": {
+      "title": "",
+      "base": "",
+      "hint": ""
+    },
+    "dashboard_page_settings": {
+      "title": "",
+      "icon_label": ""
+    },
+    "filament_switch": {
+      "title": {
+        "load": "",
+        "unload": ""
+      },
+      "controls": {
+        "heat_up": "",
+        "change_temp": "",
+        "purge": "",
+        "repeat_load": "",
+        "repeat_unload": "",
+        "repeat_purge": ""
+      },
+      "steps": {
+        "set_temps": {
+          "title": "",
+          "subtitle": ""
+        },
+        "heat_up": {
+          "title": "",
+          "subtitle": ""
+        },
+        "move": {
+          "title": {
+            "load": "",
+            "unload": ""
+          },
+          "subtitle": {
+            "load": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            },
+            "unload": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            }
+          }
+        },
+        "purge": {
+          "title": "",
+          "subtitle": {
+            "idle": "",
+            "processing": "",
+            "processed": ""
+          }
+        },
+        "tip_form": {
+          "title": "",
+          "subtitle": ""
+        }
+      }
+    },
+    "heater_temperature": {
+      "title": ""
+    },
+    "confirm_print_cancelation": {
+      "title": "",
+      "body": ""
+    }
+  },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "next": "",
+      "empty": "",
+      "start_queue": "",
+      "pause_queue": "",
+      "remove_all": "",
+      "remove_all_confirm": ""
+    },
+    "add_remote_con": {
+      "disclosure": "",
+      "active_service_info": {
+        "title": "",
+        "body": ""
+      },
+      "octoeverywehre": {
+        "service_name": "",
+        "tab_name": "",
+        "link": "",
+        "unlink": "",
+        "description": ""
+      },
+      "manual": {
+        "service_name": "",
+        "tab_name": "",
+        "description": "",
+        "address_label": "",
+        "address_hint": ""
+      },
+      "obico": {
+        "service_name": "",
+        "tab_name": "",
+        "link": "",
+        "unlink": "",
+        "description": "",
+        "self_hosted": {
+          "title": "",
+          "description": "",
+          "url_label": "",
+          "url_hint": ""
+        }
+      }
+    },
+    "manage_macros_in_grp": {
+      "title": "",
+      "hint": ""
+    },
+    "signIn": {
+      "subtitle": "",
+      "forgot_password": "",
+      "forgot_password_success": "",
+      "hint": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "action": {
+        "sign_in": "",
+        "sign_up": "",
+        "reset_password": ""
+      },
+      "email": {
+        "label": "",
+        "hint": ""
+      },
+      "password": {
+        "label": "",
+        "hint": ""
+      },
+      "confirm_password": {
+        "label": "",
+        "hint": "",
+        "error": ""
+      }
+    },
+    "profile": {
+      "title": "",
+      "description": "",
+      "restore_purchases": "",
+      "restore_success": "",
+      "sign_out": "",
+      "delete_account": "",
+      "email_verification": {
+        "title": {
+          "pending": "",
+          "not_verified": ""
+        },
+        "description": "",
+        "send": ""
+      },
+      "delete_account_dialog": {
+        "title": "",
+        "body": ""
+      }
+    },
+    "bedMesh": {
+      "no_mesh_loaded": "",
+      "load_bed_mesh_profile": "",
+      "currently_active": "",
+      "no_profile_active": "",
+      "no_mesh": "",
+      "clear_loaded_profile": "",
+      "range_between_highest_and_lowest_point": "",
+      "cant_render": ""
+    },
+    "select_spool": {
+      "header": {
+        "spools": "",
+        "qr": ""
+      },
+      "no_spools": "",
+      "error": "",
+      "qr_loading": "",
+      "qr_error": "",
+      "scan_again": "",
+      "set_active": "",
+      "spool_id_not_found": ""
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "",
+        "no_services": "",
+        "provider_error": ""
+      },
+      "confirm_action": {
+        "title": "",
+        "hint": {
+          "long_press": ""
+        },
+        "body": {
+          "pi_restart": "",
+          "pi_shutdown": "",
+          "fw_restart": "",
+          "service_start": "",
+          "service_restart": "",
+          "service_stop": ""
+        }
+      }
+    },
+    "dashboard_cards": {
+      "title": "",
+      "subtitle": ""
+    },
+    "dashboard_layout": {
+      "title": "",
+      "subtitle": "",
+      "available_layouts": {
+        "label": "",
+        "empty": "",
+        "add_empty": ""
+      },
+      "layout_preview": {
+        "not_saved": ""
+      },
+      "rename_layout": {
+        "title": "",
+        "label": ""
+      },
+      "delete_layout": {
+        "title": "",
+        "body": ""
+      },
+      "import_snackbar": {
+        "title": "",
+        "body": ""
+      },
+      "falsy_import_snackbar": {
+        "title": "",
+        "body": ""
+      }
     }
   },
   "klipper_state": {
@@ -489,7 +1282,22 @@
     "starting": "Begin tans",
     "disconnected": "Gediskonnekteer",
     "error": "Fout",
-    "unauthorized": "Ongemagtig"
+    "unauthorized": "Ongemagtig",
+    "initializing": "",
+    "not_connected": ""
+  },
+  "print_state": {
+    "standby": "",
+    "printing": "",
+    "paused": "",
+    "complete": "",
+    "cancelled": "",
+    "error": ""
+  },
+  "theme_mode": {
+    "light": "",
+    "dark": "",
+    "system": ""
   },
   "notifications": {
     "channel_printer_grp": "Drukker {}",
@@ -507,6 +1315,793 @@
         "name": "Drukwerkvordering - {}",
         "desc": "Kennisgewing oor die drukwerk se vordering.",
         "title": "Drukwerkvordering van {}"
+      }
+    }
+  },
+  "form_validators": {
+    "simple_url": "",
+    "disallow_mdns": "",
+    "file_name_in_use": ""
+  },
+  "date": {
+    "year": {
+      "one": "",
+      "other": ""
+    },
+    "month": {
+      "one": "",
+      "other": ""
+    },
+    "week": {
+      "one": "",
+      "other": ""
+    },
+    "day": {
+      "one": "",
+      "other": ""
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "",
+      "other": ""
+    },
+    "month": {
+      "one": "",
+      "other": ""
+    },
+    "week": {
+      "one": "",
+      "other": ""
+    },
+    "day": {
+      "one": "",
+      "other": ""
+    }
+  },
+  "languages": {
+    "languageCode": {
+      "ab": {
+        "name": "",
+        "nativeName": ""
+      },
+      "aa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "af": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ak": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sq": {
+        "name": "",
+        "nativeName": ""
+      },
+      "am": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ar": {
+        "name": "",
+        "nativeName": ""
+      },
+      "an": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "as": {
+        "name": "",
+        "nativeName": ""
+      },
+      "av": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ae": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ay": {
+        "name": "",
+        "nativeName": ""
+      },
+      "az": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ba": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "be": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "br": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "my": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ca": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ch": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ce": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ny": {
+        "name": "",
+        "nativeName": ""
+      },
+      "zh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "co": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "da": {
+        "name": "",
+        "nativeName": ""
+      },
+      "dv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "en": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "et": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ee": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ff": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ka": {
+        "name": "",
+        "nativeName": ""
+      },
+      "de": {
+        "name": "",
+        "nativeName": ""
+      },
+      "el": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ht": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ha": {
+        "name": "",
+        "nativeName": ""
+      },
+      "he": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ho": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ia": {
+        "name": "",
+        "nativeName": ""
+      },
+      "id": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ie": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ga": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ig": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ik": {
+        "name": "",
+        "nativeName": ""
+      },
+      "io": {
+        "name": "",
+        "nativeName": ""
+      },
+      "is": {
+        "name": "",
+        "nativeName": ""
+      },
+      "it": {
+        "name": "",
+        "nativeName": ""
+      },
+      "iu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ja": {
+        "name": "",
+        "nativeName": ""
+      },
+      "jv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ks": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "km": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ki": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ky": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ko": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ku": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "la": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "li": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ln": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ms": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ml": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "na": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ne": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ng": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "no": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ii": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "om": {
+        "name": "",
+        "nativeName": ""
+      },
+      "or": {
+        "name": "",
+        "nativeName": ""
+      },
+      "os": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ps": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "qu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ro": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ru": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "se": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "si": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "so": {
+        "name": "",
+        "nativeName": ""
+      },
+      "st": {
+        "name": "",
+        "nativeName": ""
+      },
+      "es": {
+        "name": "",
+        "nativeName": ""
+      },
+      "su": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ss": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ta": {
+        "name": "",
+        "nativeName": ""
+      },
+      "te": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "th": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ti": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "to": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ts": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ty": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ug": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ur": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ve": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "xh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "za": {
+        "name": "",
+        "nativeName": ""
+      }
+    },
+    "countryCode": {
+      "CN": {
+        "name": "",
+        "nativeName": ""
+      },
+      "HK": {
+        "name": "",
+        "nativeName": ""
+      },
+      "BR": {
+        "name": "",
+        "nativeName": ""
       }
     }
   }
