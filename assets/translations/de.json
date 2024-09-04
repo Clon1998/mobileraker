@@ -808,7 +808,7 @@
         "remaining_length": "Verbleibende Länge",
         "used_length": "Benutzte Länge",
         "location": "Standort",
-        "lot_number": "Chargennummer",
+        "lot_number": "Lot Nummer",
         "color": "Farbe"
       },
       "property_sections": {
@@ -839,8 +839,6 @@
       },
       "spool_form": {
         "create_page_title": "Spule erstellen",
-        "section": {
-        },
         "helper": {
           "price": "@:pages.spoolman.filament_form.helper.price Fällt auf den Filamentpreis zurück, wenn nicht gesetzt",
           "initial_weight": "@:pages.spoolman.filament_form.helper.initial_weight Fällt auf das Filamentgewicht zurück, wenn nicht gesetzt",
@@ -1413,6 +1411,752 @@
     "day": {
       "one": "Täglich",
       "other": "Tage"
+    }
+  },
+  "languages": {
+    "languageCode": {
+      "ab": {
+        "name": "",
+        "nativeName": ""
+      },
+      "aa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "af": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ak": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sq": {
+        "name": "",
+        "nativeName": ""
+      },
+      "am": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ar": {
+        "name": "",
+        "nativeName": ""
+      },
+      "an": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "as": {
+        "name": "",
+        "nativeName": ""
+      },
+      "av": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ae": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ay": {
+        "name": "",
+        "nativeName": ""
+      },
+      "az": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ba": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "be": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "br": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "my": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ca": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ch": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ce": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ny": {
+        "name": "",
+        "nativeName": ""
+      },
+      "zh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "co": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "da": {
+        "name": "",
+        "nativeName": ""
+      },
+      "dv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "en": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "et": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ee": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ff": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ka": {
+        "name": "",
+        "nativeName": ""
+      },
+      "de": {
+        "name": "",
+        "nativeName": ""
+      },
+      "el": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ht": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ha": {
+        "name": "",
+        "nativeName": ""
+      },
+      "he": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ho": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ia": {
+        "name": "",
+        "nativeName": ""
+      },
+      "id": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ie": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ga": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ig": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ik": {
+        "name": "",
+        "nativeName": ""
+      },
+      "io": {
+        "name": "",
+        "nativeName": ""
+      },
+      "is": {
+        "name": "",
+        "nativeName": ""
+      },
+      "it": {
+        "name": "",
+        "nativeName": ""
+      },
+      "iu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ja": {
+        "name": "",
+        "nativeName": ""
+      },
+      "jv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ks": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "km": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ki": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ky": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ko": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ku": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "la": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "li": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ln": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ms": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ml": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "na": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ne": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ng": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "no": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ii": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "om": {
+        "name": "",
+        "nativeName": ""
+      },
+      "or": {
+        "name": "",
+        "nativeName": ""
+      },
+      "os": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ps": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "qu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ro": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ru": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "se": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "si": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "so": {
+        "name": "",
+        "nativeName": ""
+      },
+      "st": {
+        "name": "",
+        "nativeName": ""
+      },
+      "es": {
+        "name": "",
+        "nativeName": ""
+      },
+      "su": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ss": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ta": {
+        "name": "",
+        "nativeName": ""
+      },
+      "te": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "th": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ti": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "to": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ts": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ty": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ug": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ur": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ve": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "xh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "za": {
+        "name": "",
+        "nativeName": ""
+      }
+    },
+    "countryCode": {
+      "CN": {
+        "name": "",
+        "nativeName": ""
+      },
+      "HK": {
+        "name": "",
+        "nativeName": ""
+      },
+      "BR": {
+        "name": "",
+        "nativeName": ""
+      }
     }
   }
 }
