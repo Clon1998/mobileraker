@@ -3,8 +3,8 @@ general:
   pause: Pausieren
   resume: Fortsetzen
   connected: Verbunden
-  'off': Aus
-  'on': An
+  'off': 'Aus'
+  'on': 'An'
   none: Keine
   add: Hinzufügen
   create: Erstellen
@@ -68,8 +68,7 @@ pages:
     ems_btn: Not-Aus
     ems_confirmation:
       title: Not-Aus bestätigen
-      body: Sie sind im Begriff, einen Not-Aus-Befehl an den Drucker zu senden. Dadurch
-        werden alle Motoren und Heizelemente sofort angehalten.
+      body: Sie sind im Begriff, einen Not-Aus-Befehl an den Drucker zu senden. Dadurch werden alle Motoren und Heizelemente sofort angehalten.
       confirm: STOP!
     server_status:
       unavailable: Kein Server verfügbar
@@ -87,8 +86,7 @@ pages:
         elapsed: Verstrichen
         flow: Fluss
         filament: Filament
-        filament_tooltip: "{} % Filament Verwendet, dass ist {} m der vorhergesagten
-          {} m."
+        filament_tooltip: '{} % Filament Verwendet, dass ist {} m der vorhergesagten {} m.'
         eta_tooltip: |-
           Verbleibende Zeit:
           Ø: {avg}
@@ -159,15 +157,12 @@ pages:
         title: Extruder
         extrude: Extrudieren
         retract: Rückzug
-        extrude_len: Extrudiere Länge
-        cold_extrude_error: Extruder zu kalt.  min_extrode_temp von {}°C noch nicht
-          erreicht!
+        extrude_len: "Extrudiere Länge"
+        cold_extrude_error: Extruder zu kalt.  min_extrode_temp von {}°C noch nicht erreicht!
       macro_card:
         title: Gcode - Macros
         no_macros: In dieser Gruppe sind derzeit keine Makros sichtbar
-        add_grp_hint: Sie können verschiedene Gruppen erstellen, um Ihre Makros zu
-          verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene
-          Gruppen an.
+        add_grp_hint: Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an.
         show_all_tooltip: Alle Makros anzeigen
       pin_card:
         title_misc: Verschiedenes
@@ -215,9 +210,8 @@ pages:
     title: Dashboard-Layout Personalisieren
     cancel_confirm:
       title: Änderungen verwerfen?
-      body: Möchten Sie den Layout-Bearbeitungsmodus wirklich verlassen? Dadurch werden
-        alle Änderungen verworfen. Um Ihre Änderungen zu speichern, drücken Sie die
-        Speichertaste.
+      body: |-
+        Möchten Sie den Layout-Bearbeitungsmodus wirklich verlassen? Dadurch werden alle Änderungen verworfen. Um Ihre Änderungen zu speichern, drücken Sie die Speichertaste.
     add_card: Karte hinzufügen
     remove_page: Seite entfernen
     saved_snack:
@@ -231,15 +225,13 @@ pages:
       body: Möchten Sie diese Seite wirklich entfernen?
     editing_card:
       title: Editiermodus
-      body: Sie können jetzt Layout Karten und Seiten neu anordnen, hinzufügen und
-        entfernen. Alle Karten zeigen Vorschau-Daten an.
+      body: Sie können jetzt Layout Karten und Seiten neu anordnen, hinzufügen und entfernen. Alle Karten zeigen Vorschau-Daten an.
     error_save_snack:
       title: Fehler beim Speichern!
       body: Ihre Änderungen konnten nicht gespeichert werden.
     error_no_components:
       title: Leeres Layout!
-      body: Du hast keine Widgets hinzugefügt. Füge mindestens ein Widget hinzu, um
-        das Layout zu speichern.
+      body: Du hast keine Widgets hinzugefügt. Füge mindestens ein Widget hinzu, um das Layout zu speichern.
   files:
     title: Dateien
     empty_folder:
@@ -272,8 +264,7 @@ pages:
         body: Der Download wurde abgebrochen.
       download_failed:
         title: Download fehlgeschlagen
-        body: Beim Herunterladen der Datei ist ein Fehler aufgetreten. Bitte versuchen
-          Sie es erneut.
+        body: Beim Herunterladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
       upload_canceled:
         title: Upload abgebrochen
         body: Der Upload wurde abgebrochen.
@@ -282,15 +273,13 @@ pages:
         body: Die Datei wurde erfolgreich hochgeladen.
       upload_failed:
         title: Upload fehlgeschlagen
-        body: Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen
-          Sie es erneut.
+        body: Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
       zipping_success:
         title: Archiv erstellt
         body: Das Archiv wurde erfolgreich erstellt.
       zipping_failed:
         title: Archivierung fehlgeschlagen
-        body: Beim Erstellen des Archivs ist ein Fehler aufgetreten. Bitte versuchen
-          Sie es erneut.
+        body: Beim Erstellen des Archivs ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
       copy_created:
         title: Kopie erstellt
         body: Die Datei wurde erfolgreich nach '{}' kopiert.
@@ -306,8 +295,7 @@ pages:
       download: Download abbrechen
     move_here: Hierhin verschieben
     copy_here: Hierhin kopieren
-    no_matches_file_pattern: Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche
-      und Punkte erlaubt!
+    no_matches_file_pattern: Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!
     gcode_tab: GCodes
     config_tab: Konfigs
     timelapse_tab: Zeitraffer
@@ -366,8 +354,7 @@ pages:
     general:
       title: Allgemein
       ems_confirm: Bestätigung für Not-Aus
-      ems_confirm_hint: Zeige eine Bestätigungsdialog, bevor der Notaus-Befehl gesendet
-        wird
+      ems_confirm_hint: Zeige eine Bestätigungsdialog, bevor der Notaus-Befehl gesendet wird
       always_baby: Z-Versatz Karte
       always_baby_hint: Zeige die Z-Versatz Karte immer auf dem Dashboard
       num_edit: Tastatur für Zahleneingabe
@@ -379,24 +366,19 @@ pages:
       lcFullCam: Vollbild-Webcam im Querformat
       lcFullCam_hint: Vollbild-Webcam verwendet das Querformat
       language: Sprache
-      companion: "Möchten Sie Remote-Benachrichtigung erhalten?\n Dann erfahren Sie,
-        wie Sie Mobileraker-Companion auf ihrem System instalieren auf seiner "
+      companion: "Möchten Sie Remote-Benachrichtigung erhalten?\n Dann erfahren Sie, wie Sie Mobileraker-Companion auf ihrem System instalieren auf seiner "
       sliders_grouping: Gruppiere Schieberegler Karten
       sliders_grouping_hint: Gruppiere Schieberegler Karten in einer Karte
       time_format: Zeitformat
       system_theme: UI-Design
       system_theme_mode: Design-Helligkeit
-      printer_theme_warning: Sie verwenden derzeit ein druckerspezifisches Design.
-        Um dies zu ändern, gehen Sie zu den Druckereinstellungen.
+      printer_theme_warning: Sie verwenden derzeit ein druckerspezifisches Design. Um dies zu ändern, gehen Sie zu den Druckereinstellungen.
       filament_sensor_dialog: Filamentsensor Dialog
-      filament_sensor_dialog_hint: Zeige einen Dialog, wenn ein Filamentsensor ausgelöst
-        wird
+      filament_sensor_dialog_hint: Zeige einen Dialog, wenn ein Filamentsensor ausgelöst wird
       confirm_gcode: Bestätige Makro-Ausführung
-      confirm_gcode_hint: Zeige immer einen Bestätigungsdialog, bevor ein Makro auf
-        dem Dashboard ausgeführt wird
+      confirm_gcode_hint: Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird
       eta_sources: ETA Quellen
-      eta_sources_hint: Wählen Sie die Quellen, die zur Berechnung der ETA verwendet
-        werden sollen
+      eta_sources_hint: Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen
       medium_ui: Tablet UI
       medium_ui_hint: Aktiviert das Tablet-UI für größere Bildschirme
     notification:
@@ -418,18 +400,14 @@ pages:
         Benachrichtigungen erfordern, dass Mobileraker mindestens einmal geöffnet werden und im Hintergrund offen bleibt.
         Trotzdem können einige Benachrichtigungen vom Betriebssystem blockiert werden!
       missing_companion_title: Companion wurde nicht gefunden!
-      missing_companion_body: 'Es scheint, dass der Companion nicht installiert ist
-        und daher die folgenden Maschinen keine Benachrichtigungen senden können:
-        {}'
+      missing_companion_body: |-
+        Es scheint, dass der Companion nicht installiert ist und daher die folgenden Maschinen keine Benachrichtigungen senden können: {}
       enable_live_activity: Aktiviere Live Activity
-      enable_live_activity_helper: Aktiviert Live-Aktivitäten in Ergänzung zu den
-        standardmäßigen Druckfortschritt Benachrichtigungen
+      enable_live_activity_helper: Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen
       opt_out_marketing: Marketing Benachrichtigungen
-      opt_out_marketing_helper: Erhalten Sie aktuelle Informationen über Verkaufsaktionen
-        und Sonderangebote
+      opt_out_marketing_helper: Erhalten Sie aktuelle Informationen über Verkaufsaktionen und Sonderangebote
       use_progressbar_notification: Aktiviere Fortschrittsbalken Benachrichtigung
-      use_progressbar_notification_helper: Aktiviert die Anzeige eines Fortschrittsbalkens
-        zusätzlich zu den Standard-Fortschrittsmeldungen
+      use_progressbar_notification_helper: Aktiviert die Anzeige eines Fortschrittsbalkens zusätzlich zu den Standard-Fortschrittsmeldungen
     developer:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
@@ -439,11 +417,9 @@ pages:
     import_settings: Importeinstellungen
     remove_printer: Drucker entfernen
     no_values_found: Keine Werte gefunden!
-    fetching_additional_settings: "@:general.fetching zusätzliche Einstellungen aus
-      dem Netzwerk…"
+    fetching_additional_settings: "@:general.fetching zusätzliche Einstellungen aus dem Netzwerk…"
     could_not_fetch_additional: Konnte keine zusätzlichen Einstellungen holen!
-    fetch_error_hint: Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker
-      damit verbunden ist.
+    fetch_error_hint: Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker damit verbunden ist.
     reset_notification_registry: Setzte Geräte für Push-Mitteilungen zurück
     configure_remote_connection: Konfiguriere Fernzugriff
     store_error:
@@ -451,19 +427,16 @@ pages:
       message: |-
         Einige Felder enthalten ungültige Werte!
         Bitte stellen Sie sicher, dass alle Felder gültig sind.
-      unexpected_error: Beim Versuch, die Maschinendaten zu speichern, ist ein unerwarteter
-        Fehler aufgetreten!
+      unexpected_error: Beim Versuch, die Maschinendaten zu speichern, ist ein unerwarteter Fehler aufgetreten!
     confirm_deletion:
       title: Lösche {}?
-      body: "Sie sind dabei, den Drucker '{}' ('{}') zu entfernen. \n\nBestätigen
-        Sie Ihre Aktion."
+      body: "Sie sind dabei, den Drucker '{}' ('{}') zu entfernen. \n\nBestätigen Sie Ihre Aktion."
     general:
       displayname: Anzeigename
       printer_addr: Drucker - Adresse
       ws_addr: Websocket - Adresse
       moonraker_api_key: Moonraker - API Schlüssel
-      moonraker_api_desc: Nur benötigt, wenn Sie trusted clients verwenden. FluiddPI
-        erzwingt dies!
+      moonraker_api_desc: Nur benötigt, wenn Sie trusted clients verwenden. FluiddPI erzwingt dies!
       full_url: Volle URL
       timeout_label: Zeitüberschreitung beim Client
       timeout_helper: Der Timeout für die Client-Verbindung in Sekunden
@@ -499,11 +472,9 @@ pages:
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Extruder-Düsen Abstand
-        loading_distance_helper: Abstand von der Düse zum Extruder. Wird zum Laden
-          und Entladen des Filaments verwendet
+        loading_distance_helper: Abstand von der Düse zum Extruder. Wird zum Laden und Entladen des Filaments verwendet
         loading_speed: "(Ent)Ladegeschwindigkeit"
-        loading_speed_helper: Geschwindigkeit zum Laden und Entladen des Filaments
-          von der Düse zum Extruder
+        loading_speed_helper: Geschwindigkeit zum Laden und Entladen des Filaments von der Düse zum Extruder
         purge_amount: Ausstoß-Länge
         purge_amount_helper: Filament-Ausstoß zur Reinigung der Düse
         purge_speed: Ausstoß-Geschwindigkeit
@@ -532,9 +503,8 @@ pages:
       macros_to_default:
         one: Ein Makro in die Standardgruppe verschoben!
         two: Zwei Makro in die Standardgruppe verschoben!
-        other: "{} Makros in die Standardgruppe verschoben!"
-      macro_removed: Das Makro wurde nicht gefunden und wird in Kürze automatisch
-        entfernt.
+        other: '{} Makros in die Standardgruppe verschoben!'
+      macro_removed: Das Makro wurde nicht gefunden und wird in Kürze automatisch entfernt.
     presets:
       no_presets: Keine Voreinstellungen hinzugefügt!
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperatur"
@@ -542,11 +512,7 @@ pages:
       new_preset: Neue Voreinstellung
     confirm_fcm_reset:
       title: Setzte Geräte für Push-Mitteilungen zurück?
-      body: "Sie sind dabei, die Registrierungen für die Push-Mitteilungen zurückzusetzen.
-        Diese werden genutzt um die Geräte zu bestimmt, an die der Companion Push-Meldungen
-        sendet.\nUm ein Gerät wieder zu registrieren, müssen Sie die App auf allen
-        Geräten neu starten und sie erneut mit dem Gerät verbinden. \n\nBestätigen
-        Sie die Aktion."
+      body: "Sie sind dabei, die Registrierungen für die Push-Mitteilungen zurückzusetzen. Diese werden genutzt um die Geräte zu bestimmt, an die der Companion Push-Meldungen sendet.\nUm ein Gerät wieder zu registrieren, müssen Sie die App auf allen Geräten neu starten und sie erneut mit dem Gerät verbinden. \n\nBestätigen Sie die Aktion."
     confirm_remote_interface_removal:
       title:
         oe: Unlink {}?
@@ -560,12 +526,9 @@ pages:
     remote_interface_exists:
       title: Fernzugriff gefunden
       body:
-        oe: Dieser Drucker ist bereits mit OctoEverywhere für den Fernzugriff verbunden.
-          Bitte heben Sie die Verknüpfung auf, bevor Sie fortfahren.
-        obico: Dieser Drucker ist bereits mit Obico für den Fernzugriff verknüpft.
-          Bitte heben Sie diese Verknüpfung auf, bevor Sie fortfahren.
-        other: Für diesen Drucker wurde bereits ein Fernzugriff erstellt. Bitte entfernen
-          Sie diesen, bevor Sie fortfahren.
+        oe: Dieser Drucker ist bereits mit OctoEverywhere für den Fernzugriff verbunden. Bitte heben Sie die Verknüpfung auf, bevor Sie fortfahren.
+        obico: Dieser Drucker ist bereits mit Obico für den Fernzugriff verknüpft. Bitte heben Sie diese Verknüpfung auf, bevor Sie fortfahren.
+        other: Für diesen Drucker wurde bereits ein Fernzugriff erstellt. Bitte entfernen Sie diesen, bevor Sie fortfahren.
     remote_interface_removed:
       title: Fernzugriff entfernt!
       body: Um die Änderungen zu übernehmen, speichern sie den Drucker.
@@ -584,34 +547,26 @@ pages:
     local_ssid:
       section_header: Smart Switching
       no_ssids: Kein WiFi-Name hinzugefügt!
-      helper: Mit der Smart Switching Funktion wechselt die App, basierend auf dem
-        aktuellen Wifi-Netz, automatisch zwischen der lokalen und der Fernzugriffs
-        Verbindung. Zum aktivieren dieser Funktion, fügen sie den Namen ihres Lokalen
-        Wifi-Netzes hinzu.
+      helper: Mit der Smart Switching Funktion wechselt die App, basierend auf dem aktuellen Wifi-Netz, automatisch zwischen der lokalen und der Fernzugriffs Verbindung. Zum aktivieren dieser Funktion, fügen sie den Namen ihres Lokalen Wifi-Netzes hinzu.
       dialog:
         title_add: WiFi-Name hinzugefügt
         title_edit: WiFi-Name bearbeiten
         label: WiFi-Name (SSID)
-        quick_add_hint: 'Tipp: Um den aktuellen WiFi-Namen schnell hinzuzufügen, drücken
-          Sie lange auf den Knopf, welcher diesen Dialog geöffnet hat.'
+        quick_add_hint: 'Tipp: Um den aktuellen WiFi-Namen schnell hinzuzufügen, drücken Sie lange auf den Knopf, welcher diesen Dialog geöffnet hat.'
       error_fetching_snackbar:
         title: Fehler beim Abrufen des WiFi-Namens!
-        body: Vergewissern Sie sich, dass die App über die erforderlichen Zugriffsrechte,
-          für das Abrufen des WLAN-Status des Geräts, verfügt.
+        body: Vergewissern Sie sich, dass die App über die erforderlichen Zugriffsrechte, für das Abrufen des WLAN-Status des Geräts, verfügt.
     temp_ordering:
       title: Temperatursensor Reihenfolge
-      helper: Ändern Sie die Reihenfolge der Temperatursensoren, die auf dem Dashboard
-        angezeigt werden.
+      helper: Ändern Sie die Reihenfolge der Temperatursensoren, die auf dem Dashboard angezeigt werden.
       no_sensors: Keine Sensoren gefunden!
     fan_ordering:
       title: Lüfter Reihenfolge
-      helper: Ändern Sie die Reihenfolge der Lüfter, die auf dem Dashboard angezeigt
-        werden.
+      helper: Ändern Sie die Reihenfolge der Lüfter, die auf dem Dashboard angezeigt werden.
       no_fans: Keine Lüfter gefunden!
     misc_ordering:
       title: Verschiedenes Reihenfolge
-      helper: Ändern Sie die Reihenfolge der verschiedenen Elemente, die auf dem Dashboard
-        angezeigt werden.
+      helper: Ändern Sie die Reihenfolge der verschiedenen Elemente, die auf dem Dashboard angezeigt werden.
       no_controls: Keine Elemente gefunden!
   printer_add:
     steps:
@@ -623,27 +578,18 @@ pages:
     initial_name: Mein Drucker
     select_mode:
       title: 'Wähle einen Eingabemodus:'
-      body: Wenn Sie neu in diesem Bereich sind, sollten Sie sich an den Einfachenmodus
-        halten. Sind Sie jedoch erfahren und müssen benutzerdefinierte Header, Zertifikate
-        usw. verwenden, dann ist der Expertenmodus das Richtige für Sie. Denken Sie
-        daran, dass der von Ihnen gewählte Modus keinen Einfluss auf die App selbst
-        hat, aber er bestimmt, wie die Eingabe validiert und angezeigt wird und welche
-        Optionen beim Hinzufügen einer Maschine verfügbar sind.
+      body: Wenn Sie neu in diesem Bereich sind, sollten Sie sich an den Einfachenmodus halten. Sind Sie jedoch erfahren und müssen benutzerdefinierte Header, Zertifikate usw. verwenden, dann ist der Expertenmodus das Richtige für Sie. Denken Sie daran, dass der von Ihnen gewählte Modus keinen Einfluss auf die App selbst hat, aber er bestimmt, wie die Eingabe validiert und angezeigt wird und welche Optionen beim Hinzufügen einer Maschine verfügbar sind.
       simple: Einfach
       advanced: Experte
       add_via_oe: Ein-Klick OctoEverywhere Einrichtung
       add_via_obico: Ein-Klick Obico Einrichtung
     simple_form:
       hint_title: Hinweis - Einfacher Modus
-      hint_body: Im einfachen Modus können Sie den Host und den Port eingeben. Wenn
-        Sie jedoch den Pfad, den Header, Zertifikate oder andere Einstellungen anpassen
-        müssen, wechseln Sie in den experten Modus.
+      hint_body: Im einfachen Modus können Sie den Host und den Port eingeben. Wenn Sie jedoch den Pfad, den Header, Zertifikate oder andere Einstellungen anpassen müssen, wechseln Sie in den experten Modus.
       url_hint: IP oder Hostname des Druckers
     advanced_form:
       hint_title: Hinweis - Expertenmodus
-      hint_body: Bitte beachten Sie, dass im Expertenmodus die Validierung größtenteils
-        deaktiviert ist. Bitte vergewissern Sie sich, dass die von Ihnen eingegebene
-        URL gültig ist.
+      hint_body: Bitte beachten Sie, dass im Expertenmodus die Validierung größtenteils deaktiviert ist. Bitte vergewissern Sie sich, dass die von Ihnen eingegebene URL gültig ist.
       http_helper: Bitte geben Sie den HTTP-Endpunkt von Moonraker ein
       ws_helper: Optional, WebSocket-Endpunkt von Moonraker
       section_security: Sicherheit
@@ -659,12 +605,7 @@ pages:
       awaiting: Warte auf Ergebnis…
       continue: Weiter
       continue_anyway: Trotzdem fortfahren
-      proceed_warning: Es scheint, als ob die App Probleme hat, sich mit der Maschine
-        zu verbinden. Der Grund dafür könnte sein, dass Sie sich nicht im selben Netzwerk
-        wie die Maschine befinden oder dass Sie nicht über die erforderlichen Zugriffsrechte
-        für die Maschine verfügen. Obwohl Sie die Maschine trotz des Problems hinzufügen
-        können, gibt es keine Garantie dafür, dass eine ordnungsgemäße Verbindung
-        hergestellt werden kann. Fahren Sie bitte mit Vorsicht fort.
+      proceed_warning: Es scheint, als ob die App Probleme hat, sich mit der Maschine zu verbinden. Der Grund dafür könnte sein, dass Sie sich nicht im selben Netzwerk wie die Maschine befinden oder dass Sie nicht über die erforderlichen Zugriffsrechte für die Maschine verfügen. Obwohl Sie die Maschine trotz des Problems hinzufügen können, gibt es keine Garantie dafür, dass eine ordnungsgemäße Verbindung hergestellt werden kann. Fahren Sie bitte mit Vorsicht fort.
       button: Verbindungs Test
     confirmed:
       title: Drucker {} hinzugefügt!
@@ -680,8 +621,7 @@ pages:
       hint: Geben Sie einen Befehl ein
     provider_error:
       title: Fehler beim Laden der Konsole!
-      body: Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Konsoleneinträge
-        konnten nicht geladen werden. Bitte versuchen Sie es später erneut!
+      body: Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Konsoleneinträge konnten nicht geladen werden. Bitte versuchen Sie es später erneut!
   overview:
     title: Übersicht
     fetching_machines: "@:general.fetching Maschinen…"
@@ -690,7 +630,7 @@ pages:
   markdown:
     loading: "@:general.loading {}…"
     error: Beim Abrufen von {} ist ein Fehler aufgetreten;
-    open_in_browser: "@:pages.faq.title im Browser öffnen"
+    open_in_browser: '@:pages.faq.title im Browser öffnen'
   faq:
     title: FAQ
   changelog:
@@ -700,24 +640,17 @@ pages:
       title: Vielen Dank für die Unterstützung!
       list_title: 'Ändere die Supporter-Stufe:'
       store_btn: Abonnement via {} kündigen
-      sub_warning: Bitte beachten Sie, dass der Kauf der lebenslangen Supporter-Stufe
-        nicht automatisch alle anderen aktiven Abonnements kündigt. Bitte kündigen
-        Sie alle aktiven Abonnements manuell. Allerdings haben Sie die Möglichkeit,
-        die Entwicklung von Mobileraker auf regelmäßiger Basis weiter zu unterstützen,
-        auch wenn Sie die lebenslange Mitgliedschaft erworben haben.
+      sub_warning: Bitte beachten Sie, dass der Kauf der lebenslangen Supporter-Stufe nicht automatisch alle anderen aktiven Abonnements kündigt. Bitte kündigen Sie alle aktiven Abonnements manuell. Allerdings haben Sie die Möglichkeit, die Entwicklung von Mobileraker auf regelmäßiger Basis weiter zu unterstützen, auch wenn Sie die lebenslange Mitgliedschaft erworben haben.
     subscribe_view:
       title: Werden Sie ein Mobileraker-Unterstützer!
       info: |-
         Mobileraker zielt darauf ab, eine schnelle und zuverlässige mobile Benutzeroberfläche für Klipper bereitzustellen, getreu dem RepRap-Gedanken, dass Open-Source-Software und -Hardware einen positiven Einfluss haben können.
         Da Mobileraker von einem einzigen Entwickler entwickelt und kostenlos angeboten wird, ist es auf die Finanzierung durch die Community angewiesen, um sowohl die Betriebs- als auch die Entwicklungskosten zu decken.
       list_title: 'Wählen Sie die Supporter-Stufe:'
-      subscription_info: Sie haben die Möglichkeit, das Abonnement jederzeit zu beenden.
-        Falls Sie es nicht vor Ende des aktuellen Zeitraums kündigen, wird es automatisch
-        verlängert. Über den {} können Sie das Abonnement verwalten und kündigen.
+      subscription_info: Sie haben die Möglichkeit, das Abonnement jederzeit zu beenden. Falls Sie es nicht vor Ende des aktuellen Zeitraums kündigen, wird es automatisch verlängert. Über den {} können Sie das Abonnement verwalten und kündigen.
     supporter_tier_list:
       error_title: Fehler beim Laden von Supporter Tiers!
-      error_body: Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Supporter-Tiers
-        konnten nicht geladen werden. Bitte versuchen Sie es später erneut!
+      error_body: Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Supporter-Tiers konnten nicht geladen werden. Bitte versuchen Sie es später erneut!
     contact_dialog:
       title: Entwickler-Kontakt
       body: |-
@@ -730,9 +663,7 @@ pages:
     intro_phase: Genießen Sie {} zu {} Rabatt
     iap_offer: "{} auf den ursprünglichen Preis"
     tip_developer: Entwickler Trinkgeld
-    trial_disclaimer: Bis zum Ende des kostenlosen Testzeitraums werden Ihnen keine
-      Kosten in Rechnung gestellt, und Sie können während des Zeitraums jederzeit
-      kündigen.
+    trial_disclaimer: Bis zum Ende des kostenlosen Testzeitraums werden Ihnen keine Kosten in Rechnung gestellt, und Sie können während des Zeitraums jederzeit kündigen.
     restore_sign_in: Wiederherstellen / Anmelden
   video_player:
     downloading_for_sharing: Lade das Video zum Teilen herunter… ({})
@@ -740,14 +671,7 @@ pages:
     title: Tools
   beltTuner:
     title: Zahnriemen-Tuner
-    description: Die richtige Riemenspannung ist für eine optimale Leistung des 3D-Druckers
-      unerlässlich. Eine falsche Spannung, ob zu stark oder zu schwach, kann zu mechanischen
-      Problemen, frühzeitiger Ermüdung und verminderter Druckqualität führen. Die
-      angegebenen Werte dienen als Richtwerte; es wird jedoch empfohlen, die Empfehlungen
-      des Herstellers zu beachten, um konkrete, auf Ihr Druckermodell zugeschnittene
-      Richtwerte zu erhalten. Anpassungen sollten sowohl auf der Grundlage dieser
-      empfohlenen Werte als auch auf der Grundlage der individuellen Anforderungen
-      und Bedingungen des Druckers vorgenommen werden.
+    description: Die richtige Riemenspannung ist für eine optimale Leistung des 3D-Druckers unerlässlich. Eine falsche Spannung, ob zu stark oder zu schwach, kann zu mechanischen Problemen, frühzeitiger Ermüdung und verminderter Druckqualität führen. Die angegebenen Werte dienen als Richtwerte; es wird jedoch empfohlen, die Empfehlungen des Herstellers zu beachten, um konkrete, auf Ihr Druckermodell zugeschnittene Richtwerte zu erhalten. Anpassungen sollten sowohl auf der Grundlage dieser empfohlenen Werte als auch auf der Grundlage der individuellen Anforderungen und Bedingungen des Druckers vorgenommen werden.
     beltType: 'Wählen deine Zahnriemen Typ:'
     target: 'Ziel: {} Hz über {} mm'
     permissionWarning:
@@ -758,11 +682,8 @@ pages:
         Tippen Sie, um die Erlaubnis zu erteilen.
   spoolman:
     title: Spoolman
-    not_available: |-
-      Spoolman ist für diesen Drucker nicht verfügbar.
-      Bitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist.
-    learn_more: 'Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können,
-      besuchen Sie die '
+    not_available: "Spoolman ist für diesen Drucker nicht verfügbar.\nBitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist."
+    learn_more: Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die 
     learn_more_link: GitHub Seite.
     no_spools: Keine Spulen gefunden!
     no_filaments: Keine Filamente gefunden!
@@ -773,8 +694,8 @@ pages:
       success:
         title: "{} erstellt!"
         message:
-          one: "{} wurde erfolgreich erstellt."
-          other: "{} wurden erfolgreich erstellt."
+          one: '{} wurde erfolgreich erstellt.'
+          other: '{} wurden erfolgreich erstellt.'
       error:
         title: Fehler beim Erstellen von {}!
         message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
@@ -828,29 +749,21 @@ pages:
       set_active: Als aktiven Spool einstellen
       archived_warning:
         title: Spool ist archiviert
-        body: Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet
-          werden.
+        body: Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden.
     spool_form:
       create_page_title: Spule erstellen
-      section: {}
       helper:
-        price: "@:pages.spoolman.filament_form.helper.price Fällt auf den Filamentpreis
-          zurück, wenn nicht gesetzt"
-        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Fällt
-          auf das Filamentgewicht zurück, wenn nicht gesetzt"
-        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight Fällt auf
-          das Filament- oder Hersteller-Spulengewicht zurück, wenn nicht gesetzt"
-        used_weight: Das Gewicht des verbrauchten Filaments. Ein Wert von 0 Gramm
-          bedeutet, dass die Spule unbenutzt ist
+        price: "@:pages.spoolman.filament_form.helper.price Fällt auf den Filamentpreis zurück, wenn nicht gesetzt"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Fällt auf das Filamentgewicht zurück, wenn nicht gesetzt"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight Fällt auf das Filament- oder Hersteller-Spulengewicht zurück, wenn nicht gesetzt"
+        used_weight: Das Gewicht des verbrauchten Filaments. Ein Wert von 0 Gramm bedeutet, dass die Spule unbenutzt ist
         location: Der Ort, an dem Sie die Spule lagern
-        lot_number: Chargennummer des Herstellers. Kann verwendet werden, um sicherzustellen,
-          dass ein Druck bei Verwendung mehrerer Spulen eine konsistente Farbe aufweist
+        lot_number: Chargennummer des Herstellers. Kann verwendet werden, um sicherzustellen, dass ein Druck bei Verwendung mehrerer Spulen eine konsistente Farbe aufweist
     filament_form:
       create_page_title: Filament erstellen
       helper:
         price: Der Preis einer Spule.
-        initial_weight: Das Nettogewicht des Filaments auf einer vollen Spule, ohne
-          die Spule. Dies ist normalerweise auf der Verpackung angegeben.
+        initial_weight: Das Nettogewicht des Filaments auf einer vollen Spule, ohne die Spule. Dies ist normalerweise auf der Verpackung angegeben.
         empty_weight: Das Leergewicht der Spule.
     vendor_form:
       create_page_title: Hersteller erstellen
@@ -887,24 +800,17 @@ components:
   supporter_only_feature:
     dialog_title: Funktion nur für Supporter
     button: Werde ein Mobileraker Supporter
-    webcam: Webcams des Typs {} sind leider nur für Supporter verfügbar. Alternativ
-      sind Mjpeg-Webcams für Alle verfügbar.
-    printer_add: Sie haben das Maschinenlimit erreicht. Nur Mobileraker Supporter
-      können mehr als {} Geräte hinzufügen.
+    webcam: Webcams des Typs {} sind leider nur für Supporter verfügbar. Alternativ sind Mjpeg-Webcams für Alle verfügbar.
+    printer_add: Sie haben das Maschinenlimit erreicht. Nur Mobileraker Supporter können mehr als {} Geräte hinzufügen.
     job_queue: Die Job Queue ist leider nur für Supporter verfügbar.
-    timelaps_share: Das Teilen von Zeitrafferaufnahmen ist leider nur für Unterstützer
-      möglich.
+    timelaps_share: Das Teilen von Zeitrafferaufnahmen ist leider nur für Unterstützer möglich.
     printer_theme: Druckerspezifische Designs sind leider nur für Supporter verfügbar.
     spoolman_page: Die Spoolman-Seite ist leider nur für Supporter verfügbar.
-    custom_dashboard: Benutzerdefinierte Dashboards sind leider nur für Supporter
-      verfügbar.
-    full_file_management: Die vollständige Dateiverwaltung (Hochladen, Runterladen…)
-      ist leider nur für Supporter verfügbar.
+    custom_dashboard: Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar.
+    full_file_management: Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar.
   machine_deletion_warning:
     title: Maschinelle Löschung
-    subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr
-      als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt
-      werden.
+    subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt werden.
   remote_connection_indicator:
     title: Verwende Fernzugriff!
   web_rtc:
@@ -917,8 +823,7 @@ components:
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
-    message: Wenn Sie Mobileraker mögen und die Open-Source Entwicklung unterstützen
-      möchten, können Sie Mobileraker bewerten!
+    message: Wenn Sie Mobileraker mögen und die Open-Source Entwicklung unterstützen möchten, können Sie Mobileraker bewerten!
   import_setting:
     fetching: Hole Kandidaten…
     fetching_error_title: Einstellungen können nicht abgerufen werden!
@@ -929,8 +834,10 @@ dialogs:
     label: Ordnername
   delete_folder:
     title: Bist du dir sicher?
-    description: "Alle im Ordner enthaltenen Dateien werden ebenfalls entfernt! \n\n
-      Bestätigen Sie die Löschung des Ordners '/{}'."
+    description: |-
+      Alle im Ordner enthaltenen Dateien werden ebenfalls entfernt! 
+
+       Bestätigen Sie die Löschung des Ordners '/{}'.
   rename_folder:
     title: Ordner umbenennen
     label: Ordnername
@@ -963,13 +870,13 @@ dialogs:
     no_visualization: Keine Visualisierungsdaten verfügbar!
   ws_input_help:
     title: URL-Eingabehilfe
-    body: "Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer
-      \ Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz
-      Adresse eingeben. \n\nGültige Beispiele:"
+    body: |-
+      Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer \ Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben. 
+
+      Gültige Beispiele:
   gcode_params:
-    hint: 'Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu
-      senden!'
-    confirm_title: "{} ausführen?"
+    hint: 'Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu senden!'
+    confirm_title: '{} ausführen?'
     confirm_body: |-
       Sie sind im Begriff, das Makro '{}' auszuführen.
 
@@ -982,11 +889,8 @@ dialogs:
     hint: Tippen Sie auf eine Maschine, um sie zu aktivieren.
   supporter_perks:
     title: Supporter Vorteile
-    body: Indem Sie Mobileraker unterstützen, stellen Sie sicher, dass die App für
-      die Community kostenlos bleiben kann. Zusätzlich erhalten Supporter die folgenden
-      Funktionen.
-    hint: 'Hinweis: Zurzeit sind die Vergünstigungen geräteabhängig. Dies könnte sich
-      in Zukunft ändern.'
+    body: Indem Sie Mobileraker unterstützen, stellen Sie sicher, dass die App für die Community kostenlos bleiben kann. Zusätzlich erhalten Supporter die folgenden Funktionen.
+    hint: 'Hinweis: Zurzeit sind die Vergünstigungen geräteabhängig. Dies könnte sich in Zukunft ändern.'
     theme_perk:
       title: Supporter Design
       subtitle: Exklusives Material 3 Design
@@ -1001,8 +905,7 @@ dialogs:
       subtitle: Erlaubt die Nutzung von WebRtc Webcams!
     job_queue_perk:
       title: Job-Warteschlange
-      subtitle: Verwalten Sie die Job-Warteschlange von Moonraker von Mobileraker
-        aus!
+      subtitle: Verwalten Sie die Job-Warteschlange von Moonraker von Mobileraker aus!
     unlimited_printers_perk:
       title: Unbegrenzte Anzahl von Druckern
       subtitle: Steuern Sie so viele Drucker wie Sie wollen mit Mobileraker!
@@ -1014,27 +917,23 @@ dialogs:
       subtitle: Passen Sie Ihr Dashboard an Ihre Bedürfnisse an!
     full_file_management_perk:
       title: Vollständige Dateiverwaltung
-      subtitle: Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien
-        und mehr!
+      subtitle: Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien und mehr!
   bed_screw_adjust:
     title: Bed Screw Adjust
     xy_plane: 'Drucker X/Y-Ebene:'
     active_screw_title: 'Aktive Schraube:'
     accept_screw_title: 'Akzeptierte Schrauben:'
     accept_screw_value: "{} von {}"
-    hint: Klicken Sie auf Angepasst, wenn eine erhebliche Anpassung an der aktuellen
-      Schraube erforderlich war. Andernfalls klicken Sie auf Akzeptieren, um fortzufahren.
+    hint: Klicken Sie auf Angepasst, wenn eine erhebliche Anpassung an der aktuellen Schraube erforderlich war. Andernfalls klicken Sie auf Akzeptieren, um fortzufahren.
     adjusted_btn: Angepasst
   manual_offset:
     title: "@:general.offset Kalibrierung"
     hint_tooltip: Klipper's Papier Test Dokumentation
     snackbar_title: Kalibrierung abgeschlossen
-    snackbar_message: Vergewissern Sie sich, dass Sie den Versatz über die "Save Config"-Aktion
-      speichern.
+    snackbar_message: Vergewissern Sie sich, dass Sie den Versatz über die "Save Config"-Aktion speichern.
   tipping:
     title: Geben Sie dem Entwickler ein Trinkgeld!
-    body: Dieses Trinkgeld dient ausschließlich dazu, die Bemühungen des Entwicklers
-      zu unterstützen und gewährt KEINEN Zugang zu zusätzlichen Funktionen.
+    body: Dieses Trinkgeld dient ausschließlich dazu, die Bemühungen des Entwicklers zu unterstützen und gewährt KEINEN Zugang zu zusätzlichen Funktionen.
     amount_label: Trinkgeldbetrag
     tip: Geben
   http_header:
@@ -1059,10 +958,7 @@ dialogs:
   screws_tilt_adjust:
     title: Bettneigung einstellen
     base: Basis
-    hint: Der Dialog hilft Ihnen, die Bett-Schrauben einzustellen. Für jede Schraube
-      wird die erforderliche Anpassung als Uhrzeit (HH:MM) angezeigt. Zum Beispiel
-      bedeutet 01:15 eine volle Umdrehung plus eine Vierteldrehung in die Richtung,
-      die das Icon angibt.
+    hint: Der Dialog hilft Ihnen, die Bett-Schrauben einzustellen. Für jede Schraube wird die erforderliche Anpassung als Uhrzeit (HH:MM) angezeigt. Zum Beispiel bedeutet 01:15 eine volle Umdrehung plus eine Vierteldrehung in die Richtung, die das Icon angibt.
   dashboard_page_settings:
     title: Dashboard-Seiteneinstellungen
     icon_label: 'Wählen Sie das Symbol für die Seite:'
@@ -1102,8 +998,7 @@ dialogs:
         subtitle:
           idle: Filament in die Düse laden
           processing: Filament wird ausgestoßen...
-          processed: Überprüfen, ob das ausgestoßene Material sauber ist. Bei Bedarf
-            wiederholen
+          processed: Überprüfen, ob das ausgestoßene Material sauber ist. Bei Bedarf wiederholen
       tip_form:
         title: Spitzenbildung
         subtitle: Eine Filamentspitze formen
@@ -1111,42 +1006,31 @@ dialogs:
     title: "{} Temperatur [°C]"
   confirm_print_cancelation:
     title: Druck abbrechen
-    body: Sind Sie sicher, dass Sie den Druck abbrechen möchten?
+    body: |-
+      Sind Sie sicher, dass Sie den Druck abbrechen möchten?
 bottom_sheets:
   job_queue_sheet:
     next: Nächster Druckauftrag
-    empty: Die Job-Warteschlange ist leer. Über den Dateibrowser können Sie Aufträge
-      hinzufügen.
+    empty: Die Job-Warteschlange ist leer. Über den Dateibrowser können Sie Aufträge hinzufügen.
     start_queue: Warteschlange starten
     pause_queue: Warteschlange pausieren
     remove_all: Warteschlange leeren
     remove_all_confirm: Diese Operation wird alle Aufträge aus der Warteschlange entfernen.
   add_remote_con:
-    disclosure: Der Dienst {service} ist nicht mit Mobileraker assoziiert. Unter Umständen
-      ist für den Dienst ein zusätzliches Abonnement erforderlich. Weitere Informationen
-      finden Sie auf der Website von {service}.
+    disclosure: "Der Dienst {service} ist nicht mit Mobileraker assoziiert. Unter Umständen ist für den Dienst ein zusätzliches Abonnement erforderlich. Weitere Informationen finden Sie auf der Website von {service}."
     active_service_info:
       title: Vorhandene Konfiguration gefunden!
-      body: Derzeit verwenden Sie {} als Fernzugriffsdienst. Löschen Sie diesen, bevor
-        Sie einen neuen hinzufügen.
+      body: Derzeit verwenden Sie {} als Fernzugriffsdienst. Löschen Sie diesen, bevor Sie einen neuen hinzufügen.
     octoeverywehre:
       service_name: OctoEverywhere
       tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
       link: Link OctoEverywhere
       unlink: Unlink OctoEverywhere
-      description: OctoEverywhere.com ist ein Community-Projekt, welches es Ihnen
-        erlaubt, eine sichere Verbindung zu Ihrem Drucker von überall aus herzustellen.
-        OctoEverywhere bietet der Community außerdem kostenlose AI-Druckfehlererkennung,
-        Benachrichtigungen, Live-Streaming und mehr. Das Setup benötigt nur 20 Sekunden!
+      description: OctoEverywhere.com ist ein Community-Projekt, welches es Ihnen erlaubt, eine sichere Verbindung zu Ihrem Drucker von überall aus herzustellen. OctoEverywhere bietet der Community außerdem kostenlose AI-Druckfehlererkennung, Benachrichtigungen, Live-Streaming und mehr. Das Setup benötigt nur 20 Sekunden!
     manual:
       service_name: Manueller Fernzugriff
       tab_name: Manuell
-      description: Wenn Sie ein fortgeschrittener Nutzer sind, können Sie auch selbst
-        eine Alternative Verbindung hinzufügen. Die alternative Verbindung wird verwendet,
-        wenn der Verbindungsaufbau mit der primären Adresse fehlschlägt. Dies ist
-        besonders nützlich, wenn Sie eine Reverse-Proxy-Verbindung zu Ihrem Drucker
-        besitzen oder wenn Sie eine sekundäre IP-Adresse zur Verbindung mit Ihrem
-        Drucker verwenden können.
+      description: Wenn Sie ein fortgeschrittener Nutzer sind, können Sie auch selbst eine Alternative Verbindung hinzufügen. Die alternative Verbindung wird verwendet, wenn der Verbindungsaufbau mit der primären Adresse fehlschlägt. Dies ist besonders nützlich, wenn Sie eine Reverse-Proxy-Verbindung zu Ihrem Drucker besitzen oder wenn Sie eine sekundäre IP-Adresse zur Verbindung mit Ihrem Drucker verwenden können.
       address_label: Alternative Adresse
       address_hint: Die Basisadresse für den Fernzugriff
     obico:
@@ -1154,31 +1038,23 @@ bottom_sheets:
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: Link Obico
       unlink: Unlink Obico
-      description: Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware.
-        Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern
-        und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten
-        Druckfehlererkennung.
+      description: Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware. Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten Druckfehlererkennung.
       self_hosted:
         title: Selbstgehostete Obico-Instanz
-        description: Standardmäßig wird Mobileraker die offizielle Obico-Instanz verwenden.
-          Wenn Sie jedoch Ihre eigene Instanz verwalten, können Sie hier die URL dafür
-          angeben.
+        description: Standardmäßig wird Mobileraker die offizielle Obico-Instanz verwenden. Wenn Sie jedoch Ihre eigene Instanz verwalten, können Sie hier die URL dafür angeben.
         url_label: URL
         url_hint: Die Basis-URL der selbst gehosteten Obico-Instanz
   manage_macros_in_grp:
     title: Makro hinzufügen
     hint: Makros für die Gruppe {} auswählen
   signIn:
-    subtitle: Die Einrichtung eines Nutzerkontos ist zwar freiwillig, jedoch notwendig,
-      um Käufe, die auf einem anderen Gerät oder einer anderen Plattform getätigt
-      wurden, wiederherzustellen.
+    subtitle: Die Einrichtung eines Nutzerkontos ist zwar freiwillig, jedoch notwendig, um Käufe, die auf einem anderen Gerät oder einer anderen Plattform getätigt wurden, wiederherzustellen.
     forgot_password: Passwort vergessen?
     forgot_password_success: E-Mail zum Zurücksetzen des Passworts gesendet!
     hint:
       sign_in: Haben Sie noch kein Konto?
       sign_up: Haben Sie bereits ein Konto?
-      reset_password: Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen
-        des Passworts zu erhalten.
+      reset_password: Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.
     action:
       sign_in: Anmelden
       sign_up: Registrieren
@@ -1195,9 +1071,7 @@ bottom_sheets:
       error: Passwörter stimmen nicht überein!
   profile:
     title: Sie sind eingeloggt.
-    description: Willkommen zurück! Ihr Benutzerkonto ist der Schlüssel zu einem noch
-      besseren Erlebnis auf jedem Ihrer mobilen Geräte. Teilen Sie nahtlos Ihren Supporter-Status,
-      um die Privilegien auf dem Handy, Tablet oder anderen Geräten zu nutzen.
+    description: Willkommen zurück! Ihr Benutzerkonto ist der Schlüssel zu einem noch besseren Erlebnis auf jedem Ihrer mobilen Geräte. Teilen Sie nahtlos Ihren Supporter-Status, um die Privilegien auf dem Handy, Tablet oder anderen Geräten zu nutzen.
     restore_purchases: Käufe wiederherstellen
     restore_success: Käufe erfolgreich wiederhergestellt!
     sign_out: Ausloggen
@@ -1206,13 +1080,11 @@ bottom_sheets:
       title:
         pending: Verifizierungs-E-Mail gesendet
         not_verified: E-Mail ist nicht verifiziert
-      description: Bitte verifizieren Sie Ihre E-Mail-Adresse, um sicherzustellen,
-        dass Sie jederzeit auf Ihr Konto zugreifen können.
+      description: Bitte verifizieren Sie Ihre E-Mail-Adresse, um sicherzustellen, dass Sie jederzeit auf Ihr Konto zugreifen können.
       send: Verifizierung senden
     delete_account_dialog:
       title: Benutzerkonto löschen?
-      body: Sie sind dabei, Ihr Benutzerkonto zu löschen. Diese Operation kann nicht
-        rückgängig gemacht werden.
+      body: Sie sind dabei, Ihr Benutzerkonto zu löschen. Diese Operation kann nicht rückgängig gemacht werden.
   bedMesh:
     no_mesh_loaded: Es wurde noch kein Bettnetz geladen.
     load_bed_mesh_profile: Bettnetz Profil laden
@@ -1220,23 +1092,19 @@ bottom_sheets:
     no_profile_active: Kein aktives Profil
     no_mesh: Kein Netz
     clear_loaded_profile: Geladenes Profil zurücksetzen
-    range_between_highest_and_lowest_point: Abstand zwischen höchstem und tiefstem
-      Punkt
-    cant_render: Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch
-      nicht unterstützt.
+    range_between_highest_and_lowest_point: Abstand zwischen höchstem und tiefstem Punkt
+    cant_render: Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch nicht unterstützt.
   select_spool:
     header:
       spools: Spulen
       qr: QR-Code
-    no_spools: Es wurden keine Spulen gefunden. Bitte fügen Sie Spulen zu Spoolman
-      hinzu
+    no_spools: Es wurden keine Spulen gefunden. Bitte fügen Sie Spulen zu Spoolman hinzu
     error: 'Beim laden der Spulen ist ein Fehler aufgetreten: {}'
     qr_loading: QR-Scanner wird geladen...
     qr_error: 'Fehler beim Laden des QR-Scanners: {}'
     scan_again: Erneut scannen
     set_active: Aktivieren
-    spool_id_not_found: 'Es konnte leider kein Spool mit der angegebenen ID #{} gefunden
-      werden.'
+    spool_id_not_found: 'Es konnte leider kein Spool mit der angegebenen ID #{} gefunden werden.'
   non_printing:
     manage_service:
       title: Dienste verwalten
@@ -1247,19 +1115,12 @@ bottom_sheets:
       hint:
         long_press: 'Hinweis: Durch langes Drücken können Sie die Aktion direkt ausführen.'
       body:
-        pi_restart: Sie sind dabei, den Raspberry Pi neu zu starten. Sind Sie sicher,
-          dass Sie fortfahren wollen?
-        pi_shutdown: Sie sind im Begriff, den Raspberry Pi herunterzufahren. Dadurch
-          werden alle aktiven Verbindungen getrennt und alle laufenden Prozesse gestoppt.
-          Sind Sie sicher, dass Sie fortfahren möchten?
-        fw_restart: Sie sind im Begriff, die Firmware neu zu starten. Sind Sie sicher,
-          dass Sie fortfahren möchten?
-        service_start: Sie sind im Begriff, den Dienst '{}' zu starten. Sind Sie sicher,
-          dass Sie fortfahren möchten?
-        service_restart: Sie sind im Begriff, den Dienst '{}' neu zu starten. Sind
-          Sie sicher, dass Sie fortfahren möchten?
-        service_stop: Sie sind im Begriff, den Dienst '{}' zu beenden. Sind Sie sicher,
-          dass Sie fortfahren möchten?
+        pi_restart: Sie sind dabei, den Raspberry Pi neu zu starten. Sind Sie sicher, dass Sie fortfahren wollen?
+        pi_shutdown: Sie sind im Begriff, den Raspberry Pi herunterzufahren. Dadurch werden alle aktiven Verbindungen getrennt und alle laufenden Prozesse gestoppt. Sind Sie sicher, dass Sie fortfahren möchten?
+        fw_restart: Sie sind im Begriff, die Firmware neu zu starten. Sind Sie sicher, dass Sie fortfahren möchten?
+        service_start: Sie sind im Begriff, den Dienst '{}' zu starten. Sind Sie sicher, dass Sie fortfahren möchten?
+        service_restart: Sie sind im Begriff, den Dienst '{}' neu zu starten. Sind Sie sicher, dass Sie fortfahren möchten?
+        service_stop: Sie sind im Begriff, den Dienst '{}' zu beenden. Sind Sie sicher, dass Sie fortfahren möchten?
   dashboard_cards:
     title: Karte hinzufügen
     subtitle: Wählen Sie eine Karte aus, die Sie hinzufügen möchten
@@ -1277,15 +1138,14 @@ bottom_sheets:
       label: Layout Name
     delete_layout:
       title: Layout löschen
-      body: Sind Sie sicher, dass Sie das Layout '{}' löschen möchten? Alle Maschinen
-        welche dieses Layout verwenden, werden auf das Standardlayout zurückgesetzt.
+      body: |-
+        Sind Sie sicher, dass Sie das Layout '{}' löschen möchten? Alle Maschinen welche dieses Layout verwenden, werden auf das Standardlayout zurückgesetzt.
     import_snackbar:
       title: Layout importiert!
       body: Stellen Sie sicher, dass Sie das Layout speichern, um es zu behalten.
     falsy_import_snackbar:
       title: Fehler beim Importieren
-      body: Das Layout konnte nicht importiert werden. Bitte stellen Sie sicher, dass
-        die Zwischenablage ein gültiges Layout enthält.
+      body: Das Layout konnte nicht importiert werden. Bitte stellen Sie sicher, dass die Zwischenablage ein gültiges Layout enthält.
   selections:
     no_selections:
       title: Keine Ergebnisse gefunden
@@ -1298,8 +1158,7 @@ klipper_state:
   error: Fehler
   unauthorized: Unberechtigt
   initializing: Initialisierung
-  not_connected: Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen
-    Sie, ob Klipper auf Ihrem System läuft.
+  not_connected: Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen Sie, ob Klipper auf Ihrem System läuft.
 print_state:
   standby: Standby
   printing: Drucken
@@ -1318,7 +1177,7 @@ notifications:
       name: Status Updates - {}
       desc: Benachrichtigungen über den Druckstatus.
       title: Druckstatus von {} geändert!
-      body_printing: Drucken von "{}" gestartet
+      body_printing: 'Drucken von "{}" gestartet'
       body_paused: 'Datei pausiert: "{}"'
       body_complete: 'Datei fertig gedruckt: "{}"'
       body_error: 'Fehler beim Drucken von Datei: "{}"'
