@@ -3,8 +3,8 @@ general:
   pause: Szünet
   resume: Folytatás
   connected: Csatlakozva
-  'off': Ki
-  'on': Be
+  'off': 'Ki'
+  'on': 'Be'
   none: Nincs
   add: Hozzáadás
   create: Létrehozás
@@ -14,7 +14,6 @@ general:
   use: Használ
   restart: Újraindítás
   shutdown: Leállítás
-  firmware: Firmware
   fetching: Elvesz
   loading: Betöltés
   unknown: Ismeretlen
@@ -28,8 +27,6 @@ general:
   supported: Támogatott
   unsupported: Nem támogatott
   details: Részletek
-  google_play: GooglePlay
-  ios_store: AppStore
   active: Aktív
   canceled: Törölve
   monthly: Havi
@@ -49,13 +46,10 @@ general:
   completed: Befejezve
   activate: Aktiválás
   stop: Állj
-  start: Start
   repeat: Ismét
   load_more: Több betöltése
   archived: Archivált
   leave: Elhagy
-  export: Export
-  import: Import
   current: Aktuális
   load: Betöltés
   unload: Kiürítés
@@ -68,8 +62,7 @@ pages:
     ems_btn: Vész-STOP
     ems_confirmation:
       title: Vészleállítás megerősítése
-      body: Vészleállítási parancsot készülsz küldeni a nyomtatónak. Ez azonnal leállítja
-        az összes motort és fűtőberendezést.
+      body: Vészleállítási parancsot készülsz küldeni a nyomtatónak. Ez azonnal leállítja az összes motort és fűtőberendezést.
       confirm: Állj!
     server_status:
       unavailable: Nincs elérhető szerver
@@ -82,14 +75,13 @@ pages:
         printing_for: 'Nyomtatás: {}'
         speed: Sebesség
         layer: Réteg
-        eta: ETA
         current_object: Aktuális objektum
         elapsed: Eltelt
         flow: Áramlás
         filament: Nyomtatószál
-        filament_tooltip: A nyomtatószál {} %-át használta fel, ami {} méter a jelzett
-          {} méterből.
-        eta_tooltip: 'Hátralévő idő: {} '
+        filament_tooltip: A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.
+        eta_tooltip: |-
+          Hátralévő idő: {} 
         remaining: Fennmaradó
       cam_card:
         webcam: Webkamera
@@ -108,8 +100,6 @@ pages:
         btn_thermistor: Szenzor
       temp_preset_card:
         cooloff: Hűtés Ki
-        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
-        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Tengelyek mozgatása
         home_xy_tooltip: Kezdőpont X és Y tengely
@@ -117,14 +107,11 @@ pages:
         home_all_tooltip: Kezdőpont minden tengely
         home_all_btn: Minden
         qgl_tooltip: Quad-Gantry szintezés futtatása
-        qgl_btn: QGL
         mesh_tooltip: Futtasson ágyrács kalibrálást
         mesh_btn: Háló
         m84_tooltip: Motorok kikapcsolása
-        m84_btn: M84
         step_size: Lépésméret
         stc_tooltip: Csavar dőlésszámítás indítása
-        stc_btn: STC
         ztilt_tooltip: Z-Tilt kalibráció indítása
         ztilt_btn: Z-Tilt
         poff_tooltip: Futtasd a Szonda eltolás kalibrálást
@@ -141,7 +128,6 @@ pages:
         title: Mikrolépés Z tengely
         z_offset: Z-Eltolás
       restart_klipper: Klipper újraindítása
-      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -155,13 +141,11 @@ pages:
         extrude: Száladagolás
         retract: Visszahúzás
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude hossza"
-        cold_extrude_error: A nyomtatófej még nem érte el a {}°C-os hőmérsékletet
-          min_extrude_temp {}°C !
+        cold_extrude_error: A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !
       macro_card:
         title: G-kód - Makrók
         no_macros: Jelenleg nincsenek makrók ebben a csoportban
-        add_grp_hint: A makrók rendszerezéséhez különböző csoportokat hozhatsz létre.
-          Csak menj a nyomtató beállításaihoz, és adj hozzá egy új csoportot.
+        add_grp_hint: A makrók rendszerezéséhez különböző csoportokat hozhatsz létre. Csak menj a nyomtató beállításaihoz, és adj hozzá egy új csoportot.
         show_all_tooltip: Összes makró mutatása
       pin_card:
         title_misc: Különböző
@@ -225,15 +209,13 @@ pages:
       body: Biztos, hogy törölni akarod ezt az oldalt?
     editing_card:
       title: Szerkesztési mód
-      body: Mostantól átrendezheted, hozzáadhatsz és eltávolíthatsz kártyákat és oldalakat.
-        Minden kártya előnézeti adatokat mutat.
+      body: Mostantól átrendezheted, hozzáadhatsz és eltávolíthatsz kártyákat és oldalakat. Minden kártya előnézeti adatokat mutat.
     error_save_snack:
       title: Hiba az elrendezés mentése során!
       body: Hiba történt az elrendezés mentése közben.
     error_no_components:
       title: Üres elrendezés!
-      body: Nem adtál hozzá widgetet. Adj hozzá legalább egy widgetet az elrendezés
-        mentéséhez.
+      body: Nem adtál hozzá widgetet. Adj hozzá legalább egy widgetet az elrendezés mentéséhez.
   files:
     title: Fájlok
     empty_folder:
@@ -297,8 +279,7 @@ pages:
       download: Letöltés visszavonása
     move_here: Mozgasd ide
     copy_here: Másold ide
-    no_matches_file_pattern: Csak betűk, számok, aláhúzásjelek, kötőjelek és pontok
-      megengedettek!
+    no_matches_file_pattern: Csak betűk, számok, aláhúzásjelek, kötőjelek és pontok megengedettek!
     gcode_tab: G-Kódok
     config_tab: Konfigok
     timelapse_tab: Timelapse-ok
@@ -327,13 +308,9 @@ pages:
         first_layer: Első réteg
         others: Egyebek
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Hőmérsékletek"
-        first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend: {}°C
-          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statisztikák
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Célhőmérséklet
           Fúvóka: {}°C
@@ -357,38 +334,32 @@ pages:
     general:
       title: Általános
       ems_confirm: Vészleállítás megerősítése
-      ems_confirm_hint: Megerősítő párbeszédpanel megjelenítése a vészleállító parancs
-        elküldése előtt
+      ems_confirm_hint: Megerősítő párbeszédpanel megjelenítése a vészleállító parancs elküldése előtt
       always_baby: Z-Eltolás kártyamód
       always_baby_hint: Mindig jelenítse meg a Z-Eltolás kártyát a műszerfalon
       num_edit: Számbevitelhez billentyűzet használata
       num_edit_hint: Számbillentyűk használata a számbemenethez csúszkák helyett
-      start_with_overview: "@:pages.overview.title mutatása alapesetben"
-      start_with_overview_hint: Alkalmazás indítása az áttekintő oldallal az aktív
-        nyomtató műszerfala helyett
+      start_with_overview: '@:pages.overview.title mutatása alapesetben'
+      start_with_overview_hint: Alkalmazás indítása az áttekintő oldallal az aktív nyomtató műszerfala helyett
       use_offset_pos: Koordináták megjelenítése adott eltolás mellett
       use_offset_pos_hint: Hozzáadja az eltolást a megjelenített koordinátákhoz
       lcFullCam: Teljes képernyős webkamera fekvő helyzetben
       lcFullCam_hint: A kamera tájképre váltása teljes képernyős módban
       language: Nyelv
-      companion: 'Ismerd meg, hogyan kell a Mobileraker''s Companion-t beállítani '
+      companion: "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
       sliders_grouping: Csúszó kártyák csoportosítása
       sliders_grouping_hint: Minden csúszka egy kártyába csoportosítása
       time_format: Időformátum
       system_theme: UI Téma
       system_theme_mode: Téma fényereje
-      printer_theme_warning: Jelenleg egy nyomtatóspecifikus témát használsz. Ha módosítani
-        szeretnéd, lépjen a nyomtató beállításaihoz.
+      printer_theme_warning: Jelenleg egy nyomtatóspecifikus témát használsz. Ha módosítani szeretnéd, lépjen a nyomtató beállításaihoz.
       filament_sensor_dialog: Szálérzékelő riasztások mutatása
       filament_sensor_dialog_hint: Párbeszéd megjelenítése a szálérzékelő működésekor
       confirm_gcode: Makró végrehajtás megerősítése
-      confirm_gcode_hint: A G-kód-Macro végrehajtása előtt mindig megjelenik egy megerősítő
-        párbeszédpanel
+      confirm_gcode_hint: A G-kód-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel
       eta_sources: ETA számítás
       eta_sources_hint: Válaszd ki az ETA-számításhoz használandó forrást
-      medium_ui: Tablet UI
-      medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn
-        vagy fekvő módban szeretnéd használni
+      medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
     notification:
       title: Értesítés
       progress_label: Haladási értesítés
@@ -412,13 +383,11 @@ pages:
         Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}
         Koppints további információért!
       enable_live_activity: Élő tevékenység engedélyezése
-      enable_live_activity_helper: Engedélyezi az élő tevékenységeket az alapértelmezett
-        előrehaladási értesítések mellett
+      enable_live_activity_helper: Engedélyezi az élő tevékenységeket az alapértelmezett előrehaladási értesítések mellett
       opt_out_marketing: Marketing értesítések
       opt_out_marketing_helper: Értesítést küld az eladásokról és promóciókról
       use_progressbar_notification: Előrehaladási sáv értesítés engedélyezése
-      use_progressbar_notification_helper: Engedélyezi az előrehaladási sáv értesítést
-        az alapértelmezett szöveges előrehaladási értesítések mellett
+      use_progressbar_notification_helper: Engedélyezi az előrehaladási sáv értesítést az alapértelmezett szöveges előrehaladási értesítések mellett
     developer:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
@@ -430,8 +399,7 @@ pages:
     no_values_found: Nincsenek értékek!
     fetching_additional_settings: "@:general.fetching további hálózati beállítások…"
     could_not_fetch_additional: Nem tudtam lekérni a további beállításokat!
-    fetch_error_hint: Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik
-      hozzá.
+    fetch_error_hint: Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.
     reset_notification_registry: Töröli az értesítési eszköz nyilvántartását
     configure_remote_connection: Távoli kapcsolat konfigurálása
     store_error:
@@ -442,15 +410,13 @@ pages:
       unexpected_error: Váratlan hiba történt a gépadatok mentésekor!
     confirm_deletion:
       title: Törlöd {}?
-      body: "A csatlakoztatott nyomtató '{}' eltávolítására készülsz '{}'. \n\nErősítsd
-        meg döntésed."
+      body: "A csatlakoztatott nyomtató '{}' eltávolítására készülsz '{}'. \n\nErősítsd meg döntésed."
     general:
       displayname: Megjelenítendő név
       printer_addr: Nyomtató - Cím
       ws_addr: Websocket – Cím
       moonraker_api_key: Moonraker - API Kulcs
-      moonraker_api_desc: Csak akkor szükséges, ha megbízható klienst használsz. A
-        FluiddPI ezt kikényszeríti!
+      moonraker_api_desc: Csak akkor szükséges, ha megbízható klienst használsz. A FluiddPI ezt kikényszeríti!
       full_url: Teljes URL
       timeout_label: Kliens időtúllépés
       timeout_helper: Az ügyfélkapcsolat időtúllépése másodpercben
@@ -475,7 +441,6 @@ pages:
       speed_z: Sebesség Z - tengely
       speed_z_short: Sebesség Z
       steps_move: Mozgási lépések
-      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Z-eltolási lépések
       steps_baby_short: Z lépések
     extruders:
@@ -483,14 +448,11 @@ pages:
       feedrate: Adagoló előtolási sebesség
       feedrate_short: Adagolási sebesség
       steps_extrude: Adagolási hossz
-      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Adagoló fúvóka távolsága
-        loading_distance_helper: A fúvóka-adagoló közti távolság. Nyomtatószál (kiadás)betöltéshez
-          használatos
+        loading_distance_helper: A fúvóka-adagoló közti távolság. Nyomtatószál (kiadás)betöltéshez használatos
         loading_speed: "(Kiadási)betöltési sebesség"
-        loading_speed_helper: A fúvókából az extruderbe történő nyomtatószál be- és
-          kiadásának sebessége
+        loading_speed_helper: A fúvókából az extruderbe történő nyomtatószál be- és kiadásának sebessége
         purge_amount: Tisztítás hossza
         purge_amount_helper: A tisztítandó nyomtatószál hossza
         purge_speed: Tisztítás sebessége
@@ -519,9 +481,8 @@ pages:
       macros_to_default:
         one: Áthelyeztem egy makrót az alapértelmezett csoportba!
         two: Két makró áthelyezve az alapértelmezett csoportba!
-        other: "{} makrók áthelyezve az alapértelmezett csoportba!"
-      macro_removed: A makrót nem találtuk meg, és hamarosan automatikusan el lesz
-        távolítva
+        other: '{} makrók áthelyezve az alapértelmezett csoportba!'
+      macro_removed: A makrót nem találtuk meg, és hamarosan automatikusan el lesz távolítva
     presets:
       no_presets: Nincs előbeállítás hozzáadva!
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Hőmérséklet"
@@ -529,30 +490,20 @@ pages:
       new_preset: Új előbeállítás
     confirm_fcm_reset:
       title: Értesítési eszköz nyilvántartás törlése?
-      body: "Most készülsz visszaállítani az eszközregisztert, amely meghatározza,
-        hogy a társ milyen eszközökre küld értesítést.\nA push-értesítések visszaállításához
-        újra kell indítanod az alkalmazást az összes eszközön, és újra csatlakoztatnia
-        kell őket a géphez. \n\nErősítsd meg a műveletet."
+      body: "Most készülsz visszaállítani az eszközregisztert, amely meghatározza, hogy a társ milyen eszközökre küld értesítést.\nA push-értesítések visszaállításához újra kell indítanod az alkalmazást az összes eszközön, és újra csatlakoztatnia kell őket a géphez. \n\nErősítsd meg a műveletet."
     confirm_remote_interface_removal:
       title:
         oe: Leválasztod {}?
         other: Eltávolítod a kapcsolatot?
       body:
         oe: Kérjük, erősítsd meg a nyomtató {} leválasztását az OctoEverywhere-ről.
-        other: Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról
-          {}.
-      button:
-        oe: "@:general.unlink"
-        other: "@:general.remove"
+        other: Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról {}.
     remote_interface_exists:
       title: Távoli kapcsolat található
       body:
-        oe: Ez a nyomtató már összekapcsolódott az OctoEverywhere rendszerrel a távoli
-          hozzáférés érdekében. Kérjük, a folytatás előtt old fel a kapcsolatot.
-        obico: Ez a nyomtató már Obico távoli hozzáféréshez van beállítva. Kérjük,
-          a folytatás előtt távolítsd el a linket.
-        other: Ehhez a nyomtatóhoz már létrejött egy távoli kapcsolat. Kérjük, távolítsd
-          el azt a folytatás előtt.
+        oe: Ez a nyomtató már összekapcsolódott az OctoEverywhere rendszerrel a távoli hozzáférés érdekében. Kérjük, a folytatás előtt old fel a kapcsolatot.
+        obico: Ez a nyomtató már Obico távoli hozzáféréshez van beállítva. Kérjük, a folytatás előtt távolítsd el a linket.
+        other: Ehhez a nyomtatóhoz már létrejött egy távoli kapcsolat. Kérjük, távolítsd el azt a folytatás előtt.
     remote_interface_removed:
       title: Távoli kapcsolat eltávolítva!
       body: Mentsd el a nyomtatót a módosítások alkalmazásához.
@@ -571,19 +522,15 @@ pages:
     local_ssid:
       section_header: Intelligens váltás
       no_ssids: Nincs hozzáadva WiFi név!
-      helper: Az intelligens váltás révén az alkalmazás automatikusan vált a helyi
-        és a távoli kapcsolat között az aktuális WiFi hálózat alapján. A funkció engedélyezéséhez
-        add hozzá az otthoni WiFi nevét a listához.
+      helper: Az intelligens váltás révén az alkalmazás automatikusan vált a helyi és a távoli kapcsolat között az aktuális WiFi hálózat alapján. A funkció engedélyezéséhez add hozzá az otthoni WiFi nevét a listához.
       dialog:
         title_add: Add hozzá a WiFi nevét a listához
         title_edit: WiFi név szerkesztése
         label: WiFi Név (SSID)
-        quick_add_hint: 'Tipp: Az aktuális WiFi név gyors hozzáadásához nyomd hosszan
-          a párbeszédablakot megnyitó gombot.'
+        quick_add_hint: 'Tipp: Az aktuális WiFi név gyors hozzáadásához nyomd hosszan a párbeszédablakot megnyitó gombot.'
       error_fetching_snackbar:
         title: Hiba történt a WiFi név lekérésekor!
-        body: Győződj meg róla, hogy az alkalmazás rendelkezik e szükséges engedélyekkel
-          az eszköz WiFi állapotának eléréséhez.
+        body: Győződj meg róla, hogy az alkalmazás rendelkezik e szükséges engedélyekkel az eszköz WiFi állapotának eléréséhez.
     temp_ordering:
       title: Hőmérséklet érzékelő UI-Rendelés
       helper: Megváltoztatja a hőmérséklet érzékelők sorrendjét a műszerfalon.
@@ -606,27 +553,18 @@ pages:
     initial_name: Saját nyomtatóm
     select_mode:
       title: 'Válassz beviteli módot:'
-      body: Ha még nem ismered ezt, a legjobb, ha maradsz az egyszerű módnál. Ha azonban
-        tapasztalt vagy, és egyéni fejléceket, tanúsítványokat stb. kell használnod,
-        akkor a haladó mód neked készült. Ne feledd, hogy a választott mód nem befolyásolja
-        magát az alkalmazást, de meghatározza, hogy a bemenet hogyan kerül ellenőrzésre
-        és megjelenítésre, és milyen lehetőségek állnak rendelkezésre a gép hozzáadása
-        során.
+      body: Ha még nem ismered ezt, a legjobb, ha maradsz az egyszerű módnál. Ha azonban tapasztalt vagy, és egyéni fejléceket, tanúsítványokat stb. kell használnod, akkor a haladó mód neked készült. Ne feledd, hogy a választott mód nem befolyásolja magát az alkalmazást, de meghatározza, hogy a bemenet hogyan kerül ellenőrzésre és megjelenítésre, és milyen lehetőségek állnak rendelkezésre a gép hozzáadása során.
       simple: Egyszerű
       advanced: Haladó
       add_via_oe: Egykattintásos OctoEverywhere beállítás
       add_via_obico: Egykattintásos Obico beállítás
     simple_form:
       hint_title: Tipp – Egyszerű mód
-      hint_body: Az egyszerű mód lehetővé teszi a gazdagép és a port megadását. Ha
-        azonban testre kell szabnod az elérési utat, a fejléceket, a tanúsítványokat
-        vagy más beállításokat, válts haladó módra.
+      hint_body: Az egyszerű mód lehetővé teszi a gazdagép és a port megadását. Ha azonban testre kell szabnod az elérési utat, a fejléceket, a tanúsítványokat vagy más beállításokat, válts haladó módra.
       url_hint: A nyomtató IP-címe vagy gazdagép neve
     advanced_form:
       hint_title: Tipp – Haladó mód
-      hint_body: Kérjük, vedd figyelembe, hogy haladó módban az érvényesítés többnyire
-        le van tiltva. Fontos, hogy teljes felelősséget vállalj azért, hogy a megadott
-        URL érvényes legyen.
+      hint_body: Kérjük, vedd figyelembe, hogy haladó módban az érvényesítés többnyire le van tiltva. Fontos, hogy teljes felelősséget vállalj azért, hogy a megadott URL érvényes legyen.
       http_helper: Kérjük, add meg a Moonraker HTTP-végpontját
       ws_helper: Opcionális, a Moonraker WebSocket végpontja
       section_security: Biztonság
@@ -642,11 +580,7 @@ pages:
       awaiting: Eredményre vár…
       continue: Folytatás
       continue_anyway: Mindenképp folytatás
-      proceed_warning: Úgy tűnik, hogy az alkalmazás nem csatlakozik a géphez. Ennek
-        az lehet az oka, hogy nem ugyanazon a hálózaton van, mint a gép, vagy nem
-        rendelkezik a hozzáféréshez szükséges engedélyekkel. Bár a probléma ellenére
-        választhatod a gép hozzáadását, kérjük, vedd figyelembe, hogy nincs garancia
-        a megfelelő csatlakozásra. Kérjük, óvatosan járj el.
+      proceed_warning: Úgy tűnik, hogy az alkalmazás nem csatlakozik a géphez. Ennek az lehet az oka, hogy nem ugyanazon a hálózaton van, mint a gép, vagy nem rendelkezik a hozzáféréshez szükséges engedélyekkel. Bár a probléma ellenére választhatod a gép hozzáadását, kérjük, vedd figyelembe, hogy nincs garancia a megfelelő csatlakozásra. Kérjük, óvatosan járj el.
       button: Kapcsolat tesztelése
     confirmed:
       title: Nyomtató {} hozzáadva!
@@ -669,7 +603,6 @@ pages:
     no_entries: Nem találtam gépeket
     add_machine: Gép hozzáadása
   markdown:
-    loading: "@:general.loading {}…"
     error: Hiba történt a lekérés során {};
     open_in_browser: Megnyitás @:pages.faq.title a böngészőben
   faq:
@@ -681,24 +614,17 @@ pages:
       title: Köszönet a támogatásodért!
       list_title: 'Támogatói szint módosítása:'
       store_btn: Előfizetés lemondása itt {}
-      sub_warning: Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint
-        megvásárlása nem mond le automatikusan más aktív előfizetést. Minden aktív
-        előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy
-        továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig
-        tartó támogatói szint megvásárlása után is.
+      sub_warning: Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem mond le automatikusan más aktív előfizetést. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is.
     subscribe_view:
       title: Legyél Mobileraker támogató!
       info: |-
         A Mobileraker célja, hogy gyors és megbízható mobil felhasználói felületet adjon a Klipper számára, amelyet a RepRap szellemisége vezérel, és a nyílt forráskódú szoftverek és hardverek pozitív hatást gyakorolhatnak.
         Mivel a Mobileraker-t egyetlen fejlesztő fejleszti és ingyenesen kínálja, közösségi finanszírozásra támaszkodik mind a működési, mind a fejlesztési költségek fedezésére.
       list_title: 'Válassz támogatói szintet:'
-      subscription_info: Ha előfizetést kötsz, azt bármikor lemondhatod. Az előfizetés
-        automatikusan megújul, hacsak nem mondod le a jelenlegi időszak vége előtt.
-        A lemondáshoz lépj a {} oldalra, és onnan mondd le az előfizetést.
+      subscription_info: Ha előfizetést kötsz, azt bármikor lemondhatod. Az előfizetés automatikusan megújul, hacsak nem mondod le a jelenlegi időszak vége előtt. A lemondáshoz lépj a {} oldalra, és onnan mondd le az előfizetést.
     supporter_tier_list:
       error_title: Hiba a támogatói szintek betöltésekor!
-      error_body: Sajnálom, váratlan hiba történt. Nem sikerült betölteni a támogatói
-        szintet. Kérlek, próbáld újra később!
+      error_body: Sajnálom, váratlan hiba történt. Nem sikerült betölteni a támogatói szintet. Kérlek, próbáld újra később!
     contact_dialog:
       title: Fejlesztői kapcsolattartó
       body: |-
@@ -711,8 +637,7 @@ pages:
     intro_phase: Élvezd {} kedvezményes {} áron
     iap_offer: "{} eredeti árból"
     tip_developer: Borravaló a fejlesztőnek
-    trial_disclaimer: Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és
-      a próbaidőszak alatt bármikor lemondhatod az előfizetést.
+    trial_disclaimer: Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést.
     restore_sign_in: Visszaállítás / Bejelentkezés
   video_player:
     downloading_for_sharing: Videó letöltése megosztáshoz… ({})
@@ -720,13 +645,7 @@ pages:
     title: Eszközök
   beltTuner:
     title: Szíjhangoló
-    description: A megfelelő szíjfeszítés biztosítása elengedhetetlen a 3D nyomtatók
-      optimális teljesítményéhez. A nem megfelelő feszesség, akár túl szoros, akár
-      túl laza, mechanikai problémákhoz, idő előtti kopáshoz és a nyomtatás minőségének
-      romlásához vezethet. A megadott feszítési értékek referenciaként szolgálnak,
-      azonban a nyomtatómodellre szabott egyedi irányelvekért célszerű a gyártó ajánlásait
-      is figyelembe venni. A beállításokat mind ezen ajánlások, mind pedig az egyedi
-      nyomtatási követelmények és feltételek alapján kell elvégezni.
+    description: A megfelelő szíjfeszítés biztosítása elengedhetetlen a 3D nyomtatók optimális teljesítményéhez. A nem megfelelő feszesség, akár túl szoros, akár túl laza, mechanikai problémákhoz, idő előtti kopáshoz és a nyomtatás minőségének romlásához vezethet. A megadott feszítési értékek referenciaként szolgálnak, azonban a nyomtatómodellre szabott egyedi irányelvekért célszerű a gyártó ajánlásait is figyelembe venni. A beállításokat mind ezen ajánlások, mind pedig az egyedi nyomtatási követelmények és feltételek alapján kell elvégezni.
     beltType: 'Válaszd ki a szíj típusát:'
     target: 'Cél: {} Hz több mint {} mm'
     permissionWarning:
@@ -737,10 +656,8 @@ pages:
         Érintsd meg az engedély megadásához.
   spoolman:
     title: Orsómester
-    not_available: "Orsómester nem érhető el ehhez a nyomtatóhoz. \nKérjük, győződj
-      meg róla, hogy az Orsómester telepítve és engedélyezve van a nyomtatón."
-    learn_more: Ha többet szeretnél megtudni az Orsómesterről és a telepítéséről,
-      látogass el a projekt weboldalára
+    not_available: "Orsómester nem érhető el ehhez a nyomtatóhoz. \nKérjük, győződj meg róla, hogy az Orsómester telepítve és engedélyezve van a nyomtatón."
+    learn_more: Ha többet szeretnél megtudni az Orsómesterről és a telepítéséről, látogass el a projekt weboldalára
     learn_more_link: GitHub oldal.
     no_spools: Nem találtam orsót!
     no_filaments: Nem található nyomtatószál!
@@ -757,7 +674,6 @@ pages:
       one: Gyártó
       other: Gyártók
     properties:
-      id: ID
       name: Név
       registered: Regisztrált
       comment: Megjegyzés
@@ -821,22 +737,16 @@ components:
     dialog_title: Csak támogató funkció
     button: Legyél Mobileraker támogató
     webcam: Sajnáljuk, a {} típusú webkamerák csak a Támogatók számára érhetők el.
-    printer_add: Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára
-      érhető el.
+    printer_add: Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára érhető el.
     job_queue: Sajnáljuk, a Várólista csak a Támogatók számára érhető el.
-    timelaps_share: Sajnáljuk, az időzített felvételek megosztása csak a Támogatók
-      számára érhető el.
-    printer_theme: Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek
-      el.
+    timelaps_share: Sajnáljuk, az időzített felvételek megosztása csak a Támogatók számára érhető el.
+    printer_theme: Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek el.
     spoolman_page: Sajnáljuk, az Orsómester csak a Támogatóknak érhető el.
-    custom_dashboard: Sajnáljuk, a műszerfal testreszabása csak a Támogatóknak érhető
-      el.
-    full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak
-      a Támogatóknak érhető el.
+    custom_dashboard: Sajnáljuk, a műszerfal testreszabása csak a Támogatóknak érhető el.
+    full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak a Támogatóknak érhető el.
   machine_deletion_warning:
     title: Gépi törlés
-    subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint
-      {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
+    subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
   remote_connection_indicator:
     title: Távoli kapcsolat használata!
   web_rtc:
@@ -849,8 +759,7 @@ components:
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
-    message: Ha tetszik a Mobileraker, és támogatni szeretnéd a nyílt forráskódú fejlesztést,
-      kérjük, fontold meg a Mobileraker értékelését!
+    message: Ha tetszik a Mobileraker, és támogatni szeretnéd a nyílt forráskódú fejlesztést, kérjük, fontold meg a Mobileraker értékelését!
   import_setting:
     fetching: Források keresése…
     fetching_error_title: Nem sikerült lekérni a beállításokat!
@@ -902,8 +811,7 @@ dialogs:
 
       Érvényes példák:
   gcode_params:
-    hint: 'Tipp: Ha a makrót alapértelmezett értékekkel szeretnéd elküldeni, akkor
-      hosszan nyomd!'
+    hint: 'Tipp: Ha a makrót alapértelmezett értékekkel szeretnéd elküldeni, akkor hosszan nyomd!'
     confirm_title: Végrehajtod {}?
     confirm_body: |-
       A '{}' makró végrehajtásához készülsz.
@@ -917,8 +825,7 @@ dialogs:
     hint: Érintsd meg a gépet az aktívként való beállításhoz.
   supporter_perks:
     title: Támogatói jutalmak
-    body: A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon
-      mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.
+    body: A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.
     hint: 'Tipp: Jelenleg a jutalmak eszközalapúak. Ez változhat a jövőben.'
     theme_perk:
       title: Támogatói téma
@@ -953,19 +860,16 @@ dialogs:
     active_screw_title: 'Aktív csavar:'
     accept_screw_title: 'Elfogadott csavarok:'
     accept_screw_value: "{} vagy {}"
-    hint: Kattints a Beállított gombra, ha az aktuális csavaron jelentős módosításra
-      van szükség; ellenkező esetben kattints az Elfogadás gombra a folytatáshoz.
+    hint: Kattints a Beállított gombra, ha az aktuális csavaron jelentős módosításra van szükség; ellenkező esetben kattints az Elfogadás gombra a folytatáshoz.
     adjusted_btn: Beállított
   manual_offset:
     title: "@:general.offset Kalibráció"
     hint_tooltip: Klipper papírteszt dokumentációja
     snackbar_title: Kalibráció kész
-    snackbar_message: Ügyelj rá, hogy az eltolás megmaradjon a Konfiguráció mentése
-      művelettel.
+    snackbar_message: Ügyelj rá, hogy az eltolás megmaradjon a Konfiguráció mentése művelettel.
   tipping:
     title: Borravaló a fejlesztőnek!
-    body: Ez a borravaló kizárólag a fejlesztő erőfeszítéseinek elismerésére szolgál,
-      és NEM biztosít hozzáférést semmilyen további funkcióhoz.
+    body: Ez a borravaló kizárólag a fejlesztő erőfeszítéseinek elismerésére szolgál, és NEM biztosít hozzáférést semmilyen további funkcióhoz.
     amount_label: Borravaló összege
     tip: Borravaló
   http_header:
@@ -990,10 +894,7 @@ dialogs:
   screws_tilt_adjust:
     title: Csavarok dőlésbeállítás
     base: Bázis
-    hint: A párbeszédpanel segít az ágy csavarjainak beállításában. Minden egyes csavar
-      esetében a szükséges beállításokat órában látod ÓÓ:PP formátumban. Például a
-      01:15 egy teljes fordulatot plusz egy negyed fordulatot jelent az ikon által
-      jelzett irányba.
+    hint: A párbeszédpanel segít az ágy csavarjainak beállításában. Minden egyes csavar esetében a szükséges beállításokat órában látod ÓÓ:PP formátumban. Például a 01:15 egy teljes fordulatot plusz egy negyed fordulatot jelent az ikon által jelzett irányba.
   dashboard_page_settings:
     title: Műszerfal oldal beállítása
     icon_label: 'Válaszd ki a lap ikonját:'
@@ -1033,8 +934,7 @@ dialogs:
         subtitle:
           idle: Töltsd be az izzószálat a fúvókába
           processing: Nyomtatószál tisztítása...
-          processed: Ellenőrizd, hogy a tisztított anyag tiszta-e. Szükség esetén
-            ismételd meg
+          processed: Ellenőrizd, hogy a tisztított anyag tiszta-e. Szükség esetén ismételd meg
       tip_form:
         title: Hegy formázása
         subtitle: Szálhegy formázása
@@ -1055,53 +955,34 @@ bottom_sheets:
     remove_all: Várólista törlése
     remove_all_confirm: Ez a művelet eltávolítja az összes feladatot a várólistáról.
   add_remote_con:
-    disclosure: "{service} nem állsz kapcsolatban a Mobilerakerrel. További előfizetést
-      igényelhetsz. További információkért kérjük, nézd meg a {service} weboldalát."
+    disclosure: "{service} nem állsz kapcsolatban a Mobilerakerrel. További előfizetést igényelhetsz. További információkért kérjük, nézd meg a {service} weboldalát."
     active_service_info:
       title: Meglévő konfigurációt találtunk!
-      body: Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként.
-        Távolítsd el, mielőtt újat adnál hozzá.
+      body: Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként. Távolítsd el, mielőtt újat adnál hozzá.
     octoeverywehre:
-      service_name: OctoEverywhere
-      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
       link: Kapcsolódás OctoEverywhere
       unlink: Leválasztás OctoEverywhere
-      description: OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi,
-        hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere
-        a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést,
-        értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze
-        20 másodpercet vesz igénybe!
+      description: OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi, hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést, értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze 20 másodpercet vesz igénybe!
     manual:
       service_name: Kézi távoli csatlakozás
       tab_name: Kézi
-      description: Ha haladó felhasználó vagy, manuálisan is hozzáadhatsz egy alternatív
-        kapcsolatot. Az alternatív kapcsolat akkor lép működésbe, ha az elsődleges
-        címhez való kapcsolódási kísérletek sikertelenek. Ez hasznos lehet, ha fordított
-        proxy-kapcsolatod van a nyomtatóhoz, vagy ha van egy másodlagos IP-címed,
-        amelyet a nyomtatóhoz való csatlakozáshoz használhatsz.
+      description: Ha haladó felhasználó vagy, manuálisan is hozzáadhatsz egy alternatív kapcsolatot. Az alternatív kapcsolat akkor lép működésbe, ha az elsődleges címhez való kapcsolódási kísérletek sikertelenek. Ez hasznos lehet, ha fordított proxy-kapcsolatod van a nyomtatóhoz, vagy ha van egy másodlagos IP-címed, amelyet a nyomtatóhoz való csatlakozáshoz használhatsz.
       address_label: Alternatív cím
       address_hint: A használandó távoli kapcsolat alapcíme
     obico:
-      service_name: Obico
-      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: Kapcsolódás Obico
       unlink: Leválasztás Obico
-      description: Az Obico egy közösség által irányított, teljesen nyílt forráskódú
-        3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd
-        és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges
-        intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.
+      description: Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.
       self_hosted:
         title: Saját-Gazdagép
-        description: Alapértelmezés szerint a Mobileraker a hivatalos Obico példányt
-          használja. Ha azonban saját példányt kezelsz, itt megadhatod annak URL-címét.
+        description: Alapértelmezés szerint a Mobileraker a hivatalos Obico példányt használja. Ha azonban saját példányt kezelsz, itt megadhatod annak URL-címét.
         url_label: Saját-Gazdagép URL
         url_hint: A saját-gazdagép Obico-példány alap-URL-je
   manage_macros_in_grp:
     title: Makrók hozzáadása
     hint: Makrók kiválasztása a csoporthoz {}
   signIn:
-    subtitle: Bár a fiók létrehozása nem kötelező, a más eszközön vagy platformon
-      végzett vásárlások visszaállításához szükséges.
+    subtitle: Bár a fiók létrehozása nem kötelező, a más eszközön vagy platformon végzett vásárlások visszaállításához szükséges.
     forgot_password: Elfelejtetted a jelszavad?
     forgot_password_success: Jelszó-visszaállítási e-mail elküldve!
     hint:
@@ -1124,10 +1005,7 @@ bottom_sheets:
       error: Nem egyeznek a jelszavak!
   profile:
     title: Bejelentkeztél.
-    description: Üdvözöljük újra itt! A felhasználói fiókod a kulcsa a mobileszközökön
-      való fokozott felhasználói élménynek. Oszd meg zökkenőmentesen támogatói státuszod,
-      hogy könnyedén élvezhesd a kiváltságokat, bárhová is mész telefonoddal, táblagépeddel
-      vagy más eszközöddel.
+    description: Üdvözöljük újra itt! A felhasználói fiókod a kulcsa a mobileszközökön való fokozott felhasználói élménynek. Oszd meg zökkenőmentesen támogatói státuszod, hogy könnyedén élvezhesd a kiváltságokat, bárhová is mész telefonoddal, táblagépeddel vagy más eszközöddel.
     restore_purchases: Vásárlások visszaállítása
     restore_success: Sikeresen helyreállítottuk a vásárlásokat!
     sign_out: Kijelentkezés
@@ -1136,8 +1014,7 @@ bottom_sheets:
       title:
         pending: Megerősítő e-mail elküldve
         not_verified: E-mail nem ellenőrzött
-      description: Kérjük, ellenőrizd az e-mail címed, hogy mindig hozzáférhess a
-        fiókodhoz.
+      description: Kérjük, ellenőrizd az e-mail címed, hogy mindig hozzáférhess a fiókodhoz.
       send: Ellenőrzés küldése
     delete_account_dialog:
       title: Törlöd a fiókod?
@@ -1149,8 +1026,7 @@ bottom_sheets:
     no_profile_active: Nincs aktív profil
     no_mesh: Nincs háló
     clear_loaded_profile: Törölje a betöltött profilt
-    range_between_highest_and_lowest_point: A legmagasabb és legalacsonyabb pont közötti
-      tartomány
+    range_between_highest_and_lowest_point: A legmagasabb és legalacsonyabb pont közötti tartomány
     cant_render: Az ágy hálójának renderelése a nyomtató kinematikájához még nem támogatott.
   select_spool:
     header:
@@ -1171,19 +1047,14 @@ bottom_sheets:
     confirm_action:
       title: Biztos vagy benne?
       hint:
-        long_press: 'Tipp: Ennek kihagyásához nyomd meg hosszan a megerősítésre szolgáló
-          gombot.'
+        long_press: 'Tipp: Ennek kihagyásához nyomd meg hosszan a megerősítésre szolgáló gombot.'
       body:
-        pi_restart: A Raspberry Pi újraindítása előtt állsz. Biztos vagy benne, hogy
-          folytatod?
-        pi_shutdown: A Raspberry Pi leállítása előtt állsz. Ez minden aktív kapcsolatot
-          megszakít, és leállítja az összes futó folyamatot. Biztos vagy benne, hogy
-          folytatod?
+        pi_restart: A Raspberry Pi újraindítása előtt állsz. Biztos vagy benne, hogy folytatod?
+        pi_shutdown: A Raspberry Pi leállítása előtt állsz. Ez minden aktív kapcsolatot megszakít, és leállítja az összes futó folyamatot. Biztos vagy benne, hogy folytatod?
         fw_restart: A firmware újraindítása előtt állsz. Biztos, hogy folytatod?
         service_start: Szolgáltatást '{}' készülsz elindítani. Biztos, hogy folytatod?
-        service_restart: Szolgáltatás '{}' újraindítása előtt állsz. Biztos, hogy
-          folytatod?
-        service_stop: "'{}' szolgáltatás leállítására készülsz. Biztos, hogy folytatod?"
+        service_restart: Szolgáltatás '{}' újraindítása előtt állsz. Biztos, hogy folytatod?
+        service_stop: '''{}'' szolgáltatás leállítására készülsz. Biztos, hogy folytatod?'
   dashboard_cards:
     title: Kártya hozzáadása
     subtitle: Válaszd ki a műszerfalhoz hozzáadandó kártyát
@@ -1209,8 +1080,7 @@ bottom_sheets:
       body: Ügyelj rá, hogy a módosítások alkalmazásához nyomd meg a mentés gombot.
     falsy_import_snackbar:
       title: Hiba az elrendezés importálásakor!
-      body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon
-        van-e érvényes elrendezés.
+      body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon van-e érvényes elrendezés.
 klipper_state:
   ready: Kész
   shutdown: Leállítás
@@ -1219,8 +1089,7 @@ klipper_state:
   error: Hiba
   unauthorized: Jogosulatlan
   initializing: Inicializálás
-  not_connected: Moonraker nem tud kapcsolódni a Klipper-hez. Kérjük, ellenőrizd,
-    hogy a Klipper fut-e a rendszereden.
+  not_connected: Moonraker nem tud kapcsolódni a Klipper-hez. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden.
 print_state:
   standby: Készenlét
   printing: Nyomtatás
