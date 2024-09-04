@@ -81,7 +81,7 @@ pages:
         filament: Nyomtatószál
         filament_tooltip: A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.
         eta_tooltip: |-
-          Hátralévő idő: {} 
+          Hátralévő idő: {}
         remaining: Fennmaradó
       cam_card:
         webcam: Webkamera
