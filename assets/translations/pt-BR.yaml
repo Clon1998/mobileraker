@@ -3,8 +3,8 @@ general:
   pause: Pausar
   resume: Retomar
   connected: Conectado
-  'off': Desligado
-  'on': Ligado
+  'off': 'Desligado'
+  'on': 'Ligado'
   none: Nenhum
   add: Adicionar
   create: Criar
@@ -14,7 +14,6 @@ general:
   use: Usar
   restart: Reiniciar
   shutdown: Desligar
-  firmware: Firmware
   fetching: Buscando
   unknown: Desconhecido
   disabled: Desativado
@@ -29,7 +28,7 @@ pages:
     server_status:
       unavailable: Servidor Indisponível
       available: 'Status do Servidor: {} e Klippy: {}'
-    fetching_printer: Recuperando Impressoras ...
+    fetching_printer: "Recuperando Impressoras ..."
     general:
       print_card:
         reset: Reiniciar
@@ -41,14 +40,13 @@ pages:
         elapsed: Tempo Decorrido
         flow: Fluxo
         filament: Filamento
-        filament_tooltip: "{} % de Filamento Utilizado, que é {} m dos {} m previstos."
+        filament_tooltip: '{} % de Filamento Utilizado, que é {} m dos {} m previstos.'
       cam_card:
         webcam: Câmera
         fullscreen: Tela Cheia
       temp_card:
         title: Controle de Temperatura
         presets_btn: Predefinições
-        hotend: Hotend
         bed: Base
         temp_presets: Predefinições de Temperatura
         sensors: Sensores
@@ -56,8 +54,6 @@ pages:
         btn_thermistor: Termistor
       temp_preset_card:
         cooloff: Resfriamento
-        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
-        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Controle de Eixos
         home_xy_tooltip: Iniciar Origem nos Eixos X e Y
@@ -65,20 +61,15 @@ pages:
         home_all_tooltip: Iniciar Origem em Todos os Eixos
         home_all_btn: Todos
         qgl_tooltip: Executar o Nivelamento Quad-Gantry
-        qgl_btn: QGL
         mesh_tooltip: Executar a Calibração da Malha da Base
         mesh_btn: Malha
         m84_tooltip: Desligar Motores
-        m84_btn: M84
         step_size: Tamanho do Passo
         stc_tooltip: Executar o Inclinação dos Parafusos
-        stc_btn: STC
         ztilt_tooltip: Executar a Calibração de Inclinação do Eixo Z
-        ztilt_btn: zTilt
       baby_step_card:
         title: Micro-Step Eixo Z
       restart_klipper: Reiniciar Klipper
-      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -91,17 +82,9 @@ pages:
         title: Extrusor
         extrude: Extrusão
         retract: Retração
-        extrude_len: Comprimento de Extrusão
-        cold_extrude_error: Extrusora muito fria. Não atingiu a temperatura mínima
-          de {}°C!
-      macro_card:
-        title: Gcode - Macros
+        extrude_len: "Comprimento de Extrusão"
+        cold_extrude_error: Extrusora muito fria. Não atingiu a temperatura mínima de {}°C!
       pin_card:
-        title:
-          zero: Saída
-          one: Saída
-          two: Saídas
-          other: Saídas
         pin_btn: Pino
       power_card:
         title: Painel de Energia
@@ -116,13 +99,6 @@ pages:
   files:
     title: Arquivos
     search_files: Procurar Arquivos
-    clear_search: Limpar Busca
-    name: Nome
-    last_mod: Última Modificação
-    not_printed: Não Impresso
-    last_printed: Última Impressão
-    fetching_files: "@:general.fetching Arquivos ..."
-    no_files_found: Nenhum Arquivo Encontrado!
     details:
       preheat: Pré-Aquecer
       print: Imprimir
@@ -143,13 +119,9 @@ pages:
         first_layer: Primeira Camada
         others: Outros
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperaturas"
-        first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend: {}°C
-          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Estatísticas
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Temperaturas Alvo
           Extrusora: {}°C
@@ -169,9 +141,7 @@ pages:
       start_with_overview: Iniciar com a Visão Geral de @:pages.overview.title
       use_offset_pos: Mostrar Coordenadas com Offset
       language: Idioma
-      companion: |-
-        Você deseja receber notificações remotas?
-        Saiba como instalar o Mobileraker Companion no seu sistema.
+      companion: "Você deseja receber notificações remotas?\nSaiba como instalar o Mobileraker Companion no seu sistema."
     notification:
       title: Notificação
       progress_label: Notificações de Progresso de Impressão
@@ -190,20 +160,16 @@ pages:
     import_settings: Importar Configurações
     remove_printer: Remover Impressora
     no_values_found: Nenhum Valor Encontrado!
-    fetching_additional_settings: "@:general.fetching Configurações Adicionais da
-      Rede ..."
+    fetching_additional_settings: "@:general.fetching Configurações Adicionais da Rede ..."
     could_not_fetch_additional: Não foi possível buscar configurações adicionais!
-    fetch_error_hint: Certifique-se de que a máquina está acessível e conectada ao
-      Mobileraker.
+    fetch_error_hint: Certifique-se de que a máquina está acessível e conectada ao Mobileraker.
     general:
       displayname: Nome de Exibição
       printer_addr: Endereço da Impressora
       ws_addr: Endereço do WebSocket
       moonraker_api_key: Chave da API do Moonraker
-      moonraker_api_desc: Somente necessário se você estiver usando clientes confiáveis.
-        O FluiddPI exige isso!
+      moonraker_api_desc: Somente necessário se você estiver usando clientes confiáveis. O FluiddPI exige isso!
       full_url: URL Completa
-      self_signed: Confiar em Certificados Autoassinados
     motion_system:
       title: Sistema de Movimento
       invert_x: Inverter Eixo X
@@ -217,20 +183,16 @@ pages:
       speed_z: Velocidade do Eixo Z
       speed_z_short: Velocidade Z
       steps_move: Passos de Movimento
-      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Passos de Babystepping Z
     extruders:
       title: Extrusoras
       feedrate: Taxa de Alimentação da Extrusora
       feedrate_short: Taxa de Alimentação
       steps_extrude: Passos de Extrusão
-      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
     cams:
       target_fps: FPS Alvo
       new_cam: Nova Câmera
       no_webcams: Nenhuma Câmera Adicionada!
-      webcam_addr: Endereço da Câmera
-      default_addr: Endereço Padrão
       flip_vertical: Espelhar Verticalmente
       flip_horizontal: Espelhar Horizontalmente
       cam_mode: Modo da Câmera
@@ -241,22 +203,15 @@ pages:
       macros_to_default:
         one: Uma Macro Movida para o Grupo Padrão!
         two: Duas Macros Movidas para o Grupo Padrão!
-        other: "{} Macros Movidas para o Grupo Padrão!"
+        other: '{} Macros Movidas para o Grupo Padrão!'
     presets:
       no_presets: Nenhuma Configuração Predefinida Adicionada!
-      hotend_temp: Temperatura do @:pages.dashboard.general.temp_card.hotend
-      bed_temp: Temperatura do @:pages.dashboard.general.temp_card.bed
+      hotend_temp: "Temperatura do @:pages.dashboard.general.temp_card.hotend"
+      bed_temp: "Temperatura do @:pages.dashboard.general.temp_card.bed"
       new_preset: Nova Configuração Predefinida
   printer_add:
     title: Adicionar Nova Impressora
-    printer_add_helper: Host, IP ou URL Completa
-    resulting_ws_url: 'URL Websocket Resultante: {}'
-    misc: Diversos
-    test_ws: Testar Conexão Websocket
-    result_ws_test: 'Resultado: {}'
-    run_test_btn: Executar Teste
   console:
-    title: Console
     no_entries: Nenhum Comando em Cache Encontrado
     fetching_console: "@:general.fetching Entradas de Console ..."
     command_input:
@@ -281,8 +236,7 @@ components:
 dialogs:
   rate_my_app:
     title: Avaliar o MobileRaker?
-    message: Se você gosta do MobileRaker e deseja apoiar o desenvolvimento de código
-      aberto, por favor avalie o MobileRaker!
+    message: Se você gosta do MobileRaker e deseja apoiar o desenvolvimento de código aberto, por favor avalie o MobileRaker!
   import_setting:
     fetching: Obtendo candidatos...
     fetching_error_title: Não foi possível obter configurações!
@@ -314,12 +268,12 @@ dialogs:
     no_visualization: Nenhum dado de visualização disponível!
   ws_input_help:
     title: Ajuda para Entrada de URL
-    body: "Você pode inserir um endereço IP, uma URL ou uma URI completa da sua interface
-      web ou inserir diretamente o endereço da instância WebSocket fornecido pelo
-      Moonraker. \n\nExemplos válidos:"
+    body: |-
+      Você pode inserir um endereço IP, uma URL ou uma URI completa da sua interface web ou inserir diretamente o endereço da instância WebSocket fornecido pelo Moonraker. 
+
+      Exemplos válidos:
   gcode_params:
-    hint: 'Dica: Você também pode pressionar longamente para enviar o macro com os
-      valores padrão!'
+    hint: 'Dica: Você também pode pressionar longamente para enviar o macro com os valores padrão!'
   rgbw:
     recent_colors: Cores Recentes
 klipper_state:
@@ -335,7 +289,7 @@ notifications:
       name: Atualizações de Status - {}
       desc: Notificações de status de impressão.
       title: Status de Impressão de {} Alterado!
-      body_printing: Iniciada a impressão de "{}"
+      body_printing: 'Iniciada a impressão de "{}"'
       body_paused: 'Arquivo pausado: "{}"'
       body_complete: 'Arquivo impresso com sucesso: "{}"'
       body_error: 'Erro ao imprimir o arquivo: "{}"'
