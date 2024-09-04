@@ -3,8 +3,6 @@ general:
   pause: Pausa
   resume: Riprendi
   connected: Connesso
-  'off': 'Off'
-  'on': 'On'
   none: Nessuno
   add: Aggiungi
   create: Crea
@@ -14,7 +12,6 @@ general:
   use: Utilizza
   restart: Riavvia
   shutdown: Spegni
-  firmware: Firmware
   fetching: Recupera
   loading: Caricamento
   unknown: Sconosciuto
@@ -28,15 +25,12 @@ general:
   supported: Supportato
   unsupported: Non Supportato
   details: Dettagli
-  google_play: GooglePlay
-  ios_store: AppStore
   active: Attivo
   canceled: Cancellato
   monthly: Mensile
   restore: Ripristino
   accept: Accetta
   abort: Abortire
-  offset: Offset
   valid: Valido
   invalid: Non Valido
   free: Gratis
@@ -57,7 +51,6 @@ pages:
         printing_for: 'Stampa in corso: {}'
         speed: Velocità
         layer: Strato
-        eta: ETA
         current_object: Oggetto corrente
         elapsed: Trascorso
         flow: Flusso
@@ -70,11 +63,9 @@ pages:
           File: {file}
           Filamento: {filament}
       cam_card:
-        webcam: Webcam
         fullscreen: Schermo intero
       temp_card:
         title: Controllo Temperature
-        presets_btn: Presets
         hotend: Ugello
         bed: Piatto
         temp_presets: Preset Temperature
@@ -83,8 +74,6 @@ pages:
         btn_thermistor: Sensore
       temp_preset_card:
         cooloff: Raffredda
-        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
-        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Muovi Assi
         home_xy_tooltip: Posiziona assi X e Y
@@ -92,77 +81,46 @@ pages:
         home_all_tooltip: Posiziona tutti gli assi
         home_all_btn: Tutti
         qgl_tooltip: Avvia livellamento quattro angoli
-        qgl_btn: QGL
         mesh_tooltip: Avvia calibrazione Bed-Mesh
-        mesh_btn: Mesh
         m84_tooltip: Disabilita Motori
-        m84_btn: M84
         step_size: Dimensioni Step
         stc_tooltip: Avvia calcolo Rotazione-Viti
-        stc_btn: STC
         ztilt_tooltip: Avvia calibrazione Inclinazione-Z
-        ztilt_btn: zTilt
         poff_tooltip: Avvia calibrazione Offset con Sonda
         poff_btn: Calibrazione Sonda
         zoff_tooltip: Avvia calibrazione Offset Finecorsa Z
         zoff_btn: Calibrazione Finecorsa-Z
         bsa_tooltip: Avvia calibrazione Bed Screw Adjust
-        bsa_btn: Bed Screw Adjust
         save_tooltip: Salva risultati di calibrazione
         save_btn: Salva Config
         more_btn: Altro
       baby_step_card:
         title: Micro-Step Asse-Z
       restart_klipper: Riavvia Klipper
-      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
           zero: Ventola
           one: Ventola
           other: Ventole
-        part_fan: Part Fan
         static_fan_btn: Ventola
       extrude_card:
         title: Estrusore
         extrude: Estrudi
         retract: Ritrai
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude lunghezza"
-        cold_extrude_error: Estrusore non ha ancora raggiunto min_extrude_temp di
-          {}°C!
-      macro_card:
-        title: Gcode - Macros
-      pin_card:
-        title:
-          zero: Output Pin
-          one: Output Pin
-          two: Output Pins
-          other: Output Pins
-        pin_btn: Pin
+        cold_extrude_error: Estrusore non ha ancora raggiunto min_extrude_temp di {}°C!
       power_card:
         title: Pannello Alimentazioni
-        pin_btn: Pin
       multipl_card:
         title: Moltiplicatori
         flow: Flusso
-        press_adv: Pressure Advance
-        smooth_time: Smooth Time
       limit_card:
         title: Limiti
         velocity: Velocità
         accel: Accelerazione
-        sq_corn_vel: Square Corner Velocity
-        accel_to_decel: Accel to Decel
   files:
-    title: Files
     search_files: Ricerca files
-    clear_search: Cancella Ricerca
-    name: Nome
-    last_mod: Ultima Modifica
-    last_printed: Ultima Stampa
-    not_printed: Non Stampato
-    fetching_files: "@:general.fetching Files..."
-    no_files_found: Nessun file trovato!
     details:
       preheat: Preriscalda
       print: Stampa
@@ -172,7 +130,6 @@ pages:
         last_printed: Ultima Stampa
         no_data: Nessun Dato
       meta_card:
-        title: GCode Meta Data
         filament: Filamento
         filament_type: Tipo Filamento
         filament_name: Nome Filamento
@@ -183,13 +140,9 @@ pages:
         first_layer: Primo Strato
         others: Altri
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperature"
-        first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend: {}°C
-          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statistiche
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Obbiettivo Temperature
           Estrusore: {}°C
@@ -210,14 +163,11 @@ pages:
       use_offset_pos: Mostra le coordinate con l'offset applicato.
       lcFullCam: Webcam a Schermo Intero in Orizzontale
       language: Lingua
-      companion: |-
-        Vuoi ricevere una notifica remota?
-        Scopri come configurare Mobileraker's Companion
+      companion: "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion"
     notification:
       title: Notifiche
       progress_label: Notifica di Avanzamento
-      progress_helper: Scegli la percentuale di avanzamento di stampa da mostrare
-        nella notifica
+      progress_helper: Scegli la percentuale di avanzamento di stampa da mostrare nella notifica
       state_label: Notifica degli Stati
       state_helper: Scegli quali Stati della stampa vuoi mostrare nella notifica
       no_permission_title: Nessun Autorizzazione di Notifica!
@@ -239,46 +189,29 @@ pages:
     developer:
       title: Sviluppatore
       crashlytics: Attiva la segnalazione dei Crashlytics
-    imprint: Privacy/Impressum
   printer_edit:
     title: Modifica {}
     import_settings: Importa Impostazioni
     remove_printer: Rimuovi Stampante
     no_values_found: Nessun valore Trovato!
-    fetching_additional_settings: "@:general.fetching impostazioni aggiuntive dalla
-      rete..."
+    fetching_additional_settings: "@:general.fetching impostazioni aggiuntive dalla rete..."
     could_not_fetch_additional: Impossibile recuperare impostazioni aggiuntive!
-    fetch_error_hint: Assicurati che la stampante sia raggiungibile e che Mobileraker
-      sia connesso.
+    fetch_error_hint: Assicurati che la stampante sia raggiungibile e che Mobileraker sia connesso.
     store_error:
       title: Salvataggio fallito!
       message: |-
         Alcuni campi contengono valori non validi!
         Assicurati che tutti i campi siano validi.
-      unexpected_error: Si è verificato un errore imprevisto durante il tentativo
-        di salvare i dati della stampante!
+      unexpected_error: Si è verificato un errore imprevisto durante il tentativo di salvare i dati della stampante!
     confirm_deletion:
       title: Cancella {}?
-      body: "Stai per rimuovere la stampante '{}' connessa a '{}'. \n\nConferma la
-        tua azione."
-    success_oe_link:
-      title: Connessa {}
-      body: Connessa con successo {} con OctoEverywhere!
-    confirm_oe_unlink:
-      title: Disconnettere {}?
-      body: Confermare la disconnessione della stampante {} da OctoEverywhere.
-      button: Disconnetti
-    success_oe_unlink:
-      title: Disconnessa {}
-      body: Disconnessa con successo {} da OctoEverywhere!
+      body: "Stai per rimuovere la stampante '{}' connessa a '{}'. \n\nConferma la tua azione."
     general:
       displayname: Nome da visualizzare
       printer_addr: Stampante - Indirizzo
       ws_addr: Websocket - Indirizzo
-      moonraker_api_key: Moonraker - API Key
       moonraker_api_desc: Necessario solo se utilizzi client fidati. FluiddPI lo impone!
       full_url: URL Completo
-      self_signed: Fidati dei Certificati Autofirmati
     motion_system:
       title: Sistema di movimento
       invert_x: Inverti - Asse X
@@ -288,19 +221,14 @@ pages:
       invert_z: Inverti - Asse Z
       invert_z_short: Inverti Z
       speed_xy: Velocità - Assi X/Y
-      speed_xy_short: Speed X/Y
       speed_z: Velocità - Asse Z
       speed_z_short: Velocità Z
       steps_move: Muovi step
-      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
-      steps_baby: Z-Offset steps
-      steps_baby_short: Z-Steps
     extruders:
       title: Estrusore/i
       feedrate: Velocità Avanzamento Estrusore
       feedrate_short: Velocità di Avanzamento
       steps_extrude: Estrudi step
-      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
     cams:
       target_fps: Obbiettivo FPS
       new_cam: Nuova Webcam
@@ -328,33 +256,22 @@ pages:
   printer_add:
     steps:
       mode: Modalità
-      input: Input
-      test: Test
       done: Fatto
     title: Aggiungi Nuova Stampante
     initial_name: La mia Stampante
     select_mode:
       title: 'Scegli una modalità di input:'
-      body: Se sei alle prime armi, è meglio attenersi alla modalità semplice. Tuttavia,
-        se sei esperto e hai bisogno di utilizzare intestazioni personalizzate, certificati,
-        ecc., allora la modalità esperto fa per te. Tieni presente che la modalità
-        che scegli non influirà sull'app stessa, ma determinerà come l'input viene
-        convalidato e visualizzato e quali opzioni sono disponibili mentre aggiungi
-        una stampante.
+      body: Se sei alle prime armi, è meglio attenersi alla modalità semplice. Tuttavia, se sei esperto e hai bisogno di utilizzare intestazioni personalizzate, certificati, ecc., allora la modalità esperto fa per te. Tieni presente che la modalità che scegli non influirà sull'app stessa, ma determinerà come l'input viene convalidato e visualizzato e quali opzioni sono disponibili mentre aggiungi una stampante.
       simple: semplice
       advanced: Avanzata
       add_via_oe: Installa OctoEverywhere in un Click
     simple_form:
       hint_title: Suggerimento - modalità Semplice
-      hint_body: La modalità semplice consente di inserire l'host e la porta. Tuttavia,
-        se devi personalizzare il percorso, le intestazioni, i certificati o altre
-        impostazioni, passa alla modalità avanzata.
+      hint_body: La modalità semplice consente di inserire l'host e la porta. Tuttavia, se devi personalizzare il percorso, le intestazioni, i certificati o altre impostazioni, passa alla modalità avanzata.
       url_hint: Indirizzo IP o Hostname della Stampante
     advanced_form:
       hint_title: Suggerimento - modalità Avanzata
-      hint_body: Tieni presente che in modalità avanzata, la convalida è per lo più
-        disabilitata. È importante che tu ti assuma la piena responsabilità di garantire
-        che l'URL inserito sia valido.
+      hint_body: Tieni presente che in modalità avanzata, la convalida è per lo più disabilitata. È importante che tu ti assuma la piena responsabilità di garantire che l'URL inserito sia valido.
       http_helper: Inserisci l'endpoint HTTP di Moonraker
       ws_helper: Facoltativo, endpoint WebSocket di Moonraker
       section_security: Sicurezza
@@ -365,23 +282,15 @@ pages:
       ws_url_label: Risultato WebSocket-URL
       http_url_label: Risultato HTTP-URL
       section_test: Test di connessione
-      http_label: Http Endpoint - Test
-      ws_label: Websocket Endpoint - Test
       awaiting: In attesa dei risultati...
       continue: Continua
       continue_anyway: Continua Comunque
-      proceed_warning: Sembra che l'app abbia problemi a connettersi alla Stampante.
-        Ciò potrebbe essere dovuto al fatto che non sei sulla stessa rete della macchina
-        o non disponi delle autorizzazioni necessarie per accedervi. Sebbene sia possibile
-        scegliere di aggiungere la stampante nonostante il problema, tenere presente
-        che non vi è alcuna garanzia che si collegherà correttamente. Si prega di
-        procedere con cautela.
+      proceed_warning: Sembra che l'app abbia problemi a connettersi alla Stampante. Ciò potrebbe essere dovuto al fatto che non sei sulla stessa rete della macchina o non disponi delle autorizzazioni necessarie per accedervi. Sebbene sia possibile scegliere di aggiungere la stampante nonostante il problema, tenere presente che non vi è alcuna garanzia che si collegherà correttamente. Si prega di procedere con cautela.
       button: Test di connessione
     confirmed:
       title: Stampante {} aggiunta!
       to_dashboard: Al Pannello di controllo
   console:
-    title: Console
     no_entries: Nessun comando trovato nella cache
     fetching_console: "@:general.fetching voci di console..."
     command_input:
@@ -395,8 +304,6 @@ pages:
     loading: "@:general.loading {}..."
     error: Si è verificato un errore durante il tentativo di recupero {};
     open_in_browser: Apri @:pages.faq.title nel Browser
-  faq:
-    title: FAQ
   changelog:
     title: Registro delle modifiche
   paywall:
@@ -404,11 +311,7 @@ pages:
       title: Grazie per il tuo Supporto!
       list_title: 'Cambia livello di Sostenitore:'
       store_btn: Annulla Abbonamento in {}
-      sub_warning: Tieni presente che l'acquisto del livello di sostenitore a vita
-        non annulla automaticamente nessun altro abbonamento attivo. Dovrai annullare
-        manualmente eventuali abbonamenti attivi. Tuttavia, hai la possibilità di
-        continuare a supportare lo sviluppo di Mobileraker su base ricorrente anche
-        dopo aver acquistato il livello di supporto a vita.
+      sub_warning: Tieni presente che l'acquisto del livello di sostenitore a vita non annulla automaticamente nessun altro abbonamento attivo. Dovrai annullare manualmente eventuali abbonamenti attivi. Tuttavia, hai la possibilità di continuare a supportare lo sviluppo di Mobileraker su base ricorrente anche dopo aver acquistato il livello di supporto a vita.
     subscribe_view:
       title: Diventa un Sostenitore di Mobileraker!
       info: |-
@@ -417,13 +320,9 @@ pages:
       list_title: 'Scegli il livello di Sostenitore:'
     supporter_tier_list:
       error_title: Errore durante il caricamento dei livelli di Sostenitore!
-      error_body: Spiacenti, si è verificato un errore imprevisto. Impossibile caricare
-        SupporterTiers. Si prega di riprovare più tardi!
+      error_body: Spiacenti, si è verificato un errore imprevisto. Impossibile caricare SupporterTiers. Si prega di riprovare più tardi!
     contact_dialog:
       title: Contatta Sviluppatore
-      body: |-
-        Mail: {}
-        Discord: {}
     title: Sostieni lo Sviluppatore!
     calling_store: Elaborazione richiesta...
     promo_title: Promozione
@@ -462,18 +361,14 @@ components:
   supporter_only_feature:
     button: Diventa un Sostenitore di Mobileraker
     webcam: Siamo spiacenti, le Webcam di tipo {} sono disponibili solo per i Sostenitori.
-    printer_add: Spiacenti, la gestione di più di {} stampanti è disponibile solo
-      per i Sostenitori.
+    printer_add: Spiacenti, la gestione di più di {} stampanti è disponibile solo per i Sostenitori.
   machine_deletion_warning:
     title: Cancellazione Stampante
-    subtitle: Sembra che tu non sia un Sostenitore. Solo i sostenitori possono avere
-      più di {} stampanti. Hai {} giorni prima che le stampanti in eccesso vengano
-      rimosse.
+    subtitle: Sembra che tu non sia un Sostenitore. Solo i sostenitori possono avere più di {} stampanti. Hai {} giorni prima che le stampanti in eccesso vengano rimosse.
 dialogs:
   rate_my_app:
     title: Vota Mobileraker?
-    message: Se ti piace Mobileraker e vuoi supportare lo sviluppo open source, considera
-      la possibilità di valutare Mobileraker!
+    message: Se ti piace Mobileraker e vuoi supportare lo sviluppo open source, considera la possibilità di valutare Mobileraker!
   import_setting:
     fetching: Recupero delle fonti...
     fetching_error_title: Impossibile recuperare le impostazioni!
@@ -510,8 +405,7 @@ dialogs:
 
       Esempi validi:
   gcode_params:
-    hint: 'Suggerimento: puoi anche premere a lungo se desideri inviare la macro con
-      i valori predefiniti!'
+    hint: 'Suggerimento: puoi anche premere a lungo se desideri inviare la macro con i valori predefiniti!'
   rgbw:
     recent_colors: Colori Recenti
   select_machine:
@@ -520,10 +414,8 @@ dialogs:
     hint: Tocca una stampante per impostarla come attiva.
   supporter_perks:
     title: Vantaggi del Sostenitore
-    body: Supportando Mobileraker, ti assicuri che l'app possa rimanere gratuita per
-      la community. Inoltre, i sostenitori ottengono il seguente elenco di vantaggi.
-    hint: 'Suggerimento: a partire da ora, i vantaggi sono basati sul dispositivo.
-      Questo potrebbe cambiare in futuro.'
+    body: Supportando Mobileraker, ti assicuri che l'app possa rimanere gratuita per la community. Inoltre, i sostenitori ottengono il seguente elenco di vantaggi.
+    hint: 'Suggerimento: a partire da ora, i vantaggi sono basati sul dispositivo. Questo potrebbe cambiare in futuro.'
     theme_perk:
       title: Tema Sostenitore
       subtitle: Tema esclusivo utilizzando Material 3
@@ -537,13 +429,11 @@ dialogs:
       title: Supporto WebRtc
       subtitle: Consente l'utilizzo delle webcam WebRtc!
   bed_screw_adjust:
-    title: Bed Screw Adjust
     xy_plane: 'Piano X/Y della Stampante:'
     active_screw_title: 'Vite attiva:'
     accept_screw_title: 'Viti accettate:'
     accept_screw_value: "{} di {}"
-    hint: Cliccare su Regolato se è necessaria una regolazione significativa sulla
-      vite corrente; in caso contrario, cliccare su Accetta per continuare.
+    hint: Cliccare su Regolato se è necessaria una regolazione significativa sulla vite corrente; in caso contrario, cliccare su Accetta per continuare.
     adjusted_btn: Regolato
   manual_offset:
     title: "@:general.offset Calibrazione"
@@ -552,16 +442,11 @@ dialogs:
     snackbar_message: Assicurarsi di mantenere l'offset tramite l'azione Salva Config.
   tipping:
     title: Mancia allo Sviluppatore!
-    body: Questa mancia ha il solo scopo di apprezzare gli sforzi dello sviluppatore
-      e NON garantisce l'accesso a funzionalità aggiuntive.
+    body: Questa mancia ha il solo scopo di apprezzare gli sforzi dello sviluppatore e NON garantisce l'accesso a funzionalità aggiuntive.
     amount_label: Importo della mancia
     tip: Mancia
   http_header:
-    title: Http-Header
-    header: Header
     header_hint: The HTTP-Header nam
-    value: Header-Value
-    value_hint: The value of the header
 klipper_state:
   ready: Pronto
   shutdown: Spegni
@@ -585,7 +470,6 @@ notifications:
       desc: Notifiche relative allo stato della stampa.
       title: Avanzamento stampa di {}
 form_validators:
-  simple_url: 'Input only allows URL components: Hostname and Port'
   disallow_mdns: MDNs (.local) addresses are not supported
 date:
   year:

@@ -3,8 +3,8 @@ general:
   pause: Pauză
   resume: Reia
   connected: Conectat
-  'off': Oprit
-  'on': Pornit
+  'off': 'Oprit'
+  'on': 'Pornit'
   none: Nimic
   add: Adaugă
   create: Creează
@@ -14,7 +14,6 @@ general:
   use: Folosește
   restart: Repornire
   shutdown: Oprire
-  firmware: Firmware
   fetching: Descarcă
   loading: Încarcă
   unknown: Necunoscut
@@ -37,11 +36,9 @@ pages:
         printing_for: 'Tipărește: {}'
         speed: Viteză
         layer: Strat
-        eta: ETA
         current_object: Obiect Curent
         elapsed: Timp Scurs
         flow: Flux
-        filament: Filament
         filament_tooltip: Utilizat {} % din Filament, adică {} m din cei {} m estimați.
       cam_card:
         webcam: Cameră web
@@ -49,16 +46,13 @@ pages:
       temp_card:
         title: Control Temperaturi
         presets_btn: Predefinite
-        hotend: Hotend
         bed: Pat
         temp_presets: Șabloane temperaturi
         sensors: Senzori
-        heater_on: Țintă {} °C
+        heater_on: "Țintă {} °C"
         btn_thermistor: Senzor
       temp_preset_card:
         cooloff: Răcire
-        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
-        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Mișcă Axe
         home_xy_tooltip: Origine axe X și Y
@@ -66,20 +60,15 @@ pages:
         home_all_tooltip: Origine toate axele
         home_all_btn: Toate
         qgl_tooltip: Rulează autonivelare Quad-Gantry
-        qgl_btn: QGL
         mesh_tooltip: Rulează calibrarea-pânză a patului
         mesh_btn: Pânză
         m84_tooltip: Dezactivează Motoare
-        m84_btn: M84
         step_size: Dimensiune pas
         stc_tooltip: Rulează calibrarea Înclinație-Șurub
-        stc_btn: STC
         ztilt_tooltip: Rulează calibrarea Înclinație-Z
-        ztilt_btn: zTilt
       baby_step_card:
         title: Reglaj fin axă Z
       restart_klipper: Repornește Klipper
-      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -89,24 +78,13 @@ pages:
         part_fan: Ventilator Piese
         static_fan_btn: Ventilator
       extrude_card:
-        title: Extruder
         extrude: Extrudează
         retract: Retractează
-        extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
-        cold_extrude_error: Extruderul nu a atins încă temperatura de min_extrude_temp
-          {}°C !
+        cold_extrude_error: Extruderul nu a atins încă temperatura de min_extrude_temp {}°C !
       macro_card:
         title: Gcode - Macro-uri
-      pin_card:
-        title:
-          zero: Pin Ieșire
-          one: Pin Ieșire
-          two: Pini Ieșire
-          other: Pini Ieșire
-        pin_btn: Pin
       power_card:
         title: Panou Alimentare
-        pin_btn: Pin
       multipl_card:
         title: Multiplicatori
         flow: Flux
@@ -121,13 +99,6 @@ pages:
   files:
     title: Fișiere
     search_files: Caută fișiere
-    clear_search: Șterge căutarea
-    name: Nume
-    last_mod: Ultima modificare
-    last_printed: Ultima tipărire
-    not_printed: Netipărit
-    fetching_files: "@:general.fetching Fișiere..."
-    no_files_found: Nu s-au găsit fișiere!
     details:
       preheat: Preîncălzire
       print: Tipărire
@@ -137,8 +108,6 @@ pages:
         last_printed: Ultima tipărire
         no_data: Nu există informații
       meta_card:
-        title: GCode Meta Data
-        filament: Filament
         filament_type: Tip Filament
         filament_name: Nume Filament
         est_print_time: Timp Estimat Tipărire
@@ -148,13 +117,9 @@ pages:
         first_layer: Primul Strat
         others: Altele
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperaturi"
-        first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend: {}°C
-          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statistici
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Temperaturi Țintă
           Extruder: {}°C
@@ -174,8 +139,7 @@ pages:
       start_with_overview: Arată @:pages.overview.title implicit
       use_offset_pos: Arată coordonate cu decalaj aplicat.
       language: Limbă
-      companion: "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi
-        Mobileraker Companion "
+      companion: "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi Mobileraker Companion "
     notification:
       title: Notificare
       progress_label: Notificări de progres
@@ -198,17 +162,14 @@ pages:
     no_values_found: Nu s-au găsit valori!
     fetching_additional_settings: "@:general.fetching setări adiționale din rețea..."
     could_not_fetch_additional: Nu am putut descărca setările adiționale!
-    fetch_error_hint: Asigură-te că imprimanta este accesibilă și Mobileraker este
-      conectat la ea.
+    fetch_error_hint: Asigură-te că imprimanta este accesibilă și Mobileraker este conectat la ea.
     general:
       displayname: Nume afișat
       printer_addr: Imprimantă - Adresă
       ws_addr: Websocket - Adresă
       moonraker_api_key: Moonraker - cheie API
-      moonraker_api_desc: Necesar doar dacă folosiți clienți de încredere. Obligatoriu
-        pentru FluiddPI!
+      moonraker_api_desc: Necesar doar dacă folosiți clienți de încredere. Obligatoriu pentru FluiddPI!
       full_url: URL Complet
-      self_signed: Acceptă certificate auto-semnate
     motion_system:
       title: Sistem Axe
       invert_x: Inversează axa X
@@ -222,7 +183,6 @@ pages:
       speed_z: Viteză axa Z
       speed_z_short: Viteză Z
       steps_move: Pași mișcare
-      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Reglaj fin axa Z
       steps_baby_short: Reglaj fin
     extruders:
@@ -230,17 +190,13 @@ pages:
       feedrate: Rată alimentare Extruder
       feedrate_short: Rată alimentare
       steps_extrude: Pași Extruder
-      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
     cams:
       target_fps: Țintă FPS
       new_cam: Webcam nou
       no_webcams: Nu s-a adăugat un webcam!
-      webcam_addr: Webcam - Adresă
-      default_addr: Adresă implicită
       flip_vertical: Răstoarnă vertical
       flip_horizontal: Răstoarnă orizontal
       cam_mode: Mod cameră
-      cam_mofde: Cam fasff
       cam_rotate: Rotește
     macros:
       new_macro_grp: Grup macro nou
@@ -257,12 +213,6 @@ pages:
       new_preset: Valoare nouă predefinită
   printer_add:
     title: Adaugă Imprimantă Nouă
-    printer_add_helper: Nume, IP sau URL complet
-    resulting_ws_url: 'URL WebSocket rezultat: {}'
-    misc: Altele
-    test_ws: Testează conexiune WebSocket
-    result_ws_test: 'Rezultat: {}'
-    run_test_btn: Testează
   console:
     title: Consolă
     no_entries: Nu s-au găsit comenzi
@@ -274,11 +224,6 @@ pages:
     fetching_machines: "@:general.fetching mașini..."
     no_entries: No s-au găsit mașini
     add_machine: Adaugă Mașină
-  faq:
-    title: FAQ
-    loading: "@:general.loading FAQ..."
-    error: A apărut o eroare la descărcarea FAQ
-    open_in_browser: Deschide @:pages.faq.title în Browser
 components:
   pull_to_refresh:
     pull_up_idle: Trage în sus pentru actualizare
@@ -298,8 +243,7 @@ components:
 dialogs:
   rate_my_app:
     title: Dai o notă Mobileraker?
-    message: Daca îți place Mobileraker și vrei să sprijini dezvoltarea open-source,
-      te rog să acorzi o notă Mobileraker!
+    message: Daca îți place Mobileraker și vrei să sprijini dezvoltarea open-source, te rog să acorzi o notă Mobileraker!
   import_setting:
     fetching: Descarc surse...
     fetching_error_title: Nu am putut descărca setările!
@@ -327,7 +271,6 @@ dialogs:
     label: Obiect de exclus
     confirm_tile_title: Ești sigur(ă)?
     confirm_tile_subtitle: Această operațiune nu poate fi anulată!
-    exclude: Exclude
     no_visualization: Nu sunt disponibile date de vizualizare!
   ws_input_help:
     title: Ajutor Introducere URL
@@ -336,8 +279,7 @@ dialogs:
 
       Exemple valide:
   gcode_params:
-    hint: 'Indiciu: Poți de asemenea ține lung apăsat pentru a trimite macro cu valorile
-      implicite!'
+    hint: 'Indiciu: Poți de asemenea ține lung apăsat pentru a trimite macro cu valorile implicite!'
   rgbw:
     recent_colors: Culori Recente
 klipper_state:
@@ -362,559 +304,3 @@ notifications:
       name: Actualizări Progres Tipărire - {}
       desc: Notificări despre progresul tipăririi.
       title: Progresul tipăririi pentru {}
-languages:
-  languageCode:
-    ab:
-      name: Abkhaz
-      nativeName: аҧсуа
-    aa:
-      name: Afar
-      nativeName: Afaraf
-    af:
-      name: Afrikaans
-      nativeName: Afrikaans
-    ak:
-      name: Akan
-      nativeName: Akan
-    sq:
-      name: Albanian
-      nativeName: Shqip
-    am:
-      name: Amharic
-      nativeName: አማርኛ
-    ar:
-      name: Arabic
-      nativeName: العربية
-    an:
-      name: Aragonese
-      nativeName: Aragonés
-    hy:
-      name: Armenian
-      nativeName: Հայերեն
-    as:
-      name: Assamese
-      nativeName: অসমীয়া
-    av:
-      name: Avaric
-      nativeName: авар мацӀ, магӀарул мацӀ
-    ae:
-      name: Avestan
-      nativeName: avesta
-    ay:
-      name: Aymara
-      nativeName: aymar aru
-    az:
-      name: Azerbaijani
-      nativeName: azərbaycan dili
-    bm:
-      name: Bambara
-      nativeName: bamanankan
-    ba:
-      name: Bashkir
-      nativeName: башҡорт теле
-    eu:
-      name: Basque
-      nativeName: euskara, euskera
-    be:
-      name: Belarusian
-      nativeName: Беларуская
-    bn:
-      name: Bengali
-      nativeName: বাংলা
-    bh:
-      name: Bihari
-      nativeName: भोजपुरी
-    bi:
-      name: Bislama
-      nativeName: Bislama
-    bs:
-      name: Bosnian
-      nativeName: bosanski jezik
-    br:
-      name: Breton
-      nativeName: brezhoneg
-    bg:
-      name: Bulgarian
-      nativeName: български език
-    my:
-      name: Burmese
-      nativeName: ဗမာစာ
-    ca:
-      name: Catalan; Valencian
-      nativeName: Català
-    ch:
-      name: Chamorro
-      nativeName: Chamoru
-    ce:
-      name: Chechen
-      nativeName: нохчийн мотт
-    ny:
-      name: Chichewa; Chewa; Nyanja
-      nativeName: chiCheŵa, chinyanja
-    zh:
-      name: Chinese
-      nativeName: 中文
-    cv:
-      name: Chuvash
-      nativeName: чӑваш чӗлхи
-    kw:
-      name: Cornish
-      nativeName: Kernewek
-    co:
-      name: Corsican
-      nativeName: corsu, lingua corsa
-    cr:
-      name: Cree
-      nativeName: ᓀᐦᐃᔭᐍᐏᐣ
-    hr:
-      name: Croatian
-      nativeName: hrvatski
-    cs:
-      name: Czech
-      nativeName: česky, čeština
-    da:
-      name: Danish
-      nativeName: dansk
-    dv:
-      name: Divehi; Dhivehi; Maldivian;
-      nativeName: ދިވެހި
-    nl:
-      name: Dutch
-      nativeName: Nederlands, Vlaams
-    en:
-      name: English
-      nativeName: English
-    eo:
-      name: Esperanto
-      nativeName: Esperanto
-    et:
-      name: Estonian
-      nativeName: eesti, eesti keel
-    ee:
-      name: Ewe
-      nativeName: Eʋegbe
-    fo:
-      name: Faroese
-      nativeName: føroyskt
-    fj:
-      name: Fijian
-      nativeName: vosa Vakaviti
-    fi:
-      name: Finnish
-      nativeName: suomi, suomen kieli
-    fr:
-      name: French
-      nativeName: français, langue française
-    ff:
-      name: Fula; Fulah; Pulaar; Pular
-      nativeName: Fulfulde, Pulaar, Pular
-    gl:
-      name: Galician
-      nativeName: Galego
-    ka:
-      name: Georgian
-      nativeName: ქართული
-    de:
-      name: German
-      nativeName: Deutsch
-    el:
-      name: Greek, Modern
-      nativeName: Ελληνικά
-    gn:
-      name: Guaraní
-      nativeName: Avañeẽ
-    gu:
-      name: Gujarati
-      nativeName: ગુજરાતી
-    ht:
-      name: Haitian; Haitian Creole
-      nativeName: Kreyòl ayisyen
-    ha:
-      name: Hausa
-      nativeName: Hausa, هَوُسَ
-    he:
-      name: Hebrew (modern)
-      nativeName: עברית
-    hz:
-      name: Herero
-      nativeName: Otjiherero
-    hi:
-      name: Hindi
-      nativeName: हिन्दी, हिंदी
-    ho:
-      name: Hiri Motu
-      nativeName: Hiri Motu
-    hu:
-      name: Hungarian
-      nativeName: Magyar
-    ia:
-      name: Interlingua
-      nativeName: Interlingua
-    id:
-      name: Indonesian
-      nativeName: Bahasa Indonesia
-    ie:
-      name: Interlingue
-      nativeName: Originally called Occidental; then Interlingue after WWII
-    ga:
-      name: Irish
-      nativeName: Gaeilge
-    ig:
-      name: Igbo
-      nativeName: Asụsụ Igbo
-    ik:
-      name: Inupiaq
-      nativeName: Iñupiaq, Iñupiatun
-    io:
-      name: Ido
-      nativeName: Ido
-    is:
-      name: Icelandic
-      nativeName: Íslenska
-    it:
-      name: Italian
-      nativeName: Italiano
-    iu:
-      name: Inuktitut
-      nativeName: ᐃᓄᒃᑎᑐᑦ
-    ja:
-      name: Japanese
-      nativeName: 日本語 (にほんご／にっぽんご)
-    jv:
-      name: Javanese
-      nativeName: basa Jawa
-    kl:
-      name: Kalaallisut, Greenlandic
-      nativeName: kalaallisut, kalaallit oqaasii
-    kn:
-      name: Kannada
-      nativeName: ಕನ್ನಡ
-    kr:
-      name: Kanuri
-      nativeName: Kanuri
-    ks:
-      name: Kashmiri
-      nativeName: कश्मीरी, كشميري‎
-    kk:
-      name: Kazakh
-      nativeName: Қазақ тілі
-    km:
-      name: Khmer
-      nativeName: ភាសាខ្មែរ
-    ki:
-      name: Kikuyu, Gikuyu
-      nativeName: Gĩkũyũ
-    rw:
-      name: Kinyarwanda
-      nativeName: Ikinyarwanda
-    ky:
-      name: Kirghiz, Kyrgyz
-      nativeName: кыргыз тили
-    kv:
-      name: Komi
-      nativeName: коми кыв
-    kg:
-      name: Kongo
-      nativeName: KiKongo
-    ko:
-      name: Korean
-      nativeName: 한국어 (韓國語), 조선말 (朝鮮語)
-    ku:
-      name: Kurdish
-      nativeName: Kurdî, كوردی‎
-    kj:
-      name: Kwanyama, Kuanyama
-      nativeName: Kuanyama
-    la:
-      name: Latin
-      nativeName: latine, lingua latina
-    lb:
-      name: Luxembourgish, Letzeburgesch
-      nativeName: Lëtzebuergesch
-    lg:
-      name: Luganda
-      nativeName: Luganda
-    li:
-      name: Limburgish, Limburgan, Limburger
-      nativeName: Limburgs
-    ln:
-      name: Lingala
-      nativeName: Lingála
-    lo:
-      name: Lao
-      nativeName: ພາສາລາວ
-    lt:
-      name: Lithuanian
-      nativeName: lietuvių kalba
-    lu:
-      name: Luba-Katanga
-      nativeName: ''
-    lv:
-      name: Latvian
-      nativeName: latviešu valoda
-    gv:
-      name: Manx
-      nativeName: Gaelg, Gailck
-    mk:
-      name: Macedonian
-      nativeName: македонски јазик
-    mg:
-      name: Malagasy
-      nativeName: Malagasy fiteny
-    ms:
-      name: Malay
-      nativeName: bahasa Melayu, بهاس ملايو‎
-    ml:
-      name: Malayalam
-      nativeName: മലയാളം
-    mt:
-      name: Maltese
-      nativeName: Malti
-    mi:
-      name: Māori
-      nativeName: te reo Māori
-    mr:
-      name: Marathi (Marāṭhī)
-      nativeName: मराठी
-    mh:
-      name: Marshallese
-      nativeName: Kajin M̧ajeļ
-    mn:
-      name: Mongolian
-      nativeName: монгол
-    na:
-      name: Nauru
-      nativeName: Ekakairũ Naoero
-    nv:
-      name: Navajo, Navaho
-      nativeName: Diné bizaad, Dinékʼehǰí
-    nb:
-      name: Norwegian Bokmål
-      nativeName: Norsk bokmål
-    nd:
-      name: North Ndebele
-      nativeName: isiNdebele
-    ne:
-      name: Nepali
-      nativeName: नेपाली
-    ng:
-      name: Ndonga
-      nativeName: Owambo
-    nn:
-      name: Norwegian Nynorsk
-      nativeName: Norsk nynorsk
-    'no':
-      name: Norwegian
-      nativeName: Norsk
-    ii:
-      name: Nuosu
-      nativeName: ꆈꌠ꒿ Nuosuhxop
-    nr:
-      name: South Ndebele
-      nativeName: isiNdebele
-    oc:
-      name: Occitan
-      nativeName: Occitan
-    oj:
-      name: Ojibwe, Ojibwa
-      nativeName: ᐊᓂᔑᓈᐯᒧᐎᓐ
-    cu:
-      name: Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old
-        Slavonic
-      nativeName: ѩзыкъ словѣньскъ
-    om:
-      name: Oromo
-      nativeName: Afaan Oromoo
-    or:
-      name: Oriya
-      nativeName: ଓଡ଼ିଆ
-    os:
-      name: Ossetian, Ossetic
-      nativeName: ирон æвзаг
-    pa:
-      name: Panjabi, Punjabi
-      nativeName: ਪੰਜਾਬੀ, پنجابی‎
-    pi:
-      name: Pāli
-      nativeName: पाऴि
-    fa:
-      name: Persian
-      nativeName: فارسی
-    pl:
-      name: Polish
-      nativeName: polski
-    ps:
-      name: Pashto, Pushto
-      nativeName: پښتو
-    pt:
-      name: Portuguese
-      nativeName: Português
-    qu:
-      name: Quechua
-      nativeName: Runa Simi, Kichwa
-    rm:
-      name: Romansh
-      nativeName: rumantsch grischun
-    rn:
-      name: Kirundi
-      nativeName: kiRundi
-    ro:
-      name: Romanian, Moldavian, Moldovan
-      nativeName: română
-    ru:
-      name: Russian
-      nativeName: русский язык
-    sa:
-      name: Sanskrit (Saṁskṛta)
-      nativeName: संस्कृतम्
-    sc:
-      name: Sardinian
-      nativeName: sardu
-    sd:
-      name: Sindhi
-      nativeName: सिन्धी, سنڌي، سندھی‎
-    se:
-      name: Northern Sami
-      nativeName: Davvisámegiella
-    sm:
-      name: Samoan
-      nativeName: gagana faa Samoa
-    sg:
-      name: Sango
-      nativeName: yângâ tî sängö
-    sr:
-      name: Serbian
-      nativeName: српски језик
-    gd:
-      name: Scottish Gaelic; Gaelic
-      nativeName: Gàidhlig
-    sn:
-      name: Shona
-      nativeName: chiShona
-    si:
-      name: Sinhala, Sinhalese
-      nativeName: සිංහල
-    sk:
-      name: Slovak
-      nativeName: slovenčina
-    sl:
-      name: Slovene
-      nativeName: slovenščina
-    so:
-      name: Somali
-      nativeName: Soomaaliga, af Soomaali
-    st:
-      name: Southern Sotho
-      nativeName: Sesotho
-    es:
-      name: Spanish; Castilian
-      nativeName: español, castellano
-    su:
-      name: Sundanese
-      nativeName: Basa Sunda
-    sw:
-      name: Swahili
-      nativeName: Kiswahili
-    ss:
-      name: Swati
-      nativeName: SiSwati
-    sv:
-      name: Swedish
-      nativeName: svenska
-    ta:
-      name: Tamil
-      nativeName: தமிழ்
-    te:
-      name: Telugu
-      nativeName: తెలుగు
-    tg:
-      name: Tajik
-      nativeName: тоҷикӣ, toğikī, تاجیکی‎
-    th:
-      name: Thai
-      nativeName: ไทย
-    ti:
-      name: Tigrinya
-      nativeName: ትግርኛ
-    bo:
-      name: Tibetan Standard, Tibetan, Central
-      nativeName: བོད་ཡིག
-    tk:
-      name: Turkmen
-      nativeName: Türkmen, Түркмен
-    tl:
-      name: Tagalog
-      nativeName: Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔
-    tn:
-      name: Tswana
-      nativeName: Setswana
-    to:
-      name: Tonga (Tonga Islands)
-      nativeName: faka Tonga
-    tr:
-      name: Turkish
-      nativeName: Türkçe
-    ts:
-      name: Tsonga
-      nativeName: Xitsonga
-    tt:
-      name: Tatar
-      nativeName: татарча, tatarça, تاتارچا‎
-    tw:
-      name: Twi
-      nativeName: Twi
-    ty:
-      name: Tahitian
-      nativeName: Reo Tahiti
-    ug:
-      name: Uighur, Uyghur
-      nativeName: Uyƣurqə, ئۇيغۇرچە‎
-    uk:
-      name: Ukrainian
-      nativeName: українська
-    ur:
-      name: Urdu
-      nativeName: اردو
-    uz:
-      name: Uzbek
-      nativeName: zbek, Ўзбек, أۇزبېك‎
-    ve:
-      name: Venda
-      nativeName: Tshivenḓa
-    vi:
-      name: Vietnamese
-      nativeName: Tiếng Việt
-    vo:
-      name: Volapük
-      nativeName: Volapük
-    wa:
-      name: Walloon
-      nativeName: Walon
-    cy:
-      name: Welsh
-      nativeName: Cymraeg
-    wo:
-      name: Wolof
-      nativeName: Wollof
-    fy:
-      name: Western Frisian
-      nativeName: Frysk
-    xh:
-      name: Xhosa
-      nativeName: isiXhosa
-    yi:
-      name: Yiddish
-      nativeName: ייִדיש
-    yo:
-      name: Yoruba
-      nativeName: Yorùbá
-    za:
-      name: Zhuang, Chuang
-      nativeName: Saɯ cueŋƅ, Saw cuengh
-  countryCode:
-    CN:
-      name: Simplified
-      nativeName: 简体
-    HK:
-      name: Traditional
-      nativeName: 繁體
