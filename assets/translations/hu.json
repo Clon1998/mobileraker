@@ -14,7 +14,7 @@
     "use": "Használ",
     "restart": "Újraindítás",
     "shutdown": "Leállítás",
-    "firmware": "Firmware",
+    "firmware": "",
     "fetching": "Elvesz",
     "loading": "Betöltés",
     "unknown": "Ismeretlen",
@@ -28,8 +28,8 @@
     "supported": "Támogatott",
     "unsupported": "Nem támogatott",
     "details": "Részletek",
-    "google_play": "GooglePlay",
-    "ios_store": "AppStore",
+    "google_play": "",
+    "ios_store": "",
     "active": "Aktív",
     "canceled": "Törölve",
     "monthly": "Havi",
@@ -48,11 +48,20 @@
     "apply": "Alkalmaz",
     "completed": "Befejezve",
     "activate": "Aktivál",
-    "stop": "Stop",
-    "start": "Start",
+    "stop": "",
+    "start": "",
     "repeat": "Ismétlés",
     "load_more": "Több betöltése",
-    "archived": "Archivált"
+    "archived": "Archivált",
+    "leave": "",
+    "export": "",
+    "import": "",
+    "current": "",
+    "load": "",
+    "unload": "",
+    "discard": "",
+    "hide": "",
+    "finish": ""
   },
   "pages": {
     "dashboard": {
@@ -61,7 +70,7 @@
       "ems_confirmation": {
         "title": "Vész-STOP megerősítése",
         "body": "Vészleállítási parancsot készülsz küldeni a nyomtatónak. Ez azonnal leállítja az összes motort és fűtést.",
-        "confirm": "STOP!"
+        "confirm": ""
       },
       "server_status": {
         "unavailable": "Nincs elérhető szerver",
@@ -75,7 +84,7 @@
           "printing_for": "Nyomtatás: {}",
           "speed": "Sebesség",
           "layer": "Réteg",
-          "eta": "ETA",
+          "eta": "",
           "current_object": "Aktuális objektum",
           "elapsed": "Eltelt",
           "flow": "Áramlás",
@@ -86,7 +95,8 @@
         },
         "cam_card": {
           "webcam": "Webkamera",
-          "fullscreen": "Teljes képernyő"
+          "fullscreen": "Teljes képernyő",
+          "error_connecting": ""
         },
         "temp_card": {
           "title": "Hőmérsékletszabályzók",
@@ -100,8 +110,8 @@
         },
         "temp_preset_card": {
           "cooloff": "Hűtés Ki",
-          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
-          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+          "h_temp": "",
+          "b_temp": ""
         },
         "move_card": {
           "title": "Tengelyek mozgatása",
@@ -110,14 +120,14 @@
           "home_all_tooltip": "Kezdőpont minden tengely",
           "home_all_btn": "Minden",
           "qgl_tooltip": "Quad-Gantry szintezés futtatása",
-          "qgl_btn": "QGL",
+          "qgl_btn": "",
           "mesh_tooltip": "Futtasson ágyrács kalibrálást",
           "mesh_btn": "Háló",
           "m84_tooltip": "Motorok kikapcsolása",
-          "m84_btn": "M84",
+          "m84_btn": "",
           "step_size": "Lépésméret",
           "stc_tooltip": "Csavar dőlésszámítás indítása",
-          "stc_btn": "STC",
+          "stc_btn": "",
           "ztilt_tooltip": "Z-Tilt kalibráció indítása",
           "ztilt_btn": "Z-Tilt",
           "poff_tooltip": "Futtasd a Szonda eltolás kalibrálást",
@@ -136,7 +146,7 @@
           "z_offset": "Z-Eltolás"
         },
         "restart_klipper": "Klipper újraindítása",
-        "restart_mcu": "@:general.restart @:general.firmware"
+        "restart_mcu": ""
       },
       "control": {
         "fan_card": {
@@ -157,7 +167,9 @@
         },
         "macro_card": {
           "title": "G-kód - Makrók",
-          "no_macros": "Jelenleg nincsenek makrók ebben a csoportban"
+          "no_macros": "Jelenleg nincsenek makrók ebben a csoportban",
+          "add_grp_hint": "",
+          "show_all_tooltip": ""
         },
         "pin_card": {
           "title_misc": "Vegyes",
@@ -202,7 +214,7 @@
           }
         },
         "spoolman_card": {
-          "title": "Spoolman",
+          "title": "",
           "no_spool": "Nincs orsó kiválasztva.\nA nyomtatószál-használatot nem követi nyomon.",
           "select_spool": "Válassz orsót",
           "used": "Használt: {}",
@@ -210,18 +222,126 @@
         }
       }
     },
+    "customizing_dashboard": {
+      "title": "",
+      "cancel_confirm": {
+        "title": "",
+        "body": ""
+      },
+      "add_card": "",
+      "remove_page": "",
+      "saved_snack": {
+        "title": "",
+        "body": ""
+      },
+      "cant_remove_snack": {
+        "title": "",
+        "body": ""
+      },
+      "confirm_removal": {
+        "title": "",
+        "body": ""
+      },
+      "editing_card": {
+        "title": "",
+        "body": ""
+      },
+      "error_save_snack": {
+        "title": "",
+        "body": ""
+      },
+      "error_no_components": {
+        "title": "",
+        "body": ""
+      }
+    },
     "files": {
       "title": "Fájlok",
+      "empty_folder": {
+        "title": "",
+        "subtitle": ""
+      },
+      "sort_by": {
+        "sort_by": "",
+        "name": "",
+        "last_modified": "",
+        "last_printed": "",
+        "file_size": ""
+      },
+      "file_actions": {
+        "download": "",
+        "delete": "",
+        "copy": "",
+        "move": "",
+        "rename": "",
+        "create_file": "",
+        "create_folder": "",
+        "upload": "",
+        "upload_bulk": "",
+        "zip_file": ""
+      },
+      "gcode_file_actions": {
+        "submit": "",
+        "preheat": "",
+        "enqueue": ""
+      },
+      "file_operation": {
+        "download_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "download_failed": {
+          "title": "",
+          "body": ""
+        },
+        "upload_canceled": {
+          "title": "",
+          "body": ""
+        },
+        "upload_success": {
+          "title": "",
+          "body": ""
+        },
+        "upload_failed": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_success": {
+          "title": "",
+          "body": ""
+        },
+        "zipping_failed": {
+          "title": "",
+          "body": ""
+        },
+        "copy_created": {
+          "title": "",
+          "body": ""
+        }
+      },
       "search_files": "Fájlok keresése",
-      "clear_search": "Tiszta keresés",
-      "name": "Név",
-      "last_mod": "Utolsó módosítás",
-      "last_printed": "Utoljára nyomtatott",
-      "not_printed": "Nincs nyomtatva",
-      "fetching_files": "@:general.fetching Fájlok...",
-      "no_files_found": "Nem található fájl!",
+      "search": {
+        "clear_search": "",
+        "waiting": "",
+        "no_results": {
+          "title": "",
+          "subtitle": ""
+        }
+      },
+      "cancel_fab": {
+        "upload": "",
+        "download": ""
+      },
+      "move_here": "",
+      "copy_here": "",
       "no_matches_file_pattern": "Csak betűk, számok, aláhúzásjelek, kötőjelek és pontok megengedettek!",
-      "file_name_in_use": "A fájlnév már használatban van!",
+      "gcode_tab": "",
+      "config_tab": "",
+      "timelapse_tab": "",
+      "element": {
+        "one": "",
+        "other": ""
+      },
       "details": {
         "preheat": "Előmelegítés",
         "print": "Nyomtatás",
@@ -245,13 +365,13 @@
           "first_layer": "Első réteg",
           "others": "Egyebek",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Hőmérsékletek",
-          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+          "first_layer_temps_value": ""
         },
         "stat_card": {
           "title": "Statisztikák"
         },
         "preheat_dialog": {
-          "title": "@:pages.files.details.preheat ?",
+          "title": "",
           "body": "Célhőmérséklet\nFúvóka: {}°C\nÁgy: {}°C"
         },
         "preheat_snackbar": {
@@ -293,7 +413,11 @@
         "filament_sensor_dialog": "Szálérzékelő riasztások megjelenítése",
         "filament_sensor_dialog_hint": "Egy párbeszédpanel megjelenítése a szálérzékelő működésekor",
         "confirm_gcode": "Makró végrehajtás megerősítése",
-        "confirm_gcode_hint": "A GCode-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel a műszerfalon."
+        "confirm_gcode_hint": "A GCode-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel a műszerfalon.",
+        "eta_sources": "",
+        "eta_sources_hint": "",
+        "medium_ui": "",
+        "medium_ui_hint": ""
       },
       "notification": {
         "title": "Értesítés",
@@ -373,7 +497,7 @@
         "speed_z": "Sebesség Z - tengely",
         "speed_z_short": "Sebesség Z",
         "steps_move": "Mozgási lépések",
-        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_move_short": "",
         "steps_baby": "Z-eltolási lépések",
         "steps_baby_short": "Z lépések"
       },
@@ -382,7 +506,17 @@
         "feedrate": "Adagoló előtolási sebesség",
         "feedrate_short": "Adagolási sebesség",
         "steps_extrude": "Adagolási hossz",
-        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        "steps_extrude_short": "",
+        "filament": {
+          "loading_distance": "",
+          "loading_distance_helper": "",
+          "loading_speed": "",
+          "loading_speed_helper": "",
+          "purge_amount": "",
+          "purge_amount_helper": "",
+          "purge_speed": "",
+          "purge_speed_helper": ""
+        }
       },
       "cams": {
         "target_fps": "Cél FPS",
@@ -410,7 +544,8 @@
           "one": "Áthelyeztem egy makrót az alapértelmezett csoportba!",
           "two": "Két makró áthelyezve az alapértelmezett csoportba!",
           "other": "{} makrók áthelyezve az alapértelmezett csoportba!"
-        }
+        },
+        "macro_removed": ""
       },
       "presets": {
         "no_presets": "Nincs előbeállítás hozzáadva!",
@@ -432,8 +567,8 @@
           "other": "Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról {}."
         },
         "button": {
-          "oe": "@:general.unlink",
-          "other": "@:general.remove"
+          "oe": "",
+          "other": ""
         }
       },
       "remote_interface_exists": {
@@ -545,8 +680,14 @@
       "card_title": "G-Kód Konzol",
       "no_entries": "Nem találtunk gyorsítótárazott parancsokat",
       "fetching_console": "@:general.fetching konzol bejegyzések...",
-      "command_input" : {
-        "hint":"Konzolparancs megadása"
+      "macro_suggestions": "",
+      "no_suggestions": "",
+      "command_input": {
+        "hint": "Konzolparancs megadása"
+      },
+      "provider_error": {
+        "title": "",
+        "body": ""
       }
     },
     "overview": {
@@ -636,7 +777,7 @@
         "other": "Forgalmazók"
       },
       "properties": {
-        "id": "ID",
+        "id": "",
         "name": "Név",
         "registered": "Regisztrált",
         "comment": "Megjegyzés",
@@ -712,7 +853,9 @@
       "job_queue": "Sajnáljuk, a Várólista csak a Támogatók számára érhető el.",
       "timelaps_share": "Sajnáljuk, az időzített felvételek megosztása csak a Támogatók számára érhető el.",
       "printer_theme": "Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek el.",
-      "spoolman_page": "Sajnáljuk, az Orsómester oldal csak a Támogatók számára elérhető."
+      "spoolman_page": "Sajnáljuk, az Orsómester oldal csak a Támogatók számára elérhető.",
+      "custom_dashboard": "",
+      "full_file_management": ""
     },
     "machine_deletion_warning": {
       "title": "Gépi törlés",
@@ -755,12 +898,32 @@
       "title": "Mappa átnevezése",
       "label": "Mappa neve"
     },
+    "copy_folder": {
+      "title": "",
+      "label": ""
+    },
     "delete_file": {
       "description": "A fájl törlésének megerősítése '{}'."
     },
     "rename_file": {
       "title": "Fájl átnevezése",
       "label": "Fájlnév"
+    },
+    "copy_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_file": {
+      "title": "",
+      "label": ""
+    },
+    "create_archive": {
+      "title": "",
+      "label": ""
+    },
+    "delete_files": {
+      "title": "",
+      "description": ""
     },
     "exclude_object": {
       "title": "Objektum kizárása a nyomtatásból",
@@ -818,6 +981,14 @@
       "printer_theme_perk": {
         "title": "Nyomtató alapú témák",
         "subtitle": "Válassz különböző témát minden nyomtatóhoz!"
+      },
+      "custom_dashboard_perk": {
+        "title": "",
+        "subtitle": ""
+      },
+      "full_file_management_perk": {
+        "title": "",
+        "subtitle": ""
       }
     },
     "bed_screw_adjust": {
@@ -866,6 +1037,71 @@
       "title": "Csavarok dőlésbeállítás",
       "base": "Alap",
       "hint": "A párbeszédpanel segít az ágy csavarjainak beállításában. Minden egyes csavar esetében a szükséges beállításokat óránként látja ÓÓ:PP formátumban. Például a 01:15 egy teljes fordulatot plusz egy negyed fordulatot jelent az ikon által jelzett irányba."
+    },
+    "dashboard_page_settings": {
+      "title": "",
+      "icon_label": ""
+    },
+    "filament_switch": {
+      "title": {
+        "load": "",
+        "unload": ""
+      },
+      "controls": {
+        "heat_up": "",
+        "change_temp": "",
+        "purge": "",
+        "repeat_load": "",
+        "repeat_unload": "",
+        "repeat_purge": ""
+      },
+      "steps": {
+        "set_temps": {
+          "title": "",
+          "subtitle": ""
+        },
+        "heat_up": {
+          "title": "",
+          "subtitle": ""
+        },
+        "move": {
+          "title": {
+            "load": "",
+            "unload": ""
+          },
+          "subtitle": {
+            "load": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            },
+            "unload": {
+              "idle": "",
+              "processing": "",
+              "processed": ""
+            }
+          }
+        },
+        "purge": {
+          "title": "",
+          "subtitle": {
+            "idle": "",
+            "processing": "",
+            "processed": ""
+          }
+        },
+        "tip_form": {
+          "title": "",
+          "subtitle": ""
+        }
+      }
+    },
+    "heater_temperature": {
+      "title": ""
+    },
+    "confirm_print_cancelation": {
+      "title": "",
+      "body": ""
     }
   },
   "bottom_sheets": {
@@ -884,8 +1120,8 @@
         "body": "Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként. Távolítsd el, mielőtt újat adnál hozzá."
       },
       "octoeverywehre": {
-        "service_name": "OctoEverywhere",
-        "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
+        "service_name": "",
+        "tab_name": "",
         "link": "Kapcsolódás OctoEverywhere",
         "unlink": "Leválasztás OctoEverywhere",
         "description": "OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi, hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést, értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze 20 másodpercet vesz igénybe!"
@@ -898,13 +1134,13 @@
         "address_hint": "Az eltávolítandó kapcsolat alapcíme"
       },
       "obico": {
-        "service_name": "Obico",
-        "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
+        "service_name": "",
+        "tab_name": "",
         "link": "Kapcsolódás Obico",
         "unlink": "Leválasztás Obico",
         "description": "Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.",
         "self_hosted": {
-          "title": "Self-Hosted",
+          "title": "",
           "description": "Alapértelmezés szerint a Mobileraker a hivatalos Obico példányt használja. Ha azonban saját példányt kezelsz, itt megadhatod annak URL-címét.",
           "url_label": "Saját URL",
           "url_hint": "A saját üzemeltetésű Obico-példány alap-URL-je"
@@ -970,7 +1206,8 @@
       "no_profile_active": "Nincs aktív profil",
       "no_mesh": "Nincs háló",
       "clear_loaded_profile": "Törölje a betöltött profilt",
-      "range_between_highest_and_lowest_point": "A legmagasabb és legalacsonyabb pont közötti tartomány"
+      "range_between_highest_and_lowest_point": "A legmagasabb és legalacsonyabb pont közötti tartomány",
+      "cant_render": ""
     },
     "select_spool": {
       "header": {
@@ -1005,6 +1242,38 @@
           "service_stop": "A '{}' szolgáltatás leállítására készülsz. Biztos, hogy folytatni akarod?"
         }
       }
+    },
+    "dashboard_cards": {
+      "title": "",
+      "subtitle": ""
+    },
+    "dashboard_layout": {
+      "title": "",
+      "subtitle": "",
+      "available_layouts": {
+        "label": "",
+        "empty": "",
+        "add_empty": ""
+      },
+      "layout_preview": {
+        "not_saved": ""
+      },
+      "rename_layout": {
+        "title": "",
+        "label": ""
+      },
+      "delete_layout": {
+        "title": "",
+        "body": ""
+      },
+      "import_snackbar": {
+        "title": "",
+        "body": ""
+      },
+      "falsy_import_snackbar": {
+        "title": "",
+        "body": ""
+      }
     }
   },
   "klipper_state": {
@@ -1016,6 +1285,14 @@
     "unauthorized": "Jogosulatlan",
     "initializing": "Inicializálás",
     "not_connected": "Moonraker nem tud kapcsolatba lépni a Klipperrel. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden."
+  },
+  "print_state": {
+    "standby": "",
+    "printing": "",
+    "paused": "",
+    "complete": "",
+    "cancelled": "",
+    "error": ""
   },
   "theme_mode": {
     "light": "Világos",
@@ -1043,7 +1320,8 @@
   },
   "form_validators": {
     "simple_url": "A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port",
-    "disallow_mdns": "Az MDNs (.local) címek nem támogatottak."
+    "disallow_mdns": "Az MDNs (.local) címek nem támogatottak.",
+    "file_name_in_use": ""
   },
   "date": {
     "year": {
@@ -1079,6 +1357,752 @@
     "day": {
       "one": "Napi",
       "other": "Napok"
+    }
+  },
+  "languages": {
+    "languageCode": {
+      "ab": {
+        "name": "",
+        "nativeName": ""
+      },
+      "aa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "af": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ak": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sq": {
+        "name": "",
+        "nativeName": ""
+      },
+      "am": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ar": {
+        "name": "",
+        "nativeName": ""
+      },
+      "an": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "as": {
+        "name": "",
+        "nativeName": ""
+      },
+      "av": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ae": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ay": {
+        "name": "",
+        "nativeName": ""
+      },
+      "az": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ba": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "be": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "br": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "my": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ca": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ch": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ce": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ny": {
+        "name": "",
+        "nativeName": ""
+      },
+      "zh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "co": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cs": {
+        "name": "",
+        "nativeName": ""
+      },
+      "da": {
+        "name": "",
+        "nativeName": ""
+      },
+      "dv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "en": {
+        "name": "",
+        "nativeName": ""
+      },
+      "eo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "et": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ee": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ff": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ka": {
+        "name": "",
+        "nativeName": ""
+      },
+      "de": {
+        "name": "",
+        "nativeName": ""
+      },
+      "el": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ht": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ha": {
+        "name": "",
+        "nativeName": ""
+      },
+      "he": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ho": {
+        "name": "",
+        "nativeName": ""
+      },
+      "hu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ia": {
+        "name": "",
+        "nativeName": ""
+      },
+      "id": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ie": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ga": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ig": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ik": {
+        "name": "",
+        "nativeName": ""
+      },
+      "io": {
+        "name": "",
+        "nativeName": ""
+      },
+      "is": {
+        "name": "",
+        "nativeName": ""
+      },
+      "it": {
+        "name": "",
+        "nativeName": ""
+      },
+      "iu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ja": {
+        "name": "",
+        "nativeName": ""
+      },
+      "jv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ks": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "km": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ki": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ky": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ko": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ku": {
+        "name": "",
+        "nativeName": ""
+      },
+      "kj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "la": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "li": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ln": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "lv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ms": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ml": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "mn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "na": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nb": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ne": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ng": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "no": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ii": {
+        "name": "",
+        "nativeName": ""
+      },
+      "nr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "oj": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "om": {
+        "name": "",
+        "nativeName": ""
+      },
+      "or": {
+        "name": "",
+        "nativeName": ""
+      },
+      "os": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ps": {
+        "name": "",
+        "nativeName": ""
+      },
+      "pt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "qu": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "rn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ro": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ru": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sc": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "se": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sm": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "gd": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "si": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "so": {
+        "name": "",
+        "nativeName": ""
+      },
+      "st": {
+        "name": "",
+        "nativeName": ""
+      },
+      "es": {
+        "name": "",
+        "nativeName": ""
+      },
+      "su": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ss": {
+        "name": "",
+        "nativeName": ""
+      },
+      "sv": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ta": {
+        "name": "",
+        "nativeName": ""
+      },
+      "te": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tg": {
+        "name": "",
+        "nativeName": ""
+      },
+      "th": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ti": {
+        "name": "",
+        "nativeName": ""
+      },
+      "bo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tl": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tn": {
+        "name": "",
+        "nativeName": ""
+      },
+      "to": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tr": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ts": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tt": {
+        "name": "",
+        "nativeName": ""
+      },
+      "tw": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ty": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ug": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uk": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ur": {
+        "name": "",
+        "nativeName": ""
+      },
+      "uz": {
+        "name": "",
+        "nativeName": ""
+      },
+      "ve": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "vo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wa": {
+        "name": "",
+        "nativeName": ""
+      },
+      "cy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "wo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "fy": {
+        "name": "",
+        "nativeName": ""
+      },
+      "xh": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yi": {
+        "name": "",
+        "nativeName": ""
+      },
+      "yo": {
+        "name": "",
+        "nativeName": ""
+      },
+      "za": {
+        "name": "",
+        "nativeName": ""
+      }
+    },
+    "countryCode": {
+      "CN": {
+        "name": "",
+        "nativeName": ""
+      },
+      "HK": {
+        "name": "",
+        "nativeName": ""
+      },
+      "BR": {
+        "name": "",
+        "nativeName": ""
+      }
     }
   }
 }
