@@ -2,19 +2,21 @@
  * Copyright (c) 2024. Patrick Schmidt.
  * All rights reserved.
  */
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 
 import '../model/sheet_action_mixin.dart';
 
 enum SpoolSpoolmanSheetAction with BottomSheetAction {
-  clone('Clone', Icons.copy),
-  edit('Edit', Icons.edit),
-  archive('Archive', Icons.move_to_inbox),
-  unarchive('Unarchive', Icons.restore),
-  consumeFilament('Adjust Filament', FlutterIcons.printer_3d_nozzle_mco),
-  shareQrCode('Share QR Code', Icons.qr_code_2),
-  delete('Delete', Icons.delete),
+  activate('pages.spoolman.spool_actions.activate', Icons.play_arrow),
+  deactivate('pages.spoolman.spool_actions.deactivate', Icons.pause),
+  clone('pages.spoolman.spool_actions.clone', Icons.copy),
+  edit('pages.spoolman.spool_actions.edit', Icons.edit),
+  archive('pages.spoolman.spool_actions.archive', Icons.move_to_inbox),
+  unarchive('pages.spoolman.spool_actions.unarchive', Icons.restore),
+  adjustFilament('pages.spoolman.spool_actions.adjust', MobilerakerIcons.nozzle_load),
+  shareQrCode('pages.spoolman.spool_actions.share_qr', Icons.qr_code_2),
+  delete('pages.spoolman.spool_actions.delete', Icons.delete),
   ;
 
   const SpoolSpoolmanSheetAction(this.labelTranslationKey, this.icon);

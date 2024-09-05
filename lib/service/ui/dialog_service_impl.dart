@@ -32,6 +32,8 @@ import 'package:mobileraker/ui/components/dialog/select_printer/select_printer_d
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
+import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
+import 'package:mobileraker_pro/ui/components/spoolman/adjust_spool_filament_dialog.dart';
 
 import '../../ui/components/dialog/dashboard_component_settings_dialog.dart';
 import '../../ui/components/dialog/macro_settings/macro_settings_dialog.dart';
@@ -107,6 +109,7 @@ class DialogServiceImpl implements DialogService {
     DialogType.dashboardPageSettings: (r, c) => DashboardPageSettingsDialog(request: r, completer: c),
     DialogType.dashboardComponentSettings: (r, c) => DashboardComponentSettingsDialog(request: r, completer: c),
     DialogType.filamentOperation: (r, c) => FilamentOperationDialog(request: r, completer: c),
+    ProDialogType.consumeSpool: (r, c) => AdjustSpoolFilamentDialog(request: r, completer: c),
   };
 
   @override

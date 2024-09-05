@@ -7,3 +7,4 @@ library common;
 
 export 'package:dio/dio.dart';
 export 'package:dio_smart_retry/dio_smart_retry.dart';
+export 'package:gap/gap.dart';

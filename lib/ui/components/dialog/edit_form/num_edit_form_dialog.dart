@@ -114,9 +114,9 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
     var themeData = Theme.of(context);
 
     return MobilerakerDialog(
-      footer: Row(
-        // mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      footer: OverflowBar(
+        overflowAlignment: OverflowBarAlignment.end,
+        alignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
             onPressed: onFormDecline,
@@ -135,7 +135,7 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
               child: Icon(_type == DialogType.rangeEdit ? Icons.text_fields : Icons.straighten),
             ),
           ),
-          TextButton(
+          FilledButton.tonal(
             onPressed: onFormConfirm.only(_isValid),
             child: Text(
               widget.request.actionLabel ?? tr('general.confirm'),

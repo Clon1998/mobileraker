@@ -13,6 +13,7 @@ import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -30,6 +31,7 @@ import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/update_spool.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -37,6 +39,8 @@ import '../printers/components/section_header.dart';
 
 part 'spool_form_page.freezed.dart';
 part 'spool_form_page.g.dart';
+
+enum _FormMode { create, update, copy }
 
 enum _SpoolFormFormComponent {
   firstUsed,
@@ -56,6 +60,11 @@ GetSpool? _spool(_SpoolRef ref) {
   throw UnimplementedError();
 }
 
+@Riverpod(dependencies: [])
+_FormMode _formMode(_FormModeRef ref) {
+  return _FormMode.create;
+}
+
 class SpoolFormPage extends StatelessWidget {
   const SpoolFormPage({super.key, required this.machineUUID, this.spool, this.isCopy = false});
 
@@ -65,9 +74,12 @@ class SpoolFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    logger.i('SpoolFormPage: $machineUUID, $isCopy, $spool');
+    var mode = isCopy ? _FormMode.copy : (spool == null ? _FormMode.create : _FormMode.update);
+
     return ProviderScope(
       // Make sure we are able to access the vendor in all places
-      overrides: [_spoolProvider.overrideWithValue(spool)],
+      overrides: [_spoolProvider.overrideWithValue(spool), _formModeProvider.overrideWithValue(mode)],
       child: _SpoolFormPage(machineUUID: machineUUID),
     );
   }
@@ -82,15 +94,18 @@ class _SpoolFormPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final numFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
+    final numFormatDecimal = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
+
+    final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
+
     final controller = ref.watch(_SpoolFormPageControllerProvider(machineUUID).notifier);
-    final (sourceSpool, selectedFilament) = ref
-        .watch(_SpoolFormPageControllerProvider(machineUUID).select((model) => (model.source, model.selectedFilament)));
+    final (sourceSpool, selectedFilament, mode) = ref.watch(_SpoolFormPageControllerProvider(machineUUID)
+        .select((model) => (model.source, model.selectedFilament, model.mode)));
 
     useEffect(
       () {
         _formKey.currentState?.fields[_SpoolFormFormComponent.filament.name]
-            ?.didChange(selectedFilament?.displayNameWithDetails(numFormat));
+            ?.didChange(selectedFilament?.displayNameWithDetails(numFormatDecimal));
         logger.i('Filament selection change received from controller: ${selectedFilament?.name}');
       },
       [selectedFilament],
@@ -122,7 +137,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                   SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.filament.name,
-                    initialValue: selectedFilament?.displayNameWithDetails(numFormat),
+                    initialValue: selectedFilament?.displayNameWithDetails(numFormatDecimal),
                     readOnly: true,
                     focusNode: filamentFocusNode,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -146,7 +161,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.price.name,
-                    initialValue: sourceSpool?.price?.let(numFormat.format),
+                    initialValue: sourceSpool?.price?.let(numFormatInputs.format),
                     valueTransformer: (text) => text?.let(double.tryParse),
                     focusNode: priceFocusNode,
                     keyboardType: TextInputType.number,
@@ -155,7 +170,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                       labelText: 'pages.spoolman.properties.price'.tr(),
                       helperText: 'pages.spoolman.spool_form.helper.price'.tr(),
                       helperMaxLines: 100,
-                      hintText: (selectedFilament?.price)?.let(numFormat.format),
+                      hintText: (selectedFilament?.price)?.let(numFormatInputs.format),
                       suffixText: ref.watch(spoolmanCurrencyProvider(machineUUID)),
                     ),
                     onSubmitted: (txt) =>
@@ -165,7 +180,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.initialWeight.name,
-                    initialValue: sourceSpool?.initialWeight?.let(numFormat.format),
+                    initialValue: sourceSpool?.initialWeight?.let(numFormatInputs.format),
                     valueTransformer: (text) => text?.let(double.tryParse),
                     focusNode: initialWeightFocusNode,
                     keyboardType: TextInputType.number,
@@ -184,7 +199,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.emptyWeight.name,
-                    initialValue: sourceSpool?.spoolWeight?.let(numFormat.format),
+                    initialValue: sourceSpool?.spoolWeight?.let(numFormatInputs.format),
                     valueTransformer: (text) => text?.let(double.tryParse),
                     focusNode: emptyWeightFocusNode,
                     keyboardType: TextInputType.number,
@@ -204,7 +219,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.used.name,
-                    initialValue: sourceSpool?.usedWeight.let(numFormat.format),
+                    initialValue: sourceSpool?.usedWeight.let(numFormatInputs.format).only(mode == _FormMode.update),
                     valueTransformer: (text) => text?.let(double.tryParse),
                     focusNode: usedFocusNode,
                     keyboardType: TextInputType.number,
@@ -320,9 +335,13 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppBar(
-      title: const Text('pages.spoolman.spool_form.create_page_title').tr(),
-    );
+    final isCreate =
+        ref.watch(_SpoolFormPageControllerProvider(machineUUID).select((model) => model.mode != _FormMode.update));
+    final title = isCreate
+        ? tr('pages.spoolman.spool_form.create_page_title')
+        : tr('pages.spoolman.spool_form.update_page_title');
+
+    return AppBar(title: Text(title));
   }
 
   @override
@@ -360,7 +379,7 @@ class _Fab extends ConsumerWidget {
   }
 }
 
-@Riverpod(dependencies: [_spool])
+@Riverpod(dependencies: [_spool, _formMode])
 class _SpoolFormPageController extends _$SpoolFormPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
@@ -373,14 +392,18 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
   @override
   _Model build(String machineUUID) {
     ref.keepAliveExternally(spoolmanServiceProvider(machineUUID));
+    ref.listenSelf((prev, next) {
+      logger.i('[SpoolFormPageController($machineUUID)] State changed: $next');
+    });
 
     final filaments = ref.watch(filamentListProvider(machineUUID).selectAs((d) => d.items));
 
-    var source = ref.watch(_spoolProvider);
-    return _Model(source: source, filaments: filaments, selectedFilament: source?.filament);
+    final source = ref.watch(_spoolProvider);
+    final mode = ref.watch(_formModeProvider);
+    return _Model(mode: mode, source: source, filaments: filaments, selectedFilament: source?.filament);
   }
 
-  Future<void> onFormSubmitted(Map<String, dynamic>? formData, [int qty = 1]) async {
+  void onFormSubmitted(Map<String, dynamic>? formData, [int qty = 1]) {
     logger.i('[SpoolFormPageController($machineUUID)] Form submitted');
     if (formData == null || state.selectedFilament == null) {
       logger.w('[SpoolFormPageController($machineUUID)] Form data is null');
@@ -388,25 +411,15 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
 
     state = state.copyWith(isSaving: true);
-    final dto = _dtoFromForm(formData, state.selectedFilament!);
-    logger.i('CreateSpool DTO: ${dto.toJson()}');
-    try {
-      await Future.wait(List.generate(qty, (_) => _spoolmanService.createSpool(dto)));
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.info,
-        title: tr('pages.spoolman.create.success.title', args: [plural('pages.spoolman.spool', qty)]),
-        message: plural('pages.spoolman.create.success.message', qty, args: [plural('pages.spoolman.spool', qty)]),
-      ));
-      _goRouter.pop();
-    } catch (e, s) {
-      logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        title: tr('pages.spoolman.create.error.title', args: [plural('pages.spoolman.spool', qty)]),
-        message: tr('pages.spoolman.create.error.message'),
-      ));
-    } finally {
-      state = state.copyWith(isSaving: false);
+
+    switch (state.mode) {
+      case _FormMode.create:
+      case _FormMode.copy:
+        _createSpool(formData, state.selectedFilament!, qty);
+        break;
+      case _FormMode.update:
+        _updateSpool(formData, state.selectedFilament!);
+        break;
     }
   }
 
@@ -446,7 +459,64 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     state = state.copyWith(selectedFilament: resFila);
   }
 
-  CreateSpool _dtoFromForm(Map<String, dynamic> formData, GetFilament filament) {
+  Future<void> _createSpool(Map<String, dynamic> formData, GetFilament filament, int qty) async {
+    final dto = _createDtoFromForm(formData, filament);
+    logger.i('[SpoolFormPageController($machineUUID)] Create DTO: $dto');
+    try {
+      final res = await Future.wait(List.generate(qty, (_) => _spoolmanService.createSpool(dto)));
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.spoolman.create.success.title', args: [plural('pages.spoolman.spool', qty)]),
+        message: plural('pages.spoolman.create.success.message', qty, args: [plural('pages.spoolman.spool', qty)]),
+      ));
+      _goRouter.pop(res);
+    } catch (e, s) {
+      logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: tr('pages.spoolman.create.error.title', args: [plural('pages.spoolman.spool', qty)]),
+        message: tr('pages.spoolman.create.error.message'),
+      ));
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
+  }
+
+  Future<void> _updateSpool(Map<String, dynamic> formData, GetFilament filament) async {
+    final dto = _updateDtoFromForm(formData, filament, state.source!);
+    logger.i('[SpoolFormPageController($machineUUID)] Update DTO: $dto');
+    if (dto == null) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('pages.spoolman.update.no_changes.title'),
+        message: tr('pages.spoolman.update.no_changes.message', args: [tr('pages.spoolman.spool.one')]),
+      ));
+      _goRouter.pop();
+      return;
+    }
+
+    try {
+      final updated = await _spoolmanService.updateSpool(dto);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.spoolman.update.success.title', args: [tr('pages.spoolman.spool.one')]),
+        message: tr('pages.spoolman.update.success.message', args: [tr('pages.spoolman.spool.one')]),
+      ));
+      _goRouter.pop(updated);
+    } catch (e, s) {
+      logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: tr('pages.spoolman.update.error.title', args: [tr('pages.spoolman.spool.one')]),
+        message: tr('pages.spoolman.update.error.message'),
+      ));
+      _goRouter.pop();
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
+  }
+
+  CreateSpool _createDtoFromForm(Map<String, dynamic> formData, GetFilament filament) {
     return CreateSpool(
       firstUsed: formData[_SpoolFormFormComponent.firstUsed.name],
       lastUsed: formData[_SpoolFormFormComponent.lastUsed.name],
@@ -461,11 +531,54 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       comment: formData[_SpoolFormFormComponent.comment.name],
     );
   }
+
+  UpdateSpool? _updateDtoFromForm(Map<String, dynamic> formData, GetFilament filament, GetSpool source) {
+    final firstUsed = formData[_SpoolFormFormComponent.firstUsed.name];
+    final lastUsed = formData[_SpoolFormFormComponent.lastUsed.name];
+    final initialWeight = formData[_SpoolFormFormComponent.initialWeight.name];
+    final spoolWeight = formData[_SpoolFormFormComponent.emptyWeight.name] ??
+        (filament.spoolWeight ?? filament.vendor?.spoolWeight).only(source.filament.id != filament.id);
+    final price = formData[_SpoolFormFormComponent.price.name];
+    final usedWeight = formData[_SpoolFormFormComponent.used.name] as double?;
+    final location = formData[_SpoolFormFormComponent.location.name];
+    final lotNr = formData[_SpoolFormFormComponent.lot.name];
+    final comment = formData[_SpoolFormFormComponent.comment.name];
+
+    final usedWeightChanged =
+        usedWeight != null && usedWeight != source.usedWeight && !usedWeight.closeTo(source.usedWeight, 0.01);
+
+    // If no changes were made, return null
+    if (filament.id == source.filament.id &&
+        firstUsed == source.firstUsed &&
+        lastUsed == source.lastUsed &&
+        initialWeight == source.initialWeight &&
+        spoolWeight == source.spoolWeight &&
+        price == source.price &&
+        !usedWeightChanged &&
+        location == source.location &&
+        lotNr == source.lotNr &&
+        comment == source.comment) return null;
+
+    return UpdateSpool(
+      id: source.id,
+      filament: source.filament.id == filament.id ? null : filament,
+      firstUsed: source.firstUsed == firstUsed ? null : firstUsed,
+      lastUsed: source.lastUsed == lastUsed ? null : lastUsed,
+      initialWeight: source.initialWeight == initialWeight ? null : initialWeight,
+      spoolWeight: source.spoolWeight == spoolWeight ? null : spoolWeight,
+      price: source.price == price ? null : price,
+      usedWeight: !usedWeightChanged ? null : usedWeight,
+      location: source.location == location ? null : location,
+      lotNr: source.lotNr == lotNr ? null : lotNr,
+      comment: source.comment == comment ? null : comment,
+    );
+  }
 }
 
 @freezed
 class _Model with _$Model {
   const factory _Model({
+    required _FormMode mode,
     required GetSpool? source,
     required AsyncValue<List<GetFilament>> filaments,
     GetFilament? selectedFilament,

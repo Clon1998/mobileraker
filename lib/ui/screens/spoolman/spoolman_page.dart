@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -26,8 +28,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -286,22 +288,45 @@ class _Fab extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return FloatingActionButton(
+    final fab = FloatingActionButton(
       onPressed: () {
         final currentIndex = ref.read(_spoolmanPageControllerProvider(machineUUID));
 
         switch (currentIndex) {
           case 1:
-            ref.read(goRouterProvider).goNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID]);
+            context.goNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID]);
             break;
           case 2:
-            ref.read(goRouterProvider).goNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID]);
+            context.goNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID]);
             break;
           default:
             context.goNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID]);
         }
       },
       child: const Icon(Icons.add),
+    );
+
+    return Consumer(
+      builder: (context, ref, fab) {
+        final conState = ref.watch(jrpcClientStateProvider(machineUUID));
+
+        if (conState.valueOrNull != ClientState.connected) {
+          fab = const SizedBox.shrink();
+        }
+
+        return AnimatedSwitcher(
+          duration: kThemeAnimationDuration,
+          switchInCurve: Curves.easeInOutCubicEmphasized,
+          switchOutCurve: Curves.easeInOutCubicEmphasized,
+          // duration: kThemeAnimationDuration,
+          transitionBuilder: (child, animation) => ScaleTransition(
+            scale: animation,
+            child: child,
+          ),
+          child: fab,
+        );
+      },
+      child: fab,
     );
   }
 }
@@ -317,7 +342,7 @@ class _SpoolmanPageController extends _$SpoolmanPageController {
     state = index;
   }
 
-  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
+  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) {
     switch (dto) {
       case GetSpool spool:
         ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
