@@ -3,26 +3,36 @@
  * All rights reserved.
  */
 
+import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../routing/app_router.dart';
+import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
 
 part 'vendor_detail_page.g.dart';
 
@@ -55,9 +65,13 @@ class _VendorDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
       appBar: const _AppBar(),
-      // floatingActionButton: _Fab(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.onAction(Theme.of(context)),
+        child: const Icon(Icons.more_vert),
+      ),
       body: ListView(
         addAutomaticKeepAlives: true,
         children: [
@@ -91,15 +105,6 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     var vendor = ref.watch(_vendorProvider);
     return AppBar(
       title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]),
-      actions: <Widget>[
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
-        // const FileSortModeSelector(),
-      ],
     );
   }
 
@@ -248,23 +253,114 @@ class _VendorSpools extends HookConsumerWidget {
 
 @Riverpod(dependencies: [_vendor])
 class _VendorDetailPageController extends _$VendorDetailPageController {
+  GoRouter get _goRouter => ref.read(goRouterProvider);
+
+  SpoolmanService get _spoolmanService => ref.read(spoolmanServiceProvider(machineUUID));
+
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
+  DialogService get _dialogService => ref.read(dialogServiceProvider);
+
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
+
   @override
   GetVendor build(String machineUUID) {
-    var vendor = ref.watch(_vendorProvider);
-    return vendor;
+    final initial = ref.watch(_vendorProvider);
+    final fetched = ref.watch(vendorProvider(machineUUID, initial.id));
+
+    return fetched.valueOrNull ?? initial;
   }
 
   void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
     switch (dto) {
       case GetSpool spool:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
+        _goRouter.pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
       case GetFilament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
+        _goRouter.goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
       case GetVendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
+        _goRouter.pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
+    }
+  }
+
+  void onAction(ThemeData themeData) async {
+    final res = await _bottomSheetService.show(BottomSheetConfig(
+      type: SheetType.actions,
+      isScrollControlled: true,
+      data: ActionBottomSheetArgs(
+        title: RichText(
+          text: TextSpan(
+            text: '#${state.id} ',
+            style: themeData.textTheme.titleSmall
+                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
+            children: [
+              TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(tr('pages.spoolman.vendor.one'), maxLines: 1, overflow: TextOverflow.ellipsis),
+        actions: [
+          VendorSpoolmanSheetAction.addFilament,
+          DividerSheetAction.divider,
+          VendorSpoolmanSheetAction.edit,
+          VendorSpoolmanSheetAction.clone,
+          VendorSpoolmanSheetAction.delete
+        ],
+      ),
+    ));
+
+    if (!res.confirmed) return;
+    logger.i('[VendorDetailPage] Action: ${res.data}');
+
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case VendorSpoolmanSheetAction.edit:
+        _goRouter.pushNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID, state]);
+        break;
+      case VendorSpoolmanSheetAction.clone:
+        _clone();
+        break;
+      case VendorSpoolmanSheetAction.delete:
+        _delete();
+        break;
+    }
+  }
+
+  Future<void> _clone() async {
+    final res = await _goRouter.pushNamed(AppRoute.spoolman_form_vendor.name,
+        extra: [machineUUID, state], queryParameters: {'isCopy': 'true'});
+    if (res == null) return;
+    if (res case [GetVendor() && final newVendor, ...]) {
+      _goRouter.replaceNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, newVendor]);
+    }
+  }
+
+  Future<void> _delete() async {
+    var elementName = tr('pages.spoolman.vendor.one');
+    final ret = await _dialogService.showDangerConfirm(
+      title: tr('pages.spoolman.delete.confirm.title', args: [elementName]),
+      body: tr('pages.spoolman.delete.confirm.body', args: [elementName]),
+      actionLabel: tr('general.delete'),
+    );
+    if (ret?.confirmed != true) return;
+    try {
+      await _spoolmanService.deleteVendor(state);
+
+      _snackBarService.show(SnackBarConfig(
+        title: tr('pages.spoolman.delete.success.title', args: [elementName]),
+        message: tr('pages.spoolman.delete.success.message.one', args: [elementName]),
+      ));
+      _goRouter.pop();
+    } catch (e) {
+      _snackBarService.show(SnackBarConfig(
+        title: tr('pages.spoolman.delete.error.title', args: [elementName]),
+        message: tr('pages.spoolman.delete.error.message', args: [elementName]),
+      ));
     }
   }
 }

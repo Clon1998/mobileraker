@@ -690,7 +690,7 @@ pages:
     no_vendors: Keine Hersteller gefunden!
     error_loading_spools: Fehler beim Laden der Spulen
     error_loading_filaments: Fehler beim Laden der Filamente
-    spool_actions:
+    spoolman_actions:
       activate: "@:general.activate"
       deactivate: Deaktivieren
       clone: Duplizieren
@@ -700,6 +700,8 @@ pages:
       adjust: Spulen Filament anpassen
       share_qr: QR-Code teilen
       delete: "@:general.delete"
+      add_spool: Spule hinzufügen
+      add_filament: Filament hinzufügen
     create:
       success:
         title: "{} erstellt!"

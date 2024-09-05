@@ -94,8 +94,10 @@ class _SpoolFormPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // This formatter is using decimal (thousands) separator e.g. 1,000.00
     final numFormatDecimal = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
 
+    // This formatter is NOT using decimal (thousands) separator e.g. 1000.00
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
 
     final controller = ref.watch(_SpoolFormPageControllerProvider(machineUUID).notifier);
@@ -328,7 +330,7 @@ class _SpoolFormPage extends HookConsumerWidget {
   }
 }
 
-class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
+class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
   const _AppBar({super.key, required this.machineUUID});
 
   final String machineUUID;
@@ -336,7 +338,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isCreate =
-        ref.watch(_SpoolFormPageControllerProvider(machineUUID).select((model) => model.mode != _FormMode.update));
+        ref.watch(_spoolFormPageControllerProvider(machineUUID).select((model) => model.mode != _FormMode.update));
     final title = isCreate
         ? tr('pages.spoolman.spool_form.create_page_title')
         : tr('pages.spoolman.spool_form.update_page_title');

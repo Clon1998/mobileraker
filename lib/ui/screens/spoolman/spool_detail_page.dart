@@ -451,6 +451,11 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
     final spool = state.spool;
     final isActive = state.spoolIsActive;
 
+    final metaTags = [
+      if (spool.filament.vendor != null) spool.filament.vendor!.name,
+      if (spool.filament.material != null) spool.filament.material,
+    ];
+
     final res = await _bottomSheetService.show(BottomSheetConfig(
       type: SheetType.actions,
       isScrollControlled: true,
@@ -467,16 +472,9 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(
-          '${spool.filament.vendor?.name} – ${spool.filament.material}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        leading: SpoolWidget(
-          color: spool.filament.colorHex,
-          height: 33,
-          width: 15,
-        ),
+        subtitle: Text(metaTags.isEmpty ? tr('pages.spoolman.spool.one') : metaTags.join(' – '),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+        leading: SpoolWidget(color: spool.filament.colorHex, height: 33, width: 15),
         actions: [
           if (!isActive) SpoolSpoolmanSheetAction.activate,
           if (isActive) SpoolSpoolmanSheetAction.deactivate,
@@ -614,19 +612,27 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
 
   Future<void> _deleteSpool() async {
     final spool = state.spool;
+    var elementName = tr('pages.spoolman.spool.one');
     final ret = await _dialogService.showDangerConfirm(
-      title: tr('pages.spoolman.delete.confirm.title', args: [tr('pages.spoolman.spool.one')]),
-      body: tr('pages.spoolman.delete.confirm.body', args: [tr('pages.spoolman.spool.one')]),
+      title: tr('pages.spoolman.delete.confirm.title', args: [elementName]),
+      body: tr('pages.spoolman.delete.confirm.body', args: [elementName]),
       actionLabel: tr('general.delete'),
     );
     if (ret?.confirmed != true) return;
-    await _spoolmanService.deleteSpool(spool);
+    try {
+      await _spoolmanService.deleteSpool(spool);
 
-    _snackBarService.show(SnackBarConfig(
-      title: tr('pages.spoolman.delete.success.title', args: [tr('pages.spoolman.spool.one')]),
-      message: tr('pages.spoolman.delete.success.message.one', args: [tr('pages.spoolman.spool.one')]),
-    ));
-    _goRouter.pop();
+      _snackBarService.show(SnackBarConfig(
+        title: tr('pages.spoolman.delete.success.title', args: [elementName]),
+        message: tr('pages.spoolman.delete.success.message.one', args: [elementName]),
+      ));
+      _goRouter.pop();
+    } catch (e) {
+      _snackBarService.show(SnackBarConfig(
+        title: tr('pages.spoolman.delete.error.title', args: [elementName]),
+        message: tr('pages.spoolman.delete.error.message', args: [elementName]),
+      ));
+    }
   }
 }
 

@@ -12,6 +12,7 @@ import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -36,6 +37,8 @@ import '../printers/components/section_header.dart';
 part 'filament_form_page.freezed.dart';
 part 'filament_form_page.g.dart';
 
+enum _FormMode { create, update, copy }
+
 enum _FilamentFormFormComponent {
   name,
   vendor,
@@ -52,6 +55,16 @@ enum _FilamentFormFormComponent {
   colorHex,
 }
 
+@Riverpod(dependencies: [])
+GetFilament? _filament(_FilamentRef ref) {
+  throw UnimplementedError();
+}
+
+@Riverpod(dependencies: [])
+_FormMode _formMode(_FormModeRef ref) {
+  return _FormMode.create;
+}
+
 class FilamentFormPage extends StatelessWidget {
   const FilamentFormPage({super.key, required this.machineUUID, this.filament, this.isCopy = false});
 
@@ -61,7 +74,15 @@ class FilamentFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _FilamentFormPage(machineUUID: machineUUID);
+    var mode = isCopy ? _FormMode.copy : (filament == null ? _FormMode.create : _FormMode.update);
+
+    logger.i('FilamentFormPage: $mode, $machineUUID, $filament, $isCopy');
+
+    return ProviderScope(
+      // Make sure we are able to access the vendor in all places
+      overrides: [_filamentProvider.overrideWithValue(filament), _formModeProvider.overrideWithValue(mode)],
+      child: _FilamentFormPage(machineUUID: machineUUID),
+    );
   }
 }
 
@@ -75,7 +96,10 @@ class _FilamentFormPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_FilamentFormPageControllerProvider(machineUUID).notifier);
-    final selectedVendor = ref.watch(_FilamentFormPageControllerProvider(machineUUID).select((d) => d.selectedVendor));
+    final (selectedVendor, sourceFilament) =
+        ref.watch(_FilamentFormPageControllerProvider(machineUUID).select((d) => (d.selectedVendor, d.source)));
+
+    final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
 
     useEffect(
       () {
@@ -112,6 +136,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.name.name,
+                  initialValue: sourceFilament?.name,
                   focusNode: nameFocusNode,
                   keyboardType: TextInputType.text,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -121,6 +146,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.vendor.name,
+                  initialValue: selectedVendor?.name,
                   focusNode: vendorFocusNode,
                   readOnly: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -132,6 +158,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.material.name,
+                  initialValue: sourceFilament?.material,
                   focusNode: materialFocusNode,
                   keyboardType: TextInputType.text,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -142,6 +169,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderColorPickerField(
                   name: _FilamentFormFormComponent.colorHex.name,
+                  initialValue: sourceFilament?.colorHex?.let((e) => e.toColor),
                   focusNode: colorHexFocusNode,
                   keyboardType: TextInputType.text,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -156,18 +184,12 @@ class _FilamentFormPage extends HookConsumerWidget {
                         color: color?.hexCode,
                         height: constraints.minHeight,
                       );
-
-                      // return Icon(
-                      //   Icons.circle,
-                      //   key: ObjectKey(state.value),
-                      //   size: constraints.minHeight,
-                      //   color: state.value,
-                      // );
                     },
                   ),
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.price.name,
+                  initialValue: sourceFilament?.price?.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: priceFocusNode,
                   keyboardType: TextInputType.number,
@@ -188,7 +210,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.diameter.name,
                   valueTransformer: (text) => text?.let(double.tryParse),
-                  initialValue: '1.75',
+                  initialValue: sourceFilament?.diameter.let(numFormatInputs.format) ?? '1.75',
                   focusNode: diameterFocusNode,
                   keyboardType: TextInputType.number,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -201,6 +223,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.density.name,
+                  initialValue: sourceFilament?.density.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: densityFocusNode,
                   keyboardType: TextInputType.number,
@@ -215,6 +238,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.weight.name,
+                  initialValue: sourceFilament?.weight.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: weightFocusNode,
                   keyboardType: TextInputType.number,
@@ -232,6 +256,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.spoolWeight.name,
+                  initialValue: sourceFilament?.spoolWeight.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: spoolWeightFocusNode,
                   keyboardType: TextInputType.number,
@@ -252,6 +277,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 SectionHeader(title: tr('pages.spoolman.property_sections.physical')),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.extruderTemp.name,
+                  initialValue: sourceFilament?.settingsExtruderTemp?.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(int.tryParse),
                   focusNode: extruderTempFocusNode,
                   keyboardType: TextInputType.number,
@@ -265,6 +291,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.bedTemp.name,
+                  initialValue: sourceFilament?.settingsBedTemp?.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(int.tryParse),
                   focusNode: bedTempFocusNode,
                   keyboardType: TextInputType.number,
@@ -281,6 +308,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.articleNumber.name,
+                  initialValue: sourceFilament?.articleNumber,
                   focusNode: articleNumberFocusNode,
                   keyboardType: TextInputType.text,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -290,8 +318,9 @@ class _FilamentFormPage extends HookConsumerWidget {
                   textInputAction: TextInputAction.next,
                 ),
                 FormBuilderTextField(
-                  maxLines: null,
                   name: _FilamentFormFormComponent.comment.name,
+                  initialValue: sourceFilament?.comment,
+                  maxLines: null,
                   focusNode: commentFocusNode,
                   keyboardType: TextInputType.multiline,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -347,7 +376,7 @@ class _Fab extends HookConsumerWidget {
   }
 }
 
-class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
   const _AppBar({required this.machineUUID});
 
   final String machineUUID;
@@ -356,12 +385,18 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
-  Widget build(BuildContext context) {
-    return AppBar(title: Text('pages.spoolman.filament_form.create_page_title'.tr()));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isCreate =
+        ref.watch(_filamentFormPageControllerProvider(machineUUID).select((d) => d.mode != _FormMode.update));
+    final title = isCreate
+        ? tr('pages.spoolman.filament_form.create_page_title')
+        : tr('pages.spoolman.filament_form.update_page_title');
+
+    return AppBar(title: Text(title));
   }
 }
 
-@riverpod
+@Riverpod(dependencies: [_filament, _formMode])
 class _FilamentFormPageController extends _$FilamentFormPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
@@ -373,12 +408,17 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 
   @override
   _Model build(String machineUUID) {
+    ref.keepAliveExternally(spoolmanServiceProvider(machineUUID));
     final vendors = ref.watch(vendorListProvider(machineUUID).selectAs((d) => d.items));
 
-    return _Model(
-      source: null,
-      vendors: vendors,
-    );
+    ref.listenSelf((prev, next) {
+      logger.i('[FilamentFormPageController($machineUUID)] State changed: $next');
+    });
+
+    final source = ref.watch(_filamentProvider);
+    final mode = ref.watch(_formModeProvider);
+
+    return _Model(mode: mode, source: source, vendors: vendors, selectedVendor: source?.vendor);
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
@@ -456,6 +496,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
+    required _FormMode mode,
     required GetFilament? source,
     required AsyncValue<List<GetVendor>> vendors,
     GetVendor? selectedVendor,

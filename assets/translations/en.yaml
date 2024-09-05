@@ -750,7 +750,7 @@ pages:
     no_vendors: No manufacturers found!
     error_loading_spools: Error loading spools
     error_loading_filaments: Error loading filaments
-    spool_actions:
+    spoolman_actions:
       activate: "@:general.activate"
       deactivate: Deactivate
       clone: Clone
@@ -760,6 +760,8 @@ pages:
       adjust: Adjust Spool Filament
       share_qr: Share QR-Code
       delete: "@:general.delete"
+      add_spool: Add Spool
+      add_filament: Add Filament
     create:
       success:
         title: "{} created!"
