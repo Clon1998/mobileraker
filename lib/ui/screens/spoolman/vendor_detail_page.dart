@@ -61,7 +61,7 @@ class _VendorDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
-      appBar: const _AppBar(),
+      appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
@@ -69,7 +69,7 @@ class _VendorDetailPage extends ConsumerWidget {
       body: ListView(
         addAutomaticKeepAlives: true,
         children: [
-          const _VendorInfo(),
+          _VendorInfo(machineUUID: machineUUID),
           if (context.isCompact) ...[
             _VendorFilaments(machineUUID: machineUUID),
             _VendorSpools(machineUUID: machineUUID),
@@ -92,11 +92,13 @@ class _VendorDetailPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var vendor = ref.watch(_vendorProvider);
+    final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     return AppBar(
       title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]),
     );
@@ -107,18 +109,20 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 }
 
 class _VendorInfo extends ConsumerWidget {
-  const _VendorInfo({super.key});
+  const _VendorInfo({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var vendor = ref.watch(_vendorProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatDouble =
+    final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
-    var props = [
+    final props = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: vendor.id.toString(),

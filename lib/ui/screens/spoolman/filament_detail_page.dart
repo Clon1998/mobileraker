@@ -62,7 +62,7 @@ class _FilamentDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
-      appBar: const _AppBar(),
+      appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
@@ -80,11 +80,13 @@ class _FilamentDetailPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var filament = ref.watch(_filamentProvider);
+    var filament = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
     // pages.spoolman.filament.one
     var title = [
       if (filament.vendor != null) filament.vendor!.name,
@@ -110,17 +112,17 @@ class _FilamentInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final spoolmanCurrency = ref.watch(spoolmanCurrencyProvider(machineUUID));
-    var controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
-    var filament = ref.watch(_filamentProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
+    final filament = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatPrice =
+    final numberFormatPrice =
         NumberFormat.simpleCurrency(locale: context.locale.toStringWithSeparator(), name: spoolmanCurrency);
-    var numberFormatDouble =
+    final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
-    var properties = [
+    final properties = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: filament.id.toString(),
