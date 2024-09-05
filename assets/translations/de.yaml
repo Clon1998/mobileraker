@@ -683,7 +683,7 @@ pages:
   spoolman:
     title: Spoolman
     not_available: "Spoolman ist für diesen Drucker nicht verfügbar.\nBitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist."
-    learn_more: Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die 
+    learn_more: Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die
     learn_more_link: GitHub Seite.
     no_spools: Keine Spulen gefunden!
     no_filaments: Keine Filamente gefunden!
@@ -691,12 +691,15 @@ pages:
     error_loading_spools: Fehler beim Laden der Spulen
     error_loading_filaments: Fehler beim Laden der Filamente
     spool_actions:
+      activate: "@:general.activate"
       deactivate: Deaktivieren
       clone: Duplizieren
+      edit: "@:general.edit"
       archive: Archivieren
       unarchive: Archivierung aufheben
       adjust: Spulen Filament anpassen
       share_qr: QR-Code teilen
+      delete: "@:general.delete"
     create:
       success:
         title: "{} erstellt!"
@@ -783,6 +786,7 @@ pages:
         body: Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden.
     spool_form:
       create_page_title: Spule erstellen
+      update_page_title: Spule bearbeiten
       helper:
         price: "@:pages.spoolman.filament_form.helper.price Fällt auf den Filamentpreis zurück, wenn nicht gesetzt"
         initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Fällt auf das Filamentgewicht zurück, wenn nicht gesetzt"
@@ -792,12 +796,14 @@ pages:
         lot_number: Chargennummer des Herstellers. Kann verwendet werden, um sicherzustellen, dass ein Druck bei Verwendung mehrerer Spulen eine konsistente Farbe aufweist
     filament_form:
       create_page_title: Filament erstellen
+      update_page_title: Filament bearbeiten
       helper:
         price: Der Preis einer Spule.
         initial_weight: Das Nettogewicht des Filaments auf einer vollen Spule, ohne die Spule. Dies ist normalerweise auf der Verpackung angegeben.
         empty_weight: Das Leergewicht der Spule.
     vendor_form:
       create_page_title: Hersteller erstellen
+      update_page_title: Hersteller bearbeiten
       helper:
         empty_weight: Das Leergewicht einer Spule dieses Herstellers.
 components:
@@ -866,9 +872,9 @@ dialogs:
   delete_folder:
     title: Bist du dir sicher?
     description: |-
-      Alle im Ordner enthaltenen Dateien werden ebenfalls entfernt! 
+      Alle im Ordner enthaltenen Dateien werden ebenfalls entfernt!
 
-       Bestätigen Sie die Löschung des Ordners '/{}'.
+      Bestätigen Sie die Löschung des Ordners '/{}'.
   rename_folder:
     title: Ordner umbenennen
     label: Ordnername
@@ -902,7 +908,7 @@ dialogs:
   ws_input_help:
     title: URL-Eingabehilfe
     body: |-
-      Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer \ Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben. 
+      Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer \ Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben.
 
       Gültige Beispiele:
   gcode_params:
