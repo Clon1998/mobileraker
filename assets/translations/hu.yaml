@@ -14,6 +14,7 @@ general:
   use: Használ
   restart: Újraindítás
   shutdown: Leállítás
+  firmware: Firmware
   fetching: Elvesz
   loading: Betöltés
   unknown: Ismeretlen
@@ -27,6 +28,8 @@ general:
   supported: Támogatott
   unsupported: Nem támogatott
   details: Részletek
+  google_play: GooglePlay
+  ios_store: AppStore
   active: Aktív
   canceled: Törölve
   monthly: Havi
@@ -46,10 +49,13 @@ general:
   completed: Befejezve
   activate: Aktiválás
   stop: Állj
+  start: Start
   repeat: Ismét
   load_more: Több betöltése
   archived: Archivált
   leave: Elhagy
+  export: Export
+  import: Import
   current: Aktuális
   load: Betöltés
   unload: Kiürítés
@@ -75,6 +81,7 @@ pages:
         printing_for: 'Nyomtatás: {}'
         speed: Sebesség
         layer: Réteg
+        eta: ETA
         current_object: Aktuális objektum
         elapsed: Eltelt
         flow: Áramlás
@@ -100,6 +107,8 @@ pages:
         btn_thermistor: Szenzor
       temp_preset_card:
         cooloff: Hűtés Ki
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Tengelyek mozgatása
         home_xy_tooltip: Kezdőpont X és Y tengely
@@ -107,11 +116,14 @@ pages:
         home_all_tooltip: Kezdőpont minden tengely
         home_all_btn: Minden
         qgl_tooltip: Quad-Gantry szintezés futtatása
+        qgl_btn: QGL
         mesh_tooltip: Futtasson ágyrács kalibrálást
         mesh_btn: Háló
         m84_tooltip: Motorok kikapcsolása
+        m84_btn: M84
         step_size: Lépésméret
         stc_tooltip: Csavar dőlésszámítás indítása
+        stc_btn: STC
         ztilt_tooltip: Z-Tilt kalibráció indítása
         ztilt_btn: Z-Tilt
         poff_tooltip: Futtasd a Szonda eltolás kalibrálást
@@ -128,6 +140,7 @@ pages:
         title: Mikrolépés Z tengely
         z_offset: Z-Eltolás
       restart_klipper: Klipper újraindítása
+      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -308,9 +321,13 @@ pages:
         first_layer: Első réteg
         others: Egyebek
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Hőmérsékletek"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statisztikák
       preheat_dialog:
+        title: "@:pages.files.details.preheat ?"
         body: |-
           Célhőmérséklet
           Fúvóka: {}°C
@@ -359,6 +376,7 @@ pages:
       confirm_gcode_hint: A G-kód-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel
       eta_sources: ETA számítás
       eta_sources_hint: Válaszd ki az ETA-számításhoz használandó forrást
+      medium_ui: Tablet UI
       medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
     notification:
       title: Értesítés
@@ -441,6 +459,7 @@ pages:
       speed_z: Sebesség Z - tengely
       speed_z_short: Sebesség Z
       steps_move: Mozgási lépések
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Z-eltolási lépések
       steps_baby_short: Z lépések
     extruders:
@@ -448,6 +467,7 @@ pages:
       feedrate: Adagoló előtolási sebesség
       feedrate_short: Adagolási sebesség
       steps_extrude: Adagolási hossz
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Adagoló fúvóka távolsága
         loading_distance_helper: A fúvóka-adagoló közti távolság. Nyomtatószál (kiadás)betöltéshez használatos
@@ -498,6 +518,9 @@ pages:
       body:
         oe: Kérjük, erősítsd meg a nyomtató {} leválasztását az OctoEverywhere-ről.
         other: Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról {}.
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
     remote_interface_exists:
       title: Távoli kapcsolat található
       body:
@@ -603,6 +626,7 @@ pages:
     no_entries: Nem találtam gépeket
     add_machine: Gép hozzáadása
   markdown:
+    loading: "@:general.loading {}…"
     error: Hiba történt a lekérés során {};
     open_in_browser: Megnyitás @:pages.faq.title a böngészőben
   faq:
