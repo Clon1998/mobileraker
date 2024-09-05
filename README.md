@@ -7,6 +7,8 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/Clon1998/mobileraker?style=for-the-badge)
 ![GitHub all releases](https://img.shields.io/github/downloads/clon1998/mobileraker/total?style=for-the-badge)
 
+[![Crowdin](https://badges.crowdin.net/mobileraker-app/localized.svg)](https://crowdin.com/project/mobileraker-app)
+
 [//]: # (![Custom badge]&#40;https://img.shields.io/endpoint?color=%235fd102&style=for-the-badge&url=https%3A%2F%2Fplayshields.herokuapp.com%2Fplay%3Fi%3Dcom.mobileraker.android%26l%3DAndroid%26m%3D%24installs&#41;)
 
 ---
