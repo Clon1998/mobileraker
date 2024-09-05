@@ -238,7 +238,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.weight.name,
-                  initialValue: sourceFilament?.weight.let(numFormatInputs.format),
+                  initialValue: sourceFilament?.weight?.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: weightFocusNode,
                   keyboardType: TextInputType.number,
@@ -256,7 +256,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.spoolWeight.name,
-                  initialValue: sourceFilament?.spoolWeight.let(numFormatInputs.format),
+                  initialValue: sourceFilament?.spoolWeight?.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: spoolWeightFocusNode,
                   keyboardType: TextInputType.number,
@@ -429,16 +429,17 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     }
 
     state = state.copyWith(isSaving: true);
+
     final dto = _dtoFromForm(formData, state.selectedVendor!);
     try {
       //TODO: There is no need to create multiple of the same manufacturer at once!
-      await _spoolmanService.createFilament(dto);
+      final newEntity = await _spoolmanService.createFilament(dto);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
         title: tr('pages.spoolman.create.success.title', args: [tr('pages.spoolman.filament.one')]),
         message: tr('pages.spoolman.create.success.message.one', args: [tr('pages.spoolman.filament.one')]),
       ));
-      _goRouter.pop();
+      _goRouter.pop(newEntity);
     } catch (e, s) {
       logger.e('[FilamentFormPageController($machineUUID)] error while saving filament', e, s);
       _snackBarService.show(SnackBarConfig(

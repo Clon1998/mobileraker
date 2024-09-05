@@ -225,13 +225,13 @@ class _VendorFormPageController extends _$VendorFormPageController {
     final dto = _dtoFromForm(formData);
     logger.i('CreateVendor DTO: ${dto.toJson()}');
     try {
-      await _spoolmanService.createVendor(dto);
+      final newEntity = await _spoolmanService.createVendor(dto);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
         title: tr('pages.spoolman.create.success.title', args: [tr('pages.spoolman.vendor.one')]),
         message: tr('pages.spoolman.create.success.message.one', args: [tr('pages.spoolman.vendor.one')]),
       ));
-      _goRouter.pop();
+      _goRouter.pop(newEntity);
     } catch (e, s) {
       logger.e('[VendorFormPageController($machineUUID)] Error while saving', e, s);
       _snackBarService.show(SnackBarConfig(

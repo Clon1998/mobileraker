@@ -5,11 +5,8 @@
 
 import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
-import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -19,14 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
@@ -34,6 +27,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
 
 part 'filament_detail_page.g.dart';
 
@@ -280,17 +274,8 @@ class _FilamentSpools extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_filament])
-class _FilamentDetailPageController extends _$FilamentDetailPageController {
-  GoRouter get _goRouter => ref.read(goRouterProvider);
-
-  SpoolmanService get _spoolmanService => ref.read(spoolmanServiceProvider(machineUUID));
-
-  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
-
-  DialogService get _dialogService => ref.read(dialogServiceProvider);
-
-  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
-
+class _FilamentDetailPageController extends _$FilamentDetailPageController
+    with CommonSpoolmanDetailPagesController<GetFilament> {
   @override
   GetFilament build(String machineUUID) {
     final initial = ref.watch(_filamentProvider);
@@ -299,27 +284,13 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController {
     return fetched.valueOrNull ?? initial;
   }
 
-  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
-    switch (dto) {
-      case GetSpool spool:
-        _goRouter.pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
-        break;
-      case GetFilament filament:
-        _goRouter.goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
-        break;
-      case GetVendor vendor:
-        _goRouter.pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
-        break;
-    }
-  }
-
   void onAction(ThemeData themeData) async {
     final metaTags = [
       if (state.vendor != null) state.vendor!.name,
       if (state.material != null) state.material,
     ];
 
-    final res = await _bottomSheetService.show(BottomSheetConfig(
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
       type: SheetType.actions,
       isScrollControlled: true,
       data: ActionBottomSheetArgs(
@@ -355,48 +326,14 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController {
     await Future.delayed(kThemeAnimationDuration);
     switch (res.data) {
       case FilamentSpoolmanSheetAction.edit:
-        _goRouter.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
+        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
         break;
       case FilamentSpoolmanSheetAction.clone:
-        _clone();
+        clone(state);
         break;
-
       case FilamentSpoolmanSheetAction.delete:
-        _delete();
+        delete(state);
         break;
-    }
-  }
-
-  Future<void> _clone() async {
-    final res = await _goRouter.pushNamed(AppRoute.spoolman_form_filament.name,
-        extra: [machineUUID, state], queryParameters: {'isCopy': 'true'});
-    if (res == null) return;
-    if (res case [GetFilament() && final newFilament, ...]) {
-      _goRouter.replaceNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, newFilament]);
-    }
-  }
-
-  Future<void> _delete() async {
-    var elementName = tr('pages.spoolman.filament.one');
-    final ret = await _dialogService.showDangerConfirm(
-      title: tr('pages.spoolman.delete.confirm.title', args: [elementName]),
-      body: tr('pages.spoolman.delete.confirm.body', args: [elementName]),
-      actionLabel: tr('general.delete'),
-    );
-    if (ret?.confirmed != true) return;
-    try {
-      await _spoolmanService.deleteFilament(state);
-
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.spoolman.delete.success.title', args: [elementName]),
-        message: tr('pages.spoolman.delete.success.message.one', args: [elementName]),
-      ));
-      _goRouter.pop();
-    } catch (e) {
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.spoolman.delete.error.title', args: [elementName]),
-        message: tr('pages.spoolman.delete.error.message', args: [elementName]),
-      ));
     }
   }
 }

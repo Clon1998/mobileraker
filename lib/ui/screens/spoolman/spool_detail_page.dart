@@ -7,7 +7,6 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
-import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -23,16 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
@@ -42,6 +37,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../routing/app_router.dart';
 import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
 
 part 'spool_detail_page.freezed.dart';
 part 'spool_detail_page.g.dart';
@@ -402,49 +398,19 @@ class _SpoolList extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_spool])
-class _SpoolDetailPageController extends _$SpoolDetailPageController {
-  GoRouter get _goRouter => ref.read(goRouterProvider);
-
-  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
-
-  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
-
-  DialogService get _dialogService => ref.read(dialogServiceProvider);
-
-  SpoolmanService get _spoolmanService => ref.read(spoolmanServiceProvider(machineUUID));
-
+class _SpoolDetailPageController extends _$SpoolDetailPageController with CommonSpoolmanDetailPagesController<_Model> {
   @override
   _Model build(String machineUUID) {
     final initialSpool = ref.watch(_spoolProvider);
     final fetchedSpool = ref.watch(spoolProvider(machineUUID, initialSpool.id));
     final activeSpool = ref.watch(activeSpoolProvider(machineUUID));
 
-    // ref.listenSelf((prev, next) {
-    //   if (next.fetchedSpool case AsyncValue(value: null, hasValue: true)) {
-    //     logger.w('Spool with ID ${next.initialSpool.id} not found on machine $machineUUID');
-    //     _goRouter.pop();
-    //   }
-    // });
 
     return _Model(
       initialSpool: initialSpool,
       fetchedSpool: fetchedSpool,
       spoolIsActive: activeSpool.valueOrNull?.id == (fetchedSpool.valueOrNull?.id ?? initialSpool.id),
     );
-  }
-
-  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) {
-    switch (dto) {
-      case GetSpool spool:
-        _goRouter.goNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
-        break;
-      case GetFilament filament:
-        _goRouter.pushNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
-        break;
-      case GetVendor vendor:
-        _goRouter.pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
-        break;
-    }
   }
 
   void onAction(ThemeData themeData, Rect pos) async {
@@ -456,7 +422,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
       if (spool.filament.material != null) spool.filament.material,
     ];
 
-    final res = await _bottomSheetService.show(BottomSheetConfig(
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
       type: SheetType.actions,
       isScrollControlled: true,
       data: ActionBottomSheetArgs(
@@ -499,28 +465,28 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
         _generateAndShareQrCode(pos);
         break;
       case SpoolSpoolmanSheetAction.edit:
-        _goRouter.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool]);
+        goRouterRef.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool]);
         break;
       case SpoolSpoolmanSheetAction.clone:
-        _cloneSpool();
+        clone(state.spool);
         break;
       case SpoolSpoolmanSheetAction.adjustFilament:
         _adjustFilament();
         break;
       case SpoolSpoolmanSheetAction.delete:
-        _deleteSpool();
+        delete(state.spool);
         break;
       case SpoolSpoolmanSheetAction.activate:
-        _spoolmanService.setActiveSpool(spool);
+        spoolmanServiceRef.setActiveSpool(spool);
         break;
       case SpoolSpoolmanSheetAction.deactivate:
-        _spoolmanService.clearActiveSpool();
+        spoolmanServiceRef.clearActiveSpool();
         break;
       case SpoolSpoolmanSheetAction.archive:
-        _spoolmanService.archiveSpool(spool);
+        spoolmanServiceRef.archiveSpool(spool);
         break;
       case SpoolSpoolmanSheetAction.unarchive:
-        _spoolmanService.archiveSpool(spool, false);
+        spoolmanServiceRef.archiveSpool(spool, false);
         break;
     }
   }
@@ -554,8 +520,8 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
       ).catchError((_) => null);
     } catch (e, s) {
       logger.e('Error while generating and sharing QR Code', e, s);
-      _snackBarService.show(SnackBarConfig.stacktraceDialog(
-        dialogService: _dialogService,
+      snackBarServiceRef.show(SnackBarConfig.stacktraceDialog(
+        dialogService: dialogServiceRef,
         snackTitle: 'Unexpected Error',
         snackMessage: 'An unexpected error occurred while generating the QR Code. Please try again.',
         exception: e,
@@ -564,73 +530,38 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController {
     }
   }
 
-  Future<void> _cloneSpool() async {
-    final spool = state.spool;
-    final res = await _goRouter
-        .pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool], queryParameters: {'isCopy': 'true'});
-    if (res == null) return;
-    if (res case [GetSpool() && final newSpool, ...]) {
-      _goRouter.replaceNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, newSpool]);
-    }
-  }
-
   Future<void> _adjustFilament() async {
     final spool = state.spool;
 
     // Open dialog to select the amount to consume
-    final res = await _dialogService.show(DialogRequest(type: ProDialogType.consumeSpool));
+    final res = await dialogServiceRef.show(DialogRequest(type: ProDialogType.consumeSpool));
 
     if (res?.confirmed != true) return;
     try {
       switch (res?.data) {
         case (num() && final amount, 'mm'):
           logger.i('Consuming $amount mm of filament');
-          await _spoolmanService.adjustFilamentOnSpool(spool: spool, length: amount.toDouble());
+          await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, length: amount.toDouble());
           break;
         case (num() && final amount, 'g'):
           logger.i('Consuming $amount g of filament');
-          await _spoolmanService.adjustFilamentOnSpool(spool: spool, weight: amount.toDouble());
+          await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, weight: amount.toDouble());
           break;
       }
       // required to wait for rebuild of provider...
       // await Future.delayed(Duration(milliseconds: 250));
 
-      _snackBarService.show(SnackBarConfig(
+      snackBarServiceRef.show(SnackBarConfig(
         type: SnackbarType.info,
         title: tr('pages.spoolman.update.success.title', args: [tr('pages.spoolman.spool.one')]),
         message: tr('pages.spoolman.update.success.message', args: [tr('pages.spoolman.spool.one')]),
       ));
     } catch (e, s) {
       logger.e('Error while adjusting filament on spool', e, s);
-      _snackBarService.show(SnackBarConfig(
+      snackBarServiceRef.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [tr('pages.spoolman.spool.one')]),
         message: tr('pages.spoolman.update.error.message'),
-      ));
-    }
-  }
-
-  Future<void> _deleteSpool() async {
-    final spool = state.spool;
-    var elementName = tr('pages.spoolman.spool.one');
-    final ret = await _dialogService.showDangerConfirm(
-      title: tr('pages.spoolman.delete.confirm.title', args: [elementName]),
-      body: tr('pages.spoolman.delete.confirm.body', args: [elementName]),
-      actionLabel: tr('general.delete'),
-    );
-    if (ret?.confirmed != true) return;
-    try {
-      await _spoolmanService.deleteSpool(spool);
-
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.spoolman.delete.success.title', args: [elementName]),
-        message: tr('pages.spoolman.delete.success.message.one', args: [elementName]),
-      ));
-      _goRouter.pop();
-    } catch (e) {
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.spoolman.delete.error.title', args: [elementName]),
-        message: tr('pages.spoolman.delete.error.message', args: [elementName]),
       ));
     }
   }
