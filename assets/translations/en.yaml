@@ -1134,6 +1134,10 @@ dialogs:
     tooltip:
       weight: Switch to weight mode
       length: Switch to length mode
+  num_range_dialog:
+    helper:
+      min: Enter a value of at least {}
+      range: Enter a value between {} and {}
 bottom_sheets:
   job_queue_sheet:
     next: Next print job
