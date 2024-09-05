@@ -688,6 +688,16 @@ pages:
     no_vendors: Nem találtam gyártót!
     error_loading_spools: Hiba az orsók betöltésekor
     error_loading_filaments: Hiba a nyomtatószál betöltésekor
+    spool_actions:
+      activate: "@:general.activate"
+      deactivate: Deaktiválás
+      clone: Klón
+      edit: "@:general.edit"
+      archive: Archívum
+      unarchive: Archívum feloldás
+      adjust: Állítsd be az orsószálat
+      share_qr: QR-kód megosztása
+      delete: "@:general.delete"
     create:
       success:
         title: "{} létrehozva!"
@@ -696,6 +706,32 @@ pages:
           other: A(z) {} sikeresen létrehozva.
       error:
         title: Hiba a {} létrehozásakor!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+    update:
+      success:
+        title: "{} frissítve!"
+        message: A {} sikeresen frissült.
+      error:
+        title: Hiba a {} frissítésénél!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+      no_changes:
+        title: Nem történt változás!
+        message: A {} nem lett megváltoztatva.
+    delete:
+      confirm:
+        title: Törlöd {}?
+        body: |-
+          A {} törlésére készülsz.
+          Ez a művelet nem vonható vissza.
+
+          Erősítsd meg a műveletet.
+      success:
+        title: "{} törölve!"
+        message:
+          one: A {} sikeresen törölve lett.
+          other: A {} sikeresen törölve lettek.
+      error:
+        title: Törlési hiba {}!
         message: Váratlan hiba, kérjük, próbáld újra később.
     spool:
       one: Orsó
@@ -750,6 +786,7 @@ pages:
         body: Ez az orsó archiválva van, és nem használható új nyomtatáshoz.
     spool_form:
       create_page_title: Orsó létrehozása
+      update_page_title: Orsó szerkesztése
       helper:
         price: "@:pages.spoolman.filament_form.helper.price Alapértelmezett ár, ha nincs a szál ára megadva"
         initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Alapértelmezett súly, ha nincs a szál súlya megadva"
@@ -759,12 +796,14 @@ pages:
         lot_number: A gyártó tételszáma. Több orsó használata esetén a nyomtatás egységes színének biztosítására használható.
     filament_form:
       create_page_title: Nyomtatószál létrehozása
+      update_page_title: Nyomtatószál szerkesztése
       helper:
         price: Egy orsó nyomtatószál ára.
         initial_weight: A teljes orsón lévő nyomtatószál nettó súlya, az orsó nélkül. Ez általában a csomagoláson fel van tüntetve.
         empty_weight: Az üres orsó súlya.
     vendor_form:
       create_page_title: Gyártó létrehozása
+      update_page_title: Gyártó szerkesztése
       helper:
         empty_weight: A gyártó üres orsójának a súlya.
 components:
@@ -1008,6 +1047,14 @@ dialogs:
       A nyomtatási feladat törlésére készülsz.
 
       Erősítsd meg a műveletet.
+  adjust_spool_filament:
+    title: Állítsd be az orsószálat
+    subtitle: Szál hozzáadása vagy kivonása az orsóról. A pozitív érték a szál fogyasztását, a negatív érték a hozzáadását eredményezi.
+    input_label: Összeg megadása
+    submit_label: Beállítás
+    tooltip:
+      weight: Súly módra váltás
+      length: Hosszúság módra váltás
 bottom_sheets:
   job_queue_sheet:
     next: Következő nyomtatási feladat
@@ -1034,6 +1081,8 @@ bottom_sheets:
       address_label: Alternatív cím
       address_hint: A használandó távoli kapcsolat alapcíme
     obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: Kapcsolódás Obico
       unlink: Leválasztás Obico
       description: Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.
@@ -1145,6 +1194,10 @@ bottom_sheets:
     falsy_import_snackbar:
       title: Hiba az elrendezés importálásakor!
       body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon van-e érvényes elrendezés.
+  selections:
+    no_selections:
+      title: Nincs eredmény
+      subtitle: Próbálj meg egy másik kifejezésre keresni
 klipper_state:
   ready: Kész
   shutdown: Leállítás
