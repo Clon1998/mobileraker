@@ -690,6 +690,13 @@ pages:
     no_vendors: Keine Hersteller gefunden!
     error_loading_spools: Fehler beim Laden der Spulen
     error_loading_filaments: Fehler beim Laden der Filamente
+    spool_actions:
+      deactivate: Deaktivieren
+      clone: Duplizieren
+      archive: Archivieren
+      unarchive: Archivierung aufheben
+      adjust: Spulen Filament anpassen
+      share_qr: QR-Code teilen
     create:
       success:
         title: "{} erstellt!"
@@ -698,6 +705,30 @@ pages:
           other: '{} wurden erfolgreich erstellt.'
       error:
         title: Fehler beim Erstellen von {}!
+        message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
+    update:
+      success:
+        title: "{} aktualisiert!"
+        message: '{} wurde erfolgreich aktualisiert.'
+      error:
+        title: '{} konnte nicht aktualisiert werden!'
+        message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
+      no_changes:
+        title: Keine Änderungen an {} vorgenommen!
+        message: Es wurden keine Änderungen vorgenommen.
+    delete:
+      confirm:
+        title: '{} löschen?'
+        body: |-
+          Sie sind dabei, {} zu löschen.
+          Bestätigen Sie Ihre Aktion.
+      success:
+        title: "{} gelöscht!"
+        message:
+          one: '{} wurde erfolgreich gelöscht.'
+          other: '{} wurden erfolgreich gelöscht.'
+      error:
+        title: Fehler beim Löschen von {}!
         message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
     spool:
       one: Spule
@@ -1008,6 +1039,14 @@ dialogs:
     title: Druck abbrechen
     body: |-
       Sind Sie sicher, dass Sie den Druck abbrechen möchten?
+  adjust_spool_filament:
+    title: Verbrauchtes Filament anpassen
+    subtitle: Filament von der Spule hinzufügen oder entfernen. Ein positiver Wert verbraucht Filament, ein negativer Wert fügt es hinzu.
+    input_label: Anpassung
+    submit_label: Anpassen
+    tooltip:
+      weight: Wechseln Sie zum Gewichtsmodus
+      length: Wechseln Sie zum Längenmodus
 bottom_sheets:
   job_queue_sheet:
     next: Nächster Druckauftrag
