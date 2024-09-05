@@ -694,6 +694,9 @@ pages:
         message:
           one: A(z) {} sikeresen létrehozva.
           other: A(z) {} sikeresen létrehozva.
+      error:
+        title: Hiba a {} létrehozásakor!
+        message: Váratlan hiba, kérjük, próbáld újra később.
     spool:
       one: Orsó
       other: Orsók
@@ -704,6 +707,7 @@ pages:
       one: Gyártó
       other: Gyártók
     properties:
+      id: ID
       name: Név
       registered: Regisztrált
       comment: Megjegyzés
@@ -718,8 +722,17 @@ pages:
       last_used: Legutóbb használt
       remaining_weight: Maradék súly
       used_weight: Használt súly
+      remaining_length: Maradék hossz
+      used_length: Használt hossz
       location: Helyszín
       lot_number: Tételszám
+      color: Szín
+    property_sections:
+      basic: Alapvető információ
+      usage: Használat részletei
+      additional: További információ
+      physical: Fizikai tulajdonságok
+      print_settings: Nyomtatás beállításai
     vendor_details:
       page_title: Gyártó {}
       info_card: Gyártói információ
@@ -735,6 +748,25 @@ pages:
       archived_warning:
         title: Archivált orsó
         body: Ez az orsó archiválva van, és nem használható új nyomtatáshoz.
+    spool_form:
+      create_page_title: Orsó létrehozása
+      helper:
+        price: "@:pages.spoolman.filament_form.helper.price Alapértelmezett ár, ha nincs a szál ára megadva"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Alapértelmezett súly, ha nincs a szál súlya megadva"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight Alapértelmezett gyártói súlya az orsónak, ha nincs megadva"
+        used_weight: A felhasznált nyomtatószál súlya. A 0 grammos érték azt jelenti, hogy az orsó nem használt
+        location: Az orsó tárolási helye
+        lot_number: A gyártó tételszáma. Több orsó használata esetén a nyomtatás egységes színének biztosítására használható.
+    filament_form:
+      create_page_title: Nyomtatószál létrehozása
+      helper:
+        price: Egy orsó nyomtatószál ára.
+        initial_weight: A teljes orsón lévő nyomtatószál nettó súlya, az orsó nélkül. Ez általában a csomagoláson fel van tüntetve.
+        empty_weight: Az üres orsó súlya.
+    vendor_form:
+      create_page_title: Gyártó létrehozása
+      helper:
+        empty_weight: A gyártó üres orsójának a súlya.
 components:
   app_version_display:
     version: 'Verzió:'
@@ -990,6 +1022,8 @@ bottom_sheets:
       title: Meglévő konfigurációt találtunk!
       body: Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként. Távolítsd el, mielőtt újat adnál hozzá.
     octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
       link: Kapcsolódás OctoEverywhere
       unlink: Leválasztás OctoEverywhere
       description: OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi, hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést, értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze 20 másodpercet vesz igénybe!
