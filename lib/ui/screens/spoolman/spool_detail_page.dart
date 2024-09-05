@@ -85,7 +85,7 @@ class _SpoolDetailPage extends ConsumerWidget {
 
           controller.onAction(Theme.of(context), pos);
         },
-        child: const Icon(Icons.menu),
+        child: const Icon(Icons.more_vert),
       ),
       body: SafeArea(
         child: ListView(
