@@ -3,8 +3,8 @@ general:
   pause: Pauzeren
   resume: Hervatten
   connected: Verbonden
-  'off': Uit
-  'on': Aan
+  'off': 'Uit'
+  'on': 'Aan'
   none: Geen
   add: Toevoegen
   create: Aanmaken
@@ -14,7 +14,6 @@ general:
   use: Gebruiken
   restart: Herstarten
   shutdown: Afsluiten
-  firmware: Firmware
   fetching: Ophalen
   loading: Laden
   unknown: Onbekend
@@ -27,9 +26,6 @@ general:
   retry: Opnieuw proberen
   supported: Ondersteund
   unsupported: Niet ondersteund
-  details: Details
-  google_play: GooglePlay
-  ios_store: AppStore
   active: Actief
   canceled: Geannuleerd
   monthly: Maandelijks
@@ -39,7 +35,6 @@ general:
   offset: Afstand
 pages:
   dashboard:
-    title: Dashboard
     ems_btn: Noodstop
     server_status:
       unavailable: Geen Server beschikbaar
@@ -47,33 +42,24 @@ pages:
     fetching_printer: "@:general.fetching printer..."
     general:
       print_card:
-        reset: Reset
         printing_for: 'Printen: {}'
         speed: Snelheid
         layer: Laag
-        eta: ETA
         current_object: Huidig Object
         elapsed: Verlopen
         flow: Stroom
-        filament: Filament
-        filament_tooltip: "{} % Filament gebruikt, dat is {} m van de verwachtte {}
-          m"
+        filament_tooltip: '{} % Filament gebruikt, dat is {} m van de verwachtte {} m'
       cam_card:
         webcam: Camera
         fullscreen: Volledig Scherm
       temp_card:
         title: Temperatuurbediening
         presets_btn: Voorinstellingen
-        hotend: Hotend
         bed: Bouwplaat
         temp_presets: Temperatuur voorinstellingen
-        sensors: Sensors
         heater_on: "{} °C doel"
-        btn_thermistor: Sensor
       temp_preset_card:
         cooloff: Afkoelen
-        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
-        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Assen verplaatsen
         home_xy_tooltip: X- en Y-as naar thuispositie
@@ -81,14 +67,10 @@ pages:
         home_all_tooltip: Alle assen naar thuispositie
         home_all_btn: Alle
         qgl_tooltip: Quad-Gantry nivellering uitvoeren
-        qgl_btn: QGL
         mesh_tooltip: Med-Mesh kalibratie uitvoeren
-        mesh_btn: Mesh
         m84_tooltip: Motors uitzetten
-        m84_btn: M84
         step_size: Stapgrootte
         stc_tooltip: Schroef-kanteling berekenen
-        stc_btn: STC
         ztilt_tooltip: Z-kanteling kalibratie uitvoeren
         ztilt_btn: zKantel
         poff_tooltip: Sondeafstands kalibratie uitvoeren
@@ -103,7 +85,6 @@ pages:
       baby_step_card:
         title: Micro-Step Z-as
       restart_klipper: Klipper Herstarten
-      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -113,29 +94,12 @@ pages:
         part_fan: Onderdeelventilator
         static_fan_btn: Ventilator
       extrude_card:
-        title: Extruder
         extrude: Extruderen
         retract: Terugtrekken
-        extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
-        cold_extrude_error: Extruder heeft de minimale extrudeertemperatuur van {}°C
-          nog niet bereikt!
-      macro_card:
-        title: Gcode - Macros
-      pin_card:
-        title:
-          zero: Uitvoer Pin
-          one: Uitvoer Pin
-          two: Uitvoer Pinnen
-          other: Uitvoer Pinnen
-        pin_btn: Pin
-      power_card:
-        title: Power Panel
-        pin_btn: Pin
+        cold_extrude_error: Extruder heeft de minimale extrudeertemperatuur van {}°C nog niet bereikt!
       multipl_card:
         title: Multiplicators
         flow: Stroom
-        press_adv: Pressure Advance
-        smooth_time: Smooth Time
       limit_card:
         title: Limieten
         velocity: Snelheid
@@ -145,13 +109,6 @@ pages:
   files:
     title: Bestanden
     search_files: Bestanden zoeken
-    clear_search: Zoekbalk legen
-    name: Naam
-    last_mod: Laatst aangepast
-    last_printed: Laatst geprint
-    not_printed: Niet geprint
-    fetching_files: "@:general.fetching Files..."
-    no_files_found: Geen bestanden gevonden!
     details:
       preheat: Voorverwarmen
       print: Printen
@@ -161,24 +118,16 @@ pages:
         last_printed: Laatst geprint
         no_data: Geen gegevens
       meta_card:
-        title: GCode Meta Data
-        filament: Filament
         filament_type: Filament Type
         filament_name: Filament Naam
         est_print_time: Geschatte Print Tijd
         slicer: Gebruikte Slicer
-        nozzle_diameter: Nozzle Diameter
         layer_higher: Laaghoogte
         first_layer: Eerste laag
         others: Andere
-        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperatures"
-        first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend: {}°C
-          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statistieken
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Temperatuurdoelen
           Extruder: {}°C
@@ -199,8 +148,7 @@ pages:
       use_offset_pos: Coördinaten met verschuivingen weergeven
       lcFullCam: Camera op volledig scherm in landschapmodus
       language: Taal
-      companion: "Wil je notificaties op afstand ontvangen?\nLeer hoe je Mobileraker's
-        Companion moet instellen op "
+      companion: "Wil je notificaties op afstand ontvangen?\nLeer hoe je Mobileraker's Companion moet instellen op "
     notification:
       title: Notificatie
       progress_label: Voortgangsmelding
@@ -226,16 +174,13 @@ pages:
     developer:
       title: Ontwikkelaar
       crashlytics: Crashlytics rapportering inschakelen
-    imprint: Privacy/Impressum
   printer_edit:
-    title: Edit {}
     import_settings: Instellingen Importeren
     remove_printer: Printer Verwijderen
     no_values_found: Geen waardes gevonden!
     fetching_additional_settings: "@:general.fetching additional settings from network..."
     could_not_fetch_additional: Het ophalen van aanvullende instellingen is mislukt!
-    fetch_error_hint: Zorg ervoor dat de machine bereikbaar is en dat mobileraker
-      ermee is verbonden.
+    fetch_error_hint: Zorg ervoor dat de machine bereikbaar is en dat mobileraker ermee is verbonden.
     store_error:
       title: Opslaan mislukt!
       message: |-
@@ -246,38 +191,16 @@ pages:
       printer_addr: Printer - Adres
       ws_addr: Websocket - Adres
       moonraker_api_key: Moonraker - API Sleutel
-      moonraker_api_desc: Alleen nodig als je vertrouwde clients gebruikt. FluiddPI
-        verplicht dit!
+      moonraker_api_desc: Alleen nodig als je vertrouwde clients gebruikt. FluiddPI verplicht dit!
       full_url: Volledige URL
-      self_signed: Vertrouw zelfondertekende certificaten
-    motion_system:
-      title: Motion System
-      invert_x: Invert X - Axis
-      invert_x_short: Invert X
-      invert_y: Invert Y - Axis
-      invert_y_short: Invert Y
-      invert_z: Invert Z - Axis
-      invert_z_short: Invert Z
-      speed_xy: Speed X/Y - Axis
-      speed_xy_short: Speed X/Y
-      speed_z: Speed Z - Axis
-      speed_z_short: Speed Z
-      steps_move: Move steps
-      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
-      steps_baby: Z-Offset steps
-      steps_baby_short: Z-Steps
     extruders:
-      title: Extruder(s)
       feedrate: Extruder feed rate
       feedrate_short: Feed rate
       steps_extrude: Extrudeerstappen
-      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
     cams:
       target_fps: FPS Doel
       new_cam: Nieuwe Camera
       no_webcams: Geen Camera's toegevoegd!
-      stream_url: Stream URL
-      snapshot_url: Snapshot URL
       default_url: Standaard URL
       flip_vertical: Verticaal omdraaien
       flip_horizontal: Horizontaal omdraaien
@@ -290,22 +213,13 @@ pages:
       macros_to_default:
         one: Een macro naar de standaardgroep verplaatst!
         two: Twee Macro's naar de standaardgroep verplaatst!
-        other: "{} Macro's naar de standaardgroep verplaatst!"
+        other: '{} Macro''s naar de standaardgroep verplaatst!'
     presets:
       no_presets: Geen voorinstelling toegevoegd!
-      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperature"
-      bed_temp: "@:pages.dashboard.general.temp_card.bed Temperature"
       new_preset: Nieuwe voorinstelling
   printer_add:
     title: Nieuwe printer toevoegen
-    printer_add_helper: Host, IP, of volledige URL
-    resulting_ws_url: 'Resulting WebSocket-URL: {}'
-    misc: Misc
-    test_ws: Test websocket verbinding
-    result_ws_test: 'Resultaat: {}'
-    run_test_btn: Test
   console:
-    title: Console
     no_entries: Geen opgeslagen commando's gevonden
     fetching_console: "@:general.fetching console entries..."
     command_input:
@@ -318,14 +232,7 @@ pages:
   markdown:
     loading: "@:general.loading {}..."
     error: Er is een fout opgetreden bij het ophalen van {};
-    open_in_browser: Open @:pages.faq.title in Browser
-  faq:
-    title: FAQ
-  changelog:
-    title: Changelog
   paywall:
-    title: Ondersteun de ontwikkelaar!
-    calling_store: Aanvraag verwerken...
     manage_view:
       title: Bedankt voor je ondersteuning!
       list_title: 'Verander ondersteuningsrang:'
@@ -338,13 +245,11 @@ pages:
       list_title: 'Kies een ondersteuningsrang:'
     supporter_tier_list:
       error_title: Fout tijdens het laden van de ondersteuningsrangen!
-      error_body: Sorry, er is een onverwachte fout opgetreden. Kon de ondersteuningsrangen
-        niet laden. Probeer het later opnieuw!
+      error_body: Sorry, er is een onverwachte fout opgetreden. Kon de ondersteuningsrangen niet laden. Probeer het later opnieuw!
     contact_dialog:
       title: Contact met ontwikkelaar
-      body: |-
-        Mail: {}
-        Discord: {}
+    title: Ondersteun de ontwikkelaar!
+    calling_store: Aanvraag verwerken...
 components:
   pull_to_refresh:
     pull_up_idle: Trek omhoog om te verversen
@@ -369,8 +274,7 @@ components:
 dialogs:
   rate_my_app:
     title: Beoordeel Mobileraker
-    message: Als je Mobileraker fijn vindt en de open source ontwikkeling wilt ondersteunen,
-      overweeg het dan om Mobileraker te beoordelen!
+    message: Als je Mobileraker fijn vindt en de open source ontwikkeling wilt ondersteunen, overweeg het dan om Mobileraker te beoordelen!
   import_setting:
     fetching: Bronnen ophalen...
     fetching_error_title: Kan de instellingen niet ophalen!
@@ -407,8 +311,7 @@ dialogs:
 
       Geldige Voorbeelden:
   gcode_params:
-    hint: 'Hint: Je kan ook lang indrukken om de de Macro met standaardwaardes in
-      te dienen!'
+    hint: 'Hint: Je kan ook lang indrukken om de de Macro met standaardwaardes in te dienen!'
   rgbw:
     recent_colors: Recente Kleuren
   select_machine:
@@ -417,10 +320,8 @@ dialogs:
     hint: Druk op een machine om hem te activeren.
   supporter_perks:
     title: Voordelen voor ondersteuners
-    body: Door het ondersteunen van Mobileraker, zorg je ervoor dat het gratis kan
-      blijven voor de gemeenschap. Ook krijg je de volgende voordelen.
-    hint: 'Hint: Op dit moment zijn de voordelen per apparaat. Dit verandert mogelijk
-      in de toekomst.'
+    body: Door het ondersteunen van Mobileraker, zorg je ervoor dat het gratis kan blijven voor de gemeenschap. Ook krijg je de volgende voordelen.
+    hint: 'Hint: Op dit moment zijn de voordelen per apparaat. Dit verandert mogelijk in de toekomst.'
     theme_perk:
       title: Ondersteuner Thema
       subtitle: Exclusief thema met Materiaal 3
@@ -435,16 +336,12 @@ dialogs:
     xy_plane: 'Printer X/Y Vlak:'
     active_screw_title: 'Actieve Schroef:'
     accept_screw_title: 'Geaccepteerde Schroeven:'
-    accept_screw_value: "{} of {}"
-    hint: Klik op Aanpassen als een aanpassing van de schroef nodig is; zo niet, klik
-      op accepteren om verder te gaan.
+    hint: Klik op Aanpassen als een aanpassing van de schroef nodig is; zo niet, klik op accepteren om verder te gaan.
     adjusted_btn: Aanpassen
   manual_offset:
-    title: "@:general.offset Calibration"
     hint_tooltip: Klipper's Papier Test Documentatie
     snackbar_title: Kalibratie klaar
-    snackbar_message: Zorg ervoor dat de afstand behouden blijft via de Configuratie
-      Opslaan actie.
+    snackbar_message: Zorg ervoor dat de afstand behouden blijft via de Configuratie Opslaan actie.
 klipper_state:
   ready: Gereed
   shutdown: Afgesloten
@@ -453,10 +350,8 @@ klipper_state:
   error: Fout
   unauthorized: Onbevoegd
 notifications:
-  channel_printer_grp: Printer {}
   channels:
     status:
-      name: Print Status Updates - {}
       desc: Meldingen met betrekking op de status van de print.
       title: Print status van {} is veranderd!
       body_printing: 'Begonnen met het printen van bestand: "{}"'

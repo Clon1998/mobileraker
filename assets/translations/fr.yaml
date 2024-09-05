@@ -3,8 +3,8 @@ general:
   pause: Pause
   resume: Reprendre
   connected: Connecté
-  'off': Éteint
-  'on': Allumer
+  'off': 'Éteint'
+  'on': 'Allumer'
   none: Aucune
   add: Ajouter
   create: Créer
@@ -68,8 +68,7 @@ pages:
         elapsed: Temps écoulé
         flow: Débit
         filament: Filament
-        filament_tooltip: "{} % de filament utilisé, correspond à {} m sur les {}
-          m prédit."
+        filament_tooltip: '{} % de filament utilisé, correspond à {} m sur les {} m prédit.'
         eta_tooltip: |-
           Temp restant:
           Moyenne: {avg}
@@ -138,16 +137,10 @@ pages:
         extrude: Extruder
         retract: Rétracter
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude longueur"
-        cold_extrude_error: L'extrudeur n'a pas atteint la temperature minimal d'extrusion
-          de {}°C!
+        cold_extrude_error: L'extrudeur n'a pas atteint la temperature minimal d'extrusion de {}°C!
       macro_card:
         title: Gcode - Macros
       pin_card:
-        title:
-          zero: Sortie
-          one: Sortie
-          two: Sorties
-          other: Sorties
         pin_btn: Pin
       power_card:
         title: Tableau de commande
@@ -186,16 +179,7 @@ pages:
   files:
     title: Fichiers
     search_files: Chercher un fichier
-    clear_search: Supprimer la recherche
-    name: Nom
-    last_mod: Dernière modification
-    last_printed: Dernière impression
-    not_printed: Non imprimé
-    fetching_files: "@:general.fetching de fichiers..."
-    no_files_found: Aucun fichier trouvé!
-    no_matches_file_pattern: Seules les lettres, chiffres, tiret (-), souligné (_)
-      et point sont autorisés!
-    file_name_in_use: Le nom du fihcier est déjà utilisé!
+    no_matches_file_pattern: Seules les lettres, chiffres, tiret (-), souligné (_) et point sont autorisés!
     details:
       preheat: Préchauffer
       print: Imprimer
@@ -254,27 +238,24 @@ pages:
       use_offset_pos: Afficher les coordonnées avec le décalage appliqué
       lcFullCam: Orientation paysage lors de l'affichage de la webcam en plein écran
       language: Langue
-      companion: Voulez-vous recevoir des notifications à distance ? Apprenez à configurer
-        Mobileraker's Companion sur son site web.
+      companion: "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web."
       sliders_grouping: Présenter les réglages par curseur sous forme d'onglets
     notification:
       title: Notification
       progress_label: Notifications d'avancement
-      progress_helper: Intervalle de mise à jour pour la notification de la progression
-        de l'impression
+      progress_helper: Intervalle de mise à jour pour la notification de la progression de l'impression
       state_label: Notifications de changement d'état
       state_helper: États qui déclenchent une notification.
       no_permission_title: Pas de permission de notification !
-      no_permission_desc: Impossible d'afficher les notifications.Demandez la permission
-        en cliquant !
+      no_permission_desc: |-
+        Impossible d'afficher les notifications.Demandez la permission en cliquant !
       no_firebase_title: Impossible d'afficher les notifications
       no_firebase_desc: |-
         Mobileraker ne peut pas envoyer de notification à cet appareil.
         Il semble que votre appareil n'a pas les services Google Play installés ou bloque la connection de Firebase!
       ios_notifications_title: Transmission des notifications iOS
-      ios_notifications_desc: Les notifications exigent que mobileraker soit ouvert
-        au moins une fois et soit en arrière-plan. Pourtant, certaines notifications
-        peuvent être bloquées par le système d'exploitation !
+      ios_notifications_desc: |-
+        Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !
       missing_companion_title: Companion introuvable!
       missing_companion_body: |-
         Il semble que le companion ne soit pas installé, les machines suivantes ne peuvent donc pas envoyer de notification: {}
@@ -290,12 +271,9 @@ pages:
     import_settings: Importer réglages
     remove_printer: Supprimer l'imprimante
     no_values_found: Aucune valeur trouvée!
-    fetching_additional_settings: "@:general.fetching paramètres additionnels depuis
-      le réseau..."
-    could_not_fetch_additional: Impossible de récupérer des paramètres additionnels
-      !
-    fetch_error_hint: Assurez-vous que la machine soit joignable, et que Mobileraker
-      y est connecté.
+    fetching_additional_settings: "@:general.fetching paramètres additionnels depuis le réseau..."
+    could_not_fetch_additional: Impossible de récupérer des paramètres additionnels !
+    fetch_error_hint: Assurez-vous que la machine soit joignable, et que Mobileraker y est connecté.
     reset_notification_registry: Réinitialiser le registre des notification de l'imprimante
     configure_remote_connection: Configurer la connexion à distance
     store_error:
@@ -303,31 +281,26 @@ pages:
       message: |-
         Certains champs contiennent des valeurs manquantes ou invalides !
         Assurez-vous que tous les champs sont valides.
-      unexpected_error: Une erreur innatendue s'est produite lors de la sauvegarde
-        des données de l'imprimante !
+      unexpected_error: Une erreur innatendue s'est produite lors de la sauvegarde des données de l'imprimante !
     confirm_deletion:
       title: Supprimer {}?
-      body: "Vous êtes sur le point de supprimer l'imprimante '{}' connectée à '{}'.
-        \n\nConfirmez l'action."
+      body: "Vous êtes sur le point de supprimer l'imprimante '{}' connectée à '{}'. \n\nConfirmez l'action."
     general:
       displayname: Nom d'affichage
       printer_addr: Imprimante - Adresse
       ws_addr: Websocket - Adresse
       moonraker_api_key: Moonraker - Clé API
-      moonraker_api_desc: Seulement nécessaire si vous utilisez des clients de confiance.
-        FluiddPI applique cette règle !
+      moonraker_api_desc: Seulement nécessaire si vous utilisez des clients de confiance. FluiddPI applique cette règle !
       full_url: URL complète
       timeout_label: Expiration du délai du client (timeout)
       timeout_helper: Délai de connection pour le client en secondes (timeout delay)
       theme: Thème de l'interface
       theme_helper: Thème de l'interface de l'imprimante
-      theme_unavailable: Thème de l'interface pour l'imprimante, seulement disponible
-        en soutenant l'application.
+      theme_unavailable: Thème de l'interface pour l'imprimante, seulement disponible en soutenant l'application.
     ssl:
       title: SSL - Paramètres
       pin_certificate_label: Épinglage des empreintes digitales des certificats
-      pin_certificate_helper: Sélectionner un fichier de certificat au format PEM
-        pour l'épinglage SSL
+      pin_certificate_helper: Sélectionner un fichier de certificat au format PEM pour l'épinglage SSL
       self_signed: Faire confiance aux certificats auto-signés
     motion_system:
       title: Système de mouvement
@@ -382,31 +355,23 @@ pages:
       new_preset: Nouveau préréglage
     confirm_fcm_reset:
       title: Effacer le registre du dispositif de notification ?
-      body: "Vous êtes sur le point de réinitialiser le registre des appareils, qui
-        est utilisé pour déterminer les appareils auxquels le compagnon envoie des
-        notifications.\nPour rétablir les notifications push, vous devrez redémarrer
-        l'application sur tous les appareils et les connecter à nouveau à la machine.
-        \n\nConfirmez votre action."
+      body: "Vous êtes sur le point de réinitialiser le registre des appareils, qui est utilisé pour déterminer les appareils auxquels le compagnon envoie des notifications.\nPour rétablir les notifications push, vous devrez redémarrer l'application sur tous les appareils et les connecter à nouveau à la machine. \n\nConfirmez votre action."
     confirm_remote_interface_removal:
       title:
         oe: Déconnecter {}?
         other: Supprimer la connection
       body:
         oe: Veuillez confirmer la déconnexion de l'imprimante {} d'OctoEverywhere.
-        other: Veuillez confirmer la suppression de la connexion à distance de l'imprimante
-          {}.
+        other: Veuillez confirmer la suppression de la connexion à distance de l'imprimante {}.
       button:
         oe: "@:general.unlink"
         other: "@:general.remove"
     remote_interface_exists:
       title: Connexion à distance trouvée
       body:
-        oe: Cette imprimante est déjà liée à OctoEverywhere pour l'accès à distance.
-          Veuillez la déconnecter avant de continuer.
-        obico: Cette imprimante est déjà liée à Obico pour l'accès à distance. Veuillez
-          la déconnecter avant de continuer.
-        other: Une connexion à distance est déjà établie pour cette imprimante. Veuillez
-          la supprimer avant de continuer.
+        oe: Cette imprimante est déjà liée à OctoEverywhere pour l'accès à distance. Veuillez la déconnecter avant de continuer.
+        obico: Cette imprimante est déjà liée à Obico pour l'accès à distance. Veuillez la déconnecter avant de continuer.
+        other: Une connexion à distance est déjà établie pour cette imprimante. Veuillez la supprimer avant de continuer.
     remote_interface_removed:
       title: La connexion à distance a été supprimée !
       body: Veillez à enregistrer l'imprimante pour appliquer les modifications.
@@ -425,20 +390,15 @@ pages:
     local_ssid:
       section_header: Commutation intelligente
       no_ssids: Aucun nom WiFi n'a été ajouté !
-      helper: La commutation intelligente permet à l'application de basculer automatiquement
-        entre la connexion locale et la connexion à distance en fonction du réseau
-        WiFi actuel. Pour activer cette fonction, ajoutez le nom du réseau WiFi de
-        votre domicile à la liste.
+      helper: La commutation intelligente permet à l'application de basculer automatiquement entre la connexion locale et la connexion à distance en fonction du réseau WiFi actuel. Pour activer cette fonction, ajoutez le nom du réseau WiFi de votre domicile à la liste.
       dialog:
         title_add: Ajouter le nom du WiFi à la liste
         title_edit: Modifier le nom du WiFi
         label: Nom du Wifi (SSID)
-        quick_add_hint: 'Conseil : pour ajouter rapidement le nom du réseau WiFi actuel,
-          appuyez longuement sur le bouton qui a ouvert cette boîte de dialogue.'
+        quick_add_hint: 'Conseil : pour ajouter rapidement le nom du réseau WiFi actuel, appuyez longuement sur le bouton qui a ouvert cette boîte de dialogue.'
       error_fetching_snackbar:
         title: Erreur lors de la recherche du nom du WiFi !
-        body: Assurez-vous que l'application dispose des autorisations nécessaires
-          pour accéder à l'état WiFi de l'appareil.
+        body: Assurez-vous que l'application dispose des autorisations nécessaires pour accéder à l'état WiFi de l'appareil.
   printer_add:
     steps:
       mode: Mode
@@ -449,28 +409,18 @@ pages:
     initial_name: Mon imprimante
     select_mode:
       title: 'Choisissez un mode d''entrée :'
-      body: Si vous êtes novice en la matière, il est préférable de vous en tenir
-        au mode simple. En revanche, si vous êtes expérimenté et que vous avez besoin
-        d'utiliser des en-têtes, des certificats, etc. personnalisés, le mode expert
-        est fait pour vous. Gardez à l'esprit que le mode que vous choisissez n'affecte
-        pas l'application elle-même, mais qu'il détermine la manière dont les données
-        sont validées et affichées, ainsi que les options disponibles lors de l'ajout
-        d'une machine.
+      body: Si vous êtes novice en la matière, il est préférable de vous en tenir au mode simple. En revanche, si vous êtes expérimenté et que vous avez besoin d'utiliser des en-têtes, des certificats, etc. personnalisés, le mode expert est fait pour vous. Gardez à l'esprit que le mode que vous choisissez n'affecte pas l'application elle-même, mais qu'il détermine la manière dont les données sont validées et affichées, ainsi que les options disponibles lors de l'ajout d'une machine.
       simple: Simple
       advanced: Avancé
       add_via_oe: Installation d'OctoEverywhere en un clic
       add_via_obico: Configuration d'Obico en un clic
     simple_form:
       hint_title: Conseil - Mode simple
-      hint_body: Le mode simple vous permet de saisir l'hôte et le port. Toutefois,
-        si vous devez personnaliser le chemin d'accès, les en-têtes, les certificats
-        ou d'autres paramètres, passez au mode avancé.
+      hint_body: Le mode simple vous permet de saisir l'hôte et le port. Toutefois, si vous devez personnaliser le chemin d'accès, les en-têtes, les certificats ou d'autres paramètres, passez au mode avancé.
       url_hint: IP ou nom d'hôte de l'imprimante
     advanced_form:
       hint_title: Conseil - Mode avancé
-      hint_body: Veuillez noter qu'en mode avancé, la validation est en grande partie
-        désactivée. Il est important que vous preniez l'entière responsabilité de
-        vous assurer que l'URL que vous saisissez est valide.
+      hint_body: Veuillez noter qu'en mode avancé, la validation est en grande partie désactivée. Il est important que vous preniez l'entière responsabilité de vous assurer que l'URL que vous saisissez est valide.
       http_helper: Veuillez saisir le point de terminaison HTTP de Moonraker
       ws_helper: Facultatif, point d'arrivée WebSocket de Moonraker
       section_security: Sécurité
@@ -486,12 +436,7 @@ pages:
       awaiting: En attente du résultat...
       continue: Continuer
       continue_anyway: Continuer quoi qu'il en soit
-      proceed_warning: Il semble que l'application ait des difficultés à se connecter
-        à l'ordinateur. Cela peut être dû au fait que vous ne vous trouvez pas sur
-        le même réseau que la machine ou que vous ne disposez pas des autorisations
-        nécessaires pour y accéder. Bien que vous puissiez choisir d'ajouter la machine
-        malgré le problème, sachez qu'il n'y a aucune garantie qu'elle se connectera
-        correctement. Procédez avec prudence.
+      proceed_warning: Il semble que l'application ait des difficultés à se connecter à l'ordinateur. Cela peut être dû au fait que vous ne vous trouvez pas sur le même réseau que la machine ou que vous ne disposez pas des autorisations nécessaires pour y accéder. Bien que vous puissiez choisir d'ajouter la machine malgré le problème, sachez qu'il n'y a aucune garantie qu'elle se connectera correctement. Procédez avec prudence.
       button: Test de Connection
     confirmed:
       title: Imprimante {} ajoutée !
@@ -520,25 +465,17 @@ pages:
       title: Merci pour votre soutien !
       list_title: 'hanger le niveau du supporteur :'
       store_btn: Annuler l'abonnement dans {}
-      sub_warning: Veuillez noter que l'achat d'un niveau de soutien à vie n'annule
-        pas automatiquement les autres abonnements actifs. Vous devrez annuler manuellement
-        tous les abonnements actifs. Cependant, vous avez la possibilité de continuer
-        à soutenir le développement de Mobileraker sur une base récurrente même après
-        avoir acheté le niveau de soutien à vie.
+      sub_warning: Veuillez noter que l'achat d'un niveau de soutien à vie n'annule pas automatiquement les autres abonnements actifs. Vous devrez annuler manuellement tous les abonnements actifs. Cependant, vous avez la possibilité de continuer à soutenir le développement de Mobileraker sur une base récurrente même après avoir acheté le niveau de soutien à vie.
     subscribe_view:
       title: Devenez un supporter de Mobileraker !
       info: |-
         Mobileraker vise à fournir une interface mobile rapide et fiable pour Klipper, en s'inspirant de l'esprit de RepRap, selon lequel les logiciels et le matériel open-source peuvent avoir un impact positif.
         Mobileraker est développé par un seul développeur et offert gratuitement, il dépend du financement de la communauté pour couvrir les coûts opérationnels et de développement.
       list_title: 'Choisissez le niveau de soutien :'
-      subscription_info: Si vous optez pour un abonnement, vous pouvez le résilier
-        à tout moment. L'abonnement sera automatiquement renouvelé si vous ne le résiliez
-        pas avant la fin de la période en cours. Pour résilier l'abonnement, rendez-vous
-        sur la page {} et annulez l'abonnement à partir de là.
+      subscription_info: Si vous optez pour un abonnement, vous pouvez le résilier à tout moment. L'abonnement sera automatiquement renouvelé si vous ne le résiliez pas avant la fin de la période en cours. Pour résilier l'abonnement, rendez-vous sur la page {} et annulez l'abonnement à partir de là.
     supporter_tier_list:
       error_title: Erreur lors du chargement de Supporter Tiers !
-      error_body: Désolé, une erreur inattendue s'est produite. Impossible de charger
-        le SupporterTiers. Veuillez réessayer plus tard !
+      error_body: Désolé, une erreur inattendue s'est produite. Impossible de charger le SupporterTiers. Veuillez réessayer plus tard !
     contact_dialog:
       title: Contact développeur
       body: |-
@@ -551,8 +488,7 @@ pages:
     intro_phase: Profitez de {} à {} de réduction
     iap_offer: "{} sur le prix d'origine"
     tip_developer: Conseil du développeur
-    trial_disclaimer: Vous ne serez pas facturé avant la fin de la période d'essai
-      gratuite et vous pouvez annuler à tout moment pendant cette période.
+    trial_disclaimer: Vous ne serez pas facturé avant la fin de la période d'essai gratuite et vous pouvez annuler à tout moment pendant cette période.
     restore_sign_in: Restauration / Connexion
   video_player:
     downloading_for_sharing: Télécharger la vidéo pour la partager... ({})
@@ -560,15 +496,7 @@ pages:
     title: Outils
   beltTuner:
     title: Réglage des courroies
-    description: Il est essentiel de veiller à ce que la tension de la courroie soit
-      correcte pour obtenir des performances optimales dans les imprimantes 3D. Une
-      tension incorrecte, qu'elle soit trop serrée ou trop lâche, peut entraîner des
-      problèmes mécaniques, une usure prématurée et une qualité d'impression compromise.
-      Les valeurs de tension fournies servent de points de référence ; toutefois,
-      il est conseillé de consulter les recommandations du fabricant pour obtenir
-      des directives spécifiques adaptées à votre modèle d'imprimante. Les ajustements
-      doivent être effectués en fonction de ces recommandations et des exigences et
-      conditions propres à chaque imprimante.
+    description: Il est essentiel de veiller à ce que la tension de la courroie soit correcte pour obtenir des performances optimales dans les imprimantes 3D. Une tension incorrecte, qu'elle soit trop serrée ou trop lâche, peut entraîner des problèmes mécaniques, une usure prématurée et une qualité d'impression compromise. Les valeurs de tension fournies servent de points de référence ; toutefois, il est conseillé de consulter les recommandations du fabricant pour obtenir des directives spécifiques adaptées à votre modèle d'imprimante. Les ajustements doivent être effectués en fonction de ces recommandations et des exigences et conditions propres à chaque imprimante.
     beltType: 'Sélectionnez votre type de courroi :'
     target: 'Objectif : {} Hz sur {} mm'
     permissionWarning:
@@ -604,25 +532,18 @@ components:
     tooltip: Utiliser OctoEveryWhere !
   supporter_add:
     title: Vous aimez Mobileraker ?
-    subtitle: Tapotez-moi ! Pour savoir comment vous pouvez soutenir le développement
-      !
+    subtitle: Tapotez-moi ! Pour savoir comment vous pouvez soutenir le développement !
   supporter_only_feature:
     dialog_title: Fonctionnalité réservée aux supporters
     button: Devenir un supporter de Mobileraker
-    webcam: Désolé, les webcams de type {} ne sont disponibles que pour les supporters.
-      En revanche, les webcams Mjpeg sont accessibles à tous les utilisateurs.
-    printer_add: Vous avez atteint la limite de machines. Seuls les supporteurs de
-      Mobileraker peuvent ajouter plus de {} machines.
+    webcam: Désolé, les webcams de type {} ne sont disponibles que pour les supporters. En revanche, les webcams Mjpeg sont accessibles à tous les utilisateurs.
+    printer_add: Vous avez atteint la limite de machines. Seuls les supporteurs de Mobileraker peuvent ajouter plus de {} machines.
     job_queue: Désolé, la file d'attente n'est accessible qu'aux supporters.
-    timelaps_share: Désolé, le partage de timelapses n'est disponible que pour les
-      supporters.
-    printer_theme: Désolé, les thèmes spécifiques aux imprimantes ne sont disponibles
-      que pour les supporters.
+    timelaps_share: Désolé, le partage de timelapses n'est disponible que pour les supporters.
+    printer_theme: Désolé, les thèmes spécifiques aux imprimantes ne sont disponibles que pour les supporters.
   machine_deletion_warning:
     title: Suppression de la machine
-    subtitle: Il semble que vous ne soyez pas un Supporter. Seuls les supporters peuvent
-      avoir plus de {} machine(s). Vous disposez de {} jours avant que les machines
-      excédentaires ne soient retirées.
+    subtitle: Il semble que vous ne soyez pas un Supporter. Seuls les supporters peuvent avoir plus de {} machine(s). Vous disposez de {} jours avant que les machines excédentaires ne soient retirées.
   remote_connection_indicator:
     title: Utiliser la connexion à distance !
   web_rtc:
@@ -635,8 +556,7 @@ components:
 dialogs:
   rate_my_app:
     title: Notez Mobileraker?
-    message: Si vous aimez Mobileraker et que vous souhaitez soutenir le développement
-      du logiciel libre, pensez à évaluer Mobileraker !
+    message: Si vous aimez Mobileraker et que vous souhaitez soutenir le développement du logiciel libre, pensez à évaluer Mobileraker !
   import_setting:
     fetching: Récupération des sources...
     fetching_error_title: Impossible de récupérer les paramètres !
@@ -673,8 +593,7 @@ dialogs:
 
       Examples valides:
   gcode_params:
-    hint: 'Conseil : vous pouvez également appuyer sur la touche longue si vous souhaitez
-      soumettre la macro avec les valeurs par défaut !'
+    hint: 'Conseil : vous pouvez également appuyer sur la touche longue si vous souhaitez soumettre la macro avec les valeurs par défaut !'
   rgbw:
     recent_colors: Couleurs récentes
   select_machine:
@@ -683,10 +602,8 @@ dialogs:
     hint: Tapez sur une machine pour la rendre active.
   supporter_perks:
     title: Avantages pour les supporters
-    body: En soutenant Mobileraker, vous vous assurez que l'application reste gratuite
-      pour la communauté. En outre, les supporters bénéficient des avantages suivants.
-    hint: 'Conseil : pour l''instant, les avantages sont liés à l''appareil. Cela
-      pourrait changer à l''avenir.'
+    body: En soutenant Mobileraker, vous vous assurez que l'application reste gratuite pour la communauté. En outre, les supporters bénéficient des avantages suivants.
+    hint: 'Conseil : pour l''instant, les avantages sont liés à l''appareil. Cela pourrait changer à l''avenir.'
     theme_perk:
       title: Thème des supporters
       subtitle: Thème exclusif utilisant Material 3
@@ -704,8 +621,7 @@ dialogs:
       subtitle: Gérez la file d'attente de Moonraker depuis Mobileraker !
     unlimited_printers_perk:
       title: mprimantes illimitées
-      subtitle: Contrôlez autant d'imprimantes que vous le souhaitez avec Mobileraker
-        !
+      subtitle: Contrôlez autant d'imprimantes que vous le souhaitez avec Mobileraker !
     printer_theme_perk:
       title: Thèmes basés sur l'imprimante
       subtitle: Choisissez un thème différent pour chaque imprimante !
@@ -715,8 +631,7 @@ dialogs:
     active_screw_title: 'Vis active :'
     accept_screw_title: 'is acceptées :'
     accept_screw_value: "{} de {}"
-    hint: Cliquez sur Ajusté si un ajustement significatif est nécessaire pour la
-      vis actuelle ; sinon, cliquez sur Accepter pour continuer.
+    hint: Cliquez sur Ajusté si un ajustement significatif est nécessaire pour la vis actuelle ; sinon, cliquez sur Accepter pour continuer.
     adjusted_btn: Ajusté
   manual_offset:
     title: "@:general.offset Calibration"
@@ -725,8 +640,7 @@ dialogs:
     snackbar_message: Veillez à conserver le décalage via l'action Save Config.
   tipping:
     title: Donnez un pourboire au développeur !
-    body: Ce pourboire est uniquement destiné à apprécier les efforts du développeur
-      et ne donne pas accès à des fonctionnalités supplémentaires.
+    body: Ce pourboire est uniquement destiné à apprécier les efforts du développeur et ne donne pas accès à des fonctionnalités supplémentaires.
     amount_label: Montant du pourboire
     tip: Pourboire
   http_header:
@@ -743,39 +657,26 @@ dialogs:
 bottom_sheets:
   job_queue_sheet:
     next: Prochain travail d'impression
-    empty: La file d'attente des travaux est vide. Vous pouvez ajouter des travaux
-      via l'explorateur de fichiers.
+    empty: La file d'attente des travaux est vide. Vous pouvez ajouter des travaux via l'explorateur de fichiers.
     start_queue: Démarrer la file d'attente
     pause_queue: Mettre en pause la file d'attente
     remove_all: Vider la file d'attente
     remove_all_confirm: Cette opération va enlever tous les travaux en file d'attente.
   add_remote_con:
-    disclosure: "{service} n'est pas affilié à Mobileraker. Il peut nécessiter un
-      abonnement supplémentaire. Veuillez consulter le site web de {service} pour
-      plus d'informations."
+    disclosure: "{service} n'est pas affilié à Mobileraker. Il peut nécessiter un abonnement supplémentaire. Veuillez consulter le site web de {service} pour plus d'informations."
     active_service_info:
       title: Configuration existante trouvée !
-      body: Vous utilisez actuellement {} comme service de connexion à distance. Supprimez-le
-        avant d'en ajouter un nouveau.
+      body: Vous utilisez actuellement {} comme service de connexion à distance. Supprimez-le avant d'en ajouter un nouveau.
     octoeverywehre:
       service_name: OctoEverywhere
       tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
       link: Lier OctoEverywhere
       unlink: Délier OctoEverywhere
-      description: OctoEverywhere.com est un projet communautaire qui vous permet
-        de vous connecter en toute sécurité à votre imprimante depuis n'importe où.
-        OctoEverywhere fournit également à la communauté une détection gratuite des
-        pannes d'impression par IA, des notifications, une diffusion en direct, et
-        bien plus encore. L'installation ne prend que 20 secondes !
+      description: OctoEverywhere.com est un projet communautaire qui vous permet de vous connecter en toute sécurité à votre imprimante depuis n'importe où. OctoEverywhere fournit également à la communauté une détection gratuite des pannes d'impression par IA, des notifications, une diffusion en direct, et bien plus encore. L'installation ne prend que 20 secondes !
     manual:
       service_name: Connexion manuelle à distance
       tab_name: Manuelle
-      description: Si vous êtes un utilisateur avancé, vous pouvez choisir d'ajouter
-        manuellement une connexion alternative. La connexion alternative entre en
-        jeu lorsque les tentatives de connexion à l'adresse principale échouent. Cela
-        peut être utile si vous disposez d'une connexion proxy inverse à votre imprimante,
-        ou si vous avez une adresse IP secondaire que vous pouvez utiliser pour vous
-        connecter à votre imprimante.
+      description: Si vous êtes un utilisateur avancé, vous pouvez choisir d'ajouter manuellement une connexion alternative. La connexion alternative entre en jeu lorsque les tentatives de connexion à l'adresse principale échouent. Cela peut être utile si vous disposez d'une connexion proxy inverse à votre imprimante, ou si vous avez une adresse IP secondaire que vous pouvez utiliser pour vous connecter à votre imprimante.
       address_label: Adresse alternative
       address_hint: Adresse de base de la connexion à distance à utiliser
     obico:
@@ -783,23 +684,15 @@ bottom_sheets:
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: Lier Obico
       unlink: Délier Obico
-      description: Obico est un logiciel d'impression 3D communautaire et entièrement
-        libre. Il vous permet de contrôler et de surveiller votre imprimante Klipper
-        depuis n'importe où, et ce gratuitement. Il s'agit de l'une des solutions
-        pionnières en matière de détection des pannes basée sur l'IA, qui utilise
-        uniquement la webcam de votre imprimante.
+      description: Obico est un logiciel d'impression 3D communautaire et entièrement libre. Il vous permet de contrôler et de surveiller votre imprimante Klipper depuis n'importe où, et ce gratuitement. Il s'agit de l'une des solutions pionnières en matière de détection des pannes basée sur l'IA, qui utilise uniquement la webcam de votre imprimante.
   manage_macros_in_grp:
     title: Ajouter des Macros
     hint: Sélectionner les macros pour le groupe {}
   signIn:
-    subtitle: Bien que la création d'un compte soit facultative, elle est nécessaire
-      pour restaurer les achats effectués sur un autre appareil ou une autre plateforme.
+    subtitle: Bien que la création d'un compte soit facultative, elle est nécessaire pour restaurer les achats effectués sur un autre appareil ou une autre plateforme.
   profile:
     title: Vous êtes inscrit.
-    description: Bienvenue ! Votre compte d'utilisateur est la clé d'une expérience
-      améliorée sur tous vos appareils mobiles. Partagez en toute transparence votre
-      statut de supporteur pour bénéficier de privilèges sans effort, où que vous
-      alliez avec votre téléphone, votre tablette ou d'autres appareils.
+    description: Bienvenue ! Votre compte d'utilisateur est la clé d'une expérience améliorée sur tous vos appareils mobiles. Partagez en toute transparence votre statut de supporteur pour bénéficier de privilèges sans effort, où que vous alliez avec votre téléphone, votre tablette ou d'autres appareils.
     restore_purchases: Restaurer les achats
     restore_success: Les achats ont été restaurés avec succès !
     sign_out: S'inscrire
@@ -808,13 +701,11 @@ bottom_sheets:
       title:
         pending: Envoi d'un courriel de vérification
         not_verified: L'email n'est pas vérifié
-      description: Veuillez vérifier votre adresse électronique pour vous assurer
-        que vous pouvez toujours accéder à votre compte.
+      description: Veuillez vérifier votre adresse électronique pour vous assurer que vous pouvez toujours accéder à votre compte.
       send: Envoyer la vérification
     delete_account_dialog:
       title: Supprimer le compte ?
-      body: Vous êtes sur le point de supprimer votre compte. Cette action ne peut
-        être annulée.
+      body: Vous êtes sur le point de supprimer votre compte. Cette action ne peut être annulée.
   bedMesh:
     no_mesh_loaded: Aucun maillage du plateau n'a encore été chargé.
     load_bed_mesh_profile: Charge le profil du maillage
@@ -822,21 +713,18 @@ bottom_sheets:
     no_profile_active: Pas de profil actif
     no_mesh: Aucun maillage
     clear_loaded_profile: Effacer le profil chargé
-    range_between_highest_and_lowest_point: Gamme entre le point le plus haut et le
-      point le plus bas
+    range_between_highest_and_lowest_point: Gamme entre le point le plus haut et le point le plus bas
   select_spool:
     header:
       spools: Bobines
       qr: QR-Code
-    no_spools: Aucune bobine n'a été trouvé. Veuillez ajouter une bobine au gestionnaire
-      de bobines
+    no_spools: Aucune bobine n'a été trouvé. Veuillez ajouter une bobine au gestionnaire de bobines
     error: 'Une erreur s''est produite lors du chargement des bobines.: {}'
     qr_loading: Chargement du scanner des QR…
     qr_error: 'Erreur lors du chargement du scanner QR: {}'
     scan_again: Encore un Scan
     set_active: Actif
-    spool_id_not_found: 'Désolé, aucune bobine n''a été trouvé avec l''ID spécifié.
-      #{}.'
+    spool_id_not_found: 'Désolé, aucune bobine n''a été trouvé avec l''ID spécifié. #{}.'
 klipper_state:
   ready: Prêt
   shutdown: Arrêt
@@ -845,8 +733,7 @@ klipper_state:
   error: Erreur
   unauthorized: Non autorisé
   initializing: Initialisation
-  not_connected: Moonraker ne peut pas établir de connexion avec Klipper. Veuillez
-    vérifier que Klipper fonctionne sur votre système.
+  not_connected: Moonraker ne peut pas établir de connexion avec Klipper. Veuillez vérifier que Klipper fonctionne sur votre système.
 notifications:
   channel_printer_grp: Imprimante {}
   channels:

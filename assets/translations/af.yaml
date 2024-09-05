@@ -3,8 +3,8 @@ general:
   pause: Pouse
   resume: Hervat
   connected: Gekonnekteer
-  'off': Af
-  'on': Aan
+  'off': 'Af'
+  'on': 'Aan'
   none: Geen
   add: Voeg by
   create: Skep
@@ -28,8 +28,6 @@ general:
   supported: Word ondersteun
   unsupported: Word nie ondersteun
   details: Besonderhede
-  google_play: GooglePlay
-  ios_store: AppStore
   active: Aktief
   canceled: Gekanselleer
   monthly: Maandeliks
@@ -51,30 +49,22 @@ pages:
         printing_for: 'Druk tans: {}'
         speed: Spoed
         layer: Laag
-        eta: ETA
         current_object: Huidige Objek
         elapsed: Verloop
         flow: Vloei
-        filament: Filament
-        filament_tooltip: Het {} % Filament gebruik, dit is {} m van die geskatte
-          {} m.
-        eta_tooltip: 'Oorblywende tyd: {} '
+        filament_tooltip: Het {} % Filament gebruik, dit is {} m van die geskatte {} m.
+        eta_tooltip: |-
+          Oorblywende tyd: {} 
       cam_card:
-        webcam: Webcam
         fullscreen: Volskerm
       temp_card:
         title: Temperatuurkontrole
         presets_btn: Voorafinstellings
         hotend: Warmpunt
-        bed: Bed
         temp_presets: Temperatuur voorafinstellings
-        sensors: Sensors
         heater_on: "{} °C teikin"
-        btn_thermistor: Sensor
       temp_preset_card:
         cooloff: Koel af
-        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
-        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Beweeg Asse
         home_xy_tooltip: Bring X-en-Y-asse tuis
@@ -82,14 +72,11 @@ pages:
         home_all_tooltip: Bring all asse tuis
         home_all_btn: Almal
         qgl_tooltip: Loop Quad-Spoor-Vlakstelling
-        qgl_btn: QGL
         mesh_tooltip: Loop Bedmaas-kalibrasie
         mesh_btn: Maas
         m84_tooltip: Skakel Motors Uit
-        m84_btn: M84
         step_size: Stapgrootte
         stc_tooltip: Loop Skroefhelling-berekening
-        stc_btn: STC
         ztilt_tooltip: Loop Z-Helling-berekening
         ztilt_btn: zHelling
         poff_tooltip: Loop Probe-Afset-Kalibrasie
@@ -104,7 +91,6 @@ pages:
       baby_step_card:
         title: Babastap Z-As
       restart_klipper: Herbegin Klipper
-      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -118,16 +104,10 @@ pages:
         extrude: Druk uit
         retract: Trek terug
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude lengte"
-        cold_extrude_error: Extruder het nog nie reach min_extrude_temp of {}°C bereik
-          nie!
+        cold_extrude_error: Extruder het nog nie reach min_extrude_temp of {}°C bereik nie!
       macro_card:
         title: Gcode - Makro's
       pin_card:
-        title:
-          zero: Uittreepen
-          one: Uittreepen
-          two: Uittreepenne
-          other: Uittreepenne
         pin_btn: Pen
       power_card:
         title: Kragpaneel
@@ -146,13 +126,6 @@ pages:
   files:
     title: Lêers
     search_files: Deursoek lêers
-    clear_search: Maak soektog skoon
-    name: Naam
-    last_mod: Laas verander
-    last_printed: Laas gedruk
-    not_printed: Nie gedruk
-    fetching_files: "@:general.fetching Lêers..."
-    no_files_found: Geen lêers gevind!
     details:
       preheat: Voorverhit
       print: Druk
@@ -163,7 +136,6 @@ pages:
         no_data: Geen data
       meta_card:
         title: GCode-Metadata
-        filament: Filament
         filament_type: Filamenttipe
         filament_name: Filamentnaam
         est_print_time: Geskatte Druktyd
@@ -173,13 +145,9 @@ pages:
         first_layer: Eerste Laag
         others: Ander
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperature"
-        first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend: {}°C
-          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statistiek
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Teikentemperature
           Ekstruder: {}°C
@@ -200,8 +168,7 @@ pages:
       use_offset_pos: Wys koördinate met afset ingesluit.
       lcFullCam: Volskerm-Webcam in Landskap
       language: Taal
-      companion: "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker
-        se Hulpgenoot op te stel op "
+      companion: "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker se Hulpgenoot op te stel op "
     notification:
       title: Kennisgewing
       progress_label: Vorderingskennisgewing
@@ -233,11 +200,9 @@ pages:
     import_settings: Invoerstellings
     remove_printer: Verwyder Drukker
     no_values_found: Geen waardes is gevind!
-    fetching_additional_settings: "@:general.fetching addisionele instellings vanaf
-      die netwerk..."
+    fetching_additional_settings: "@:general.fetching addisionele instellings vanaf die netwerk..."
     could_not_fetch_additional: Kon nie addisionele instellings gaan haal nie!
-    fetch_error_hint: Maak seker dat die masjien bereikbaar is, en dat Mobileraker
-      daaraan gekoppel is.
+    fetch_error_hint: Maak seker dat die masjien bereikbaar is, en dat Mobileraker daaraan gekoppel is.
     store_error:
       title: Kon nie gestoor word!
       message: |-
@@ -248,16 +213,13 @@ pages:
       printer_addr: Drukker - Adres
       ws_addr: Websok - Adres
       moonraker_api_key: Moonraker - API Sleutel
-      moonraker_api_desc: Slegs nogdig as jy van betroubare kliënte gebruik maak.
-        FluiddPI dwing die vereiste af!
+      moonraker_api_desc: Slegs nogdig as jy van betroubare kliënte gebruik maak. FluiddPI dwing die vereiste af!
       full_url: Volledige URL
-      self_signed: Aanvaar Self-Getekende Sertifikate
     motion_system:
       title: Bewegingstelsel
       invert_x: Keer X-As Om
       invert_x_short: Keer X om
       invert_y: Keer Y-As Om
-      invert_y_short: Invert Y
       invert_z: Keer Z-As Om
       invert_z_short: Keer Z Om
       speed_xy: Spoed X/Y - Asse
@@ -265,7 +227,6 @@ pages:
       speed_z: Spoed Z-As
       speed_z_short: Spoed Z
       steps_move: Stapbewegings
-      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Babastap Z-stappe
       steps_baby_short: Babastappe
     extruders:
@@ -273,7 +234,6 @@ pages:
       feedrate: Ekstruder voertempe
       feedrate_short: Voertempo
       steps_extrude: Ekstrusiestappe
-      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
     cams:
       target_fps: Teiken FPS
       new_cam: Nuwe Webcam
@@ -292,7 +252,7 @@ pages:
       macros_to_default:
         one: Een makro na verstekgroep geskuif!
         two: Twee makro's na verstekgroep geskuif!
-        other: "{} makro's na verstekgroep geskuif!"
+        other: '{} makro''s na verstekgroep geskuif!'
     presets:
       no_presets: Geen Voorafinstellings bygevoeg nie!
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperatuur"
@@ -300,12 +260,6 @@ pages:
       new_preset: Nuwe Voorafinstalling
   printer_add:
     title: Voeg nuwe drukker by
-    printer_add_helper: Host, IP, of volle URL
-    resulting_ws_url: 'Resultaat WebSocket-URL: {}'
-    misc: Misc
-    test_ws: Toets websok-konneksie
-    result_ws_test: 'resultaat: {}'
-    run_test_btn: Toets
   console:
     title: Konsole
     no_entries: Geen vorige opdrage gevind nie
@@ -321,13 +275,9 @@ pages:
     loading: "@:general.loading {}..."
     error: Daar was 'n fout met die laai van {};
     open_in_browser: Open @:pages.faq.title in Webblaaier
-  faq:
-    title: FAQ
   changelog:
     title: Veranderingslog
   paywall:
-    title: Ondersteun die onwikkelaar!
-    calling_store: Verwerk versoek...
     manage_view:
       title: Dankie vir jou ondersteuning!
       list_title: 'Verander ondersteunersvlak :'
@@ -340,13 +290,14 @@ pages:
       list_title: 'Kies Ondersteunersvlak:'
     supporter_tier_list:
       error_title: Probleem met die laai van ondersteunersvlakke!
-      error_body: Jammer, daar was 'n onvoorsiene fout. Ondersteunersvlakke kon nie
-        gelaai word nie. Probeer weer later!
+      error_body: Jammer, daar was 'n onvoorsiene fout. Ondersteunersvlakke kon nie gelaai word nie. Probeer weer later!
     contact_dialog:
       title: Kontak Ontwikkelaar
       body: |-
         E-Pos: {}
         Discord: {}
+    title: Ondersteun die onwikkelaar!
+    calling_store: Verwerk versoek...
 components:
   pull_to_refresh:
     pull_up_idle: Trek op om te vervris
@@ -371,8 +322,7 @@ components:
 dialogs:
   rate_my_app:
     title: Beoordeel Mobileraker?
-    message: As jy van Mobileraker hou en die oopbronontwikkeling wil ondersteun,
-      gee jou terugvoer!
+    message: As jy van Mobileraker hou en die oopbronontwikkeling wil ondersteun, gee jou terugvoer!
   import_setting:
     fetching: Haal tans bronne op...
     fetching_error_title: Kon nie instellings ophaal nie!
@@ -418,9 +368,7 @@ dialogs:
     hint: Tik om 'n masjien aktief te maak.
   supporter_perks:
     title: Ondersteunersvoordele
-    body: 'Deur Mobileraker te ondersteun, verseker jy dat die toep gratis aan die
-      gemeenskap gebied kan word. Daarbenewens ontvang ondersteuners ook die volgende
-      lys voordele:'
+    body: 'Deur Mobileraker te ondersteun, verseker jy dat die toep gratis aan die gemeenskap gebied kan word. Daarbenewens ontvang ondersteuners ook die volgende lys voordele:'
     hint: 'Wenk: Perke is tans volgens toestel. Hierdie mag in die toekoms verander.'
     theme_perk:
       title: Ondersteunerstema
@@ -437,15 +385,13 @@ dialogs:
     active_screw_title: 'Aktiewe Skroef:'
     accept_screw_title: 'Aanvaarde Skroef:'
     accept_screw_value: "{} van {}"
-    hint: Klik Aangepas as 'n noemenswaardige verstelling van die huidige skroef nodig
-      is; anders, klink Aanvaar om te begin.
+    hint: Klik Aangepas as 'n noemenswaardige verstelling van die huidige skroef nodig is; anders, klink Aanvaar om te begin.
     adjusted_btn: Aangepas
   manual_offset:
     title: "@:general.offset Kalibrasie"
     hint_tooltip: Klipper se papiertoets dokumentasie
     snackbar_title: Kalibrasie is voltooi
-    snackbar_message: As jy die afset permanent wil maak, onthou om die konfigurasie
-      te stoor.
+    snackbar_message: As jy die afset permanent wil maak, onthou om die konfigurasie te stoor.
 klipper_state:
   ready: Gereed
   shutdown: Skakel af
@@ -459,7 +405,7 @@ notifications:
     status:
       name: Drukwerkstatus opdaterings - {}
       desc: Kennisgewing rakende die drukwerk se status.
-      title: "{} drukwerk se status het verander!"
+      title: '{} drukwerk se status het verander!'
       body_printing: 'Lêer het begin druk: "{}"'
       body_paused: 'Drukwerk is op pouse geplaas: "{}"'
       body_complete: 'Drukwerk is klaar: "{}"'
