@@ -688,16 +688,6 @@ pages:
     no_vendors: Nem találtam gyártót!
     error_loading_spools: Hiba az orsók betöltésekor
     error_loading_filaments: Hiba a nyomtatószál betöltésekor
-    spool_actions:
-      activate: "@:general.activate"
-      deactivate: Deaktiválás
-      clone: Klón
-      edit: "@:general.edit"
-      archive: Archívum
-      unarchive: Archívum feloldás
-      adjust: Állítsd be az orsószálat
-      share_qr: QR-kód megosztása
-      delete: "@:general.delete"
     create:
       success:
         title: "{} létrehozva!"
