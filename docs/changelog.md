@@ -9,6 +9,8 @@
 - **Printed Indicator**: Added a printed indicator, a green checkmark, to the file browser within the file manager
   making
   it easier to see which files have already been printed.
+- **Streamlining Number Input Dialog**: The number input/range dialog now autofocuses, selects the current value and
+  submits via the keyboard action while in test editing mode. [#406](https://github.com/Clon1998/mobileraker/issues/406)
 
 ## [2.7.2] - 2024-08-26
 
