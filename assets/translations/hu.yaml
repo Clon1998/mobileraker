@@ -688,6 +688,12 @@ pages:
     no_vendors: Nem találtam gyártót!
     error_loading_spools: Hiba az orsók betöltésekor
     error_loading_filaments: Hiba a nyomtatószál betöltésekor
+    create:
+      success:
+        title: "{} létrehozva!"
+        message:
+          one: A(z) {} sikeresen létrehozva.
+          other: A(z) {} sikeresen létrehozva.
     spool:
       one: Orsó
       other: Orsók
