@@ -187,28 +187,10 @@ class _Body extends ConsumerWidget {
             );
           }
 
-          final list = switch (page) {
-            1 => SpoolmanScrollPagination(
-                scrollController: scrollController,
-                machineUUID: machineUUID,
-                type: SpoolmanListType.filaments,
-                onEntryTap: controller.onEntryTap,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-            2 => SpoolmanScrollPagination(
-                scrollController: scrollController,
-                machineUUID: machineUUID,
-                type: SpoolmanListType.vendors,
-                onEntryTap: controller.onEntryTap,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
-            _ => SpoolmanScrollPagination(
-                scrollController: scrollController,
-                machineUUID: machineUUID,
-                type: SpoolmanListType.spools,
-                onEntryTap: controller.onEntryTap,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
+          final type = switch (page) {
+            1 => SpoolmanListType.filaments,
+            2 => SpoolmanListType.vendors,
+            _ => SpoolmanListType.spools,
           };
 
           return ResponsiveLimit(
@@ -216,7 +198,15 @@ class _Body extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
-                Expanded(child: list),
+                Expanded(
+                  child: SpoolmanScrollPagination(
+                    scrollController: scrollController,
+                    machineUUID: machineUUID,
+                    type: type,
+                    onEntryTap: controller.onEntryTap,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  ),
+                ),
               ],
             ),
           );
