@@ -269,7 +269,7 @@ dialogs:
   ws_input_help:
     title: Ajuda para Entrada de URL
     body: |-
-      Você pode inserir um endereço IP, uma URL ou uma URI completa da sua interface web ou inserir diretamente o endereço da instância WebSocket fornecido pelo Moonraker. 
+      Você pode inserir um endereço IP, uma URL ou uma URI completa da sua interface web ou inserir diretamente o endereço da instância WebSocket fornecido pelo Moonraker.
 
       Exemplos válidos:
   gcode_params:

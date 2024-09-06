@@ -153,21 +153,21 @@ pages:
         others: 其他
         first_layer_temps: "@:pages.files.details.meta_card.first_layer-温度"
         first_layer_temps_value: |-
-          @:pages.dashboard.general.temp_card.hotend：{}°C 
-           @:pages.dashboard.general.temp_card.bed：{}°C
+          @:pages.dashboard.general.temp_card.hotend：{}°C
+          @:pages.dashboard.general.temp_card.bed：{}°C
       stat_card:
         title: 统计数据
       preheat_dialog:
         title: "@:pages.files.details.preheat？"
         body: |-
-          目标温度 
-           挤出头：{}°C 
-           床：{}°C
+          目标温度
+          挤出头：{}°C
+          床：{}°C
       preheat_snackbar:
         title: 开始预热
         body: |-
-          挤出头：{}°C 
-           床：{}°C
+          挤出头：{}°C
+          床：{}°C
   setting:
     title: 应用设置
     general:
@@ -188,16 +188,16 @@ pages:
       state_helper: 在状态发生改变时发出通知
       no_permission_title: 没有通知权限！
       no_permission_desc: |-
-        无权限的情况下无法显示通知。 
-         单击弹出通知授权窗口！
+        无权限的情况下无法显示通知。
+        单击弹出通知授权窗口！
       no_firebase_title: 无法显示通知
       no_firebase_desc: |-
         Mobileaker无法向设备发送任何通知。
         您的设备似乎缺少Google Play服务或阻止了Firebase连接！
       ios_notifications_title: iOS通知交付
       ios_notifications_desc: |-
-        通知要求至少一次打开一次通知，并在后台。 
-         仍然可以通过操作系统阻止一些通知！
+        通知要求至少一次打开一次通知，并在后台。
+        仍然可以通过操作系统阻止一些通知！
       missing_companion_title: 找不到配套软件！
       missing_companion_body: |-
         似乎没有安装配套软件，因此以下计算机无法发送通知：｛｝
@@ -307,8 +307,8 @@ components:
     manage_printers: 管理打印机
     fetching_printers: "@:general.fetching打印机..."
     footer: |-
-      由帕特里克·施密特（Patrick Schmidt）精心打造❤️ 
-       项目地址
+      由帕特里克·施密特（Patrick Schmidt）精心打造❤️
+      项目地址
   connection_watcher:
     reconnect: 重新连接
     trying_connect: 尝试链接...
@@ -335,9 +335,9 @@ dialogs:
   delete_folder:
     title: 你确定吗？
     description: |-
-      文件夹中包含的所有文件也将被删除！ 
+      文件夹中包含的所有文件也将被删除！
 
-       确认文件夹'/{}'的删除。
+      确认文件夹'/{}'的删除。
   rename_folder:
     title: 重命名文件夹
     label: 文件夹名称
@@ -356,9 +356,9 @@ dialogs:
   ws_input_help:
     title: URL输入帮助
     body: |-
-      您可以将IP，URL或完整URI输入到Webinterface或直接到Moonraker提供的WebSocket实例。 
+      您可以将IP，URL或完整URI输入到Webinterface或直接到Moonraker提供的WebSocket实例。
 
-       有效示例：
+      有效示例：
   gcode_params:
     hint: '提示：如果您想提交默认值的宏，可以长按！'
   rgbw:

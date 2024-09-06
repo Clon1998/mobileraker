@@ -14,6 +14,7 @@ general:
   use: Használ
   restart: Újraindítás
   shutdown: Leállítás
+  firmware: Firmware
   fetching: Elvesz
   loading: Betöltés
   unknown: Ismeretlen
@@ -27,6 +28,8 @@ general:
   supported: Támogatott
   unsupported: Nem támogatott
   details: Részletek
+  google_play: GooglePlay
+  ios_store: AppStore
   active: Aktív
   canceled: Törölve
   monthly: Havi
@@ -46,10 +49,13 @@ general:
   completed: Befejezve
   activate: Aktiválás
   stop: Állj
+  start: Start
   repeat: Ismét
   load_more: Több betöltése
   archived: Archivált
   leave: Elhagy
+  export: Export
+  import: Import
   current: Aktuális
   load: Betöltés
   unload: Kiürítés
@@ -75,13 +81,18 @@ pages:
         printing_for: 'Nyomtatás: {}'
         speed: Sebesség
         layer: Réteg
+        eta: ETA
         current_object: Aktuális objektum
         elapsed: Eltelt
         flow: Áramlás
         filament: Nyomtatószál
         filament_tooltip: A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.
         eta_tooltip: |-
-          Hátralévő idő: {} 
+          Hátralévő idő:
+          AVG: {avg}
+          Szeletelő: {slicer}
+          Fájl: {file}
+          Nyomtatószál: {filament}
         remaining: Fennmaradó
       cam_card:
         webcam: Webkamera
@@ -100,6 +111,8 @@ pages:
         btn_thermistor: Szenzor
       temp_preset_card:
         cooloff: Hűtés Ki
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Tengelyek mozgatása
         home_xy_tooltip: Kezdőpont X és Y tengely
@@ -107,11 +120,14 @@ pages:
         home_all_tooltip: Kezdőpont minden tengely
         home_all_btn: Minden
         qgl_tooltip: Quad-Gantry szintezés futtatása
+        qgl_btn: QGL
         mesh_tooltip: Futtasson ágyrács kalibrálást
         mesh_btn: Háló
         m84_tooltip: Motorok kikapcsolása
+        m84_btn: M84
         step_size: Lépésméret
         stc_tooltip: Csavar dőlésszámítás indítása
+        stc_btn: STC
         ztilt_tooltip: Z-Tilt kalibráció indítása
         ztilt_btn: Z-Tilt
         poff_tooltip: Futtasd a Szonda eltolás kalibrálást
@@ -128,6 +144,7 @@ pages:
         title: Mikrolépés Z tengely
         z_offset: Z-Eltolás
       restart_klipper: Klipper újraindítása
+      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -308,9 +325,13 @@ pages:
         first_layer: Első réteg
         others: Egyebek
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Hőmérsékletek"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statisztikák
       preheat_dialog:
+        title: "@:pages.files.details.preheat ?"
         body: |-
           Célhőmérséklet
           Fúvóka: {}°C
@@ -359,6 +380,7 @@ pages:
       confirm_gcode_hint: A G-kód-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel
       eta_sources: ETA számítás
       eta_sources_hint: Válaszd ki az ETA-számításhoz használandó forrást
+      medium_ui: Tablet UI
       medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
     notification:
       title: Értesítés
@@ -441,6 +463,7 @@ pages:
       speed_z: Sebesség Z - tengely
       speed_z_short: Sebesség Z
       steps_move: Mozgási lépések
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Z-eltolási lépések
       steps_baby_short: Z lépések
     extruders:
@@ -448,6 +471,7 @@ pages:
       feedrate: Adagoló előtolási sebesség
       feedrate_short: Adagolási sebesség
       steps_extrude: Adagolási hossz
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Adagoló fúvóka távolsága
         loading_distance_helper: A fúvóka-adagoló közti távolság. Nyomtatószál (kiadás)betöltéshez használatos
@@ -498,6 +522,9 @@ pages:
       body:
         oe: Kérjük, erősítsd meg a nyomtató {} leválasztását az OctoEverywhere-ről.
         other: Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról {}.
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
     remote_interface_exists:
       title: Távoli kapcsolat található
       body:
@@ -603,6 +630,7 @@ pages:
     no_entries: Nem találtam gépeket
     add_machine: Gép hozzáadása
   markdown:
+    loading: "@:general.loading {}…"
     error: Hiba történt a lekérés során {};
     open_in_browser: Megnyitás @:pages.faq.title a böngészőben
   faq:
@@ -664,6 +692,53 @@ pages:
     no_vendors: Nem találtam gyártót!
     error_loading_spools: Hiba az orsók betöltésekor
     error_loading_filaments: Hiba a nyomtatószál betöltésekor
+    spoolman_actions:
+      activate: "@:general.activate"
+      deactivate: Deaktiválás
+      clone: Klón
+      edit: "@:general.edit"
+      archive: Archívum
+      unarchive: Archívum feloldása
+      adjust: Állítsd be az orsószálat
+      share_qr: QR-kód megosztása
+      delete: "@:general.delete"
+      add_spool: Orsó hozzáadása
+      add_filament: Szál hozzáadása
+    create:
+      success:
+        title: "{} létrehozva!"
+        message:
+          one: A(z) {} sikeresen létrehozva.
+          other: A(z) {} sikeresen létrehozva.
+      error:
+        title: Hiba a {} létrehozásakor!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+    update:
+      success:
+        title: "{} frissítve!"
+        message: A {} sikeresen frissült.
+      error:
+        title: Hiba a {} frissítésénél!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+      no_changes:
+        title: Nem történt változás!
+        message: A {} nem lett megváltoztatva.
+    delete:
+      confirm:
+        title: Törlöd {}?
+        body: |-
+          A {} törlésére készülsz.
+          Ez a művelet nem vonható vissza.
+
+          Erősítsd meg a műveletet.
+      success:
+        title: "{} törölve!"
+        message:
+          one: A {} sikeresen törölve lett.
+          other: A {} sikeresen törölve lettek.
+      error:
+        title: Törlési hiba {}!
+        message: Váratlan hiba, kérjük, próbáld újra később.
     spool:
       one: Orsó
       other: Orsók
@@ -674,6 +749,7 @@ pages:
       one: Gyártó
       other: Gyártók
     properties:
+      id: ID
       name: Név
       registered: Regisztrált
       comment: Megjegyzés
@@ -688,8 +764,17 @@ pages:
       last_used: Legutóbb használt
       remaining_weight: Maradék súly
       used_weight: Használt súly
+      remaining_length: Maradék hossz
+      used_length: Használt hossz
       location: Helyszín
       lot_number: Tételszám
+      color: Szín
+    property_sections:
+      basic: Alapvető információ
+      usage: Használat részletei
+      additional: További információ
+      physical: Fizikai tulajdonságok
+      print_settings: Nyomtatás beállításai
     vendor_details:
       page_title: Gyártó {}
       info_card: Gyártói információ
@@ -705,6 +790,28 @@ pages:
       archived_warning:
         title: Archivált orsó
         body: Ez az orsó archiválva van, és nem használható új nyomtatáshoz.
+    spool_form:
+      create_page_title: Orsó létrehozása
+      update_page_title: Orsó szerkesztése
+      helper:
+        price: "@:pages.spoolman.filament_form.helper.price Alapértelmezett ár, ha nincs a szál ára megadva"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Alapértelmezett súly, ha nincs a szál súlya megadva"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight Alapértelmezett gyártói súlya az orsónak, ha nincs megadva"
+        used_weight: A felhasznált nyomtatószál súlya. A 0 grammos érték azt jelenti, hogy az orsó nem használt
+        location: Az orsó tárolási helye
+        lot_number: A gyártó tételszáma. Több orsó használata esetén a nyomtatás egységes színének biztosítására használható.
+    filament_form:
+      create_page_title: Nyomtatószál létrehozása
+      update_page_title: Nyomtatószál szerkesztése
+      helper:
+        price: Egy orsó nyomtatószál ára.
+        initial_weight: A teljes orsón lévő nyomtatószál nettó súlya, az orsó nélkül. Ez általában a csomagoláson fel van tüntetve.
+        empty_weight: Az üres orsó súlya.
+    vendor_form:
+      create_page_title: Gyártó létrehozása
+      update_page_title: Gyártó szerkesztése
+      helper:
+        empty_weight: A gyártó üres orsójának a súlya.
 components:
   app_version_display:
     version: 'Verzió:'
@@ -946,6 +1053,18 @@ dialogs:
       A nyomtatási feladat törlésére készülsz.
 
       Erősítsd meg a műveletet.
+  adjust_spool_filament:
+    title: Állítsd be az orsószálat
+    subtitle: Szál hozzáadása vagy kivonása az orsóról. A pozitív érték a szál fogyasztását, a negatív érték a hozzáadását eredményezi.
+    input_label: Összeg megadása
+    submit_label: Beállítás
+    tooltip:
+      weight: Súly módra váltás
+      length: Hosszúság módra váltás
+  num_range_dialog:
+    helper:
+      min: Adj meg legalább egy értéket {}
+      range: Adj meg egy {} és {} közötti értéket
 bottom_sheets:
   job_queue_sheet:
     next: Következő nyomtatási feladat
@@ -960,6 +1079,8 @@ bottom_sheets:
       title: Meglévő konfigurációt találtunk!
       body: Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként. Távolítsd el, mielőtt újat adnál hozzá.
     octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
       link: Kapcsolódás OctoEverywhere
       unlink: Leválasztás OctoEverywhere
       description: OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi, hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést, értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze 20 másodpercet vesz igénybe!
@@ -970,6 +1091,8 @@ bottom_sheets:
       address_label: Alternatív cím
       address_hint: A használandó távoli kapcsolat alapcíme
     obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: Kapcsolódás Obico
       unlink: Leválasztás Obico
       description: Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.
@@ -1081,6 +1204,10 @@ bottom_sheets:
     falsy_import_snackbar:
       title: Hiba az elrendezés importálásakor!
       body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon van-e érvényes elrendezés.
+  selections:
+    no_selections:
+      title: Nem találtam eredményt
+      subtitle: Próbálj meg egy másik kifejezésre keresni
 klipper_state:
   ready: Kész
   shutdown: Leállítás
@@ -1146,3 +1273,317 @@ date_periods:
   day:
     one: Napi
     other: Napok
+languages:
+  languageCode:
+    ab:
+      name: Abház
+      nativeName: аҧсуа
+    aa:
+      name: Afar
+      nativeName: Afaraf
+    af:
+      name: Afrikaans
+      nativeName: Afrikaans
+    ak:
+      name: Akan
+      nativeName: Akan
+    sq:
+      name: Albán
+      nativeName: Shqip
+    am:
+      name: Amharic
+      nativeName: አማርኛ
+    ar:
+      name: Arab
+      nativeName: العربية
+    an:
+      name: Aragóniai
+      nativeName: Aragonés
+    hy:
+      name: Örmény
+      nativeName: Հայերեն
+    as:
+      name: Assamese
+      nativeName: অসমীয়া
+    av:
+      name: Avaric
+      nativeName: авар мацӀ, магӀарул мацӀ
+    ae:
+      name: Avestan
+      nativeName: avesta
+    bh:
+      nativeName: भोजपुरी
+    bi:
+      name: Bislama
+      nativeName: Bislama
+    bs:
+      name: Bosnyák
+      nativeName: Bosnyák nyelv
+    br:
+      name: Breton
+      nativeName: brezhoneg
+    bg:
+      name: Bolgár
+      nativeName: български език
+    my:
+      name: Burmai
+      nativeName: ဗမာစာ
+    ca:
+      name: Katalán; valenciai
+      nativeName: Katalán
+    ch:
+      name: Chamorro
+      nativeName: Chamoru
+    ce:
+      name: Csecsen
+      nativeName: нохчийн мотт
+    ny:
+      name: Chichewa; Chewa; Nyanja
+      nativeName: chiCheŵa, chinyanja
+    zh:
+      name: Kínai
+      nativeName: 中文
+    cv:
+      name: Csuvas
+      nativeName: чӑваш чӗлхи
+    kw:
+      name: Cornish
+      nativeName: Kernewek
+    co:
+      name: Korzikai
+      nativeName: corsu, lingua corsa
+    cr:
+      name: Cree
+      nativeName: ᓀᐦᐃᔭᐍᐏᐣ
+    hr:
+      name: Horvát
+      nativeName: hrvatski
+    cs:
+      name: Cseh
+      nativeName: česky, čeština
+    da:
+      name: Dán
+      nativeName: Dán
+    dv:
+      name: Divehi; Dhivehi; Maldivian;
+      nativeName: ދިވެހި
+    nl:
+      name: Holland
+      nativeName: Holland, flamand
+    en:
+      name: Angol
+      nativeName: Angol
+    eo:
+      name: Eszperantó
+      nativeName: Eszperantó
+    et:
+      name: Észt
+      nativeName: eesti, eesti keel
+    ee:
+      name: Ewe
+      nativeName: Eʋegbe
+    fo:
+      name: Feröer
+      nativeName: føroyskt
+    fj:
+      name: Fidzsi
+    it:
+      nativeName: Olasz
+    iu:
+      name: Inuktitut
+      nativeName: ᐃᓄᒃᑎᑐᑦ
+    ja:
+      name: Japán
+      nativeName: 日本語 (にほんご／にっぽんご)
+    jv:
+      name: Javanese
+      nativeName: basa Jawa
+    kl:
+      name: Kalaallisut, Greenlandic
+      nativeName: kalaallisut, kalaallit oqaasii
+    kn:
+      name: Kannada
+      nativeName: ಕನ್ನಡ
+    kr:
+      name: Kanuri
+      nativeName: Kanuri
+    ks:
+      name: Kashmiri
+      nativeName: कश्मीरी, كشميري‎
+    kk:
+      name: Kazakh
+      nativeName: Қазақ тілі
+    km:
+      name: Khmer
+      nativeName: ភាសាខ្មែរ
+    ki:
+      name: Kikuyu, Gikuyu
+      nativeName: Gĩkũyũ
+    rw:
+      name: Kinyarwanda
+      nativeName: Ikinyarwanda
+    ky:
+      name: Kirghiz, Kyrgyz
+      nativeName: кыргыз тили
+    kv:
+      name: Komi
+      nativeName: коми кыв
+    kg:
+      name: Kongo
+      nativeName: KiKongo
+    ko:
+      name: Kóreai
+      nativeName: 한국어 (韓國語), 조선말 (朝鮮語)
+    ku:
+      name: Kurdish
+      nativeName: Kurdî, كوردی‎
+    kj:
+      name: Kwanyama, Kuanyama
+      nativeName: Kuanyama
+    la:
+      name: Latin
+      nativeName: latine, lingua latina
+    lb:
+      name: Luxembourgish, Letzeburgesch
+      nativeName: Lëtzebuergesch
+    lg:
+      name: Luganda
+      nativeName: Luganda
+    li:
+      name: Limburgish, Limburgan, Limburger
+      nativeName: Limburgs
+    ln:
+      name: Lingala
+      nativeName: Lingála
+    lo:
+      name: Lao
+      nativeName: ພາສາລາວ
+    lt:
+      name: Litván
+      nativeName: lietuvių kalba
+    lu:
+      name: Luba-Katanga
+    om:
+      nativeName: Afaan Oromoo
+    or:
+      name: Oriya
+      nativeName: ଓଡ଼ିଆ
+    os:
+      name: Ossetian, Ossetic
+      nativeName: ирон æвзаг
+    pa:
+      name: Panjabi, Punjabi
+      nativeName: ਪੰਜਾਬੀ, پنجابی‎
+    pi:
+      name: Pāli
+      nativeName: पाऴि
+    fa:
+      name: Persian
+      nativeName: فارسی
+    pl:
+      name: Polish
+      nativeName: polski
+    ps:
+      name: Pashto, Pushto
+      nativeName: پښتو
+    pt:
+      name: Portuguese
+      nativeName: Português
+    qu:
+      name: Quechua
+      nativeName: Runa Simi, Kichwa
+    rm:
+      name: Romansh
+      nativeName: rumantsch grischun
+    rn:
+      name: Kirundi
+      nativeName: kiRundi
+    ro:
+      name: Romanian, Moldavian, Moldovan
+      nativeName: Román
+    ru:
+      name: Orosz
+      nativeName: русский язык
+    sa:
+      name: Sanskrit (Saṁskṛta)
+      nativeName: संस्कृतम्
+    sc:
+      name: Sardinian
+      nativeName: sardu
+    sd:
+      name: Sindhi
+      nativeName: सिन्धी, سنڌي، سندھی‎
+    se:
+      name: Northern Sami
+      nativeName: Davvisámegiella
+    sm:
+      name: Samoan
+      nativeName: gagana faa Samoa
+    sg:
+      name: Sango
+      nativeName: yângâ tî sängö
+    sr:
+      name: Szerb
+      nativeName: српски језик
+    gd:
+      name: Scottish Gaelic; Gaelic
+      nativeName: Gàidhlig
+    sn:
+      name: Shona
+      nativeName: chiShona
+    si:
+      name: Sinhala, Sinhalese
+      nativeName: සිංහල
+    sk:
+      name: Szlovák
+      nativeName: slovenčina
+    sl:
+      name: Szlovén
+    ur:
+      nativeName: اردو
+    uz:
+      name: Uzbek
+      nativeName: zbek, Ўзбек, أۇزبېك‎
+    ve:
+      name: Venda
+      nativeName: Tshivenḓa
+    vi:
+      name: Vietnamese
+      nativeName: Tiếng Việt
+    vo:
+      name: Volapük
+      nativeName: Volapük
+    wa:
+      name: Walloon
+      nativeName: Walon
+    cy:
+      name: Welsh
+      nativeName: Cymraeg
+    wo:
+      name: Wolof
+      nativeName: Wollof
+    fy:
+      name: Western Frisian
+      nativeName: Frysk
+    xh:
+      name: Xhosa
+      nativeName: isiXhosa
+    yi:
+      name: Yiddish
+      nativeName: ייִדיש
+    yo:
+      name: Yoruba
+      nativeName: Yorùbá
+    za:
+      name: Zhuang, Chuang
+      nativeName: Saɯ cueŋƅ, Saw cuengh
+  countryCode:
+    CN:
+      name: Simplified
+      nativeName: 简体
+    HK:
+      name: Traditional
+      nativeName: 繁體
+    BR:
+      name: Brasil
+      nativeName: Brasil

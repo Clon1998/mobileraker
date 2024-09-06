@@ -714,24 +714,24 @@ pages:
     update:
       success:
         title: "{} aktualisiert!"
-        message: "{} wurde erfolgreich aktualisiert."
+        message: '{} wurde erfolgreich aktualisiert.'
       error:
-        title: "{} konnte nicht aktualisiert werden!"
+        title: '{} konnte nicht aktualisiert werden!'
         message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
       no_changes:
         title: Keine Änderungen an {} vorgenommen!
         message: Es wurden keine Änderungen vorgenommen.
     delete:
       confirm:
-        title: "{} löschen?"
+        title: '{} löschen?'
         body: |-
-          Sie sind dabei, {} zu löschen. 
+          Sie sind dabei, {} zu löschen.
           Bestätigen Sie Ihre Aktion.
       success:
         title: "{} gelöscht!"
         message:
-          one: "{} wurde erfolgreich gelöscht."
-          other: "{} wurden erfolgreich gelöscht."
+          one: '{} wurde erfolgreich gelöscht.'
+          other: '{} wurden erfolgreich gelöscht.'
       error:
         title: Fehler beim Löschen von {}!
         message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
@@ -788,6 +788,7 @@ pages:
         body: Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden.
     spool_form:
       create_page_title: Spule erstellen
+      update_page_title: Spule bearbeiten
       helper:
         price: "@:pages.spoolman.filament_form.helper.price Fällt auf den Filamentpreis zurück, wenn nicht gesetzt"
         initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Fällt auf das Filamentgewicht zurück, wenn nicht gesetzt"
@@ -797,12 +798,14 @@ pages:
         lot_number: Chargennummer des Herstellers. Kann verwendet werden, um sicherzustellen, dass ein Druck bei Verwendung mehrerer Spulen eine konsistente Farbe aufweist
     filament_form:
       create_page_title: Filament erstellen
+      update_page_title: Filament bearbeiten
       helper:
         price: Der Preis einer Spule.
         initial_weight: Das Nettogewicht des Filaments auf einer vollen Spule, ohne die Spule. Dies ist normalerweise auf der Verpackung angegeben.
         empty_weight: Das Leergewicht der Spule.
     vendor_form:
       create_page_title: Hersteller erstellen
+      update_page_title: Hersteller bearbeiten
       helper:
         empty_weight: Das Leergewicht einer Spule dieses Herstellers.
 components:
@@ -871,9 +874,9 @@ dialogs:
   delete_folder:
     title: Bist du dir sicher?
     description: |-
-      Alle im Ordner enthaltenen Dateien werden ebenfalls entfernt! 
+      Alle im Ordner enthaltenen Dateien werden ebenfalls entfernt!
 
-       Bestätigen Sie die Löschung des Ordners '/{}'.
+      Bestätigen Sie die Löschung des Ordners '/{}'.
   rename_folder:
     title: Ordner umbenennen
     label: Ordnername
@@ -907,7 +910,7 @@ dialogs:
   ws_input_help:
     title: URL-Eingabehilfe
     body: |-
-      Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer \ Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben. 
+      Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer \ Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben.
 
       Gültige Beispiele:
   gcode_params:
@@ -1052,6 +1055,10 @@ dialogs:
     tooltip:
       weight: Wechseln Sie zum Gewichtsmodus
       length: Wechseln Sie zum Längenmodus
+  num_range_dialog:
+    helper:
+      min: Gib einen Wert größer als {} ein
+      range: Gib einen Wert zwischen {} und {} ein
 bottom_sheets:
   job_queue_sheet:
     next: Nächster Druckauftrag

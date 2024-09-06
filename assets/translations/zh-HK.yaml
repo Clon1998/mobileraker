@@ -210,7 +210,7 @@ pages:
         仍有一些通知可能被操作系統阻止！
       missing_companion_title: 未找到 Companion！
       missing_companion_body: |-
-        似乎未安裝配套程序，因此以下計算機無法發送通知：{} 
+        似乎未安裝配套程序，因此以下計算機無法發送通知：{}
 
         點擊了解更多！
       enable_live_activity: 啟用即時動態通知
@@ -263,7 +263,7 @@ pages:
       speed_z_short: Z速度
       steps_move: 移動步數
       steps_baby: 微調 Z 步
-      steps_baby_short: 微調 Z 
+      steps_baby_short: 微調 Z
     extruders:
       title: 擠出機
       feedrate: 擠出機進料速度
@@ -314,7 +314,7 @@ pages:
     wifi_access_warning:
       title: WiFi信息不可用
       subtitle: |-
-        要確定 Mobileraker 是否應使用遠程連接，請授予位置訪問權限。這允許應用程序獲取當前 WiFi 網絡的名稱。 
+        要確定 Mobileraker 是否應使用遠程連接，請授予位置訪問權限。這允許應用程序獲取當前 WiFi 網絡的名稱。
 
         點擊以授予權限。
     local_ssid:
@@ -477,7 +477,7 @@ dialogs:
   delete_folder:
     title: 你確定嗎？
     description: |-
-      文件夾中包含的所有文件也將被刪除！ 
+      文件夾中包含的所有文件也將被刪除！
 
       確認刪除文件夾“/{}”。
   rename_folder:
@@ -498,7 +498,7 @@ dialogs:
   ws_input_help:
     title: 網址輸入幫助
     body: |-
-      您可以在 Web 界面中輸入 IP、URL 或完整 URI，也可以直接在 Moonraker 提供的 Websocket 實例中輸入。 
+      您可以在 Web 界面中輸入 IP、URL 或完整 URI，也可以直接在 Moonraker 提供的 Websocket 實例中輸入。
 
       有效示例：
   gcode_params:
