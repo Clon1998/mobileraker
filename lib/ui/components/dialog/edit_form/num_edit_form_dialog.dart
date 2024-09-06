@@ -160,8 +160,8 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
           Text(widget.request.title!, style: themeData.textTheme.titleLarge),
           if (widget.request.body != null) Text(widget.request.body!, style: themeData.textTheme.bodySmall),
           AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 2000),
-            sizeDuration: const Duration(milliseconds: 2000),
+            fadeDuration: kThemeAnimationDuration,
+            sizeDuration: kThemeAnimationDuration,
             alignment: Alignment.topCenter,
             fadeInCurve: Curves.easeInOutCirc,
             fadeOutCurve: Curves.easeInOutCirc,
