@@ -20,6 +20,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/update_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../printers/components/section_header.dart';
@@ -222,21 +223,34 @@ class _VendorFormPageController extends _$VendorFormPageController {
     }
 
     state = state.copyWith(isSaving: true);
-    final dto = _dtoFromForm(formData);
-    logger.i('CreateVendor DTO: ${dto.toJson()}');
+    switch (state.mode) {
+      case _FormMode.create:
+      case _FormMode.copy:
+        _create(formData);
+        break;
+      case _FormMode.update:
+        _update(formData);
+        break;
+    }
+  }
+
+  Future<void> _create(Map<String, dynamic> formData) async {
+    final dto = _createDtoFromForm(formData);
+    logger.i('[VendorFormPageController($machineUUID)] Create DTO: $dto');
+    final entityName = tr('pages.spoolman.vendor.one');
     try {
-      final newEntity = await _spoolmanService.createVendor(dto);
+      final res = await _spoolmanService.createVendor(dto);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
-        title: tr('pages.spoolman.create.success.title', args: [tr('pages.spoolman.vendor.one')]),
-        message: tr('pages.spoolman.create.success.message.one', args: [tr('pages.spoolman.vendor.one')]),
+        title: tr('pages.spoolman.create.success.title', args: [entityName]),
+        message: tr('pages.spoolman.create.success.message.one', args: [entityName]),
       ));
-      _goRouter.pop(newEntity);
+      _goRouter.pop(res);
     } catch (e, s) {
-      logger.e('[VendorFormPageController($machineUUID)] Error while saving', e, s);
+      logger.e('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
-        title: tr('pages.spoolman.create.error.title', args: [tr('pages.spoolman.vendor.one')]),
+        title: tr('pages.spoolman.create.error.title', args: [entityName]),
         message: tr('pages.spoolman.create.error.message'),
       ));
     } finally {
@@ -244,12 +258,69 @@ class _VendorFormPageController extends _$VendorFormPageController {
     }
   }
 
-  CreateVendor _dtoFromForm(Map<String, dynamic> formData) {
+  Future<void> _update(Map<String, dynamic> formData) async {
+    final dto = _updateDtoFromForm(formData, state.source!);
+    logger.i('[VendorFormPageController($machineUUID)] Update DTO: $dto');
+    final entityName = tr('pages.spoolman.vendor.one');
+
+    if (dto == null) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('pages.spoolman.update.no_changes.title'),
+        message: tr('pages.spoolman.update.no_changes.message', args: [entityName]),
+      ));
+      _goRouter.pop();
+      return;
+    }
+
+    try {
+      final updated = await _spoolmanService.updateVendor(dto);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.spoolman.update.success.title', args: [entityName]),
+        message: tr('pages.spoolman.update.success.message', args: [entityName]),
+      ));
+      _goRouter.pop(updated);
+    } catch (e, s) {
+      logger.e('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: tr('pages.spoolman.update.error.title', args: [entityName]),
+        message: tr('pages.spoolman.update.error.message'),
+      ));
+      _goRouter.pop();
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
+  }
+
+  CreateVendor _createDtoFromForm(Map<String, dynamic> formData) {
     return CreateVendor(
       name: formData[_VendorFormFormComponent.name.name],
       spoolWeight: formData[_VendorFormFormComponent.spoolWeight.name],
       externalId: formData[_VendorFormFormComponent.externalId.name],
       comment: formData[_VendorFormFormComponent.comment.name],
+    );
+  }
+
+  UpdateVendor? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor source) {
+    final name = formData[_VendorFormFormComponent.name.name];
+    final spoolWeight = formData[_VendorFormFormComponent.spoolWeight.name];
+    final externalId = formData[_VendorFormFormComponent.externalId.name];
+    final comment = formData[_VendorFormFormComponent.comment.name];
+
+    // If no changes were made, return null
+    if (name == source.name &&
+        spoolWeight == source.spoolWeight &&
+        externalId == source.externalId &&
+        comment == source.comment) return null;
+
+    return UpdateVendor(
+      id: source.id,
+      name: source.name == name ? null : name,
+      spoolWeight: source.spoolWeight == spoolWeight ? null : spoolWeight,
+      comment: source.comment == comment ? null : comment,
+      externalId: source.externalId == externalId ? null : externalId,
     );
   }
 }
