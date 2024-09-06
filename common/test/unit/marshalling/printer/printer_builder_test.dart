@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/fans/generic_fan.dart';
 import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -183,6 +184,17 @@ void main() {
       };
       final updatedBuilder = builder.partialUpdateField('extruder-1', json);
       expect(updatedBuilder.extruders.length, 0);
+    });
+
+    test('Update generic fan', () {
+      final builder = PrinterBuilder.preview();
+      builder.fans['hotend_fan'] = GenericFan(name: 'hotend_fan');
+
+      final json = {
+        'fan_generic hotend_fan': {'speed': 100}
+      };
+      final updatedBuilder = builder.partialUpdateField('fan_generic hotend_fan', json);
+      expect(updatedBuilder.fans['hotend_fan']!.speed, 100);
     });
   });
 }
