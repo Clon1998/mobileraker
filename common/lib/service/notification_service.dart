@@ -56,6 +56,7 @@ Future<String> fcmToken(FcmTokenRef ref) async {
 class NotificationService {
   static const String _notificationTappedPortName = 'onNoti';
   static const String _fcmTokenUpdatedPortName = 'tknUpdat';
+  static const String _nativeTokenUpdatedPortName = 'ntvTknUpdat';
   static const String _marketingTopic = 'marketing';
 
   NotificationService(this._ref)
@@ -76,6 +77,7 @@ class NotificationService {
 
   final ReceivePort _notificationTapPort = ReceivePort();
   final ReceivePort _fcmTokenUpdatePort = ReceivePort();
+  final ReceivePort _nativeTokenUpdatePort = ReceivePort();
 
   StreamSubscription<ModelEvent<Machine>>? _machineRepoUpdateListener;
   final Map<String, ProviderSubscription> _fcmUpdateListeners = {};
@@ -244,12 +246,14 @@ class NotificationService {
     logger.i('Initializing remote messaging');
     hiddenMachines.forEach(_wipeFCMOnPrinterOnceConnected);
     if (await isFirebaseAvailable()) {
+      logger.i('Firebase is available, initializing FCM');
       await _notifyFCM.initialize(
-          onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
-          onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
-          licenseKeys: licenseKeys);
+        onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
+        onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
+        onNativeTokenHandle: _awesomeNotificationNativeTokenHandler,
+        licenseKeys: licenseKeys,
+      );
       allMachines.forEach(_setupMachineFcmUpdater);
-      _setupFcmTopicNotifications();
     }
   }
 
@@ -260,10 +264,13 @@ class NotificationService {
     IsolateNameServer.registerPortWithName(_notificationTapPort.sendPort, _notificationTappedPortName);
     IsolateNameServer.removePortNameMapping(_fcmTokenUpdatedPortName);
     IsolateNameServer.registerPortWithName(_fcmTokenUpdatePort.sendPort, _fcmTokenUpdatedPortName);
+    IsolateNameServer.removePortNameMapping(_nativeTokenUpdatedPortName);
+    IsolateNameServer.registerPortWithName(_nativeTokenUpdatePort.sendPort, _nativeTokenUpdatedPortName);
 
     // No need to close this sub, since I close the port!
     _notificationTapPort.listen(_onNotificationTapPortMessage, onError: _onNotificationTapPortError);
     _fcmTokenUpdatePort.listen(_onFcmTokenUpdatePortMessage, onError: _onFcmTokenUpdatePortError);
+    _nativeTokenUpdatePort.listen(_onNativeTokenUpdatePortMessage, onError: _onNativeTokenUpdatePortError);
     logger.i('Successfully initialized ports!');
   }
 
@@ -316,8 +323,7 @@ class NotificationService {
 
   Future<void> _onFcmTokenUpdatePortMessage(dynamic token) async {
     if (token is! String) {
-      logger.w(
-          'Received object from the onNotificationTap Port is not of type: ReceivedAction it is type:${token.runtimeType}');
+      logger.w('Received object from the fcmTokenUpdatePort is not of type: String it is type:${token.runtimeType}');
       return;
     }
     logger.i('Token from FCM updated $token');
@@ -325,7 +331,31 @@ class NotificationService {
   }
 
   Future<void> _onFcmTokenUpdatePortError(error) async {
-    logger.e('Received an error from the onNotificationTap Port', e);
+    logger.e('Received an error from the onFcmTokenUpdatePort Port', e);
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> _awesomeNotificationNativeTokenHandler(String nativeToken) async {
+    SendPort? port = IsolateNameServer.lookupPortByName(_nativeTokenUpdatedPortName);
+    if (port != null) {
+      port.send(nativeToken);
+    } else {
+      logger.e('Received an action from the onNativeTokenHandle Port but the port is null!');
+    }
+  }
+
+  Future<void> _onNativeTokenUpdatePortMessage(dynamic token) async {
+    if (token is! String) {
+      logger.w(
+          'Received object from the onNativeTokenUpdatePort is not of type: String,  it is type:${token.runtimeType}');
+      return;
+    }
+    logger.i('Token from Native updated $token');
+    _setupFcmTopicNotifications();
+  }
+
+  Future<void> _onNativeTokenUpdatePortError(error) async {
+    logger.e('Received an error from the onNativeTokenUpdatePort', e);
   }
 
   @pragma('vm:entry-point')
@@ -389,13 +419,13 @@ class NotificationService {
     _fcmUpdateListeners[_marketingTopic]?.close();
 
     _fcmUpdateListeners[_marketingTopic] =
-        _ref.listen(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications), (previous, next) {
+        _ref.listen(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications, true), (previous, next) {
       if (next == true) {
         logger.i('Subscribing to marketing topic');
-        _notifyFCM.subscribeToTopic(_marketingTopic);
+        _notifyFCM.subscribeToTopic(_marketingTopic).ignore();
       } else {
         logger.i('Unsubscribing from marketing topic');
-        _notifyFCM.unsubscribeToTopic(_marketingTopic);
+        _notifyFCM.unsubscribeToTopic(_marketingTopic).ignore();
       }
     }, fireImmediately: true);
   }
@@ -444,6 +474,8 @@ class NotificationService {
   dispose() {
     logger.e('NEVER DISPOSE THIS SERVICE!');
     _notificationTapPort.close();
+    _fcmTokenUpdatePort.close();
+    _nativeTokenUpdatePort.close();
     _machineRepoUpdateListener?.cancel();
 
     _initialized.completeError(StateError('Disposed notification service before it was initialized!'));
