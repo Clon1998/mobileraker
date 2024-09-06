@@ -797,7 +797,7 @@ class _FileListState extends ConsumerState<_FileListData> {
             _refreshController.refreshCompleted();
           },
           onError: (e, s) {
-            logger.e(e, s);
+            logger.e('Error while refreshing FileListState', e, s);
             _refreshController.refreshFailed();
           },
         ).whenComplete(() => _isUserRefresh.value = false);
