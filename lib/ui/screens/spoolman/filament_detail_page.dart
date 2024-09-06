@@ -122,6 +122,7 @@ class _FilamentInfo extends ConsumerWidget {
     final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
+    final hasVendor = filament.vendor != null;
     final properties = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
@@ -129,33 +130,38 @@ class _FilamentInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.name'),
-        property: filament.name ?? '-',
+        property: filament.name ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.material'),
-        property: filament.material ?? '-',
+        property: filament.material ?? '–',
       ),
       GestureDetector(
         onTap: () {
           controller.onEntryTap(filament.vendor!);
-        },
+        }.only(hasVendor),
         child: PropertyWithTitle(
           title: plural('pages.spoolman.vendor', 1),
           property: Text.rich(
             TextSpan(
               children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Icon(FlutterIcons.external_link_faw,
-                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
-                ),
-                const WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: SizedBox(width: 4),
-                ),
+                if (hasVendor) ...[
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Icon(
+                      FlutterIcons.external_link_faw,
+                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2,
+                    ),
+                  ),
+                  const WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: SizedBox(width: 4),
+                  ),
+                ],
                 TextSpan(
-                  text: filament.vendor?.name,
-                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+                  text: filament.vendor?.name ?? '–',
+                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline)
+                      .only(hasVendor),
                 ),
               ],
             ),
@@ -168,7 +174,7 @@ class _FilamentInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.price'),
-        property: filament.price?.let(numberFormatPrice.format) ?? '-',
+        property: filament.price?.let(numberFormatPrice.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.density'),
@@ -180,23 +186,23 @@ class _FilamentInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.weight'),
-        property: filament.weight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: filament.weight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.spool_weight'),
-        property: filament.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: filament.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.printer_edit.presets.hotend_temp'),
-        property: filament.settingsExtruderTemp?.let((it) => '$it °C') ?? '-',
+        property: filament.settingsExtruderTemp?.let((it) => '$it °C') ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.printer_edit.presets.bed_temp'),
-        property: filament.settingsBedTemp?.let((it) => '$it °C') ?? '-',
+        property: filament.settingsBedTemp?.let((it) => '$it °C') ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.article_number'),
-        property: filament.articleNumber ?? '-',
+        property: filament.articleNumber ?? '–',
       ),
     ];
 
@@ -230,7 +236,7 @@ class _FilamentInfo extends ConsumerWidget {
             padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
-              property: filament.comment ?? '-',
+              property: filament.comment ?? '–',
             ),
           ),
         ],

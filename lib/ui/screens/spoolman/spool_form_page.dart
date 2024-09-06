@@ -417,10 +417,10 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
-        _createSpool(formData, state.selectedFilament!, qty);
+        _create(formData, state.selectedFilament!, qty);
         break;
       case _FormMode.update:
-        _updateSpool(formData, state.selectedFilament!);
+        _update(formData, state.selectedFilament!);
         break;
     }
   }
@@ -461,22 +461,23 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     state = state.copyWith(selectedFilament: resFila);
   }
 
-  Future<void> _createSpool(Map<String, dynamic> formData, GetFilament filament, int qty) async {
+  Future<void> _create(Map<String, dynamic> formData, GetFilament filament, int qty) async {
     final dto = _createDtoFromForm(formData, filament);
     logger.i('[SpoolFormPageController($machineUUID)] Create DTO: $dto');
+    final entityName = plural('pages.spoolman.spool', qty);
     try {
       final res = await Future.wait(List.generate(qty, (_) => _spoolmanService.createSpool(dto)));
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
-        title: tr('pages.spoolman.create.success.title', args: [plural('pages.spoolman.spool', qty)]),
-        message: plural('pages.spoolman.create.success.message', qty, args: [plural('pages.spoolman.spool', qty)]),
+        title: tr('pages.spoolman.create.success.title', args: [entityName]),
+        message: plural('pages.spoolman.create.success.message', qty, args: [entityName]),
       ));
       _goRouter.pop(res);
     } catch (e, s) {
       logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
-        title: tr('pages.spoolman.create.error.title', args: [plural('pages.spoolman.spool', qty)]),
+        title: tr('pages.spoolman.create.error.title', args: [entityName]),
         message: tr('pages.spoolman.create.error.message'),
       ));
     } finally {
@@ -484,14 +485,15 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
   }
 
-  Future<void> _updateSpool(Map<String, dynamic> formData, GetFilament filament) async {
+  Future<void> _update(Map<String, dynamic> formData, GetFilament filament) async {
     final dto = _updateDtoFromForm(formData, filament, state.source!);
     logger.i('[SpoolFormPageController($machineUUID)] Update DTO: $dto');
+    final entityName = tr('pages.spoolman.spool.one');
     if (dto == null) {
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.warning,
         title: tr('pages.spoolman.update.no_changes.title'),
-        message: tr('pages.spoolman.update.no_changes.message', args: [tr('pages.spoolman.spool.one')]),
+        message: tr('pages.spoolman.update.no_changes.message', args: [entityName]),
       ));
       _goRouter.pop();
       return;
@@ -501,15 +503,15 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       final updated = await _spoolmanService.updateSpool(dto);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
-        title: tr('pages.spoolman.update.success.title', args: [tr('pages.spoolman.spool.one')]),
-        message: tr('pages.spoolman.update.success.message', args: [tr('pages.spoolman.spool.one')]),
+        title: tr('pages.spoolman.update.success.title', args: [entityName]),
+        message: tr('pages.spoolman.update.success.message', args: [entityName]),
       ));
       _goRouter.pop(updated);
     } catch (e, s) {
       logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
-        title: tr('pages.spoolman.update.error.title', args: [tr('pages.spoolman.spool.one')]),
+        title: tr('pages.spoolman.update.error.title', args: [entityName]),
         message: tr('pages.spoolman.update.error.message'),
       ));
       _goRouter.pop();

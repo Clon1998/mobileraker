@@ -137,7 +137,7 @@ class _VendorInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.spool_weight'),
-        property: vendor.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: vendor.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
     ];
 
@@ -168,7 +168,7 @@ class _VendorInfo extends ConsumerWidget {
             padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
-              property: vendor.comment ?? '-',
+              property: vendor.comment ?? '–',
             ),
           ),
         ],
@@ -283,7 +283,7 @@ class _VendorDetailPageController extends _$VendorDetailPageController
           DividerSheetAction.divider,
           VendorSpoolmanSheetAction.edit,
           VendorSpoolmanSheetAction.clone,
-          VendorSpoolmanSheetAction.delete
+          VendorSpoolmanSheetAction.delete,
         ],
       ),
     ));

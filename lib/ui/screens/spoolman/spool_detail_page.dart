@@ -191,7 +191,8 @@ class _SpoolInfo extends ConsumerWidget {
     final numberFormatPrice =
         NumberFormat.simpleCurrency(locale: context.locale.toStringWithSeparator(), name: spoolmanCurrency);
 
-    var properties = [
+    final hasVendor = spool.filament.vendor != null;
+    final properties = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: spool.id.toString(),
@@ -203,24 +204,27 @@ class _SpoolInfo extends ConsumerWidget {
       GestureDetector(
         onTap: () {
           controller.onEntryTap(spool.filament.vendor!);
-        },
+        }.only(hasVendor),
         child: PropertyWithTitle(
           title: plural('pages.spoolman.vendor', 1),
           property: Text.rich(
             TextSpan(
               children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Icon(FlutterIcons.external_link_faw,
-                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
-                ),
-                const WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: SizedBox(width: 4),
-                ),
+                if (hasVendor) ...[
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Icon(FlutterIcons.external_link_faw,
+                        size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
+                  ),
+                  const WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: SizedBox(width: 4),
+                  ),
+                ],
                 TextSpan(
-                  text: spool.filament.vendor?.name,
-                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+                  text: spool.filament.vendor?.name ?? '–',
+                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline)
+                      .only(hasVendor),
                 ),
               ],
             ),
@@ -248,7 +252,8 @@ class _SpoolInfo extends ConsumerWidget {
                   child: SizedBox(width: 4),
                 ),
                 TextSpan(
-                  text: '${spool.filament.name} (${spool.filament.material})',
+                  text:
+                      '${spool.filament.name ?? tr('pages.spoolman.filament.one')}${spool.filament.material != null ? ' (${spool.filament.material})' : ''}',
                   style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
                 ),
               ],
@@ -262,19 +267,19 @@ class _SpoolInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.price'),
-        property: (spool.price ?? spool.filament.price)?.let(numberFormatPrice.format) ?? '-',
+        property: (spool.price ?? spool.filament.price)?.let(numberFormatPrice.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.first_used'),
-        property: spool.firstUsed?.let(dateFormatGeneral.format) ?? '-',
+        property: spool.firstUsed?.let(dateFormatGeneral.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.last_used'),
-        property: spool.lastUsed?.let(dateFormatGeneral.format) ?? '-',
+        property: spool.lastUsed?.let(dateFormatGeneral.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.remaining_weight'),
-        property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.used_weight'),
@@ -282,7 +287,7 @@ class _SpoolInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.remaining_length'),
-        property: spool.remainingLength?.let(numberFormatDouble.formatMillimeters) ?? '-',
+        property: spool.remainingLength?.let(numberFormatDouble.formatMillimeters) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.used_length'),
@@ -290,11 +295,11 @@ class _SpoolInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.location'),
-        property: spool.location ?? '-',
+        property: spool.location ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.lot_number'),
-        property: spool.lotNr ?? '-',
+        property: spool.lotNr ?? '–',
       ),
     ];
 
@@ -353,7 +358,7 @@ class _SpoolInfo extends ConsumerWidget {
             padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
-              property: spool.comment ?? '-',
+              property: spool.comment ?? '–',
             ),
           ),
         ],
@@ -404,7 +409,6 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     final initialSpool = ref.watch(_spoolProvider);
     final fetchedSpool = ref.watch(spoolProvider(machineUUID, initialSpool.id));
     final activeSpool = ref.watch(activeSpoolProvider(machineUUID));
-
 
     return _Model(
       initialSpool: initialSpool,

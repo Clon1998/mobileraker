@@ -28,6 +28,7 @@ import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/update_filament.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -421,7 +422,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     return _Model(mode: mode, source: source, vendors: vendors, selectedVendor: source?.vendor);
   }
 
-  Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
+  void onFormSubmitted(Map<String, dynamic>? formData) {
     logger.i('[FilamentFormPageController($machineUUID)] onFormSubmitted');
     if (formData == null || state.selectedVendor == null) {
       logger.w('[FilamentFormPageController($machineUUID)] onFormSubmitted: formData or selectedVendor is null');
@@ -430,25 +431,14 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 
     state = state.copyWith(isSaving: true);
 
-    final dto = _dtoFromForm(formData, state.selectedVendor!);
-    try {
-      //TODO: There is no need to create multiple of the same manufacturer at once!
-      final newEntity = await _spoolmanService.createFilament(dto);
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.info,
-        title: tr('pages.spoolman.create.success.title', args: [tr('pages.spoolman.filament.one')]),
-        message: tr('pages.spoolman.create.success.message.one', args: [tr('pages.spoolman.filament.one')]),
-      ));
-      _goRouter.pop(newEntity);
-    } catch (e, s) {
-      logger.e('[FilamentFormPageController($machineUUID)] error while saving filament', e, s);
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        title: tr('pages.spoolman.create.error.title', args: [tr('pages.spoolman.filament.one')]),
-        message: tr('pages.spoolman.create.error.message'),
-      ));
-    } finally {
-      state = state.copyWith(isSaving: false);
+    switch (state.mode) {
+      case _FormMode.create:
+      case _FormMode.copy:
+        _create(formData, state.selectedVendor!);
+        break;
+      case _FormMode.update:
+        _update(formData, state.selectedVendor!);
+        break;
     }
   }
 
@@ -475,7 +465,67 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     state = state.copyWith(selectedVendor: res.data as GetVendor);
   }
 
-  CreateFilament _dtoFromForm(Map<String, dynamic> formData, GetVendor vendor) {
+  Future<void> _create(Map<String, dynamic> formData, GetVendor vendor) async {
+    final dto = _createDtoFromForm(formData, vendor);
+    logger.i('[FilamentFormPageController($machineUUID)] Create DTO: $dto');
+    final entityName = tr('pages.spoolman.filament.one');
+    try {
+      final res = await _spoolmanService.createFilament(dto);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.spoolman.create.success.title', args: [entityName]),
+        message: tr('pages.spoolman.create.success.message.one', args: [entityName]),
+      ));
+      _goRouter.pop(res);
+    } catch (e, s) {
+      logger.e('[FilamentFormPageController($machineUUID)] Error while saving.', e, s);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: tr('pages.spoolman.create.error.title', args: [entityName]),
+        message: tr('pages.spoolman.create.error.message'),
+      ));
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
+  }
+
+  Future<void> _update(Map<String, dynamic> formData, GetVendor vendor) async {
+    final dto = _updateDtoFromForm(formData, vendor, state.source!);
+    logger.i('[FilamentFormPageController($machineUUID)] Update DTO: $dto');
+    final entityName = tr('pages.spoolman.filament.one');
+
+    if (dto == null) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('pages.spoolman.update.no_changes.title'),
+        message: tr('pages.spoolman.update.no_changes.message', args: [entityName]),
+      ));
+      _goRouter.pop();
+      return;
+    }
+
+    try {
+      final updated = await _spoolmanService.updateFilament(dto);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.spoolman.update.success.title', args: [entityName]),
+        message: tr('pages.spoolman.update.success.message', args: [entityName]),
+      ));
+      _goRouter.pop(updated);
+    } catch (e, s) {
+      logger.e('[FilamentFormPageController($machineUUID)] Error while saving.', e, s);
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: tr('pages.spoolman.update.error.title', args: [entityName]),
+        message: tr('pages.spoolman.update.error.message'),
+      ));
+      _goRouter.pop();
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
+  }
+
+  CreateFilament _createDtoFromForm(Map<String, dynamic> formData, GetVendor vendor) {
     return CreateFilament(
       name: formData[_FilamentFormFormComponent.name.name],
       vendor: vendor,
@@ -490,6 +540,53 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       settingsBedTemp: formData[_FilamentFormFormComponent.bedTemp.name],
       colorHex: (formData[_FilamentFormFormComponent.colorHex.name] as Color?)?.hexCode,
       comment: formData[_FilamentFormFormComponent.comment.name],
+    );
+  }
+
+  UpdateFilament? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor vendor, GetFilament source) {
+    final name = formData[_FilamentFormFormComponent.name.name];
+    final material = formData[_FilamentFormFormComponent.material.name];
+    final price = formData[_FilamentFormFormComponent.price.name];
+    final density = formData[_FilamentFormFormComponent.density.name];
+    final diameter = formData[_FilamentFormFormComponent.diameter.name];
+    final weight = formData[_FilamentFormFormComponent.weight.name];
+    final spoolWeight = formData[_FilamentFormFormComponent.spoolWeight.name];
+    final articleNumber = formData[_FilamentFormFormComponent.articleNumber.name];
+    final comment = formData[_FilamentFormFormComponent.comment.name];
+    final extruderTemp = formData[_FilamentFormFormComponent.extruderTemp.name];
+    final bedTemp = formData[_FilamentFormFormComponent.bedTemp.name];
+    final colorHex = (formData[_FilamentFormFormComponent.colorHex.name] as Color?)?.hexCode;
+
+    // If no changes were made, return null
+    if (vendor.id == source.vendor?.id &&
+        name == source.name &&
+        material == source.material &&
+        price == source.price &&
+        density == source.density &&
+        diameter == source.diameter &&
+        weight == source.weight &&
+        spoolWeight == source.spoolWeight &&
+        articleNumber == source.articleNumber &&
+        comment == source.comment &&
+        extruderTemp == source.settingsExtruderTemp &&
+        bedTemp == source.settingsBedTemp &&
+        colorHex == source.colorHex) return null;
+
+    return UpdateFilament(
+      id: source.id,
+      name: source.name == name ? null : name,
+      vendor: source.vendor?.id == vendor.id ? null : vendor,
+      material: source.material == material ? null : material,
+      price: source.price == price ? null : price,
+      density: source.density == density ? null : density,
+      diameter: source.diameter == diameter ? null : diameter,
+      weight: source.weight == weight ? null : weight,
+      spoolWeight: source.spoolWeight == spoolWeight ? null : spoolWeight,
+      articleNumber: source.articleNumber == articleNumber ? null : articleNumber,
+      comment: source.comment == comment ? null : comment,
+      settingsExtruderTemp: source.settingsExtruderTemp == extruderTemp ? null : extruderTemp,
+      settingsBedTemp: source.settingsBedTemp == bedTemp ? null : bedTemp,
+      colorHex: source.colorHex == colorHex ? null : colorHex,
     );
   }
 }
