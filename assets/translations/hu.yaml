@@ -88,7 +88,11 @@ pages:
         filament: Nyomtatószál
         filament_tooltip: A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.
         eta_tooltip: |-
-          Hátralévő idő: {}
+          Hátralévő idő:
+          AVG: {avg}
+          Szeletelő: {slicer}
+          Fájl: {file}
+          Nyomtatószál: {filament}
         remaining: Fennmaradó
       cam_card:
         webcam: Webkamera
@@ -699,7 +703,7 @@ pages:
       share_qr: QR-kód megosztása
       delete: "@:general.delete"
       add_spool: Orsó hozzáadása
-      add_filament: Nyomtatószál hozzáadása
+      add_filament: Szál hozzáadása
     create:
       success:
         title: "{} létrehozva!"
@@ -1202,7 +1206,7 @@ bottom_sheets:
       body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon van-e érvényes elrendezés.
   selections:
     no_selections:
-      title: Nincs eredmény
+      title: Nem találtam eredményt
       subtitle: Próbálj meg egy másik kifejezésre keresni
 klipper_state:
   ready: Kész
@@ -1269,3 +1273,317 @@ date_periods:
   day:
     one: Napi
     other: Napok
+languages:
+  languageCode:
+    ab:
+      name: Abház
+      nativeName: аҧсуа
+    aa:
+      name: Afar
+      nativeName: Afaraf
+    af:
+      name: Afrikaans
+      nativeName: Afrikaans
+    ak:
+      name: Akan
+      nativeName: Akan
+    sq:
+      name: Albán
+      nativeName: Shqip
+    am:
+      name: Amharic
+      nativeName: አማርኛ
+    ar:
+      name: Arab
+      nativeName: العربية
+    an:
+      name: Aragóniai
+      nativeName: Aragonés
+    hy:
+      name: Örmény
+      nativeName: Հայերեն
+    as:
+      name: Assamese
+      nativeName: অসমীয়া
+    av:
+      name: Avaric
+      nativeName: авар мацӀ, магӀарул мацӀ
+    ae:
+      name: Avestan
+      nativeName: avesta
+    bh:
+      nativeName: भोजपुरी
+    bi:
+      name: Bislama
+      nativeName: Bislama
+    bs:
+      name: Bosnyák
+      nativeName: Bosnyák nyelv
+    br:
+      name: Breton
+      nativeName: brezhoneg
+    bg:
+      name: Bolgár
+      nativeName: български език
+    my:
+      name: Burmai
+      nativeName: ဗမာစာ
+    ca:
+      name: Katalán; valenciai
+      nativeName: Katalán
+    ch:
+      name: Chamorro
+      nativeName: Chamoru
+    ce:
+      name: Csecsen
+      nativeName: нохчийн мотт
+    ny:
+      name: Chichewa; Chewa; Nyanja
+      nativeName: chiCheŵa, chinyanja
+    zh:
+      name: Kínai
+      nativeName: 中文
+    cv:
+      name: Csuvas
+      nativeName: чӑваш чӗлхи
+    kw:
+      name: Cornish
+      nativeName: Kernewek
+    co:
+      name: Korzikai
+      nativeName: corsu, lingua corsa
+    cr:
+      name: Cree
+      nativeName: ᓀᐦᐃᔭᐍᐏᐣ
+    hr:
+      name: Horvát
+      nativeName: hrvatski
+    cs:
+      name: Cseh
+      nativeName: česky, čeština
+    da:
+      name: Dán
+      nativeName: Dán
+    dv:
+      name: Divehi; Dhivehi; Maldivian;
+      nativeName: ދިވެހި
+    nl:
+      name: Holland
+      nativeName: Holland, flamand
+    en:
+      name: Angol
+      nativeName: Angol
+    eo:
+      name: Eszperantó
+      nativeName: Eszperantó
+    et:
+      name: Észt
+      nativeName: eesti, eesti keel
+    ee:
+      name: Ewe
+      nativeName: Eʋegbe
+    fo:
+      name: Feröer
+      nativeName: føroyskt
+    fj:
+      name: Fidzsi
+    it:
+      nativeName: Olasz
+    iu:
+      name: Inuktitut
+      nativeName: ᐃᓄᒃᑎᑐᑦ
+    ja:
+      name: Japán
+      nativeName: 日本語 (にほんご／にっぽんご)
+    jv:
+      name: Javanese
+      nativeName: basa Jawa
+    kl:
+      name: Kalaallisut, Greenlandic
+      nativeName: kalaallisut, kalaallit oqaasii
+    kn:
+      name: Kannada
+      nativeName: ಕನ್ನಡ
+    kr:
+      name: Kanuri
+      nativeName: Kanuri
+    ks:
+      name: Kashmiri
+      nativeName: कश्मीरी, كشميري‎
+    kk:
+      name: Kazakh
+      nativeName: Қазақ тілі
+    km:
+      name: Khmer
+      nativeName: ភាសាខ្មែរ
+    ki:
+      name: Kikuyu, Gikuyu
+      nativeName: Gĩkũyũ
+    rw:
+      name: Kinyarwanda
+      nativeName: Ikinyarwanda
+    ky:
+      name: Kirghiz, Kyrgyz
+      nativeName: кыргыз тили
+    kv:
+      name: Komi
+      nativeName: коми кыв
+    kg:
+      name: Kongo
+      nativeName: KiKongo
+    ko:
+      name: Kóreai
+      nativeName: 한국어 (韓國語), 조선말 (朝鮮語)
+    ku:
+      name: Kurdish
+      nativeName: Kurdî, كوردی‎
+    kj:
+      name: Kwanyama, Kuanyama
+      nativeName: Kuanyama
+    la:
+      name: Latin
+      nativeName: latine, lingua latina
+    lb:
+      name: Luxembourgish, Letzeburgesch
+      nativeName: Lëtzebuergesch
+    lg:
+      name: Luganda
+      nativeName: Luganda
+    li:
+      name: Limburgish, Limburgan, Limburger
+      nativeName: Limburgs
+    ln:
+      name: Lingala
+      nativeName: Lingála
+    lo:
+      name: Lao
+      nativeName: ພາສາລາວ
+    lt:
+      name: Litván
+      nativeName: lietuvių kalba
+    lu:
+      name: Luba-Katanga
+    om:
+      nativeName: Afaan Oromoo
+    or:
+      name: Oriya
+      nativeName: ଓଡ଼ିଆ
+    os:
+      name: Ossetian, Ossetic
+      nativeName: ирон æвзаг
+    pa:
+      name: Panjabi, Punjabi
+      nativeName: ਪੰਜਾਬੀ, پنجابی‎
+    pi:
+      name: Pāli
+      nativeName: पाऴि
+    fa:
+      name: Persian
+      nativeName: فارسی
+    pl:
+      name: Polish
+      nativeName: polski
+    ps:
+      name: Pashto, Pushto
+      nativeName: پښتو
+    pt:
+      name: Portuguese
+      nativeName: Português
+    qu:
+      name: Quechua
+      nativeName: Runa Simi, Kichwa
+    rm:
+      name: Romansh
+      nativeName: rumantsch grischun
+    rn:
+      name: Kirundi
+      nativeName: kiRundi
+    ro:
+      name: Romanian, Moldavian, Moldovan
+      nativeName: Román
+    ru:
+      name: Orosz
+      nativeName: русский язык
+    sa:
+      name: Sanskrit (Saṁskṛta)
+      nativeName: संस्कृतम्
+    sc:
+      name: Sardinian
+      nativeName: sardu
+    sd:
+      name: Sindhi
+      nativeName: सिन्धी, سنڌي، سندھی‎
+    se:
+      name: Northern Sami
+      nativeName: Davvisámegiella
+    sm:
+      name: Samoan
+      nativeName: gagana faa Samoa
+    sg:
+      name: Sango
+      nativeName: yângâ tî sängö
+    sr:
+      name: Szerb
+      nativeName: српски језик
+    gd:
+      name: Scottish Gaelic; Gaelic
+      nativeName: Gàidhlig
+    sn:
+      name: Shona
+      nativeName: chiShona
+    si:
+      name: Sinhala, Sinhalese
+      nativeName: සිංහල
+    sk:
+      name: Szlovák
+      nativeName: slovenčina
+    sl:
+      name: Szlovén
+    ur:
+      nativeName: اردو
+    uz:
+      name: Uzbek
+      nativeName: zbek, Ўзбек, أۇزبېك‎
+    ve:
+      name: Venda
+      nativeName: Tshivenḓa
+    vi:
+      name: Vietnamese
+      nativeName: Tiếng Việt
+    vo:
+      name: Volapük
+      nativeName: Volapük
+    wa:
+      name: Walloon
+      nativeName: Walon
+    cy:
+      name: Welsh
+      nativeName: Cymraeg
+    wo:
+      name: Wolof
+      nativeName: Wollof
+    fy:
+      name: Western Frisian
+      nativeName: Frysk
+    xh:
+      name: Xhosa
+      nativeName: isiXhosa
+    yi:
+      name: Yiddish
+      nativeName: ייִדיש
+    yo:
+      name: Yoruba
+      nativeName: Yorùbá
+    za:
+      name: Zhuang, Chuang
+      nativeName: Saɯ cueŋƅ, Saw cuengh
+  countryCode:
+    CN:
+      name: Simplified
+      nativeName: 简体
+    HK:
+      name: Traditional
+      nativeName: 繁體
+    BR:
+      name: Brasil
+      nativeName: Brasil
