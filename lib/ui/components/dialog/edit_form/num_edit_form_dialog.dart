@@ -157,7 +157,7 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min, // To make the card compact
         children: <Widget>[
-          Text(widget.request.title!, style: themeData.textTheme.titleLarge),
+          Text(widget.request.title!, style: themeData.textTheme.titleLarge, textAlign: TextAlign.center),
           if (widget.request.body != null) Text(widget.request.body!, style: themeData.textTheme.bodySmall),
           AnimatedSizeAndFade(
             fadeDuration: kThemeAnimationDuration,
