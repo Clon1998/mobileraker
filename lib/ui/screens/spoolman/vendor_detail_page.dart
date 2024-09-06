@@ -3,19 +3,20 @@
  * All rights reserved.
  */
 
-import 'package:common/service/app_router.dart';
+import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
@@ -23,6 +24,9 @@ import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_paginatio
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../routing/app_router.dart';
+import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
 
 part 'vendor_detail_page.g.dart';
 
@@ -55,13 +59,17 @@ class _VendorDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
-      appBar: const _AppBar(),
-      // floatingActionButton: _Fab(),
+      appBar: _AppBar(machineUUID: machineUUID),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.onAction(Theme.of(context)),
+        child: const Icon(Icons.more_vert),
+      ),
       body: ListView(
         addAutomaticKeepAlives: true,
         children: [
-          const _VendorInfo(),
+          _VendorInfo(machineUUID: machineUUID),
           if (context.isCompact) ...[
             _VendorFilaments(machineUUID: machineUUID),
             _VendorSpools(machineUUID: machineUUID),
@@ -84,22 +92,15 @@ class _VendorDetailPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var vendor = ref.watch(_vendorProvider);
+    final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     return AppBar(
       title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]),
-      actions: <Widget>[
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
-        // const FileSortModeSelector(),
-      ],
     );
   }
 
@@ -108,18 +109,20 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 }
 
 class _VendorInfo extends ConsumerWidget {
-  const _VendorInfo({super.key});
+  const _VendorInfo({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var vendor = ref.watch(_vendorProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatDouble =
+    final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
-    var props = [
+    final props = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: vendor.id.toString(),
@@ -247,23 +250,58 @@ class _VendorSpools extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_vendor])
-class _VendorDetailPageController extends _$VendorDetailPageController {
+class _VendorDetailPageController extends _$VendorDetailPageController
+    with CommonSpoolmanDetailPagesController<GetVendor> {
   @override
   GetVendor build(String machineUUID) {
-    var vendor = ref.watch(_vendorProvider);
-    return vendor;
+    final initial = ref.watch(_vendorProvider);
+    final fetched = ref.watch(vendorProvider(machineUUID, initial.id));
+
+    return fetched.valueOrNull ?? initial;
   }
 
-  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
-    switch (dto) {
-      case GetSpool spool:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
+  void onAction(ThemeData themeData) async {
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
+      type: SheetType.actions,
+      isScrollControlled: true,
+      data: ActionBottomSheetArgs(
+        title: RichText(
+          text: TextSpan(
+            text: '#${state.id} ',
+            style: themeData.textTheme.titleSmall
+                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
+            children: [
+              TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(tr('pages.spoolman.vendor.one'), maxLines: 1, overflow: TextOverflow.ellipsis),
+        actions: [
+          VendorSpoolmanSheetAction.addFilament,
+          DividerSheetAction.divider,
+          VendorSpoolmanSheetAction.edit,
+          VendorSpoolmanSheetAction.clone,
+          VendorSpoolmanSheetAction.delete
+        ],
+      ),
+    ));
+
+    if (!res.confirmed) return;
+    logger.i('[VendorDetailPage] Action: ${res.data}');
+
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case VendorSpoolmanSheetAction.edit:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID, state]);
         break;
-      case GetFilament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
+      case VendorSpoolmanSheetAction.clone:
+        clone(state);
         break;
-      case GetVendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
+      case VendorSpoolmanSheetAction.delete:
+        delete(state);
         break;
     }
   }

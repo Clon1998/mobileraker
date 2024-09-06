@@ -3,11 +3,14 @@
  * All rights reserved.
  */
 
-import 'package:common/service/app_router.dart';
+import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,13 +20,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
 
 part 'filament_detail_page.g.dart';
 
@@ -56,9 +60,13 @@ class _FilamentDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
-      appBar: const _AppBar(),
-      // floatingActionButton: _Fab(),
+      appBar: _AppBar(machineUUID: machineUUID),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.onAction(Theme.of(context)),
+        child: const Icon(Icons.more_vert),
+      ),
       body: ListView(
         children: [
           _FilamentInfo(machineUUID: machineUUID),
@@ -72,23 +80,24 @@ class _FilamentDetailPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var filament = ref.watch(_filamentProvider);
-    return AppBar(
-      title: Text('${filament.vendor?.name} – ${filament.name} ${filament.material}'),
-      actions: <Widget>[
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
-        // const FileSortModeSelector(),
-      ],
-    );
+    var filament = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
+    // pages.spoolman.filament.one
+    var title = [
+      if (filament.vendor != null) filament.vendor!.name,
+      filament.name,
+    ].join(' – ');
+
+    if (filament.material != null) {
+      title += ' (${filament.material})';
+    }
+
+    return AppBar(title: Text(title));
   }
 
   @override
@@ -103,17 +112,17 @@ class _FilamentInfo extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final spoolmanCurrency = ref.watch(spoolmanCurrencyProvider(machineUUID));
-    var controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
-    var filament = ref.watch(_filamentProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
+    final filament = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatPrice =
+    final numberFormatPrice =
         NumberFormat.simpleCurrency(locale: context.locale.toStringWithSeparator(), name: spoolmanCurrency);
-    var numberFormatDouble =
+    final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
-    var properties = [
+    final properties = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: filament.id.toString(),
@@ -267,24 +276,65 @@ class _FilamentSpools extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_filament])
-class _FilamentDetailPageController extends _$FilamentDetailPageController {
+class _FilamentDetailPageController extends _$FilamentDetailPageController
+    with CommonSpoolmanDetailPagesController<GetFilament> {
   @override
   GetFilament build(String machineUUID) {
-    var filament = ref.watch(_filamentProvider);
+    final initial = ref.watch(_filamentProvider);
+    final fetched = ref.watch(filamentProvider(machineUUID, initial.id));
 
-    return filament;
+    return fetched.valueOrNull ?? initial;
   }
 
-  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
-    switch (dto) {
-      case GetSpool spool:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
+  void onAction(ThemeData themeData) async {
+    final metaTags = [
+      if (state.vendor != null) state.vendor!.name,
+      if (state.material != null) state.material,
+    ];
+
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
+      type: SheetType.actions,
+      isScrollControlled: true,
+      data: ActionBottomSheetArgs(
+        title: RichText(
+          text: TextSpan(
+            text: '#${state.id} ',
+            style: themeData.textTheme.titleSmall
+                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
+            children: [
+              TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(metaTags.isEmpty ? tr('pages.spoolman.filament.one') : metaTags.join(' – '),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+        leading: SpoolWidget(color: state.colorHex, height: 33, width: 15),
+        actions: [
+          FilamentSpoolmanSheetAction.addSpool,
+          DividerSheetAction.divider,
+          FilamentSpoolmanSheetAction.edit,
+          FilamentSpoolmanSheetAction.clone,
+          FilamentSpoolmanSheetAction.delete
+        ],
+      ),
+    ));
+
+    if (!res.confirmed) return;
+    logger.i('[FilamentDetailPage] Selected action: ${res.data}');
+
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case FilamentSpoolmanSheetAction.edit:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
         break;
-      case GetFilament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
+      case FilamentSpoolmanSheetAction.clone:
+        clone(state);
         break;
-      case GetVendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
+      case FilamentSpoolmanSheetAction.delete:
+        delete(state);
         break;
     }
   }

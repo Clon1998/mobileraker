@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -49,6 +50,8 @@ class _NumberEditDialog extends ConsumerStatefulWidget {
 
 class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
   final TextEditingController _controller = TextEditingController();
+
+  final FocusNode _focusNode = FocusNode();
 
   String? _validation;
   DialogIdentifierMixin _type = DialogType.numEdit;
@@ -105,6 +108,14 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
 
   void toggleVariant() {
     setState(() {
+      if (_type == DialogType.numEdit) {
+        _focusNode.unfocus();
+      } else {
+        _focusNode.requestFocus();
+        if (_controller.text.isNotEmpty) {
+          _controller.selection = TextSelection(baseOffset: 0, extentOffset: _controller.text.length);
+        }
+      }
       _type = _type == DialogType.rangeEdit ? DialogType.numEdit : DialogType.rangeEdit;
     });
   }
@@ -114,9 +125,9 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
     var themeData = Theme.of(context);
 
     return MobilerakerDialog(
-      footer: Row(
-        // mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      footer: OverflowBar(
+        overflowAlignment: OverflowBarAlignment.end,
+        alignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
             onPressed: onFormDecline,
@@ -132,10 +143,10 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
                 turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
                 child: ScaleTransition(scale: anim, child: child),
               ),
-              child: Icon(_type == DialogType.rangeEdit ? Icons.text_fields : Icons.straighten),
+              child: Icon(key: ValueKey(_type), _type == DialogType.rangeEdit ? Icons.text_fields : Icons.straighten),
             ),
           ),
-          TextButton(
+          FilledButton.tonal(
             onPressed: onFormConfirm.only(_isValid),
             child: Text(
               widget.request.actionLabel ?? tr('general.confirm'),
@@ -148,17 +159,30 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
         children: <Widget>[
           Text(widget.request.title!, style: themeData.textTheme.titleLarge),
           if (widget.request.body != null) Text(widget.request.body!, style: themeData.textTheme.bodySmall),
-          AnimatedCrossFade(
-            duration: kThemeAnimationDuration,
-            crossFadeState: DialogType.rangeEdit == _type ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-            firstChild: RangeEditSlider(
-              value: _value,
-              lowerLimit: widget.args.min,
-              upperLimit: widget.args.max ?? 100,
-              decimalPlaces: widget.args.fraction,
-              onChanged: _onSliderChanged,
-            ),
-            secondChild: _NumField(controller: _controller, args: widget.args, errorText: _validation),
+          AnimatedSizeAndFade(
+            fadeDuration: const Duration(milliseconds: 2000),
+            sizeDuration: const Duration(milliseconds: 2000),
+            alignment: Alignment.topCenter,
+            fadeInCurve: Curves.easeInOutCirc,
+            fadeOutCurve: Curves.easeInOutCirc,
+            sizeCurve: Curves.easeInOutCirc,
+            child: DialogType.rangeEdit == _type
+                ? RangeEditSlider(
+                    key: const Key('RangeEditSlider'),
+                    value: _value,
+                    lowerLimit: widget.args.min,
+                    upperLimit: widget.args.max ?? 100,
+                    decimalPlaces: widget.args.fraction,
+                    onChanged: _onSliderChanged,
+                  )
+                : _NumField(
+                    key: const Key('NumField'),
+                    onSubmitted: onFormConfirm.only(_isValid),
+                    fNode: _focusNode,
+                    controller: _controller,
+                    args: widget.args,
+                    errorText: _validation,
+                  ),
           ),
         ],
       ),
@@ -186,36 +210,50 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 }
 
 class _NumField extends StatelessWidget {
-  const _NumField({super.key, required this.args, required this.controller, this.errorText});
+  const _NumField({
+    super.key,
+    required this.args,
+    required this.fNode,
+    required this.controller,
+    this.onSubmitted,
+    this.errorText,
+  });
 
   final NumberEditDialogArguments args;
   final TextEditingController controller;
   final String? errorText;
+  final VoidCallback? onSubmitted;
+  final FocusNode fNode;
 
   @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-      decoration: InputDecoration(
-        border: const UnderlineInputBorder(),
-        contentPadding: const EdgeInsets.all(8.0),
-        // labelText: description,
-        errorText: errorText,
-        helperText: _helperText(),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => TextField(
+        focusNode: fNode,
+        controller: controller,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => onSubmitted?.call(),
+        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+        decoration: InputDecoration(
+          border: const UnderlineInputBorder(),
+          contentPadding: const EdgeInsets.all(8.0),
+          // labelText: description,
+          errorText: errorText,
+          helperText: _helperText(context),
+        ),
+      );
 
-  String _helperText() {
-    if (args.max == null) return 'Enter a value of at least ${args.min}';
+  String _helperText(BuildContext context) {
+    final numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: args.fraction);
+    if (args.max == null) return tr('dialogs.num_range_dialog.helper.min', args: [numberFormat.format(args.min)]);
 
-    return 'Enter a value between ${args.min} and ${args.max}';
+    return tr('dialogs.num_range_dialog.helper.range',
+        args: [numberFormat.format(args.min), numberFormat.format(args.max)]);
   }
 }
 

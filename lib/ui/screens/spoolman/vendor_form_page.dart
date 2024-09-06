@@ -7,6 +7,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +27,23 @@ import '../printers/components/section_header.dart';
 part 'vendor_form_page.freezed.dart';
 part 'vendor_form_page.g.dart';
 
+enum _FormMode { create, update, copy }
+
 enum _VendorFormFormComponent {
   name,
   spoolWeight,
   externalId,
   comment,
+}
+
+@Riverpod(dependencies: [])
+GetVendor? _vendor(_VendorRef ref) {
+  throw UnimplementedError();
+}
+
+@Riverpod(dependencies: [])
+_FormMode _formMode(_FormModeRef ref) {
+  return _FormMode.create;
 }
 
 class VendorFormPage extends StatelessWidget {
@@ -42,7 +55,13 @@ class VendorFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _VendorFormPage(machineUUID: machineUUID);
+    var mode = isCopy ? _FormMode.copy : (vendor == null ? _FormMode.create : _FormMode.update);
+
+    return ProviderScope(
+      // Make sure we are able to access the vendor in all places
+      overrides: [_vendorProvider.overrideWithValue(vendor), _formModeProvider.overrideWithValue(mode)],
+      child: _VendorFormPage(machineUUID: machineUUID),
+    );
   }
 }
 
@@ -55,12 +74,16 @@ class _VendorFormPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sourceVendor = ref.watch(_vendorFormPageControllerProvider(machineUUID).select((model) => model.source));
+
+    final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
+
     final nameFocusNode = useFocusNode();
     final spoolWeightFocusNode = useFocusNode();
     final commentFocusNode = useFocusNode();
 
     return Scaffold(
-      appBar: _AppBar(),
+      appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: _Fab(machineUUID: machineUUID),
       body: Center(
         child: SafeArea(
@@ -73,6 +96,7 @@ class _VendorFormPage extends HookConsumerWidget {
                   SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
                   FormBuilderTextField(
                     name: _VendorFormFormComponent.name.name,
+                    initialValue: sourceVendor?.name,
                     focusNode: nameFocusNode,
                     keyboardType: TextInputType.text,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -84,6 +108,7 @@ class _VendorFormPage extends HookConsumerWidget {
                   ),
                   FormBuilderTextField(
                     name: _VendorFormFormComponent.spoolWeight.name,
+                    initialValue: sourceVendor?.spoolWeight?.let(numFormatInputs.format),
                     valueTransformer: (text) => text?.let(double.tryParse),
                     focusNode: spoolWeightFocusNode,
                     keyboardType: TextInputType.number,
@@ -101,8 +126,9 @@ class _VendorFormPage extends HookConsumerWidget {
                   ),
                   SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
                   FormBuilderTextField(
-                    maxLines: null,
                     name: _VendorFormFormComponent.comment.name,
+                    initialValue: sourceVendor?.comment,
+                    maxLines: null,
                     focusNode: commentFocusNode,
                     keyboardType: TextInputType.multiline,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -127,12 +153,20 @@ class _VendorFormPage extends HookConsumerWidget {
   }
 }
 
-class _AppBar extends StatelessWidget implements PreferredSizeWidget {
+class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
   @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: const Text('pages.spoolman.vendor_form.create_page_title').tr(),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isCreate =
+        ref.watch(_vendorFormPageControllerProvider(machineUUID).select((d) => d.mode != _FormMode.update));
+    final title = isCreate
+        ? tr('pages.spoolman.vendor_form.create_page_title')
+        : tr('pages.spoolman.vendor_form.update_page_title');
+
+    return AppBar(title: Text(title));
   }
 
   @override
@@ -163,7 +197,7 @@ class _Fab extends ConsumerWidget {
   }
 }
 
-@riverpod
+@Riverpod(dependencies: [_vendor, _formMode])
 class _VendorFormPageController extends _$VendorFormPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
@@ -173,7 +207,11 @@ class _VendorFormPageController extends _$VendorFormPageController {
 
   @override
   _Model build(String machineUUID) {
-    return const _Model();
+    ref.keepAliveExternally(spoolmanServiceProvider(machineUUID));
+
+    final source = ref.watch(_vendorProvider);
+    final mode = ref.watch(_formModeProvider);
+    return _Model(mode: mode, source: source);
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
@@ -187,13 +225,13 @@ class _VendorFormPageController extends _$VendorFormPageController {
     final dto = _dtoFromForm(formData);
     logger.i('CreateVendor DTO: ${dto.toJson()}');
     try {
-      await _spoolmanService.createVendor(dto);
+      final newEntity = await _spoolmanService.createVendor(dto);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
         title: tr('pages.spoolman.create.success.title', args: [tr('pages.spoolman.vendor.one')]),
         message: tr('pages.spoolman.create.success.message.one', args: [tr('pages.spoolman.vendor.one')]),
       ));
-      _goRouter.pop();
+      _goRouter.pop(newEntity);
     } catch (e, s) {
       logger.e('[VendorFormPageController($machineUUID)] Error while saving', e, s);
       _snackBarService.show(SnackBarConfig(
@@ -219,6 +257,8 @@ class _VendorFormPageController extends _$VendorFormPageController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
+    required _FormMode mode,
+    required GetVendor? source,
     @Default(false) isSaving,
   }) = __Model;
 }

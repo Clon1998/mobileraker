@@ -750,6 +750,18 @@ pages:
     no_vendors: No manufacturers found!
     error_loading_spools: Error loading spools
     error_loading_filaments: Error loading filaments
+    spoolman_actions:
+      activate: "@:general.activate"
+      deactivate: Deactivate
+      clone: Clone
+      edit: "@:general.edit"
+      archive: Archive
+      unarchive: Unarchive
+      adjust: Adjust Spool Filament
+      share_qr: Share QR-Code
+      delete: "@:general.delete"
+      add_spool: Add Spool
+      add_filament: Add Filament
     create:
       success:
         title: "{} created!"
@@ -758,6 +770,32 @@ pages:
           other: The {} were successfully created.
       error:
         title: Error creating {}!
+        message: Unexpected error, please try again later.
+    update:
+      success:
+        title: "{} updated!"
+        message: The {} was successfully updated.
+      error:
+        title: Error updating {}!
+        message: Unexpected error, please try again later.
+      no_changes:
+        title: No changes made!
+        message: No changes were made to the {}.
+    delete:
+      confirm:
+        title: Delete {}?
+        body: |-
+          You are about to delete the {}.
+          This action can not be undone.
+          
+          Confirm your action.
+      success:
+        title: "{} deleted!"
+        message:
+          one: The {} was successfully deleted.
+          other: The {} were successfully deleted.
+      error:
+        title: Error deleting {}!
         message: Unexpected error, please try again later.
     spool:
       one: Spool
@@ -812,6 +850,7 @@ pages:
         body: This spool is archived and can not be used for new prints.
     spool_form:
       create_page_title: Create Spool
+      update_page_title: Edit Spool
       helper:
         price: "@:pages.spoolman.filament_form.helper.price Defaults to the filament's
           price if not set"
@@ -826,6 +865,7 @@ pages:
           a consistent colour when using multiple spools.
     filament_form:
       create_page_title: Create Filament
+      update_page_title: Edit Filament
       helper:
         price: The price of a spool of filament.
         initial_weight: The net weight of the filament in a full spool, excluding
@@ -833,6 +873,7 @@ pages:
         empty_weight: The empty weight of the spool.
     vendor_form:
       create_page_title: Create Manufacturer
+      update_page_title: Edit Manufacturer
       helper:
         empty_weight: The weight of an empty spool from this manufacturer.
 components:
@@ -1087,6 +1128,18 @@ dialogs:
       You are about to cancel the print job.
 
       Confirm your action.
+  adjust_spool_filament:
+    title: Adjust Spool Filament
+    subtitle: Add or subtract filament from the spool. A positive value will consume filament, a negative value will add it.
+    input_label: Adjust Amount
+    submit_label: Adjust
+    tooltip:
+      weight: Switch to weight mode
+      length: Switch to length mode
+  num_range_dialog:
+    helper:
+      min: Enter a value of at least {}
+      range: Enter a value between {} and {}
 bottom_sheets:
   job_queue_sheet:
     next: Next print job

@@ -720,9 +720,9 @@ pages:
         message: Es wurden keine Änderungen vorgenommen.
     delete:
       confirm:
-        title: '{} löschen?'
+        title: "{} löschen?"
         body: |-
-          Sie sind dabei, {} zu löschen.
+          Sie sind dabei, {} zu löschen. 
           Bestätigen Sie Ihre Aktion.
       success:
         title: "{} gelöscht!"

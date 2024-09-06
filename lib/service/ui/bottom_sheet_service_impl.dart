@@ -12,10 +12,8 @@ import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
-import 'package:mobileraker_pro/ui/components/bottomsheet/select_spoolman_sheet.dart';
-import 'package:mobileraker_pro/ui/components/bottomsheet/spool_action_spoolman_sheet.dart';
+import 'package:mobileraker_pro/ui/components/spoolman/select_spoolman_sheet.dart';
 
 import '../../ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_cards_sheet.dart';
@@ -63,10 +61,6 @@ class BottomSheetServiceImpl implements BottomSheetService {
         ),
     ProSheetType.selectSpoolman: (ctx, data) => SelectSpoolmanSheet(machineUUID: data as String),
     SheetType.dashboardCards: (ctx, data) => DashboardCardsBottomSheet(machineUUID: data as String),
-    ProSheetType.spoolActionsSpoolman: (ctx, data) => switch (data) {
-          [String machineUUID, GetSpool spool] => SpoolActionSpoolmanSheet(machineUUID: machineUUID, spool: spool),
-          _ => throw ArgumentError('Invalid data type for ProSheetType.spoolActionsSpoolman: $data'),
-        },
     SheetType.dashobardLayout: (ctx, data) => switch (data) {
           [String machineUUID, DashboardLayout layout] =>
             DashboardLayoutBottomSheet(machineUUID: machineUUID, currentLayout: layout),
