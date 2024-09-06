@@ -1,16 +1,25 @@
 # Mobileraker - Changelog
 
-## [2.7.3] - 2024-09-xx
+## [2.7.4] - 2024-09-7
 
 ### Enhancements
 
-- **Missing File Operations**: The file manager now also supports zipping of files and folders. In addition, while
-  selecting files it is now also possible to delete, download and zip the file selection.
-- **Printed Indicator**: Added a printed indicator, a green checkmark, to the file browser within the file manager
-  making
-  it easier to see which files have already been printed.
-- **Streamlining Number Input Dialog**: The number input/range dialog now autofocuses, selects the current value and
-  submits via the keyboard action while in test editing mode. [#406](https://github.com/Clon1998/mobileraker/issues/406)
+- **File Operations**: The file manager now supports additional operations:
+  - **Zipping**: Easily zip both files and folders.
+  - **Batch Operations**: You can now delete, download, or zip selected files directly from the selection screen for
+    more efficient management.
+
+- **Printed File Indicator**: A green checkmark indicator has been added to the file browser, making it simpler to
+  identify which files have already been printed.
+
+- **Number Input Dialog**: The number input and range dialog has been streamlined for improved usability:
+  - **Autofocus**: The input field now autofocuses when opened.
+  - **Auto-Selection**: The current value is automatically selected for quicker editing.
+  - **Keyboard Submission**: While in text editing mode, you can now submit via the keyboard action.  
+    [#406](https://github.com/Clon1998/mobileraker/issues/406)
+
+- **Spool Management**: You can now manage spools, filaments, and manufacturers through the **Spoolman** page:
+  - **Add, Edit, Delete**: Easily add, modify, or remove spools and related information.
 
 ## [2.7.2] - 2024-08-26
 
