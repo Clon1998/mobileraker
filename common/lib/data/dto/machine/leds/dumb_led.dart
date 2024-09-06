@@ -17,9 +17,7 @@ class DumbLed extends Led with _$DumbLed {
 
   const factory DumbLed({
     required String name,
-    @PixelConverter()
-    @JsonKey(name: 'color_data', readValue: _extractFistLed)
-    @Default(Pixel())
+    @PixelConverter() @JsonKey(name: 'color_data', readValue: _extractFirstLed) @Default(Pixel())
     Pixel color,
   }) = _DumbLed;
 
@@ -33,6 +31,6 @@ class DumbLed extends Led with _$DumbLed {
   }
 }
 
-Object? _extractFistLed(Map json, String key) {
+Object? _extractFirstLed(Map json, String key) {
   return json[key][0];
 }

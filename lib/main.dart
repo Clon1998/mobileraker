@@ -16,6 +16,7 @@ import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization_loader/easy_localization_loader.dart';
 import 'package:easy_logger/src/enums.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -90,6 +91,7 @@ class MyApp extends ConsumerWidget {
       saveLocale: true,
       useFallbackTranslations: true,
       path: 'assets/translations',
+      assetLoader: const YamlAssetLoader(),
       errorWidget: (e) {
         return MaterialApp(
           home: ErrorCard(

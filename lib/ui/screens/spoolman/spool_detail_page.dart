@@ -3,43 +3,47 @@
  * All rights reserved.
  */
 
-import 'package:common/service/app_router.dart';
+import 'dart:typed_data';
+import 'dart:ui';
+
+import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/animation/SizeAndFadeTransition.dart';
-import 'package:common/ui/components/async_button_.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
-import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
+import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../routing/app_router.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
 
 part 'spool_detail_page.freezed.dart';
 part 'spool_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-Spool _spool(_SpoolRef ref) {
+GetSpool _spool(_SpoolRef ref) {
   throw UnimplementedError();
 }
 
@@ -47,14 +51,15 @@ class SpoolDetailPage extends StatelessWidget {
   const SpoolDetailPage({super.key, required this.machineUUID, required this.spool});
 
   final String machineUUID;
-  final Spool spool;
+  final GetSpool spool;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-        // Make sure we are able to access the vendor in all places
-        overrides: [_spoolProvider.overrideWithValue(spool)],
-        child: _SpoolDetailPage(key: Key('spd-${spool.id}'), machineUUID: machineUUID));
+      // Make sure we are able to access the vendor in all places
+      overrides: [_spoolProvider.overrideWithValue(spool)],
+      child: _SpoolDetailPage(key: Key('spd-${spool.id}'), machineUUID: machineUUID),
+    );
   }
 }
 
@@ -65,14 +70,19 @@ class _SpoolDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var spool = ref.watch(_spoolProvider);
-
+    final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
+    final controller = ref.watch(_spoolDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: ref.watch(_spoolDetailPageControllerProvider(machineUUID).notifier).onAction,
-      //   child: const Icon(Icons.mode),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final box = context.findRenderObject() as RenderBox?;
+          final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+          controller.onAction(Theme.of(context), pos);
+        },
+        child: const Icon(Icons.more_vert),
+      ),
       body: SafeArea(
         child: ListView(
           children: [
@@ -150,38 +160,13 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var spool = ref.watch(_spoolProvider);
-    var isActive =
-        ref.watch(_spoolDetailPageControllerProvider(machineUUID).selectAs((data) => data.activeSpool?.id == spool.id));
-    var controller = ref.watch(_spoolDetailPageControllerProvider(machineUUID).notifier);
+    final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
 
-    return AppBar(
-      title: const Text('pages.spoolman.spool_details.page_title')
-          .tr(args: ['${spool.filament.vendor?.name} – ${spool.filament.name}']),
-      actions: <Widget>[
-        AnimatedSwitcher(
-          transitionBuilder: (child, animation) => SizeAndFadeTransition(sizeAndFadeFactor: animation, child: child),
-          duration: kThemeAnimationDuration,
-          child: isActive.valueOrNull == true
-              ? AsyncIconButton(
-                  key: const Key('spool_ia'),
-                  onPressed: controller.onSetInactive,
-                  icon: const Icon(Icons.unpublished_outlined))
-              : AsyncIconButton(
-                  key: const Key('spool_a'),
-                  onPressed: controller.onSetActive,
-                  icon: const Icon(Icons.check_circle_outline)),
-        )
-
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
-        // const FileSortModeSelector(),
-      ],
-    );
+    final title = [
+      if (spool.filament.vendor != null) spool.filament.vendor!.name,
+      spool.filament.name,
+    ].join(' – ');
+    return AppBar(title: const Text('pages.spoolman.spool_details.page_title').tr(args: [title]));
   }
 
   @override
@@ -195,15 +180,19 @@ class _SpoolInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_spoolDetailPageControllerProvider(machineUUID).notifier);
-    var spool = ref.watch(_spoolProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final spoolmanCurrency = ref.watch(spoolmanCurrencyProvider(machineUUID));
+    final controller = ref.watch(_spoolDetailPageControllerProvider(machineUUID).notifier);
+    final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatDouble =
+    final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+    final numberFormatPrice =
+        NumberFormat.simpleCurrency(locale: context.locale.toStringWithSeparator(), name: spoolmanCurrency);
 
-    var properties = [
+    final hasVendor = spool.filament.vendor != null;
+    final properties = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: spool.id.toString(),
@@ -215,24 +204,27 @@ class _SpoolInfo extends ConsumerWidget {
       GestureDetector(
         onTap: () {
           controller.onEntryTap(spool.filament.vendor!);
-        },
+        }.only(hasVendor),
         child: PropertyWithTitle(
           title: plural('pages.spoolman.vendor', 1),
           property: Text.rich(
             TextSpan(
               children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Icon(FlutterIcons.external_link_faw,
-                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
-                ),
-                const WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: SizedBox(width: 4),
-                ),
+                if (hasVendor) ...[
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Icon(FlutterIcons.external_link_faw,
+                        size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
+                  ),
+                  const WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: SizedBox(width: 4),
+                  ),
+                ],
                 TextSpan(
-                  text: spool.filament.vendor?.name,
-                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+                  text: spool.filament.vendor?.name ?? '–',
+                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline)
+                      .only(hasVendor),
                 ),
               ],
             ),
@@ -250,15 +242,18 @@ class _SpoolInfo extends ConsumerWidget {
               children: [
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
-                  child: Icon(FlutterIcons.external_link_faw,
-                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
+                  child: Icon(
+                    FlutterIcons.external_link_faw,
+                    size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2,
+                  ),
                 ),
                 const WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
                   child: SizedBox(width: 4),
                 ),
                 TextSpan(
-                  text: '${spool.filament.name} (${spool.filament.material})',
+                  text:
+                      '${spool.filament.name ?? tr('pages.spoolman.filament.one')}${spool.filament.material != null ? ' (${spool.filament.material})' : ''}',
                   style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
                 ),
               ],
@@ -267,28 +262,44 @@ class _SpoolInfo extends ConsumerWidget {
         ),
       ),
       PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.diameter'),
+        property: spool.filament.diameter.let(numberFormatDouble.formatMillimeters),
+      ),
+      PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.price'),
+        property: (spool.price ?? spool.filament.price)?.let(numberFormatPrice.format) ?? '–',
+      ),
+      PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.first_used'),
-        property: spool.firstUsed?.let(dateFormatGeneral.format) ?? '-',
+        property: spool.firstUsed?.let(dateFormatGeneral.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.last_used'),
-        property: spool.lastUsed?.let(dateFormatGeneral.format) ?? '-',
+        property: spool.lastUsed?.let(dateFormatGeneral.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.remaining_weight'),
-        property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.used_weight'),
         property: numberFormatDouble.formatGrams(spool.usedWeight),
       ),
       PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.remaining_length'),
+        property: spool.remainingLength?.let(numberFormatDouble.formatMillimeters) ?? '–',
+      ),
+      PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.used_length'),
+        property: spool.usedLength.let(numberFormatDouble.formatMillimeters),
+      ),
+      PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.location'),
-        property: spool.location ?? '-',
+        property: spool.location ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.lot_number'),
-        property: spool.lotNr ?? '-',
+        property: spool.lotNr ?? '–',
       ),
     ];
 
@@ -305,27 +316,32 @@ class _SpoolInfo extends ConsumerWidget {
             title: const Text('pages.spoolman.spool_details.info_card').tr(),
             trailing: Consumer(
               builder: (context, ref, child) {
-                var isActive = ref.watch(_spoolDetailPageControllerProvider(machineUUID)
-                    .selectAs((data) => data.activeSpool?.id == spool.id));
+                final themeData = Theme.of(context);
+                final isActive =
+                    ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spoolIsActive));
 
-                var themeData = Theme.of(context);
-
-                return isActive.valueOrNull == true
-                    ? Chip(
-                        label: const Text('Spool is Active'),
-                        backgroundColor: themeData.colorScheme.primary,
-                        labelStyle: TextStyle(color: themeData.colorScheme.onPrimary),
-                      )
-                    : const SizedBox.shrink();
+                return AnimatedSwitcher(
+                  duration: kThemeAnimationDuration,
+                  child: isActive
+                      ? Chip(
+                          key: const Key('active_chip'),
+                          label: const Text('Spool is Active'),
+                          backgroundColor: themeData.colorScheme.primary,
+                          labelStyle: TextStyle(color: themeData.colorScheme.onPrimary),
+                        )
+                      : const SizedBox.shrink(key: Key('inactive_spool_chip')),
+                );
               },
             ),
           ),
-          LinearProgressIndicator(
-            backgroundColor: spool.filament.color,
-            value: spool.progress,
-          ),
+          if (spool.progress != null)
+            LinearProgressIndicator(
+              backgroundColor: spool.filament.color,
+              value: spool.progress,
+            ),
+          if (spool.progress == null) const Divider(),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
             child: AlignedGridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -336,6 +352,13 @@ class _SpoolInfo extends ConsumerWidget {
               itemBuilder: (BuildContext context, int index) {
                 return properties[index];
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            child: PropertyWithTitle.text(
+              title: tr('pages.spoolman.properties.comment'),
+              property: spool.comment ?? '–',
             ),
           ),
         ],
@@ -353,7 +376,8 @@ class _SpoolList extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useAutomaticKeepAlive();
+    // useAutomaticKeepAlive();
+    final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
 
     return Card(
       child: Column(
@@ -366,7 +390,7 @@ class _SpoolList extends HookConsumerWidget {
               key: ValueKey(filters),
               machineUUID: machineUUID,
               type: SpoolmanListType.spools,
-              exclude: ref.watch(_spoolProvider),
+              exclude: spool,
               filters: filters,
               onEntryTap: ref.read(_spoolDetailPageControllerProvider(machineUUID).notifier).onEntryTap,
             ),
@@ -379,55 +403,183 @@ class _SpoolList extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_spool])
-class _SpoolDetailPageController extends _$SpoolDetailPageController {
-  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
-
+class _SpoolDetailPageController extends _$SpoolDetailPageController with CommonSpoolmanDetailPagesController<_Model> {
   @override
-  Future<_Model> build(String machineUUID) async {
-    var spool = ref.watch(_spoolProvider);
-    var spoolmanService = ref.watch(spoolmanServiceProvider(machineUUID));
+  _Model build(String machineUUID) {
+    final initialSpool = ref.watch(_spoolProvider);
+    final fetchedSpool = ref.watch(spoolProvider(machineUUID, initialSpool.id));
+    final activeSpool = ref.watch(activeSpoolProvider(machineUUID));
 
     return _Model(
-      spool: spool,
-      activeSpool: await ref.watch(activeSpoolProvider(machineUUID).future),
+      initialSpool: initialSpool,
+      fetchedSpool: fetchedSpool,
+      spoolIsActive: activeSpool.valueOrNull?.id == (fetchedSpool.valueOrNull?.id ?? initialSpool.id),
     );
   }
 
-  void onEntryTap(SpoolmanDtoMixin dto) async {
-    switch (dto) {
-      case Spool spool:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_spoolDetails.name, extra: [machineUUID, spool]);
+  void onAction(ThemeData themeData, Rect pos) async {
+    final spool = state.spool;
+    final isActive = state.spoolIsActive;
+
+    final metaTags = [
+      if (spool.filament.vendor != null) spool.filament.vendor!.name,
+      if (spool.filament.material != null) spool.filament.material,
+    ];
+
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
+      type: SheetType.actions,
+      isScrollControlled: true,
+      data: ActionBottomSheetArgs(
+        title: RichText(
+          text: TextSpan(
+            text: '#${spool.id} ',
+            style: themeData.textTheme.titleSmall
+                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
+            children: [
+              TextSpan(text: '${spool.filament.name}', style: themeData.textTheme.titleSmall),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(metaTags.isEmpty ? tr('pages.spoolman.spool.one') : metaTags.join(' – '),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+        leading: SpoolWidget(color: spool.filament.colorHex, height: 33, width: 15),
+        actions: [
+          if (!isActive) SpoolSpoolmanSheetAction.activate,
+          if (isActive) SpoolSpoolmanSheetAction.deactivate,
+          SpoolSpoolmanSheetAction.edit,
+          SpoolSpoolmanSheetAction.clone,
+          SpoolSpoolmanSheetAction.adjustFilament,
+          SpoolSpoolmanSheetAction.shareQrCode,
+          if (!spool.archived) SpoolSpoolmanSheetAction.archive,
+          if (spool.archived) SpoolSpoolmanSheetAction.unarchive,
+          SpoolSpoolmanSheetAction.delete,
+        ],
+      ),
+    ));
+
+    if (!res.confirmed) return;
+    logger.i('[SpoolDetailPage] Action: ${res.data}');
+
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case SpoolSpoolmanSheetAction.shareQrCode:
+        _generateAndShareQrCode(pos);
         break;
-      case Filament filament:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_filamentDetails.name, extra: [machineUUID, filament]);
+      case SpoolSpoolmanSheetAction.edit:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool]);
         break;
-      case Vendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_vendorDetails.name, extra: [machineUUID, vendor]);
+      case SpoolSpoolmanSheetAction.clone:
+        clone(state.spool);
+        break;
+      case SpoolSpoolmanSheetAction.adjustFilament:
+        _adjustFilament();
+        break;
+      case SpoolSpoolmanSheetAction.delete:
+        delete(state.spool);
+        break;
+      case SpoolSpoolmanSheetAction.activate:
+        spoolmanServiceRef.setActiveSpool(spool);
+        break;
+      case SpoolSpoolmanSheetAction.deactivate:
+        spoolmanServiceRef.clearActiveSpool();
+        break;
+      case SpoolSpoolmanSheetAction.archive:
+        spoolmanServiceRef.archiveSpool(spool);
+        break;
+      case SpoolSpoolmanSheetAction.unarchive:
+        spoolmanServiceRef.archiveSpool(spool, false);
         break;
     }
   }
 
-  onAction() {
-    _bottomSheetService.show(BottomSheetConfig(
-      type: ProSheetType.spoolActionsSpoolman,
-      data: [machineUUID, state.value!.spool],
-    ));
+  Future<void> _generateAndShareQrCode(Rect origin) async {
+    try {
+      final spool = state.spool;
+      final qrData = 'web+spoolman:s-${spool.id}';
+
+      logger.i('Generating QR Code for spool ${spool.id} with data: $qrData');
+
+      final qrCode = QrCode.fromData(
+        data: qrData,
+        errorCorrectLevel: QrErrorCorrectLevel.H,
+      );
+
+      final qrImage = QrImage(qrCode);
+      final qrImageBytes = await qrImage.toImageAsBytes(
+        size: 512,
+        format: ImageByteFormat.png,
+        decoration: const PrettyQrDecoration(
+          image: PrettyQrDecorationImage(image: AssetImage('assets/icon/mr_logo.png')),
+        ),
+      );
+      final bytes = Uint8List.sublistView(qrImageBytes!);
+
+      await Share.shareXFiles(
+        [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
+        subject: 'Spool QR',
+        sharePositionOrigin: origin,
+      ).catchError((_) => null);
+    } catch (e, s) {
+      logger.e('Error while generating and sharing QR Code', e, s);
+      snackBarServiceRef.show(SnackBarConfig.stacktraceDialog(
+        dialogService: dialogServiceRef,
+        snackTitle: 'Unexpected Error',
+        snackMessage: 'An unexpected error occurred while generating the QR Code. Please try again.',
+        exception: e,
+        stack: s,
+      ));
+    }
   }
 
-  Future<void> onSetActive() async {
-    // await Future.delayed(Duration(seconds: 4));
-    await ref.read(spoolmanServiceProvider(machineUUID)).setActiveSpool(state.value!.spool);
-  }
+  Future<void> _adjustFilament() async {
+    final spool = state.spool;
 
-  Future<void> onSetInactive() async {
-    await ref.read(spoolmanServiceProvider(machineUUID)).clearActiveSpool();
+    // Open dialog to select the amount to consume
+    final res = await dialogServiceRef.show(DialogRequest(type: ProDialogType.consumeSpool));
+
+    if (res?.confirmed != true) return;
+    try {
+      switch (res?.data) {
+        case (num() && final amount, 'mm'):
+          logger.i('Consuming $amount mm of filament');
+          await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, length: amount.toDouble());
+          break;
+        case (num() && final amount, 'g'):
+          logger.i('Consuming $amount g of filament');
+          await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, weight: amount.toDouble());
+          break;
+      }
+      // required to wait for rebuild of provider...
+      // await Future.delayed(Duration(milliseconds: 250));
+
+      snackBarServiceRef.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.spoolman.update.success.title', args: [tr('pages.spoolman.spool.one')]),
+        message: tr('pages.spoolman.update.success.message', args: [tr('pages.spoolman.spool.one')]),
+      ));
+    } catch (e, s) {
+      logger.e('Error while adjusting filament on spool', e, s);
+      snackBarServiceRef.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: tr('pages.spoolman.update.error.title', args: [tr('pages.spoolman.spool.one')]),
+        message: tr('pages.spoolman.update.error.message'),
+      ));
+    }
   }
 }
 
 @freezed
 class _Model with _$Model {
+  const _Model._();
+
   const factory _Model({
-    required Spool spool,
-    Spool? activeSpool,
+    required GetSpool initialSpool,
+    required AsyncValue<GetSpool?> fetchedSpool,
+    @Default(false) bool spoolIsActive,
   }) = __Model;
+
+  GetSpool get spool => fetchedSpool.valueOrNull ?? initialSpool;
 }

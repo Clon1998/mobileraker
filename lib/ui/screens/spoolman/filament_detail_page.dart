@@ -3,13 +3,14 @@
  * All rights reserved.
  */
 
-import 'package:common/service/app_router.dart';
+import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
-import 'package:common/util/extensions/double_extension.dart';
-import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,19 +18,21 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
+
 part 'filament_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-Filament _filament(_FilamentRef ref) {
+GetFilament _filament(_FilamentRef ref) {
   throw UnimplementedError();
 }
 
@@ -38,14 +41,15 @@ class FilamentDetailPage extends StatelessWidget {
 
   final String machineUUID;
 
-  final Filament filament;
+  final GetFilament filament;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-        // Make sure we are able to access the vendor in all places
-        overrides: [_filamentProvider.overrideWithValue(filament)],
-        child: _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID));
+      // Make sure we are able to access the vendor in all places
+      overrides: [_filamentProvider.overrideWithValue(filament)],
+      child: _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID),
+    );
   }
 }
 
@@ -56,9 +60,13 @@ class _FilamentDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
-      appBar: const _AppBar(),
-      // floatingActionButton: _Fab(),
+      appBar: _AppBar(machineUUID: machineUUID),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.onAction(Theme.of(context)),
+        child: const Icon(Icons.more_vert),
+      ),
       body: ListView(
         children: [
           _FilamentInfo(machineUUID: machineUUID),
@@ -72,23 +80,24 @@ class _FilamentDetailPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var filament = ref.watch(_filamentProvider);
-    return AppBar(
-      title: Text('${filament.vendor?.name} – ${filament.name} ${filament.material}'),
-      actions: <Widget>[
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
-        // const FileSortModeSelector(),
-      ],
-    );
+    var filament = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
+    // pages.spoolman.filament.one
+    var title = [
+      if (filament.vendor != null) filament.vendor!.name,
+      filament.name,
+    ].join(' – ');
+
+    if (filament.material != null) {
+      title += ' (${filament.material})';
+    }
+
+    return AppBar(title: Text(title));
   }
 
   @override
@@ -102,49 +111,57 @@ class _FilamentInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
-    var filament = ref.watch(_filamentProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final spoolmanCurrency = ref.watch(spoolmanCurrencyProvider(machineUUID));
+    final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
+    final filament = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var numberFormatPrice = NumberFormat('0.##', context.locale.toStringWithSeparator());
-    var numberFormatDouble =
+    final numberFormatPrice =
+        NumberFormat.simpleCurrency(locale: context.locale.toStringWithSeparator(), name: spoolmanCurrency);
+    final numberFormatDouble =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
-    var properties = [
+    final hasVendor = filament.vendor != null;
+    final properties = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: filament.id.toString(),
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.name'),
-        property: filament.name ?? '-',
+        property: filament.name ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.material'),
-        property: filament.material ?? '-',
+        property: filament.material ?? '–',
       ),
       GestureDetector(
         onTap: () {
           controller.onEntryTap(filament.vendor!);
-        },
+        }.only(hasVendor),
         child: PropertyWithTitle(
           title: plural('pages.spoolman.vendor', 1),
           property: Text.rich(
             TextSpan(
               children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Icon(FlutterIcons.external_link_faw,
-                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
-                ),
-                const WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: SizedBox(width: 4),
-                ),
+                if (hasVendor) ...[
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Icon(
+                      FlutterIcons.external_link_faw,
+                      size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2,
+                    ),
+                  ),
+                  const WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: SizedBox(width: 4),
+                  ),
+                ],
                 TextSpan(
-                  text: filament.vendor?.name,
-                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline),
+                  text: filament.vendor?.name ?? '–',
+                  style: TextStyle(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline)
+                      .only(hasVendor),
                 ),
               ],
             ),
@@ -157,7 +174,7 @@ class _FilamentInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.price'),
-        property: filament.price?.let(numberFormatPrice.format) ?? '-',
+        property: filament.price?.let(numberFormatPrice.format) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.density'),
@@ -169,27 +186,23 @@ class _FilamentInfo extends ConsumerWidget {
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.weight'),
-        property: filament.weight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: filament.weight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.spool_weight'),
-        property: filament.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '-',
+        property: filament.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.printer_edit.presets.hotend_temp'),
-        property: filament.settingsExtruderTemp?.let((it) => '$it °C') ?? '-',
+        property: filament.settingsExtruderTemp?.let((it) => '$it °C') ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.printer_edit.presets.bed_temp'),
-        property: filament.settingsBedTemp?.let((it) => '$it °C') ?? '-',
+        property: filament.settingsBedTemp?.let((it) => '$it °C') ?? '–',
       ),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.article_number'),
-        property: filament.articleNumber ?? '-',
-      ),
-      PropertyWithTitle.text(
-        title: tr('pages.spoolman.properties.comment'),
-        property: filament.comment ?? '-',
+        property: filament.articleNumber ?? '–',
       ),
     ];
 
@@ -198,15 +211,12 @@ class _FilamentInfo extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: SpoolWidget(
-              color: filament.colorHex,
-              height: 32,
-            ),
+            leading: SpoolWidget(color: filament.colorHex, height: 32),
             title: const Text('pages.spoolman.filament_details.info_card').tr(),
           ),
           const Divider(),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: AlignedGridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -217,6 +227,13 @@ class _FilamentInfo extends ConsumerWidget {
               itemBuilder: (BuildContext context, int index) {
                 return properties[index];
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            child: PropertyWithTitle.text(
+              title: tr('pages.spoolman.properties.comment'),
+              property: filament.comment ?? '–',
             ),
           ),
         ],
@@ -245,12 +262,14 @@ class _FilamentSpools extends HookConsumerWidget {
             title: const Text('pages.spoolman.filament_details.spools_card').tr(),
           ),
           const Divider(),
-          SpoolmanStaticPagination(
-            // key: ValueKey(filters),
-            machineUUID: machineUUID,
-            type: SpoolmanListType.spools,
-            filters: {'filament.id': model.id},
-            onEntryTap: controller.onEntryTap,
+          Flexible(
+            child: SpoolmanStaticPagination(
+              // key: ValueKey(filters),
+              machineUUID: machineUUID,
+              type: SpoolmanListType.spools,
+              filters: {'filament.id': model.id},
+              onEntryTap: controller.onEntryTap,
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -260,24 +279,68 @@ class _FilamentSpools extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_filament])
-class _FilamentDetailPageController extends _$FilamentDetailPageController {
+class _FilamentDetailPageController extends _$FilamentDetailPageController
+    with CommonSpoolmanDetailPagesController<GetFilament> {
   @override
-  Filament build(String machineUUID) {
-    var filament = ref.watch(_filamentProvider);
+  GetFilament build(String machineUUID) {
+    final initial = ref.watch(_filamentProvider);
+    final fetched = ref.watch(filamentProvider(machineUUID, initial.id));
 
-    return filament;
+    return fetched.valueOrNull ?? initial;
   }
 
-  void onEntryTap(SpoolmanDtoMixin dto) async {
-    switch (dto) {
-      case Spool spool:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_spoolDetails.name, extra: [machineUUID, spool]);
+  void onAction(ThemeData themeData) async {
+    final metaTags = [
+      if (state.vendor != null) state.vendor!.name,
+      if (state.material != null) state.material,
+    ];
+
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
+      type: SheetType.actions,
+      isScrollControlled: true,
+      data: ActionBottomSheetArgs(
+        title: RichText(
+          text: TextSpan(
+            text: '#${state.id} ',
+            style: themeData.textTheme.titleSmall
+                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
+            children: [
+              TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(metaTags.isEmpty ? tr('pages.spoolman.filament.one') : metaTags.join(' – '),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+        leading: SpoolWidget(color: state.colorHex, height: 33, width: 15),
+        actions: [
+          FilamentSpoolmanSheetAction.addSpool,
+          DividerSheetAction.divider,
+          FilamentSpoolmanSheetAction.edit,
+          FilamentSpoolmanSheetAction.clone,
+          FilamentSpoolmanSheetAction.delete
+        ],
+      ),
+    ));
+
+    if (!res.confirmed) return;
+    logger.i('[FilamentDetailPage] Selected action: ${res.data}');
+
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case FilamentSpoolmanSheetAction.edit:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
         break;
-      case Filament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_filamentDetails.name, extra: [machineUUID, filament]);
+      case FilamentSpoolmanSheetAction.addSpool:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, state]);
         break;
-      case Vendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_vendorDetails.name, extra: [machineUUID, vendor]);
+      case FilamentSpoolmanSheetAction.clone:
+        clone(state);
+        break;
+      case FilamentSpoolmanSheetAction.delete:
+        delete(state);
         break;
     }
   }

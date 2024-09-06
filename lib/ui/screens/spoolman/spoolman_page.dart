@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -16,15 +18,18 @@ import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -50,7 +55,7 @@ class SpoolmanPage extends HookWidget {
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),
-      // floatingActionButton: _Fab(),
+      floatingActionButton: _Fab(),
 
       //ToDo: Add ConnectionStateView !!!!
       body: body,
@@ -125,7 +130,6 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var isSupporter = ref.watch(isSupporterProvider);
-
     if (!isSupporter && ref.watch(remoteConfigBoolProvider('spoolman_page_pay'))) {
       return Center(
         child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.spoolman_page').tr()),
@@ -134,11 +138,14 @@ class _Body extends ConsumerWidget {
 
     return MachineConnectionGuard(
       onConnected: (BuildContext context, String machineUUID) {
-        return Consumer(builder: (context, ref, child) {
+        return HookConsumer(builder: (context, ref, child) {
+          // Ensure that the currency provider is kept alive as it is used in the spoolman page and its subpages
+          ref.keepAliveExternally(spoolmanCurrencyProvider(machineUUID));
           final hasSpoolman =
               ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value!;
           final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
           final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
+          final scrollController = useScrollController(keys: [machineUUID, page]);
 
           final themeData = Theme.of(context);
           if (!hasSpoolman) {
@@ -180,22 +187,10 @@ class _Body extends ConsumerWidget {
             );
           }
 
-          final list = switch (page) {
-            1 => SpoolmanScrollPagination(
-                machineUUID: machineUUID,
-                type: SpoolmanListType.filaments,
-                onEntryTap: controller.onEntryTap,
-              ),
-            2 => SpoolmanScrollPagination(
-                machineUUID: machineUUID,
-                type: SpoolmanListType.vendors,
-                onEntryTap: controller.onEntryTap,
-              ),
-            _ => SpoolmanScrollPagination(
-                machineUUID: machineUUID,
-                type: SpoolmanListType.spools,
-                onEntryTap: controller.onEntryTap,
-              ),
+          final type = switch (page) {
+            1 => SpoolmanListType.filaments,
+            2 => SpoolmanListType.vendors,
+            _ => SpoolmanListType.spools,
           };
 
           return ResponsiveLimit(
@@ -204,9 +199,12 @@ class _Body extends ConsumerWidget {
               children: [
                 if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: list,
+                  child: SpoolmanScrollPagination(
+                    scrollController: scrollController,
+                    machineUUID: machineUUID,
+                    type: type,
+                    onEntryTap: controller.onEntryTap,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   ),
                 ),
               ],
@@ -267,6 +265,60 @@ class _Header extends HookConsumerWidget {
   }
 }
 
+class _Fab extends ConsumerWidget {
+  const _Fab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final String? machineUUID = ref.watch(selectedMachineProvider.selectRequireValue((d) => d?.uuid));
+
+    if (machineUUID == null) {
+      return const SizedBox.shrink();
+    }
+
+    final fab = FloatingActionButton(
+      onPressed: () {
+        final currentIndex = ref.read(_spoolmanPageControllerProvider(machineUUID));
+
+        switch (currentIndex) {
+          case 1:
+            context.goNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID]);
+            break;
+          case 2:
+            context.goNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID]);
+            break;
+          default:
+            context.goNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID]);
+        }
+      },
+      child: const Icon(Icons.add),
+    );
+
+    return Consumer(
+      builder: (context, ref, fab) {
+        final conState = ref.watch(jrpcClientStateProvider(machineUUID));
+
+        if (conState.valueOrNull != ClientState.connected) {
+          fab = const SizedBox.shrink();
+        }
+
+        return AnimatedSwitcher(
+          duration: kThemeAnimationDuration,
+          switchInCurve: Curves.easeInOutCubicEmphasized,
+          switchOutCurve: Curves.easeInOutCubicEmphasized,
+          // duration: kThemeAnimationDuration,
+          transitionBuilder: (child, animation) => ScaleTransition(
+            scale: animation,
+            child: child,
+          ),
+          child: fab,
+        );
+      },
+      child: fab,
+    );
+  }
+}
+
 @riverpod
 class _SpoolmanPageController extends _$SpoolmanPageController {
   @override
@@ -278,16 +330,16 @@ class _SpoolmanPageController extends _$SpoolmanPageController {
     state = index;
   }
 
-  void onEntryTap(SpoolmanDtoMixin dto) async {
+  void onEntryTap(SpoolmanIdentifiableDtoMixin dto) {
     switch (dto) {
-      case Spool spool:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_spoolDetails.name, extra: [machineUUID, spool]);
+      case GetSpool spool:
+        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
-      case Filament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_filamentDetails.name, extra: [machineUUID, filament]);
+      case GetFilament filament:
+        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
-      case Vendor vendor:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_vendorDetails.name, extra: [machineUUID, vendor]);
+      case GetVendor vendor:
+        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }
   }

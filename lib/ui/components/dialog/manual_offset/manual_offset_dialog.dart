@@ -6,6 +6,7 @@
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/single_value_selector.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_controller.dart';
-import 'package:mobileraker/ui/components/single_value_selector.dart';
 
 class ManualOffsetDialog extends HookConsumerWidget {
   static final List<double> offsetSteps = [0.001, 0.01, 0.05, 0.1, 1];

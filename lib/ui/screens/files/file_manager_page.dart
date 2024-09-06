@@ -240,46 +240,88 @@ class _Fab extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
 
-    final isScrolling = useState(false);
-    useEffect(() {
-      double last = scrollController.hasClients ? scrollController.offset : 0;
-      isScrolling.value = false;
-      listener() {
-        if (scrollController.position.userScrollDirection == ScrollDirection.reverse) {
-          if (!isScrolling.value && scrollController.offset - last > 25) {
-            isScrolling.value = true;
-          }
-        } else if (scrollController.position.userScrollDirection == ScrollDirection.forward) {
-          // check if delta is gt 10
-          last = scrollController.offset;
-          isScrolling.value = false;
-        }
-      }
-
-      scrollController.addListener(listener);
-      return () => scrollController.removeListener(listener);
-    }, [scrollController, filePath]);
-
     if (selectedMachine == null) {
       return const SizedBox.shrink();
     }
 
-    final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
-    final (isDownloading, isUploading, isFilesLoading, isSelecting) =
-        ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
-      return (data.download != null, data.upload != null, data.folderContent.isLoading, data.selectionMode);
-    }));
-    final connected =
-        ref.watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
-    final isUpOrDownloading = isDownloading || isUploading;
+    return HookConsumer(
+      builder: (context, ref, _) {
+        final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
+        final (isDownloading, isUploading, isFilesLoading, isSelecting) =
+            ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
+          return (data.download != null, data.upload != null, data.folderContent.isLoading, data.selectionMode);
+        }));
+        final connected = ref
+            .watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
+        final isUpOrDownloading = isDownloading || isUploading;
 
-    if (!connected || filePath == 'timelapse' || isSelecting) {
-      return const SizedBox.shrink();
-    }
+        final isScrolling = useState(false);
+        useEffect(
+          () {
+            double last = scrollController.hasClients ? scrollController.offset : 0;
+            isScrolling.value = false;
+            listener() {
+              if (!scrollController.hasClients) {
+                isScrolling.value = false;
+                return;
+              }
+              if (scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+                if (!isScrolling.value && scrollController.offset - last > 25) {
+                  isScrolling.value = true;
+                }
+              } else if (scrollController.position.userScrollDirection == ScrollDirection.forward) {
+                // check if delta is gt 10
+                last = scrollController.offset;
+                isScrolling.value = false;
+              }
+            }
 
-    final children = [
-      if (filePath == 'gcodes') ...[
-        AnimatedSwitcher(
+            scrollController.addListener(listener);
+            return () => scrollController.removeListener(listener);
+          },
+          [scrollController, filePath, isSelecting],
+        );
+
+        final children = [
+          if (filePath == 'gcodes') ...[
+            AnimatedSwitcher(
+              duration: kThemeAnimationDuration,
+              switchInCurve: Curves.easeInOutCubicEmphasized,
+              switchOutCurve: Curves.easeInOutCubicEmphasized,
+              // duration: kThemeAnimationDuration,
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: animation,
+                child: child,
+              ),
+              child: JobQueueFab(
+                machineUUID: selectedMachine.uuid,
+                onPressed: controller.onClickJobQueueFab,
+                mini: true,
+                hideIfEmpty: true,
+              ),
+            ),
+            const Gap(4),
+          ],
+          if (!isUpOrDownloading)
+            FloatingActionButton(
+              heroTag: '${selectedMachine.uuid}-main',
+              onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
+              child: const Icon(Icons.add),
+            ),
+          if (isUpOrDownloading)
+            FloatingActionButton.extended(
+              heroTag: '${selectedMachine.uuid}-main',
+              onPressed: controller.onClickCancelUpOrDownload,
+              label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
+            ),
+        ];
+        final fab = Column(
+          key: const Key('file_manager_fab'),
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: isUpOrDownloading ? CrossAxisAlignment.end : CrossAxisAlignment.center,
+          children: children,
+        );
+        return AnimatedSwitcher(
           duration: kThemeAnimationDuration,
           switchInCurve: Curves.easeInOutCubicEmphasized,
           switchOutCurve: Curves.easeInOutCubicEmphasized,
@@ -288,44 +330,11 @@ class _Fab extends HookConsumerWidget {
             scale: animation,
             child: child,
           ),
-          child: JobQueueFab(
-            machineUUID: selectedMachine.uuid,
-            onPressed: controller.onClickJobQueueFab,
-            mini: true,
-            hideIfEmpty: true,
-          ),
-        ),
-        const Gap(4),
-      ],
-      if (!isUpOrDownloading)
-        FloatingActionButton(
-          heroTag: '${selectedMachine.uuid}-main',
-          onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
-          child: const Icon(Icons.add),
-        ),
-      if (isUpOrDownloading)
-        FloatingActionButton.extended(
-          heroTag: '${selectedMachine.uuid}-main',
-          onPressed: controller.onClickCancelUpOrDownload,
-          label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
-        ),
-    ];
-    final fab = Column(
-      key: const Key('file_manager_fab'),
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: isUpOrDownloading ? CrossAxisAlignment.end : CrossAxisAlignment.center,
-      children: children,
-    );
-    return AnimatedSwitcher(
-      duration: kThemeAnimationDuration,
-      switchInCurve: Curves.easeInOutCubicEmphasized,
-      switchOutCurve: Curves.easeInOutCubicEmphasized,
-      // duration: kThemeAnimationDuration,
-      transitionBuilder: (child, animation) => ScaleTransition(
-        scale: animation,
-        child: child,
-      ),
-      child: isScrolling.value ? const SizedBox.shrink(key: Key('file_manager_fab-hidden')) : fab,
+          child: isScrolling.value || !connected || filePath == 'timelapse' || isSelecting
+              ? const SizedBox.shrink(key: Key('file_manager_fab-hidden'))
+              : fab,
+        );
+      },
     );
   }
 }
@@ -792,7 +801,7 @@ class _FileListState extends ConsumerState<_FileListData> {
             _refreshController.refreshCompleted();
           },
           onError: (e, s) {
-            logger.e(e, s);
+            logger.e('Error while refreshing FileListState', e, s);
             _refreshController.refreshFailed();
           },
         ).whenComplete(() => _isUserRefresh.value = false);
@@ -1064,6 +1073,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
+    // Since this might be used with file actions!
+    ref.keepAliveExternally(printerProvider(machineUUID));
     ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification);
     ref.listen(jrpcClientStateProvider(machineUUID), _onJrpcStateNotification);
     ref.listenSelf(_onModelChanged);
@@ -1138,12 +1149,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickFileAction(RemoteFile file, Rect origin) async {
-    final klippyReady = ref.read(klipperProvider(machineUUID)).valueOrNull?.klippyCanReceiveCommands == true;
-    final canStartPrint = ref
-        .read(printerProvider(machineUUID))
-        .valueOrNull
-        // .also((d) => logger.w('State: ${d?.print.state}'))
-        .let((d) => d != null && (d.print.state != PrintState.printing && d.print.state != PrintState.paused));
+    final klippyReady =
+        ref.read(klipperProvider(machineUUID).select((d) => d.valueOrNull?.klippyCanReceiveCommands == true));
+    final canStartPrint = ref.read(printerProvider(machineUUID).select((d) =>
+        d.valueOrNull != null &&
+        d.valueOrNull!.print.state != PrintState.printing &&
+        d.valueOrNull!.print.state != PrintState.paused));
 
     // logger.w('Klipper ready: $klippyReady, can start print: $canStartPrint');
 
@@ -1200,7 +1211,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           _renameFileAction(file);
           break;
         case GcodeFileSheetAction.addToQueue:
-          _addToQueueAction(file as GCodeFile);
+          _addFileToQueueAction(file as GCodeFile);
           break;
         case GcodeFileSheetAction.preheat when file is GCodeFile:
           _preheatAction(file);
@@ -1378,15 +1389,21 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     if (selectedFiles.isEmpty) return;
 
     _moveFilesAction(selectedFiles);
+    state = state.copyWith(selectedFiles: []);
   }
 
   void onClickMoreActionsSelected(Rect pos) async {
     final selectedFiles = state.selectedFiles;
+    final gcodeFiles = selectedFiles.whereType<GCodeFile>().toList();
 
     final arg = ActionBottomSheetArgs(
       title: Text('${selectedFiles.length} ${plural('pages.files.element', selectedFiles.length)}',
           maxLines: 1, overflow: TextOverflow.ellipsis),
       actions: [
+        if (gcodeFiles.isNotEmpty) ...[
+          GcodeFileSheetAction.addToQueue,
+          DividerSheetAction.divider,
+        ],
         FileSheetAction.zipFile,
         FileSheetAction.download,
         DividerSheetAction.divider,
@@ -1415,7 +1432,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         case FileSheetAction.download:
           _downloadFilesAction(selectedFiles, pos);
           break;
+        case GcodeFileSheetAction.addToQueue:
+          _addFilesToQueueAction(gcodeFiles);
+          break;
       }
+      state = state.copyWith(selectedFiles: []);
     }
   }
 
@@ -1573,7 +1594,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         waitFor.add(f);
       }
       await Future.wait(waitFor).catchError(() => null);
-      state = state.copyWith(selectedFiles: []);
     }
   }
 
@@ -1619,7 +1639,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  Future<void> _addToQueueAction(GCodeFile file) async {
+  Future<void> _addFileToQueueAction(GCodeFile file) async {
     final isSup = await ref.read(isSupporterAsyncProvider.future);
     if (!isSup) {
       _snackBarService.show(SnackBarConfig(
@@ -1637,6 +1657,30 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         message: 'Could not add File to Queue.\n${e.message}',
+      ));
+    }
+  }
+
+  Future<void> _addFilesToQueueAction(List<GCodeFile> files) async {
+    final isSup = await ref.read(isSupporterAsyncProvider.future);
+    if (!isSup) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.job_queue'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+    if (files.isEmpty) return;
+
+    try {
+      final futures = files.map((e) => _jobQueueService.enqueueJob(e.pathForPrint));
+      await Future.wait(futures);
+    } on JRpcError catch (e) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        message: 'Could not add Files to Queue.\n${e.message}',
       ));
     }
   }
@@ -1889,9 +1933,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     );
 
     if (res?.confirmed != true) return;
+    state = state.copyWith(folderContent: state.folderContent.toLoading(false));
 
     final archiveDest = '${toZip.first.parentPath}/${res!.data as String}';
-
     await _handleZipOperation(archiveDest, toZip.map((e) => e.absolutPath).toList());
   }
 
@@ -2000,21 +2044,21 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   void _onOperationCanceled(bool isUpload) {
     final prefix = isUpload ? 'upload' : 'download';
-    ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          type: SnackbarType.warning,
-          title: tr('pages.files.file_operation.${prefix}_canceled.title'),
-          message: tr('pages.files.file_operation.${prefix}_canceled.body'),
-        ));
+    _snackBarService.show(SnackBarConfig(
+      type: SnackbarType.warning,
+      title: tr('pages.files.file_operation.${prefix}_canceled.title'),
+      message: tr('pages.files.file_operation.${prefix}_canceled.body'),
+    ));
   }
 
   void _onOperationError(Object error, StackTrace stack, String operation) {
-    ref.read(snackBarServiceProvider).show(SnackBarConfig.stacktraceDialog(
-          dialogService: _dialogService,
-          snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
-          snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
-          exception: error,
-          stack: stack,
-        ));
+    _snackBarService.show(SnackBarConfig.stacktraceDialog(
+      dialogService: _dialogService,
+      snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
+      snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
+      exception: error,
+      stack: stack,
+    ));
   }
 }
 

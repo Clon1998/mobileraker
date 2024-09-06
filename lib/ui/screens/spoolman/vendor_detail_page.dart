@@ -3,29 +3,35 @@
  * All rights reserved.
  */
 
-import 'package:common/service/app_router.dart';
+import 'package:common/data/enums/spoolman_action_sheet_action_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/spoolman/dto/filament.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
-import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../routing/app_router.dart';
+import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
+import 'common_detail.dart';
 
 part 'vendor_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-Vendor _vendor(_VendorRef ref) {
+GetVendor _vendor(_VendorRef ref) {
   throw UnimplementedError();
 }
 
@@ -34,14 +40,15 @@ class VendorDetailPage extends StatelessWidget {
 
   final String machineUUID;
 
-  final Vendor vendor;
+  final GetVendor vendor;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
-        // Make sure we are able to access the vendor in all places
-        overrides: [_vendorProvider.overrideWithValue(vendor)],
-        child: _VendorDetailPage(key: Key('vd-${vendor.id}'), machineUUID: machineUUID));
+      // Make sure we are able to access the vendor in all places
+      overrides: [_vendorProvider.overrideWithValue(vendor)],
+      child: _VendorDetailPage(key: Key('vd-${vendor.id}'), machineUUID: machineUUID),
+    );
   }
 }
 
@@ -52,13 +59,17 @@ class _VendorDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
-      appBar: const _AppBar(),
-      // floatingActionButton: _Fab(),
+      appBar: _AppBar(machineUUID: machineUUID),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.onAction(Theme.of(context)),
+        child: const Icon(Icons.more_vert),
+      ),
       body: ListView(
         addAutomaticKeepAlives: true,
         children: [
-          const _VendorInfo(),
+          _VendorInfo(machineUUID: machineUUID),
           if (context.isCompact) ...[
             _VendorFilaments(machineUUID: machineUUID),
             _VendorSpools(machineUUID: machineUUID),
@@ -68,12 +79,8 @@ class _VendorDetailPage extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Flexible(
-                    child: _VendorFilaments(machineUUID: machineUUID),
-                  ),
-                  Flexible(
-                    child: _VendorSpools(machineUUID: machineUUID),
-                  ),
+                  Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
+                  Flexible(child: _VendorSpools(machineUUID: machineUUID)),
                 ],
               ),
             ),
@@ -85,22 +92,15 @@ class _VendorDetailPage extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var vendor = ref.watch(_vendorProvider);
+    final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     return AppBar(
       title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]),
-      actions: <Widget>[
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
-        // const FileSortModeSelector(),
-      ],
     );
   }
 
@@ -109,15 +109,20 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 }
 
 class _VendorInfo extends ConsumerWidget {
-  const _VendorInfo({super.key});
+  const _VendorInfo({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var vendor = ref.watch(_vendorProvider);
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    var props = [
+    final numberFormatDouble =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+
+    final props = [
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.id'),
         property: vendor.id.toString(),
@@ -130,11 +135,10 @@ class _VendorInfo extends ConsumerWidget {
         title: tr('pages.spoolman.properties.registered'),
         property: dateFormatGeneral.format(vendor.registered),
       ),
-      if (vendor.comment != null)
-        PropertyWithTitle.text(
-          title: tr('pages.spoolman.properties.comment'),
-          property: vendor.comment!,
-        ),
+      PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.spool_weight'),
+        property: vendor.spoolWeight?.let(numberFormatDouble.formatGrams) ?? '–',
+      ),
     ];
 
     return Card(
@@ -147,7 +151,7 @@ class _VendorInfo extends ConsumerWidget {
           ),
           const Divider(),
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: AlignedGridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -158,6 +162,13 @@ class _VendorInfo extends ConsumerWidget {
               itemBuilder: (BuildContext context, int index) {
                 return props[index];
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            child: PropertyWithTitle.text(
+              title: tr('pages.spoolman.properties.comment'),
+              property: vendor.comment ?? '–',
             ),
           ),
         ],
@@ -186,12 +197,14 @@ class _VendorFilaments extends HookConsumerWidget {
             title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
           ),
           const Divider(),
-          SpoolmanStaticPagination(
-            // key: ValueKey(filters),
-            machineUUID: machineUUID,
-            type: SpoolmanListType.filaments,
-            filters: {'vendor.id': model.id},
-            onEntryTap: controller.onEntryTap,
+          Flexible(
+            child: SpoolmanStaticPagination(
+              // key: ValueKey(filters),
+              machineUUID: machineUUID,
+              type: SpoolmanListType.filaments,
+              filters: {'vendor.id': model.id},
+              onEntryTap: controller.onEntryTap,
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -220,12 +233,14 @@ class _VendorSpools extends HookConsumerWidget {
             title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
           ),
           const Divider(),
-          SpoolmanStaticPagination(
-            // key: ValueKey(filters),
-            machineUUID: machineUUID,
-            type: SpoolmanListType.spools,
-            filters: {'filament.vendor.id': model.id},
-            onEntryTap: controller.onEntryTap,
+          Flexible(
+            child: SpoolmanStaticPagination(
+              // key: ValueKey(filters),
+              machineUUID: machineUUID,
+              type: SpoolmanListType.spools,
+              filters: {'filament.vendor.id': model.id},
+              onEntryTap: controller.onEntryTap,
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -235,23 +250,61 @@ class _VendorSpools extends HookConsumerWidget {
 }
 
 @Riverpod(dependencies: [_vendor])
-class _VendorDetailPageController extends _$VendorDetailPageController {
+class _VendorDetailPageController extends _$VendorDetailPageController
+    with CommonSpoolmanDetailPagesController<GetVendor> {
   @override
-  Vendor build(String machineUUID) {
-    var vendor = ref.watch(_vendorProvider);
-    return vendor;
+  GetVendor build(String machineUUID) {
+    final initial = ref.watch(_vendorProvider);
+    final fetched = ref.watch(vendorProvider(machineUUID, initial.id));
+
+    return fetched.valueOrNull ?? initial;
   }
 
-  void onEntryTap(SpoolmanDtoMixin dto) async {
-    switch (dto) {
-      case Spool spool:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_spoolDetails.name, extra: [machineUUID, spool]);
+  void onAction(ThemeData themeData) async {
+    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
+      type: SheetType.actions,
+      isScrollControlled: true,
+      data: ActionBottomSheetArgs(
+        title: RichText(
+          text: TextSpan(
+            text: '#${state.id} ',
+            style: themeData.textTheme.titleSmall
+                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
+            children: [
+              TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(tr('pages.spoolman.vendor.one'), maxLines: 1, overflow: TextOverflow.ellipsis),
+        actions: [
+          VendorSpoolmanSheetAction.addFilament,
+          DividerSheetAction.divider,
+          VendorSpoolmanSheetAction.edit,
+          VendorSpoolmanSheetAction.clone,
+          VendorSpoolmanSheetAction.delete,
+        ],
+      ),
+    ));
+
+    if (!res.confirmed) return;
+    logger.i('[VendorDetailPage] Action: ${res.data}');
+
+    // Wait for the bottom sheet to close
+    await Future.delayed(kThemeAnimationDuration);
+    switch (res.data) {
+      case VendorSpoolmanSheetAction.edit:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID, state]);
         break;
-      case Filament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_filamentDetails.name, extra: [machineUUID, filament]);
+      case VendorSpoolmanSheetAction.addFilament:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
         break;
-      case Vendor vendor:
-        ref.read(goRouterProvider).pushNamed(AppRoute.spoolman_vendorDetails.name, extra: [machineUUID, vendor]);
+      case VendorSpoolmanSheetAction.clone:
+        clone(state);
+        break;
+      case VendorSpoolmanSheetAction.delete:
+        delete(state);
         break;
     }
   }

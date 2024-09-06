@@ -38,7 +38,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
-import 'package:mobileraker_pro/spoolman/dto/spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../routing/app_router.dart';
@@ -584,7 +584,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
       }
     });
 
-    (double?, String?) spoolCalc(Spool spool) {
+    (double?, String?) spoolCalc(GetSpool spool) {
       double? insufficientFilament;
       String? materialMissmatch;
       if (spool.filament.material != null &&

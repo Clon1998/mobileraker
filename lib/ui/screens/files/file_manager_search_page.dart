@@ -306,17 +306,14 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   }
 
   void _refreshResults([List<RemoteFile>? files]) {
-    final searchTerm = state.searchTerm?.toLowerCase();
+    final searchTerm = state.searchTerm;
     if (searchTerm?.isNotEmpty != true) return;
     final toFilter = files ?? state.apiResponses.expand((element) => element.files);
-    final searchTokens = searchTerm!.split(RegExp(r'\W+'));
+    final searchTokens = searchTerm!.split(RegExp(r'[\W,]+'));
     logger.i('[FileManagerSearchController] Refreshing search results for $searchTerm, tokens: $searchTokens');
     final newSearchResults = toFilter
         .map(
-          (file) => (
-            file,
-            _calculateScore(file.name.toLowerCase(), searchTerm, searchTokens),
-          ),
+          (file) => (file, file.name.searchScore(searchTerm, searchTokens)),
         )
         .where((element) => element.$2 > 150)
         .sorted((a, b) => b.$2.compareTo(a.$2))
@@ -327,39 +324,6 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
 
     state =
         state.copyWith(searchResults: files == null ? newSearchResults : [...state.searchResults, ...newSearchResults]);
-  }
-
-  double _calculateScore(String fileName, String searchTerm, List<String> searchTokens) {
-    // Exact match
-    if (fileName == searchTerm) return 1000; // Highest possible score
-
-    double score = 0;
-
-    // Full token match
-    if (searchTokens.length > 1 && searchTokens.every((token) => fileName.toLowerCase().contains(token))) {
-      score += 500; // High score, but less than exact match
-    }
-
-    // Prefix match
-    if (fileName.startsWith(searchTerm)) score += 200;
-
-    // Token matching
-    var fileTokens = fileName.split(RegExp(r'[.\s_-]+'));
-    for (var searchToken in searchTokens) {
-      if (fileTokens.any((fileToken) => fileToken == searchToken)) score += 150;
-      if (fileTokens.any((fileToken) => fileToken.startsWith(searchToken))) score += 130;
-      if (fileTokens.any((fileToken) => fileToken.endsWith(searchToken))) score += 110;
-    }
-
-    // Jaro-Winkler similarity
-    score += fileName.jaroWinkler(searchTerm) * 100;
-
-    // Trigram similarity for longer search terms
-    if (searchTerm.length > 3) {
-      score += fileName.trigramSimilarity(searchTerm) * 50;
-    }
-
-    return score;
   }
 }
 
