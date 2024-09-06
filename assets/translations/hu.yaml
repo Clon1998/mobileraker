@@ -688,6 +688,18 @@ pages:
     no_vendors: Nem találtam gyártót!
     error_loading_spools: Hiba az orsók betöltésekor
     error_loading_filaments: Hiba a nyomtatószál betöltésekor
+    spoolman_actions:
+      activate: "@:general.activate"
+      deactivate: Deaktiválás
+      clone: Klón
+      edit: "@:general.edit"
+      archive: Archívum
+      unarchive: Archívum feloldása
+      adjust: Állítsd be az orsószálat
+      share_qr: QR-kód megosztása
+      delete: "@:general.delete"
+      add_spool: Orsó hozzáadása
+      add_filament: Nyomtatószál hozzáadása
     create:
       success:
         title: "{} létrehozva!"
@@ -1045,6 +1057,10 @@ dialogs:
     tooltip:
       weight: Súly módra váltás
       length: Hosszúság módra váltás
+  num_range_dialog:
+    helper:
+      min: Adj meg legalább egy értéket {}
+      range: Adj meg egy {} és {} közötti értéket
 bottom_sheets:
   job_queue_sheet:
     next: Következő nyomtatási feladat
