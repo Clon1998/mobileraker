@@ -168,7 +168,7 @@ pages:
       invert_x_short: Инвертировать X
       invert_y: Инвертировать ось - Y
       invert_y_short: Инвертировать Y
-      invert_z: Инвертировать ось - Z 
+      invert_z: Инвертировать ось - Z
       invert_z_short: Инвертировать Z
       speed_xy: Скоровть осей - X/Y
       speed_xy_short: Скорость X/Y

@@ -108,6 +108,8 @@ pages:
         accel_to_decel: Versnellen naar vertragen
   files:
     title: Bestanden
+    empty_folder:
+      title: Deze map is leeg
     search_files: Bestanden zoeken
     details:
       preheat: Voorverwarmen

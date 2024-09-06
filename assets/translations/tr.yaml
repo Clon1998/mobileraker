@@ -66,7 +66,7 @@ pages:
         filament: filaman
         filament_tooltip: Filamentin %{} tanesi kullanıldı, yani tahmin edilen {} m'nin {} m'si.
         eta_tooltip: |-
-          Kalan süre: 
+          Kalan süre:
         remaining: Geriye kalan
       cam_card:
         webcam: Web kamerası
@@ -167,16 +167,15 @@ pages:
         first_layer_temps: "@:pages.files.details.meta_card.first_layer - Sıcaklıklar"
         first_layer_temps_value: |-
           @:pages.dashboard.general.temp_card.hotend: {}°C
-
       stat_card:
         title: İstatistik
       preheat_dialog:
         body: |-
-          Hedef Sıcaklıklar 
+          Hedef Sıcaklıklar
       preheat_snackbar:
         title: Ön Isıtma Başlatıldı
         body: |-
-          Ekstruder: {}°C 
+          Ekstruder: {}°C
   setting:
     title: Uygulama ayarları
     general:
@@ -198,18 +197,16 @@ pages:
       state_helper: Durum değişikliği bildirimi gönderen durumlar
       no_permission_title: Bildirim İzni Yok!
       no_permission_desc: |-
-        Bildirimler görüntülenemiyor. 
+        Bildirimler görüntülenemiyor.
       no_firebase_title: Bildirimler görüntülenemiyor
       no_firebase_desc: |-
-        Mobileraker cihaza herhangi bir bildirim gönderemez. 
+        Mobileraker cihaza herhangi bir bildirim gönderemez.
       ios_notifications_title: IOS Bildirim Gönderimi
       ios_notifications_desc: |-
-        Bildirimler mobileraker'ın en az bir kez açılmasını ve arka planda olmasını gerektirir. 
+        Bildirimler mobileraker'ın en az bir kez açılmasını ve arka planda olmasını gerektirir.
       missing_companion_title: Arkadaş bulunamadı!
       missing_companion_body: |-
         Tamamlayıcının yüklü olmadığı anlaşılıyor ve bu nedenle aşağıdaki makineler bildirim gönderemiyor: {}
-
-
       enable_live_activity: Canlı Etkinliği Etkinleştir
     developer:
       title: Geliştirici
@@ -228,7 +225,7 @@ pages:
     store_error:
       title: Kaydetme başarısız oldu!
       message: |-
-        Bazı alanlar geçersiz değerler içeriyor! 
+        Bazı alanlar geçersiz değerler içeriyor!
       unexpected_error: Makine verileri kaydedilmeye çalışılırken beklenmeyen bir hata oluştu!
     confirm_deletion:
       title: Silmek {}?
@@ -238,7 +235,7 @@ pages:
       printer_addr: Yazıcı - Adres
       ws_addr: Websocket - Adres
       moonraker_api_key: Moonraker - API Anahtarı
-      moonraker_api_desc: Yalnızca güvenilir istemciler kullanıyorsanız gereklidir. 
+      moonraker_api_desc: Yalnızca güvenilir istemciler kullanıyorsanız gereklidir.
       full_url: Tam URL
       timeout_label: İstemci zaman aşımı
       timeout_helper: İstemci bağlantısı için saniye cinsinden zaman aşımı
@@ -314,9 +311,9 @@ pages:
     remote_interface_exists:
       title: Uzak Bağlantı Bulundu
       body:
-        oe: Bu yazıcı, uzaktan erişim için OctoEverywhere'e zaten bağlı. 
-        obico: Bu yazıcı zaten uzaktan erişim için Obico ile kaplanmıştır. 
-        other: Bu yazıcı için zaten bir uzak bağlantı kuruldu. 
+        oe: Bu yazıcı, uzaktan erişim için OctoEverywhere'e zaten bağlı.
+        obico: Bu yazıcı zaten uzaktan erişim için Obico ile kaplanmıştır.
+        other: Bu yazıcı için zaten bir uzak bağlantı kuruldu.
     remote_interface_removed:
       title: Uzaktan bağlantı kaldırıldı!
       body: Değişiklikleri uygulamak için yazıcıyı kaydettiğinizden emin olun.
@@ -329,11 +326,11 @@ pages:
     wifi_access_warning:
       title: WiFi Bilgisi Mevcut Değil
       subtitle: |-
-        Mobileraker'ın uzak bağlantıyı kullanıp kullanmayacağını belirlemek için konum erişimine izin verin. 
+        Mobileraker'ın uzak bağlantıyı kullanıp kullanmayacağını belirlemek için konum erişimine izin verin.
     local_ssid:
       section_header: Akıllı Anahtarlama
       no_ssids: WiFi adı eklenmedi!
-      helper: Akıllı geçiş, uygulamanın mevcut WiFi ağına göre yerel ve uzak bağlantı arasında otomatik olarak geçiş yapmasını sağlar. 
+      helper: Akıllı geçiş, uygulamanın mevcut WiFi ağına göre yerel ve uzak bağlantı arasında otomatik olarak geçiş yapmasını sağlar.
       dialog:
         title_add: Listeye WiFi Adını Ekle
         title_edit: WiFi Adını Düzenle
@@ -352,18 +349,18 @@ pages:
     initial_name: Yazıcım
     select_mode:
       title: 'Bir giriş modu seçin:'
-      body: Bu konuda yeniyseniz, basit moda bağlı kalmak en iyisidir. 
+      body: Bu konuda yeniyseniz, basit moda bağlı kalmak en iyisidir.
       simple: Basit
       advanced: Gelişmiş
       add_via_oe: Tek tıkla OctoEverywhere kurulumu
       add_via_obico: Tek tıkla Obico kurulumu
     simple_form:
       hint_title: İpucu - Basit Mod
-      hint_body: Basit mod, ana bilgisayara ve bağlantı noktasına girmenizi sağlar. 
+      hint_body: Basit mod, ana bilgisayara ve bağlantı noktasına girmenizi sağlar.
       url_hint: Yazıcının IP'si veya Ana Bilgisayar Adı
     advanced_form:
       hint_title: İpucu - Gelişmiş Mod
-      hint_body: Gelişmiş modda doğrulamanın çoğunlukla devre dışı bırakıldığını lütfen unutmayın. 
+      hint_body: Gelişmiş modda doğrulamanın çoğunlukla devre dışı bırakıldığını lütfen unutmayın.
       http_helper: Lütfen Moonraker'ın HTTP uç noktasını girin
       ws_helper: Moonraker'ın isteğe bağlı WebSocket uç noktası
       section_security: Güvenlik
@@ -379,7 +376,7 @@ pages:
       awaiting: Sonuç bekleniyor…
       continue: Devam etmek
       continue_anyway: Her halükarda devam et
-      proceed_warning: Uygulamanın makineye bağlanmada sorun yaşadığı anlaşılıyor. 
+      proceed_warning: Uygulamanın makineye bağlanmada sorun yaşadığı anlaşılıyor.
       button: Test bağlantısı
     confirmed:
       title: Yazıcı {} eklendi!
@@ -408,19 +405,19 @@ pages:
       title: Desteğin için teşekkürler!
       list_title: 'Destekçi Seviyesini Değiştir:'
       store_btn: '{} Bölgesinde Aboneliği İptal Et'
-      sub_warning: Ömür boyu destekçi kademesini satın almanın diğer aktif abonelikleri otomatik olarak iptal etmediğini lütfen unutmayın. 
+      sub_warning: Ömür boyu destekçi kademesini satın almanın diğer aktif abonelikleri otomatik olarak iptal etmediğini lütfen unutmayın.
     subscribe_view:
       title: Mobileraker Destekçisi Olun!
       info: |-
-        Mobileraker, Klipper için RepRap ruhuyla hareket eden, açık kaynaklı yazılım ve donanımın olumlu bir etki yaratabileceği hızlı ve güvenilir bir mobil kullanıcı arayüzü sağlamayı hedefliyor. 
+        Mobileraker, Klipper için RepRap ruhuyla hareket eden, açık kaynaklı yazılım ve donanımın olumlu bir etki yaratabileceği hızlı ve güvenilir bir mobil kullanıcı arayüzü sağlamayı hedefliyor.
       list_title: 'Destekçi Seviyesini Seçin:'
     supporter_tier_list:
       error_title: Destekçi Seviyeleri yüklenirken hata oluştu!
-      error_body: Üzgünüz, beklenmedik bir hata oluştu. 
+      error_body: Üzgünüz, beklenmedik bir hata oluştu.
     contact_dialog:
       title: Geliştirici İletişimi
       body: |-
-        Posta: {} 
+        Posta: {}
     title: Dev'i destekleyin!
     calling_store: İstek işleniyor...
     promo_title: Promosyon
@@ -442,7 +439,7 @@ components:
     manage_printers: Yazıcıları Yönet
     fetching_printers: "@:general.yazıcılar getiriliyor..."
     footer: |-
-      Patrick Schmidt tarafından ❤️ ile yapılmıştır 
+      Patrick Schmidt tarafından ❤️ ile yapılmıştır
   connection_watcher:
     reconnect: Yeniden bağlan
     trying_connect: Bağlanmaya çalışılıyor...
@@ -450,23 +447,23 @@ components:
     server_starting: Sunucu başlıyor...
     more_details: Daha fazla detay
     add_printer: |-
-      Selam, 
+      Selam,
   octo_indicator:
     tooltip: OctoEverywhere'i kullanma!
   supporter_add:
     title: Mobileraker'ı beğendiniz mi?
-    subtitle: Bana dokun! 
+    subtitle: Bana dokun!
   supporter_only_feature:
     dialog_title: Yalnızca Destekçi Özelliği
     button: Mobileraker Destekçisi Olun
     webcam: Üzgünüz, {} türündeki web kameraları yalnızca Destekçiler tarafından kullanılabilir.
-    printer_add: Makine sınırına ulaştınız. 
+    printer_add: Makine sınırına ulaştınız.
     job_queue: Üzgünüz, İş Kuyruğu yalnızca Destekçiler tarafından kullanılabilir.
     timelaps_share: Üzgünüz, hızlandırılmış görüntüleri paylaşmak yalnızca Destekçiler tarafından kullanılabilir.
     printer_theme: Üzgünüz, yazıcıya özel temalar yalnızca Destekçiler tarafından kullanılabilir.
   machine_deletion_warning:
     title: Makine Silme
-    subtitle: Bir Destekçi olmadığınız anlaşılıyor. 
+    subtitle: Bir Destekçi olmadığınız anlaşılıyor.
   remote_connection_indicator:
     title: Uzaktan bağlantı kullanılıyor!
   web_rtc:
@@ -492,8 +489,6 @@ dialogs:
     title: Emin misin?
     description: |-
       Klasörün içerdiği tüm dosyalar da kaldırılacak!
-
-
   rename_folder:
     title: Dosyayı yeniden adlandır
     label: Klasör adı
@@ -513,8 +508,6 @@ dialogs:
     title: URL Girişi Yardımı
     body: |-
       Web arayüzünüze veya doğrudan moonraker tarafından sağlanan websocket örneğine bir IP, URL veya tam URI girebilirsiniz.
-
-
   gcode_params:
     hint: 'İpucu: Makroyu varsayılan değerlerle göndermek isterseniz uzun basabilirsiniz!'
   rgbw:
@@ -525,7 +518,7 @@ dialogs:
     hint: Etkin olarak ayarlamak için bir makineye dokunun.
   supporter_perks:
     title: Destekçi Avantajları
-    body: Mobileraker'ı destekleyerek uygulamanın topluluk için ücretsiz kalmasını sağlarsınız. 
+    body: Mobileraker'ı destekleyerek uygulamanın topluluk için ücretsiz kalmasını sağlarsınız.
     hint: 'İpucu: Şu an itibariyle ayrıcalıklar cihaza dayalıdır. '
     theme_perk:
       title: Destekçi Teması
@@ -554,7 +547,7 @@ dialogs:
     active_screw_title: 'Aktif Vida:'
     accept_screw_title: 'Kabul Edilen Vidalar:'
     accept_screw_value: "{} ile ilgili {}"
-    hint: Mevcut vidada önemli bir ayarlama yapılması gerekiyorsa Ayarlanmış'a tıklayın; 
+    hint: Mevcut vidada önemli bir ayarlama yapılması gerekiyorsa Ayarlanmış'a tıklayın;
     adjusted_btn: Düzeltildi
   manual_offset:
     title: "@:general.offset Kalibrasyon"
@@ -578,7 +571,7 @@ dialogs:
 bottom_sheets:
   job_queue_sheet:
     next: Sonraki yazdırma işi
-    empty: İş kuyruğu boş. 
+    empty: İş kuyruğu boş.
     start_queue: Kuyruğu Başlat
     pause_queue: Sırayı Duraklat
     remove_all: Kuyruğu Temizle
@@ -587,23 +580,23 @@ bottom_sheets:
     disclosure: "{service} Mobileraker'a bağlı değildir. "
     active_service_info:
       title: Mevcut yapılandırma bulundu!
-      body: Şu anda uzaktan bağlantı hizmetiniz olarak {} kullanıyorsunuz. 
+      body: Şu anda uzaktan bağlantı hizmetiniz olarak {} kullanıyorsunuz.
     octoeverywehre:
       service_name: OctoHer Yerde
       link: OctoEverywhere'i bağlayın
       unlink: OctoEverywhere'in bağlantısını kaldır
-      description: OctoEverywhere.com, yazıcınıza her yerden güvenli bir şekilde bağlanmanıza olanak tanıyan bir topluluk projesidir. 
+      description: OctoEverywhere.com, yazıcınıza her yerden güvenli bir şekilde bağlanmanıza olanak tanıyan bir topluluk projesidir.
     manual:
       service_name: Manuel Uzaktan Bağlantı
       tab_name: Manuel
-      description: İleri düzey bir kullanıcıysanız alternatif bir bağlantıyı manuel olarak eklemeyi seçebilirsiniz. 
+      description: İleri düzey bir kullanıcıysanız alternatif bir bağlantıyı manuel olarak eklemeyi seçebilirsiniz.
       address_label: Alternatif Adres
       address_hint: Kullanılacak kaldırma bağlantısının temel adresi
     obico:
       service_name: Obiko
       link: Obico'yu bağla
       unlink: Obico'nun bağlantısını kaldır
-      description: Obico, topluluk odaklı, tamamen açık kaynaklı bir 3D baskı yazılımıdır. 
+      description: Obico, topluluk odaklı, tamamen açık kaynaklı bir 3D baskı yazılımıdır.
   manage_macros_in_grp:
     title: Makro Ekle
     hint: '{} grubu için makroları seçin'
