@@ -56,30 +56,39 @@ enum _SpoolFormFormComponent {
 }
 
 @Riverpod(dependencies: [])
-GetSpool? _spool(_SpoolRef ref) {
-  throw UnimplementedError();
-}
+GetFilament? _initialFilament(_) => throw UnimplementedError();
 
 @Riverpod(dependencies: [])
-_FormMode _formMode(_FormModeRef ref) {
-  return _FormMode.create;
-}
+GetSpool? _initialSpool(_) => throw UnimplementedError();
+
+@Riverpod(dependencies: [])
+_FormMode _formMode(_FormModeRef ref) => _FormMode.create;
 
 class SpoolFormPage extends StatelessWidget {
-  const SpoolFormPage({super.key, required this.machineUUID, this.spool, this.isCopy = false});
+  const SpoolFormPage({
+    super.key,
+    required this.machineUUID,
+    this.initialSpool,
+    this.initialFilament,
+    this.isCopy = false,
+  });
 
   final String machineUUID;
-  final GetSpool? spool;
+  final GetSpool? initialSpool;
+  final GetFilament? initialFilament;
   final bool isCopy;
 
   @override
   Widget build(BuildContext context) {
-    logger.i('SpoolFormPage: $machineUUID, $isCopy, $spool');
-    var mode = isCopy ? _FormMode.copy : (spool == null ? _FormMode.create : _FormMode.update);
+    var mode = isCopy ? _FormMode.copy : (initialSpool == null ? _FormMode.create : _FormMode.update);
 
     return ProviderScope(
       // Make sure we are able to access the vendor in all places
-      overrides: [_spoolProvider.overrideWithValue(spool), _formModeProvider.overrideWithValue(mode)],
+      overrides: [
+        _initialSpoolProvider.overrideWithValue(initialSpool),
+        _formModeProvider.overrideWithValue(mode),
+        _initialFilamentProvider.overrideWithValue(initialFilament),
+      ],
       child: _SpoolFormPage(machineUUID: machineUUID),
     );
   }
@@ -381,7 +390,7 @@ class _Fab extends ConsumerWidget {
   }
 }
 
-@Riverpod(dependencies: [_spool, _formMode])
+@Riverpod(dependencies: [_initialSpool, _formMode, _initialFilament])
 class _SpoolFormPageController extends _$SpoolFormPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
@@ -400,9 +409,16 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
 
     final filaments = ref.watch(filamentListProvider(machineUUID).selectAs((d) => d.items));
 
-    final source = ref.watch(_spoolProvider);
+    final initialFilament = ref.watch(_initialFilamentProvider);
+    final source = ref.watch(_initialSpoolProvider);
     final mode = ref.watch(_formModeProvider);
-    return _Model(mode: mode, source: source, filaments: filaments, selectedFilament: source?.filament);
+
+    return _Model(
+      mode: mode,
+      source: source,
+      filaments: filaments,
+      selectedFilament: stateOrNull?.selectedFilament ?? source?.filament ?? initialFilament,
+    );
   }
 
   void onFormSubmitted(Map<String, dynamic>? formData, [int qty = 1]) {

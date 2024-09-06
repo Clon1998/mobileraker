@@ -297,6 +297,9 @@ class _VendorDetailPageController extends _$VendorDetailPageController
       case VendorSpoolmanSheetAction.edit:
         goRouterRef.pushNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID, state]);
         break;
+      case VendorSpoolmanSheetAction.addFilament:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
+        break;
       case VendorSpoolmanSheetAction.clone:
         clone(state);
         break;

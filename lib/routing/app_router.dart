@@ -317,8 +317,12 @@ GoRouter goRouterImpl(GoRouterRef ref) {
               [String machineUUID] => SpoolFormPage(machineUUID: machineUUID),
               [String machineUUID, GetSpool spool] => SpoolFormPage(
                   machineUUID: machineUUID,
-                  spool: spool,
+                  initialSpool: spool,
                   isCopy: state.uri.queryParameters['isCopy'] == 'true',
+                ),
+              [String machineUUID, GetFilament filament] => SpoolFormPage(
+                  machineUUID: machineUUID,
+                  initialFilament: filament,
                 ),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
             },
@@ -331,8 +335,12 @@ GoRouter goRouterImpl(GoRouterRef ref) {
               [String machineUUID] => FilamentFormPage(machineUUID: machineUUID),
               [String machineUUID, GetFilament filament] => FilamentFormPage(
                   machineUUID: machineUUID,
-                  filament: filament,
+                  initialFilament: filament,
                   isCopy: state.uri.queryParameters['isCopy'] == 'true',
+                ),
+              [String machineUUID, GetVendor vendor] => FilamentFormPage(
+                  machineUUID: machineUUID,
+                  initialVendor: vendor,
                 ),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
             },

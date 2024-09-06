@@ -57,31 +57,39 @@ enum _FilamentFormFormComponent {
 }
 
 @Riverpod(dependencies: [])
-GetFilament? _filament(_FilamentRef ref) {
-  throw UnimplementedError();
-}
+GetVendor? _initialVendor(_) => throw UnimplementedError();
 
 @Riverpod(dependencies: [])
-_FormMode _formMode(_FormModeRef ref) {
-  return _FormMode.create;
-}
+GetFilament? _initialFilament(_) => throw UnimplementedError();
+
+@Riverpod(dependencies: [])
+_FormMode _formMode(_) => _FormMode.create;
 
 class FilamentFormPage extends StatelessWidget {
-  const FilamentFormPage({super.key, required this.machineUUID, this.filament, this.isCopy = false});
+  const FilamentFormPage({
+    super.key,
+    required this.machineUUID,
+    this.initialFilament,
+    this.initialVendor,
+    this.isCopy = false,
+  });
 
   final String machineUUID;
-  final GetFilament? filament;
+  final GetFilament? initialFilament;
+  final GetVendor? initialVendor;
   final bool isCopy;
 
   @override
   Widget build(BuildContext context) {
-    var mode = isCopy ? _FormMode.copy : (filament == null ? _FormMode.create : _FormMode.update);
-
-    logger.i('FilamentFormPage: $mode, $machineUUID, $filament, $isCopy');
+    var mode = isCopy ? _FormMode.copy : (initialFilament == null ? _FormMode.create : _FormMode.update);
 
     return ProviderScope(
       // Make sure we are able to access the vendor in all places
-      overrides: [_filamentProvider.overrideWithValue(filament), _formModeProvider.overrideWithValue(mode)],
+      overrides: [
+        _initialFilamentProvider.overrideWithValue(initialFilament),
+        _formModeProvider.overrideWithValue(mode),
+        _initialVendorProvider.overrideWithValue(initialVendor),
+      ],
       child: _FilamentFormPage(machineUUID: machineUUID),
     );
   }
@@ -397,7 +405,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 }
 
-@Riverpod(dependencies: [_filament, _formMode])
+@Riverpod(dependencies: [_initialFilament, _formMode, _initialVendor])
 class _FilamentFormPageController extends _$FilamentFormPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
@@ -416,10 +424,16 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       logger.i('[FilamentFormPageController($machineUUID)] State changed: $next');
     });
 
-    final source = ref.watch(_filamentProvider);
+    final initialVendor = ref.watch(_initialVendorProvider);
+    final source = ref.watch(_initialFilamentProvider);
     final mode = ref.watch(_formModeProvider);
 
-    return _Model(mode: mode, source: source, vendors: vendors, selectedVendor: source?.vendor);
+    return _Model(
+      mode: mode,
+      source: source,
+      vendors: vendors,
+      selectedVendor: stateOrNull?.selectedVendor ?? source?.vendor ?? initialVendor,
+    );
   }
 
   void onFormSubmitted(Map<String, dynamic>? formData) {

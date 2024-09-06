@@ -211,10 +211,7 @@ class _FilamentInfo extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: SpoolWidget(
-              color: filament.colorHex,
-              height: 32,
-            ),
+            leading: SpoolWidget(color: filament.colorHex, height: 32),
             title: const Text('pages.spoolman.filament_details.info_card').tr(),
           ),
           const Divider(),
@@ -335,6 +332,9 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
     switch (res.data) {
       case FilamentSpoolmanSheetAction.edit:
         goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
+        break;
+      case FilamentSpoolmanSheetAction.addSpool:
+        goRouterRef.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, state]);
         break;
       case FilamentSpoolmanSheetAction.clone:
         clone(state);
