@@ -691,12 +691,15 @@ pages:
     error_loading_spools: Fehler beim Laden der Spulen
     error_loading_filaments: Fehler beim Laden der Filamente
     spoolman_actions:
+      activate: "@:general.activate"
       deactivate: Deaktivieren
       clone: Duplizieren
+      edit: "@:general.edit"
       archive: Archivieren
       unarchive: Archivierung aufheben
       adjust: Spulen Filament anpassen
       share_qr: QR-Code teilen
+      delete: "@:general.delete"
       add_spool: Spule hinzufügen
       add_filament: Filament hinzufügen
     create:
@@ -720,9 +723,9 @@ pages:
         message: Es wurden keine Änderungen vorgenommen.
     delete:
       confirm:
-        title: "{} löschen?"
+        title: '{} löschen?'
         body: |-
-          Sie sind dabei, {} zu löschen. 
+          Sie sind dabei, {} zu löschen.
           Bestätigen Sie Ihre Aktion.
       success:
         title: "{} gelöscht!"
@@ -1052,6 +1055,10 @@ dialogs:
     tooltip:
       weight: Wechseln Sie zum Gewichtsmodus
       length: Wechseln Sie zum Längenmodus
+  num_range_dialog:
+    helper:
+      min: Gib einen Wert größer als {} ein
+      range: Gib einen Wert zwischen {} und {} ein
 bottom_sheets:
   job_queue_sheet:
     next: Nächster Druckauftrag
