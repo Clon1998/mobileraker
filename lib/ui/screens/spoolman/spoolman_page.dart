@@ -193,18 +193,21 @@ class _Body extends ConsumerWidget {
                 machineUUID: machineUUID,
                 type: SpoolmanListType.filaments,
                 onEntryTap: controller.onEntryTap,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             2 => SpoolmanScrollPagination(
                 scrollController: scrollController,
                 machineUUID: machineUUID,
                 type: SpoolmanListType.vendors,
                 onEntryTap: controller.onEntryTap,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             _ => SpoolmanScrollPagination(
                 scrollController: scrollController,
                 machineUUID: machineUUID,
                 type: SpoolmanListType.spools,
                 onEntryTap: controller.onEntryTap,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
           };
 
@@ -213,12 +216,7 @@ class _Body extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: list,
-                  ),
-                ),
+                Expanded(child: list),
               ],
             ),
           );
