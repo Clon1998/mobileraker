@@ -261,6 +261,10 @@ class _Fab extends HookConsumerWidget {
             double last = scrollController.hasClients ? scrollController.offset : 0;
             isScrolling.value = false;
             listener() {
+              if (!scrollController.hasClients) {
+                isScrolling.value = false;
+                return;
+              }
               if (scrollController.position.userScrollDirection == ScrollDirection.reverse) {
                 if (!isScrolling.value && scrollController.offset - last > 25) {
                   isScrolling.value = true;
@@ -2042,19 +2046,19 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final prefix = isUpload ? 'upload' : 'download';
     _snackBarService.show(SnackBarConfig(
       type: SnackbarType.warning,
-          title: tr('pages.files.file_operation.${prefix}_canceled.title'),
-          message: tr('pages.files.file_operation.${prefix}_canceled.body'),
-        ));
+      title: tr('pages.files.file_operation.${prefix}_canceled.title'),
+      message: tr('pages.files.file_operation.${prefix}_canceled.body'),
+    ));
   }
 
   void _onOperationError(Object error, StackTrace stack, String operation) {
     _snackBarService.show(SnackBarConfig.stacktraceDialog(
       dialogService: _dialogService,
-          snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
-          snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
-          exception: error,
-          stack: stack,
-        ));
+      snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
+      snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
+      exception: error,
+      stack: stack,
+    ));
   }
 }
 
