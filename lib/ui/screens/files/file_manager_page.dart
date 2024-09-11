@@ -100,6 +100,7 @@ class FileManagerPage extends HookConsumerWidget {
     final isRoot = filePath.split('/').length == 1;
 
     Widget body = MachineConnectionGuard(
+      skipKlipperReady: true,
       onConnected: (ctx, machineUUID) => _Body(
         machineUUID: machineUUID,
         filePath: filePath,
