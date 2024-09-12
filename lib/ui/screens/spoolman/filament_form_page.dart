@@ -283,7 +283,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                 ),
 
                 // Temperature Settings
-                SectionHeader(title: tr('pages.spoolman.property_sections.physical')),
+                SectionHeader(title: tr('pages.spoolman.property_sections.print_settings')),
                 FormBuilderTextField(
                   name: _FilamentFormFormComponent.extruderTemp.name,
                   initialValue: sourceFilament?.settingsExtruderTemp?.let(numFormatInputs.format),
