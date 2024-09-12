@@ -384,10 +384,7 @@ pages:
       medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
     notification:
       title: Értesítés
-      progress_label: Haladási értesítés
       progress_helper: Frissítési időköz a nyomtatási folyamatról szóló értesítéshez
-      state_label: Állami értesítés
-      state_helper: Állapotváltozásról szóló értesítést kiadó államok
       no_permission_title: Nincs értesítési engedély!
       no_permission_desc: |-
         Az értesítések nem jeleníthetők meg.
@@ -1311,7 +1308,29 @@ languages:
     ae:
       name: Avestan
       nativeName: avesta
+    ay:
+      name: Aymara
+      nativeName: aymar aru
+    az:
+      name: Azerbaijani
+      nativeName: azərbaycan dili
+    bm:
+      name: Bambara
+      nativeName: bamanankan
+    ba:
+      name: Bashkir
+      nativeName: башҡорт теле
+    eu:
+      name: Basque
+      nativeName: euskara, euskera
+    be:
+      name: Belarusian
+      nativeName: Беларуская
+    bn:
+      name: Bengali
+      nativeName: বাংলা
     bh:
+      name: Bihari
       nativeName: भोजपुरी
     bi:
       name: Bislama
@@ -1387,7 +1406,81 @@ languages:
       nativeName: føroyskt
     fj:
       name: Fidzsi
+      nativeName: vosa Vakaviti
+    fi:
+      name: Finn
+      nativeName: suomi, suomen kieli
+    fr:
+      name: Francia
+      nativeName: français, langue française
+    ff:
+      name: Fula; Fulah; Pulaar; Pular
+      nativeName: Fulfulde, Pulaar, Pular
+    gl:
+      name: Galician
+      nativeName: Galego
+    ka:
+      name: Georgian
+      nativeName: ქართული
+    de:
+      name: German
+      nativeName: Német
+    el:
+      name: Greek, Modern
+      nativeName: Ελληνικά
+    gn:
+      name: Guaraní
+      nativeName: Avañeẽ
+    gu:
+      name: Gujarati
+      nativeName: ગુજરાતી
+    ht:
+      name: Haitian; Haitian Creole
+      nativeName: Kreyòl ayisyen
+    ha:
+      name: Hausa
+      nativeName: Hausa, هَوُسَ
+    he:
+      name: Hebrew (modern)
+      nativeName: עברית
+    hz:
+      name: Herero
+      nativeName: Otjiherero
+    hi:
+      name: Hindi
+      nativeName: हिन्दी, हिंदी
+    ho:
+      name: Hiri Motu
+      nativeName: Hiri Motu
+    hu:
+      name: Magyar
+      nativeName: Magyar
+    ia:
+      name: Interlingua
+      nativeName: Interlingua
+    id:
+      name: Indonéz
+      nativeName: Bahasa Indonesia
+    ie:
+      name: Interlingue
+      nativeName: Originally called Occidental; then Interlingue after WWII
+    ga:
+      name: Ír
+      nativeName: Gaeilge
+    ig:
+      name: Igbo
+      nativeName: Asụsụ Igbo
+    ik:
+      name: Inupiaq
+      nativeName: Iñupiaq, Iñupiatun
+    io:
+      name: Ido
+      nativeName: Ido
+    is:
+      name: Icelandic
+      nativeName: Íslenska
     it:
+      name: Olasz
       nativeName: Olasz
     iu:
       name: Inuktitut
@@ -1463,7 +1556,81 @@ languages:
       nativeName: lietuvių kalba
     lu:
       name: Luba-Katanga
+      nativeName: '[empty string]'
+    lv:
+      name: Litván
+      nativeName: latviešu valoda
+    gv:
+      name: Manx
+      nativeName: Gaelg, Gailck
+    mk:
+      name: Macedón
+      nativeName: македонски јазик
+    mg:
+      name: Malagasy
+      nativeName: Malagasy fiteny
+    ms:
+      name: Malay
+      nativeName: bahasa Melayu, بهاس ملايو‎
+    ml:
+      name: Malayalam
+      nativeName: മലയാളം
+    mt:
+      name: Maltese
+      nativeName: Malti
+    mi:
+      name: Māori
+      nativeName: te reo Māori
+    mr:
+      name: Marathi (Marāṭhī)
+      nativeName: मराठी
+    mh:
+      name: Marshallese
+      nativeName: Kajin M̧ajeļ
+    mn:
+      name: Mongol
+      nativeName: монгол
+    na:
+      name: Nauru
+      nativeName: Ekakairũ Naoero
+    nv:
+      name: Navajo, Navaho
+      nativeName: Diné bizaad, Dinékʼehǰí
+    nb:
+      name: Norwegian Bokmål
+      nativeName: Norsk bokmål
+    nd:
+      name: North Ndebele
+      nativeName: isiNdebele
+    ne:
+      name: Nepali
+      nativeName: नेपाली
+    ng:
+      name: Ndonga
+      nativeName: Owambo
+    nn:
+      name: Norwegian Nynorsk
+      nativeName: Norsk nynorsk
+    'no':
+      name: Norvég
+      nativeName: Norsk
+    ii:
+      name: Nuosu
+      nativeName: ꆈꌠ꒿ Nuosuhxop
+    nr:
+      name: South Ndebele
+      nativeName: isiNdebele
+    oc:
+      name: Occitan
+      nativeName: Occitan
+    oj:
+      name: Ojibwe, Ojibwa
+      nativeName: ᐊᓂᔑᓈᐯᒧᐎᓐ
+    cu:
+      name: ótemplomi szláv, egyházi szláv, egyházi szláv, óbolgár, ószláv
+      nativeName: ѩзыкъ словѣньскъ
     om:
+      name: Oromo
       nativeName: Afaan Oromoo
     or:
       name: Oriya
@@ -1539,7 +1706,81 @@ languages:
       nativeName: slovenčina
     sl:
       name: Szlovén
+      nativeName: slovenščina
+    so:
+      name: Somali
+      nativeName: Soomaaliga, af Soomaali
+    st:
+      name: Southern Sotho
+      nativeName: Sesotho
+    es:
+      name: Spanish; Castilian
+      nativeName: español, castellano
+    su:
+      name: Sundanese
+      nativeName: Basa Sunda
+    sw:
+      name: Swahili
+      nativeName: Kiswahili
+    ss:
+      name: Swati
+      nativeName: SiSwati
+    sv:
+      name: Swedish
+      nativeName: svenska
+    ta:
+      name: Tamil
+      nativeName: தமிழ்
+    te:
+      name: Telugu
+      nativeName: తెలుగు
+    tg:
+      name: Tajik
+      nativeName: тоҷикӣ, toğikī, تاجیکی‎
+    th:
+      name: Thai
+      nativeName: ไทย
+    ti:
+      name: Tigrinya
+      nativeName: ትግርኛ
+    bo:
+      name: Tibetan Standard, Tibetan, Central
+      nativeName: བོད་ཡིག
+    tk:
+      name: Turkmen
+      nativeName: Türkmen, Түркмен
+    tl:
+      name: Tagalog
+      nativeName: Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔
+    tn:
+      name: Tswana
+      nativeName: Setswana
+    to:
+      name: Tonga (Tonga Islands)
+      nativeName: faka Tonga
+    tr:
+      name: Turkish
+      nativeName: Türkçe
+    ts:
+      name: Tsonga
+      nativeName: Xitsonga
+    tt:
+      name: Tatar
+      nativeName: татарча, tatarça, تاتارچا‎
+    tw:
+      name: Twi
+      nativeName: Twi
+    ty:
+      name: Tahitian
+      nativeName: Reo Tahiti
+    ug:
+      name: Uighur, Uyghur
+      nativeName: Uyƣurqə, ئۇيغۇرچە‎
+    uk:
+      name: Ukrán
+      nativeName: українська
     ur:
+      name: Urdu
       nativeName: اردو
     uz:
       name: Uzbek

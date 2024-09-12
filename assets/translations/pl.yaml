@@ -1,0 +1,116 @@
+---
+general:
+  pause: Pauza
+  resume: Wznów
+  connected: Połączono
+  retry: Ponów
+  supported: Wspierane
+  unsupported: Niewspierane
+  details: Szczegóły
+  google_play: GooglePlay
+  ios_store: AppStore
+  active: Aktywny
+  canceled: Anulowano
+  monthly: Comiesięcznie
+  restore: Przywróć
+  accept: Akceptuj
+  abort: Przerwij
+  offset: Offset
+  valid: Prawidłowy
+  invalid: Nieprawidłowy
+  free: Wolny
+  one_time: Jeden raz
+  delete: Usuń
+  clear: Wyczyść
+  unlink: Odłącz
+  save: Zapisz
+  apply: Zastosuj
+  completed: Zakończono
+  activate: Aktywuj
+  stop: Stop
+  start: Start
+  repeat: Ponów
+  load_more: Więcej
+  archived: Zarchiwizowano
+  leave: Opuść
+  export: Eksport
+  discard: Pomiń
+  hide: Ukryj
+pages:
+  dashboard:
+    ems_confirmation:
+      confirm: STOP!
+    general:
+      print_card:
+        reset: Reset
+        reprint: Ponów druk
+        printing_for: 'Drukowanie: {}'
+        speed: Prędkość
+        layer: Warstwa
+        current_object: Aktualny obiekt
+        elapsed: Upłynęło
+        filament: Filament
+        remaining: Pozostało
+      cam_card:
+        webcam: Kamera
+        fullscreen: Pełny ekran
+      temp_card:
+        title: Kontrola temperatury
+        bed: Łoże
+        sensors: Sensory
+        btn_thermistor: Sensor
+      move_card:
+        qgl_tooltip: Uruchom QGL
+        qgl_btn: QGL
+        mesh_tooltip: Uruchom kalibrację mesh
+        mesh_btn: Mesh
+        m84_tooltip: Wyłącz silniki
+        m84_btn: M84
+        step_size: Wielkość kroku
+        stc_tooltip: Uruchom pomiar Screws-Tilt
+bottom_sheets:
+  non_printing:
+    manage_service:
+      no_services: Nie znaleziono usług!
+      provider_error: Błąd podczas pobierania usług
+    confirm_action:
+      title: Jesteś pewien?
+      hint:
+        long_press: 'Podpowiedź: Aby pominąć, przytrzymaj dłużej przycisk, który otworzył to potwierdzenie.'
+notifications:
+  channels:
+    status:
+      body_paused: 'Wstrzymano drukowanie pliku: "{}"'
+      body_complete: 'Zakończono druk: "{}"'
+      body_error: 'Błąd podczas druku pliku: "{}"'
+    progress:
+      title: Postęp druku {}
+form_validators:
+  disallow_mdns: Adresy mDNS (.local) nie są wspierane
+  file_name_in_use: Nazwa pliku w użyciu
+date:
+  year:
+    one: Rok
+    other: Lata
+  month:
+    one: Miesiąc
+    other: Miesiące
+  week:
+    one: Tydzień
+    other: Tygodnie
+  day:
+    one: Dzień
+    other: Dni
+date_periods:
+  year:
+    one: Co rok
+    other: Lata
+  month:
+    one: Comiesięcznie
+    other: Miesiące
+  week:
+    one: Cotygodniowo
+    other: Tygodnie
+  day:
+    one: Codziennie
+    other: Dni

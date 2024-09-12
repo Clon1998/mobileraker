@@ -166,10 +166,7 @@ pages:
       companion: "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion"
     notification:
       title: Notifiche
-      progress_label: Notifica di Avanzamento
       progress_helper: Scegli la percentuale di avanzamento di stampa da mostrare nella notifica
-      state_label: Notifica degli Stati
-      state_helper: Scegli quali Stati della stampa vuoi mostrare nella notifica
       no_permission_title: Nessun Autorizzazione di Notifica!
       no_permission_desc: |-
         Impossibile visualizzare le notifiche.

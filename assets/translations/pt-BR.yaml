@@ -144,7 +144,6 @@ pages:
       companion: "Você deseja receber notificações remotas?\nSaiba como instalar o Mobileraker Companion no seu sistema."
     notification:
       title: Notificação
-      progress_label: Notificações de Progresso de Impressão
       progress_helper: Intervalo para Notificações de Progresso de Impressão
       no_permission_title: Sem Permissão para Notificações!
       no_permission_desc: |-

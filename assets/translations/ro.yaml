@@ -142,10 +142,7 @@ pages:
       companion: "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi Mobileraker Companion "
     notification:
       title: Notificare
-      progress_label: Notificări de progres
       progress_helper: Interval actualizare pentru notificările de progres
-      state_label: Notificări de stare
-      state_helper: Stări care declanșează o notificare
       no_permission_title: Nu există permisiuni pentru notificări!
       no_permission_desc: |-
         Nu pot afișa notificări.

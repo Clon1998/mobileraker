@@ -171,10 +171,7 @@ pages:
       companion: "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker se Hulpgenoot op te stel op "
     notification:
       title: Kennisgewing
-      progress_label: Vorderingskennisgewing
       progress_helper: Opdateerinterval van die druktaakvorderingskennisgewing
-      state_label: Toestandkennisgewing
-      state_helper: Toestande wat 'n kennisgewing sal stuur wanneer dit verander
       no_permission_title: Geen Magtiging vir Kennisgewings nie!
       no_permission_desc: |-
         Kan nie kennisgewings vertoon nie.
