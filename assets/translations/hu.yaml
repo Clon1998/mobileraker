@@ -384,10 +384,7 @@ pages:
       medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
     notification:
       title: Értesítés
-      progress_label: Haladási értesítés
       progress_helper: Frissítési időköz a nyomtatási folyamatról szóló értesítéshez
-      state_label: Állami értesítés
-      state_helper: Állapotváltozásról szóló értesítést kiadó államok
       no_permission_title: Nincs értesítési engedély!
       no_permission_desc: |-
         Az értesítések nem jeleníthetők meg.
