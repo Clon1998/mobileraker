@@ -16,10 +16,10 @@ part 'developer_announcement_entry.g.dart';
 class DeveloperAnnouncementEntry with _$DeveloperAnnouncementEntry {
   const DeveloperAnnouncementEntry._();
 
-  const factory DeveloperAnnouncementEntry(
-      {required bool show,
-      required DeveloperAnnouncementEntryType type,
-      required String title,
+  const factory DeveloperAnnouncementEntry({
+    required bool show,
+    @JsonKey(unknownEnumValue: DeveloperAnnouncementEntryType.info) required DeveloperAnnouncementEntryType type,
+    required String title,
     required String body,
     @Default(1) int showCount,
     String? link,
