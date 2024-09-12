@@ -191,10 +191,7 @@ pages:
       sliders_grouping: Grup Kaydırma Kartları
     notification:
       title: Bildiri
-      progress_label: İlerleme Bildirimi
       progress_helper: Yazdırma ilerleme bildirimi için güncelleme aralığı
-      state_label: Durum Bildirimi
-      state_helper: Durum değişikliği bildirimi gönderen durumlar
       no_permission_title: Bildirim İzni Yok!
       no_permission_desc: |-
         Bildirimler görüntülenemiyor.
