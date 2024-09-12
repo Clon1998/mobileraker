@@ -35,15 +35,19 @@ extension UnitFormatting on NumberFormat {
     // Determine the sign and work with absolute value
     final sign = g < 0 ? '-' : '';
     g = g.abs();
+    var exp = 0;
+    if (g > 0) {
+      exp = (math.log(g) / math.log(_kilo)).floor().clamp(0, WeightUnit.values.length - 1);
 
-    if (g < _kilo) {
-      return addUnit ? '$sign${format(g)} ${WeightUnit.g.name}' : '$sign${format(g)}';
-    } else {
-      final exp = (math.log(g) / math.log(_kilo)).floor();
-      g /= math.pow(_kilo, exp);
-      final unit = WeightUnit.values[exp.clamp(0, WeightUnit.values.length - 1)];
-      return addUnit ? '$sign${format(g)} ${unit.name}' : '$sign${format(g)}';
+      // Due to numerical inaccuracies, its better to devide the number by 1000 exp times rather than using math.pow
+      // math.pow(1000, exp) is not always exactly 1000^exp
+      for (var i = 0; i < exp; i++) {
+        g /= _kilo;
+      }
     }
+
+    final unit = WeightUnit.values[exp];
+    return addUnit ? '$sign${format(g)} ${unit.name}' : '$sign${format(g)}';
   }
 
   /// Formats a given length in millimeters to a string with appropriate units.
@@ -52,29 +56,42 @@ extension UnitFormatting on NumberFormat {
     final sign = mm < 0 ? '-' : '';
     mm = mm.abs();
 
+    var exp = 0;
     if (mm < 1 && useMicro) {
-      return '$sign${format(mm * _kilo)} ${LengthUnit.um.name}';
-    } else if (mm < _kilo) {
-      return '$sign${format(mm)} ${LengthUnit.mm.name}';
-    } else {
-      final exp = (math.log(mm) / math.log(_kilo)).floor();
-      mm /= math.pow(_kilo, exp);
-      final unit = LengthUnit.values[exp + 1]; // +1 because we start from mm, not um
-      return '$sign${format(mm)} ${unit.name}';
+      mm *= 1000;
+      exp = -1;
+    } else if (mm > 0) {
+      exp = ((math.log(mm) / math.log(_kilo)).floor()).clamp(0, LengthUnit.values.length - 2);
+
+      // Due to numerical inaccuracies, its better to devide the number by 1000 exp times rather than using math.pow
+      // math.pow(1000, exp) is not always exactly 1000^exp
+      for (var i = 0; i < exp; i++) {
+        mm /= _kilo;
+      }
     }
+
+    final unit = LengthUnit.values[exp + 1];
+    return '$sign${format(mm)} ${unit.name}';
   }
 
-  /// Formats a given file size in bits to a string with appropriate units.
-  String formatFileSize(num bits) {
-    if (bits < 0) throw ArgumentError('File size cannot be negative');
+  /// Formats a given file size in bytes to a string with appropriate units.
+  String formatFileSize(num bytes) {
+    // Determine the sign and work with absolute value
+    final sign = bytes < 0 ? '-' : '';
+    bytes = bytes.abs();
 
-    if (bits < _kibi) {
-      return '${format(bits / 8)} ${FileSizeUnit.bytes.name}';
-    } else {
-      final exp = (math.log(bits) / math.log(_kibi)).floor();
-      bits /= math.pow(_kibi, exp);
-      final unit = FileSizeUnit.values[exp.clamp(0, FileSizeUnit.values.length - 1)];
-      return '${format(bits)} ${unit.name}';
+    var exp = 0;
+    if (bytes > 0) {
+      exp = (math.log(bytes) / math.log(_kibi)).floor().clamp(0, FileSizeUnit.values.length - 1);
+
+      // Due to numerical inaccuracies, its better to devide the number by 1000 exp times rather than using math.pow
+      // math.pow(1000, exp) is not always exactly 1000^exp
+      for (var i = 0; i < exp; i++) {
+        bytes /= _kibi;
+      }
     }
+
+    final unit = FileSizeUnit.values[exp];
+    return '$sign${format(bytes)} ${unit.name}';
   }
 }

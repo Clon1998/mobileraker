@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:math';
+
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
@@ -43,8 +45,8 @@ void main() {
       expect(numberFormat.formatMillimeters(1500000), '1.5 km');
     });
 
-    test('formatFileSize with bits', () {
-      expect(numberFormat.formatFileSize(999), '999 bits');
+    test('formatFileSize with bytes', () {
+      expect(numberFormat.formatFileSize(800), '800 bytes');
     });
 
     test('formatFileSize with kilobytes', () {
@@ -63,16 +65,16 @@ void main() {
       expect(numberFormat.formatFileSize(1500000000000), '1.36 TB');
     });
 
-    test('throws ArgumentError for negative weight', () {
-      expect(() => numberFormat.formatGrams(-100), throwsArgumentError);
+    test('format negative weight', () {
+      expect(numberFormat.formatGrams(-100), '-100 g');
     });
 
-    test('throws ArgumentError for negative length', () {
-      expect(() => numberFormat.formatMillimeters(-100), throwsArgumentError);
+    test('format negative length', () {
+      expect(numberFormat.formatMillimeters(-100), '-100 mm');
     });
 
-    test('throws ArgumentError for negative file size', () {
-      expect(() => numberFormat.formatFileSize(-100), throwsArgumentError);
+    test('format negative file size', () {
+      expect(numberFormat.formatFileSize(-1024), '-1 kB');
     });
 
     test('formatGrams with zero', () {
@@ -84,16 +86,30 @@ void main() {
     });
 
     test('formatFileSize with zero', () {
-      expect(numberFormat.formatFileSize(0), '0 bits');
+      expect(numberFormat.formatFileSize(0), '0 bytes');
     });
 
-    // test('formatGrams with very large value', () {
-    //   expect(numberFormat.formatGrams(1e12), '1000000 t');
-    // });
-    //
-    // test('formatMillimeters with very large value', () {
-    //   expect(numberFormat.formatMillimeters(1e12), '1000000 km');
-    // });
+    test('formatGrams with number bigger than last unit', () {
+      final total = WeightUnit.values.length;
+      final last = WeightUnit.values[total - 1];
+
+      // calculate the value for the last unit
+      final lastValue = pow(1000, total);
+
+      expect(numberFormat.formatGrams(lastValue), '1000 ${last.name}',
+          reason: 'Expected $lastValue g to be formatted as 1000 ${last.name}');
+    });
+
+    test('formatMillimeters with number bigger thans last unit', () {
+      final total = LengthUnit.values.length;
+      final last = LengthUnit.values[total - 1];
+
+      // calculate the value for the last unit
+      final lastValue = pow(1000, total - 1); // -1 because we include µm
+
+      expect(numberFormat.formatMillimeters(lastValue), '1000 ${last.name}',
+          reason: 'Expected $lastValue mm to be formatted as 1000 ${last.name}');
+    });
     //
     // test('formatFileSize with very large value', () {
     //   expect(numberFormat.formatFileSize(1e20), '88.82 TB');
@@ -127,9 +143,6 @@ void main() {
       expect(numberFormat.formatMillimeters(0.1), '0.1 mm');
     });
 
-    test('formatFileSize with fractional bits', () {
-      expect(numberFormat.formatFileSize(0.5), '0.5 bits');
-    });
     //
     // test('formatGrams rounding', () {
     //   expect(numberFormat.formatGrams(1.005 * 1e6), '1.01 t');
