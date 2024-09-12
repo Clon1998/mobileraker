@@ -385,8 +385,8 @@ pages:
       title: Benachrichtigung
       progress_label: Druckfortschritt Benachrichtigungen
       progress_helper: Intervall für Druckfortschritt Benachrichtigungen
-      state_label: Statusbenachrichtigung
-      state_helper: Statusänderung, die eine Benachrichtigung erzeugen
+      state_label: Druck-Zustand Benachrichtigung
+      state_helper: Wähle Zustände aus, die während eines aktiven Druckvorgangs Benachrichtigungen auslösen
       no_permission_title: Keine Benachrichtigungserlaubnis!
       no_permission_desc: |-
         Kann keine Benachrichtigungen anzeigen.

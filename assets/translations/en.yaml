@@ -394,10 +394,10 @@ pages:
         landscape mode
     notification:
       title: Notification
-      progress_label: Progress Notification
+      progress_label: Print-Progress Notification
       progress_helper: Update interval for print progress notification
-      state_label: State Notification
-      state_helper: States that issue a state changed notification
+      state_label: Print-State Notification
+      state_helper: Select states that trigger notifications during active print jobs
       no_permission_title: No Notification Permission!
       no_permission_desc: |-
         Can not display notifications.
