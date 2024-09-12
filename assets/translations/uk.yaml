@@ -144,7 +144,6 @@ pages:
       companion: "Хочете отримувати віддалені сповіщення?\nПрочитайте, як налаштувати Mobileraker's Companion "
     notification:
       title: Сповіщення
-      progress_label: Сповіщення про хід друку
       progress_helper: Інтервал оновлення для сповіщення про хід друку
       no_permission_title: Немає дозволу на сповіщення!
       no_permission_desc: |-
