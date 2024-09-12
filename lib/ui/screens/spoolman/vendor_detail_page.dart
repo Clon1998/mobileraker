@@ -182,27 +182,44 @@ class _VendorFilaments extends HookConsumerWidget {
 
   final String machineUUID;
 
+  static const _initial = 5;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
     var model = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
+    var filter = {'vendor.id': model.id};
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: const Icon(Icons.color_lens_outlined),
-            title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
-          ),
+          Consumer(builder: (context, ref, _) {
+            final themeData = Theme.of(context);
+            final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
+            final total = ref.watch(filamentListProvider(machineUUID, pageSize: _initial, page: 0, filters: filter)
+                .select((d) => d.valueOrNull?.totalItems));
+            return ListTile(
+              leading: const Icon(Icons.color_lens_outlined),
+              title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
+              trailing: total != null && total > 0
+                  ? Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: Text(numFormat.format(total)),
+                      labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                      backgroundColor: themeData.colorScheme.secondary,
+                    )
+                  : null,
+            );
+          }),
           const Divider(),
           Flexible(
             child: SpoolmanStaticPagination(
-              // key: ValueKey(filters),
               machineUUID: machineUUID,
               type: SpoolmanListType.filaments,
-              filters: {'vendor.id': model.id},
+              filters: filter,
+              initialCount: _initial,
               onEntryTap: controller.onEntryTap,
             ),
           ),
@@ -218,27 +235,45 @@ class _VendorSpools extends HookConsumerWidget {
 
   final String machineUUID;
 
+  static const _initial = 5;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
     var model = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
+    final filters = {'filament.vendor.id': model.id};
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: const Icon(Icons.spoke_outlined),
-            title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
-          ),
+          Consumer(builder: (context, ref, _) {
+            final themeData = Theme.of(context);
+            final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
+            final total = ref.watch(spoolListProvider(machineUUID, pageSize: _initial, page: 0, filters: filters)
+                .select((d) => d.valueOrNull?.totalItems));
+            return ListTile(
+              leading: const Icon(Icons.spoke_outlined),
+              title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
+              trailing: total != null && total > 0
+                  ? Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: Text(numFormat.format(total)),
+                      labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                      backgroundColor: themeData.colorScheme.secondary,
+                    )
+                  : null,
+            );
+          }),
           const Divider(),
           Flexible(
             child: SpoolmanStaticPagination(
               // key: ValueKey(filters),
               machineUUID: machineUUID,
               type: SpoolmanListType.spools,
-              filters: {'filament.vendor.id': model.id},
+              filters: filters,
               onEntryTap: controller.onEntryTap,
             ),
           ),
@@ -258,6 +293,11 @@ class _VendorDetailPageController extends _$VendorDetailPageController
     final fetched = ref.watch(vendorProvider(machineUUID, initial.id));
 
     return fetched.valueOrNull ?? initial;
+  }
+
+  @override
+  bool updateShouldNotify(GetVendor prev, GetVendor next) {
+    return prev != next;
   }
 
   void onAction(ThemeData themeData) async {

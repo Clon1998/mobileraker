@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -70,8 +71,45 @@ class _SpoolDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
+    final themeData = Theme.of(context);
+
     final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
     final controller = ref.watch(_spoolDetailPageControllerProvider(machineUUID).notifier);
+    final sameFilamentSpoolList = _SpoolList(
+      key: Key('sameFil-${spool.id}'),
+      machineUUID: machineUUID,
+      titleBuilder: (ctx, total) => ListTile(
+        leading: const Icon(Icons.color_lens_outlined),
+        title: const Text('pages.spoolman.spool_details.alternative_spool.same_filament').tr(),
+        trailing: total != null && total > 0
+            ? Chip(
+                visualDensity: VisualDensity.compact,
+                label: Text(numFormat.format(total)),
+                labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                backgroundColor: themeData.colorScheme.secondary,
+              )
+            : null,
+      ),
+      filters: {'filament.id': spool.filament.id},
+    );
+    final sameMaterialSpoolList = _SpoolList(
+      key: Key('sameMat-${spool.id}'),
+      machineUUID: machineUUID,
+      titleBuilder: (ctx, total) => ListTile(
+        leading: const Icon(Icons.spoke_outlined),
+        title: const Text('pages.spoolman.spool_details.alternative_spool.same_material').tr(),
+        trailing: total != null && total > 0
+            ? Chip(
+                visualDensity: VisualDensity.compact,
+                label: Text(numFormat.format(total)),
+                labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                backgroundColor: themeData.colorScheme.secondary,
+              )
+            : null,
+      ),
+      filters: {'filament.material': spool.filament.material},
+    );
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
@@ -96,52 +134,16 @@ class _SpoolDetailPage extends ConsumerWidget {
             ),
             _SpoolInfo(machineUUID: machineUUID),
             if (context.isCompact) ...[
-              _SpoolList(
-                key: Key('sameMat-${spool.id}'),
-                machineUUID: machineUUID,
-                title: const ListTile(
-                  leading: Icon(Icons.spoke_outlined),
-                  title: Text('Alternative Spools (Same Material)'),
-                ),
-                filters: {'filament.material': spool.filament.material},
-              ),
-              _SpoolList(
-                key: Key('sameFil-${spool.id}'),
-                machineUUID: machineUUID,
-                title: const ListTile(
-                  leading: Icon(Icons.color_lens_outlined),
-                  title: Text('Alternative Spools (Same Filament)'),
-                ),
-                filters: {'filament.id': spool.filament.id},
-              ),
+              sameFilamentSpoolList,
+              sameMaterialSpoolList,
             ],
             if (context.isLargerThanCompact)
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Flexible(
-                      child: _SpoolList(
-                        key: Key('sameMat-${spool.id}'),
-                        machineUUID: machineUUID,
-                        title: const ListTile(
-                          leading: Icon(Icons.spoke_outlined),
-                          title: Text('Alternative Spools (Same Material)'),
-                        ),
-                        filters: {'filament.material': spool.filament.material},
-                      ),
-                    ),
-                    Flexible(
-                      child: _SpoolList(
-                        key: Key('sameFil-${spool.id}'),
-                        machineUUID: machineUUID,
-                        title: const ListTile(
-                          leading: Icon(Icons.color_lens_outlined),
-                          title: Text('Alternative Spools (Same Filament)'),
-                        ),
-                        filters: {'filament.id': spool.filament.id},
-                      ),
-                    ),
+                    Flexible(child: sameMaterialSpoolList),
+                    Flexible(child: sameFilamentSpoolList),
                   ],
                 ),
               ),
@@ -367,27 +369,33 @@ class _SpoolInfo extends ConsumerWidget {
   }
 }
 
-class _SpoolList extends HookConsumerWidget {
-  const _SpoolList({super.key, required this.machineUUID, required this.title, required this.filters});
+class _SpoolList extends ConsumerWidget {
+  const _SpoolList({super.key, required this.machineUUID, required this.titleBuilder, required this.filters});
 
   final String machineUUID;
-  final Widget title;
+  final Widget Function(BuildContext context, int? total) titleBuilder;
   final Map<String, dynamic>? filters;
+
+  static const _initial = 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // useAutomaticKeepAlive();
     final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
 
+    final totalItems = ref.watch(spoolListProvider(machineUUID, pageSize: _initial, page: 0, filters: filters)
+        .select((d) => d.valueOrNull?.totalItems?.let((d) => max(d - 1, 0))));
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          title,
+          titleBuilder(context, totalItems),
           const Divider(),
           Flexible(
             child: SpoolmanStaticPagination(
-              key: ValueKey(filters),
+              // key: ValueKey(filters),
+              initialCount: _initial,
               machineUUID: machineUUID,
               type: SpoolmanListType.spools,
               exclude: spool,
@@ -415,6 +423,11 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
       fetchedSpool: fetchedSpool,
       spoolIsActive: activeSpool.valueOrNull?.id == (fetchedSpool.valueOrNull?.id ?? initialSpool.id),
     );
+  }
+
+  @override
+  bool updateShouldNotify(_Model prev, _Model next) {
+    return prev != next;
   }
 
   void onAction(ThemeData themeData, Rect pos) async {

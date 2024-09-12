@@ -247,27 +247,44 @@ class _FilamentSpools extends HookConsumerWidget {
 
   final String machineUUID;
 
+  static const _initial = 5;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
-    var model = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
+    final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
+    final model = ref.watch(_filamentDetailPageControllerProvider(machineUUID).select((d) => d.id));
     useAutomaticKeepAlive();
 
+    final filter = {'filament.id': model};
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: const Icon(Icons.spoke_outlined),
-            title: const Text('pages.spoolman.filament_details.spools_card').tr(),
-          ),
+          Consumer(builder: (context, ref, _) {
+            final themeData = Theme.of(context);
+            final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
+            final total = ref.watch(spoolListProvider(machineUUID, pageSize: _initial, page: 0, filters: filter)
+                .select((d) => d.valueOrNull?.totalItems));
+            return ListTile(
+              leading: const Icon(Icons.spoke_outlined),
+              title: const Text('pages.spoolman.filament_details.spools_card').tr(),
+              trailing: total != null && total > 0
+                  ? Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: Text(numFormat.format(total)),
+                      labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                      backgroundColor: themeData.colorScheme.secondary,
+                    )
+                  : null,
+            );
+          }),
           const Divider(),
           Flexible(
             child: SpoolmanStaticPagination(
-              // key: ValueKey(filters),
               machineUUID: machineUUID,
+              initialCount: _initial,
               type: SpoolmanListType.spools,
-              filters: {'filament.id': model.id},
+              filters: filter,
               onEntryTap: controller.onEntryTap,
             ),
           ),
@@ -287,6 +304,11 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
     final fetched = ref.watch(filamentProvider(machineUUID, initial.id));
 
     return fetched.valueOrNull ?? initial;
+  }
+
+  @override
+  bool updateShouldNotify(GetFilament prev, GetFilament next) {
+    return prev != next;
   }
 
   void onAction(ThemeData themeData) async {
@@ -319,7 +341,7 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
           DividerSheetAction.divider,
           FilamentSpoolmanSheetAction.edit,
           FilamentSpoolmanSheetAction.clone,
-          FilamentSpoolmanSheetAction.delete
+          FilamentSpoolmanSheetAction.delete,
         ],
       ),
     ));

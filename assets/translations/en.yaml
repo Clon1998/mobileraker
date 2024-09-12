@@ -848,6 +848,9 @@ pages:
       archived_warning:
         title: Spool is archived
         body: This spool is archived and can not be used for new prints.
+      alternative_spool:
+        same_filament: Alternative Spools (Same Filament)
+        same_material: Alternative Spools (Same Material)
     spool_form:
       create_page_title: Create Spool
       update_page_title: Edit Spool
