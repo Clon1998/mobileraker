@@ -1,5 +1,13 @@
 # Mobileraker - Changelog
 
+## [2.7.5] - 2024-09-12
+
+### Bug Fixes
+
+- **Dashboard**: Fixed an issue with the spoolman card that could cause the app to show an empty dashboard.
+- **File Manager**: Fixed an issue that prevented the user from accessing the file manager while klipper is in an error
+  state.
+
 ## [2.7.4] - 2024-09-7
 
 ### Enhancements
