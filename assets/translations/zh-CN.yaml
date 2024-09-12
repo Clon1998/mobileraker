@@ -182,10 +182,7 @@ pages:
       companion: "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
     notification:
       title: 消息通知
-      progress_label: 进度通知
       progress_helper: 打印进度通知的更新间隔
-      state_label: 状态通知
-      state_helper: 在状态发生改变时发出通知
       no_permission_title: 没有通知权限！
       no_permission_desc: |-
         无权限的情况下无法显示通知。
