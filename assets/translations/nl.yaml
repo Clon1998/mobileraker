@@ -153,10 +153,7 @@ pages:
       companion: "Wil je notificaties op afstand ontvangen?\nLeer hoe je Mobileraker's Companion moet instellen op "
     notification:
       title: Notificatie
-      progress_label: Voortgangsmelding
       progress_helper: Tijd tussen voortgangsmeldingen
-      state_label: Statusmelding
-      state_helper: Statussen die een statusveranderingsmelding uitzenden
       no_permission_title: Geen toestemming voor meldingen!
       no_permission_desc: |-
         Meldingen weergeven niet mogelijk.
