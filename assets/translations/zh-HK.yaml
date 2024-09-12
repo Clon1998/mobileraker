@@ -192,10 +192,7 @@ pages:
       companion: "希望收到遠程通知嗎？\n掌握如何在其上安裝Mobileraker的Companion"
     notification:
       title: 通知
-      progress_label: 進度通知
       progress_helper: 打印進度通知的更新間隔
-      state_label: 狀態通知
-      state_helper: 發布更改通知的狀態
       no_permission_title: 沒有通知權限！
       no_permission_desc: |-
         無法顯示通知。
