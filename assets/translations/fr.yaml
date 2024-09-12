@@ -242,10 +242,7 @@ pages:
       sliders_grouping: Présenter les réglages par curseur sous forme d'onglets
     notification:
       title: Notification
-      progress_label: Notifications d'avancement
       progress_helper: Intervalle de mise à jour pour la notification de la progression de l'impression
-      state_label: Notifications de changement d'état
-      state_helper: États qui déclenchent une notification.
       no_permission_title: Pas de permission de notification !
       no_permission_desc: |-
         Impossible d'afficher les notifications.Demandez la permission en cliquant !
