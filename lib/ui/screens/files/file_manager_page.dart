@@ -1001,7 +1001,9 @@ class _FileItem extends ConsumerWidget {
           if (selectionMode) {
             controller.onLongClickFile(file);
           } else {
-            controller.onClickFile(file);
+            final box = context.findRenderObject() as RenderBox?;
+            final pos = box!.localToGlobal(Offset.zero) & box.size;
+            controller.onClickFile(file, pos);
           }
         }.only(enabled),
         onLongPress: () {
@@ -1079,6 +1081,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification);
     ref.listen(jrpcClientStateProvider(machineUUID), _onJrpcStateNotification);
     ref.listenSelf(_onModelChanged);
+    ref.onCancel(() => _downloadToken?.cancel());
+    ref.onCancel(() => _uploadToken?.cancel());
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
@@ -1111,7 +1115,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     );
   }
 
-  void onClickFile(RemoteFile file) {
+  void onClickFile(RemoteFile file, Rect origin) {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] opening file ${file.name} (${file.runtimeType})');
 
     switch (file) {
@@ -1130,6 +1134,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       case RemoteFile(isImage: true):
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name,
             pathParameters: {'path': filePath}, extra: file);
+        break;
+      case RemoteFile(isArchive: true):
+        _downloadFileAction(file, origin);
         break;
       default:
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, extra: file);
@@ -1749,7 +1756,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         return a == b;
       });
 
-      ref.onCancel(() => _downloadToken?.cancel());
       await for (var download in downloadStream) {
         if (!setToken) _downloadToken = download.token;
         state = state.copyWith(download: download);
@@ -1812,7 +1818,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         return a == b;
       });
 
-      ref.onCancel(() => _downloadToken?.cancel());
       await for (var download in downloadStream) {
         if (!setToken) _downloadToken = download.token;
         state = state.copyWith(download: download);
@@ -1948,7 +1953,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       final uploadStream = _fileService.uploadFile(path, toUpload);
 
       bool setToken = false;
-      ref.onCancel(() => _uploadToken?.cancel());
       await for (var update in uploadStream) {
         if (!setToken) _uploadToken = update.token;
         state = state.copyWith(upload: update);
