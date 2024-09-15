@@ -10,12 +10,14 @@
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/ad_banner.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -24,9 +26,13 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -50,7 +56,9 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-        // _Consent(),
+        const _StlPreview(),
+        const _Consent(),
+
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
         // PowerApiCardLoading(),
@@ -67,7 +75,11 @@ class DevPage extends HookConsumerWidget {
         // PinsCard.loading(),
         // PowerApiCard(machineUUID: selMachine.uuid),
         // PowerApiCard.loading(),
-        // _TestAd(),
+        const AdBanner(
+          constraints: const BoxConstraints(maxHeight: 60),
+          adSize: AdSize.fluid,
+        ),
+        // const _TestAd(),
         PrinterCard(selMachine),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
@@ -256,69 +268,88 @@ class CaseB extends _$CaseB {
     return v ?? -1;
   }
 }
-//
-// class _TestAd extends ConsumerWidget {
-//   const _TestAd({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     var ad = ref.watch(bannerAdProvider(AdSize.banner));
-//
-//     if (ad case AsyncData(value: AdWithView() && final banner)) {
-//       logger.i('Got ad: ${banner.responseInfo}');
-//       return SizedBox(
-//         height: AdSize.banner.height.toDouble(),
-//         width: AdSize.banner.width.toDouble(),
-//         child: AdWidget(ad: banner),
-//       );
-//     }
-//
-//     logger.i('No ad available');
-//     return SizedBox.shrink();
-//   }
-// }
-//
-// class _Consent extends ConsumerWidget {
-//   const _Consent({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return ElevatedButton(onPressed: onPressed, child: Text('Consent'));
-//   }
-//
-//   void onPressed() {
-//     final params = ConsentRequestParameters();
-//
-//     logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
-//
-//     ConsentInformation.instance.requestConsentInfoUpdate(
-//       params,
-//       () async {
-//         // TODO: Load and present the privacy message form.
-//
-//         logger.i('ConsentStatusSuccess');
-//         ConsentInformation.instance.requestConsentInfoUpdate(
-//           params,
-//           () async {
-//             // TODO: Load and present the privacy message form.
-//             logger.i('ConsentStatusSuccess');
-//             final status = await ConsentInformation.instance.getConsentStatus();
-//
-//             logger.i('ConsentStatus: $status');
-//
-//             if (status == ConsentStatus.required) {
-//               ConsentForm.loadAndShowConsentFormIfRequired((_) => null);
-//             } else {}
-//           },
-//           (FormError? error) {
-//             logger.e('requestConsentInfoUpdate ConsentStatusError: $error');
-//           },
-//         );
-//       },
-//       (FormError error) {
-//         logger.e('ConsentStatusError: $error');
-//         // Handle the error.
-//       },
-//     );
-//   }
-// }
+
+class _TestAd extends ConsumerWidget {
+  const _TestAd({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
+
+    if (ad case AsyncData(value: AdWithView() && final banner)) {
+      logger.i('Got ad: ${banner.responseInfo}');
+      return SizedBox(
+        height: AdSize.banner.height.toDouble(),
+        width: AdSize.banner.width.toDouble(),
+        child: AdWidget(ad: banner),
+      );
+    }
+
+    logger.i('No ad available');
+    return const SizedBox.shrink();
+  }
+}
+
+class _Consent extends ConsumerWidget {
+  const _Consent({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ElevatedButton(onPressed: onPressed, child: const Text('Consent'));
+  }
+
+  void onPressed() {
+    final params = ConsentRequestParameters();
+
+    logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      params,
+      () async {
+        logger.i('ConsentStatusSuccess');
+        final status = await ConsentInformation.instance.getConsentStatus();
+        logger.i('ConsentStatus: $status');
+
+        ConsentForm.showPrivacyOptionsForm((_) => null);
+        // ConsentForm.loadConsentForm((_) => null, (_)=> null);
+      },
+      (FormError error) {
+        logger.e('ConsentStatusError: $error');
+        // Handle the error.
+      },
+    );
+  }
+}
+
+class _StlPreview extends HookConsumerWidget {
+  const _StlPreview({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedMachine = ref.watch(selectedMachineProvider).requireValue!;
+
+    // final fileFtr = useMemoized(() => assetToFile('vector/parsing-big-test3.gcode'));
+    final fileFtr = useMemoized(() => assetToFile('vector/parsing-multi-test2.gcode'));
+    final file = useFuture(fileFtr);
+
+    if (!file.hasData) {
+      return const CircularProgressIndicator.adaptive();
+    }
+
+    return Container(
+      // color: Colors.red,
+      child: GcodePreviewCard(
+        machineUUID: selectedMachine.uuid,
+        gcodeFile: file.requireData,
+      ),
+    );
+  }
+
+  Future<File> assetToFile(String path) async {
+    final byteData = await rootBundle.load('assets/$path');
+    final buffer = byteData.buffer;
+    Directory tempDir = await getTemporaryDirectory();
+    String tempPath = tempDir.path;
+    var filePath = tempPath + '/file_01.tmp'; // file_01.tmp is dump file, can be anything
+    return File(filePath).writeAsBytes(buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  }
+}
