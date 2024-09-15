@@ -397,7 +397,8 @@ class FileService {
     }
   }
 
-  Stream<FileOperation> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
+  Stream<FileOperation> downloadFile(
+      {required String filePath, int? expectedFileSize, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
     final StreamController<FileOperation> updateProgress = StreamController();
@@ -412,6 +413,9 @@ class FileService {
       file.path,
       cancelToken: token,
       onReceiveProgress: (received, total) {
+        if (total <= 0 && expectedFileSize != null) {
+          total = expectedFileSize;
+        }
         if (total <= 0) {
           // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
           // Debounce the keep alive to not spam the stream
@@ -425,7 +429,7 @@ class FileService {
           return;
         }
         // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
-        updateProgress.add(FileOperationProgress(received / total, token: token));
+        updateProgress.add(FileOperationProgress((received / total).clamp(0.0, 1.0), token: token));
       },
     ).then((response) {
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" completed');

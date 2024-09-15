@@ -1,5 +1,16 @@
 # Mobileraker - Changelog
 
+## [2.7.6] - 2024-09-Xx
+
+### Enhancements
+
+- **File Download**: The file download was improved to show thw download progress in more cases.
+
+### Bug Fixes
+
+- **Archive Files**: The file manager will now start to download archives (zip files) instead of trying to display them
+  when tapping on them.
+
 ## [2.7.5] - 2024-09-12
 
 ### Bug Fixes

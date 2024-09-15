@@ -9,6 +9,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
+import 'package:common/data/dto/files/moonraker/file_item.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/file_action_enum.dart';
@@ -1740,13 +1741,17 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     bool setToken = false;
     try {
       var fileToDownload = file.absolutPath;
+      int? fileToDownloadSize = file.size;
       if (file case Folder()) {
         final zip = '${file.absolutPath}-${_zipDateFormat.format(DateTime.now())}.zip';
         state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-        await _handleZipOperation(zip, [file.absolutPath], false);
+        final res = await _handleZipOperation(zip, [file.absolutPath], false);
+        if (res == null) return;
         fileToDownload = zip;
+        fileToDownloadSize = res?.size;
       }
-      final downloadStream = _fileService.downloadFile(filePath: fileToDownload).distinct((a, b) {
+      final downloadStream =
+          _fileService.downloadFile(filePath: fileToDownload, expectedFileSize: fileToDownloadSize).distinct((a, b) {
         // If both are Download Progress, only update in 0.01 steps:
         const epsilon = 0.01;
         if (a is FileOperationProgress && b is FileOperationProgress) {
@@ -1806,9 +1811,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       final zipPath = '${files.first.parentPath}/$zipName';
       state = state.copyWith(folderContent: state.folderContent.toLoading(false));
 
-      await _handleZipOperation(zipPath, files.map((e) => e.absolutPath).toList(), false);
+      final zip = await _handleZipOperation(zipPath, files.map((e) => e.absolutPath).toList(), false);
+      if (zip == null) return;
 
-      final downloadStream = _fileService.downloadFile(filePath: zipPath).distinct((a, b) {
+      final downloadStream = _fileService.downloadFile(filePath: zipPath, expectedFileSize: zip.size).distinct((a, b) {
         // If both are Download Progress, only update in 0.01 steps:
         const epsilon = 0.01;
         if (a is FileOperationProgress && b is FileOperationProgress) {
@@ -1980,9 +1986,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     return true;
   }
 
-  Future<bool> _handleZipOperation(String dest, List<String> targets, [bool showSnack = true]) async {
+  Future<FileItem?> _handleZipOperation(String dest, List<String> targets, [bool showSnack = true]) async {
     try {
-      await _fileService.zipFiles(dest, targets);
+      final zipFile = await _fileService.zipFiles(dest, targets);
 
       logger.i('[ModernFileManagerController($machineUUID, $filePath)] Files zipped');
 
@@ -1993,12 +1999,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           message: tr('pages.files.file_operation.zipping_success.body'),
         ));
       }
+      return zipFile;
     } catch (e, s) {
       logger.e('[ModernFileManagerController($machineUUID, $filePath)] Could not zip files.', e, s);
       _onOperationError(e, s, 'zipping');
-      return false;
     }
-    return true;
+    return null;
   }
 
   //////////////////// NOTIFICATIONS ////////////////////
