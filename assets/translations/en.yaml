@@ -262,6 +262,7 @@ pages:
       submit: Submit Print Job
       preheat: Preheat
       enqueue: Add to Print Queue
+      preview: Preview
     file_operation:
       download_canceled:
         title: Download canceled

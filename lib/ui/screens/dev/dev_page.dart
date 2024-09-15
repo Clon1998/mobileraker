@@ -32,7 +32,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
+import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_with_controls.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -337,7 +337,7 @@ class _StlPreview extends HookConsumerWidget {
 
     return Container(
       // color: Colors.red,
-      child: GcodePreviewCard(
+      child: GcodePreviewWithControls(
         machineUUID: selectedMachine.uuid,
         gcodeFile: file.requireData,
       ),

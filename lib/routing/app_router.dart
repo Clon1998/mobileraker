@@ -27,6 +27,7 @@ import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
+import 'package:mobileraker/ui/screens/gcode_preview/gcode_preview_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
@@ -81,6 +82,7 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager_explorer,
   fileManager_exlorer_search,
   fileManager_exlorer_move,
+  fileManager_exlorer_gcodePreview,
   fileManager_exlorer_gcodeDetail,
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
@@ -189,6 +191,15 @@ GoRouter goRouterImpl(GoRouterRef ref) {
 
               return GoTransitions.fullscreenDialog(context, state);
             },
+          ),
+          GoRoute(
+            path: 'gcode-preview',
+            name: AppRoute.fileManager_exlorer_gcodePreview.name,
+            builder: (context, state) => GcodePreviewPage(
+              machineUUID: state.uri.queryParameters['machineUUID']!,
+              file: state.extra as GCodeFile,
+            ),
+            pageBuilder: GoTransitions.fullscreenDialog,
           ),
           GoRoute(
             path: 'gcode-details',

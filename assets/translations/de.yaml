@@ -258,6 +258,7 @@ pages:
       submit: Datei drucken
       preheat: Vorheizen
       enqueue: Zur Warteschlange hinzufügen
+      preview: Vorschau
     file_operation:
       download_canceled:
         title: Download abgebrochen

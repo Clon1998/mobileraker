@@ -13,6 +13,7 @@ enum GcodeFileSheetAction with BottomSheetAction {
   submitPrintJob('pages.files.gcode_file_actions.submit', FlutterIcons.printer_3d_nozzle_mco),
   preheat('pages.files.gcode_file_actions.preheat', MobilerakerIcons.nozzle_heat),
   addToQueue('pages.files.gcode_file_actions.enqueue', Icons.queue),
+  preview('pages.files.gcode_file_actions.preview', Icons.layers),
   ;
 
   const GcodeFileSheetAction(this.labelTranslationKey, this.icon);

@@ -1191,6 +1191,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           GcodeFileSheetAction.submitPrintJob.let((t) => canStartPrint && klippyReady ? t : t.disable),
           GcodeFileSheetAction.preheat
               .let((t) => file.firstLayerTempBed != null && canStartPrint && klippyReady ? t : t.disable),
+          GcodeFileSheetAction.preview,
           GcodeFileSheetAction.addToQueue,
           DividerSheetAction.divider,
         ],
@@ -1219,8 +1220,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         case FileSheetAction.rename:
           _renameFileAction(file);
           break;
-        case GcodeFileSheetAction.addToQueue:
-          _addFileToQueueAction(file as GCodeFile);
+        case GcodeFileSheetAction.preview when file is GCodeFile:
+          _previewAction(file);
+          break;
+        case GcodeFileSheetAction.addToQueue when file is GCodeFile:
+          _addFileToQueueAction(file);
           break;
         case GcodeFileSheetAction.preheat when file is GCodeFile:
           _preheatAction(file);
@@ -1646,6 +1650,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         message: tr('pages.files.file_operation.copy_created.body', args: [copyPath]),
       ));
     }
+  }
+
+  Future<void> _previewAction(GCodeFile file) async {
+    _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_gcodePreview.name,
+      pathParameters: {'path': filePath},
+      queryParameters: {'machineUUID': machineUUID},
+      extra: file,
+    );
   }
 
   Future<void> _addFileToQueueAction(GCodeFile file) async {
