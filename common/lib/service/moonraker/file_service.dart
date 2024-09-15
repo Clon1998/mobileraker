@@ -420,7 +420,7 @@ class FileService {
             Future.delayed(const Duration(seconds: 1), () {
               debounceKeepAlive?.complete(true);
             });
-            updateProgress.add(FileOperationKeepAlive(token: token));
+            updateProgress.add(FileOperationKeepAlive(token: token, bytes: received));
           }
           return;
         }
@@ -475,7 +475,7 @@ class FileService {
             Future.delayed(const Duration(seconds: 1), () {
               debounceKeepAlive?.complete(true);
             });
-            updateStream.add(FileOperationKeepAlive(token: token));
+            updateStream.add(FileOperationKeepAlive(token: token, bytes: sent));
           }
           return;
         }

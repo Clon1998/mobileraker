@@ -36,8 +36,11 @@ class FileOperationProgress extends FileOperation {
 }
 
 class FileOperationKeepAlive extends FileOperation {
-  FileOperationKeepAlive({required this.token}) : timeStamp = DateTime.now();
+  FileOperationKeepAlive({required this.token, required this.bytes}) : timeStamp = DateTime.now();
   final DateTime timeStamp;
+
+  final int bytes; // How much data was transferred since the last keep alive (Up or download)
+
   @override
   final CancelToken token;
 
@@ -47,14 +50,15 @@ class FileOperationKeepAlive extends FileOperation {
       other is FileOperationKeepAlive &&
           runtimeType == other.runtimeType &&
           (identical(timeStamp, other.timeStamp) || timeStamp == other.timeStamp) &&
+          (identical(bytes, other.bytes) || bytes == other.bytes) &&
           (identical(token, other.token) || token == other.token);
 
   @override
-  int get hashCode => Object.hash(timeStamp, token);
+  int get hashCode => Object.hash(timeStamp, token, bytes);
 
   @override
   String toString() {
-    return 'FileOperationKeepAlive{timeStamp: $timeStamp}';
+    return 'FileOperationKeepAlive{timeStamp: $timeStamp, bytes: $bytes}';
   }
 }
 
