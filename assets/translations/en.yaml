@@ -921,6 +921,7 @@ components:
     custom_dashboard: Sorry, customizing the dashboard is only available to Supporters.
     full_file_management: Sorry, full file management (Download, Upload…) is only
       available to Supporters.
+    gcode_preview: Sorry, GCode preview is only available to Supporters.
   machine_deletion_warning:
     title: Machine Deletion
     subtitle: It seems like you are not a Supporter. Only supports can have more than

@@ -88,6 +88,7 @@ dependencies:
   permission_handler: ^11.0.0
   url_launcher: ^6.1.6
   package_info_plus: ^5.0.1
+  vector_math: ^2.1.4
 
   #crypto
   hashlib_codecs: ^2.2.0
