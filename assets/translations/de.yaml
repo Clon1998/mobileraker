@@ -258,6 +258,7 @@ pages:
       submit: Datei drucken
       preheat: Vorheizen
       enqueue: Zur Warteschlange hinzufügen
+      preview: Vorschau
     file_operation:
       download_canceled:
         title: Download abgebrochen
@@ -850,6 +851,7 @@ components:
     spoolman_page: Die Spoolman-Seite ist leider nur für Supporter verfügbar.
     custom_dashboard: Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar.
     full_file_management: Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar.
+    gcode_preview: Die G-Code-Vorschau ist leider nur für Supporter verfügbar.
   machine_deletion_warning:
     title: Maschinelle Löschung
     subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt werden.
