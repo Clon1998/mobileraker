@@ -10,14 +10,14 @@
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/service/firebase/admobs.dart';
+// import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
-import 'package:common/ui/components/ad_banner.dart';
+// import 'package:common/ui/components/ad_banner.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -28,7 +28,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
@@ -57,7 +57,7 @@ class DevPage extends HookConsumerWidget {
     Widget body = ListView(
       children: [
         const _StlPreview(),
-        const _Consent(),
+        // const _Consent(),
 
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
@@ -75,10 +75,10 @@ class DevPage extends HookConsumerWidget {
         // PinsCard.loading(),
         // PowerApiCard(machineUUID: selMachine.uuid),
         // PowerApiCard.loading(),
-        const AdBanner(
-          constraints: const BoxConstraints(maxHeight: 60),
-          adSize: AdSize.fluid,
-        ),
+        // const AdBanner(
+        //   constraints: const BoxConstraints(maxHeight: 60),
+        //   adSize: AdSize.fluid,
+        // ),
         // const _TestAd(),
         PrinterCard(selMachine),
 
@@ -268,57 +268,57 @@ class CaseB extends _$CaseB {
     return v ?? -1;
   }
 }
-
-class _TestAd extends ConsumerWidget {
-  const _TestAd({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
-
-    if (ad case AsyncData(value: AdWithView() && final banner)) {
-      logger.i('Got ad: ${banner.responseInfo}');
-      return SizedBox(
-        height: AdSize.banner.height.toDouble(),
-        width: AdSize.banner.width.toDouble(),
-        child: AdWidget(ad: banner),
-      );
-    }
-
-    logger.i('No ad available');
-    return const SizedBox.shrink();
-  }
-}
-
-class _Consent extends ConsumerWidget {
-  const _Consent({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(onPressed: onPressed, child: const Text('Consent'));
-  }
-
-  void onPressed() {
-    final params = ConsentRequestParameters();
-
-    logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
-    ConsentInformation.instance.requestConsentInfoUpdate(
-      params,
-      () async {
-        logger.i('ConsentStatusSuccess');
-        final status = await ConsentInformation.instance.getConsentStatus();
-        logger.i('ConsentStatus: $status');
-
-        ConsentForm.showPrivacyOptionsForm((_) => null);
-        // ConsentForm.loadConsentForm((_) => null, (_)=> null);
-      },
-      (FormError error) {
-        logger.e('ConsentStatusError: $error');
-        // Handle the error.
-      },
-    );
-  }
-}
+//
+// class _TestAd extends ConsumerWidget {
+//   const _TestAd({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
+//
+//     if (ad case AsyncData(value: AdWithView() && final banner)) {
+//       logger.i('Got ad: ${banner.responseInfo}');
+//       return SizedBox(
+//         height: AdSize.banner.height.toDouble(),
+//         width: AdSize.banner.width.toDouble(),
+//         child: AdWidget(ad: banner),
+//       );
+//     }
+//
+//     logger.i('No ad available');
+//     return const SizedBox.shrink();
+//   }
+// }
+//
+// class _Consent extends ConsumerWidget {
+//   const _Consent({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return ElevatedButton(onPressed: onPressed, child: const Text('Consent'));
+//   }
+//
+//   void onPressed() {
+//     final params = ConsentRequestParameters();
+//
+//     logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
+//     ConsentInformation.instance.requestConsentInfoUpdate(
+//       params,
+//       () async {
+//         logger.i('ConsentStatusSuccess');
+//         final status = await ConsentInformation.instance.getConsentStatus();
+//         logger.i('ConsentStatus: $status');
+//
+//         ConsentForm.showPrivacyOptionsForm((_) => null);
+//         // ConsentForm.loadConsentForm((_) => null, (_)=> null);
+//       },
+//       (FormError error) {
+//         logger.e('ConsentStatusError: $error');
+//         // Handle the error.
+//       },
+//     );
+//   }
+// }
 
 class _StlPreview extends HookConsumerWidget {
   const _StlPreview({super.key});
