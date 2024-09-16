@@ -210,7 +210,6 @@ Future<FolderContentWrapper> moonrakerFolderContent(
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
 
-
   List<Folder> folders = apiResponse.folders.toList();
   List<RemoteFile> files = apiResponse.files.toList();
 
@@ -401,8 +400,17 @@ class FileService {
       {required String filePath, int? expectedFileSize, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
-    final StreamController<FileOperation> updateProgress = StreamController();
     final token = CancelToken();
+
+    if (!overWriteLocal &&
+        await file.exists() &&
+        (await file.lastModified()).difference(DateTime.now()) < const Duration(minutes: 60)) {
+      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
+      yield FileDownloadComplete(file, token: token);
+      return;
+    }
+
+    final StreamController<FileOperation> updateProgress = StreamController();
 
     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
 
