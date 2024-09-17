@@ -2,6 +2,11 @@
 
 ## [2.7.6] - 2024-09-Xx
 
+### New Features
+
+- **GCode Viewer**: This version adds a 2D-GCode viewer to the app. The viewer allows you to preview your GCode files
+  directly in the app. The viewer supports can help you to inspect a GCode file layer by layer.
+
 ### Enhancements
 
 - **File Download**: The file download was improved to show thw download progress in more cases.
