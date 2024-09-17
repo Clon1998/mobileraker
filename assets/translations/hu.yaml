@@ -1150,11 +1150,8 @@ bottom_sheets:
   bedMesh:
     no_mesh_loaded: Még nincs ágyháló betöltve.
     load_bed_mesh_profile: Ágyháló profil betöltése
-    currently_active: 'Jelenleg aktív: {}'
-    no_profile_active: Nincs aktív profil
     no_mesh: Nincs háló
     clear_loaded_profile: Törölje a betöltött profilt
-    range_between_highest_and_lowest_point: A legmagasabb és legalacsonyabb pont közötti tartomány
     cant_render: Az ágy hálójának renderelése a nyomtató kinematikájához még nem támogatott.
   select_spool:
     header:
