@@ -1144,11 +1144,8 @@ bottom_sheets:
   bedMesh:
     no_mesh_loaded: Es wurde noch kein Bettnetz geladen.
     load_bed_mesh_profile: Bettnetz Profil laden
-    currently_active: 'Derzeit aktiv: {}'
-    no_profile_active: Kein aktives Profil
     no_mesh: Kein Netz
     clear_loaded_profile: Geladenes Profil zurücksetzen
-    range_between_highest_and_lowest_point: Abstand zwischen höchstem und tiefstem Punkt
     cant_render: Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch nicht unterstützt.
   select_spool:
     header:
