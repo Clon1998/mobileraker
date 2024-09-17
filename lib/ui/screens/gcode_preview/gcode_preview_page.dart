@@ -56,31 +56,40 @@ class _Body extends HookConsumerWidget {
     Widget content = switch (downloadState) {
       AsyncSnapshot(hasData: true, data: FileDownloadComplete(:final file)) =>
         GcodePreviewWithControls(machineUUID: machineUUID, gcodeFile: file),
-      AsyncSnapshot(hasData: true, data: FileOperationProgress(:final progress)) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Downloading...'),
-            LinearProgressIndicator(value: progress),
-          ],
+      AsyncSnapshot(hasData: true, data: FileOperationProgress(:final progress)) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Downloading...'),
+              LinearProgressIndicator(value: progress),
+            ],
+          ),
         ),
-      AsyncSnapshot(hasData: true, data: FileOperationKeepAlive(:final bytes)) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Downloading...'),
-            // LinearProgressIndicator(value: bytes/file.size,),
-            LinearProgressIndicator(value: (bytes / file.size).clamp(0, 1)),
-          ],
+      AsyncSnapshot(hasData: true, data: FileOperationKeepAlive(:final bytes)) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Downloading...'),
+              // LinearProgressIndicator(value: bytes/file.size,),
+              LinearProgressIndicator(value: (bytes / file.size).clamp(0, 1)),
+            ],
+          ),
         ),
       AsyncSnapshot(hasError: true, :var error) => SimpleErrorWidget(
           title: const Text('Error while downloading'),
           body: Text('An unexpected error occurred while downloading the file\n\n: $error'),
         ),
-      _ => const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Awaiting download to start'),
-            CircularProgressIndicator.adaptive(),
-          ],
+      _ => const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Awaiting download to start'),
+              CircularProgressIndicator.adaptive(),
+            ],
+          ),
         ),
     };
 
