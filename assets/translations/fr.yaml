@@ -706,11 +706,8 @@ bottom_sheets:
   bedMesh:
     no_mesh_loaded: Aucun maillage du plateau n'a encore été chargé.
     load_bed_mesh_profile: Charge le profil du maillage
-    currently_active: 'Actuellement actif: {}'
-    no_profile_active: Pas de profil actif
     no_mesh: Aucun maillage
     clear_loaded_profile: Effacer le profil chargé
-    range_between_highest_and_lowest_point: Gamme entre le point le plus haut et le point le plus bas
   select_spool:
     header:
       spools: Bobines
