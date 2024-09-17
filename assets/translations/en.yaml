@@ -936,6 +936,30 @@ components:
     tooltip: Using Remote Connection!
   obico_indicator:
     tooltip: Using Obico Tunnel!
+  gcode_preview:
+    layer:
+      one: Layer
+      other: Layers
+    move:
+      one: Move
+      other: Moves
+    downloading:
+      starting: Awaiting download to start…
+      progress: Downloading GCode File ({})…
+    parsing:
+      setting_up: Setting up GCode Parser…
+      progress: Parsing GCode ({})…
+      canceled: GCodes parsing was canceled!
+      error:
+        title: Error parsing GCode!
+        body: An error occurred while trying to parse the GCode. Please retry. If the
+          issue persists, please open an issue on GitHub and attach the GCode file.
+    error:
+      config:
+        title: Error fetching printer config!
+        body: An error occurred while trying to fetch the printer config Ensure the
+          machine is reachable and Mobileraker is connected to it.
+
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?

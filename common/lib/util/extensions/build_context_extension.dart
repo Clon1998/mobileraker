@@ -4,6 +4,7 @@
  */
 
 import 'package:common/util/extensions/responsive_breakpoints_extension.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -54,4 +55,15 @@ extension ResponsiveFrameworkBuildContext on BuildContext {
   bool layoutSmallerThan(String breakpoint) => ResponsiveBreakpoints.of(this).smallerThan(breakpoint);
 
   bool layoutBetween(String start, String end) => ResponsiveBreakpoints.of(this).between(start, end);
+}
+
+extension NumberFormatBuildContextExtension on BuildContext {
+  NumberFormat numFormat([String? pattern]) => NumberFormat(pattern, locale.toStringWithSeparator());
+
+  NumberFormat decimalNumFormat() => NumberFormat.decimalPattern(locale.toStringWithSeparator());
+
+  NumberFormat percentNumFormat() => NumberFormat.percentPattern(locale.toStringWithSeparator());
+
+  NumberFormat decimalDigitNumFormat(int decimalDigits) =>
+      NumberFormat.decimalPatternDigits(locale: locale.toStringWithSeparator(), decimalDigits: decimalDigits);
 }
