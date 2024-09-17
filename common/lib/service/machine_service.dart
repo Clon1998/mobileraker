@@ -403,6 +403,7 @@ class MachineService {
       }
 
       final language = ref.read(activeLocaleProvider).toString();
+      final timeFormat = ref.read(boolSettingProvider(AppSettingKeys.timeFormat)) ? '12h' : '24h';
 
       if (fcmSettings == null) {
         fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version);
@@ -418,9 +419,11 @@ class MachineService {
           !setEquals(fcmSettings.settings.states, states) ||
           !setEquals(fcmSettings.settings.etaSources, etaSources) ||
           fcmSettings.version != version ||
-          fcmSettings.language != language) {
+          fcmSettings.language != language ||
+          fcmSettings.timeFormat != timeFormat) {
         fcmSettings.version = version;
         fcmSettings.language = language;
+        fcmSettings.timeFormat = timeFormat;
         fcmSettings.machineName = machine.name;
         fcmSettings.fcmToken = deviceFcmToken;
         fcmSettings.settings =

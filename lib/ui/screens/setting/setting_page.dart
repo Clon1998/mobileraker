@@ -617,10 +617,12 @@ class _TimeFormatSelector extends ConsumerWidget {
       name: 'timeMode',
       items: [
         DropdownMenuItem(
+          // 24h
           value: false,
           child: Text(DateFormat.Hm().format(now)),
         ),
         DropdownMenuItem(
+          // FreedomUnit (12h)
           value: true,
           child: Text(DateFormat('h:mm a').format(now)),
         ),

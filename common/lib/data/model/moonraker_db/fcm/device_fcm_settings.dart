@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../stamped_entity.dart';
@@ -40,6 +40,7 @@ class DeviceFcmSettings extends StampedEntity {
     required this.fcmToken,
     required this.machineName,
     this.language = 'en',
+    this.timeFormat = '24h',
     required this.settings,
     this.snap,
     this.version,
@@ -48,6 +49,7 @@ class DeviceFcmSettings extends StampedEntity {
   String fcmToken;
   String machineName;
   String language;
+  String timeFormat;
   String? version;
   NotificationSettings settings;
   Map<String, dynamic>? snap;
@@ -73,24 +75,28 @@ class DeviceFcmSettings extends StampedEntity {
       super == other &&
           other is DeviceFcmSettings &&
           runtimeType == other.runtimeType &&
-          fcmToken == other.fcmToken &&
-          machineName == other.machineName &&
-          language == other.language &&
-          settings == other.settings &&
-          mapEquals(snap, other.snap) &&
-          apns == other.apns &&
-          version == other.version;
+          (identical(fcmToken, other.fcmToken) || fcmToken == other.fcmToken) &&
+          (identical(machineName, other.machineName) || machineName == other.machineName) &&
+          (identical(language, other.language) || language == other.language) &&
+          (identical(timeFormat, other.timeFormat) || timeFormat == other.timeFormat) &&
+          (identical(settings, other.settings) || settings == other.settings) &&
+          const DeepCollectionEquality().equals(snap, other.snap) &&
+          (identical(apns, other.apns) || apns == other.apns) &&
+          (identical(version, other.version) || version == other.version);
 
   @override
-  int get hashCode =>
-      super.hashCode ^
-      fcmToken.hashCode ^
-      machineName.hashCode ^
-      language.hashCode ^
-      settings.hashCode ^
-      snap.hashCode ^
-      apns.hashCode ^
-      version.hashCode;
+  int get hashCode => Object.hash(
+        runtimeType,
+        super.hashCode,
+        fcmToken,
+        machineName,
+        language,
+        timeFormat,
+        settings,
+        const DeepCollectionEquality().hash(snap),
+        apns,
+        version,
+      );
 
   @override
   String toString() {
