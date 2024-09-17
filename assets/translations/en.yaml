@@ -288,6 +288,13 @@ pages:
       copy_created:
         title: Copy created
         body: The copy was successfully created at '{}'.
+      move_success:
+        title: Move successful
+        body: File(s) successfully moved to '{}'.
+      move_failed:
+        title: Move failed
+        body: An error occurred while trying to move the file(s). Please retry later.
+
     search_files: Search in folder
     search:
       clear_search: Clear search

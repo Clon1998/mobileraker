@@ -1595,7 +1595,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       if (file.parentPath == res) return;
       logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving file ${file.name} to $res');
       state = state.copyWith(folderContent: state.folderContent.toLoading(true));
-      _fileService.moveFile(file.absolutPath, res).ignore();
+      try {
+        await _fileService.moveFile(file.absolutPath, res);
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.info,
+          title: tr('pages.files.file_operation.move_success.title'),
+          message: tr('pages.files.file_operation.move_success.body', args: [res]),
+        ));
+      } catch (e, s) {
+        _onOperationError(e, s, 'move');
+      }
     }
   }
 
@@ -1611,20 +1620,21 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving files to $newPath');
       state = state.copyWith(folderContent: state.folderContent.toLoading(true));
 
-      onError() {
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Could not move Files.',
-          message: 'An error occured while moving the files.',
-        ));
-      }
-
       final waitFor = <Future>[];
       for (var file in files) {
-        final f = _fileService.moveFile(file.absolutPath, '$newPath/${file.name}').catchError(onError);
+        final f = _fileService.moveFile(file.absolutPath, '$newPath/${file.name}');
         waitFor.add(f);
       }
-      await Future.wait(waitFor).catchError(() => null);
+      try {
+        await Future.wait(waitFor);
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.info,
+          title: tr('pages.files.file_operation.move_success.title'),
+          message: tr('pages.files.file_operation.move_success.body', args: [newPath]),
+        ));
+      } catch (e, s) {
+        _onOperationError(e, s, 'move');
+      }
     }
   }
 

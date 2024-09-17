@@ -284,6 +284,12 @@ pages:
       copy_created:
         title: Kopie erstellt
         body: Die Datei wurde erfolgreich nach '{}' kopiert.
+      move_success:
+        title: Verschieben erfolgreich
+        body: Datei(en) erfolgreich nach '{}' verschoben.
+      move_failed:
+        title: Verschieben fehlgeschlagen
+        body: Beim Verschieben der Datei(en) ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
     search_files: Im Ordner suchen
     search:
       clear_search: Suche löschen
