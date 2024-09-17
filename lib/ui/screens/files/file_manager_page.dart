@@ -171,7 +171,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
               controller.onClickFileAction(folder!, pos);
             },
-          )
+          ),
       ];
 
       final defaultBar = isRoot
@@ -249,17 +249,29 @@ class _Fab extends HookConsumerWidget {
     return HookConsumer(
       builder: (context, ref, _) {
         final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
-        final (isDownloading, isUploading, isFilesLoading, isSelecting) =
+        final (isUploading, isDownloading, isUpOrDownloadDone, isFilesLoading, isSelecting) =
             ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
-          return (data.download != null, data.upload != null, data.folderContent.isLoading, data.selectionMode);
+          return (
+            data.upload != null,
+            data.download != null,
+            data.download is FileDownloadComplete || data.upload is FileUploadComplete,
+            data.folderContent.isLoading,
+            data.selectionMode,
+          );
         }));
+        final isUpOrDownloading = isUploading || isDownloading;
+
         final connected = ref
             .watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
-        final isUpOrDownloading = isDownloading || isUploading;
 
         final isScrolling = useState(false);
         useEffect(
           () {
+            if (isUpOrDownloading) {
+              isScrolling.value = false;
+              return null;
+            }
+
             double last = scrollController.hasClients ? scrollController.offset : 0;
             isScrolling.value = false;
             listener() {
@@ -281,7 +293,7 @@ class _Fab extends HookConsumerWidget {
             scrollController.addListener(listener);
             return () => scrollController.removeListener(listener);
           },
-          [scrollController, filePath, isSelecting],
+          [scrollController, filePath, isSelecting, isUpOrDownloading],
         );
 
         final children = [
@@ -310,11 +322,17 @@ class _Fab extends HookConsumerWidget {
               onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
               child: const Icon(Icons.add),
             ),
-          if (isUpOrDownloading)
+          if (isUpOrDownloading && !isUpOrDownloadDone)
             FloatingActionButton.extended(
               heroTag: '${selectedMachine.uuid}-main',
               onPressed: controller.onClickCancelUpOrDownload,
               label: const Text('pages.files.cancel_fab').tr(gender: isUploading ? 'upload' : 'download'),
+            ),
+          if (isUpOrDownloadDone)
+            FloatingActionButton(
+              heroTag: '${selectedMachine.uuid}-main',
+              onPressed: null,
+              child: const Icon(Icons.done),
             ),
         ];
         final fab = Column(
