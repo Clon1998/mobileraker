@@ -284,6 +284,12 @@ pages:
       copy_created:
         title: Kopie erstellt
         body: Die Datei wurde erfolgreich nach '{}' kopiert.
+      move_success:
+        title: Verschieben erfolgreich
+        body: Datei(en) erfolgreich nach '{}' verschoben.
+      move_failed:
+        title: Verschieben fehlgeschlagen
+        body: Beim Verschieben der Datei(en) ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
     search_files: Im Ordner suchen
     search:
       clear_search: Suche löschen
@@ -864,6 +870,27 @@ components:
     tooltip: Verwende Fernzugriff!
   obico_indicator:
     tooltip: Verwende Obico Tunnel!
+  gcode_preview:
+    layer:
+      one: Schicht
+      other: Schichten
+    move:
+      one: Bewegung
+      other: Bewegungen
+    downloading:
+      starting: Warte auf den Start des Downloads…
+      progress: GCode-Datei wird heruntergeladen ({})…
+    parsing:
+      setting_up: GCode-Parser wird eingerichtet…
+      progress: GCode wird geparst ({})…
+      canceled: Das Parsen des GCodes wurde abgebrochen!
+      error:
+        title: Fehler beim Parsen des GCodes!
+        body: Beim Parsen des GCodes ist ein Fehler aufgetreten. Bitte erneut versuchen. Wenn das Problem weiterhin besteht, öffnen Sie bitte ein Issue auf GitHub und fügen Sie die GCode-Datei bei.
+    error:
+      config:
+        title: Fehler beim Abrufen der Druckerkonfiguration!
+        body: Beim Abrufen der Druckerkonfiguration ist ein Fehler aufgetreten. Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker verbunden ist.
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
