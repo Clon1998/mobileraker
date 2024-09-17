@@ -468,7 +468,8 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
         isScrollControlled: true,
         data: SelectionBottomSheetArgs<GetVendor>(
           options: [
-            for (final vendor in vendors.sortedBy((e) => e.name)) SelectionOption(value: vendor, label: vendor.name),
+            for (final vendor in vendors.sortedBy((e) => e.name))
+              SelectionOption(value: vendor, selected: state.selectedVendor?.id == vendor.id, label: vendor.name),
           ],
           title: const Text('pages.spoolman.vendor.one').tr(),
         ),
