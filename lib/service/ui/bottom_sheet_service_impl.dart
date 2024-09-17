@@ -15,7 +15,6 @@ import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/select_spoolman_sheet.dart';
 
-import '../../ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_cards_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_layout_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
@@ -29,7 +28,6 @@ enum SheetType implements BottomSheetIdentifierMixin {
   addRemoteCon,
   manageMacroGroupMacros,
   userManagement,
-  bedMeshSettings,
   dashboardCards,
   dashobardLayout,
   sortMode,
@@ -56,9 +54,6 @@ class BottomSheetServiceImpl implements BottomSheetService {
           arguments: data as ManageMacroGroupMacrosBottomSheetArguments,
         ),
     SheetType.userManagement: (ctx, data) => const UserBottomSheet(),
-    SheetType.bedMeshSettings: (ctx, data) => BedMeshSettingsBottomSheet(
-          arguments: data as BedMeshSettingsBottomSheetArguments,
-        ),
     ProSheetType.selectSpoolman: (ctx, data) => SelectSpoolmanSheet(machineUUID: data as String),
     SheetType.dashboardCards: (ctx, data) => DashboardCardsBottomSheet(machineUUID: data as String),
     SheetType.dashobardLayout: (ctx, data) => switch (data) {

@@ -1243,11 +1243,8 @@ bottom_sheets:
   bedMesh:
     no_mesh_loaded: No bed mesh has been loaded yet.
     load_bed_mesh_profile: Load Bed Mesh Profile
-    currently_active: 'Currently active: {}'
-    no_profile_active: No profile active
     no_mesh: No Mesh
     clear_loaded_profile: Clear loaded profile
-    range_between_highest_and_lowest_point: Range between highest and lowest point
     cant_render: Rendering of the bed mesh for the printer's kinematics is not supported
       yet.
   select_spool:

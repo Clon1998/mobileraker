@@ -15,6 +15,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,11 +27,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_legend.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_plot.dart';
-import 'package:mobileraker/ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../../components/bottomsheet/selection_bottom_sheet.dart';
 
 part 'bed_mesh_card.freezed.dart';
 part 'bed_mesh_card.g.dart';
@@ -169,7 +170,7 @@ class _CardTitle extends ConsumerWidget {
         const Text('pages.dashboard.control.bed_mesh_card.title').tr(),
       ]),
       trailing: TextButton(
-        onPressed: controller.onSettingsTap,
+        onPressed: () => controller.onSettingsTap(context),
         child: const Text('pages.dashboard.control.bed_mesh_card.profiles').tr(),
       ),
     );
@@ -356,29 +357,76 @@ class _Controller extends _$Controller {
     );
   }
 
-  onSettingsTap() {
+  onSettingsTap(BuildContext context) {
+    final themeData = Theme.of(context);
+    final mmFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 3);
+
     // TODO : Make this safer and not use requireValue and !
     state.whenData((value) async {
       if (value.bedMesh == null) {
         logger.w('Bed mesh is null');
         return;
       }
-      var result = await _bottomSheetService.show(BottomSheetConfig(
-        type: SheetType.bedMeshSettings,
-        isScrollControlled: true,
-        data: BedMeshSettingsBottomSheetArguments(value.bedMesh!.profileName, value.bedMesh!.profiles),
-      ));
+      final res = await _bottomSheetService.show(
+        BottomSheetConfig(
+          type: SheetType.selections,
+          isScrollControlled: true,
+          data: SelectionBottomSheetArgs<BedMeshProfile?>(
+            options: [
+              if (value.bedMesh?.profileName != null)
+                SelectionOption(
+                  value: null,
+                  label: tr('bottom_sheets.bedMesh.no_mesh'),
+                  subtitle: tr('bottom_sheets.bedMesh.clear_loaded_profile'),
+                ),
+              for (final profile in value.bedMesh!.profiles)
+                SelectionOption(
+                  value: profile,
+                  horizontalTitleGap: 10,
+                  selected: profile.name == value.bedMesh?.profileName,
+                  label: profile.name,
+                  subtitle: '${profile.meshParams.xCount}x${profile.meshParams.yCount} Mesh',
+                  trailing: Tooltip(
+                    message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
+                    child: Chip(
+                      // backgroundColor: profile.name == activeProfileState.value
+                      //     ? themeData.colorScheme.primaryContainer
+                      //     : null,
+                      visualDensity: VisualDensity.compact,
+                      label: Text(
+                        mmFormat.formatMillimeters(profile.valueRange),
+                        // style: TextStyle(
+                        //   color: profile.name == activeProfileState.value
+                        //       ? themeData.colorScheme.onPrimaryContainer
+                        //       : null,
+                        // ),
+                      ),
+                      avatar: const Icon(
+                        FlutterIcons.unfold_less_horizontal_mco,
+                        // FlutterIcons.flow_line_ent,
+                        // color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+            title: const Text('bottom_sheets.bedMesh.load_bed_mesh_profile').tr(),
+          ),
+        ),
+      );
 
-      if (result.confirmed) {
-        logger.i('Bed mesh settings confirmed: ${result.data}');
+      if (!res.confirmed || res.data is! BedMeshProfile?) return;
+      final selected = res.data as BedMeshProfile?;
 
-        var args = result.data as String?;
-        // state = state.toLoading();
-        if (args == null) {
-          await _printerService.clearBedMeshProfile();
-        } else {
-          await _printerService.loadBedMeshProfile(args);
-        }
+      logger.i('Bed mesh settings confirmed: ${selected}');
+
+      // state = state.toLoading();
+      if (selected == null) {
+        await _printerService.clearBedMeshProfile();
+      } else {
+        await _printerService.loadBedMeshProfile(selected.name);
       }
     });
   }
@@ -467,7 +515,7 @@ class _PreviewController extends _Controller {
   }
 
   @override
-  onSettingsTap() {
+  onSettingsTap(BuildContext _) {
     // Do nothing in preview
   }
 
