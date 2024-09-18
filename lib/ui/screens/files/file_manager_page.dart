@@ -5,7 +5,6 @@
 
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
@@ -54,7 +53,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
@@ -1028,31 +1026,6 @@ class _FileItem extends ConsumerWidget {
         onLongPress: () {
           controller.onLongClickFile(file);
         }.only(enabled));
-  }
-
-  Widget buildLeading(
-    Uri imageUri,
-    Map<String, String> headers,
-    CacheManager cacheManager,
-  ) {
-    return CachedNetworkImage(
-      cacheManager: cacheManager,
-      cacheKey: '${imageUri.hashCode}-${file.hashCode}',
-      imageBuilder: (context, imageProvider) => Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-        ),
-      ),
-      imageUrl: imageUri.toString(),
-      httpHeaders: headers,
-      placeholder: (context, url) => const Icon(Icons.image),
-      errorWidget: (context, url, error) {
-        logger.w(url);
-        logger.e(error);
-        return const Icon(Icons.error);
-      },
-    );
   }
 }
 
