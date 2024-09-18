@@ -1094,7 +1094,6 @@ bottom_sheets:
       tab_name: Kézi
       description: Ha haladó felhasználó vagy, manuálisan is hozzáadhatsz egy alternatív kapcsolatot. Az alternatív kapcsolat akkor lép működésbe, ha az elsődleges címhez való kapcsolódási kísérletek sikertelenek. Ez hasznos lehet, ha fordított proxy-kapcsolatod van a nyomtatóhoz, vagy ha van egy másodlagos IP-címed, amelyet a nyomtatóhoz való csatlakozáshoz használhatsz.
       address_label: Alternatív cím
-      address_hint: A használandó távoli kapcsolat alapcíme
     obico:
       service_name: Obico
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
