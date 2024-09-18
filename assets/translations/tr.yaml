@@ -588,7 +588,6 @@ bottom_sheets:
       tab_name: Manuel
       description: İleri düzey bir kullanıcıysanız alternatif bir bağlantıyı manuel olarak eklemeyi seçebilirsiniz.
       address_label: Alternatif Adres
-      address_hint: Kullanılacak kaldırma bağlantısının temel adresi
     obico:
       service_name: Obiko
       link: Obico'yu bağla
