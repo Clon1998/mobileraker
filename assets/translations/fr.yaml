@@ -675,7 +675,6 @@ bottom_sheets:
       tab_name: Manuelle
       description: Si vous êtes un utilisateur avancé, vous pouvez choisir d'ajouter manuellement une connexion alternative. La connexion alternative entre en jeu lorsque les tentatives de connexion à l'adresse principale échouent. Cela peut être utile si vous disposez d'une connexion proxy inverse à votre imprimante, ou si vous avez une adresse IP secondaire que vous pouvez utiliser pour vous connecter à votre imprimante.
       address_label: Adresse alternative
-      address_hint: Adresse de base de la connexion à distance à utiliser
     obico:
       service_name: Obico
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
