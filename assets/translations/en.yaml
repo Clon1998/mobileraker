@@ -1209,7 +1209,7 @@ bottom_sheets:
         you have a reverse proxy connection to your printer, or if you have a secondary
         IP address that you can use to connect to your printer.
       address_label: Alternative Address
-      address_hint: The base adress of the remote connection to be used
+      address_hint: The base address of the remote connection to be used
     obico:
       service_name: Obico
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
