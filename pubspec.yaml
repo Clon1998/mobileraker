@@ -75,11 +75,7 @@ dependencies:
   collection: ^1.17.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
-  flutter_audio_capture:
-    #    path: ../flutter_audio_capture
-    git:
-      url: https://github.com/Clon1998/flutter_audio_capture.git
-      ref: init-code
+  flutter_audio_capture: 1.1.7
 
   #crypto
   hashlib_codecs: ^2.2.0
