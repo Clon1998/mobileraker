@@ -569,7 +569,6 @@ bottom_sheets:
     manual:
       description: 如果您是高級用戶，您可以選擇手動添加備用連接。當嘗試連接到主地址不成功時，替代連接就會發揮作用。如果您有到打印機的反向代理連接，或者您有可用於連接到打印機的輔助 IP 地址，這會很有用。
       address_label: 備用地址
-      address_hint: 要使用的刪除連接的基地址
 klipper_state:
   ready: 準備好
   shutdown: 關閉
