@@ -146,23 +146,14 @@ class PrinterService {
 
   Printer? _current;
 
-  final bool _flag = false;
-
   set current(Printer nI) {
     if (disposed) {
       logger.w(
           'Tried to set current Printer on an old printerService? ${identityHashCode(this)}', null, StackTrace.current);
       return;
     }
-    if (_flag) return;
     _current = nI;
     _printerStreamCtler.add(nI);
-
-    // Future.delayed(Duration(seconds: 5), () {
-    //   _flag = true;
-    //   logger.i('Delayed log');
-    //   _printerStreamCtler.addError(Exception('Delayed Error'));
-    // });
   }
 
   Printer get current => _current!;
