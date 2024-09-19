@@ -576,9 +576,9 @@ class _FileList extends ConsumerWidget {
         ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
 
     final widget = switch (folderContent) {
-      AsyncValue(value: FolderContentWrapper(isEmpty: true)) =>
+      AsyncValue(hasValue: true, value: FolderContentWrapper(isEmpty: true)) =>
         _FileListEmpty(key: Key('$filePath-list-empty'), machineUUID: machineUUID, filePath: filePath),
-      AsyncValue(value: FolderContentWrapper() && final content) => _FileListData(
+      AsyncValue(hasValue: true, value: FolderContentWrapper() && final content) => _FileListData(
           key: Key('$filePath-list'),
           machineUUID: machineUUID,
           filePath: filePath,
