@@ -295,26 +295,27 @@ class FileService {
     }
   }
 
-  Future<GCodeFile> getGCodeMetadata(String filename) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filename`');
+  /// The FilePath is relativ to the `gcodes` root
+  Future<GCodeFile> getGCodeMetadata(String filePath) async {
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filePath`');
 
-    final parentPathParts = filename.split('/')
-      ..removeLast()
+    final parentPathParts = filePath.split('/')
       ..insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
+    final fileName = parentPathParts.removeLast();
     final parentPath = parentPathParts.join('/');
 
     try {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.metadata',
-          params: {'filename': filename}, timeout: _apiRequestTimeout);
+          params: {'filename': filePath}, timeout: _apiRequestTimeout);
 
-      return GCodeFile.fromJson(blockingResp.result, parentPath);
+      return GCodeFile.fromMetaData(fileName, parentPath, blockingResp.result);
     } on JRpcError catch (e) {
       if (e.message.contains('Metadata not available for')) {
-        logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filename');
-        return GCodeFile(name: filename, parentPath: parentPath, modified: -1, size: -1);
+        logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filePath');
+        return GCodeFile(name: fileName, parentPath: parentPath, modified: -1, size: -1);
       }
 
-      throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filename, parent: e);
+      throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filePath, parent: e);
     }
   }
 
@@ -402,17 +403,16 @@ class FileService {
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
     final token = CancelToken();
 
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
     if (!overWriteLocal &&
         await file.exists() &&
-        (await file.lastModified()).difference(DateTime.now()) < const Duration(minutes: 60)) {
+        DateTime.now().difference(await file.lastModified()) < const Duration(minutes: 60)) {
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
       yield FileDownloadComplete(file, token: token);
       return;
     }
 
     final StreamController<FileOperation> updateProgress = StreamController();
-
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
 
     Completer<bool>? debounceKeepAlive;
     // I can not await this because I need to use the callbacks to fill my streamController

@@ -97,6 +97,10 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     @JsonKey(fromJson: _sortedThumbnails) @Default([]) List<GCodeThumbnail> thumbnails,
   }) = _GCodeFile;
 
+  factory GCodeFile.fromMetaData(String fileName, String parentPath, Map<String, dynamic> metaData) {
+    return GCodeFile.fromJson({...metaData, 'filename': fileName}, parentPath);
+  }
+
   factory GCodeFile.fromJson(Map<String, dynamic> json, String parentPath) =>
       _$GCodeFileFromJson({...json, 'parent_path': parentPath});
 
