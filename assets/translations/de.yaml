@@ -47,7 +47,7 @@ general:
   save: Speichern
   apply: Anwenden
   completed: Abgeschlossen
-  activate: Activ
+  activate: Aktivieren
   stop: Stoppen
   start: Starten
   repeat: Wiederholen
@@ -698,7 +698,7 @@ pages:
     error_loading_spools: Fehler beim Laden der Spulen
     error_loading_filaments: Fehler beim Laden der Filamente
     spoolman_actions:
-      activate: "@:general.activate"
+      activate: "@:general.active"
       deactivate: Deaktivieren
       clone: Duplizieren
       edit: "@:general.edit"
@@ -1115,6 +1115,7 @@ bottom_sheets:
       tab_name: Manuell
       description: Wenn Sie ein fortgeschrittener Nutzer sind, können Sie auch selbst eine Alternative Verbindung hinzufügen. Die alternative Verbindung wird verwendet, wenn der Verbindungsaufbau mit der primären Adresse fehlschlägt. Dies ist besonders nützlich, wenn Sie eine Reverse-Proxy-Verbindung zu Ihrem Drucker besitzen oder wenn Sie eine sekundäre IP-Adresse zur Verbindung mit Ihrem Drucker verwenden können.
       address_label: Alternative Adresse
+      address_hint: Die Basisadresse für den Fernzugriff
     obico:
       service_name: Obico
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
