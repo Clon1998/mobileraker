@@ -3,21 +3,21 @@
  * All rights reserved.
  */
 
-import 'package:collection/collection.dart';
-import 'package:common/data/dto/config/config_file.dart';
+import 'dart:math';
+
+import 'package:common/data/dto/config/config_bed_screws.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/print_bed_painter.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog_controller.dart';
-import 'package:vector_math/vector_math.dart' as vec;
 
 class BedScrewAdjustDialog extends HookConsumerWidget {
   final DialogRequest request;
@@ -219,7 +219,8 @@ class _ScrewLocationIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var data = ref.watch(bedScrewAdjustDialogControllerProvider).requireValue;
+    final data = ref.watch(bedScrewAdjustDialogControllerProvider).requireValue;
+    final themeData = Theme.of(context);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -227,7 +228,7 @@ class _ScrewLocationIndicator extends ConsumerWidget {
       children: [
         Text(
           'dialogs.bed_screw_adjust.xy_plane',
-          style: Theme.of(context).textTheme.titleMedium,
+          style: themeData.textTheme.titleMedium,
         ).tr(),
         Flexible(
           child: IntrinsicHeight(
@@ -235,10 +236,21 @@ class _ScrewLocationIndicator extends ConsumerWidget {
               child: AspectRatio(
                 aspectRatio: data.config.sizeX / data.config.sizeY,
                 child: CustomPaint(
-                  painter: BedScrewIndicatorPainter(
-                    context,
-                    data.bedScrew.currentScrew,
-                    data.config,
+                  painter: _BedScrewIndicatorPainter(
+                    // bedWidth: data.config.sizeX,
+                    bedWidth: data.config.sizeX,
+                    bedHeight: data.config.sizeY,
+                    bedXOffset: data.config.minX,
+                    bedYOffset: data.config.minY,
+                    activeScrew: data.bedScrew.currentScrew,
+                    bedScrews: data.config.configBedScrews!,
+                    activeColor: themeData.colorScheme.secondary,
+                    inactiveColor: themeData.colorScheme.onSurface,
+                    backgroundColor: themeData.colorScheme.surface,
+                    logoColor: themeData.colorScheme.onSurface.withOpacity(0.05),
+                    gridColor: themeData.disabledColor.withOpacity(0.1),
+                    axisColor: themeData.disabledColor.withOpacity(0.5),
+                    originColors: (x: Colors.red, y: Colors.blue),
                   ),
                 ),
               ),
@@ -250,139 +262,63 @@ class _ScrewLocationIndicator extends ConsumerWidget {
   }
 }
 
-class BedScrewIndicatorPainter extends CustomPainter {
-  static const double bgLineDis = 50;
+class _BedScrewIndicatorPainter extends PrintBedPainter {
+  const _BedScrewIndicatorPainter({
+    required super.bedWidth,
+    required super.bedHeight,
+    required super.bedXOffset,
+    required super.bedYOffset,
+    required this.activeScrew,
+    required this.bedScrews,
+    required this.activeColor,
+    required this.inactiveColor,
+    required super.backgroundColor,
+    required super.logoColor,
+    required super.gridColor,
+    required super.axisColor,
+    required super.originColors,
+  });
 
-  const BedScrewIndicatorPainter(this.context, this.activeScrew, this.config);
+  @override
+  final renderLogo = true;
+  @override
+  final renderGrid = true;
+  @override
+  final renderAxis = true;
 
-  final BuildContext context;
   final int activeScrew;
-  final ConfigFile config;
+  final ConfigBedScrews bedScrews;
 
-  double get _maxXBed => config.sizeX;
-
-  double get _maxYBed => config.sizeY;
+  final Color activeColor;
+  final Color inactiveColor;
 
   @override
   void paint(Canvas canvas, Size size) {
-    Color colorBG, colorScrew;
-    var themeData = Theme.of(context);
-    if (themeData.brightness == Brightness.dark) {
-      colorScrew = themeData.colorScheme.onSurface;
-      colorBG = colorScrew.darken(60);
-    } else {
-      colorScrew = themeData.colorScheme.onSurface.lighten(20);
-      colorBG = colorScrew.lighten(30);
-    }
+    super.paint(canvas, size);
+    final activePaint = filledPaint(activeColor);
+    final inActivePaint = filledPaint(inactiveColor);
 
-    var paintBg = Paint()
-      ..color = colorBG
-      ..strokeWidth = 2;
+    final diag = sqrt(bedWidth * bedWidth + bedHeight * bedHeight);
+    final screwRadius = diag * 0.02;
 
-    var paintScrew = Paint()
-      ..color = colorScrew
-      ..strokeWidth = 2;
-    var paintSelectedScrew = Paint()
-      ..color = themeData.colorScheme.secondary
-      ..strokeWidth = 10.0;
-
-    // Paint paintSelected = Paint()
-    //   ..color = Theme.of(context).colorScheme.secondary
-    //   ..style = PaintingStyle.stroke
-    //   ..strokeWidth = 5.0;
-
-    double maxX = size.width;
-    double maxY = size.height;
-
-    drawXLines(maxX, canvas, maxY, paintBg);
-    drawYLines(maxY, canvas, maxX, paintBg);
-    // drawOrientationText('FRONT', Alignment.bottomCenter, canvas, maxX, maxY);
-
-    if (config.configBedScrews == null) {
-      drawNoDataText(canvas, maxX, maxY);
-      return;
-    }
-    config.configBedScrews!.screws.forEachIndexed((index, screw) {
+    for (var i = 0; i < bedScrews.screws.length; i++) {
+      final screw = bedScrews.screws[i];
+      var isActive = i == activeScrew;
       canvas.drawCircle(
         Offset(
-          screw.x / _maxXBed * maxX,
-          correctY(screw.y) / _maxYBed * maxY,
+          screw.x,
+          screw.y,
         ),
-        (index == activeScrew) ? 12 : 8,
-        (index == activeScrew) ? paintSelectedScrew : paintScrew,
+        isActive ? screwRadius * 1.25 : screwRadius,
+        isActive ? activePaint : inActivePaint,
       );
-    });
-  }
-
-  void drawOrientationText(
-    String text,
-    Canvas canvas,
-    double maxX,
-    double maxY,
-  ) {
-    var themeData = Theme.of(context);
-    TextSpan span = TextSpan(
-      text: text,
-      style: themeData.textTheme.bodyLarge?.copyWith(
-        fontWeight: FontWeight.w900,
-        backgroundColor: themeData.colorScheme.surface,
-      ),
-    );
-    TextPainter tp = TextPainter(
-      text: span,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    );
-    tp.layout(minWidth: 0, maxWidth: maxX);
-
-    Offset offset = Offset((maxX - tp.width) / 2, (maxY - tp.height));
-
-    tp.paint(canvas, offset);
-  }
-
-  void drawNoDataText(Canvas canvas, double maxX, double maxY) {
-    TextSpan span = TextSpan(
-      text: 'dialogs.exclude_object.no_visualization'.tr(),
-      style: Theme.of(context).textTheme.headlineMedium,
-    );
-    TextPainter tp = TextPainter(
-      text: span,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    );
-    tp.layout(minWidth: 0, maxWidth: maxX);
-    tp.paint(canvas, Offset((maxX - tp.width) / 2, (maxY - tp.height) / 2));
-  }
-
-  void drawYLines(double maxY, Canvas myCanvas, double maxX, Paint paintBg) {
-    for (int i = 1; i < _maxYBed ~/ bgLineDis; i++) {
-      var y = (bgLineDis * i) / _maxYBed * maxY;
-      myCanvas.drawLine(Offset(0, y), Offset(maxX, y), paintBg);
     }
-  }
 
-  void drawXLines(double maxX, Canvas myCanvas, double maxY, Paint paintBg) {
-    for (int i = 1; i < _maxXBed ~/ bgLineDis; i++) {
-      var x = (bgLineDis * i) / _maxXBed * maxX;
-      myCanvas.drawLine(Offset(x, 0), Offset(x, maxY), paintBg);
-    }
-  }
-
-  double correctY(double y) => _maxYBed - y;
-
-  Path constructPath(List<vec.Vector2> polygons, double maxX, double maxY) {
-    var path = Path();
-    vec.Vector2 start = polygons.first;
-    path.moveTo(start.x / _maxXBed * maxX, correctY(start.y) / _maxYBed * maxY);
-    for (vec.Vector2 poly in polygons) {
-      path.lineTo(poly.x / _maxXBed * maxX, correctY(poly.y) / _maxYBed * maxY);
-    }
-    path.close();
-    return path;
+    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(_BedScrewIndicatorPainter oldDelegate) {
+    return oldDelegate.activeScrew != activeScrew;
   }
 }
