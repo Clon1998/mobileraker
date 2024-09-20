@@ -206,6 +206,14 @@ pages:
         select_spool: Spule auswählen
         used: 'Benutzt: {}'
         provider_error_title: Fehler beim Laden der Spoolman Daten
+      gcode_preview_card:
+        title: GCode Vorschau
+        follow: Druckkopf folgen
+        kinematic_not_supported: Derzeit unterstützt die App das GCode-Rendering für das Bewegungssystem dieses Druckers nicht.
+        start_preview:
+          btn: Vorschau starten
+          hint: Die Anwendung lädt die aktive Druckdatei herunter und versucht, sie zu rendern.
+
   customizing_dashboard:
     title: Dashboard-Layout Personalisieren
     cancel_confirm:

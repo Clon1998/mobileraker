@@ -57,7 +57,7 @@ class _Body extends HookConsumerWidget {
 
     Widget content = switch (downloadState) {
       AsyncSnapshot(hasData: true, data: FileDownloadComplete(:final file)) =>
-        GcodePreviewWithControls(machineUUID: machineUUID, gcodeFile: file),
+        GCodePreviewWithControls(machineUUID: machineUUID, gcodeFile: file),
       AsyncSnapshot(hasData: true, data: FileOperationProgress(:final progress)) => Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

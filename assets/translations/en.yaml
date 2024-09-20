@@ -208,6 +208,14 @@ pages:
         select_spool: Select Spool
         used: 'Used: {}'
         provider_error_title: Error fetching Spoolman data
+      gcode_preview_card:
+        title: GCode Preview
+        follow: Follow Progress
+        kinematic_not_supported: Currently the app does not support GCode rendering for the kinematic system of this printer.
+        start_preview:
+          btn: Start Preview
+          hint: The app will download the active print file and try to render it.
+
   customizing_dashboard:
     title: Personalize Dashboard
     cancel_confirm:

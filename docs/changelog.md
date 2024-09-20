@@ -6,6 +6,8 @@
 
 - **GCode Viewer**: This version adds a 2D-GCode viewer to the app. The viewer allows you to preview your GCode files
   directly in the app. The viewer supports can help you to inspect a GCode file layer by layer.
+- **Follow Print GCode**: In addition to the general GCode viewer, we added a new dashboard card that allows you to
+  follow the print progress of a GCode file. The card shows the current layer and the progress of the print.
 
 ### Enhancements
 

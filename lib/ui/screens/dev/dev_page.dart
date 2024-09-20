@@ -32,11 +32,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_with_controls.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../overview/components/printer_card.dart';
 
 part 'dev_page.g.dart';
 
@@ -56,7 +55,9 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-        const _StlPreview(),
+        GCodePreviewCard.preview(),
+        GCodePreviewCard(machineUUID: selMachine.uuid),
+        // const _StlPreview(),
         // const _Consent(),
 
         // ControlExtruderCard(machineUUID: selMachine.uuid),
@@ -80,7 +81,7 @@ class DevPage extends HookConsumerWidget {
         //   adSize: AdSize.fluid,
         // ),
         // const _TestAd(),
-        PrinterCard(selMachine),
+        // PrinterCard(selMachine),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
@@ -337,7 +338,7 @@ class _StlPreview extends HookConsumerWidget {
 
     return Container(
       // color: Colors.red,
-      child: GcodePreviewWithControls(
+      child: GCodePreviewWithControls(
         machineUUID: selectedMachine.uuid,
         gcodeFile: file.requireData,
       ),

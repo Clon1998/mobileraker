@@ -40,5 +40,7 @@ enum DashboardComponentType {
   @HiveField(14)
   firmwareRetraction,
   @HiveField(15)
-  bedMesh;
+  bedMesh,
+  @HiveField(16)
+  gcodePreview;
 }

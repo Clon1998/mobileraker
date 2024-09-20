@@ -47,6 +47,7 @@ class DashboardCardsBottomSheet extends HookWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: FittedBox(
+                    key: Key(e.name),
                     child: SizedBox(
                       width: width,
                       child: AbsorbPointer(
