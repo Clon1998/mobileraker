@@ -63,6 +63,7 @@ abstract class PrintBedPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Before drawing anything, save the canvas state to restore it later
     final myCanvas = canvas;
 
     final canvasWidth = size.width;
@@ -70,9 +71,7 @@ abstract class PrintBedPainter extends CustomPainter {
     final scaleX = canvasWidth / bedWidth;
     final scaleY = canvasHeight / bedHeight;
 
-    final logoTransform = Matrix4.identity()
-      ..scale(bedWidth / 512, -1 * (bedHeight / 512))
-      ..translate(0.0, -512.0);
+    final logoTransform = Matrix4.identity()..scale(size.width / 512, (size.height / 512));
 
     final scaleMatrix = Matrix4.identity()
       ..scale(scaleX, -scaleY) // Scale X normally, but flip Y with -scaleY
@@ -90,12 +89,14 @@ abstract class PrintBedPainter extends CustomPainter {
 
     // Draw Background as Surface Color
     myCanvas.drawPaint(backgroundPaint);
+    if (renderLogo) myCanvas.drawPath(mrLogoPath.transform(logoTransform.storage), logoPaint);
+
+    canvas.save();
 
     // Apply the scale matrix to be able to draw in klipper(bed) coordinates
     myCanvas.transform(scaleMatrix.storage);
 
     // Draw the background elements
-    if (renderLogo) myCanvas.drawPath(mrLogoPath.transform(logoTransform.storage), logoPaint);
     if (renderGrid) myCanvas.drawPath(constructGrid(), gridPaint);
     if (renderGrid) myCanvas.drawPath(constructGrid(50), gridPaint);
     if (renderAxis) myCanvas.drawPath(constructAxis(), axisPaint);
