@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 
 import '../../util/painter_utils.dart';
@@ -71,11 +73,19 @@ abstract class PrintBedPainter extends CustomPainter {
     final scaleX = canvasWidth / bedWidth;
     final scaleY = canvasHeight / bedHeight;
 
-    final logoTransform = Matrix4.identity()..scale(size.width / 512, (size.height / 512));
+    // logger.w('BED: $bedWidth x $bedHeight, CANVAS: $canvasWidth x $canvasHeight, SCALE: $scaleX x $scaleY');
+    // logger.w('Offset: X:$bedXOffset Y:$bedYOffset');
+
+    // Calculate the scale factor for the logo
+    final double logoSize = min(canvasWidth, canvasHeight);
+    final logoScale = logoSize / 512; // Assuming the original logo size is 512x512
+    final logoTransform = Matrix4.identity()
+      ..translate((canvasWidth - logoSize) / 2, (canvasHeight - logoSize) / 2) // Center the logo
+      ..scale(logoScale, logoScale);
 
     final scaleMatrix = Matrix4.identity()
       ..scale(scaleX, -scaleY) // Scale X normally, but flip Y with -scaleY
-      ..translate(0.0 - bedXOffset, -bedHeight + bedYOffset); // Translate to correct the Y offset
+      ..translate(0.0 - bedXOffset, -bedHeight - bedYOffset); // Translate to correct the Y offset
 
     final backgroundPaint = filledPaint(backgroundColor);
     final logoPaint = filledPaint(logoColor);
