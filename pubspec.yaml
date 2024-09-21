@@ -67,26 +67,25 @@ dependencies:
   go_transitions: ^0.7.0
 
   #util
-  rxdart: ^0.27.3
+  rxdart: ^0.28.0
   stringr: ^1.0.0
   vector_math: ^2.1.4
   enum_to_string: ^2.0.1
   url_launcher: ^6.1.6
   logger: ^1.3.0
   permission_handler: ^11.0.0
-  collection: ^1.17.0
+  collection: ^1.18.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
   flutter_audio_capture: ^1.1.8
 
   #crypto
   hashlib_codecs: ^2.2.0
-  hashlib: ^1.12.0
+  hashlib: ^1.21.0
   pem: ^2.0.4
 
   #persistent
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
+  hive_ce_flutter: ^2.1.0
   flutter_secure_storage: ^9.0.0
   share_plus: ^7.1.0
   path_provider: ^2.1.0
@@ -117,7 +116,7 @@ dependencies:
   easy_localization_loader: ^2.0.2
 
   #purchases
-  purchases_flutter: ^7.0.1
+  purchases_flutter: ^8.1.2
 
   #rating
   rate_my_app: ^2.0.0
@@ -169,14 +168,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.4.9
-  hive_generator: ^2.0.0
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
   freezed: ^2.5.2
   mockito: ^5.3.2
   json_serializable: ^6.4.1
-  riverpod_generator: ^2.4.0
+  riverpod_generator: ^2.4.3
   # riverpod_lint makes it easier to work with Riverpod
-  riverpod_lint: ^2.3.10
+  riverpod_lint: ^2.3.13
   # import custom_lint too as riverpod_lint depends on it
   custom_lint: ^0.6.4
   flutter_native_splash: ^2.2.19

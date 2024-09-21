@@ -5,7 +5,7 @@
 
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../util/logger.dart';

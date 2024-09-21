@@ -4,7 +4,7 @@
  */
 
 import 'package:collection/collection.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import 'gcode_macro.dart';

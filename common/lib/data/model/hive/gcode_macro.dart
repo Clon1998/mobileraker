@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 part 'gcode_macro.g.dart';

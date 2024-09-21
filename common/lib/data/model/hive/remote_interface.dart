@@ -4,7 +4,7 @@
  */
 
 import 'package:collection/collection.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'remote_interface.g.dart';
 

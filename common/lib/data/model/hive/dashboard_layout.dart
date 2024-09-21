@@ -5,7 +5,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 
 part 'dashboard_layout.g.dart';

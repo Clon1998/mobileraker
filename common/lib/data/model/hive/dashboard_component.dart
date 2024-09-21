@@ -4,7 +4,7 @@
  */
 
 import 'package:common/data/model/hive/dashboard_component_type.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 part 'dashboard_component.g.dart';
