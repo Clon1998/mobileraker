@@ -1271,7 +1271,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              r'^\w?[\w .-]*[\w-]$',
+              RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
             notContains(
@@ -1523,7 +1523,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              r'^\w?[\w .-]*[\w-]$',
+              RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
             notContains(
@@ -1624,7 +1624,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              r'^\w?[\w .-]*[\w-]$',
+              RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
           ]),
@@ -1913,7 +1913,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              r'^\w?[\w .-]*[\w-]$',
+              RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
             notContains(
@@ -1950,7 +1950,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              r'^\w?[\w .-]*[\w-]$',
+              RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
           ]),

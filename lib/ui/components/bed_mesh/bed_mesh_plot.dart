@@ -104,7 +104,7 @@ class BedMeshPlot extends StatelessWidget {
               tooltipHorizontalOffset: 10,
               fitInsideHorizontally: true,
               fitInsideVertically: true,
-              tooltipBgColor: tooltipBackground,
+              getTooltipColor: (_) => tooltipBackground,
               getTooltipItems: (touchedSpot) {
                 _ZScatterSpot spot = touchedSpot as _ZScatterSpot;
                 return ScatterTooltipItem(
