@@ -25,8 +25,8 @@ environment:
 dependency_overrides:
   intl: ^0.18.1 # required due to awesome notifications and formbuilder
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
-  firebase_crashlytics: ^4.1.2 # because of awesome_notifications_fcm >=0.9.3 depends on firebase_crashlytics ^3.4.19
-  firebase_core: ^3.5.0 # because awesome_notifications_fcm >=0.9.3 depends on firebase_core ^2.27.1
+  firebase_crashlytics: ^4.0.4 # because of awesome_notifications_fcm >=0.9.3 depends on firebase_crashlytics ^3.4.19
+  firebase_core: ^3.3.0 # because awesome_notifications_fcm >=0.9.3 depends on firebase_core ^2.27.1
 
   # used by appinio_video_player, this fixes an issue with gradle
   cached_video_player:
@@ -47,13 +47,13 @@ dependencies:
 
   #firebase
   firebase_core_platform_interface: ^5.3.0
-  firebase_core: ^3.5.0
-  firebase_analytics: ^11.3.2
-  firebase_app_check: ^0.3.1+2
-  firebase_crashlytics: ^4.1.2
-  firebase_remote_config: ^5.1.2
-  cloud_firestore: ^5.4.2
-  firebase_auth: ^5.3.0
+  firebase_core: ^3.3.0
+  firebase_analytics: ^11.2.1
+  firebase_app_check: ^0.3.0+4
+  firebase_crashlytics: ^4.0.4
+  firebase_remote_config: ^5.0.4
+  cloud_firestore: ^5.2.1
+  firebase_auth: ^5.1.4
 
   #architecture
   freezed_annotation: ^2.4.1
