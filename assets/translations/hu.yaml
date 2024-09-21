@@ -6,7 +6,7 @@ general:
   'off': 'Ki'
   'on': 'Be'
   none: Nincs
-  add: Hozzáadás
+  add: Hozzáad
   create: Létrehozás
   rename: Átnevezés
   remove: Törlés
@@ -297,6 +297,7 @@ pages:
         body: A fájl(ok) sikeresen átkerültek a '{}' címre.
       move_failed:
         title: Mozgatás sikertelen
+        body: Hiba történt a fájl(ok) mozgatása közben. Kérjük, próbálja újra később.
     search_files: Keresés mappában
     search:
       clear_search: Keresés törlése
@@ -881,6 +882,15 @@ components:
   obico_indicator:
     tooltip: Obico Tunnel használata!
   gcode_preview:
+    layer:
+      one: Réteg
+      other: Rétegek
+    move:
+      one: Mozgatás
+      other: Mozgások
+    downloading:
+      starting: Várom a letöltés megkezdését…
+      progress: G-kód fájl letöltése ({})…
     parsing:
       setting_up: G-kód elemző beállítása…
       progress: G-kód elemzése ({})…
