@@ -206,6 +206,13 @@ pages:
         select_spool: Orsó kiválasztása
         used: 'Használt: {}'
         provider_error_title: Hiba az Orsómester adatainak lekérdezésében
+      gcode_preview_card:
+        title: G-kód Előnézet
+        follow: Folyamat követése
+        kinematic_not_supported: Jelenleg az alkalmazás nem támogatja a G-kód renderelést a nyomtató kinematikai rendszeréhez.
+        start_preview:
+          btn: Előnézet indítása
+          hint: Az alkalmazás letölti az aktív nyomtatási fájlt, és megpróbálja megjeleníteni.
   customizing_dashboard:
     title: Műszerfal testreszabása
     cancel_confirm:
@@ -285,6 +292,9 @@ pages:
       copy_created:
         title: Másolat létrehozva
         body: A másolat sikeresen létrejött a '{}' címen.
+      move_success:
+        title: Mozgatás sikeres
+        body: A fájl(ok) sikeresen átkerültek a '{}' címre.
     search_files: Keresés mappában
     search:
       clear_search: Keresés törlése
@@ -868,6 +878,18 @@ components:
     tooltip: Távoli kapcsolat használata!
   obico_indicator:
     tooltip: Obico Tunnel használata!
+  gcode_preview:
+    parsing:
+      setting_up: G-kód elemző beállítása…
+      progress: G-kód elemzése ({})…
+      canceled: A G-kód elemzése megszakadt!
+      error:
+        title: Hiba a G-kód elemzésekor!
+        body: Hiba a G-kód elemzésekor. Kérjük, próbáld újra. Ha a probléma továbbra is fennáll, kérjük, nyiss probléma jelentést a GitHubon, és csatold a G-kód fájlt.
+    error:
+      config:
+        title: Hiba a nyomtató konfiguráció lekérésében!
+        body: Hiba történt a nyomtató konfigurációja lekérdezése során. Győződj meg róla, hogy elérhető és a Mobileraker csatlakoztatva van.
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
