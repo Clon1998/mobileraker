@@ -295,6 +295,8 @@ pages:
       move_success:
         title: Mozgatás sikeres
         body: A fájl(ok) sikeresen átkerültek a '{}' címre.
+      move_failed:
+        title: Mozgatás sikertelen
     search_files: Keresés mappában
     search:
       clear_search: Keresés törlése
