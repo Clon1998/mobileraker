@@ -1752,7 +1752,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       return;
     }
 
-    bool setToken = false;
     try {
       var fileToDownload = file.absolutPath;
       int? fileToDownloadSize = file.size;
@@ -1764,8 +1763,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         fileToDownload = zip;
         fileToDownloadSize = res?.size;
       }
-      final downloadStream =
-          _fileService.downloadFile(filePath: fileToDownload, expectedFileSize: fileToDownloadSize).distinct((a, b) {
+      _downloadToken = CancelToken();
+      final downloadStream = _fileService
+          .downloadFile(filePath: fileToDownload, expectedFileSize: fileToDownloadSize, cancelToken: _downloadToken)
+          .distinct((a, b) {
         // If both are Download Progress, only update in 0.01 steps:
         const epsilon = 0.01;
         if (a is FileOperationProgress && b is FileOperationProgress) {
@@ -1776,7 +1777,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       });
 
       await for (var download in downloadStream) {
-        if (!setToken) _downloadToken = download.token;
         state = state.copyWith(download: download);
       }
 
@@ -1822,7 +1822,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       return;
     }
 
-    bool setToken = false;
     try {
       final zipName = '${_zipDateFormat.format(DateTime.now())}.zip';
       final zipPath = '${files.first.parentPath}/$zipName';
@@ -1831,7 +1830,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       final zip = await _handleZipOperation(zipPath, files.map((e) => e.absolutPath).toList(), false);
       if (zip == null) return;
 
-      final downloadStream = _fileService.downloadFile(filePath: zipPath, expectedFileSize: zip.size).distinct((a, b) {
+      _downloadToken = CancelToken();
+      final downloadStream = _fileService
+          .downloadFile(filePath: zipPath, expectedFileSize: zip.size, cancelToken: _downloadToken)
+          .distinct((a, b) {
         // If both are Download Progress, only update in 0.01 steps:
         const epsilon = 0.01;
         if (a is FileOperationProgress && b is FileOperationProgress) {
@@ -1842,7 +1844,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       });
 
       await for (var download in downloadStream) {
-        if (!setToken) _downloadToken = download.token;
         state = state.copyWith(download: download);
       }
 
@@ -1977,11 +1978,10 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   //////////////////// MISC ////////////////////
   Future<bool> _handleFileUpload(String path, MultipartFile toUpload) async {
     try {
-      final uploadStream = _fileService.uploadFile(path, toUpload);
+      _uploadToken = CancelToken();
+      final uploadStream = _fileService.uploadFile(path, toUpload, _uploadToken);
 
-      bool setToken = false;
       await for (var update in uploadStream) {
-        if (!setToken) _uploadToken = update.token;
         state = state.copyWith(upload: update);
       }
 

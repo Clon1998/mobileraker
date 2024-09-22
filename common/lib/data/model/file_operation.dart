@@ -5,29 +5,22 @@
 
 import 'dart:io';
 
-import 'package:dio/dio.dart';
-
-sealed class FileOperation {
-  CancelToken get token;
-}
+sealed class FileOperation {}
 
 class FileOperationProgress extends FileOperation {
-  FileOperationProgress(this.progress, {required this.token});
+  FileOperationProgress(this.progress);
 
   final double progress;
-  @override
-  final CancelToken token;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FileOperationProgress &&
           runtimeType == other.runtimeType &&
-          (identical(progress, other.progress) || progress == other.progress) &&
-          (identical(token, other.token) || token == other.token);
+          (identical(progress, other.progress) || progress == other.progress);
 
   @override
-  int get hashCode => Object.hash(progress, token);
+  int get hashCode => Object.hash(runtimeType, progress);
 
   @override
   String toString() {
@@ -36,13 +29,10 @@ class FileOperationProgress extends FileOperation {
 }
 
 class FileOperationKeepAlive extends FileOperation {
-  FileOperationKeepAlive({required this.token, required this.bytes}) : timeStamp = DateTime.now();
+  FileOperationKeepAlive({required this.bytes}) : timeStamp = DateTime.now();
   final DateTime timeStamp;
 
   final int bytes; // How much data was transferred since the last keep alive (Up or download)
-
-  @override
-  final CancelToken token;
 
   @override
   bool operator ==(Object other) =>
@@ -50,11 +40,10 @@ class FileOperationKeepAlive extends FileOperation {
       other is FileOperationKeepAlive &&
           runtimeType == other.runtimeType &&
           (identical(timeStamp, other.timeStamp) || timeStamp == other.timeStamp) &&
-          (identical(bytes, other.bytes) || bytes == other.bytes) &&
-          (identical(token, other.token) || token == other.token);
+          (identical(bytes, other.bytes) || bytes == other.bytes);
 
   @override
-  int get hashCode => Object.hash(timeStamp, token, bytes);
+  int get hashCode => Object.hash(runtimeType, timeStamp, bytes);
 
   @override
   String toString() {
@@ -63,44 +52,35 @@ class FileOperationKeepAlive extends FileOperation {
 }
 
 class FileOperationCanceled extends FileOperation {
-  FileOperationCanceled({required this.token});
-
-  @override
-  final CancelToken token;
-
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FileOperationCanceled &&
-          runtimeType == other.runtimeType &&
-          (identical(token, other.token) || token == other.token);
+      identical(this, other) || other is FileOperationCanceled && runtimeType == other.runtimeType;
 
   @override
-  int get hashCode => token.hashCode;
+  int get hashCode => runtimeType.hashCode;
 
   @override
   String toString() {
-    return 'FileOperationCanceled{token: $token}';
+    return 'FileOperationCanceled{}';
   }
 }
 
 class FileDownloadComplete extends FileOperation {
-  FileDownloadComplete(this.file, {required this.token});
+  FileDownloadComplete(
+    this.file,
+  );
 
   final File file;
-  @override
-  final CancelToken token;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FileDownloadComplete &&
           runtimeType == other.runtimeType &&
-          (identical(file, other.file) || file == other.file) &&
-          (identical(token, other.token) || token == other.token);
+          (identical(file, other.file) || file == other.file);
 
   @override
-  int get hashCode => Object.hash(file, token);
+  int get hashCode => Object.hash(runtimeType, file);
 
   @override
   String toString() {
@@ -109,22 +89,21 @@ class FileDownloadComplete extends FileOperation {
 }
 
 class FileUploadComplete extends FileOperation {
-  FileUploadComplete(this.uploadPath, {required this.token});
+  FileUploadComplete(
+    this.uploadPath,
+  );
 
   final String uploadPath;
-  @override
-  final CancelToken token;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is FileUploadComplete &&
           runtimeType == other.runtimeType &&
-          (identical(uploadPath, other.uploadPath) || uploadPath == other.uploadPath) &&
-          (identical(token, other.token) || token == other.token);
+          (identical(uploadPath, other.uploadPath) || uploadPath == other.uploadPath);
 
   @override
-  int get hashCode => Object.hash(uploadPath, token);
+  int get hashCode => Object.hash(runtimeType, uploadPath);
 
   @override
   String toString() {

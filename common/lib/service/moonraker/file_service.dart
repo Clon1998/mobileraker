@@ -398,17 +398,16 @@ class FileService {
   }
 
   Stream<FileOperation> downloadFile(
-      {required String filePath, int? expectedFileSize, bool overWriteLocal = false}) async* {
+      {required String filePath, int? expectedFileSize, bool overWriteLocal = false, CancelToken? cancelToken}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
-    final token = CancelToken();
 
     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
     if (!overWriteLocal &&
         await file.exists() &&
         DateTime.now().difference(await file.lastModified()) < const Duration(minutes: 60)) {
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
-      yield FileDownloadComplete(file, token: token);
+      yield FileDownloadComplete(file);
       return;
     }
 
@@ -419,7 +418,7 @@ class FileService {
     _dio.download(
       '/server/files/$filePath',
       file.path,
-      cancelToken: token,
+      cancelToken: cancelToken,
       onReceiveProgress: (received, total) {
         if (total <= 0 && expectedFileSize != null) {
           total = expectedFileSize;
@@ -432,20 +431,20 @@ class FileService {
             Future.delayed(const Duration(seconds: 1), () {
               debounceKeepAlive?.complete(true);
             });
-            updateProgress.add(FileOperationKeepAlive(token: token, bytes: received));
+            updateProgress.add(FileOperationKeepAlive(bytes: received));
           }
           return;
         }
         // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
-        updateProgress.add(FileOperationProgress((received / total).clamp(0.0, 1.0), token: token));
+        updateProgress.add(FileOperationProgress((received / total).clamp(0.0, 1.0)));
       },
     ).then((response) {
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" completed');
-      updateProgress.add(FileDownloadComplete(file, token: token));
+      updateProgress.add(FileDownloadComplete(file));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
         logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" was canceled');
-        updateProgress.add(FileOperationCanceled(token: token));
+        updateProgress.add(FileOperationCanceled());
       } else {
         logger.e(
             '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while downloading file "$filePath" caught in catchError',
@@ -458,14 +457,13 @@ class FileService {
     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File download completed');
   }
 
-  Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent) async* {
+  Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent, [CancelToken? cancelToken]) async* {
     assert(!filePath.startsWith(r'(gcodes|config)'), 'filePath needs to contain root folder config or gcodes!');
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
     final data = FormData.fromMap({'root': root, 'file': uploadContent});
 
     final StreamController<FileOperation> updateStream = StreamController();
-    final token = CancelToken();
 
     logger.i(
         '[FileService($_machineUUID, ${_jRpcClient.uri})] Starting upload of ${uploadContent.filename ?? 'unknown'} to $filePath');
@@ -477,7 +475,7 @@ class FileService {
       data: data,
       options: Options(validateStatus: (status) => status == 201, receiveTimeout: _apiRequestTimeout)
         ..disableRetry = true,
-      cancelToken: token,
+      cancelToken: cancelToken,
       onSendProgress: (sent, total) {
         if (total <= 0) {
           // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
@@ -487,12 +485,12 @@ class FileService {
             Future.delayed(const Duration(seconds: 1), () {
               debounceKeepAlive?.complete(true);
             });
-            updateStream.add(FileOperationKeepAlive(token: token, bytes: sent));
+            updateStream.add(FileOperationKeepAlive(bytes: sent));
           }
           return;
         }
         // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
-        updateStream.add(FileOperationProgress(sent / total, token: token));
+        updateStream.add(FileOperationProgress(sent / total));
       },
     ).then((response) {
       final res = FileActionResponse.fromJson(response.data);
@@ -500,11 +498,11 @@ class FileService {
           '[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of ${uploadContent.filename ?? 'unknown'} to $filePath completed');
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Response: $res');
 
-      updateStream.add(FileUploadComplete(res.item.fullPath, token: token));
+      updateStream.add(FileUploadComplete(res.item.fullPath));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
         logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of "$filePath" was canceled');
-        updateStream.add(FileOperationCanceled(token: token));
+        updateStream.add(FileOperationCanceled());
       } else {
         logger.e(
             '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while uploading file "$filePath" caught in catchError',
