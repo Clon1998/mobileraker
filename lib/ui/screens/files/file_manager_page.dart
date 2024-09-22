@@ -1794,12 +1794,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         'mp4' => 'video/mp4',
         _ => 'text/plain',
       };
-
-      await Share.shareXFiles(
-        [XFile(downloadedFilePath, mimeType: mimeType)],
-        subject: file.name,
-        sharePositionOrigin: origin,
-      ).catchError((_) => null);
+      try {
+        await Share.shareXFiles(
+          [XFile(downloadedFilePath, mimeType: mimeType)],
+          subject: file.name,
+          sharePositionOrigin: origin,
+        );
+      } catch (e) {
+        logger.e('Could not share file', e);
+      }
     } catch (e, s) {
       _onOperationError(e, s, 'download');
     } finally {
@@ -1850,11 +1853,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
       final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
 
-      await Share.shareXFiles(
-        [XFile(downloadedFilePath, mimeType: 'application/zip')],
-        subject: zipName,
-        sharePositionOrigin: origin,
-      ).catchError((_) => null);
+      try {
+        await Share.shareXFiles(
+          [XFile(downloadedFilePath, mimeType: 'application/zip')],
+          subject: zipName,
+          sharePositionOrigin: origin,
+        );
+      } catch (e) {
+        logger.e('Could not share file', e);
+      }
     } catch (e, s) {
       _onOperationError(e, s, 'download');
     } finally {
