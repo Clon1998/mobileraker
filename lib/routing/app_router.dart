@@ -195,9 +195,10 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: 'gcode-preview',
             name: AppRoute.fileManager_exlorer_gcodePreview.name,
-            builder: (context, state) => GcodePreviewPage(
+            builder: (context, state) => GCodePreviewPage(
               machineUUID: state.uri.queryParameters['machineUUID']!,
               file: state.extra as GCodeFile,
+              live: state.uri.queryParameters['live'] == 'true',
             ),
             pageBuilder: GoTransitions.fullscreenDialog,
           ),
