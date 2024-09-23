@@ -237,14 +237,14 @@ class _LivePreview extends HookConsumerWidget {
                 TextSpan(text: tr('components.gcode_preview.layer.one')),
                 const TextSpan(text: ': '),
                 TextSpan(
-                  text: '${tr('components.gcode_preview.layer.one')} $layerText',
+                  text: layerText,
                   style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const TextSpan(text: '\n'),
                 TextSpan(text: tr('components.gcode_preview.move.one')),
                 const TextSpan(text: ': '),
                 TextSpan(
-                  text: '${tr('components.gcode_preview.move.one')} $moveText',
+                  text: moveText,
                   style: themeData.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
