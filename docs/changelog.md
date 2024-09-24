@@ -2,21 +2,27 @@
 
 ## [2.7.6] - 2024-09-Xx
 
+## [2.7.6] - 2024-09-XX
+
 ### New Features
 
-- **GCode Viewer**: This version adds a 2D-GCode viewer to the app. The viewer allows you to preview your GCode files
-  directly in the app. The viewer supports can help you to inspect a GCode file layer by layer.
-- **Follow Print GCode**: In addition to the general GCode viewer, we added a new dashboard card that allows you to
-  follow the print progress of a GCode file. The card shows the current layer and the progress of the print.
+- **GCode Viewer**: Added a 2D GCode viewer, allowing you to preview GCode files directly within the app. The viewer
+  supports layer-by-layer inspection, making it easier to analyze GCode files visually.
+  *Note: This feature is available exclusively for "Supporters".*
+
+- **Follow Print GCode**: A new dashboard card has been introduced, enabling you to monitor the print progress of a
+  GCode file. The card displays the current layer and overall print progress in real-time.
+  *Note: This feature is available exclusively for "Supporters".*
 
 ### Enhancements
 
-- **File Download**: The file download was improved to show thw download progress in more cases.
+- **File Download Progress**: Enhanced the file download process to display progress more reliably across various
+  scenarios, providing better user feedback.
 
 ### Bug Fixes
 
-- **Archive Files**: The file manager will now start to download archives (zip files) instead of trying to display them
-  when tapping on them.
+- **Archive File Handling**: Resolved an issue where tapping on archive files (such as zip files) in the file manager
+  would attempt to open them instead of downloading.
 
 ## [2.7.5] - 2024-09-12
 
