@@ -111,6 +111,10 @@ pages:
     empty_folder:
       title: Deze map is leeg
     search_files: Bestanden zoeken
+    timelapse_tab: Timelapses
+    element:
+      one: Element
+      other: Elementen
     details:
       preheat: Voorverwarmen
       print: Printen

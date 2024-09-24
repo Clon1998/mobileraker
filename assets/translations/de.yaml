@@ -213,7 +213,6 @@ pages:
         start_preview:
           btn: Vorschau starten
           hint: Die Anwendung lädt die aktive Druckdatei herunter und versucht, sie zu rendern.
-
   customizing_dashboard:
     title: Dashboard-Layout Personalisieren
     cancel_confirm:
@@ -901,7 +900,6 @@ components:
         title: Fehler beim Abrufen der Druckerkonfiguration!
         body: Beim Abrufen der Druckerkonfiguration ist ein Fehler aufgetreten. Stellen Sie sicher,
           dass die Maschine erreichbar ist und Mobileraker verbunden ist.
-
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
@@ -1182,11 +1180,8 @@ bottom_sheets:
   bedMesh:
     no_mesh_loaded: Es wurde noch kein Bettnetz geladen.
     load_bed_mesh_profile: Bettnetz Profil laden
-    currently_active: 'Derzeit aktiv: {}'
-    no_profile_active: Kein aktives Profil
     no_mesh: Kein Netz
     clear_loaded_profile: Geladenes Profil zurücksetzen
-    range_between_highest_and_lowest_point: Abstand zwischen höchstem und tiefstem Punkt
     cant_render: Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch nicht unterstützt.
   select_spool:
     header:
