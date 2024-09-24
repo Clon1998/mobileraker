@@ -27,6 +27,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
@@ -36,7 +37,6 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../routing/app_router.dart';
 import '../../components/bottomsheet/action_bottom_sheet.dart';
 import 'common_detail.dart';
 
@@ -482,7 +482,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         _generateAndShareQrCode(pos);
         break;
       case SpoolSpoolmanSheetAction.edit:
-        goRouterRef.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, spool]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_form_spool.name, extra: [machineUUID, spool]);
         break;
       case SpoolSpoolmanSheetAction.clone:
         clone(state.spool);

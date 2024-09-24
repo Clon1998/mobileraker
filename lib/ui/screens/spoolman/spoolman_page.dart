@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
@@ -34,7 +35,6 @@ import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../../../routing/app_router.dart';
 import '../../components/connection/machine_connection_guard.dart';
 import '../../components/machine_state_indicator.dart';
 
@@ -282,13 +282,13 @@ class _Fab extends ConsumerWidget {
 
         switch (currentIndex) {
           case 1:
-            context.goNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID]);
+            context.goNamed(ProRoutes.spoolman_form_filament.name, extra: [machineUUID]);
             break;
           case 2:
-            context.goNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID]);
+            context.goNamed(ProRoutes.spoolman_form_vendor.name, extra: [machineUUID]);
             break;
           default:
-            context.goNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID]);
+            context.goNamed(ProRoutes.spoolman_form_spool.name, extra: [machineUUID]);
         }
       },
       child: const Icon(Icons.add),
@@ -334,13 +334,13 @@ class _SpoolmanPageController extends _$SpoolmanPageController {
   void onEntryTap(SpoolmanIdentifiableDtoMixin dto) {
     switch (dto) {
       case GetSpool spool:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
+        ref.read(goRouterProvider).goNamed(ProRoutes.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
       case GetFilament filament:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
+        ref.read(goRouterProvider).goNamed(ProRoutes.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
       case GetVendor vendor:
-        ref.read(goRouterProvider).goNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
+        ref.read(goRouterProvider).goNamed(ProRoutes.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }
   }

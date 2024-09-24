@@ -17,7 +17,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
@@ -353,10 +353,10 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
     await Future.delayed(kThemeAnimationDuration);
     switch (res.data) {
       case FilamentSpoolmanSheetAction.edit:
-        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_form_filament.name, extra: [machineUUID, state]);
         break;
       case FilamentSpoolmanSheetAction.addSpool:
-        goRouterRef.pushNamed(AppRoute.spoolman_form_spool.name, extra: [machineUUID, state]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_form_spool.name, extra: [machineUUID, state]);
         break;
       case FilamentSpoolmanSheetAction.clone:
         clone(state);
