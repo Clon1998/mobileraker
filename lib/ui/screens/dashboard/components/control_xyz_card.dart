@@ -290,9 +290,8 @@ class _XYMotionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref
-        .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .requireValue;
+    var klippyCanReceiveCommands = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
     return Column(
@@ -345,9 +344,8 @@ class _ZMotionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref
-        .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .requireValue;
+    var klippyCanReceiveCommands = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
     return Column(
@@ -382,11 +380,8 @@ class _QuickActionsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref
-        .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .requireValue;
-    var directActions =
-        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.directActions)).requireValue;
+    var (klippyCanReceiveCommands, directActions) = ref.watch(_controlXYZCardControllerProvider(machineUUID)
+        .selectRequireValue((data) => (data.klippyCanReceiveCommands, data.directActions)));
 
     return OverflowView.flexible(
       // Either layout the children horizontally (the default)
@@ -427,9 +422,8 @@ class _MoreActionsPopup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var klippyCanReceiveCommands = ref
-        .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .requireValue;
+    var klippyCanReceiveCommands = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
     bool enabled = klippyCanReceiveCommands && moreActions.any((e) => e.callback != null);
 
@@ -480,12 +474,8 @@ class _StepSelectorWidget extends ConsumerWidget {
     var numberFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
 
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
-    var klippyCanReceiveCommands = ref
-        .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .requireValue;
-    var selected =
-        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
-    var steps = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
+    var (klippyCanReceiveCommands, selected, steps) = ref.watch(_controlXYZCardControllerProvider(machineUUID)
+        .selectRequireValue((data) => (data.klippyCanReceiveCommands, data.selected, data.steps)));
 
     return OverflowBar(
       alignment: MainAxisAlignment.spaceEvenly,

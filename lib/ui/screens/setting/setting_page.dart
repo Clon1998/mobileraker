@@ -71,12 +71,13 @@ class _Body extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListView(
-              children: <Widget>[
-                const _GeneralSection(),
-                const _UiSection(),
-                const _NotificationSection(),
-                const _DeveloperSection(),
-                const Divider(),
+              children: const <Widget>[
+                _GeneralSection(),
+                _UiSection(),
+                _NotificationSection(),
+                _DeveloperSection(),
+                Divider(),
+                _Footer(),
               ],
             ),
           ),
@@ -617,10 +618,12 @@ class _TimeFormatSelector extends ConsumerWidget {
       name: 'timeMode',
       items: [
         DropdownMenuItem(
+          // 24h
           value: false,
           child: Text(DateFormat.Hm().format(now)),
         ),
         DropdownMenuItem(
+          // FreedomUnit (12h)
           value: true,
           child: Text(DateFormat('h:mm a').format(now)),
         ),

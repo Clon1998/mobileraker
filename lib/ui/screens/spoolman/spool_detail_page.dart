@@ -534,7 +534,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
         subject: 'Spool QR',
         sharePositionOrigin: origin,
-      ).catchError((_) => null);
+      );
     } catch (e, s) {
       logger.e('Error while generating and sharing QR Code', e, s);
       snackBarServiceRef.show(SnackBarConfig.stacktraceDialog(

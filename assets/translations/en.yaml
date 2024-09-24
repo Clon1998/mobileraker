@@ -208,6 +208,14 @@ pages:
         select_spool: Select Spool
         used: 'Used: {}'
         provider_error_title: Error fetching Spoolman data
+      gcode_preview_card:
+        title: GCode Preview
+        follow: Follow Progress
+        kinematic_not_supported: Currently the app does not support GCode rendering for the kinematic system of this printer.
+        start_preview:
+          btn: Start Preview
+          hint: The app will download the active print file and try to render it.
+
   customizing_dashboard:
     title: Personalize Dashboard
     cancel_confirm:
@@ -262,6 +270,7 @@ pages:
       submit: Submit Print Job
       preheat: Preheat
       enqueue: Add to Print Queue
+      preview: Preview
     file_operation:
       download_canceled:
         title: Download canceled
@@ -287,6 +296,13 @@ pages:
       copy_created:
         title: Copy created
         body: The copy was successfully created at '{}'.
+      move_success:
+        title: Move successful
+        body: File(s) successfully moved to '{}'.
+      move_failed:
+        title: Move failed
+        body: An error occurred while trying to move the file(s). Please retry later.
+
     search_files: Search in folder
     search:
       clear_search: Clear search
@@ -921,6 +937,7 @@ components:
     custom_dashboard: Sorry, customizing the dashboard is only available to Supporters.
     full_file_management: Sorry, full file management (Download, Upload…) is only
       available to Supporters.
+    gcode_preview: Sorry, GCode preview is only available to Supporters.
   machine_deletion_warning:
     title: Machine Deletion
     subtitle: It seems like you are not a Supporter. Only supports can have more than
@@ -934,6 +951,30 @@ components:
     tooltip: Using Remote Connection!
   obico_indicator:
     tooltip: Using Obico Tunnel!
+  gcode_preview:
+    layer:
+      one: Layer
+      other: Layers
+    move:
+      one: Move
+      other: Moves
+    downloading:
+      starting: Awaiting download to start…
+      progress: Downloading GCode File ({})…
+    parsing:
+      setting_up: Setting up GCode Parser…
+      progress: Parsing GCode ({})…
+      canceled: GCodes parsing was canceled!
+      error:
+        title: Error parsing GCode!
+        body: An error occurred while trying to parse the GCode. Please retry. If the
+          issue persists, please open an issue on GitHub and attach the GCode file.
+    error:
+      config:
+        title: Error fetching printer config!
+        body: An error occurred while trying to fetch the printer config Ensure the
+          machine is reachable and Mobileraker is connected to it.
+
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?
@@ -1176,7 +1217,7 @@ bottom_sheets:
         you have a reverse proxy connection to your printer, or if you have a secondary
         IP address that you can use to connect to your printer.
       address_label: Alternative Address
-      address_hint: The base adress of the remote connection to be used
+      address_hint: The base address of the remote connection to be used
     obico:
       service_name: Obico
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
@@ -1241,11 +1282,8 @@ bottom_sheets:
   bedMesh:
     no_mesh_loaded: No bed mesh has been loaded yet.
     load_bed_mesh_profile: Load Bed Mesh Profile
-    currently_active: 'Currently active: {}'
-    no_profile_active: No profile active
     no_mesh: No Mesh
     clear_loaded_profile: Clear loaded profile
-    range_between_highest_and_lowest_point: Range between highest and lowest point
     cant_render: Rendering of the bed mesh for the printer's kinematics is not supported
       yet.
   select_spool:

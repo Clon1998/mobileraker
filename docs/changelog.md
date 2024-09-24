@@ -1,5 +1,29 @@
 # Mobileraker - Changelog
 
+## [2.7.6] - 2024-09-XX
+
+### New Features
+
+- **GCode Viewer**: Added a 2D GCode viewer, allowing you to preview GCode files directly within the app. The viewer
+  supports layer-by-layer inspection, making it easier to analyze GCode files visually.
+  *Note: This feature is available exclusively for "Supporters".*
+
+- **Follow Print GCode**: A new dashboard card has been introduced, enabling you to monitor the print progress of a
+  GCode file. The card displays the current layer and overall print progress in real-time.
+  *Note: This feature is available exclusively for "Supporters".*
+
+### Enhancements
+
+- **File Download Progress**: Enhanced the file download process to display progress more reliably across various
+  scenarios, providing better user feedback.
+- **Sliders No Longer Trigger Customization**: Adjusting sliders in the multipliers, limits, and firmware retraction
+  cards will no longer accidentally activate dashboard customization mode, ensuring a smoother user experience.
+
+### Bug Fixes
+
+- **Archive File Handling**: Resolved an issue where tapping on archive files (such as zip files) in the file manager
+  would attempt to open them instead of downloading.
+
 ## [2.7.5] - 2024-09-12
 
 ### Bug Fixes

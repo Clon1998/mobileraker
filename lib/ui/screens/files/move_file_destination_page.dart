@@ -307,7 +307,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.match(
-              '^[\\w.\\-]+\$',
+              RegExp('^[\\w.\\-]+\$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
             notContains(

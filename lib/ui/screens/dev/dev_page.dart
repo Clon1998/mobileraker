@@ -10,12 +10,14 @@
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+// import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+// import 'package:common/ui/components/ad_banner.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -24,13 +26,13 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+// import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../overview/components/printer_card.dart';
 
 part 'dev_page.g.dart';
 
@@ -50,7 +52,11 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-        // _Consent(),
+        // GCodePreviewCard.preview(),
+        GCodePreviewCard(machineUUID: selMachine.uuid),
+        // const _StlPreview(),
+        // const _Consent(),
+
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
         // PowerApiCardLoading(),
@@ -67,8 +73,12 @@ class DevPage extends HookConsumerWidget {
         // PinsCard.loading(),
         // PowerApiCard(machineUUID: selMachine.uuid),
         // PowerApiCard.loading(),
-        // _TestAd(),
-        PrinterCard(selMachine),
+        // const AdBanner(
+        //   constraints: const BoxConstraints(maxHeight: 60),
+        //   adSize: AdSize.fluid,
+        // ),
+        // const _TestAd(),
+        // PrinterCard(selMachine),
 
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
@@ -262,7 +272,7 @@ class CaseB extends _$CaseB {
 //
 //   @override
 //   Widget build(BuildContext context, WidgetRef ref) {
-//     var ad = ref.watch(bannerAdProvider(AdSize.banner));
+//     var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
 //
 //     if (ad case AsyncData(value: AdWithView() && final banner)) {
 //       logger.i('Got ad: ${banner.responseInfo}');
@@ -274,7 +284,7 @@ class CaseB extends _$CaseB {
 //     }
 //
 //     logger.i('No ad available');
-//     return SizedBox.shrink();
+//     return const SizedBox.shrink();
 //   }
 // }
 //
@@ -283,37 +293,22 @@ class CaseB extends _$CaseB {
 //
 //   @override
 //   Widget build(BuildContext context, WidgetRef ref) {
-//     return ElevatedButton(onPressed: onPressed, child: Text('Consent'));
+//     return ElevatedButton(onPressed: onPressed, child: const Text('Consent'));
 //   }
 //
 //   void onPressed() {
 //     final params = ConsentRequestParameters();
 //
 //     logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
-//
 //     ConsentInformation.instance.requestConsentInfoUpdate(
 //       params,
 //       () async {
-//         // TODO: Load and present the privacy message form.
-//
 //         logger.i('ConsentStatusSuccess');
-//         ConsentInformation.instance.requestConsentInfoUpdate(
-//           params,
-//           () async {
-//             // TODO: Load and present the privacy message form.
-//             logger.i('ConsentStatusSuccess');
-//             final status = await ConsentInformation.instance.getConsentStatus();
+//         final status = await ConsentInformation.instance.getConsentStatus();
+//         logger.i('ConsentStatus: $status');
 //
-//             logger.i('ConsentStatus: $status');
-//
-//             if (status == ConsentStatus.required) {
-//               ConsentForm.loadAndShowConsentFormIfRequired((_) => null);
-//             } else {}
-//           },
-//           (FormError? error) {
-//             logger.e('requestConsentInfoUpdate ConsentStatusError: $error');
-//           },
-//         );
+//         ConsentForm.showPrivacyOptionsForm((_) => null);
+//         // ConsentForm.loadConsentForm((_) => null, (_)=> null);
 //       },
 //       (FormError error) {
 //         logger.e('ConsentStatusError: $error');

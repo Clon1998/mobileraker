@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 part 'dashboard_component_type.g.dart';
 
@@ -40,5 +40,7 @@ enum DashboardComponentType {
   @HiveField(14)
   firmwareRetraction,
   @HiveField(15)
-  bedMesh;
+  bedMesh,
+  @HiveField(16)
+  gcodePreview;
 }

@@ -5,7 +5,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../dto/machine/print_state_enum.dart';

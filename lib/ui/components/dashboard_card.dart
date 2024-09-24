@@ -11,6 +11,7 @@ import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
+import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:mobileraker_pro/ui/components/spoolman/spoolman_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -104,6 +105,7 @@ class DasboardCard extends StatelessWidget {
       DashboardComponentType.limits => LimitsCard(machineUUID: machineUUID),
       DashboardComponentType.firmwareRetraction => FirmwareRetractionCard(machineUUID: machineUUID),
       DashboardComponentType.bedMesh => BedMeshCard(machineUUID: machineUUID),
+      DashboardComponentType.gcodePreview => GCodePreviewCard(machineUUID: machineUUID),
       _ => ErrorCard(
           title: const Text('Unknown card type'),
           body: Text('The card type $type is not supported'),
@@ -130,6 +132,7 @@ class DasboardCard extends StatelessWidget {
       DashboardComponentType.firmwareRetraction => FirmwareRetractionCard.preview(),
       DashboardComponentType.bedMesh => BedMeshCard.preview(),
       DashboardComponentType.webcam => WebcamCard.preview(),
+      DashboardComponentType.gcodePreview => GCodePreviewCard.preview(),
       _ => Card(
           child: ListTile(
             title: Text(beautifyName(type.name)),

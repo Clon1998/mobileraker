@@ -39,7 +39,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
@@ -124,36 +124,10 @@ setupBoxes() async {
 
   // Hive.deleteBoxFromDisk('printers');
 
-  try {
-    // await openBoxes(keyMaterial);
-    await openBoxes();
-    Hive.box<Machine>('printers').values.forEach((element) {
-      logger.i('Machine in box is ${element.logName}#${element.hashCode}');
-      // ToDo remove after machine migration!
-      element.save();
-    });
-  } catch (e, s) {
-    if (e is TypeError) {
-      logger.e('An TypeError occurred while trying to open Boxes...', e);
-      logger.e('Will reset all stored data to resolve this issue!');
-      throw MobilerakerStartupException(
-        'An unexpected TypeError occurred while parsing the stored app data. Please report this error to the developer. To resolve this issue clear the app storage or reinstall the app.',
-        parentException: e,
-        parentStack: s,
-        canResetStorage: true,
-      );
-    } else if (e is FileSystemException) {
-      logger.e('An FileSystemException(${e.runtimeType}) occured while trying to open Boxes...', e);
-      throw MobilerakerStartupException(
-        'Failed to retrieve app data from system storage. Please restart the app. If the error persists, consider clearing the storage or reinstalling the app.',
-        parentException: e,
-        parentStack: s,
-        canResetStorage: true,
-      );
-    }
-    logger.e('An unexpected error occurred while trying to open Boxes...', e);
-    rethrow;
-  }
+  await openBoxes();
+  Hive.box<Machine>('printers').values.forEach((element) {
+    logger.i('Machine in box is ${element.logName}#${element.hashCode}');
+  });
   logger.i('Completed Hive init');
 }
 
@@ -195,16 +169,43 @@ Future<Uint8List?> _readStorage(FlutterSecureStorage storage) async {
   }
 }
 
-// Future<List<Box>> openBoxes(Uint8List _) {
-Future<List<Box>> openBoxes() {
-  return Future.wait([
-    Hive.openBox<Machine>('printers').then(_migrateMachine),
-    Hive.openBox<String>('uuidbox'),
-    Hive.openBox('settingsbox'),
-    Hive.openBox<Notification>('notifications'),
-    Hive.openBox<DashboardLayout>('dashboard_layouts'),
-    // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
-  ]);
+Future<List<Box>> openBoxes([int tryNo = 1]) async {
+  try {
+    return await Future.wait([
+      Hive.openBox<Machine>('printers').then(_migrateMachine),
+      Hive.openBox<String>('uuidbox'),
+      Hive.openBox('settingsbox'),
+      Hive.openBox<Notification>('notifications'),
+      Hive.openBox<DashboardLayout>('dashboard_layouts'),
+      // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
+    ]);
+  } catch (e, s) {
+    if (e is TypeError) {
+      logger.e('An TypeError occurred while trying to open Boxes...', e);
+      logger.e('Will reset all stored data to resolve this issue!');
+      throw MobilerakerStartupException(
+        'An unexpected TypeError occurred while parsing the stored app data. Please report this error to the developer. To resolve this issue clear the app storage or reinstall the app.',
+        parentException: e,
+        parentStack: s,
+        canResetStorage: true,
+      );
+    } else if (e is FileSystemException) {
+      logger.e('An FileSystemException(${e.runtimeType}) occured while trying to open Boxes (tryNo#$tryNo)...', e);
+      if (tryNo < 4) {
+        logger.e('Will retry to open boxes in 5 seconds');
+        await Future.delayed(Duration(milliseconds: 400 * tryNo));
+        return await openBoxes(tryNo + 1);
+      }
+      throw MobilerakerStartupException(
+        'Failed to retrieve app data from system storage. Please restart the app. If the error persists, consider clearing the storage or reinstalling the app.',
+        parentException: e,
+        parentStack: s,
+        canResetStorage: true,
+      );
+    }
+    logger.e('An unexpected error occurred while trying to open Boxes...', e);
+    rethrow;
+  }
 }
 
 Future<void> deleteBoxes() {

@@ -7,7 +7,7 @@ import 'dart:async';
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/util/logger.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

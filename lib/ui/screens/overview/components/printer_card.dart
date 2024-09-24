@@ -99,12 +99,15 @@ class _Body extends ConsumerWidget {
                         duration: kThemeAnimationDuration,
                         // duration: const Duration(seconds: 2),
                         child: switch (model) {
-                          AsyncValue(value: _Model(jrpcClientState: ClientState.error)) => Text(
+                          AsyncValue(hasValue: true, value: _Model(jrpcClientState: ClientState.error)) => Text(
                                   key: const Key('cs-e'),
                                   'pages.printer_edit.fetch_error_hint',
                                   style: themeData.textTheme.bodySmall)
                               .tr(),
-                          AsyncValue(value: _Model(:final printState, jrpcClientState: ClientState.connected)) =>
+                          AsyncValue(
+                            hasValue: true,
+                            value: _Model(:final printState, jrpcClientState: ClientState.connected)
+                          ) =>
                             Text(key: const Key('cs-c'), printState.displayName, style: themeData.textTheme.bodySmall),
                           _ => Text(
                               key: const Key('cs-w'),
@@ -141,12 +144,17 @@ class _Trailing extends HookConsumerWidget {
     return switch (model) {
       // Handle connected
       AsyncValue(
+        hasValue: true,
         value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.printing, :final printProgress)
       ) =>
         _PrintProgressBar(progress: printProgress, circular: true),
-      AsyncValue(value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.paused)) =>
+      AsyncValue(
+        hasValue: true,
+        value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.paused)
+      ) =>
         const Icon(Icons.pause_circle_outline, size: 20),
-      AsyncValue(value: _Model(jrpcClientState: ClientState.connected)) => MachineStateIndicator(machine),
+      AsyncValue(hasValue: true, value: _Model(jrpcClientState: ClientState.connected)) =>
+        MachineStateIndicator(machine),
       // Handle other jrpc states
       AsyncData() when triedReconnect.value => Icon(
           FlutterIcons.disconnect_ant,

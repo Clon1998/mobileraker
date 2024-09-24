@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.7.5+510
+version: 2.7.6+510
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -25,7 +25,6 @@ environment:
 dependency_overrides:
   intl: ^0.18.1 # required due to awesome notifications and formbuilder
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
-
   # used by appinio_video_player, this fixes an issue with gradle
   cached_video_player:
     git:
@@ -44,7 +43,7 @@ dependencies:
     path: common
 
   #firebase
-  firebase_core_platform_interface: ^5.0.0
+  firebase_core_platform_interface: ^5.3.0
   firebase_core: ^2.30.0
   firebase_analytics: ^10.10.2
   firebase_app_check: ^0.2.2+2
@@ -65,32 +64,27 @@ dependencies:
   go_transitions: ^0.7.0
 
   #util
-  rxdart: ^0.27.3
+  rxdart: ^0.28.0
   stringr: ^1.0.0
-  vector_math: ^2.1.2
+  vector_math: ^2.1.4
   enum_to_string: ^2.0.1
   url_launcher: ^6.1.6
   logger: ^1.3.0
   permission_handler: ^11.0.0
-  collection: ^1.17.0
+  collection: ^1.18.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
-  flutter_audio_capture:
-    #    path: ../flutter_audio_capture
-    git:
-      url: https://github.com/Clon1998/flutter_audio_capture.git
-      ref: init-code
+  flutter_audio_capture: ^1.1.8
 
   #crypto
   hashlib_codecs: ^2.2.0
-  hashlib: ^1.12.0
+  hashlib: ^1.21.0
   pem: ^2.0.4
 
   #persistent
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
+  hive_ce_flutter: ^2.1.0
   flutter_secure_storage: ^9.0.0
-  share_plus: ^7.1.0
+  share_plus: ^10.0.2
   path_provider: ^2.1.0
 
   #theme
@@ -111,7 +105,7 @@ dependencies:
 
   #form
   flutter_form_builder: ^9.1.0
-  form_builder_validators: ^9.0.0
+  form_builder_validators: ^11.0.0
   form_builder_extra_fields: ^11.0.0
 
   #translation
@@ -119,7 +113,7 @@ dependencies:
   easy_localization_loader: ^2.0.2
 
   #purchases
-  purchases_flutter: ^7.0.1
+  purchases_flutter: ^8.1.2
 
   #rating
   rate_my_app: ^2.0.0
@@ -154,11 +148,11 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   dots_indicator: 2.1.2
   webview_flutter: ^4.4.0
-  fl_chart: ^0.66.2
+  fl_chart: ^0.69.0
   code_text_field: ^1.0.2
   mobile_scanner: ^5.0.1
   touchable: ^1.0.2
-  flutter_markdown: ^0.6.14
+  flutter_markdown: ^0.7.3+1
   flutter_svg: ^2.0.5
   loader_overlay: ^4.0.0
   appinio_video_player: ^1.3.0
@@ -171,14 +165,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.4.9
-  hive_generator: ^2.0.0
-  flutter_lints: ^3.0.1
+  flutter_lints: ^4.0.0
   freezed: ^2.5.2
   mockito: ^5.3.2
   json_serializable: ^6.4.1
-  riverpod_generator: ^2.4.0
+  riverpod_generator: ^2.4.3
   # riverpod_lint makes it easier to work with Riverpod
-  riverpod_lint: ^2.3.10
+  riverpod_lint: ^2.3.13
   # import custom_lint too as riverpod_lint depends on it
   custom_lint: ^0.6.4
   flutter_native_splash: ^2.2.19

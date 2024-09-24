@@ -55,7 +55,7 @@ class SpoolmanPage extends HookWidget {
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),
-      floatingActionButton: _Fab(),
+      floatingActionButton: const _Fab(),
 
       //ToDo: Add ConnectionStateView !!!!
       body: body,
@@ -297,8 +297,9 @@ class _Fab extends ConsumerWidget {
     return Consumer(
       builder: (context, ref, fab) {
         final conState = ref.watch(jrpcClientStateProvider(machineUUID));
+        final hasSpoolman = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent));
 
-        if (conState.valueOrNull != ClientState.connected) {
+        if (hasSpoolman.valueOrNull != true || conState.valueOrNull != ClientState.connected) {
           fab = const SizedBox.shrink();
         }
 

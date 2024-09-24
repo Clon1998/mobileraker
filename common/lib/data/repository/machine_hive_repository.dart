@@ -4,7 +4,7 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_repository.dart';

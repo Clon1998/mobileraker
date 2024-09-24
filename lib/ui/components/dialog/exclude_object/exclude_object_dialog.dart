@@ -3,15 +3,14 @@
  * All rights reserved.
  */
 
-import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/print_bed_painter.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -68,7 +67,7 @@ class _ExcludeObjectDialog extends ConsumerWidget {
                     const Flexible(
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 8),
-                        child: ExcludeObjectMap(),
+                        child: _ExcludeObjectMap(),
                       ),
                     ),
                     AnimatedSwitcher(
@@ -186,12 +185,15 @@ class ExcludeBtnRow extends ConsumerWidget {
   }
 }
 
-class ExcludeObjectMap extends ConsumerWidget {
-  const ExcludeObjectMap({super.key});
+class _ExcludeObjectMap extends ConsumerWidget {
+  const _ExcludeObjectMap({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ConfigFile config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).requireValue;
+    final config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).requireValue;
+    final controller = ref.watch(excludeObjectControllerProvider.notifier);
+    final selected = ref.watch(excludeObjectControllerProvider);
+    final excludeObject = ref.watch(excludeObjectProvider).requireValue!;
 
     return IntrinsicHeight(
       child: Center(
@@ -202,15 +204,29 @@ class ExcludeObjectMap extends ConsumerWidget {
               GestureType.onTapDown,
               GestureType.onTapUp,
             ],
-            builder: (context) => CustomPaint(
-              painter: ExcludeObjectPainter(
-                context,
-                ref.watch(excludeObjectControllerProvider.notifier),
-                ref.watch(excludeObjectProvider).requireValue!,
-                ref.watch(excludeObjectControllerProvider),
-                config,
-              ),
-            ),
+            builder: (context) {
+              final themeData = Theme.of(context);
+              return CustomPaint(
+                painter: ExcludeObjectPainter(
+                  bedWidth: config.sizeX,
+                  bedHeight: config.sizeY,
+                  bedXOffset: config.minX,
+                  bedYOffset: config.minY,
+                  context: context,
+                  onObjectTapped: controller.onPathTapped,
+                  excludeObject: excludeObject,
+                  selected: selected,
+                  objectColor: themeData.colorScheme.primary,
+                  excludedObjectColor: themeData.disabledColor,
+                  selectedObjectColor: themeData.colorScheme.secondary,
+                  backgroundColor: themeData.colorScheme.surface,
+                  logoColor: themeData.colorScheme.onSurface.withOpacity(0.05),
+                  gridColor: themeData.disabledColor.withOpacity(0.1),
+                  axisColor: themeData.disabledColor.withOpacity(0.5),
+                  originColors: (x: Colors.red, y: Colors.blue),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -218,84 +234,71 @@ class ExcludeObjectMap extends ConsumerWidget {
   }
 }
 
-class ExcludeObjectPainter extends CustomPainter {
-  static const double bgLineDis = 50;
+class ExcludeObjectPainter extends PrintBedPainter {
+  ExcludeObjectPainter({
+    required super.bedWidth,
+    required super.bedHeight,
+    required super.bedXOffset,
+    required super.bedYOffset,
+    required this.context,
+    required this.onObjectTapped,
+    required this.excludeObject,
+    required this.selected,
+    required this.objectColor,
+    required this.excludedObjectColor,
+    required this.selectedObjectColor,
+    required super.backgroundColor,
+    required super.logoColor,
+    required super.gridColor,
+    required super.axisColor,
+    required super.originColors,
+  }) : obj = selected;
 
-  ExcludeObjectPainter(this.context,
-      this.controller,
-      this.excludeObject,
-      this.selected,
-      this.config,) : obj = selected;
+  @override
+  final renderLogo = true;
+  @override
+  final renderGrid = true;
+  @override
+  final renderAxis = true;
 
   final BuildContext context;
-  final ExcludeObjectController controller;
+
+  final void Function(ParsedObject obj) onObjectTapped;
   final ExcludeObject excludeObject;
   final ParsedObject? selected;
-  final ConfigFile config;
 
-  double get _maxXBed => config.sizeX;
-
-  double get _maxYBed => config.sizeY;
+  final Color objectColor;
+  final Color excludedObjectColor;
+  final Color selectedObjectColor;
 
   ParsedObject? obj;
 
   @override
   void paint(Canvas canvas, Size size) {
+    super.paint(canvas, size);
     TouchyCanvas myCanvas = TouchyCanvas(context, canvas);
 
-    Color paintBgCol, paintObjCol, paintObjExcludedCol;
-    if (Theme.of(context).brightness == Brightness.dark) {
-      paintObjCol = Theme.of(context).colorScheme.onSurface;
-
-      paintBgCol = paintObjCol.darken(60);
-      paintObjExcludedCol = paintObjCol.darken(35);
-    } else {
-      paintObjCol = Theme.of(context).colorScheme.onSurface.lighten(20);
-      paintBgCol = paintObjCol.lighten(30);
-      paintObjExcludedCol = paintObjCol.darken(15);
-    }
-
-    var paintBg = Paint()
-      ..color = paintBgCol
-      ..strokeWidth = 2;
-
-    var paintObj = Paint()
-      ..color = paintObjCol
-      ..strokeWidth = 2;
-    var paintObjExcluded = Paint()
-      ..color = paintObjExcludedCol
-      ..strokeWidth = 2;
-
-    Paint paintSelected = Paint()
-      ..color = Theme.of(context).colorScheme.secondary
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5.0;
-
-    double maxX = size.width;
-    double maxY = size.height;
-
-    drawXLines(maxX, myCanvas, maxY, paintBg);
-    drawYLines(maxY, myCanvas, maxX, paintBg);
+    final objectPaint = filledPaint(objectColor);
+    final excludedObjectPaint = filledPaint(excludedObjectColor);
+    final selectedObjectPaint = strokePaint(selectedObjectColor, 5.0);
 
     bool tmp = false;
     for (ParsedObject obj in excludeObject.objects) {
       List<vec.Vector2> polygons = obj.polygons;
       if (polygons.isEmpty) continue;
       tmp = true;
-      Path path = constructPath(polygons, maxX, maxY);
+      Path path = objectOutlinePath(polygons);
 
       if (excludeObject.excludedObjects.contains(obj.name)) {
-        myCanvas.drawPath(path, paintObjExcluded);
+        myCanvas.drawPath(path, excludedObjectPaint);
       } else {
-        myCanvas.drawPath(
-          path,
-          paintObj,
-          onTapDown: (x) => controller.onPathTapped(obj),
-        );
-        if (selected == obj) myCanvas.drawPath(path, paintSelected);
+        myCanvas.drawPath(path, objectPaint, onTapDown: (_) => onObjectTapped(obj));
+        if (selected == obj) myCanvas.drawPath(path, selectedObjectPaint);
       }
     }
-    if (!tmp) drawNoDataText(canvas, maxX, maxY);
+    // Restore to the canvas in UI cords
+    canvas.restore();
+    if (!tmp) drawNoDataText(canvas, size.width, size.height);
   }
 
   void drawNoDataText(Canvas canvas, double maxX, double maxY) {
@@ -309,48 +312,27 @@ class ExcludeObjectPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     tp.layout(minWidth: 0, maxWidth: maxX);
+
     tp.paint(canvas, Offset((maxX - tp.width) / 2, (maxY - tp.height) / 2));
   }
 
-  void drawYLines(
-    double maxY,
-    TouchyCanvas myCanvas,
-    double maxX,
-    Paint paintBg,
-  ) {
-    for (int i = 1; i < _maxYBed ~/ bgLineDis; i++) {
-      var y = (bgLineDis * i) / _maxYBed * maxY;
-      myCanvas.drawLine(Offset(0, y), Offset(maxX, y), paintBg);
-    }
-  }
+  Path objectOutlinePath(List<vec.Vector2> polygons) {
+    Path path = Path();
 
-  void drawXLines(
-    double maxX,
-    TouchyCanvas myCanvas,
-    double maxY,
-    Paint paintBg,
-  ) {
-    for (int i = 1; i < _maxXBed ~/ bgLineDis; i++) {
-      var x = (bgLineDis * i) / _maxXBed * maxX;
-      myCanvas.drawLine(Offset(x, 0), Offset(x, maxY), paintBg);
-    }
-  }
-
-  double correctY(double y) => _maxYBed - y;
-
-  Path constructPath(List<vec.Vector2> polygons, double maxX, double maxY) {
-    var path = Path();
-    vec.Vector2 start = polygons.first;
-    path.moveTo(start.x / _maxXBed * maxX, correctY(start.y) / _maxYBed * maxY);
-    for (vec.Vector2 poly in polygons) {
-      path.lineTo(poly.x / _maxXBed * maxX, correctY(poly.y) / _maxYBed * maxY);
+    for (int i = 0; i < polygons.length; i++) {
+      var polygon = polygons[i];
+      if (i == 0) {
+        path.moveTo(polygon.x, polygon.y);
+      } else {
+        path.lineTo(polygon.x, polygon.y);
+      }
     }
     path.close();
     return path;
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(ExcludeObjectPainter oldDelegate) {
+    return oldDelegate.selected != selected;
   }
 }

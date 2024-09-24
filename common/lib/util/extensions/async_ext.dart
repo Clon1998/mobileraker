@@ -15,6 +15,7 @@ extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<I
   ProviderListenable<AsyncValue<Output>> selectAs<Output>(
     Output Function(Input data) selector, {
     bool skipLoadingOnReload = false,
+    bool skipError = false,
     bool debugLog = false,
   }) {
     return select((AsyncValue<Input> value) {
@@ -31,7 +32,8 @@ extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<I
       final res = switch (value) {
         AsyncData(value: final data, isLoading: final isLoading) =>
           AsyncData<Output>(selector(data)).let((it) => isLoading ? it.toLoading() : it),
-        AsyncError(error: final error, stackTrace: final stackTrace, hasValue: false, isLoading: final isLoading) =>
+        AsyncError(error: final error, stackTrace: final stackTrace, isLoading: final isLoading, :final hasValue)
+            when !hasValue || !skipError =>
           AsyncValue<Output>.error(error, stackTrace).let((it) => isLoading ? it.toLoading() : it),
         AsyncError(value: final data?, hasValue: true, isLoading: final isLoading) =>
           AsyncValue<Output>.data(selector(data)).let((it) => isLoading ? it.toLoading() : it),

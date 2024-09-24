@@ -5,7 +5,7 @@
 
 import 'dart:convert';
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../../dto/octoeverywhere/app_portal_result.dart';
 

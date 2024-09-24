@@ -462,6 +462,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
             }))
               SelectionOption(
                 value: filament,
+                selected: state.selectedFilament?.id == filament.id,
                 label: filament.displayNameWithDetails(numberFormat),
                 subtitle: filament.vendor?.name,
                 leading: SpoolWidget(color: filament.colorHex, height: 30),

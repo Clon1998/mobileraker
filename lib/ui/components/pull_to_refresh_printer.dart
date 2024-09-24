@@ -38,6 +38,8 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
   DialogService get dialogService => ref.read(dialogServiceProvider);
 
+  bool _disposed = false;
+
   @override
   Widget build(BuildContext context) {
     var onBackground = Theme.of(context).colorScheme.onBackground;
@@ -113,6 +115,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
   @override
   void dispose() {
+    _disposed = true;
     refreshController.dispose();
     super.dispose();
   }

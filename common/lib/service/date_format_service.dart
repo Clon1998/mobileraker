@@ -36,6 +36,14 @@ class DateFormatService {
     return isFreedomUnit ? _jms() : DateFormat.Hms();
   }
 
+  DateFormat s() {
+    return DateFormat.s();
+  }
+
+  DateFormat ms() {
+    return DateFormat.ms();
+  }
+
   DateFormat add_Hm(DateFormat format) {
     var isFreedomUnit = _settingService.readBool(AppSettingKeys.timeFormat);
 

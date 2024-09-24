@@ -210,7 +210,6 @@ Future<FolderContentWrapper> moonrakerFolderContent(
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
 
-
   List<Folder> folders = apiResponse.folders.toList();
   List<RemoteFile> files = apiResponse.files.toList();
 
@@ -296,26 +295,27 @@ class FileService {
     }
   }
 
-  Future<GCodeFile> getGCodeMetadata(String filename) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filename`');
+  /// The FilePath is relativ to the `gcodes` root
+  Future<GCodeFile> getGCodeMetadata(String filePath) async {
+    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filePath`');
 
-    final parentPathParts = filename.split('/')
-      ..removeLast()
+    final parentPathParts = filePath.split('/')
       ..insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
+    final fileName = parentPathParts.removeLast();
     final parentPath = parentPathParts.join('/');
 
     try {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.metadata',
-          params: {'filename': filename}, timeout: _apiRequestTimeout);
+          params: {'filename': filePath}, timeout: _apiRequestTimeout);
 
-      return GCodeFile.fromJson(blockingResp.result, parentPath);
+      return GCodeFile.fromMetaData(fileName, parentPath, blockingResp.result);
     } on JRpcError catch (e) {
       if (e.message.contains('Metadata not available for')) {
-        logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filename');
-        return GCodeFile(name: filename, parentPath: parentPath, modified: -1, size: -1);
+        logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filePath');
+        return GCodeFile(name: fileName, parentPath: parentPath, modified: -1, size: -1);
       }
 
-      throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filename, parent: e);
+      throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filePath, parent: e);
     }
   }
 
@@ -397,21 +397,32 @@ class FileService {
     }
   }
 
-  Stream<FileOperation> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
+  Stream<FileOperation> downloadFile(
+      {required String filePath, int? expectedFileSize, bool overWriteLocal = false, CancelToken? cancelToken}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
-    final StreamController<FileOperation> updateProgress = StreamController();
-    final token = CancelToken();
 
     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
+    if (!overWriteLocal &&
+        await file.exists() &&
+        DateTime.now().difference(await file.lastModified()) < const Duration(minutes: 60)) {
+      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
+      yield FileDownloadComplete(file);
+      return;
+    }
+
+    final StreamController<FileOperation> updateProgress = StreamController();
 
     Completer<bool>? debounceKeepAlive;
     // I can not await this because I need to use the callbacks to fill my streamController
     _dio.download(
       '/server/files/$filePath',
       file.path,
-      cancelToken: token,
+      cancelToken: cancelToken,
       onReceiveProgress: (received, total) {
+        if (total <= 0 && expectedFileSize != null) {
+          total = expectedFileSize;
+        }
         if (total <= 0) {
           // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
           // Debounce the keep alive to not spam the stream
@@ -420,20 +431,20 @@ class FileService {
             Future.delayed(const Duration(seconds: 1), () {
               debounceKeepAlive?.complete(true);
             });
-            updateProgress.add(FileOperationKeepAlive(token: token));
+            updateProgress.add(FileOperationKeepAlive(bytes: received));
           }
           return;
         }
         // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
-        updateProgress.add(FileOperationProgress(received / total, token: token));
+        updateProgress.add(FileOperationProgress((received / total).clamp(0.0, 1.0)));
       },
     ).then((response) {
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" completed');
-      updateProgress.add(FileDownloadComplete(file, token: token));
+      updateProgress.add(FileDownloadComplete(file));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
         logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" was canceled');
-        updateProgress.add(FileOperationCanceled(token: token));
+        updateProgress.add(FileOperationCanceled());
       } else {
         logger.e(
             '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while downloading file "$filePath" caught in catchError',
@@ -446,14 +457,13 @@ class FileService {
     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File download completed');
   }
 
-  Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent) async* {
+  Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent, [CancelToken? cancelToken]) async* {
     assert(!filePath.startsWith(r'(gcodes|config)'), 'filePath needs to contain root folder config or gcodes!');
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
     final data = FormData.fromMap({'root': root, 'file': uploadContent});
 
     final StreamController<FileOperation> updateStream = StreamController();
-    final token = CancelToken();
 
     logger.i(
         '[FileService($_machineUUID, ${_jRpcClient.uri})] Starting upload of ${uploadContent.filename ?? 'unknown'} to $filePath');
@@ -465,7 +475,7 @@ class FileService {
       data: data,
       options: Options(validateStatus: (status) => status == 201, receiveTimeout: _apiRequestTimeout)
         ..disableRetry = true,
-      cancelToken: token,
+      cancelToken: cancelToken,
       onSendProgress: (sent, total) {
         if (total <= 0) {
           // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
@@ -475,12 +485,12 @@ class FileService {
             Future.delayed(const Duration(seconds: 1), () {
               debounceKeepAlive?.complete(true);
             });
-            updateStream.add(FileOperationKeepAlive(token: token));
+            updateStream.add(FileOperationKeepAlive(bytes: sent));
           }
           return;
         }
         // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
-        updateStream.add(FileOperationProgress(sent / total, token: token));
+        updateStream.add(FileOperationProgress(sent / total));
       },
     ).then((response) {
       final res = FileActionResponse.fromJson(response.data);
@@ -488,11 +498,11 @@ class FileService {
           '[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of ${uploadContent.filename ?? 'unknown'} to $filePath completed');
       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Response: $res');
 
-      updateStream.add(FileUploadComplete(res.item.fullPath, token: token));
+      updateStream.add(FileUploadComplete(res.item.fullPath));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
         logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of "$filePath" was canceled');
-        updateStream.add(FileOperationCanceled(token: token));
+        updateStream.add(FileOperationCanceled());
       } else {
         logger.e(
             '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while uploading file "$filePath" caught in catchError',

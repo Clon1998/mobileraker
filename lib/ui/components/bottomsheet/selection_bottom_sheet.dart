@@ -124,11 +124,14 @@ class _FilteredResults extends StatelessWidget {
         ],
       );
     }
-    return ListView(
-      shrinkWrap: true,
-      // physics: const ClampingScrollPhysics(),
-      controller: scrollController,
-      children: [for (final opt in result) _Entry(option: opt)],
+    return Material(
+      type: MaterialType.transparency,
+      child: ListView(
+        shrinkWrap: true,
+        // physics: const ClampingScrollPhysics(),
+        controller: scrollController,
+        children: [for (final opt in result) _Entry(option: opt)],
+      ),
     );
   }
 
@@ -160,12 +163,12 @@ class _Entry extends StatelessWidget {
       padding: themeData.useMaterial3 ? const EdgeInsets.only(left: 8.0) : EdgeInsets.zero,
       child: ListTile(
         enabled: option.enabled,
+        selected: option.selected,
         visualDensity: VisualDensity.compact,
         // leading: Icon(option.icon),
         leading: option.leading,
-        horizontalTitleGap: 0,
-        //TODO: make this configurable?
-        // horizontalTitleGap: 8,
+        trailing: option.trailing,
+        horizontalTitleGap: option.horizontalTitleGap,
         title: Text(option.label, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: option.subtitle != null ? Text(option.subtitle!) : null,
         minLeadingWidth: 42,
@@ -174,6 +177,8 @@ class _Entry extends StatelessWidget {
         onTap: () {
           Navigator.of(context).pop(BottomSheetResult.confirmed(option.value));
         },
+        // selectedColor: themeData.colorScheme.primary,
+        selectedTileColor: themeData.colorScheme.primary.withOpacity(0.1),
       ),
     );
   }
@@ -203,23 +208,39 @@ class SelectionBottomSheetArgs<T> {
 
 @immutable
 class SelectionOption<T> {
-  const SelectionOption({required this.value, required this.label, this.subtitle, this.leading, this.enabled = true});
+  const SelectionOption({
+    required this.value,
+    required this.label,
+    this.subtitle,
+    this.leading,
+    this.trailing,
+    this.enabled = true,
+    this.selected = false,
+    this.horizontalTitleGap = 0,
+  });
 
   final T value;
   final String label;
   final String? subtitle;
   final Widget? leading;
+  final Widget? trailing;
   final bool enabled;
+  final bool selected;
+  final double horizontalTitleGap;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SelectionOption &&
           runtimeType == other.runtimeType &&
-          label == other.label &&
-          leading == other.leading &&
-          enabled == other.enabled;
+          (identical(value, other.value) || value == other.value) &&
+          (identical(label, other.label) || label == other.label) &&
+          (identical(leading, other.leading) || leading == other.leading) &&
+          (identical(trailing, other.trailing) || trailing == other.trailing) &&
+          (identical(enabled, other.enabled) || enabled == other.enabled) &&
+          (identical(horizontalTitleGap, other.horizontalTitleGap) || horizontalTitleGap == other.horizontalTitleGap) &&
+          (identical(selected, other.selected) || selected == other.selected);
 
   @override
-  int get hashCode => Object.hash(label, leading, enabled);
+  int get hashCode => Object.hash(value, label, subtitle, leading, trailing, enabled, selected, horizontalTitleGap);
 }

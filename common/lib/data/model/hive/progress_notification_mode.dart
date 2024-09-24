@@ -4,7 +4,7 @@
  */
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 part 'progress_notification_mode.g.dart';
 
