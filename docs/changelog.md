@@ -18,6 +18,8 @@
 
 - **File Download Progress**: Enhanced the file download process to display progress more reliably across various
   scenarios, providing better user feedback.
+- **Sliders No Longer Trigger Customization**: Adjusting sliders in the multipliers, limits, and firmware retraction
+  cards will no longer accidentally activate dashboard customization mode, ensuring a smoother user experience.
 
 ### Bug Fixes
 

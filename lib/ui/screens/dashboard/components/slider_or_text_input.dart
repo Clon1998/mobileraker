@@ -110,69 +110,74 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
       _updateTextController(next);
     });
 
-    return Row(
-      children: [
-        Flexible(
-          child: AnimatedCrossFade(
-            firstChild: InputDecorator(
-              decoration: InputDecoration(
-                label: Text(
-                  '${widget.prefixText}: ${_numberFormat.format(sliderPos)}',
+    return GestureDetector(
+      onLongPress: () {
+        // Do nothing. Its just used to "Absorb" the event
+      },
+      child: Row(
+        children: [
+          Flexible(
+            child: AnimatedCrossFade(
+              firstChild: InputDecorator(
+                decoration: InputDecoration(
+                  label: Text(
+                    '${widget.prefixText}: ${_numberFormat.format(sliderPos)}',
+                  ),
+                  isCollapsed: true,
+                  border: InputBorder.none,
                 ),
-                isCollapsed: true,
-                border: InputBorder.none,
-              ),
-              child: Slider(
-                value: min(maxValue, sliderPos),
-                onChanged: widget.onChange != null ? _onSliderChanged : null,
-                onChangeEnd: widget.onChange != null ? _onSliderDone : null,
-                max: maxValue,
-                min: widget.minValue,
-              ),
-            ),
-            secondChild: TextField(
-              decoration: InputDecoration(
-                prefixText: '${widget.prefixText}:',
-                border: InputBorder.none,
-                suffix: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Text(widget.unit ?? '%'),
+                child: Slider(
+                  value: min(maxValue, sliderPos),
+                  onChanged: widget.onChange != null ? _onSliderChanged : null,
+                  onChangeEnd: widget.onChange != null ? _onSliderDone : null,
+                  max: maxValue,
+                  min: widget.minValue,
                 ),
-                errorText: !inputValid ? FormBuilderLocalizations.current.numericErrorText : null,
               ),
-              enabled: widget.onChange != null,
-              onSubmitted: _submitTextField,
-              focusNode: focusNode,
-              controller: textEditingController,
-              textAlign: TextAlign.end,
-              keyboardType: const TextInputType.numberWithOptions(),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-              ],
+              secondChild: TextField(
+                decoration: InputDecoration(
+                  prefixText: '${widget.prefixText}:',
+                  border: InputBorder.none,
+                  suffix: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Text(widget.unit ?? '%'),
+                  ),
+                  errorText: !inputValid ? FormBuilderLocalizations.current.numericErrorText : null,
+                ),
+                enabled: widget.onChange != null,
+                onSubmitted: _submitTextField,
+                focusNode: focusNode,
+                controller: textEditingController,
+                textAlign: TextAlign.end,
+                keyboardType: const TextInputType.numberWithOptions(),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
+                ],
+              ),
+              duration: kThemeAnimationDuration,
+              crossFadeState: fadeState,
             ),
-            duration: kThemeAnimationDuration,
-            crossFadeState: fadeState,
           ),
-        ),
-        AnimatedSwitcher(
-          duration: kThemeAnimationDuration,
-          child: fadeState == CrossFadeState.showSecond && isTextFieldFocused
-              ? IconButton(
-                  key: const ValueKey('checkmark'),
-                  icon: const Icon(Icons.check),
-                  onPressed: inputValid ? _onCheckmarkClick : null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-                )
-              : IconButton(
-                  key: const ValueKey('edit'),
-                  icon: const Icon(Icons.edit),
-                  onPressed: inputValid && widget.onChange != null ? _toggle : null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-                ),
-        ),
-      ],
+          AnimatedSwitcher(
+            duration: kThemeAnimationDuration,
+            child: fadeState == CrossFadeState.showSecond && isTextFieldFocused
+                ? IconButton(
+                    key: const ValueKey('checkmark'),
+                    icon: const Icon(Icons.check),
+                    onPressed: inputValid ? _onCheckmarkClick : null,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+                  )
+                : IconButton(
+                    key: const ValueKey('edit'),
+                    icon: const Icon(Icons.edit),
+                    onPressed: inputValid && widget.onChange != null ? _toggle : null,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
