@@ -30,7 +30,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
-import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
+import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
