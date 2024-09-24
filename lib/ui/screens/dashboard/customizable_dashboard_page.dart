@@ -44,7 +44,7 @@ import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
