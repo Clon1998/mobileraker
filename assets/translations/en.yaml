@@ -974,6 +974,31 @@ components:
         title: Error fetching printer config!
         body: An error occurred while trying to fetch the printer config Ensure the
           machine is reachable and Mobileraker is connected to it.
+  gcode_preview_settings_sheet:
+    title: Visualizer Settings
+    show_grid:
+      title: Show Grid
+      subtitle: Display a reference grid
+    show_axes:
+      title: Show Axes
+      subtitle: Display X & Y axes
+    show_next_layer:
+      title: Show Next Layer
+      subtitle: Display the upcoming layer in the preview
+    show_previous_layer:
+      title: Show Previous Layer
+      subtitle: Display the previously printed layer
+    extrusion_width_multiplier:
+      prefix: Line Width Multiplier
+    show_extrusion:
+      title: Show Extrusions
+      subtitle: Highlight material deposition moves
+    show_retraction:
+      title: Show Retractions
+      subtitle: Highlight filament retraction moves
+    show_travel:
+      title: Show Travel Moves
+      subtitle: Display non-printing movement
 
 dialogs:
   rate_my_app:

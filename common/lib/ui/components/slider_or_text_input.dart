@@ -5,21 +5,12 @@
 
 import 'dart:math';
 
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
 class SliderOrTextInput extends StatefulWidget {
-  final ValueChanged<double>? onChange;
-  final NumberFormat? numberFormat;
-  final String prefixText;
-  final double value;
-  final double maxValue;
-  final double minValue;
-  final String? unit;
-  final bool addToMax;
-
   const SliderOrTextInput({
     super.key,
     required this.value,
@@ -30,7 +21,20 @@ class SliderOrTextInput extends StatefulWidget {
     this.minValue = 0,
     this.addToMax = false,
     this.unit,
+    this.submitOnChange = false,
   });
+
+  final ValueChanged<double>? onChange;
+  final NumberFormat? numberFormat;
+  final String prefixText;
+  final double value;
+  final double maxValue;
+  final double minValue;
+  final String? unit;
+  final bool addToMax;
+
+  /// If true, the value will be submitted to the [onChange] callback whenever the slider is moved and not only when the user releases the slider.
+  final bool submitOnChange;
 
   @override
   SliderOrTextInputState createState() => SliderOrTextInputState();
@@ -48,7 +52,7 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
   late double stepsToAdd;
   late double maxValue;
 
-  NumberFormat get _numberFormat => widget.numberFormat ?? context.percentNumFormat();
+  NumberFormat get _numberFormat => widget.numberFormat ?? NumberFormat.percentPattern();
 
   @override
   void initState() {
@@ -180,6 +184,9 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
   }
 
   void _onSliderChanged(double v) {
+    if (widget.submitOnChange) {
+      _submit(v);
+    }
     setState(() {
       sliderPos = v;
     });

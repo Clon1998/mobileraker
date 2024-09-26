@@ -9,6 +9,7 @@ import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -22,6 +23,7 @@ import 'package:mobileraker_pro/gcode_preview/gcode_layer_renderer.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_downloader_widget.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_layer_visualizer.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_parser_widget.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 
 class GCodePreviewPage extends HookConsumerWidget {
   const GCodePreviewPage({super.key, required this.machineUUID, required this.file, this.live = false});
@@ -130,6 +132,18 @@ class _StaticPreview extends HookWidget {
             ),
           ),
         ),
+        Consumer(builder: (context, ref, child) {
+          return Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                onPressed: () {
+                  ref
+                      .read(bottomSheetServiceProvider)
+                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings, isScrollControlled: true));
+                },
+                icon: const Icon(Icons.settings),
+              ));
+        }),
         Positioned(
           top: 8,
           left: 8,
@@ -159,7 +173,7 @@ class _StaticPreview extends HookWidget {
         if (maxLayers > 1)
           Positioned(
             top: 25,
-            bottom: 25,
+            bottom: 40,
             right: 0,
             child: RotatedBox(
               quarterTurns: -1,
@@ -173,7 +187,7 @@ class _StaticPreview extends HookWidget {
         Positioned(
           bottom: 0,
           left: 25,
-          right: 25,
+          right: 40,
           child: Slider(
             value: (currentMove.value ?? currentLayerData.metaData.moveEnd).toDouble(),
             onChanged: handleMoveChange,

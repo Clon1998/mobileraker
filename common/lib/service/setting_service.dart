@@ -46,6 +46,16 @@ int intSetting(IntSettingRef ref, KeyValueStoreKey key, [int fallback = 0]) {
 }
 
 @riverpod
+double doubleSetting(DoubleSettingRef ref, KeyValueStoreKey key, [double fallback = 0.0]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readDouble(key, fallback);
+}
+
+@riverpod
 Type objectSetting<Type>(ObjectSettingRef ref, KeyValueStoreKey key, Type fallback) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
@@ -95,6 +105,14 @@ class SettingService {
   }
 
   String? readString(KeyValueStoreKey key, [String? fallback]) {
+    return _boxSettings.get(key.key) ?? key.defaultValue ?? fallback;
+  }
+
+  Future<void> writeDouble(KeyValueStoreKey key, double val) {
+    return _boxSettings.put(key.key, val);
+  }
+
+  double readDouble(KeyValueStoreKey key, [double fallback = 0.0]) {
     return _boxSettings.get(key.key) ?? key.defaultValue ?? fallback;
   }
 
