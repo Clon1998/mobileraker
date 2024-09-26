@@ -10,6 +10,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
+import 'package:common/ui/components/slider_or_text_input.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -22,8 +23,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
-
-import 'slider_or_text_input.dart';
 
 part 'limits_card.freezed.dart';
 part 'limits_card.g.dart';
@@ -169,7 +168,7 @@ class _Body extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.maxVelocity),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.maxVelocity)),
                 prefixText: tr('pages.dashboard.control.limit_card.velocity'),
                 onChange: canEdit ? controller.onEditedMaxVelocity : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.toStringWithSeparator()),
@@ -177,7 +176,7 @@ class _Body extends HookConsumerWidget {
                 maxValue: 500,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.maxAccel),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.maxAccel)),
                 prefixText: tr('pages.dashboard.control.limit_card.accel'),
                 onChange: canEdit ? controller.onEditedMaxAccel : null,
                 numberFormat: NumberFormat('0 mm/s²', context.locale.toStringWithSeparator()),
@@ -185,7 +184,8 @@ class _Body extends HookConsumerWidget {
                 maxValue: 5000,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity),
+                value:
+                    ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity)),
                 prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                 onChange: canEdit ? controller.onEditedMaxSquareCornerVelocity : null,
                 numberFormat: NumberFormat('0.# mm/s', context.locale.toStringWithSeparator()),
@@ -193,7 +193,7 @@ class _Body extends HookConsumerWidget {
                 maxValue: 8,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue((data) => data.maxAccelToDecel),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.maxAccelToDecel)),
                 prefixText: tr('pages.dashboard.control.limit_card.accel_to_decel'),
                 onChange: canEdit ? controller.onEditedMaxAccelToDecel : null,
                 numberFormat: NumberFormat('0 mm/s²', context.locale.toStringWithSeparator()),

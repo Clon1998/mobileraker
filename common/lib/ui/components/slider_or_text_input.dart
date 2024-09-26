@@ -1,45 +1,43 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2024. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'dart:math';
 
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class SliderOrTextInput extends ConsumerStatefulWidget {
+class SliderOrTextInput extends StatefulWidget {
   final ValueChanged<double>? onChange;
-  final NumberFormat numberFormat;
+  final NumberFormat? numberFormat;
   final String prefixText;
-  final ProviderListenable<double> provider;
+  final double value;
   final double maxValue;
   final double minValue;
   final String? unit;
   final bool addToMax;
 
-  SliderOrTextInput({
+  const SliderOrTextInput({
     super.key,
-    required this.provider,
+    required this.value,
     required this.prefixText,
     required this.onChange,
-    NumberFormat? numberFormat,
+    this.numberFormat,
     this.maxValue = 2,
     this.minValue = 0,
     this.addToMax = false,
     this.unit,
-  }) : numberFormat = numberFormat ?? NumberFormat('0%');
+  });
 
   @override
   SliderOrTextInputState createState() => SliderOrTextInputState();
 }
 
-class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
+class SliderOrTextInputState extends State<SliderOrTextInput> {
   late double sliderPos;
-  late bool focusRequested;
   late bool inputValid;
   late TextEditingController textEditingController;
   late FocusNode focusNode;
@@ -50,7 +48,7 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
   late double stepsToAdd;
   late double maxValue;
 
-  NumberFormat get _numberFormat => widget.numberFormat;
+  NumberFormat get _numberFormat => widget.numberFormat ?? context.percentNumFormat();
 
   @override
   void initState() {
@@ -63,21 +61,14 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
     textEditingController = TextEditingController();
     maxValue = widget.maxValue;
     stepsToAdd = (maxValue - widget.minValue) / 2;
-    // Actual States
 
-    //TODO: This needs to be moced to updateWidget as init state is NOT caled if provider changes!
-    double initValue = ref.read(widget.provider);
-    lastSubmittedValue = initValue;
-    sliderPos = initValue;
-    _updateTextController(initValue);
+    _updateValueFromWidget();
 
     isTextFieldFocused = false;
     fadeState = CrossFadeState.showFirst;
 
-    // Helper States
     inputValid = true;
 
-    // Setup listener
     focusNode.addListener(() {
       setState(() {
         if (isTextFieldFocused != focusNode.hasFocus) _onFocusChanged();
@@ -95,6 +86,20 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
   }
 
   @override
+  void didUpdateWidget(SliderOrTextInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      _updateValueFromWidget();
+    }
+  }
+
+  void _updateValueFromWidget() {
+    lastSubmittedValue = widget.value;
+    sliderPos = widget.value;
+    _updateTextController(widget.value);
+  }
+
+  @override
   void dispose() {
     textEditingController.dispose();
     focusNode.dispose();
@@ -103,13 +108,6 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(widget.provider, (previous, next) {
-      if (next == lastSubmittedValue) return;
-      lastSubmittedValue = next;
-      sliderPos = next;
-      _updateTextController(next);
-    });
-
     return GestureDetector(
       onLongPress: () {
         // Do nothing. Its just used to "Absorb" the event
@@ -181,13 +179,13 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
     );
   }
 
-  _onSliderChanged(double v) {
+  void _onSliderChanged(double v) {
     setState(() {
       sliderPos = v;
     });
   }
 
-  _onSliderDone(double v) {
+  void _onSliderDone(double v) {
     _submit(v);
     _onSliderChanged(v);
     if (widget.addToMax && v == maxValue) {
@@ -197,19 +195,19 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
     }
   }
 
-  _submitTextField(String value) {
+  void _submitTextField(String value) {
     if (!inputValid) return;
 
     double perc = _numberFormat.parse(textEditingController.text).toDouble();
     _submit(perc);
   }
 
-  _onCheckmarkClick() {
+  void _onCheckmarkClick() {
     focusNode.unfocus();
     _submitTextField(textEditingController.text);
   }
 
-  _toggle() {
+  void _toggle() {
     setState(() {
       if (fadeState == CrossFadeState.showFirst) {
         _updateTextController(sliderPos);
@@ -223,15 +221,15 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
     });
   }
 
-  _updateTextController(double value) {
+  void _updateTextController(double value) {
     textEditingController.text = _numberFormat.format(value).replaceAll(RegExp(r'[^0-9.,]'), '');
   }
 
-  _onFocusChanged() {
+  void _onFocusChanged() {
     _submitTextField(textEditingController.text);
   }
 
-  _submit(double value) {
+  void _submit(double value) {
     if (widget.onChange == null || lastSubmittedValue == value) return;
     lastSubmittedValue = value;
     widget.onChange!(value);

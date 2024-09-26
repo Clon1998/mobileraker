@@ -87,6 +87,7 @@ dependencies:
   url_launcher: ^6.1.6
   package_info_plus: ^8.0.2
   vector_math: ^2.1.4
+  form_builder_validators: ^11.0.0
 
   #crypto
   hashlib_codecs: ^2.2.0
