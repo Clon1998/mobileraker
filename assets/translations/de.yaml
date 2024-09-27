@@ -893,8 +893,7 @@ components:
       canceled: Das Parsen des GCodes wurde abgebrochen!
       error:
         title: Fehler beim Parsen des GCodes!
-        body: Beim Parsen des GCodes ist ein Fehler aufgetreten. Bitte erneut versuchen. Wenn das
-          Problem weiterhin besteht, öffnen Sie bitte ein Issue auf GitHub und fügen Sie die GCode-Datei bei.
+        body: Beim Parsen des GCodes ist ein Fehler aufgetreten. Bitte erneut versuchen. Wenn das Problem weiterhin besteht, öffnen Sie bitte ein Issue auf GitHub und fügen Sie die GCode-Datei bei.
     error:
       config:
         title: Fehler beim Abrufen der Druckerkonfiguration!
