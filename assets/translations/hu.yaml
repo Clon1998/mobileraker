@@ -902,6 +902,31 @@ components:
       config:
         title: Hiba a nyomtató konfiguráció lekérésében!
         body: Hiba történt a nyomtató konfigurációja lekérdezése során. Győződj meg róla, hogy elérhető és a Mobileraker csatlakoztatva van.
+  gcode_preview_settings_sheet:
+    title: Visualizer beállítások
+    show_grid:
+      title: Rács mutatása
+      subtitle: Referenciarács mutatása
+    show_axes:
+      title: Tengelyek mutatása
+      subtitle: X és Y tengelyek kijelzése
+    show_next_layer:
+      title: Következő réteg mutatása
+      subtitle: Készülő réteg mutatása az előnézetben
+    show_previous_layer:
+      title: Előző réteg mutatása
+      subtitle: Korábban nyomtatott réteg mutatása
+    extrusion_width_multiplier:
+      prefix: Vonalszélesség szorzó
+    show_extrusion:
+      title: Extrudálások mutatása
+      subtitle: Anyaglerakódások mozgásának kiemelése
+    show_retraction:
+      title: Visszahúzások mutatása
+      subtitle: Jelölje meg a nyomtatószál visszahúzásokat
+    show_travel:
+      title: Utazási mozgások mutatása
+      subtitle: Nem nyomtatási mozgás kijelzése
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
