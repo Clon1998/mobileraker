@@ -10,6 +10,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
+import 'package:common/ui/components/slider_or_text_input.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -22,8 +23,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
-
-import 'slider_or_text_input.dart';
 
 part 'multipliers_card.freezed.dart';
 part 'multipliers_card.g.dart';
@@ -168,33 +167,25 @@ class _Body extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue(
-                  (data) => data.speedFactor,
-                ),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.speedFactor)),
                 prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                 onChange: canEdit ? controller.onEditedSpeedMultiplier : null,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue(
-                  (data) => data.extrudeFactor,
-                ),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.extrudeFactor)),
                 prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                 onChange: canEdit ? controller.onEditedFlowMultiplier : null,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue(
-                  (data) => data.pressureAdvance,
-                ),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.pressureAdvance)),
                 prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                 onChange: canEdit ? controller.onEditedPressureAdvanced : null,
                 numberFormat: NumberFormat('0.##### mm/s', context.locale.toStringWithSeparator()),
                 unit: 'mm/s',
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).selectRequireValue(
-                  (data) => data.smoothTime,
-                ),
+                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.smoothTime)),
                 prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                 onChange: canEdit ? controller.onEditedSmoothTime : null,
                 numberFormat: NumberFormat('0.### s', context.locale.toStringWithSeparator()),

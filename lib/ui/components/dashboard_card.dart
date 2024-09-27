@@ -13,7 +13,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
-import 'package:mobileraker_pro/ui/components/spoolman/spoolman_card.dart';
+import 'package:mobileraker_pro/spoolman/ui/spoolman_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../screens/dashboard/components/bed_mesh_card.dart';

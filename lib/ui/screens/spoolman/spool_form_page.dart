@@ -27,11 +27,11 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/selection_bottom_sheet.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
-import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_spool.dart';
+import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';

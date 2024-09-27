@@ -11,13 +11,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
-
-import '../../../routing/app_router.dart';
+import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 
 mixin CommonSpoolmanDetailPagesController<State> {
   @protected
@@ -44,13 +43,13 @@ mixin CommonSpoolmanDetailPagesController<State> {
   void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
     switch (dto) {
       case GetSpool spool:
-        goRouterRef.pushNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, spool]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
       case GetFilament filament:
-        goRouterRef.goNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, filament]);
+        goRouterRef.goNamed(ProRoutes.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
       case GetVendor vendor:
-        goRouterRef.pushNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
         break;
     }
   }
@@ -58,9 +57,9 @@ mixin CommonSpoolmanDetailPagesController<State> {
   @protected
   Future<void> clone(SpoolmanIdentifiableDtoMixin entity) async {
     final route = switch (entity) {
-      GetSpool() => AppRoute.spoolman_form_spool,
-      GetFilament() => AppRoute.spoolman_form_filament,
-      GetVendor() => AppRoute.spoolman_form_vendor,
+      GetSpool() => ProRoutes.spoolman_form_spool,
+      GetFilament() => ProRoutes.spoolman_form_filament,
+      GetVendor() => ProRoutes.spoolman_form_vendor,
       _ => throw ArgumentError('Unknown entity type: $entity'),
     };
 
@@ -69,13 +68,13 @@ mixin CommonSpoolmanDetailPagesController<State> {
 
     switch (res) {
       case [GetSpool() && final newSpool, ...]:
-        goRouterRef.replaceNamed(AppRoute.spoolman_details_spool.name, extra: [machineUUID, newSpool]);
+        goRouterRef.replaceNamed(ProRoutes.spoolman_details_spool.name, extra: [machineUUID, newSpool]);
         break;
       case GetFilament() && final newFilament:
-        goRouterRef.replaceNamed(AppRoute.spoolman_details_filament.name, extra: [machineUUID, newFilament]);
+        goRouterRef.replaceNamed(ProRoutes.spoolman_details_filament.name, extra: [machineUUID, newFilament]);
         break;
       case GetVendor() && final newVendor:
-        goRouterRef.replaceNamed(AppRoute.spoolman_details_vendor.name, extra: [machineUUID, newVendor]);
+        goRouterRef.replaceNamed(ProRoutes.spoolman_details_vendor.name, extra: [machineUUID, newVendor]);
         break;
       default:
         // Do nothing

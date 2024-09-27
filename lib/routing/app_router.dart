@@ -41,6 +41,7 @@ import 'package:mobileraker/ui/screens/spoolman/spool_detail_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/vendor_detail_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
@@ -72,17 +73,9 @@ enum AppRoute implements RouteDefinitionMixin {
   supportDev,
   tool,
   beltTuner,
-  spoolman,
-  spoolman_form_spool,
-  spoolman_form_filament,
-  spoolman_form_vendor,
-  spoolman_details_vendor,
-  spoolman_details_spool,
-  spoolman_details_filament,
   fileManager_explorer,
   fileManager_exlorer_search,
   fileManager_exlorer_move,
-  fileManager_exlorer_gcodePreview,
   fileManager_exlorer_gcodeDetail,
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
@@ -194,7 +187,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'gcode-preview',
-            name: AppRoute.fileManager_exlorer_gcodePreview.name,
+            name: ProRoutes.fileManager_exlorer_gcodePreview.name,
             builder: (context, state) => GCodePreviewPage(
               machineUUID: state.uri.queryParameters['machineUUID']!,
               file: state.extra as GCodeFile,
@@ -294,12 +287,12 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       ),
       GoRoute(
         path: '/spoolman',
-        name: AppRoute.spoolman.name,
+        name: ProRoutes.spoolman.name,
         builder: (context, state) => const SpoolmanPage(),
         routes: [
           GoRoute(
             path: 'details/spool',
-            name: AppRoute.spoolman_details_spool.name,
+            name: ProRoutes.spoolman_details_spool.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID, GetSpool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
@@ -307,7 +300,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'details/filament',
-            name: AppRoute.spoolman_details_filament.name,
+            name: ProRoutes.spoolman_details_filament.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID, GetFilament filament] =>
                 FilamentDetailPage(filament: filament, machineUUID: machineUUID),
@@ -316,7 +309,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'details/vendor',
-            name: AppRoute.spoolman_details_vendor.name,
+            name: ProRoutes.spoolman_details_vendor.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID, GetVendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
@@ -324,7 +317,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'create/spool',
-            name: AppRoute.spoolman_form_spool.name,
+            name: ProRoutes.spoolman_form_spool.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID] => SpoolFormPage(machineUUID: machineUUID),
               [String machineUUID, GetSpool spool] => SpoolFormPage(
@@ -342,7 +335,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'create/filament',
-            name: AppRoute.spoolman_form_filament.name,
+            name: ProRoutes.spoolman_form_filament.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID] => FilamentFormPage(machineUUID: machineUUID),
               [String machineUUID, GetFilament filament] => FilamentFormPage(
@@ -360,7 +353,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'create/vendor',
-            name: AppRoute.spoolman_form_vendor.name,
+            name: ProRoutes.spoolman_form_vendor.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID] => VendorFormPage(machineUUID: machineUUID),
               [String machineUUID, GetVendor vendor] => VendorFormPage(

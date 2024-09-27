@@ -64,7 +64,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
-import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -1655,7 +1656,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   Future<void> _previewAction(GCodeFile file) async {
     _goRouter.pushNamed(
-      AppRoute.fileManager_exlorer_gcodePreview.name,
+      ProRoutes.fileManager_exlorer_gcodePreview.name,
       pathParameters: {'path': filePath},
       queryParameters: {'machineUUID': machineUUID},
       extra: file,

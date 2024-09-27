@@ -16,14 +16,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
-import 'package:mobileraker_pro/ui/components/spoolman/property_with_title.dart';
-import 'package:mobileraker_pro/ui/components/spoolman/spoolman_scroll_pagination.dart';
-import 'package:mobileraker_pro/ui/components/spoolman/spoolman_static_pagination.dart';
+import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
+import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
+import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../routing/app_router.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../components/bottomsheet/action_bottom_sheet.dart';
 import 'common_detail.dart';
@@ -335,10 +335,10 @@ class _VendorDetailPageController extends _$VendorDetailPageController
     await Future.delayed(kThemeAnimationDuration);
     switch (res.data) {
       case VendorSpoolmanSheetAction.edit:
-        goRouterRef.pushNamed(AppRoute.spoolman_form_vendor.name, extra: [machineUUID, state]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_form_vendor.name, extra: [machineUUID, state]);
         break;
       case VendorSpoolmanSheetAction.addFilament:
-        goRouterRef.pushNamed(AppRoute.spoolman_form_filament.name, extra: [machineUUID, state]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_form_filament.name, extra: [machineUUID, state]);
         break;
       case VendorSpoolmanSheetAction.clone:
         clone(state);

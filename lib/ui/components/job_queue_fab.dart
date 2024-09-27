@@ -7,7 +7,7 @@ import 'package:badges/badges.dart' as badges;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 
 class JobQueueFab extends ConsumerWidget {
   const JobQueueFab(

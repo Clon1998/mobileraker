@@ -33,7 +33,7 @@ import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
-import 'package:mobileraker_pro/ui/components/spoolman/adjust_spool_filament_dialog.dart';
+import 'package:mobileraker_pro/spoolman/ui/adjust_spool_filament_dialog.dart';
 
 import '../../ui/components/dialog/dashboard_component_settings_dialog.dart';
 import '../../ui/components/dialog/macro_settings/macro_settings_dialog.dart';

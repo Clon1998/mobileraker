@@ -12,6 +12,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
+import 'package:common/ui/components/slider_or_text_input.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -24,8 +25,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
-
-import 'slider_or_text_input.dart';
 
 part 'firmware_retraction_card.freezed.dart';
 part 'firmware_retraction_card.g.dart';
@@ -192,8 +191,8 @@ class _CardBody extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _firmwareRetractionCardControllerProvider(machineUUID)
-                    .selectRequireValue((data) => data.firmwareRetraction!.retractLength),
+                value: ref.watch(_firmwareRetractionCardControllerProvider(machineUUID)
+                    .selectRequireValue((data) => data.firmwareRetraction!.retractLength)),
                 prefixText: tr('pages.dashboard.control.fw_retraction_card.retract_length'),
                 onChange: canEdit ? controller.onEditRetractLength : null,
                 numberFormat: NumberFormat('0.0# mm', context.locale.toStringWithSeparator()),
@@ -202,8 +201,8 @@ class _CardBody extends HookConsumerWidget {
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _firmwareRetractionCardControllerProvider(machineUUID)
-                    .selectRequireValue((data) => data.firmwareRetraction!.unretractExtraLength),
+                value: ref.watch(_firmwareRetractionCardControllerProvider(machineUUID)
+                    .selectRequireValue((data) => data.firmwareRetraction!.unretractExtraLength)),
                 prefixText: tr('pages.dashboard.control.fw_retraction_card.extra_unretract_length'),
                 onChange: canEdit ? controller.onEditUnretractLength : null,
                 numberFormat: NumberFormat('0.0# mm', context.locale.toStringWithSeparator()),
@@ -212,8 +211,8 @@ class _CardBody extends HookConsumerWidget {
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _firmwareRetractionCardControllerProvider(machineUUID)
-                    .selectRequireValue((data) => data.firmwareRetraction!.retractSpeed),
+                value: ref.watch(_firmwareRetractionCardControllerProvider(machineUUID)
+                    .selectRequireValue((data) => data.firmwareRetraction!.retractSpeed)),
                 prefixText: tr('pages.dashboard.control.fw_retraction_card.retract_speed'),
                 onChange: canEdit ? controller.onEditRetractSpeed : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.toStringWithSeparator()),
@@ -222,8 +221,8 @@ class _CardBody extends HookConsumerWidget {
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _firmwareRetractionCardControllerProvider(machineUUID)
-                    .selectRequireValue((data) => data.firmwareRetraction!.unretractSpeed),
+                value: ref.watch(_firmwareRetractionCardControllerProvider(machineUUID)
+                    .selectRequireValue((data) => data.firmwareRetraction!.unretractSpeed)),
                 prefixText: tr('pages.dashboard.control.fw_retraction_card.unretract_speed'),
                 onChange: canEdit ? controller.onEditUnretractSpeed : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.toStringWithSeparator()),
