@@ -1040,7 +1040,6 @@ dialogs:
     title: Create Archive
     label: Archive Name
   delete_files:
-    title: Delete Files
     description: Confirm deletion of {} files.
   exclude_object:
     title: Exclude Object from Print

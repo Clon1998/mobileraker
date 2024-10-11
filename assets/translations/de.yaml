@@ -963,7 +963,6 @@ dialogs:
     title: Archiv erstellen
     label: Archivname
   delete_files:
-    title: Dateien löschen
     description: Bestätigen Sie die Löschung von {} ausgewählten Dateien.
   exclude_object:
     title: Objekt vom Druck ausschließen
