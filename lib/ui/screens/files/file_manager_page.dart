@@ -524,11 +524,13 @@ class _Body extends StatelessWidget {
 }
 
 class _Header extends ConsumerWidget {
-  const _Header({super.key, required this.machineUUID, required this.filePath});
+  const _Header({super.key, required this.machineUUID, required this.filePath, this.enabled = true});
 
   final String machineUUID;
 
   final String filePath;
+
+  final bool enabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -540,7 +542,7 @@ class _Header extends ConsumerWidget {
 
     return SortedFileListHeader(
       activeSortConfig: sortCfg,
-      onTapSortMode: controller.onClickSortMode.only(!apiLoading),
+      onTapSortMode: controller.onClickSortMode.only(!apiLoading).only(enabled),
       trailing: IconButton(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
@@ -566,8 +568,6 @@ class _FileList extends ConsumerWidget {
         ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
 
     final widget = switch (folderContent) {
-      AsyncValue(hasValue: true, value: FolderContentWrapper(isEmpty: true)) =>
-        _FileListEmpty(key: Key('$filePath-list-empty'), machineUUID: machineUUID, filePath: filePath),
       AsyncValue(hasValue: true, value: FolderContentWrapper() && final content) => _FileListData(
           key: Key('$filePath-list'),
           machineUUID: machineUUID,
@@ -822,7 +822,11 @@ class _FileListState extends ConsumerState<_FileListData> {
             floating: true,
             initialHeight: 48,
             needRepaint: true,
-            child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
+            child: _Header(
+              machineUUID: widget.machineUUID,
+              filePath: widget.filePath,
+              enabled: widget.folderContent.isNotEmpty,
+            ),
           ),
           AdaptiveHeightSliverPersistentHeader(
             initialHeight: 4,
@@ -830,27 +834,46 @@ class _FileListState extends ConsumerState<_FileListData> {
             child: _LoadingIndicator(
                 machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
-            sliver: SliverList.separated(
-              separatorBuilder: (context, index) => const Divider(
-                height: 0,
-                indent: 18,
-                endIndent: 18,
+          if (widget.folderContent.isEmpty)
+            SliverFillRemaining(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: FractionallySizedBox(
+                      heightFactor: 0.3,
+                      child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                  Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
+                ],
               ),
-              itemCount: widget.folderContent.totalItems,
-              itemBuilder: (context, index) {
-                final file = widget.folderContent.unwrapped[index];
-                return _FileItem(
-                  key: ValueKey(file),
-                  machineUUID: widget.machineUUID,
-                  file: file,
-                  dateFormat: dateFormat,
-                  sortMode: sortConfiguration.mode,
-                );
-              },
             ),
-          ),
+          if (widget.folderContent.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
+              sliver: SliverList.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  height: 0,
+                  indent: 18,
+                  endIndent: 18,
+                ),
+                itemCount: widget.folderContent.totalItems,
+                itemBuilder: (context, index) {
+                  final file = widget.folderContent.unwrapped[index];
+                  return _FileItem(
+                    key: ValueKey(file),
+                    machineUUID: widget.machineUUID,
+                    file: file,
+                    dateFormat: dateFormat,
+                    sortMode: sortConfiguration.mode,
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -860,54 +883,6 @@ class _FileListState extends ConsumerState<_FileListData> {
   void dispose() {
     _refreshController.dispose();
     super.dispose();
-  }
-}
-
-class _FileListEmpty extends ConsumerWidget {
-  const _FileListEmpty({super.key, required this.machineUUID, required this.filePath});
-
-  final String machineUUID;
-  final String filePath;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
-    final enable = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
-        .select((d) => d.folderContent.isLoading == false && !d.isOperationActive));
-
-    final themeData = Theme.of(context);
-
-    return Column(
-      children: [
-        SortedFileListHeader(
-          activeSortConfig: null,
-          trailing: IconButton(
-            padding: const EdgeInsets.only(right: 12),
-            // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-            onPressed: controller.onClickCreateFolder.only(enable),
-            icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: FractionallySizedBox(
-                    heightFactor: 0.3,
-                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
-                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
 
