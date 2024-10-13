@@ -632,11 +632,13 @@ class FileInteractionService {
     for (var toUpload in result.files) {
       logger.i('[FileInteractionService($_machineUUID)] Selected file: ${toUpload.name}');
 
-      final mPrt = MultipartFile.fromStream(() => toUpload.readStream!, toUpload.size,
-          // ToDo: This was relative to root (Gcodes.../PATH)
-          // Verify that this sill works as expected
-          filename: '$parentPath/${toUpload.name}');
+      final relativeToRoot = parentPath.split('/').skip(1).join('/');
 
+      final mPrt = MultipartFile.fromStream(
+        () => toUpload.readStream!,
+        toUpload.size,
+        filename: '$relativeToRoot/${toUpload.name}',
+      );
       yield* _handleFileUpload(parentPath, mPrt);
     }
   }
@@ -673,7 +675,8 @@ class FileInteractionService {
 
     if (res?.confirmed != true) return;
     final fileName = res!.data;
-    final multipartFile = MultipartFile.fromString('', filename: '$parentPath/$fileName');
+    final relativeToRoot = parentPath.split('/').skip(1).join('/');
+    final multipartFile = MultipartFile.fromString('', filename: '$relativeToRoot/$fileName');
 
     yield* _handleFileUpload(parentPath, multipartFile);
   }
@@ -844,7 +847,8 @@ class FileInteractionService {
 
       FileTransferOperationProgress? last;
       await for (var update in uploadStream) {
-        last = FileTransferOperationProgress(action: FileSheetAction.download, files: [], event: update, token: token);
+        last =
+            FileTransferOperationProgress(action: FileSheetAction.uploadFile, files: [], event: update, token: token);
         yield last;
       }
 

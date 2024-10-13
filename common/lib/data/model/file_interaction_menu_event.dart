@@ -22,20 +22,40 @@ sealed class FileInteractionMenuEvent {
 
 class FileActionSelected extends FileInteractionMenuEvent {
   const FileActionSelected({required super.action, required super.files});
+
+  @override
+  String toString() {
+    return 'FileActionSelected{action: $action, files: $files}';
+  }
 }
 
 class FileOperationTriggered extends FileInteractionMenuEvent {
   const FileOperationTriggered({required super.action, required super.files});
+
+  @override
+  String toString() {
+    return 'FileOperationTriggered{action: $action, files: $files}';
+  }
 }
 
 class FileOperationCompleted extends FileInteractionMenuEvent {
   const FileOperationCompleted({required super.action, required super.files});
+
+  @override
+  String toString() {
+    return 'FileOperationCompleted{action: $action, files: $files}';
+  }
 }
 
 class FileActionFailed extends FileInteractionMenuEvent {
   final String error;
 
   const FileActionFailed({required super.action, required super.files, required this.error});
+
+  @override
+  String toString() {
+    return 'FileActionFailed{action: $action, files: $files, error: $error}';
+  }
 }
 
 class FileTransferOperationProgress extends FileInteractionMenuEvent {
@@ -44,4 +64,9 @@ class FileTransferOperationProgress extends FileInteractionMenuEvent {
 
   const FileTransferOperationProgress(
       {required super.action, required super.files, required this.event, required this.token});
+
+  @override
+  String toString() {
+    return 'FileTransferOperationProgress{action: $action, files: $files, event: $event, token: $token}';
+  }
 }
