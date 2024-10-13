@@ -73,5 +73,74 @@
 	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>UTExportedTypeDeclarations</key>
+    <array>
+        <!-- G-code File Types -->
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.mobileraker.ios.gcode</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>G-code File</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>gcode</string>
+                    <string>g</string>
+                    <string>gc</string>
+                    <string>gco</string>
+                </array>
+            </dict>
+        </dict>
+
+        <!-- Configuration File Types -->
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.mobileraker.ios.config</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>Configuration File</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>conf</string>
+                    <string>cfg</string>
+                </array>
+            </dict>
+        </dict>
+
+        <!-- Text File Types -->
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.mobileraker.ios.textfiles</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.plain-text</string>
+            </array>
+            <key>UTTypeDescription</key>
+            <string>Text File</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>md</string>
+                    <string>txt</string>
+                    <string>log</string>
+                    <string>json</string>
+                    <string>xml</string>
+                    <string>yaml</string>
+                    <string>yml</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
 </dict>
 </plist>

@@ -641,7 +641,7 @@ class FileInteractionService {
     }
   }
 
-  Stream<FileInteractionMenuEvent> _newFileAction(String parentPath, List<String>? usedNames) async* {
+  Stream<FileInteractionMenuEvent> newFileAction(String parentPath, List<String>? usedNames) async* {
     logger.i('[FileInteractionService($_machineUUID)] creating new file');
 
     usedNames ??= await _fileService.fetchDirectoryInfo(parentPath).then((e) => e.folderFileNames);
@@ -807,7 +807,7 @@ class FileInteractionService {
           yield* uploadFileAction(parentPath, allowedTypes, action == FileSheetAction.uploadFiles);
           break;
         case FileSheetAction.newFile:
-          yield* _newFileAction(parentPath, usedNames ?? []);
+          yield* newFileAction(parentPath, usedNames ?? []);
           break;
       }
       yield FileOperationCompleted(action: action, files: []);
