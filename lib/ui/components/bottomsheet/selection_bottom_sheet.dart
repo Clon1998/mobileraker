@@ -16,10 +16,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class SelectionBottomSheet extends HookConsumerWidget {
+class SelectionBottomSheet<T> extends HookConsumerWidget {
   const SelectionBottomSheet({super.key, required this.arguments});
 
-  final SelectionBottomSheetArgs arguments;
+  final SelectionBottomSheetArgs<T> arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,65 +28,72 @@ class SelectionBottomSheet extends HookConsumerWidget {
     final textCtl = useTextEditingController();
     final textEditingValue = useValueListenable(textCtl);
     final debouncedTextEditingValue = useDebounced(textEditingValue, const Duration(milliseconds: 400));
-
-    // useListenable(listenable)
-
-    // useEffect(() {
-    //   if (debouncedTextEditingValue == null) return;
-    //   final term = debouncedTextEditingValue.text;
-    //   logger.i('debouncedTerm: $term. Will update search results!');
-    //
-    //
-    // }, [debouncedTextEditingValue]);
+    final selected = useValueNotifier(arguments.options.where((e) => e.selected).map((e) => e.value).toList());
 
     return AdaptiveDraggableScrollableSheet(
       maxChildSize: 0.8,
       minChildSize: 0.3,
       builder: (ctx, scrollController) {
-        return Material(
-          type: MaterialType.transparency,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Gap(10),
-              // _Header(title: arguments.title, subtitle: arguments.subtitle, leading: arguments.leading),
-              // Divider(),
-              if (arguments.title != null) ...[
-                ListTile(
-                  visualDensity: VisualDensity.compact,
-                  titleAlignment: ListTileTitleAlignment.center,
-                  iconColor: themeData.colorScheme.primary,
-                  // leading: arguments.leading,
-                  horizontalTitleGap: 8,
-                  title: arguments.title,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: TextField(
-                    focusNode: node,
-                    controller: textCtl,
-                    decoration: InputDecoration(
-                      hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: IconButton(
-                        tooltip: tr('pages.files.search.clear_search'),
-                        icon: const Icon(Icons.clear),
-                        onPressed: textCtl.clear,
+        return SafeArea(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Gap(10),
+                // _Header(title: arguments.title, subtitle: arguments.subtitle, leading: arguments.leading),
+                // Divider(),
+                if (arguments.title != null) ...[
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    titleAlignment: ListTileTitleAlignment.center,
+                    iconColor: themeData.colorScheme.primary,
+                    // leading: arguments.leading,
+                    horizontalTitleGap: 8,
+                    title: arguments.title,
+                  ),
+                  if (arguments.showSearch)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: TextField(
+                        focusNode: node,
+                        controller: textCtl,
+                        decoration: InputDecoration(
+                          hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
+                          prefixIcon: const Icon(Icons.search),
+                          suffixIcon: IconButton(
+                            tooltip: tr('pages.files.search.clear_search'),
+                            icon: const Icon(Icons.clear),
+                            onPressed: textCtl.clear,
+                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
+                  Gap(8),
+                  const Divider(height: 0),
+                ],
+                Flexible(
+                  child: _FilteredResults(
+                    scrollController: scrollController,
+                    options: arguments.options,
+                    searchTerm: debouncedTextEditingValue?.text,
+                    selectedNotifier: arguments.multiSelect ? selected : null,
                   ),
                 ),
-                const Divider(),
+                if (arguments.multiSelect)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(BottomSheetResult.confirmed(selected!.value));
+                      },
+                      child: Text(MaterialLocalizations.of(context).continueButtonLabel),
+                    ),
+                  ),
               ],
-              Flexible(
-                child: _FilteredResults(
-                  scrollController: scrollController,
-                  options: arguments.options,
-                  searchTerm: debouncedTextEditingValue?.text,
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -94,12 +101,19 @@ class SelectionBottomSheet extends HookConsumerWidget {
   }
 }
 
-class _FilteredResults extends StatelessWidget {
-  const _FilteredResults({super.key, required this.scrollController, required this.options, this.searchTerm});
+class _FilteredResults<T> extends StatelessWidget {
+  const _FilteredResults({
+    super.key,
+    required this.scrollController,
+    required this.options,
+    this.searchTerm,
+    this.selectedNotifier,
+  });
 
   final ScrollController scrollController;
-  final List<SelectionOption> options;
+  final List<SelectionOption<T>> options;
   final String? searchTerm;
+  final ValueNotifier<List<T>>? selectedNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -127,10 +141,11 @@ class _FilteredResults extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: ListView(
+        padding: const EdgeInsets.only(top: 4),
         shrinkWrap: true,
         // physics: const ClampingScrollPhysics(),
         controller: scrollController,
-        children: [for (final opt in result) _Entry(option: opt)],
+        children: [for (final opt in result) _Entry(option: opt, selectedNotifier: selectedNotifier)],
       ),
     );
   }
@@ -150,20 +165,24 @@ class _FilteredResults extends StatelessWidget {
   }
 }
 
-class _Entry extends StatelessWidget {
-  const _Entry({super.key, required this.option});
+class _Entry<T> extends HookWidget {
+  const _Entry({super.key, required this.option, this.selectedNotifier});
 
-  final SelectionOption option;
+  final SelectionOption<T> option;
+  final ValueNotifier<List<T>>? selectedNotifier;
 
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
 
+    final isSelected = useListenableSelector(
+        selectedNotifier, () => selectedNotifier?.value.contains(option.value) ?? option.selected);
+
     return Padding(
       padding: themeData.useMaterial3 ? const EdgeInsets.only(left: 8.0) : EdgeInsets.zero,
       child: ListTile(
         enabled: option.enabled,
-        selected: option.selected,
+        selected: isSelected,
         visualDensity: VisualDensity.compact,
         // leading: Icon(option.icon),
         leading: option.leading,
@@ -175,7 +194,15 @@ class _Entry extends StatelessWidget {
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(44)))
             .only(themeData.useMaterial3),
         onTap: () {
-          Navigator.of(context).pop(BottomSheetResult.confirmed(option.value));
+          if (selectedNotifier != null) {
+            if (isSelected) {
+              selectedNotifier!.value = [...?selectedNotifier?.value.whereNot((e) => e == option.value)];
+            } else {
+              selectedNotifier!.value = [...?selectedNotifier?.value, option.value];
+            }
+          } else {
+            Navigator.of(context).pop(BottomSheetResult.confirmed(option.value));
+          }
         },
         // selectedColor: themeData.colorScheme.primary,
         selectedTileColor: themeData.colorScheme.primary.withOpacity(0.1),
@@ -186,10 +213,12 @@ class _Entry extends StatelessWidget {
 
 @immutable
 class SelectionBottomSheetArgs<T> {
-  const SelectionBottomSheetArgs({this.title, required this.options});
+  const SelectionBottomSheetArgs({this.title, required this.options, this.showSearch = true, this.multiSelect = false});
 
   final Widget? title;
   final List<SelectionOption<T>> options;
+  final bool showSearch;
+  final bool multiSelect;
 
   @override
   bool operator ==(Object other) =>
@@ -197,12 +226,16 @@ class SelectionBottomSheetArgs<T> {
       other is SelectionBottomSheetArgs &&
           runtimeType == other.runtimeType &&
           const DeepCollectionEquality().equals(other.options, options) &&
+          showSearch == other.showSearch &&
+          multiSelect == other.multiSelect &&
           title == other.title;
 
   @override
   int get hashCode => Object.hash(
         const DeepCollectionEquality().hash(options),
         title,
+        showSearch,
+        multiSelect,
       );
 }
 
