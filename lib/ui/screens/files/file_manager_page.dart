@@ -10,6 +10,7 @@ import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/enums/file_action_enum.dart';
+import 'package:common/data/enums/file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/file_interaction_menu_event.dart';
@@ -1269,10 +1270,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
       case FileOperationTriggered():
         state = state.copyWith(folderContent: state.folderContent.toLoading(false));
         break;
-      case FileTransferOperationProgress() when _downloadToken == null:
+      case FileTransferOperationProgress(action: FileSheetAction.download) when _downloadToken == null:
         _downloadToken = event.token;
-      case FileTransferOperationProgress():
+      case FileTransferOperationProgress(action: FileSheetAction.download):
         state = state.copyWith(download: event.event);
+        break;
+      case FileTransferOperationProgress(action: FileSheetAction.uploadFile) when _uploadToken == null:
+        _uploadToken = event.token;
+      case FileTransferOperationProgress(action: FileSheetAction.uploadFile):
+        state = state.copyWith(upload: event.event);
         break;
       case FileOperationCompleted():
         logger.i('[ModernFileManagerController($machineUUID, $filePath)] file action completed: ${event.action}');
