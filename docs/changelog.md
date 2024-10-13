@@ -1,5 +1,19 @@
 # Mobileraker - Changelog
 
+## [2.8.1] - 2024-10-x
+
+### Enhancements
+
+- **Custom Schema (IOS)**: Added a custom schema registration for IOS, allowing the app to be opened via a custom URL
+  scheme. This feature enables users to open the app directly from a web browser or other apps by clicking on a custom
+  link. The schema is: `mobileraker://`. In the future this will be expanded to allow opening a specific printer, file,
+  spool or more directly from a link.
+
+### Bug Fixes
+
+- **File Picker (IOS)**: Fixed an issue where the file picker on IOS would not allow to pick any file to upload as GCode
+  or Config.
+
 ## [2.8.0] - 2024-09-30
 
 ### New Features
