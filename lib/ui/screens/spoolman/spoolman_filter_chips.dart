@@ -307,21 +307,40 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   }
 
   Future<void> filterColor() async {
-    // _dialogService.show(DialogRequest(type: DialogType.ledRGBW))
+    final res = await _bottomSheetService
+        .show(BottomSheetConfig(type: SheetType.colorPicker, isScrollControlled: true, data: state.color));
 
-    if (state.color != null) {
-      state = state.copyWith(color: null, colorFilaments: null);
-      return;
+    logger.i('[SpoolmanFilterChipsController($machineUUID) selected Color: $res');
+    if (res.confirmed) {
+      final selected = res.data as String?;
+      if (selected == null) {
+        state = state.copyWith(color: null, colorFilaments: null);
+        return;
+      }
+
+      final filamentsWithColor =
+          await ref.read(filamentListProvider(machineUUID, filters: {'color_hex': selected}).future);
+
+      logger.i('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
+      state = state.copyWith(
+        color: selected,
+        colorFilaments: filamentsWithColor.items,
+      );
     }
 
-    final filamentsWithColor =
-        await ref.read(filamentListProvider(machineUUID, filters: {'color_hex': '104ac5'}).future);
-
-    logger.i('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
-    state = state.copyWith(
-      color: '104ac5',
-      colorFilaments: filamentsWithColor.items,
-    );
+    // if (state.color != null) {
+    //   state = state.copyWith(color: null, colorFilaments: null);
+    //   return;
+    // }
+    //
+    // final filamentsWithColor =
+    //     await ref.read(filamentListProvider(machineUUID, filters: {'color_hex': '104ac5'}).future);
+    //
+    // logger.i('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
+    // state = state.copyWith(
+    //   color: '104ac5',
+    //   colorFilaments: filamentsWithColor.items,
+    // );
   }
 }
 

@@ -16,6 +16,7 @@ import 'package:mobileraker_pro/job_queue/ui/job_queue_sheet.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/spoolman/ui/select_spoolman_sheet.dart';
 
+import '../../ui/components/bottomsheet/color_picker_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_cards_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_layout_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
@@ -34,6 +35,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   sortMode,
   actions,
   selections,
+  colorPicker,
   ;
 }
 
@@ -66,6 +68,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
     SheetType.actions: (ctx, data) => ActionBottomSheet(arguments: data as ActionBottomSheetArgs),
     SheetType.selections: (ctx, data) => SelectionBottomSheet(arguments: data as SelectionBottomSheetArgs),
     ProSheetType.gcodeVisualizerSettings: (ctx, data) => const GCodeVisualizerSettingsSheet(),
+    SheetType.colorPicker: (ctx, data) => ColorPickerSheet(initialColor: data as String?),
   };
 
   @override
