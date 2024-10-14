@@ -4,6 +4,9 @@
 
 ### Enhancements
 
+- **Spoolman Page Filtering**: Added the ability to filter spools, filaments, and manufacturers on the Spoolman page.
+  Users can now filter spools by color, material, location, and more, making it easier to find specific spools.
+
 - **Custom Schema (IOS)**: Added a custom schema registration for IOS, allowing the app to be opened via a custom URL
   scheme. This feature enables users to open the app directly from a web browser or other apps by clicking on a custom
   link. The schema is: `mobileraker://`. In the future this will be expanded to allow opening a specific printer, file,
