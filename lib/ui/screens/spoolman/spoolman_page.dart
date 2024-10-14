@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/screens/spoolman/spoolman_filter_chips.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
@@ -146,6 +147,11 @@ class _Body extends ConsumerWidget {
           final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
           final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
           final scrollController = useScrollController(keys: [machineUUID, page]);
+          final filters = useState({
+            SpoolmanListType.spools: const SpoolmanFilters(),
+            SpoolmanListType.filaments: const SpoolmanFilters(),
+            SpoolmanListType.vendors: const SpoolmanFilters(),
+          });
 
           final themeData = Theme.of(context);
           if (!hasSpoolman) {
@@ -196,8 +202,16 @@ class _Body extends ConsumerWidget {
           return ResponsiveLimit(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
+                if (type == SpoolmanListType.spools || type == SpoolmanListType.filaments)
+                  SpoolmanFilterChips(
+                    cache: type.name,
+                    machineUUID: machineUUID,
+                    onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
+                    filterBy: typeToFilters(type),
+                  ),
                 Expanded(
                   child: SpoolmanScrollPagination(
                     scrollController: scrollController,
@@ -205,6 +219,7 @@ class _Body extends ConsumerWidget {
                     type: type,
                     onEntryTap: controller.onEntryTap,
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    filters: filters.value[type]!.toFilterForType(type),
                   ),
                 ),
               ],
@@ -213,6 +228,20 @@ class _Body extends ConsumerWidget {
         });
       },
     );
+  }
+
+  Set<SpoolmanFilterType> typeToFilters(SpoolmanListType type) {
+    if (type == SpoolmanListType.spools) {
+      return SpoolmanFilterType.values.toSet();
+    } else if (type == SpoolmanListType.filaments) {
+      return {
+        SpoolmanFilterType.color,
+        SpoolmanFilterType.material,
+        SpoolmanFilterType.vendor,
+      };
+    }
+
+    return {};
   }
 }
 

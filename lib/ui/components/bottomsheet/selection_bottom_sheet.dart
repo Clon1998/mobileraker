@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/bottomsheet/adaptive_draggable_scrollable_sheet.dart';
@@ -23,80 +25,115 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeData = Theme.of(context);
-    final node = useFocusNode();
-    final textCtl = useTextEditingController();
-    final textEditingValue = useValueListenable(textCtl);
-    final debouncedTextEditingValue = useDebounced(textEditingValue, const Duration(milliseconds: 400));
-    final selected = useValueNotifier(arguments.options.where((e) => e.selected).map((e) => e.value).toList());
+    FutureOr<List<SelectionOption<T>>> options = arguments.options;
 
     return AdaptiveDraggableScrollableSheet(
       maxChildSize: 0.8,
       minChildSize: 0.3,
       builder: (ctx, scrollController) {
-        return SafeArea(
-          child: Material(
-            type: MaterialType.transparency,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Gap(10),
-                // _Header(title: arguments.title, subtitle: arguments.subtitle, leading: arguments.leading),
-                // Divider(),
-                if (arguments.title != null) ...[
-                  ListTile(
-                    visualDensity: VisualDensity.compact,
-                    titleAlignment: ListTileTitleAlignment.center,
-                    iconColor: themeData.colorScheme.primary,
-                    // leading: arguments.leading,
-                    horizontalTitleGap: 8,
-                    title: arguments.title,
-                  ),
-                  if (arguments.showSearch)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextField(
-                        focusNode: node,
-                        controller: textCtl,
-                        decoration: InputDecoration(
-                          hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: IconButton(
-                            tooltip: tr('pages.files.search.clear_search'),
-                            icon: const Icon(Icons.clear),
-                            onPressed: textCtl.clear,
-                          ),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
+        final Widget w = switch (options) {
+          Future<List<SelectionOption<T>>>() => FutureBuilder(
+              future: options,
+              builder: (context, snapshot) {
+                logger.w('FutureBuilder: ${snapshot.connectionState}');
+
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text(snapshot.error.toString()));
+                  }
+                  return _DataBottomSheet(
+                      arguments: arguments, options: snapshot.data!, scrollController: scrollController);
+                }
+                return Center(child: CircularProgressIndicator());
+              },
+            ),
+          List<SelectionOption<T>>() =>
+            _DataBottomSheet(arguments: arguments, options: options, scrollController: scrollController),
+        };
+
+        return w;
+      },
+    );
+  }
+}
+
+class _DataBottomSheet<T> extends HookConsumerWidget {
+  const _DataBottomSheet({super.key, required this.arguments, required this.options, required this.scrollController});
+
+  final SelectionBottomSheetArgs<T> arguments;
+  final List<SelectionOption<T>> options;
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
+    final node = useFocusNode();
+    final textCtl = useTextEditingController();
+    final textEditingValue = useValueListenable(textCtl);
+    final debouncedTextEditingValue = useDebounced(textEditingValue, const Duration(milliseconds: 400));
+    final selected = useValueNotifier(options.where((e) => e.selected).map((e) => e.value).toList());
+
+    return SafeArea(
+      child: Material(
+        type: MaterialType.transparency,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Gap(10),
+            // _Header(title: arguments.title, subtitle: arguments.subtitle, leading: arguments.leading),
+            // Divider(),
+            if (arguments.title != null) ...[
+              ListTile(
+                visualDensity: VisualDensity.compact,
+                titleAlignment: ListTileTitleAlignment.center,
+                iconColor: themeData.colorScheme.primary,
+                // leading: arguments.leading,
+                horizontalTitleGap: 8,
+                title: arguments.title,
+              ),
+              if (arguments.showSearch)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: TextField(
+                    focusNode: node,
+                    controller: textCtl,
+                    decoration: InputDecoration(
+                      hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        tooltip: tr('pages.files.search.clear_search'),
+                        icon: const Icon(Icons.clear),
+                        onPressed: textCtl.clear,
                       ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                  Gap(8),
-                  const Divider(height: 0),
-                ],
-                Flexible(
-                  child: _FilteredResults(
-                    scrollController: scrollController,
-                    options: arguments.options,
-                    searchTerm: debouncedTextEditingValue?.text,
-                    selectedNotifier: arguments.multiSelect ? selected : null,
                   ),
                 ),
-                if (arguments.multiSelect)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(BottomSheetResult.confirmed(selected!.value));
-                      },
-                      child: Text(MaterialLocalizations.of(context).continueButtonLabel),
-                    ),
-                  ),
-              ],
+              Gap(8),
+              const Divider(height: 0),
+            ],
+            Flexible(
+              child: _FilteredResults(
+                scrollController: scrollController,
+                options: options,
+                searchTerm: debouncedTextEditingValue?.text,
+                selectedNotifier: arguments.multiSelect ? selected : null,
+              ),
             ),
-          ),
-        );
-      },
+            if (arguments.multiSelect)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(BottomSheetResult.confirmed(selected!.value));
+                  },
+                  child: Text(MaterialLocalizations.of(context).continueButtonLabel),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -216,7 +253,7 @@ class SelectionBottomSheetArgs<T> {
   const SelectionBottomSheetArgs({this.title, required this.options, this.showSearch = true, this.multiSelect = false});
 
   final Widget? title;
-  final List<SelectionOption<T>> options;
+  final FutureOr<List<SelectionOption<T>>> options;
   final bool showSearch;
   final bool multiSelect;
 
