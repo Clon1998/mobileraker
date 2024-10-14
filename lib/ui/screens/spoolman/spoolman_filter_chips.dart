@@ -5,6 +5,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -105,6 +106,8 @@ class SpoolmanFilterChips extends ConsumerWidget {
 
 @riverpod
 class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
+  DialogService get _dialogService => ref.read(dialogServiceProvider);
+
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
   SpoolmanService get _spoolmanService => ref.read(spoolmanServiceProvider(machineUUID));
@@ -304,6 +307,8 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   }
 
   Future<void> filterColor() async {
+    // _dialogService.show(DialogRequest(type: DialogType.ledRGBW))
+
     if (state.color != null) {
       state = state.copyWith(color: null, colorFilaments: null);
       return;

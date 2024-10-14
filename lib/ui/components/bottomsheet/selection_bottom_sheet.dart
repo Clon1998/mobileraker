@@ -35,7 +35,6 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
           Future<List<SelectionOption<T>>>() => FutureBuilder(
               future: options,
               builder: (context, snapshot) {
-                logger.w('FutureBuilder: ${snapshot.connectionState}');
 
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasError) {
@@ -44,7 +43,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
                   return _DataBottomSheet(
                       arguments: arguments, options: snapshot.data!, scrollController: scrollController);
                 }
-                return Center(child: CircularProgressIndicator());
+                return FractionallySizedBox(heightFactor: 0.5, child: Center(child: CircularProgressIndicator()));
               },
             ),
           List<SelectionOption<T>>() =>
@@ -128,7 +127,7 @@ class _DataBottomSheet<T> extends HookConsumerWidget {
                   onPressed: () {
                     Navigator.of(context).pop(BottomSheetResult.confirmed(selected!.value));
                   },
-                  child: Text(MaterialLocalizations.of(context).continueButtonLabel),
+                  child: Text(MaterialLocalizations.of(context).keyboardKeySelect),
                 ),
               ),
           ],
