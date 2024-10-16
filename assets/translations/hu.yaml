@@ -966,7 +966,6 @@ dialogs:
     title: Archívum létrehozása
     label: Archívum neve
   delete_files:
-    title: Fájlok törlése
     description: A {} fájlok törlésének megerősítése.
   exclude_object:
     title: Objektum kizárása a nyomtatásból
