@@ -16,6 +16,7 @@
 
 - **File Picker (IOS)**: Fixed an issue where the file picker on IOS would not allow to pick any file to upload as GCode
   or Config.
+- **Exclude Object Map**: Fixed an issue that prevented tapping on an object to select it.
 
 ## [2.8.0] - 2024-09-30
 

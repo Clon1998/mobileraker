@@ -151,7 +151,11 @@ dependencies:
   fl_chart: ^0.69.0
   code_text_field: ^1.0.2
   mobile_scanner: ^5.0.1
-  touchable: ^1.0.2
+  touchable:
+    #    path: ../touchable
+    git:
+      url: https://github.com/Clon1998/touchable.git
+  #  touchable: ^1.0.2
   flutter_markdown: ^0.7.3+1
   flutter_svg: ^2.0.5
   loader_overlay: ^4.0.0
