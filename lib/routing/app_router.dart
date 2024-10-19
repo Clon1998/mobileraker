@@ -46,6 +46,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
@@ -80,6 +81,7 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
   fileManager_exlorer_imageViewer,
+  modal_sheet,
 }
 
 @riverpod
@@ -366,6 +368,25 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             pageBuilder: GoTransitions.fullscreenDialog,
           ),
         ],
+      ),
+      GoRoute(
+        path: '/modal-sheet',
+        name: AppRoute.modal_sheet.name,
+        pageBuilder: (context, state) {
+          // Use ModalSheetPage to show a modal sheet with Navigator 2.0.
+          // It works with any *Sheet provided by this package!
+          return ModalSheetPage(
+            key: state.pageKey,
+            // Enable the swipe-to-dismiss behavior.
+            swipeDismissible: true,
+            // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
+            swipeDismissSensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 2.0,
+              minDragDistance: 200.0,
+            ),
+            child: state.extra as Widget,
+          );
+        },
       ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),
