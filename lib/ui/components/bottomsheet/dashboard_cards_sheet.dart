@@ -29,6 +29,7 @@ class DashboardCardsBottomSheet extends HookWidget {
 
     return ProviderScope(
       child: MobilerakerSheet(
+        useSafeArea: false,
         padding: EdgeInsets.zero,
         initialPosition: context.isCompact ? 0.6 : 1,
         hasScrollable: true,

@@ -110,6 +110,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
     return MobilerakerSheet(
       padding: EdgeInsets.zero,
       hasScrollable: true,
+      useSafeArea: false,
       child: ProviderScope(
         child: SheetContentScaffold(
           appBar: title,

@@ -53,7 +53,6 @@ class BottomSheetServiceImpl implements BottomSheetService {
     //TODO: Make use of the NavigationSheet API to make transitions smoother...
     SheetType.nonPrintingMenu: (ctx, data) => const NonPrintingBottomSheet(),
     ProSheetType.jobQueueMenu: (ctx, data) => const JobQueueBottomSheet(),
-
     //ToDo: NavigationSheet API -> Replace with NavigationSheet
     SheetType.addRemoteCon: (ctx, data) => AddRemoteConnectionBottomSheet(
           args: data as AddRemoteConnectionSheetArgs,

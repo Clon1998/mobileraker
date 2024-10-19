@@ -76,7 +76,7 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
 
   @override
   Widget build(BuildContext context) {
-    const animDuration = kThemeAnimationDuration;
+    const animDuration = Duration(milliseconds: 350);
     // final animDuration = const Duration(milliseconds: 5000);
     return MobilerakerSheet(
       hasScrollable: true,

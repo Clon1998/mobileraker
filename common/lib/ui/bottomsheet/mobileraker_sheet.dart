@@ -13,11 +13,15 @@ class MobilerakerSheet extends StatelessWidget {
     this.padding = const EdgeInsets.only(top: 10, bottom: 10),
     required this.child,
     this.initialPosition = 1.0,
+    this.useSafeArea = true,
   });
 
   final bool hasScrollable;
 
   final EdgeInsets padding;
+
+  // This should be disabled if the SheetContentScaffold is used as it already has a SafeArea and otherwise causes issues.
+  final bool useSafeArea;
 
   final Widget child;
 
@@ -33,14 +37,15 @@ class MobilerakerSheet extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: padding,
-        child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 500), child: child),
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500), child: useSafeArea ? SafeArea(child: child) : child),
       ),
     );
 
     final sheet = hasScrollable
         ? ScrollableSheet(
             // physics: ClampingSheetPhysics(),
-            minPosition: const SheetAnchor.proportional(0.4),
+            // minPosition: const SheetAnchor.proportional(0.4),
 
             // The initial position is based on the child height!!!!
             initialPosition: SheetAnchor.proportional(initialPosition),
@@ -49,7 +54,7 @@ class MobilerakerSheet extends StatelessWidget {
         : DraggableSheet(child: withBg);
 
     return SafeArea(
-      // bottom: false,
+      bottom: false,
       // maintainBottomViewPadding: true,
       child: sheet,
     );

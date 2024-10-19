@@ -1000,6 +1000,8 @@ components:
     show_travel:
       title: Show Travel Moves
       subtitle: Display non-printing movement
+  select_color_sheet:
+    title: Select Color
 
 dialogs:
   rate_my_app:

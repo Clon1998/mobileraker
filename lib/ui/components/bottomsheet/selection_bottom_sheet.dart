@@ -75,7 +75,12 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
       ).only(arguments.multiSelect),
     );
 
-    return MobilerakerSheet(hasScrollable: true, padding: EdgeInsets.zero, child: sheetScafold);
+    return MobilerakerSheet(
+      hasScrollable: true,
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
+      child: sheetScafold,
+    );
   }
 
   Widget _bodyFromSnapshot(

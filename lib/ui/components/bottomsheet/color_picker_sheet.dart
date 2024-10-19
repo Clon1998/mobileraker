@@ -40,6 +40,15 @@ class ColorPickerSheet extends HookConsumerWidget {
     );
 
     final themeData = Theme.of(context);
+
+    final title = PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight),
+      child: ListTile(
+        visualDensity: VisualDensity.compact,
+        title: const Text('components.select_color_sheet.title').tr(),
+      ),
+    );
+
     final bottom = StickyBottomBarVisibility(
       child: Theme(
         data: themeData.copyWith(useMaterial3: false),
@@ -65,7 +74,7 @@ class ColorPickerSheet extends HookConsumerWidget {
                     onPressed: () {
                       Navigator.pop(context, BottomSheetResult.confirmed(colorToHex(hex.value, enableAlpha: false)));
                     },
-                    child: Text('general.select').tr(),
+                    child: const Text('general.select').tr(),
                   ),
                 ),
               ],
@@ -77,97 +86,14 @@ class ColorPickerSheet extends HookConsumerWidget {
 
     return MobilerakerSheet(
       padding: EdgeInsets.zero,
+      useSafeArea: false,
       hasScrollable: true,
       child: SheetContentScaffold(
         resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(maintainBottomBar: true),
+        appBar: title,
         body: body,
         bottomBar: bottom,
       ),
-    );
-
-    // return MobilerakerSheet(
-    //   child: SheetContentScaffold(
-    //     appBar: AppBar(
-    //       backgroundColor: Theme
-    //           .of(context)
-    //           .colorScheme
-    //           .secondaryContainer,
-    //       leading: IconButton(
-    //         icon: const Icon(Icons.close),
-    //         onPressed: () => Navigator.of(context).pop(),
-    //       ),
-    //     ),
-    //     body:,
-    //     bottomBar: StickyBottomBarVisibility(
-    //       child: BottomAppBar(
-    //         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-    //         child: ElevatedButton(
-    //           onPressed: () {
-    //             Navigator.pop(context, BottomSheetResult.confirmed(colorToHex(hex.value, enableAlpha: false)));
-    //           },
-    //           child: Text(MaterialLocalizations
-    //               .of(context)
-    //               .keyboardKeySelect),
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
-  }
-}
-
-class _MySheet extends StatelessWidget {
-  const _MySheet();
-
-  @override
-  Widget build(BuildContext context) {
-    // Create a content whatever you want.
-    // ScrollableSheet works with any scrollable widget such as
-    // ListView, GridView, CustomScrollView, etc.
-    final content = ListView.builder(
-      itemCount: 50,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('Item $index'),
-        );
-      },
-    );
-
-    // Just wrap the content in a ScrollableSheet!
-    final sheet = ScrollableSheet(
-      maxPosition: SheetAnchor.proportional(0.8),
-      initialPosition: SheetAnchor.proportional(0.5),
-      minPosition: SheetAnchor.proportional(0.2),
-
-      // initialPosition: SheetAnchor.proportional(0.4),
-      child: buildSheetBackground(context, content),
-      // Optional: Comment out the following lines to add multiple stop positions.
-      //
-      // minPosition: const SheetAnchor.proportional(0.2),
-      // physics: BouncingSheetPhysics(
-      //   parent: SnappingSheetPhysics(
-      //     snappingBehavior: SnapToNearest(
-      //       snapTo: [
-      //         const SheetAnchor.proportional(0.2),
-      //         const SheetAnchor.proportional(0.5),
-      //         const SheetAnchor.proportional(1),
-      //       ],
-      //     ),
-      //   ),
-      // ),
-    );
-
-    return SafeArea(bottom: false, child: sheet);
-  }
-
-  Widget buildSheetBackground(BuildContext context, Widget content) {
-    // Add background color, circular corners and material shadow to the sheet.
-    // This is just an example, you can customize it however you want.
-    return Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: content,
     );
   }
 }

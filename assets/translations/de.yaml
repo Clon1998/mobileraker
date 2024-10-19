@@ -925,6 +925,8 @@ components:
     show_travel:
       title: 'Verfahrbewegungen anzeigen'
       subtitle: 'Zeigt nicht-druckende Bewegungen in der Vorschau an'
+  select_color_sheet:
+    title: Farbe auswählen
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?

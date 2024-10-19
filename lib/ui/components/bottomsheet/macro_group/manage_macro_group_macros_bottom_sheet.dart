@@ -55,6 +55,7 @@ class ManageMacroGroupMacrosBottomSheet extends ConsumerWidget {
     // const EdgeInsets.only(top: 10, bottom: 10),
     return MobilerakerSheet(
       hasScrollable: true,
+      useSafeArea: false,
       padding: EdgeInsets.zero,
       child: SheetContentScaffold(
         appBar: _Title(targetGrp: targetGrp.name),

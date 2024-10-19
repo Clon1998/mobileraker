@@ -35,6 +35,7 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
     return MobilerakerSheet(
       padding: EdgeInsets.zero,
       hasScrollable: true,
+      useSafeArea: false,
       child: ProviderScope(
         overrides: [sheetArgsProvider.overrideWithValue(args)],
         child: const _AddRemoteConnectionBottomSheet(),
