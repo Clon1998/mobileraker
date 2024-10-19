@@ -33,7 +33,7 @@ class MobilerakerSheet extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: padding,
-        child: child,
+        child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 500), child: child),
       ),
     );
 
