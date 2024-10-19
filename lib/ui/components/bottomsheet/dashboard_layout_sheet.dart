@@ -13,6 +13,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -25,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -32,6 +34,7 @@ import 'package:mobileraker/ui/components/horizontal_scroll_indicator.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../dashboard_card.dart';
 import '../dialog/text_input/text_input_dialog.dart';
@@ -48,95 +51,95 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_dashboardLayoutControllerProvider(currentLayout).notifier);
+    var themeData = Theme.of(context);
 
-    return ProviderScope(
-      child: DraggableScrollableSheet(
-        expand: false,
-        maxChildSize: 1,
-        initialChildSize: 0.35,
-        minChildSize: 0.35,
-        builder: (ctx, scrollController) {
-          var themeData = Theme.of(ctx);
-
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SafeArea(
-              // This is for tablets for now...
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min, // To make the card compact
-                  children: [
-                    Text(
-                      'bottom_sheets.dashboard_layout.title',
-                      style: themeData.textTheme.titleLarge,
-                      textAlign: TextAlign.center,
-                    ).tr(),
-                    // Text(
-                    //   'Current Layout: ${currentLayout.name}',
-                    //   style: themeData.textTheme.bodySmall,
-                    //   textAlign: TextAlign.center,
-                    // ),
-                    Text.rich(
-                      TextSpan(
-                        text: '${tr('bottom_sheets.dashboard_layout.subtitle')} ',
-                        children: [
-                          TextSpan(
-                            text: currentLayout.name,
-                            // recognizer: TapGestureRecognizer()..onTap = () => controller.onRenameLayout(currentLayout),
-                            style:
-                                TextStyle(color: themeData.colorScheme.primary, decoration: TextDecoration.underline),
-                          ),
-                        ],
-                      ),
-                      style: themeData.textTheme.bodySmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: exportLayout,
-                                child: AutoSizeText(tr('general.export'), maxLines: 1),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: controller.onImportLayout,
-                                child: AutoSizeText(tr('general.import'), maxLines: 1),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    Text('bottom_sheets.dashboard_layout.available_layouts.label',
-                            style: themeData.textTheme.labelLarge)
-                        .tr(),
-                    Expanded(
-                      child: AsyncGuard(
-                        debugLabel: 'Available Layouts-list',
-                        toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
-                        childOnData: _AvailableLayouts(
-                          scrollController: scrollController,
-                          currentLayout: currentLayout,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+    final title = PreferredSize(
+      preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            titleAlignment: ListTileTitleAlignment.center,
+            title: Text(
+              'bottom_sheets.dashboard_layout.title',
+              style: themeData.textTheme.titleLarge,
+            ).tr(),
+            subtitle: Text.rich(
+              TextSpan(
+                text: '${tr('bottom_sheets.dashboard_layout.subtitle')} ',
+                children: [
+                  TextSpan(
+                    text: currentLayout.name,
+                    // recognizer: TapGestureRecognizer()..onTap = () => controller.onRenameLayout(currentLayout),
+                    style: TextStyle(color: themeData.colorScheme.primary, decoration: TextDecoration.underline),
+                  ),
+                ],
               ),
             ),
-          );
-        },
+          ),
+          const Divider(height: 0),
+        ],
+      ),
+    );
+
+    final bottom = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: exportLayout,
+              child: AutoSizeText(tr('general.export'), maxLines: 1),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: OutlinedButton(
+              onPressed: controller.onImportLayout,
+              child: AutoSizeText(tr('general.import'), maxLines: 1),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final useM3 = themeData.useMaterial3;
+
+    return MobilerakerSheet(
+      padding: EdgeInsets.zero,
+      hasScrollable: true,
+      child: ProviderScope(
+        child: SheetContentScaffold(
+          appBar: title,
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Gap(8),
+                Text('bottom_sheets.dashboard_layout.available_layouts.label', style: themeData.textTheme.labelLarge)
+                    .tr(),
+                Expanded(
+                  child: AsyncGuard(
+                    debugLabel: 'Available Layouts-list',
+                    toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
+                    childOnData: _AvailableLayouts(
+                      currentLayout: currentLayout,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          bottomBar: StickyBottomBarVisibility(
+            child: Theme(
+              data: Theme.of(context).copyWith(useMaterial3: false),
+              child: BottomAppBar(child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom)),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -151,9 +154,8 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
 }
 
 class _AvailableLayouts extends ConsumerWidget {
-  const _AvailableLayouts({super.key, required this.scrollController, required this.currentLayout});
+  const _AvailableLayouts({super.key, required this.currentLayout});
 
-  final ScrollController scrollController;
   final DashboardLayout currentLayout;
 
   @override
@@ -165,8 +167,7 @@ class _AvailableLayouts extends ConsumerWidget {
     var theme = Theme.of(context);
 
     return CustomScrollView(
-      // shrinkWrap: true,
-      controller: scrollController,
+      shrinkWrap: true,
       slivers: [
         SliverList.list(
           children: [
@@ -236,6 +237,7 @@ class _LayoutPreview extends HookWidget {
     final colorExt = themeData.extension<CustomColors>();
 
     return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Stack(

@@ -38,7 +38,7 @@ dependencies:
   #packages maintained by mobileraker
   mobileraker_pro:
     path: ../mobileraker_pro
-    #path: ../mobileraker_pro_public # Uncomment this line if you want to contribute to the project. Alsoo remove the line above
+  #    path: ../mobileraker_pro_public # Uncomment this line if you want to contribute to the project. Alsoo remove the line above
   common:
     path: common
 
@@ -120,6 +120,9 @@ dependencies:
 
   #reactive UI
   responsive_framework: ^1.4.0
+
+  #bottomsheet:
+  smooth_sheets: ^1.0.0-f324.0.10.1
 
   #ui
   gap: ^3.0.1

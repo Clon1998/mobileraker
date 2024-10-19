@@ -3,15 +3,16 @@
  * All rights reserved.
  */
 
-import 'dart:math';
-
 import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
+import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,146 +34,47 @@ part 'user_bottom_sheet.g.dart';
 
 enum _LoginAction { signIn, signUp, forgotPassword }
 
-class UserBottomSheet extends StatefulHookWidget {
+class UserBottomSheet extends StatelessWidget {
   const UserBottomSheet({super.key});
 
   @override
-  State<UserBottomSheet> createState() => _UserBottomSheetState();
-}
-
-class _UserBottomSheetState extends State<UserBottomSheet> {
-  final DraggableScrollableController _controller = DraggableScrollableController();
-
-  EdgeInsets _viewInsets = EdgeInsets.zero;
-  double? _originalSize;
-  double? _originalScrollOffset;
-
-  @override
-  Widget build(BuildContext _) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.7,
-      minChildSize: 0.2,
-      controller: _controller,
-      builder: (_, scrollController) {
-        return HookBuilder(builder: (context) {
-          _viewInsets = MediaQuery.viewInsetsOf(context);
-
-          useEffect(
-            () {
-              var keyboardHeight = _viewInsets.bottom;
-              if (keyboardHeight == 0 && _originalSize == null) return;
-
-              double size;
-              if (keyboardHeight == 0) {
-                size = _originalSize!;
-                _originalSize = null;
-                logger.i('Restoring size to $_originalSize');
-              } else {
-                size = _controller.pixelsToSize(keyboardHeight) + _controller.size;
-                _originalSize ??= _controller.size;
-                logger.i('Bottom insets: $keyboardHeight => $size');
-              }
-
-              _controller.animateTo(
-                min(1, size),
-                duration: kThemeAnimationDuration,
-                curve: Curves.easeOut,
-              );
-
-              if (FocusManager.instance.primaryFocus == null) return;
-
-              final widgetHeight = FocusManager.instance.primaryFocus!.size.height;
-              final widgetOffset = FocusManager.instance.primaryFocus!.offset.dy;
-              final screenHeight = MediaQuery.sizeOf(context).height;
-
-              final targetWidgetOffset = screenHeight - keyboardHeight - widgetHeight - 20;
-              final valueToScroll = widgetOffset - targetWidgetOffset;
-
-              double scrollOffset;
-              if (keyboardHeight == 0) {
-                scrollOffset = _originalScrollOffset!;
-                _originalScrollOffset = null;
-              } else {
-                scrollOffset = scrollController.offset + valueToScroll;
-                _originalScrollOffset ??= scrollController.offset;
-              }
-
-              if (valueToScroll > 0 || _originalScrollOffset == null) {
-                scrollController.animateTo(
-                  scrollOffset,
-                  duration: kThemeAnimationDuration,
-                  curve: Curves.ease,
-                );
-              }
-              return null;
-            },
-            [_viewInsets.bottom],
-          );
-
-          return SafeArea(
-            child: Column(
-              // mainAxisSize: MainAxisSize.min, // To make the card compact
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SingleChildScrollView(
-                      // shrinkWrap: true,
-                      controller: scrollController,
-                      child: Consumer(
-                        builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                          return ref.watch(_userBottomSheetControllerProvider).when(
-                                data: (data) => _CardBody(model: data),
-                                error: (_, __) => const ErrorCard(
-                                  title: Text('Error loading User management'),
-                                  body: Text(
-                                    'An unexpected error occured while loading the User management. Please try again later.',
-                                  ),
-                                ),
-                                loading: () => const CircularProgressIndicator.adaptive(),
-                              );
-                        },
-                      ),
-                      // ],
-                    ),
-                  ),
-                ),
-                // Info box for status messages AKA a snackbar alternative...
-                const _InfoText(),
-                // const _ErrorText(),
-                FilledButton.icon(
-                  label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          );
-        });
-      },
+  Widget build(BuildContext context) {
+    return const MobilerakerSheet(
+      hasScrollable: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // To make the card compact
+        children: [
+          Flexible(child: SingleChildScrollView(child: _CardBody())),
+          // Info box for status messages AKA a snackbar alternative...
+          _InfoText(),
+        ],
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 
 class _CardBody extends ConsumerWidget {
-  const _CardBody({super.key, required this.model});
-
-  final _Model model;
+  const _CardBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var auth = ref.watch(authProvider);
+    final AsyncValue<fba.User?> user = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.user));
 
-    // return SignInScreen();
+    final Widget widget = switch (user) {
+      AsyncError() => const ErrorCard(
+          title: Text('Error loading User management'),
+          body: Text(
+            'An unexpected error occured while loading the User management. Please try again later.',
+          ),
+        ),
+      AsyncValue(hasValue: true, value: fba.User()) => const _Profile(key: Key('profile')),
+      _ => const _Login(key: Key('Login')),
+    };
 
-    return (model.user == null) ? const Padding(padding: EdgeInsets.all(30), child: _Login()) : const _Profile();
+    return AnimatedSizeAndFade(
+      alignment: Alignment.topCenter,
+      child: widget,
+    );
   }
 }
 
@@ -182,6 +84,7 @@ class _Login extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mode = useState(_LoginAction.signIn);
+    final stillLoading = ref.watch(_userBottomSheetControllerProvider.select((d) => d.isLoading));
     final controller = ref.watch(_userBottomSheetControllerProvider.notifier);
     final errorText = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.errorText)).valueOrNull;
 
@@ -210,74 +113,79 @@ class _Login extends HookConsumerWidget {
     }
 
     var themeData = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // HEADER
-        Text(tr(title), style: themeData.textTheme.headlineSmall),
-        const Text('bottom_sheets.signIn.subtitle').tr(),
-        if (mode.value != _LoginAction.forgotPassword)
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(text: '${tr(hint)} ', style: themeData.textTheme.bodySmall),
-                TextSpan(
-                  text: tr(switchActionText),
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: themeData.colorScheme.primary,
-                      ),
-                  mouseCursor: SystemMouseCursors.click,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      switch (mode.value) {
-                        case _LoginAction.signIn:
-                          switchMode(_LoginAction.signUp);
-                          break;
-                        case _LoginAction.signUp:
-                          switchMode(_LoginAction.signIn);
-                          break;
-                        case _LoginAction.forgotPassword:
-                        // Do nothing. We never are in that mode...
-                      }
-                    },
-                ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.all(30),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // HEADER
+          Text(tr(title), style: themeData.textTheme.headlineSmall),
+          const Text('bottom_sheets.signIn.subtitle').tr(),
+          if (mode.value != _LoginAction.forgotPassword)
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: '${tr(hint)} ', style: themeData.textTheme.bodySmall),
+                  TextSpan(
+                    text: tr(switchActionText),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: themeData.colorScheme.primary,
+                        ),
+                    mouseCursor: SystemMouseCursors.click,
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        switch (mode.value) {
+                          case _LoginAction.signIn:
+                            switchMode(_LoginAction.signUp);
+                            break;
+                          case _LoginAction.signUp:
+                            switchMode(_LoginAction.signIn);
+                            break;
+                          case _LoginAction.forgotPassword:
+                          // Do nothing. We never are in that mode...
+                        }
+                      },
+                  ),
+                ],
+              ),
             ),
-          ),
-        // BODY
-        const SizedBox(height: 8),
-        _EmailForm(
-          mode: mode.value,
-          onSubmit: (mail, password) {
-            switch (mode.value) {
-              case _LoginAction.signIn:
-                return controller.signIn(mail, password);
-              case _LoginAction.signUp:
-                return controller.signUp(mail, password);
-              case _LoginAction.forgotPassword:
-                return controller.forgotPassword(mail);
-            }
-          },
-          onForgotPassword: () {
-            switchMode(_LoginAction.forgotPassword);
-          },
-        ),
-        if (errorText != null)
-          Text(
-            errorText,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: themeData.colorScheme.error),
-          ),
-        if (mode.value == _LoginAction.forgotPassword)
-          TextButton(
-            onPressed: () {
-              switchMode(_LoginAction.signIn);
+          // BODY
+          const SizedBox(height: 8),
+          _EmailForm(
+            mode: mode.value,
+            onSubmit: stillLoading
+                ? null
+                : (mail, password) {
+                    switch (mode.value) {
+                      case _LoginAction.signIn:
+                        return controller.signIn(mail, password);
+                      case _LoginAction.signUp:
+                        return controller.signUp(mail, password);
+                      case _LoginAction.forgotPassword:
+                        return controller.forgotPassword(mail);
+                    }
+                  },
+            onForgotPassword: () {
+              switchMode(_LoginAction.forgotPassword);
             },
-            child: Text(MaterialLocalizations.of(context).backButtonTooltip).tr(),
           ),
-        if (mode.value != _LoginAction.forgotPassword) const _RestoreButton(),
-      ],
+          if (errorText != null)
+            Text(
+              errorText,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: themeData.colorScheme.error),
+            ),
+          if (mode.value == _LoginAction.forgotPassword)
+            TextButton(
+              onPressed: () {
+                switchMode(_LoginAction.signIn);
+              },
+              child: Text(MaterialLocalizations.of(context).backButtonTooltip).tr(),
+            ),
+          if (mode.value != _LoginAction.forgotPassword) const _RestoreButton(),
+        ],
+      ),
     );
   }
 }
@@ -515,7 +423,11 @@ class _EmailFormState extends State<_EmailForm> {
                 ]),
                 onSubmitted: (v) {
                   if (_formKey.currentState?.fields['password']?.validate() == true) {
-                    FocusScope.of(context).requestFocus(passwordFocusNode);
+                    if (widget.mode == _LoginAction.signIn) {
+                      _action();
+                      return;
+                    }
+                    FocusScope.of(context).requestFocus(confirmPasswordFocusNode);
                   } else {
                     FocusScope.of(context).requestFocus(passwordFocusNode);
                   }
@@ -525,7 +437,8 @@ class _EmailFormState extends State<_EmailForm> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                      onPressed: widget.onForgotPassword, child: Text('bottom_sheets.signIn.forgot_password').tr()),
+                      onPressed: widget.onForgotPassword,
+                      child: const Text('bottom_sheets.signIn.forgot_password').tr()),
                 ),
               if (widget.mode == _LoginAction.signUp) ...[
                 const SizedBox(height: 8),
@@ -551,13 +464,15 @@ class _EmailFormState extends State<_EmailForm> {
                   onSubmitted: (v) {
                     if (_formKey.currentState?.fields['confirmPassword']?.validate() != true) {
                       FocusScope.of(context).requestFocus(confirmPasswordFocusNode);
+                    } else {
+                      _action();
                     }
                   },
                 ),
               ],
             ],
             const SizedBox(height: 8),
-            AsyncOutlinedButton(child: Text(actionText).tr(), onPressed: _action),
+            AsyncOutlinedButton(onPressed: _action.only(widget.onSubmit != null), child: Text(actionText).tr()),
           ],
         ),
       ),
@@ -615,6 +530,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   @override
   Stream<_Model> build() async* {
     logger.i('Rebuilding UserBottomSheetController');
+
     yield* ref.watchAsSubject(firebaseUserProvider).map((user) => _Model(user: user));
   }
 

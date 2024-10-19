@@ -62,6 +62,7 @@ general:
   discard: Verwerfen
   hide: Verstecken
   finish: Abschließen
+  select: Auswählen
 pages:
   dashboard:
     title: Dashboard

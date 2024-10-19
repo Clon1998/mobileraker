@@ -62,6 +62,7 @@ general:
   discard: Discard
   hide: Hide
   finish: Finish
+  select: Select
 pages:
   dashboard:
     title: Dashboard

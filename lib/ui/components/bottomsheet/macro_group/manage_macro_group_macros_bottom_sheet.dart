@@ -8,15 +8,16 @@ import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
 import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:stringr/stringr.dart';
 
 part 'manage_macro_group_macros_bottom_sheet.freezed.dart';
@@ -32,71 +33,83 @@ class ManageMacroGroupMacrosBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controllerProvider = _manageMacroGroupMacrosControllerProvider(arguments);
-    var controller = ref.watch(controllerProvider.notifier);
+    final controllerProvider = _manageMacroGroupMacrosControllerProvider(arguments);
+    final controller = ref.watch(controllerProvider.notifier);
+    final targetGrp = ref.watch(controllerProvider.select((value) => value.targetMacroGroup));
+    final otherGrps = ref.watch(controllerProvider.select((value) => value.otherMacroGroups));
 
-    var targetGrp = ref.watch(controllerProvider.select((value) => value.targetMacroGroup));
-    var otherGrps = ref.watch(controllerProvider.select((value) => value.otherMacroGroups));
+    final body = ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      shrinkWrap: true,
+      children: [
+        ...List.generate(otherGrps.length, (index) {
+          var grp = otherGrps.elementAtOrNull(index)!;
+          return _MacroGroup(
+            macroGroup: grp,
+            controllerProvider: controllerProvider,
+          );
+        }),
+      ],
+    );
 
-    return DraggableScrollableSheet(
-      expand: false,
-      minChildSize: 0.35,
-      builder: (ctx, scrollController) {
-        var themeData = Theme.of(ctx);
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SafeArea(
-            child: Column(
-              // mainAxisSize: MainAxisSize.min, // To make the card compact
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'bottom_sheets.manage_macros_in_grp.title',
-                          style: themeData.textTheme.headlineSmall,
-                        ).tr(),
-                        Text(
-                          'bottom_sheets.manage_macros_in_grp.hint',
-                          textAlign: TextAlign.center,
-                          style: themeData.textTheme.bodySmall,
-                        ).tr(args: [targetGrp.name]),
-                        ...List.generate(otherGrps.length, (index) {
-                          var grp = otherGrps.elementAtOrNull(index)!;
-                          return _MacroGroup(
-                            macroGroup: grp,
-                            controllerProvider: controllerProvider,
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
+    // const EdgeInsets.only(top: 10, bottom: 10),
+    return MobilerakerSheet(
+      hasScrollable: true,
+      padding: EdgeInsets.zero,
+      child: SheetContentScaffold(
+        appBar: _Title(targetGrp: targetGrp.name),
+        body: body,
+        bottomBar: StickyBottomBarVisibility(
+          child: Theme(
+            data: Theme.of(context).copyWith(useMaterial3: false),
+            child: BottomAppBar(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: ElevatedButton(
+                  onPressed: controller.applyMacros,
+                  child: const Text('general.apply').tr(),
                 ),
-                const Divider(),
-                FullWidthButton(onPressed: controller.applyMacros, child: const Text('general.apply').tr()),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     TextButton(
-                //       onPressed: controller.onDialogCancel,
-                //       child: const Text('general.cancel').tr(),
-                //     ),
-                //     TextButton(
-                //       onPressed: controller.onDialogConfirm,
-                //       child: const Text('general.confirm').tr(),
-                //     ),
-                //   ],
-                // ),
-                // const _Footer()
-              ],
+              ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
+  }
+}
+
+class _Title extends StatelessWidget implements PreferredSizeWidget {
+  const _Title({super.key, required this.targetGrp});
+
+  final String targetGrp;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          visualDensity: VisualDensity.compact,
+          titleAlignment: ListTileTitleAlignment.center,
+          title: Text(
+            'bottom_sheets.manage_macros_in_grp.title',
+            style: themeData.textTheme.headlineSmall,
+          ).tr(),
+          subtitle: Text(
+            'bottom_sheets.manage_macros_in_grp.hint',
+            style: themeData.textTheme.bodySmall,
+          ).tr(args: [targetGrp]),
+        ),
+        const Divider(height: 0),
+      ],
+    );
+  }
+
+  @override
+  Size get preferredSize {
+    return const Size.fromHeight(kToolbarHeight + 10);
   }
 }
 

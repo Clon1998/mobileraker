@@ -200,7 +200,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
         type: SheetType.selections,
         isScrollControlled: true,
         data: SelectionBottomSheetArgs<String>(
-          options: _spoolmanService.allLocations().then((locations) {
+          options: _spoolmanService.allLocations().then((locations) async {
             // await Future.delayed(Duration(seconds: 4));
 
             return [
@@ -240,7 +240,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
             machineUUID,
             filters: state.toFilamentFilter(),
           ).future)
-              .then((filaments) {
+              .then((filaments) async {
             // await Future.delayed(Duration(seconds: 4));
 
             return [
@@ -307,8 +307,10 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   }
 
   Future<void> filterColor() async {
-    final res = await _bottomSheetService
-        .show(BottomSheetConfig(type: SheetType.colorPicker, isScrollControlled: true, data: state.color));
+    final res = await _bottomSheetService.show(BottomSheetConfig(
+      type: SheetType.colorPicker,
+      data: state.color,
+    ));
 
     logger.i('[SpoolmanFilterChipsController($machineUUID) selected Color: $res');
     if (res.confirmed) {

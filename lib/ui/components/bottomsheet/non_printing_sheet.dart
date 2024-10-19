@@ -11,10 +11,12 @@ import 'package:common/data/dto/server/service_status.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
+import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -26,6 +28,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 class NonPrintingBottomSheet extends ConsumerStatefulWidget {
   const NonPrintingBottomSheet({super.key});
@@ -33,6 +36,8 @@ class NonPrintingBottomSheet extends ConsumerStatefulWidget {
   @override
   ConsumerState<NonPrintingBottomSheet> createState() => _NonPrintingBottomSheetState();
 }
+
+const _sheetPadding = EdgeInsets.fromLTRB(25, 15, 25, 0);
 
 typedef _ShowConfirmAction = void Function(String title, String body, VoidCallback action, [String? hint]);
 
@@ -62,7 +67,7 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
         // Close the bottom sheet if the client is disconnected
         if (mounted && !_closing) {
           logger.i('Closing bottom sheet because client is disconnected');
-          Navigator.of(context).pop();
+          ref.read(goRouterProvider).pop();
           _closing = true;
         }
       }
@@ -73,36 +78,35 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
   Widget build(BuildContext context) {
     const animDuration = kThemeAnimationDuration;
     // final animDuration = const Duration(milliseconds: 5000);
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
-        child: ValueListenableBuilder(
-          valueListenable: _page,
-          builder: (ctx, value, _) => AnimatedSizeAndFade(
-            sizeDuration: animDuration,
-            fadeDuration: animDuration,
-            sizeCurve: Curves.easeInOut,
-            fadeInCurve: Curves.easeInOut,
-            fadeOutCurve: Curves.easeInOut,
-            alignment: Alignment.bottomCenter,
-            child: switch (value) {
-              1 => _ManageServices(
-                  key: const Key('npMs'),
-                  defaultHeight: _sheetHeight,
-                  pageController: _page,
-                  showConfirm: _showConfirm,
-                ),
-              2 => _Confirm(
-                  key: const Key('npConfirm'),
-                  pageController: _page,
-                  title: _confirmTitle,
-                  body: _confirmBody,
-                  hint: _confirmHint,
-                  action: _confirmAction!,
-                ),
-              _ => _Home(key: _homeKey, pageController: _page, showConfirm: _showConfirm),
-            },
-          ),
+    return MobilerakerSheet(
+      hasScrollable: true,
+      padding: EdgeInsets.zero,
+      child: ValueListenableBuilder(
+        valueListenable: _page,
+        builder: (ctx, value, _) => AnimatedSizeAndFade(
+          sizeDuration: animDuration,
+          fadeDuration: animDuration,
+          sizeCurve: Curves.easeInOut,
+          fadeInCurve: Curves.easeInOut,
+          fadeOutCurve: Curves.easeInOut,
+          alignment: Alignment.bottomCenter,
+          child: switch (value) {
+            1 => _ManageServices(
+                key: const Key('npMs'),
+                defaultHeight: _sheetHeight,
+                pageController: _page,
+                showConfirm: _showConfirm,
+              ),
+            2 => _Confirm(
+                key: const Key('npConfirm'),
+                pageController: _page,
+                title: _confirmTitle,
+                body: _confirmBody,
+                hint: _confirmHint,
+                action: _confirmAction!,
+              ),
+            _ => _Home(key: _homeKey, pageController: _page, showConfirm: _showConfirm),
+          },
         ),
       ),
     );
@@ -146,88 +150,93 @@ class _Home extends ConsumerWidget {
     var klippyService = ref.watch(klipperServiceSelectedProvider);
 
     var themeData = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return SheetDraggable(
+      child: Padding(
+        padding: _sheetPadding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Flexible(
-              flex: 5,
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => _btnActionWithConfirm(klippyService.shutdownHost, 'pi_shutdown'),
-                  onLongPress: _btnAction(context, klippyService.shutdownHost),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
-                    foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => _btnActionWithConfirm(klippyService.shutdownHost, 'pi_shutdown'),
+                      onLongPress: _btnAction(context, klippyService.shutdownHost),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
+                        foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
+                      ),
+                      child: AutoSizeText(tr('general.shutdown'), maxLines: 1),
+                    ),
                   ),
-                  child: AutoSizeText(tr('general.shutdown'), maxLines: 1),
                 ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Icon(
+                    FlutterIcons.raspberry_pi_faw5d,
+                    color: themeData.colorScheme.onBackground,
+                  ),
+                ),
+                Flexible(
+                  flex: 5,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: themeData.extension<CustomColors>()?.warning ?? Colors.red,
+                        foregroundColor: themeData.extension<CustomColors>()?.onWarning ?? Colors.white,
+                      ),
+                      onPressed: () => _btnActionWithConfirm(klippyService.rebootHost, 'pi_restart'),
+                      onLongPress: _btnAction(context, klippyService.rebootHost),
+                      child: AutoSizeText(tr('general.restart'), maxLines: 1),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            OutlinedButton(
+              onPressed: () => _btnActionWithConfirm(klippyService.restartMCUs, 'fw_restart'),
+              onLongPress: _btnAction(context, klippyService.restartMCUs),
+              child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
+            ),
+            OutlinedButton(
+              onPressed: () => pageController.value = 1,
+              child: AutoSizeText(
+                tr('bottom_sheets.non_printing.manage_service.title'),
+                maxLines: 1,
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: Icon(
-                FlutterIcons.raspberry_pi_faw5d,
-                color: themeData.colorScheme.onBackground,
+            // OutlinedButton(
+            //   onPressed: _btnAction(context, klippyService.restartMoonraker),
+            //   child: Text('Moonraker ${tr('@.lower:general.restart')}'),
+            // ),
+            OutlinedButton(
+              onPressed: () => ref
+                  .read(bottomSheetServiceProvider)
+                  .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
+              child: AutoSizeText(
+                tr('dialogs.supporter_perks.job_queue_perk.title'),
+                maxLines: 1,
               ),
             ),
-            Flexible(
-              flex: 5,
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: themeData.extension<CustomColors>()?.warning ?? Colors.red,
-                    foregroundColor: themeData.extension<CustomColors>()?.onWarning ?? Colors.white,
-                  ),
-                  onPressed: () => _btnActionWithConfirm(klippyService.rebootHost, 'pi_restart'),
-                  onLongPress: _btnAction(context, klippyService.rebootHost),
-                  child: AutoSizeText(tr('general.restart'), maxLines: 1),
-                ),
+
+            /// Dont strech the button
+            Align(
+              child: TextButton.icon(
+                label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
+                icon: const Icon(Icons.keyboard_arrow_down),
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 5),
-        OutlinedButton(
-          onPressed: () => _btnActionWithConfirm(klippyService.restartMCUs, 'fw_restart'),
-          onLongPress: _btnAction(context, klippyService.restartMCUs),
-          child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
-        ),
-        OutlinedButton(
-          onPressed: () => pageController.value = 1,
-          child: AutoSizeText(
-            tr('bottom_sheets.non_printing.manage_service.title'),
-            maxLines: 1,
-          ),
-        ),
-        // OutlinedButton(
-        //   onPressed: _btnAction(context, klippyService.restartMoonraker),
-        //   child: Text('Moonraker ${tr('@.lower:general.restart')}'),
-        // ),
-        OutlinedButton(
-          onPressed: () => ref
-              .read(bottomSheetServiceProvider)
-              .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
-          child: AutoSizeText(
-            tr('dialogs.supporter_perks.job_queue_perk.title'),
-            maxLines: 1,
-          ),
-        ),
-
-        /// Dont strech the button
-        Align(
-          child: FilledButton.icon(
-            label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
-            icon: const Icon(Icons.keyboard_arrow_down),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -271,28 +280,31 @@ class _ManageServices extends ConsumerWidget {
       shouldConstraint = true;
     }
 
-    var column = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: switch (systemInfo) {
-            AsyncValue(hasValue: true, :final value?) => _ServiceList(
-                systemInfo: value,
-                showConfirm: _showConfirm,
-              ),
-            AsyncLoading() => const Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            AsyncError(:final error) => Center(child: _SystemInfoProviderError(error: error)),
-            _ => const SizedBox.shrink(),
-          },
-        ),
-        FilledButton.icon(
-          label: Text(MaterialLocalizations.of(context).backButtonTooltip),
-          icon: const Icon(Icons.keyboard_arrow_left),
-          onPressed: () => pageController.value = 0,
-        ),
-      ],
+    var column = Padding(
+      padding: _sheetPadding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: switch (systemInfo) {
+              AsyncValue(hasValue: true, :final value?) => _ServiceList(
+                  systemInfo: value,
+                  showConfirm: _showConfirm,
+                ),
+              AsyncLoading() => const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
+              AsyncError(:final error) => Center(child: _SystemInfoProviderError(error: error)),
+              _ => const SizedBox.shrink(),
+            },
+          ),
+          TextButton.icon(
+            label: Text(MaterialLocalizations.of(context).backButtonTooltip),
+            icon: const Icon(Icons.keyboard_arrow_left),
+            onPressed: () => pageController.value = 0,
+          ),
+        ],
+      ),
     );
     return shouldConstraint
         ? ConstrainedBox(
@@ -455,37 +467,40 @@ class _Confirm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var cc = themeData.extension<CustomColors>();
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          title,
-          style: themeData.textTheme.titleLarge,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 5),
-        Text(body, style: themeData.textTheme.titleSmall),
-        const SizedBox(height: 10),
-        if (hint != null) Text(hint!, style: themeData.textTheme.bodySmall, textAlign: TextAlign.center),
+    return Padding(
+      padding: _sheetPadding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            title,
+            style: themeData.textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 5),
+          Text(body, style: themeData.textTheme.titleSmall),
+          const SizedBox(height: 10),
+          if (hint != null) Text(hint!, style: themeData.textTheme.bodySmall, textAlign: TextAlign.center),
 
-        /// Dont strech the button
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FilledButton.icon(
-              onPressed: () => pageController.value = 0,
-              label: Text(MaterialLocalizations.of(context).cancelButtonLabel),
-              icon: const Icon(Icons.keyboard_arrow_left),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
-              onPressed: () => _onConfirm(context),
-              child: const Text('general.confirm').tr(),
-            ),
-          ],
-        ),
-      ],
+          /// Dont strech the button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton.icon(
+                onPressed: () => pageController.value = 0,
+                label: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                icon: const Icon(Icons.keyboard_arrow_left),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
+                onPressed: () => _onConfirm(context),
+                child: const Text('general.confirm').tr(),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
