@@ -5,7 +5,6 @@
 
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/info_card.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,14 +31,9 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MobilerakerSheet(
-      padding: EdgeInsets.zero,
-      hasScrollable: true,
-      useSafeArea: false,
-      child: ProviderScope(
-        overrides: [sheetArgsProvider.overrideWithValue(args)],
-        child: const _AddRemoteConnectionBottomSheet(),
-      ),
+    return ProviderScope(
+      overrides: [sheetArgsProvider.overrideWithValue(args)],
+      child: const _AddRemoteConnectionBottomSheet(),
     );
   }
 }

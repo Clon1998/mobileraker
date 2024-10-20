@@ -5,8 +5,6 @@
 
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -28,71 +26,65 @@ class DashboardCardsBottomSheet extends HookWidget {
     var availableCards = DashboardComponentType.values;
 
     return ProviderScope(
-      child: MobilerakerSheet(
-        useSafeArea: false,
-        padding: EdgeInsets.zero,
-        initialPosition: context.isCompact ? 0.6 : 1,
-        hasScrollable: true,
-        child: Builder(builder: (context) {
-          var themeData = Theme.of(context);
+      child: Builder(builder: (context) {
+        var themeData = Theme.of(context);
 
-          var cssGrid = AlignedGridView.count(
-            crossAxisCount: 2,
-            mainAxisSpacing: 0,
-            crossAxisSpacing: 0,
-            itemCount: availableCards.length,
-            itemBuilder: (ictx, index) {
-              var e = availableCards[index];
+        var cssGrid = AlignedGridView.count(
+          crossAxisCount: 2,
+          mainAxisSpacing: 0,
+          crossAxisSpacing: 0,
+          itemCount: availableCards.length,
+          itemBuilder: (ictx, index) {
+            var e = availableCards[index];
 
-              return InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: () => onSelect(context, e),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: FittedBox(
-                    key: Key(e.name),
-                    child: SizedBox(
-                      width: width,
-                      child: AbsorbPointer(
-                        child: DasboardCard.preview(
-                          type: e,
-                        ),
+            return InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => onSelect(context, e),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: FittedBox(
+                  key: Key(e.name),
+                  child: SizedBox(
+                    width: width,
+                    child: AbsorbPointer(
+                      child: DasboardCard.preview(
+                        type: e,
                       ),
                     ),
                   ),
                 ),
-              );
-            },
-          );
+              ),
+            );
+          },
+        );
 
-          final title = PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  visualDensity: VisualDensity.compact,
-                  titleAlignment: ListTileTitleAlignment.center,
-                  title: Text(
-                    'bottom_sheets.dashboard_cards.title',
-                    style: themeData.textTheme.headlineSmall,
-                  ).tr(),
-                  subtitle: Text(
-                    'bottom_sheets.dashboard_cards.subtitle',
-                    style: themeData.textTheme.bodySmall,
-                  ).tr(),
-                ),
-                const Divider(height: 0),
-              ],
-            ),
-          );
+        final title = PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                visualDensity: VisualDensity.compact,
+                titleAlignment: ListTileTitleAlignment.center,
+                title: Text(
+                  'bottom_sheets.dashboard_cards.title',
+                  style: themeData.textTheme.headlineSmall,
+                ).tr(),
+                subtitle: Text(
+                  'bottom_sheets.dashboard_cards.subtitle',
+                  style: themeData.textTheme.bodySmall,
+                ).tr(),
+              ),
+              const Divider(height: 0),
+            ],
+          ),
+        );
 
-          return SheetContentScaffold(
-            appBar: title,
-            body: cssGrid,
-          );
-        }),
-      ),
+        return SheetContentScaffold(
+          appBar: title,
+          body: cssGrid,
+        );
+      }),
     );
   }
 

@@ -7,7 +7,6 @@ import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/warning_card.dart';
@@ -39,8 +38,7 @@ class UserBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MobilerakerSheet(
-      hasScrollable: true,
+    return const SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min, // To make the card compact
         children: [

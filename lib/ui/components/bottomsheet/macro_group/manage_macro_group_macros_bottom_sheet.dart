@@ -8,7 +8,6 @@ import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
 import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -53,23 +52,18 @@ class ManageMacroGroupMacrosBottomSheet extends ConsumerWidget {
     );
 
     // const EdgeInsets.only(top: 10, bottom: 10),
-    return MobilerakerSheet(
-      hasScrollable: true,
-      useSafeArea: false,
-      padding: EdgeInsets.zero,
-      child: SheetContentScaffold(
-        appBar: _Title(targetGrp: targetGrp.name),
-        body: body,
-        bottomBar: StickyBottomBarVisibility(
-          child: Theme(
-            data: Theme.of(context).copyWith(useMaterial3: false),
-            child: BottomAppBar(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ElevatedButton(
-                  onPressed: controller.applyMacros,
-                  child: const Text('general.apply').tr(),
-                ),
+    return SheetContentScaffold(
+      appBar: _Title(targetGrp: targetGrp.name),
+      body: body,
+      bottomBar: StickyBottomBarVisibility(
+        child: Theme(
+          data: Theme.of(context).copyWith(useMaterial3: false),
+          child: BottomAppBar(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: ElevatedButton(
+                onPressed: controller.applyMacros,
+                child: const Text('general.apply').tr(),
               ),
             ),
           ),

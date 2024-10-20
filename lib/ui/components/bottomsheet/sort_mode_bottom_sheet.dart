@@ -8,10 +8,10 @@ import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SortModeBottomSheet extends ConsumerWidget {
@@ -21,25 +21,22 @@ class SortModeBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MobilerakerSheet(
-      // padding: const EdgeInsets.only(top: 15, bottom: 10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            titleAlignment: ListTileTitleAlignment.center,
-            // leading: arguments.leading,
-            horizontalTitleGap: 8,
-            title: const Text('pages.files.sort_by.sort_by').tr(),
-            minLeadingWidth: 42,
-          ),
-          const Divider(),
-          for (final entry in arguments.toShow)
-            _Entry(mode: entry, kind: arguments.active.kind.only(entry == arguments.active.mode)),
-        ],
-      ),
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        const Gap(10),
+        ListTile(
+          visualDensity: VisualDensity.compact,
+          titleAlignment: ListTileTitleAlignment.center,
+          // leading: arguments.leading,
+          horizontalTitleGap: 8,
+          title: const Text('pages.files.sort_by.sort_by').tr(),
+          minLeadingWidth: 42,
+        ),
+        const Divider(),
+        for (final entry in arguments.toShow)
+          _Entry(mode: entry, kind: arguments.active.kind.only(entry == arguments.active.mode)),
+      ],
     );
   }
 }

@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
 
-mixin RouteDefinitionMixin {
+mixin RouteDefinitionMixin implements Enum {
   // String get name;
 }
 

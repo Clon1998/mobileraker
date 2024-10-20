@@ -4,7 +4,6 @@
  */
 
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -84,16 +83,11 @@ class ColorPickerSheet extends HookConsumerWidget {
       ),
     );
 
-    return MobilerakerSheet(
-      padding: EdgeInsets.zero,
-      useSafeArea: false,
-      hasScrollable: true,
-      child: SheetContentScaffold(
-        resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(maintainBottomBar: true),
-        appBar: title,
-        body: body,
-        bottomBar: bottom,
-      ),
+    return SheetContentScaffold(
+      resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(maintainBottomBar: true),
+      appBar: title,
+      body: body,
+      bottomBar: bottom,
     );
   }
 }

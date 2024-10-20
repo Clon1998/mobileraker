@@ -16,7 +16,6 @@ import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -78,9 +77,7 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
   Widget build(BuildContext context) {
     const animDuration = Duration(milliseconds: 350);
     // final animDuration = const Duration(milliseconds: 5000);
-    return MobilerakerSheet(
-      hasScrollable: true,
-      padding: EdgeInsets.zero,
+    return SafeArea(
       child: ValueListenableBuilder(
         valueListenable: _page,
         builder: (ctx, value, _) => AnimatedSizeAndFade(

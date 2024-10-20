@@ -13,7 +13,6 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -107,38 +106,33 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
 
     final useM3 = themeData.useMaterial3;
 
-    return MobilerakerSheet(
-      padding: EdgeInsets.zero,
-      hasScrollable: true,
-      useSafeArea: false,
-      child: ProviderScope(
-        child: SheetContentScaffold(
-          appBar: title,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Gap(8),
-                Text('bottom_sheets.dashboard_layout.available_layouts.label', style: themeData.textTheme.labelLarge)
-                    .tr(),
-                Expanded(
-                  child: AsyncGuard(
-                    debugLabel: 'Available Layouts-list',
-                    toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
-                    childOnData: _AvailableLayouts(
-                      currentLayout: currentLayout,
-                    ),
+    return ProviderScope(
+      child: SheetContentScaffold(
+        appBar: title,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Gap(8),
+              Text('bottom_sheets.dashboard_layout.available_layouts.label', style: themeData.textTheme.labelLarge)
+                  .tr(),
+              Expanded(
+                child: AsyncGuard(
+                  debugLabel: 'Available Layouts-list',
+                  toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
+                  childOnData: _AvailableLayouts(
+                    currentLayout: currentLayout,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          bottomBar: StickyBottomBarVisibility(
-            child: Theme(
-              data: Theme.of(context).copyWith(useMaterial3: false),
-              child: BottomAppBar(child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom)),
-            ),
+        ),
+        bottomBar: StickyBottomBarVisibility(
+          child: Theme(
+            data: Theme.of(context).copyWith(useMaterial3: false),
+            child: BottomAppBar(child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom)),
           ),
         ),
       ),

@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
@@ -58,6 +59,8 @@ import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
 
+final sheetTransitionObserver = NavigationSheetTransitionObserver();
+
 enum AppRoute implements RouteDefinitionMixin {
   dashBoard,
   overview,
@@ -81,7 +84,6 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
   fileManager_exlorer_imageViewer,
-  modal_sheet,
 }
 
 @riverpod
@@ -369,24 +371,29 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
         ],
       ),
-      GoRoute(
-        path: '/modal-sheet',
-        name: AppRoute.modal_sheet.name,
-        pageBuilder: (context, state) {
-          // Use ModalSheetPage to show a modal sheet with Navigator 2.0.
-          // It works with any *Sheet provided by this package!
+      ShellRoute(
+        observers: [sheetTransitionObserver],
+        pageBuilder: (context, state, child) {
+          // Use ModalSheetPage to show a modal sheet.
           return ModalSheetPage(
-            key: state.pageKey,
-            // Enable the swipe-to-dismiss behavior.
             swipeDismissible: true,
-            // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
-            swipeDismissSensitivity: const SwipeDismissSensitivity(
-              minFlingVelocityRatio: 2.0,
-              minDragDistance: 200.0,
+            child: SafeArea(
+              bottom: false,
+              child: NavigationSheet(
+                transitionObserver: sheetTransitionObserver,
+                child: Material(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  clipBehavior: Clip.antiAlias,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: child,
+                  ),
+                ),
+              ),
             ),
-            child: state.extra as Widget,
           );
         },
+        routes: BottomSheetServiceImpl.routes,
       ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),

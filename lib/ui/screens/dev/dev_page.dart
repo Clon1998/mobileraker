@@ -26,6 +26,7 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 // import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
@@ -52,6 +53,13 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
+        FilledButton(
+          onPressed: () {
+            context.push('/sheet/job-queue');
+          },
+          child: Text('QueueSheet'),
+        ),
+
         // GCodePreviewCard.preview(),
         GCodePreviewCard(machineUUID: selMachine.uuid),
         // const _StlPreview(),

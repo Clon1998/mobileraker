@@ -6,10 +6,10 @@
 import 'package:collection/collection.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ActionBottomSheet extends ConsumerWidget {
@@ -21,28 +21,26 @@ class ActionBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
 
-    return MobilerakerSheet(
-      hasScrollable: true,
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          if (arguments.title != null) ...[
-            ListTile(
-              visualDensity: VisualDensity.compact,
-              titleAlignment: ListTileTitleAlignment.center,
-              leading: arguments.leading,
-              iconColor: themeData.colorScheme.primary,
-              // leading: arguments.leading,
-              horizontalTitleGap: 8,
-              title: arguments.title,
-              subtitle: arguments.subtitle,
-              minLeadingWidth: 42,
-            ),
-            const Divider(),
-          ],
-          for (final action in arguments.actions) _Entry(action: action),
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        const Gap(10),
+        if (arguments.title != null) ...[
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            titleAlignment: ListTileTitleAlignment.center,
+            leading: arguments.leading,
+            iconColor: themeData.colorScheme.primary,
+            // leading: arguments.leading,
+            horizontalTitleGap: 8,
+            title: arguments.title,
+            subtitle: arguments.subtitle,
+            minLeadingWidth: 42,
+          ),
+          const Divider(),
         ],
-      ),
+        for (final action in arguments.actions) _Entry(action: action),
+      ],
     );
   }
 }

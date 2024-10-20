@@ -6,11 +6,13 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
+const _defaultPadding = const EdgeInsets.only(top: 10, bottom: 10);
+
 class MobilerakerSheet extends StatelessWidget {
   const MobilerakerSheet({
     super.key,
     this.hasScrollable = false,
-    this.padding = const EdgeInsets.only(top: 10, bottom: 10),
+    this.padding = _defaultPadding,
     required this.child,
     this.initialPosition = 1.0,
     this.useSafeArea = true,
@@ -27,12 +29,8 @@ class MobilerakerSheet extends StatelessWidget {
 
   final double initialPosition;
 
-  @override
-  Widget build(BuildContext context) {
-    assert(child is! SheetContentScaffold || padding == EdgeInsets.zero,
-        'Padding is not supported with SheetContentScaffold. If you need the padding set it in each of the children of the SheetContentScaffold.');
-
-    final withBg = Material(
+  static Widget background({required Widget child, bool useSafeArea = true, EdgeInsets padding = _defaultPadding}) {
+    return Material(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: Padding(
@@ -41,6 +39,14 @@ class MobilerakerSheet extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 500), child: useSafeArea ? SafeArea(child: child) : child),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(child is! SheetContentScaffold || padding == EdgeInsets.zero,
+        'Padding is not supported with SheetContentScaffold. If you need the padding set it in each of the children of the SheetContentScaffold.');
+
+    final withBg = MobilerakerSheet.background(child: child, useSafeArea: useSafeArea, padding: padding);
 
     final sheet = hasScrollable
         ? ScrollableSheet(

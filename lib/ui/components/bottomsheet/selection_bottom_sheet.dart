@@ -8,7 +8,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
-import 'package:common/ui/bottomsheet/mobileraker_sheet.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/logger.dart';
@@ -51,7 +50,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
 
     logger.w('SelectionBottomSheet: ${optionsSnapshot}');
 
-    final sheetScafold = SheetContentScaffold(
+    return SheetContentScaffold(
       resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
         maintainBottomBar: true,
       ),
@@ -73,13 +72,6 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
           ),
         ),
       ).only(arguments.multiSelect),
-    );
-
-    return MobilerakerSheet(
-      hasScrollable: true,
-      useSafeArea: false,
-      padding: EdgeInsets.zero,
-      child: sheetScafold,
     );
   }
 
@@ -127,7 +119,7 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final node = useFocusNode();
 
-    final bottom = Column(
+    return Column(
       // mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -161,8 +153,6 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
         const Divider(height: 0),
       ],
     );
-
-    return bottom;
   }
 
   @override
