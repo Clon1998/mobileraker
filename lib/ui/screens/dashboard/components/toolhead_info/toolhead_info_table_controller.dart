@@ -6,7 +6,6 @@
 import 'dart:math';
 
 import 'package:common/data/dto/files/gcode_file.dart';
-import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -24,7 +23,6 @@ part 'toolhead_info_table_controller.g.dart';
 class ToolheadInfo with _$ToolheadInfo {
   const factory ToolheadInfo({
     required List<double> postion,
-    required bool printingOrPaused,
     required int mmSpeed,
     required int currentLayer,
     required int maxLayers,
@@ -69,7 +67,6 @@ class ToolheadInfo with _$ToolheadInfo {
 
     return ToolheadInfo(
       postion: position.toList(growable: false),
-      printingOrPaused: const {PrintState.printing, PrintState.paused}.contains(printer.print.state),
       mmSpeed: printer.gCodeMove.mmSpeed,
       currentLayer: curLayer,
       maxLayers: maxLayer,

@@ -19,6 +19,7 @@ import 'package:shimmer/shimmer.dart';
 class ToolheadInfoTable extends ConsumerWidget {
   static const String POS_ROW = 'p';
   static const String MOV_ROW = 'm';
+  static const String SUMMARY_ROW = 's';
 
   final List<String> rowsToShow;
 
@@ -50,8 +51,6 @@ class _ToolheadData extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('Rebuilding ToolheadInfoTable');
 
-    var isPrintingOrPaused =
-        ref.watch(toolheadInfoProvider(machineUUID).selectAs((data) => data.printingOrPaused)).valueOrNull == true;
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 
     var numFormatFixed1 =
@@ -70,6 +69,25 @@ class _ToolheadData extends ConsumerWidget {
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       columnWidths: const {0: FractionColumnWidth(.1)},
       children: [
+        if (rowsToShow.contains(ToolheadInfoTable.SUMMARY_ROW))
+          TableRow(
+            children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Icon(Icons.history_toggle_off),
+              ),
+              _ConsumerCell(
+                label: tr('pages.dashboard.general.print_card.print_time'),
+                consumerListenable:
+                    toolheadInfoProvider(machineUUID).selectAs((value) => secondsToDurationText(value.totalDuration)),
+              ),
+              _ConsumerCell(
+                label: tr('pages.dashboard.general.print_card.filament'),
+                consumerListenable: toolheadInfoProvider(machineUUID)
+                    .selectAs((value) => '${value.usedFilament?.let(numFormatFixed1.format) ?? 0} m'),
+              ),
+            ],
+          ),
         if (rowsToShow.contains(ToolheadInfoTable.POS_ROW))
           TableRow(children: [
             const Padding(
@@ -92,7 +110,7 @@ class _ToolheadData extends ConsumerWidget {
                   .selectAs((value) => value.postion.elementAtOrNull(2)?.let(numFormatFixed2.format) ?? '--'),
             ),
           ]),
-        if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) && isPrintingOrPaused) ...[
+        if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW)) ...[
           TableRow(
             children: [
               const Padding(

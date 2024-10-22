@@ -96,6 +96,7 @@ pages:
           File: {file}
           Filament: {filament}
         remaining: Remaining
+        print_time: Print Time
       cam_card:
         webcam: Webcam
         fullscreen: Fullscreen
