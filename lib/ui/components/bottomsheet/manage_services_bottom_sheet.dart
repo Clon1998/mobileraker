@@ -10,6 +10,7 @@ import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/bottomsheet/confirmation_bottom_sheet.dart';
+import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/misc.dart';
@@ -127,26 +128,31 @@ class _ServiceList extends ConsumerWidget {
                 ),
               ),
               if (entry.value.activeState != ServiceState.active)
-                IconButton(
+                AsyncIconButton(
                   onPressed: () => _confirmation(
                       context, () => klippyService.startService(entry.value.name), 'service_start', entry.value.name),
+                  onLongPressed: () => klippyService.startService(entry.value.name),
                   icon: const Icon(Icons.play_arrow),
                   color: themeData.extension<CustomColors>()?.success ?? Colors.green,
                   tooltip: tr('general.start'),
                 ),
               if (entry.value.activeState != ServiceState.inactive)
-                IconButton(
+                AsyncIconButton(
                   onPressed: () => _confirmation(context, () => klippyService.restartService(entry.value.name),
                       'service_restart', entry.value.name),
+                  onLongPressed: () => klippyService.restartService(entry.value.name),
                   icon: const Icon(Icons.restart_alt),
                   color: themeData.colorScheme.primary,
                   tooltip: tr('general.restart'),
                 ),
-              IconButton(
+              AsyncIconButton(
                 onPressed: (entry.value.activeState != ServiceState.active)
                     ? null
                     : () => _confirmation(
                         context, () => klippyService.stopService(entry.value.name), 'service_stop', entry.value.name),
+                onLongPressed: (entry.value.activeState != ServiceState.active)
+                    ? null
+                    : () => klippyService.stopService(entry.value.name),
                 icon: const Icon(Icons.stop),
                 color: themeData.extension<CustomColors>()?.danger ?? Colors.red,
                 tooltip: tr('general.stop'),
@@ -167,7 +173,7 @@ class _ServiceList extends ConsumerWidget {
       extra: ConfirmationBottomSheetArgs(
         title: tr('bottom_sheets.non_printing.confirm_action.title'),
         description: tr('bottom_sheets.non_printing.confirm_action.body', gender: action, args: [serviceName]),
-        // hint: tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
+        hint: tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
       ),
     );
 
