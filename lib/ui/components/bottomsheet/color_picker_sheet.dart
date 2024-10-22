@@ -51,33 +51,31 @@ class ColorPickerSheet extends HookConsumerWidget {
     final bottom = StickyBottomBarVisibility(
       child: Theme(
         data: themeData.copyWith(useMaterial3: false),
-        child: BottomAppBar(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  style: ElevatedButton.styleFrom(
-                      foregroundColor: themeData.colorScheme.primary, backgroundColor: themeData.colorScheme.surface),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                style: ElevatedButton.styleFrom(
+                    foregroundColor: themeData.colorScheme.primary, backgroundColor: themeData.colorScheme.surface),
+                onPressed: () {
+                  Navigator.pop(context, BottomSheetResult.confirmed(null));
+                },
+                icon: const Icon(Icons.search_off),
+                tooltip: 'general.clear'.tr(),
+                // child: Text('general.clear').tr(),
+              ),
+              const Gap(8),
+              Expanded(
+                child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context, BottomSheetResult.confirmed(null));
+                    Navigator.pop(context, BottomSheetResult.confirmed(colorToHex(hex.value, enableAlpha: false)));
                   },
-                  icon: const Icon(Icons.search_off),
-                  tooltip: 'general.clear'.tr(),
-                  // child: Text('general.clear').tr(),
+                  child: const Text('general.select').tr(),
                 ),
-                const Gap(8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context, BottomSheetResult.confirmed(colorToHex(hex.value, enableAlpha: false)));
-                    },
-                    child: const Text('general.select').tr(),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

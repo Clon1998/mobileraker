@@ -83,7 +83,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
     );
 
     final bottom = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -132,7 +132,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
         bottomBar: StickyBottomBarVisibility(
           child: Theme(
             data: Theme.of(context).copyWith(useMaterial3: false),
-            child: BottomAppBar(child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom)),
+            child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom),
           ),
         ),
       ),

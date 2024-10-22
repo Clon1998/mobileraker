@@ -104,11 +104,14 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             ),
 
             /// Dont strech the button
-            Align(
-              child: TextButton.icon(
-                label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
-                icon: const Icon(Icons.keyboard_arrow_down),
-                onPressed: () => Navigator.of(context).pop(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                child: TextButton.icon(
+                  label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
             ),
           ],

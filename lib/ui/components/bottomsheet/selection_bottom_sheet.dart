@@ -59,15 +59,13 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
       bottomBar: StickyBottomBarVisibility(
         child: Theme(
           data: Theme.of(context).copyWith(useMaterial3: false),
-          child: BottomAppBar(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(BottomSheetResult.confirmed(selected!.value));
-                },
-                child: Text(MaterialLocalizations.of(context).keyboardKeySelect),
-              ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(BottomSheetResult.confirmed(selected!.value));
+              },
+              child: Text(MaterialLocalizations.of(context).keyboardKeySelect),
             ),
           ),
         ),

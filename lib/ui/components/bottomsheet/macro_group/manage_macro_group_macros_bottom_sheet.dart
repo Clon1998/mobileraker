@@ -58,13 +58,11 @@ class ManageMacroGroupMacrosBottomSheet extends ConsumerWidget {
       bottomBar: StickyBottomBarVisibility(
         child: Theme(
           data: Theme.of(context).copyWith(useMaterial3: false),
-          child: BottomAppBar(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: ElevatedButton(
-                onPressed: controller.applyMacros,
-                child: const Text('general.apply').tr(),
-              ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: ElevatedButton(
+              onPressed: controller.applyMacros,
+              child: const Text('general.apply').tr(),
             ),
           ),
         ),
