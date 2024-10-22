@@ -95,6 +95,7 @@ pages:
           Datei: {file}
           Filament: {filament}
         remaining: Verbleibend
+        print_time: Druckzeit
       cam_card:
         webcam: Webcam
         fullscreen: Vollbild
