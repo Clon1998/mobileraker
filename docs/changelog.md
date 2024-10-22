@@ -12,6 +12,9 @@
   link. The schema is: `mobileraker://`. In the future this will be expanded to allow opening a specific printer, file,
   spool or more directly from a link.
 
+- **Print Summary**: After a print has finished, a summary of the print will be shown. This summary includes the print
+  duration and the amount of filament used. [#421](https://github.com/Clon1998/mobileraker/issues/421)
+
 ### Bug Fixes
 
 - **File Picker (IOS)**: Fixed an issue where the file picker on IOS would not allow to pick any file to upload as GCode
