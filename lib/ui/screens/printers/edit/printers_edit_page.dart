@@ -32,7 +32,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
-import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/non_printing_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';

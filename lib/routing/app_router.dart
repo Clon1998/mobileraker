@@ -12,6 +12,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -109,6 +110,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
       GoTransition.observer,
+      MobilerakerRouteObserver('Main'),
     ],
     // redirect: (state) {
     //
@@ -372,10 +374,15 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         ],
       ),
       ShellRoute(
-        observers: [sheetTransitionObserver],
+        observers: [
+          sheetTransitionObserver,
+          MobilerakerRouteObserver('SheetShell'),
+        ],
         pageBuilder: (context, state, child) {
           // Use ModalSheetPage to show a modal sheet.
           return ModalSheetPage(
+            name: 'BottomSheetModalSheet',
+            // transitionDuration: const Duration(milliseconds: 3000),
             swipeDismissible: true,
             child: SafeArea(
               bottom: false,

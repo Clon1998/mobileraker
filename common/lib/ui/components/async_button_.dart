@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'mobileraker_icon_button.dart';
+
 class AsyncElevatedButton extends HookConsumerWidget {
   const AsyncElevatedButton(
       {super.key, required this.child, required this.onPressed, this.style, this.margin, this.padding, this.curve})
@@ -94,11 +96,20 @@ class AsyncElevatedButton extends HookConsumerWidget {
 }
 
 class AsyncIconButton extends HookConsumerWidget {
-  const AsyncIconButton(
-      {super.key, required this.icon, required this.onPressed, this.style, this.iconSize, this.tooltip, this.color});
+  const AsyncIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.onLongPressed,
+    this.style,
+    this.iconSize,
+    this.tooltip,
+    this.color,
+  });
 
   final Icon icon;
   final FutureOr<void>? Function()? onPressed;
+  final FutureOr<void>? Function()? onLongPressed;
   final ButtonStyle? style;
   final double? iconSize;
   final String? tooltip;
@@ -124,11 +135,15 @@ class AsyncIconButton extends HookConsumerWidget {
     var onPressedWrapped =
         onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning, onPressed) : null;
 
-    return IconButton(
+    var onLongPressedWrapper = onLongPressed != null && !actionRunning.value
+        ? () => _onPressedWrapper(context, actionRunning, onLongPressed)
+        : null;
+
+    return MobilerakerIconButton(
       onPressed: onPressedWrapped,
+      onLongPressed: onLongPressedWrapper,
       icon: ico,
       color: color,
-      iconSize: iconSize,
       tooltip: tooltip,
     );
   }

@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:common/util/extensions/provider_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
@@ -171,5 +172,38 @@ class FileOutput extends LogOutput {
     await _sink?.flush();
     await _sink?.close();
     secondOutput?.destroy();
+  }
+}
+
+class MobilerakerRouteObserver extends NavigatorObserver {
+  MobilerakerRouteObserver(this.name);
+
+  final String name;
+
+  int stackCount = 0;
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    stackCount--;
+    logger.i('[MobilerakerRouteObserver-$name]::POP $route. Active is now $previousRoute. StackCount: $stackCount');
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    logger.i('[MobilerakerRouteObserver-$name]::PUSH $route.');
+    stackCount++;
+  }
+
+  @override
+  void didStartUserGesture(
+    Route<dynamic> route,
+    Route<dynamic>? previousRoute,
+  ) {
+// Do Nothing
+  }
+
+  @override
+  void didStopUserGesture() {
+// Do Nothing
   }
 }

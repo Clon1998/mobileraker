@@ -6,11 +6,13 @@
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/bottomsheet/confirmation_bottom_sheet.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/manage_services_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_visualizer_settings_sheet.dart';
 import 'package:mobileraker_pro/job_queue/ui/job_queue_sheet.dart';
@@ -22,7 +24,7 @@ import '../../ui/components/bottomsheet/color_picker_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_cards_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_layout_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
-import '../../ui/components/bottomsheet/non_printing_sheet.dart';
+import '../../ui/components/bottomsheet/non_printing_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import '../../ui/components/bottomsheet/selection_bottom_sheet.dart';
@@ -30,6 +32,7 @@ import '../../ui/components/bottomsheet/user_bottom_sheet.dart';
 
 enum SheetType implements BottomSheetIdentifierMixin {
   nonPrintingMenu,
+  manageMachineServices,
   addRemoteCon,
   manageMacroGroupMacros,
   userManagement,
@@ -39,7 +42,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   actions,
   selections,
   colorPicker,
-  ;
+  confirm;
 }
 
 BottomSheetService bottomSheetServiceImpl(BottomSheetServiceRef ref) => BottomSheetServiceImpl(ref);
@@ -62,14 +65,39 @@ class BottomSheetServiceImpl implements BottomSheetService {
               child: NonPrintingBottomSheet(),
             );
           },
+          routes: [
+            GoRoute(
+              name: SheetType.manageMachineServices.name,
+              path: 'manage-services',
+              pageBuilder: (context, state) {
+                return const ScrollableNavigationSheetPage(
+                  child: ManageServicesBottomSheet(),
+                );
+              },
+            ),
+          ],
+        ),
+        GoRoute(
+          name: SheetType.confirm.name,
+          path: '/sheet/confirm',
+          pageBuilder: (context, state) {
+            assert(state.extra is ConfirmationBottomSheetArgs, 'Invalid extra data for ConfirmationBottomSheetArgs');
+
+            // SheetContentScaffold
+            return DraggableNavigationSheetPage(
+              name: state.name,
+              child: ConfirmationBottomSheet(args: state.extra as ConfirmationBottomSheetArgs),
+            );
+          },
         ),
         GoRoute(
           name: ProSheetType.jobQueueMenu.name,
           path: '/sheet/job-queue',
           pageBuilder: (context, state) {
             // SheetContentScaffold
-            return const ScrollableNavigationSheetPage(
-              child: JobQueueBottomSheet(),
+            return ScrollableNavigationSheetPage(
+              name: state.name,
+              child: const JobQueueBottomSheet(),
             );
           },
         ),
@@ -80,6 +108,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is AddRemoteConnectionSheetArgs, 'Invalid extra data for AddRemoteConnectionSheetArgs');
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: AddRemoteConnectionBottomSheet(args: state.extra as AddRemoteConnectionSheetArgs),
             );
           },
@@ -92,6 +121,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
                 'Invalid extra data for ManageMacroGroupMacrosBottomSheetArguments');
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: ManageMacroGroupMacrosBottomSheet(
                 arguments: state.extra as ManageMacroGroupMacrosBottomSheetArguments,
               ),
@@ -102,7 +132,10 @@ class BottomSheetServiceImpl implements BottomSheetService {
           name: SheetType.userManagement.name,
           path: '/sheet/user-management',
           pageBuilder: (context, state) {
-            return const ScrollableNavigationSheetPage(child: UserBottomSheet());
+            return ScrollableNavigationSheetPage(
+              name: state.name,
+              child: const UserBottomSheet(),
+            );
           },
         ),
         GoRoute(
@@ -113,6 +146,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: SelectSpoolmanSheet(machineUUID: state.extra as String),
             );
           },
@@ -125,6 +159,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               initialPosition: SheetAnchor.proportional(context.isCompact ? 0.6 : 1),
               child: DashboardCardsBottomSheet(machineUUID: state.extra as String),
             );
@@ -138,6 +173,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: DashboardLayoutBottomSheet(
                 machineUUID: state.uri.queryParameters['machineUUID']!,
                 currentLayout: state.extra as DashboardLayout,
@@ -153,6 +189,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // ListView for padding handling
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: SortModeBottomSheet(arguments: state.extra as SortModeSheetArgs),
             );
           },
@@ -165,6 +202,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // ListView for padding handling
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: ActionBottomSheet(arguments: state.extra as ActionBottomSheetArgs),
             );
           },
@@ -177,6 +215,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: SelectionBottomSheet(arguments: state.extra as SelectionBottomSheetArgs),
             );
           },
@@ -185,9 +224,9 @@ class BottomSheetServiceImpl implements BottomSheetService {
           name: ProSheetType.gcodeVisualizerSettings.name,
           path: '/sheet/gcode-visualizer-settings',
           pageBuilder: (context, state) {
-            // ToDo: SheetContentScaffold
-            return const ScrollableNavigationSheetPage(
-              child: GCodeVisualizerSettingsSheet(),
+            return ScrollableNavigationSheetPage(
+              name: state.name,
+              child: const GCodeVisualizerSettingsSheet(),
             );
           },
         ),
@@ -199,6 +238,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
             // SheetContentScaffold
             return ScrollableNavigationSheetPage(
+              name: state.name,
               child: ColorPickerSheet(initialColor: state.extra as String?),
             );
           },
@@ -218,5 +258,4 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
     return result ?? BottomSheetResult.dismissed();
   }
-
 }

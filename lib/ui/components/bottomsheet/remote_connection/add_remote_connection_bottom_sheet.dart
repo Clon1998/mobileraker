@@ -14,7 +14,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/non_printing_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
