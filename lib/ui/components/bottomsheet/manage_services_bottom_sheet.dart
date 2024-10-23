@@ -67,8 +67,7 @@ class ManageServicesBottomSheet extends ConsumerWidget {
       appBar: title,
       body: AnimatedSizeAndFade(child: body),
       bottomBar: StickyBottomBarVisibility(
-        child: Theme(
-          data: Theme.of(context).copyWith(useMaterial3: false),
+        child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(

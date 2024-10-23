@@ -49,8 +49,7 @@ class ColorPickerSheet extends HookConsumerWidget {
     );
 
     final bottom = StickyBottomBarVisibility(
-      child: Theme(
-        data: themeData.copyWith(useMaterial3: false),
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Row(

@@ -57,8 +57,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
       appBar: _Title(arguments: arguments, textEditingController: textCtl),
       body: _bodyFromSnapshot(optionsSnapshot, textCtl, selected),
       bottomBar: StickyBottomBarVisibility(
-        child: Theme(
-          data: Theme.of(context).copyWith(useMaterial3: false),
+        child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(

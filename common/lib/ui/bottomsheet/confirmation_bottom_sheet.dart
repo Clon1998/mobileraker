@@ -48,8 +48,7 @@ class ConfirmationBottomSheet extends ConsumerWidget {
     return SheetContentScaffold(
       body: body,
       bottomBar: StickyBottomBarVisibility(
-        child: Theme(
-          data: Theme.of(context).copyWith(useMaterial3: false),
+        child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8),
             child: Row(

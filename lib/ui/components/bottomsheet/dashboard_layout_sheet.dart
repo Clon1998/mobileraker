@@ -82,25 +82,27 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
       ),
     );
 
-    final bottom = Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: OutlinedButton(
-              onPressed: exportLayout,
-              child: AutoSizeText(tr('general.export'), maxLines: 1),
+    final bottom = SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: exportLayout,
+                child: AutoSizeText(tr('general.export'), maxLines: 1),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton(
-              onPressed: controller.onImportLayout,
-              child: AutoSizeText(tr('general.import'), maxLines: 1),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: controller.onImportLayout,
+                child: AutoSizeText(tr('general.import'), maxLines: 1),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
