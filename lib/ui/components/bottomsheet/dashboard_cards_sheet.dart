@@ -10,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -90,6 +91,6 @@ class DashboardCardsBottomSheet extends HookWidget {
 
   void onSelect(BuildContext context, DashboardComponentType type) {
     logger.i('Selected $type');
-    Navigator.of(context).pop(BottomSheetResult.confirmed(type));
+    context.pop(BottomSheetResult.confirmed(type));
   }
 }

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
@@ -69,7 +70,7 @@ class ColorPickerSheet extends HookConsumerWidget {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context, BottomSheetResult.confirmed(colorToHex(hex.value, enableAlpha: false)));
+                    context.pop(BottomSheetResult.confirmed(colorToHex(hex.value, enableAlpha: false)));
                   },
                   child: const Text('general.select').tr(),
                 ),

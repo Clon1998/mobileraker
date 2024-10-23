@@ -10,6 +10,7 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ActionBottomSheet extends ConsumerWidget {
@@ -69,7 +70,7 @@ class _Entry extends StatelessWidget {
             shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(44)))
                 .only(themeData.useMaterial3),
             onTap: () {
-              Navigator.of(context).pop(BottomSheetResult.confirmed(action));
+              context.pop(BottomSheetResult.confirmed(action));
             },
           ),
         ),

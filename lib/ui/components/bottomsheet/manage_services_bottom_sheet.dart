@@ -77,13 +77,13 @@ class ManageServicesBottomSheet extends ConsumerWidget {
                   TextButton.icon(
                     label: Text(MaterialLocalizations.of(context).backButtonTooltip),
                     icon: const Icon(Icons.keyboard_arrow_left),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: context.pop,
                   ),
                 if (ModalRoute.of(context)?.impliesAppBarDismissal != true)
                   TextButton.icon(
                     label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
                     icon: const Icon(Icons.keyboard_arrow_down),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: context.pop,
                   ),
               ],
             ),
