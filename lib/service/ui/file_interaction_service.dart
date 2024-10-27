@@ -827,6 +827,7 @@ class FileInteractionService {
 
       if (showSnack) {
         _snackBarService.show(SnackBarConfig(
+          duration: null,
           type: SnackbarType.info,
           title: tr('pages.files.file_operation.zipping_success.title'),
           message: tr('pages.files.file_operation.zipping_success.body'),

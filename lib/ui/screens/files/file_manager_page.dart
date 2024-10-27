@@ -1261,6 +1261,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         _downloadToken = null;
         _uploadToken = null;
         state = state.copyWith(download: null, upload: null, selectedFiles: []);
+        ref.invalidateSelf();
         break;
       default:
       // Do nothing
