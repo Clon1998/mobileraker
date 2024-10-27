@@ -101,7 +101,7 @@ class FileInteractionService {
     final klippyReady = _klippyService.klippyCanReceiveCommands;
 
     final arg = ActionBottomSheetArgs(
-      title: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      title: Tooltip(message: file.name, child: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
       subtitle: file.fileExtension?.let((ext) => Text(ext.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis)),
       leading: SizedBox.square(
         dimension: 33,
