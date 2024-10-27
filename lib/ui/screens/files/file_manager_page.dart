@@ -61,6 +61,7 @@ import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:stringr/stringr.dart';
 
@@ -1090,7 +1091,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             pathParameters: {'path': filePath}, extra: file);
         break;
       case RemoteFile(isArchive: true):
-        _handleFileInteractionEventStream(_fileInteractionService.downloadFileAction([file], origin));
+        var fileAction = _fileInteractionService.downloadFileAction(
+            [file], origin).endWith(FileOperationCompleted(action: FileSheetAction.download, files: [file]));
+        _handleFileInteractionEventStream(fileAction);
         break;
       default:
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, extra: file);
