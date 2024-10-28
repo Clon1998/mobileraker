@@ -95,6 +95,7 @@ pages:
           Fájl: {file}
           Nyomtatószál: {filament}
         remaining: Fennmaradó
+        print_time: Nyomtatási idő
       cam_card:
         webcam: Webkamera
         fullscreen: Teljes képernyő
