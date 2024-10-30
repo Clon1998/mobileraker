@@ -9,7 +9,6 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/spool_widget.dart';
-import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -459,8 +458,6 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
   void onTapVendorSelection() async {
     if (state.vendors.valueOrNull == null) return;
     final vendors = state.vendors.requireValue;
-    final locale = ref.read(activeLocaleProvider);
-    final numberFormat = NumberFormat.decimalPattern(locale.toStringWithSeparator());
 
     final res = await _bottomSheetService.show(
       BottomSheetConfig(

@@ -1,5 +1,36 @@
 # Mobileraker - Changelog
 
+## [2.8.2] - 2024-10-31
+
+### Bug Fixes
+
+- **Restart Bottom Sheet**: Fixed broken button behavior in the restart menu where PI restart, shutdown, and firmware
+  restart actions only worked with long-press instead of normal taps after confirmation.
+
+- **UI Improvements**: Standardized bottom sheet behavior with consistent animations and layouts across all instances,
+  enhancing overall navigation fluidity.
+
+## [2.8.1] - 2024-10-23
+
+### Enhancements
+
+- **Spoolman Page Filtering**: Added the ability to filter spools, filaments, and manufacturers on the Spoolman page.
+  Users can now filter spools by color, material, location, and more, making it easier to find specific spools.
+
+- **Custom Schema (IOS)**: Added a custom schema registration for IOS, allowing the app to be opened via a custom URL
+  scheme. This feature enables users to open the app directly from a web browser or other apps by clicking on a custom
+  link. The schema is: `mobileraker://`. In the future this will be expanded to allow opening a specific printer, file,
+  spool or more directly from a link.
+
+- **Print Summary**: After a print has finished, a summary of the print will be shown. This summary includes the print
+  duration and the amount of filament used. [#421](https://github.com/Clon1998/mobileraker/issues/421)
+
+### Bug Fixes
+
+- **File Picker (IOS)**: Fixed an issue where the file picker on IOS would not allow to pick any file to upload as GCode
+  or Config.
+- **Exclude Object Map**: Fixed an issue that prevented tapping on an object to select it.
+
 ## [2.8.0] - 2024-09-30
 
 ### New Features

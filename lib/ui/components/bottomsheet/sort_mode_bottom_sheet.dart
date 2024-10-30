@@ -11,6 +11,8 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SortModeBottomSheet extends ConsumerWidget {
@@ -20,25 +22,22 @@ class SortModeBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeData = Theme.of(context);
-    // ToDo: Limit to 80% of screen height
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 15, bottom: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Text('pages.files.sort_by.sort_by', style: themeData.textTheme.bodyLarge).tr(),
-            ),
-            const Divider(),
-            for (final entry in arguments.toShow)
-              _Entry(mode: entry, kind: arguments.active.kind.only(entry == arguments.active.mode)),
-          ],
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        const Gap(10),
+        ListTile(
+          visualDensity: VisualDensity.compact,
+          titleAlignment: ListTileTitleAlignment.center,
+          // leading: arguments.leading,
+          horizontalTitleGap: 8,
+          title: const Text('pages.files.sort_by.sort_by').tr(),
+          minLeadingWidth: 42,
         ),
-      ),
+        const Divider(),
+        for (final entry in arguments.toShow)
+          _Entry(mode: entry, kind: arguments.active.kind.only(entry == arguments.active.mode)),
+      ],
     );
   }
 }
@@ -66,8 +65,9 @@ class _Entry extends StatelessWidget {
         visualDensity: VisualDensity.compact,
         horizontalTitleGap: 16,
         title: Text(mode.translation).tr(),
-        selectedTileColor: themeData.colorScheme.secondaryFixed.withOpacity(0.9),
-        selectedColor: themeData.colorScheme.onSecondaryFixed,
+        selectedTileColor: themeData.colorScheme.primary.withOpacity(0.1),
+        // selectedTileColor: themeData.colorScheme.secondaryFixed.withOpacity(0.9),
+        // selectedColor: themeData.colorScheme.onSecondaryFixed,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(44)))
             .only(themeData.useMaterial3),
         selected: kind != null,
@@ -78,7 +78,7 @@ class _Entry extends StatelessWidget {
           }
 
           final cfg = SortConfiguration(mode, nextKind);
-          Navigator.of(context).pop(BottomSheetResult.confirmed(cfg));
+          context.pop(BottomSheetResult.confirmed(cfg));
         },
       ),
     );

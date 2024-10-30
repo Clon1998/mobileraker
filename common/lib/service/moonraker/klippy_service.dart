@@ -100,6 +100,8 @@ class KlippyService {
 
   bool get isKlippyConnected => _current.klippyConnected;
 
+  bool get klippyCanReceiveCommands => _current.klippyCanReceiveCommands;
+
   restartMCUs() {
     _jRpcClient.sendJRpcMethod('printer.firmware_restart').ignore();
   }

@@ -13,12 +13,13 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../../screens/printers/components/section_header.dart';
 import '../../obico_widgets.dart';
@@ -30,28 +31,18 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.8,
-      minChildSize: 0.35,
-      builder: (ctx, scrollController) => SafeArea(
-        child: ProviderScope(
-          overrides: [sheetArgsProvider.overrideWithValue(args)],
-          child: _AddRemoteConnectionBottomSheet(scrollController: scrollController),
-        ),
-      ),
+    return ProviderScope(
+      overrides: [sheetArgsProvider.overrideWithValue(args)],
+      child: const _AddRemoteConnectionBottomSheet(),
     );
   }
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({super.key, required this.scrollController});
-
-  final ScrollController scrollController;
+  const _AddRemoteConnectionBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
     var obicoEnabled = ref.watch(remoteConfigBoolProvider('obico_remote_connection'));
 
     var activeIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
@@ -72,78 +63,95 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
       initialIndex: activeIndex,
     );
 
-    // ViewInserts are required for the keyboard, in case the sheet has text fields. Otherwise the keyboard might overlap the text fields.
-    var viewInsets = MediaQuery.viewInsetsOf(context);
-    var themeData = Theme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      // mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          color: themeData.colorScheme.primary,
-          child: Row(
-            children: [
-              Expanded(
-                child: TabBar(
-                  isScrollable: true,
-                  labelColor: themeData.colorScheme.onPrimary,
-                  unselectedLabelColor: themeData.colorScheme.onPrimary.withOpacity(0.3),
-                  controller: tabController,
-                  indicatorColor: themeData.colorScheme.onPrimary,
-                  automaticIndicatorColorAdjustment: false,
-                  tabs: [
-                    Tab(
-                      text: tr(
-                        'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
-                      ),
-                    ),
-                    if (obicoEnabled)
-                      Tab(
-                        text: tr(
-                          'bottom_sheets.add_remote_con.obico.service_name',
-                        ),
-                      ),
-                    Tab(
-                      text: tr('bottom_sheets.add_remote_con.manual.tab_name'),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: controller.close,
-                icon: Icon(
-                  Icons.close,
-                  color: themeData.colorScheme.onPrimary,
-                ),
-              ),
-            ],
-          ),
+    // Close keyboard when switching tabs
+    useEffect(() {
+      closeKeyBoard() {
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
+
+      tabController.addListener(closeKeyBoard);
+
+      return () => tabController.removeListener(closeKeyBoard);
+    }, [tabController]);
+
+    return SheetContentScaffold(
+      appBar: _TabHeader(tabController: tabController, obicoEnabled: obicoEnabled),
+      body: FormBuilder(
+        key: ref.watch(formKeyProvider),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: TabBarView(
+          controller: tabController,
+          children: [
+            const _OctoTab(),
+            if (obicoEnabled) const _ObicoTab(),
+            const _ManualTab(),
+          ],
         ),
-        Expanded(
-          child: FormBuilder(
-            key: ref.watch(formKeyProvider),
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: viewInsets.bottom),
-              child: TabBarView(
-                controller: tabController,
-                children: [
-                  _OctoTab(scrollController: scrollController),
-                  if (obicoEnabled) _ObicoTab(scrollController: scrollController),
-                  _ManualTab(scrollController: scrollController),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
+class _TabHeader extends StatelessWidget implements PreferredSizeWidget {
+  const _TabHeader({super.key, required this.tabController, required this.obicoEnabled});
+
+  final TabController tabController;
+  final bool obicoEnabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return Container(
+      color: themeData.colorScheme.primary,
+      child: Row(
+        children: [
+          Expanded(
+            child: TabBar(
+              dividerHeight: 0,
+              isScrollable: true,
+              labelColor: themeData.colorScheme.onPrimary,
+              unselectedLabelColor: themeData.colorScheme.onPrimary.withOpacity(0.3),
+              controller: tabController,
+              indicatorColor: themeData.colorScheme.onPrimary,
+              automaticIndicatorColorAdjustment: false,
+              tabAlignment: TabAlignment.start,
+              tabs: [
+                Tab(
+                  text: tr(
+                    'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
+                  ),
+                ),
+                if (obicoEnabled)
+                  Tab(
+                    text: tr(
+                      'bottom_sheets.add_remote_con.obico.service_name',
+                    ),
+                  ),
+                Tab(
+                  text: tr('bottom_sheets.add_remote_con.manual.tab_name'),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: context.pop,
+            icon: Icon(
+              Icons.close,
+              color: themeData.colorScheme.onPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
 class _OctoTab extends ConsumerWidget {
-  const _OctoTab({super.key, required this.scrollController});
-  final ScrollController scrollController;
+  const _OctoTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -156,7 +164,6 @@ class _OctoTab extends ConsumerWidget {
         children: [
           Flexible(
             child: CustomScrollView(
-              controller: scrollController,
               slivers: [
                 SliverFillRemaining(
                   hasScrollBody: false,
@@ -210,9 +217,7 @@ class _OctoTab extends ConsumerWidget {
 }
 
 class _ManualTab extends ConsumerWidget {
-  const _ManualTab({super.key, required this.scrollController});
-
-  final ScrollController scrollController;
+  const _ManualTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -221,10 +226,10 @@ class _ManualTab extends ConsumerWidget {
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Flexible(
           child: ListView(
-            controller: scrollController,
             padding: const EdgeInsets.all(8.0),
             // shrinkWrap: true,
             children: [
@@ -285,7 +290,7 @@ class _ManualTab extends ConsumerWidget {
         if (model.activeClientType == null || model.activeClientType == ClientType.manual)
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: FullWidthButton(
+            child: OutlinedButton(
               onPressed: controller.saveManual,
               child: Text(MaterialLocalizations.of(context).saveButtonLabel),
             ),
@@ -301,8 +306,7 @@ class _ManualTab extends ConsumerWidget {
 }
 
 class _ObicoTab extends ConsumerWidget {
-  const _ObicoTab({super.key, required this.scrollController});
-  final ScrollController scrollController;
+  const _ObicoTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -315,7 +319,6 @@ class _ObicoTab extends ConsumerWidget {
         children: [
           Flexible(
             child: CustomScrollView(
-              controller: scrollController,
               slivers: [
                 SliverFillRemaining(
                   hasScrollBody: false,

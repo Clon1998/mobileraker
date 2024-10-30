@@ -76,6 +76,7 @@ class JrpcClientManager extends _$JrpcClientManager {
     if (machine.hasRemoteConnection) _setupHandover(machine).ignore();
 
     // Ensure we retry using the local client when the app is resumed
+    //TODO: This can be to aggressive. Especially for file operations like upload or download, this can cause an unexpected disconnect...
     ref.listen(appLifecycleProvider, (_, appState) {
       if (appState == AppLifecycleState.resumed) {
         logger.i('[JrpcClientManager@${machine.name}] App resumed. Will reevaluate used client');

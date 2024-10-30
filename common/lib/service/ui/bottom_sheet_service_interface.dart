@@ -8,7 +8,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'bottom_sheet_service_interface.g.dart';
 
-mixin BottomSheetIdentifierMixin {}
+mixin BottomSheetIdentifierMixin implements Enum {
+  // String get name;
+}
 
 @Riverpod(keepAlive: true)
 BottomSheetService bottomSheetService(BottomSheetServiceRef ref) => throw UnimplementedError();

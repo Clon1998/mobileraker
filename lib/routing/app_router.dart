@@ -12,12 +12,14 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
@@ -46,6 +48,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
@@ -56,6 +59,8 @@ import '../ui/screens/spoolman/vendor_form_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
+
+final sheetTransitionObserver = NavigationSheetTransitionObserver();
 
 enum AppRoute implements RouteDefinitionMixin {
   dashBoard,
@@ -105,6 +110,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
       GoTransition.observer,
+      MobilerakerRouteObserver('Main'),
     ],
     // redirect: (state) {
     //
@@ -366,6 +372,35 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             pageBuilder: GoTransitions.fullscreenDialog,
           ),
         ],
+      ),
+      ShellRoute(
+        observers: [
+          sheetTransitionObserver,
+          MobilerakerRouteObserver('SheetShell'),
+        ],
+        pageBuilder: (context, state, child) {
+          // Use ModalSheetPage to show a modal sheet.
+          return ModalSheetPage(
+            name: 'BottomSheetModalSheet',
+            // transitionDuration: const Duration(milliseconds: 3000),
+            swipeDismissible: true,
+            child: SafeArea(
+              bottom: false,
+              child: NavigationSheet(
+                transitionObserver: sheetTransitionObserver,
+                child: Material(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  clipBehavior: Clip.antiAlias,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 500),
+                    child: child,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+        routes: BottomSheetServiceImpl.routes,
       ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),

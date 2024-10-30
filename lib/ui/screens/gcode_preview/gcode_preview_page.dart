@@ -270,6 +270,18 @@ class _LivePreview extends HookConsumerWidget {
           right: 8,
           child: Chip(label: Text('Live')),
         ),
+        Consumer(builder: (context, ref, child) {
+          return Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                onPressed: () {
+                  ref
+                      .read(bottomSheetServiceProvider)
+                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings, isScrollControlled: true));
+                },
+                icon: const Icon(Icons.settings),
+              ));
+        }),
       ],
     );
   }

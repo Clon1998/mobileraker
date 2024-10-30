@@ -97,7 +97,6 @@ class _Preview extends HookWidget {
           (provider) => Stream.value(
             const ToolheadInfo(
               postion: [5, 5, 10],
-              printingOrPaused: false,
               mmSpeed: 200,
               currentLayer: 1,
               maxLayers: 10,

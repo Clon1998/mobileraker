@@ -15,12 +15,14 @@ class MobilerakerIconButton extends StatelessWidget {
     this.tooltip,
     this.color,
     this.disabledColor,
+    this.iconSize,
   });
 
   final GestureTapCallback? onPressed;
   final GestureLongPressCallback? onLongPressed;
-  final Icon icon;
+  final Widget icon;
   final String? tooltip;
+  final double? iconSize;
   final Color? color;
   final Color? disabledColor;
 
@@ -43,6 +45,7 @@ class MobilerakerIconButton extends StatelessWidget {
         padding: padding ?? const EdgeInsets.all(12.0),
         child: IconTheme.merge(
           data: IconThemeData(
+            size: iconSize,
             color: currentColor,
           ),
           child: icon,

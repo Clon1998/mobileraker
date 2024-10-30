@@ -275,8 +275,8 @@ class ExcludeObjectPainter extends PrintBedPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    super.paint(canvas, size);
     TouchyCanvas myCanvas = TouchyCanvas(context, canvas);
+    super.paint(canvas, size);
 
     final objectPaint = filledPaint(objectColor);
     final excludedObjectPaint = filledPaint(excludedObjectColor);

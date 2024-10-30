@@ -62,6 +62,7 @@ general:
   discard: Discard
   hide: Hide
   finish: Finish
+  select: Select
 pages:
   dashboard:
     title: Dashboard
@@ -95,6 +96,7 @@ pages:
           File: {file}
           Filament: {filament}
         remaining: Remaining
+        print_time: Print Time
       cam_card:
         webcam: Webcam
         fullscreen: Fullscreen
@@ -999,6 +1001,8 @@ components:
     show_travel:
       title: Show Travel Moves
       subtitle: Display non-printing movement
+  select_color_sheet:
+    title: Select Color
 
 dialogs:
   rate_my_app:
@@ -1040,7 +1044,6 @@ dialogs:
     title: Create Archive
     label: Archive Name
   delete_files:
-    title: Delete Files
     description: Confirm deletion of {} files.
   exclude_object:
     title: Exclude Object from Print

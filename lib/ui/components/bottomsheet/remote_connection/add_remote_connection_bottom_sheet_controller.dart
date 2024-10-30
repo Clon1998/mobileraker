@@ -70,7 +70,6 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
     return ref.watch(sheetArgsProvider);
   }
 
-  close() => ref.read(goRouterProvider).pop();
 
   linkOcto() async {
     try {

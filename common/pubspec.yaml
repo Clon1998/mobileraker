@@ -70,6 +70,9 @@ dependencies:
   #reactive UI
   responsive_framework: ^1.4.0
 
+  #bottomsheet:
+  smooth_sheets: ^1.0.0-f324.0.10.1
+
   #ui
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git

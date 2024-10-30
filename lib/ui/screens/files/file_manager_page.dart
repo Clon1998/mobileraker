@@ -8,16 +8,13 @@ import 'dart:async';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
-import 'package:common/data/dto/files/moonraker/file_item.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
-import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/data/enums/file_action_sheet_action_enum.dart';
-import 'package:common/data/enums/gcode_file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
+import 'package:common/data/model/file_interaction_menu_event.dart';
 import 'package:common/data/model/file_operation.dart';
-import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
@@ -27,12 +24,10 @@ import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
-import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
@@ -46,47 +41,37 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:common/util/misc.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/file_interaction_service.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
-import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
-import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:stringr/stringr.dart';
 
 import '../../../routing/app_router.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
-import '../../../service/ui/dialog_service_impl.dart';
-import '../../components/bottomsheet/action_bottom_sheet.dart';
 import '../../components/connection/machine_connection_guard.dart';
-import '../../components/dialog/text_input/text_input_dialog.dart';
-import 'components/remote_file_icon.dart';
 import 'components/sorted_file_list_header.dart';
 
 part 'file_manager_page.freezed.dart';
 part 'file_manager_page.g.dart';
-
-final _zipDateFormat = DateFormat('yyyy-MM-dd_HH-mm-ss');
 
 class FileManagerPage extends HookConsumerWidget {
   const FileManagerPage({super.key, required this.filePath, this.folder});
@@ -258,6 +243,7 @@ class _Fab extends HookConsumerWidget {
             data.selectionMode,
           );
         }));
+
         final isUpOrDownloading = isUploading || isDownloading;
 
         final connected = ref
@@ -318,7 +304,11 @@ class _Fab extends HookConsumerWidget {
           if (!isUpOrDownloading)
             FloatingActionButton(
               heroTag: '${selectedMachine.uuid}-main',
-              onPressed: controller.onClickAddFileFab.only(!isFilesLoading),
+              onPressed: () {
+                final box = context.findRenderObject() as RenderBox?;
+                final pos = box!.localToGlobal(Offset.zero) & box.size;
+                controller.onClickAddFileFab(pos);
+              }.only(!isFilesLoading),
               child: const Icon(Icons.add),
             ),
           if (isUpOrDownloading && !isUpOrDownloadDone)
@@ -349,7 +339,7 @@ class _Fab extends HookConsumerWidget {
             scale: animation,
             child: child,
           ),
-          child: isScrolling.value || !connected || filePath == 'timelapse' || isSelecting
+          child: isScrolling.value || !connected || filePath == 'timelapse' || isSelecting && !isUpOrDownloading
               ? const SizedBox.shrink(key: Key('file_manager_fab-hidden'))
               : fab,
         );
@@ -535,11 +525,13 @@ class _Body extends StatelessWidget {
 }
 
 class _Header extends ConsumerWidget {
-  const _Header({super.key, required this.machineUUID, required this.filePath});
+  const _Header({super.key, required this.machineUUID, required this.filePath, this.enabled = true});
 
   final String machineUUID;
 
   final String filePath;
+
+  final bool enabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -551,7 +543,7 @@ class _Header extends ConsumerWidget {
 
     return SortedFileListHeader(
       activeSortConfig: sortCfg,
-      onTapSortMode: controller.onClickSortMode.only(!apiLoading),
+      onTapSortMode: controller.onClickSortMode.only(!apiLoading).only(enabled),
       trailing: IconButton(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
@@ -577,8 +569,6 @@ class _FileList extends ConsumerWidget {
         ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
 
     final widget = switch (folderContent) {
-      AsyncValue(hasValue: true, value: FolderContentWrapper(isEmpty: true)) =>
-        _FileListEmpty(key: Key('$filePath-list-empty'), machineUUID: machineUUID, filePath: filePath),
       AsyncValue(hasValue: true, value: FolderContentWrapper() && final content) => _FileListData(
           key: Key('$filePath-list'),
           machineUUID: machineUUID,
@@ -833,7 +823,11 @@ class _FileListState extends ConsumerState<_FileListData> {
             floating: true,
             initialHeight: 48,
             needRepaint: true,
-            child: _Header(machineUUID: widget.machineUUID, filePath: widget.filePath),
+            child: _Header(
+              machineUUID: widget.machineUUID,
+              filePath: widget.filePath,
+              enabled: widget.folderContent.isNotEmpty,
+            ),
           ),
           AdaptiveHeightSliverPersistentHeader(
             initialHeight: 4,
@@ -841,27 +835,46 @@ class _FileListState extends ConsumerState<_FileListData> {
             child: _LoadingIndicator(
                 machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
-            sliver: SliverList.separated(
-              separatorBuilder: (context, index) => const Divider(
-                height: 0,
-                indent: 18,
-                endIndent: 18,
+          if (widget.folderContent.isEmpty)
+            SliverFillRemaining(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: FractionallySizedBox(
+                      heightFactor: 0.3,
+                      child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                  Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
+                ],
               ),
-              itemCount: widget.folderContent.totalItems,
-              itemBuilder: (context, index) {
-                final file = widget.folderContent.unwrapped[index];
-                return _FileItem(
-                  key: ValueKey(file),
-                  machineUUID: widget.machineUUID,
-                  file: file,
-                  dateFormat: dateFormat,
-                  sortMode: sortConfiguration.mode,
-                );
-              },
             ),
-          ),
+          if (widget.folderContent.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
+              sliver: SliverList.separated(
+                separatorBuilder: (context, index) => const Divider(
+                  height: 0,
+                  indent: 18,
+                  endIndent: 18,
+                ),
+                itemCount: widget.folderContent.totalItems,
+                itemBuilder: (context, index) {
+                  final file = widget.folderContent.unwrapped[index];
+                  return _FileItem(
+                    key: ValueKey(file),
+                    machineUUID: widget.machineUUID,
+                    file: file,
+                    dateFormat: dateFormat,
+                    sortMode: sortConfiguration.mode,
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -871,54 +884,6 @@ class _FileListState extends ConsumerState<_FileListData> {
   void dispose() {
     _refreshController.dispose();
     super.dispose();
-  }
-}
-
-class _FileListEmpty extends ConsumerWidget {
-  const _FileListEmpty({super.key, required this.machineUUID, required this.filePath});
-
-  final String machineUUID;
-  final String filePath;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
-    final enable = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
-        .select((d) => d.folderContent.isLoading == false && !d.isOperationActive));
-
-    final themeData = Theme.of(context);
-
-    return Column(
-      children: [
-        SortedFileListHeader(
-          activeSortConfig: null,
-          trailing: IconButton(
-            padding: const EdgeInsets.only(right: 12),
-            // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-            onPressed: controller.onClickCreateFolder.only(enable),
-            icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: FractionallySizedBox(
-                    heightFactor: 0.3,
-                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
-                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
 
@@ -1038,15 +1003,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
-  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
-
   SettingService get _settingService => ref.read(settingServiceProvider);
 
   FileService get _fileService => ref.read(fileServiceProvider(machineUUID));
 
-  JobQueueService get _jobQueueService => ref.read(jobQueueServiceProvider(machineUUID));
-
-  PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
+  FileInteractionService get _fileInteractionService => ref.read(fileInteractionServiceProvider(machineUUID));
 
   // ignore: avoid-unsafe-collection-methods
   String get _root => filePath.split('/').first;
@@ -1100,6 +1061,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
 
     return _Model(
+      selectedFiles: stateOrNull?.selectedFiles ?? [],
       folderContent: apiResp,
       sortConfiguration: sortConfiguration,
       download: stateOrNull?.download,
@@ -1129,7 +1091,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             pathParameters: {'path': filePath}, extra: file);
         break;
       case RemoteFile(isArchive: true):
-        _downloadFileAction(file, origin);
+        var fileAction = _fileInteractionService.downloadFileAction(
+            [file], origin).endWith(FileOperationCompleted(action: FileSheetAction.download, files: [file]));
+        _handleFileInteractionEventStream(fileAction);
         break;
       default:
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, extra: file);
@@ -1149,96 +1113,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onClickFileAction(RemoteFile file, Rect origin) async {
-    final klippyReady =
-        ref.read(klipperProvider(machineUUID).select((d) => d.valueOrNull?.klippyCanReceiveCommands == true));
-    final canStartPrint = ref.read(printerProvider(machineUUID).select((d) =>
-        d.valueOrNull != null &&
-        d.valueOrNull!.print.state != PrintState.printing &&
-        d.valueOrNull!.print.state != PrintState.paused));
-
-    // logger.w('Klipper ready: $klippyReady, can start print: $canStartPrint');
-
-    final arg = ActionBottomSheetArgs(
-      title: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: file.fileExtension?.let((ext) => Text(ext.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis)),
-      leading: SizedBox.square(
-        dimension: 33,
-        child: RemoteFileIcon(
-          machineUUID: machineUUID,
-          file: file,
-          alignment: Alignment.centerLeft,
-          imageBuilder: (BuildContext context, ImageProvider imageProvider) {
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(7)),
-                image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-              ),
-            );
-          },
-        ),
-      ),
-      actions: [
-        if (file case GCodeFile()) ...[
-          GcodeFileSheetAction.submitPrintJob.let((t) => canStartPrint && klippyReady ? t : t.disable),
-          GcodeFileSheetAction.preheat
-              .let((t) => file.firstLayerTempBed != null && canStartPrint && klippyReady ? t : t.disable),
-          GcodeFileSheetAction.preview,
-          GcodeFileSheetAction.addToQueue,
-          DividerSheetAction.divider,
-        ],
-        FileSheetAction.zipFile,
-        FileSheetAction.download,
-        DividerSheetAction.divider,
-        FileSheetAction.rename,
-        FileSheetAction.copy,
-        FileSheetAction.move,
-        FileSheetAction.delete,
-      ],
-    );
-
-    final resp =
-        await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
-    if (resp.confirmed) {
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] action confirmed: ${resp.data}');
-
-      // Wait for the bottom sheet to close
-      await Future.delayed(kThemeAnimationDuration);
-
-      switch (resp.data) {
-        case FileSheetAction.delete:
-          _deleteFileAction(file);
-          break;
-        case FileSheetAction.rename:
-          _renameFileAction(file);
-          break;
-        case GcodeFileSheetAction.preview when file is GCodeFile:
-          _previewAction(file);
-          break;
-        case GcodeFileSheetAction.addToQueue when file is GCodeFile:
-          _addFileToQueueAction(file);
-          break;
-        case GcodeFileSheetAction.preheat when file is GCodeFile:
-          _preheatAction(file);
-          break;
-        case GcodeFileSheetAction.submitPrintJob when file is GCodeFile:
-          _submitJobAction(file);
-          break;
-        case FileSheetAction.download:
-          _downloadFileAction(file, origin);
-          break;
-        case FileSheetAction.move:
-          _moveFileAction(file);
-        case FileSheetAction.copy:
-          _copyFileAction(file);
-          break;
-        case FileSheetAction.zipFile:
-          _zipFilesAction([file]);
-          break;
-        default:
-          logger.w('Action not implemented: $resp');
-      }
-    }
+  Future<void> onClickFileAction(RemoteFile file, Rect origin) async {
+    await _handleFileInteractionEventStream(_fileInteractionService.showFileActionMenu(
+        file, origin, machineUUID, stateOrNull?.folderContent.requireValue.folderFileNames));
   }
 
   void onClickRootNavigation(int index) {
@@ -1261,35 +1138,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     final usedNames = state.folderContent.requireValue.folderFileNames;
 
-    var dialogResponse = await _dialogService.show(
-      DialogRequest(
-        type: DialogType.textInput,
-        title: tr('dialogs.create_folder.title'),
-        actionLabel: tr('general.create'),
-        data: TextInputDialogArguments(
-          initialValue: '',
-          labelText: tr('dialogs.create_folder.label'),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.match(
-              RegExp(r'^\w?[\w .-]*[\w-]$'),
-              errorText: tr('pages.files.no_matches_file_pattern'),
-            ),
-            notContains(
-              usedNames,
-              errorText: tr('form_validators.file_name_in_use'),
-            ),
-          ]),
-        ),
-      ),
-    );
-
-    if (dialogResponse?.confirmed == true) {
-      String newName = dialogResponse!.data;
-
-      state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-      _fileService.createDir('$filePath/$newName').ignore();
-    }
+    _handleFileInteractionEventStream(_fileInteractionService.createEmptyFolderAction(filePath, usedNames));
   }
 
   Future<void> onClickSortMode() async {
@@ -1337,40 +1186,17 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true));
   }
 
-  Future<void> onClickAddFileFab() async {
-    const args = ActionBottomSheetArgs(actions: [
-      FileSheetAction.newFolder,
-      FileSheetAction.newFile,
-      DividerSheetAction.divider,
-      FileSheetAction.uploadFile,
-      FileSheetAction.uploadFiles,
-    ]);
+  Future<void> onClickAddFileFab(Rect origin) async {
+    final allowedTypes =
+        _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
 
-    final res = await ref
-        .read(bottomSheetServiceProvider)
-        .show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: args));
-
-    if (res.confirmed != true) return;
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] create-action confirmed: ${res.data}');
-    // Wait for the bottom sheet to close
-    await Future.delayed(kThemeAnimationDuration);
-    switch (res.data) {
-      case FileSheetAction.newFolder:
-        onClickCreateFolder();
-        break;
-
-      case FileSheetAction.uploadFiles:
-      case FileSheetAction.uploadFile:
-        final allowed = _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
-
-        _uploadFileAction(allowed, res.data == FileSheetAction.uploadFiles);
-        break;
-      case FileSheetAction.newFile:
-        _newFileAction();
-        break;
-
-      default:
-    }
+    await _handleFileInteractionEventStream(_fileInteractionService.showNewFileOptionsMenu(
+      filePath,
+      origin,
+      machineUUID,
+      allowedTypes,
+      stateOrNull?.folderContent.requireValue.folderFileNames,
+    ));
   }
 
   void onClickCancelUpOrDownload() {
@@ -1392,644 +1218,58 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   Future<void> onClickMoveSelected() async {
     final selectedFiles = state.selectedFiles;
     if (selectedFiles.isEmpty) return;
-
-    _moveFilesAction(selectedFiles);
+    await _handleFileInteractionEventStream(_fileInteractionService.moveFilesAction(selectedFiles));
     state = state.copyWith(selectedFiles: []);
   }
 
-  void onClickMoreActionsSelected(Rect pos) async {
+  Future<void> onClickMoreActionsSelected(Rect pos) async {
     final selectedFiles = state.selectedFiles;
-    final gcodeFiles = selectedFiles.whereType<GCodeFile>().toList();
-
-    final arg = ActionBottomSheetArgs(
-      title: Text('${selectedFiles.length} ${plural('pages.files.element', selectedFiles.length)}',
-          maxLines: 1, overflow: TextOverflow.ellipsis),
-      actions: [
-        if (gcodeFiles.isNotEmpty) ...[
-          GcodeFileSheetAction.addToQueue,
-          DividerSheetAction.divider,
-        ],
-        FileSheetAction.zipFile,
-        FileSheetAction.download,
-        DividerSheetAction.divider,
-        FileSheetAction.move,
-        FileSheetAction.delete,
-      ],
-    );
-
-    final resp =
-        await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
-    if (resp.confirmed) {
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] selectedfiles-action confirmed: ${resp.data}');
-      // Wait for the bottom sheet to close
-      await Future.delayed(kThemeAnimationDuration);
-
-      switch (resp.data) {
-        case FileSheetAction.delete:
-          _deleteFilesAction(selectedFiles);
-          break;
-        case FileSheetAction.move:
-          _moveFilesAction(selectedFiles);
-          break;
-        case FileSheetAction.zipFile:
-          _zipFilesAction(selectedFiles);
-          break;
-        case FileSheetAction.download:
-          _downloadFilesAction(selectedFiles, pos);
-          break;
-        case GcodeFileSheetAction.addToQueue:
-          _addFilesToQueueAction(gcodeFiles);
-          break;
-      }
-      state = state.copyWith(selectedFiles: []);
-    }
-  }
-
-  //////////////////// ACTIONS ////////////////////
-  Future<void> _deleteFileAction(RemoteFile file) async {
-    var dialogResponse = await _dialogService.showConfirm(
-      title: tr('dialogs.delete_folder.title'),
-      body: tr(
-        file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
-        args: [file.name],
-      ),
-      actionLabel: tr('general.delete'),
-    );
-
-    if (dialogResponse?.confirmed == true) {
-      // state = FilePageState.loading(state.path);
-
-      try {
-        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-        if (file is Folder) {
-          await _fileService.deleteDirForced(file.absolutPath);
-        } else {
-          await _fileService.deleteFile(file.absolutPath);
-        }
-      } on JRpcError catch (e) {
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          message: 'Could not delete File.\n${e.message}',
-        ));
-      }
-    }
-  }
-
-  Future<void> _deleteFilesAction(List<RemoteFile> files) async {
-    var dialogResponse = await _dialogService.showConfirm(
-      title: tr('dialogs.delete_files.title'),
-      body: tr('dialogs.delete_files.description', args: [files.length.toString()]),
-      actionLabel: tr('general.delete'),
-    );
-
-    if (dialogResponse?.confirmed == true) {
-      // state = FilePageState.loading(state.path);
-
-      state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-
-      delete(RemoteFile file) async {
-        try {
-          if (file is Folder) {
-            await _fileService.deleteDirForced(file.absolutPath);
-          } else {
-            await _fileService.deleteFile(file.absolutPath);
-          }
-        } on JRpcError catch (e) {
-          _snackBarService.show(SnackBarConfig(
-            type: SnackbarType.error,
-            message: 'Could not delete ${file.name}.\n${e.message}',
-          ));
-        }
-      }
-
-      for (var file in files) {
-        delete(file);
-      }
-    }
-  }
-
-  Future<void> _renameFileAction(RemoteFile file) async {
-    var fileNames = state.folderContent.requireValue.folderFileNames;
-    fileNames.remove(file.name);
-
-    var dialogResponse = await _dialogService.show(
-      DialogRequest(
-        type: DialogType.textInput,
-        title: file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
-        actionLabel: tr('general.rename'),
-        data: TextInputDialogArguments(
-          initialValue: file.fileName,
-          labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
-          suffixText: file.fileExtension?.let((it) => '.$it'),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.match(
-              RegExp(r'^\w?[\w .-]*[\w-]$'),
-              errorText: tr('pages.files.no_matches_file_pattern'),
-            ),
-            notContains(
-              fileNames,
-              errorText: tr('form_validators.file_name_in_use'),
-            ),
-          ]),
-        ),
-      ),
-    );
-
-    if (dialogResponse?.confirmed == true) {
-      String newName = dialogResponse!.data;
-      if (file.fileExtension != null) newName = '$newName.${file.fileExtension!}';
-      if (newName == file.name) return;
-
-      try {
-        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-        await _fileService.moveFile(
-          file.absolutPath,
-          '${file.parentPath}/$newName',
-        );
-      } on JRpcError catch (e) {
-        logger.e('Could not perform rename.', e);
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          message: 'Could not rename File.\n${e.message}',
-        ));
-      }
-    }
-  }
-
-  Future<void> _moveFileAction(RemoteFile file) async {
-    // await _printerService.startPrintFile(file);
-    final res = await _goRouter.pushNamed(
-      AppRoute.fileManager_exlorer_move.name,
-      pathParameters: {'path': filePath.split('/').first},
-      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.move_here')},
-    );
-
-    if (res case String()) {
-      if (file.parentPath == res) return;
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving file ${file.name} to $res');
-      state = state.copyWith(folderContent: state.folderContent.toLoading(true));
-      try {
-        await _fileService.moveFile(file.absolutPath, res);
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.info,
-          title: tr('pages.files.file_operation.move_success.title'),
-          message: tr('pages.files.file_operation.move_success.body', args: [res]),
-        ));
-      } catch (e, s) {
-        _onOperationError(e, s, 'move');
-      }
-    }
-  }
-
-  Future<void> _moveFilesAction(List<RemoteFile> files) async {
-    final res = await _goRouter.pushNamed(
-      AppRoute.fileManager_exlorer_move.name,
-      pathParameters: {'path': filePath.split('/').first},
-      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.move_here')},
-    );
-
-    if (res case String()) {
-      final newPath = res;
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] moving files to $newPath');
-      state = state.copyWith(folderContent: state.folderContent.toLoading(true));
-
-      final waitFor = <Future>[];
-      for (var file in files) {
-        final f = _fileService.moveFile(file.absolutPath, '$newPath/${file.name}');
-        waitFor.add(f);
-      }
-      try {
-        await Future.wait(waitFor);
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.info,
-          title: tr('pages.files.file_operation.move_success.title'),
-          message: tr('pages.files.file_operation.move_success.body', args: [newPath]),
-        ));
-      } catch (e, s) {
-        _onOperationError(e, s, 'move');
-      }
-    }
-  }
-
-  Future<void> _copyFileAction(RemoteFile file) async {
-    // First name of the new copy
-    var dialogResponse = await _dialogService.show(
-      DialogRequest(
-        type: DialogType.textInput,
-        title: file is Folder ? tr('dialogs.copy_folder.title') : tr('dialogs.copy_file.title'),
-        actionLabel: tr('pages.files.file_actions.copy'),
-        data: TextInputDialogArguments(
-          initialValue: '${file.fileName}_copy${file.fileExtension?.let((it) => '.$it') ?? ''}',
-          labelText: file is Folder ? tr('dialogs.copy_file.label') : tr('dialogs.copy_file.label'),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.match(
-              RegExp(r'^\w?[\w .-]*[\w-]$'),
-              errorText: tr('pages.files.no_matches_file_pattern'),
-            ),
-          ]),
-        ),
-      ),
-    );
-
-    if (dialogResponse?.confirmed == false) return;
-    final copyName = dialogResponse!.data;
-
-    final res = await _goRouter.pushNamed(
-      AppRoute.fileManager_exlorer_move.name,
-      pathParameters: {'path': filePath.split('/').first},
-      queryParameters: {'machineUUID': machineUUID, 'submitLabel': tr('pages.files.copy_here')},
-    );
-
-    if (res case String()) {
-      final copyPath = '$res/$copyName';
-      logger
-          .i('[ModernFileManagerController($machineUUID, $filePath)] creating copy of file ${file.name} at $copyPath');
-      await _fileService.copyFile(file.absolutPath, copyPath);
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.files.file_operation.copy_created.title'),
-        message: tr('pages.files.file_operation.copy_created.body', args: [copyPath]),
-      ));
-    }
-  }
-
-  Future<void> _previewAction(GCodeFile file) async {
-    _goRouter.pushNamed(
-      ProRoutes.fileManager_exlorer_gcodePreview.name,
-      pathParameters: {'path': filePath},
-      queryParameters: {'machineUUID': machineUUID},
-      extra: file,
+    await _handleFileInteractionEventStream(
+      _fileInteractionService.showMultiFileActionMenu(selectedFiles, pos, machineUUID),
     );
   }
-
-  Future<void> _addFileToQueueAction(GCodeFile file) async {
-    final isSup = await ref.read(isSupporterAsyncProvider.future);
-    if (!isSup) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.job_queue'),
-        duration: const Duration(seconds: 5),
-      ));
-      return;
-    }
-
-    try {
-      await _jobQueueService.enqueueJob(file.pathForPrint);
-    } on JRpcError catch (e) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        message: 'Could not add File to Queue.\n${e.message}',
-      ));
-    }
-  }
-
-  Future<void> _addFilesToQueueAction(List<GCodeFile> files) async {
-    final isSup = await ref.read(isSupporterAsyncProvider.future);
-    if (!isSup) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.job_queue'),
-        duration: const Duration(seconds: 5),
-      ));
-      return;
-    }
-    if (files.isEmpty) return;
-
-    try {
-      final futures = files.map((e) => _jobQueueService.enqueueJob(e.pathForPrint));
-      await Future.wait(futures);
-    } on JRpcError catch (e) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        message: 'Could not add Files to Queue.\n${e.message}',
-      ));
-    }
-  }
-
-  Future<void> _preheatAction(GCodeFile file) async {
-    final tempArgs = [
-      '170',
-      file.firstLayerTempBed?.toStringAsFixed(0) ?? '60',
-    ];
-    final resp = await _dialogService.showConfirm(
-      title: 'pages.files.details.preheat_dialog.title'.tr(),
-      body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
-      actionLabel: 'pages.files.details.preheat'.tr(),
-    );
-    if (resp?.confirmed != true) return;
-    _printerService.setHeaterTemperature('extruder', 170);
-    if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ?? false) {
-      _printerService.setHeaterTemperature(
-        'heater_bed',
-        (file.firstLayerTempBed ?? 60.0).toInt(),
-      );
-    }
-    _snackBarService.show(SnackBarConfig(
-      title: tr('pages.files.details.preheat_snackbar.title'),
-      message: tr(
-        'pages.files.details.preheat_snackbar.body',
-        args: tempArgs,
-      ),
-    ));
-  }
-
-  Future<void> _submitJobAction(GCodeFile file) async {
-    await _printerService.startPrintFile(file);
-    _goRouter.goNamed(AppRoute.dashBoard.name);
-  }
-
-  Future<void> _downloadFileAction(RemoteFile file, Rect origin) async {
-    final isSup = await ref.read(isSupporterAsyncProvider.future);
-    if (!isSup) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.full_file_management'),
-        duration: const Duration(seconds: 5),
-      ));
-      return;
-    }
-
-    try {
-      var fileToDownload = file.absolutPath;
-      int? fileToDownloadSize = file.size;
-      if (file case Folder()) {
-        final zip = '${file.absolutPath}-${_zipDateFormat.format(DateTime.now())}.zip';
-        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-        final res = await _handleZipOperation(zip, [file.absolutPath], false);
-        if (res == null) return;
-        fileToDownload = zip;
-        fileToDownloadSize = res?.size;
-      }
-      _downloadToken = CancelToken();
-      final downloadStream = _fileService
-          .downloadFile(filePath: fileToDownload, expectedFileSize: fileToDownloadSize, cancelToken: _downloadToken)
-          .distinct((a, b) {
-        // If both are Download Progress, only update in 0.01 steps:
-        const epsilon = 0.01;
-        if (a is FileOperationProgress && b is FileOperationProgress) {
-          return (b.progress - a.progress) < epsilon;
-        }
-
-        return a == b;
-      });
-
-      await for (var download in downloadStream) {
-        state = state.copyWith(download: download);
-      }
-
-      if (state.download is FileOperationCanceled) {
-        _onOperationCanceled(false);
-        return;
-      }
-
-      final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
-
-      String mimeType = switch (file.fileExtension) {
-        'png' => 'image/png',
-        'gif' => 'image/gif',
-        'jpg' || 'jpeg' => 'image/jpeg',
-        'mp4' => 'video/mp4',
-        _ => 'text/plain',
-      };
-      try {
-        await Share.shareXFiles(
-          [XFile(downloadedFilePath, mimeType: mimeType)],
-          subject: file.name,
-          sharePositionOrigin: origin,
-        );
-      } catch (e) {
-        logger.e('Could not share file', e);
-      }
-    } catch (e, s) {
-      _onOperationError(e, s, 'download');
-    } finally {
-      state = state.copyWith(download: null);
-    }
-  }
-
-  Future<void> _downloadFilesAction(List<RemoteFile> files, Rect origin) async {
-    final isSup = await ref.read(isSupporterAsyncProvider.future);
-    if (!isSup) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.full_file_management'),
-        duration: const Duration(seconds: 5),
-      ));
-      return;
-    }
-
-    try {
-      final zipName = '${_zipDateFormat.format(DateTime.now())}.zip';
-      final zipPath = '${files.first.parentPath}/$zipName';
-      state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-
-      final zip = await _handleZipOperation(zipPath, files.map((e) => e.absolutPath).toList(), false);
-      if (zip == null) return;
-
-      _downloadToken = CancelToken();
-      final downloadStream = _fileService
-          .downloadFile(filePath: zipPath, expectedFileSize: zip.size, cancelToken: _downloadToken)
-          .distinct((a, b) {
-        // If both are Download Progress, only update in 0.01 steps:
-        const epsilon = 0.01;
-        if (a is FileOperationProgress && b is FileOperationProgress) {
-          return (b.progress - a.progress) < epsilon;
-        }
-
-        return a == b;
-      });
-
-      await for (var download in downloadStream) {
-        state = state.copyWith(download: download);
-      }
-
-      if (state.download is FileOperationCanceled) {
-        _onOperationCanceled(false);
-        return;
-      }
-
-      final downloadedFilePath = (state.download as FileDownloadComplete).file.path;
-
-      try {
-        await Share.shareXFiles(
-          [XFile(downloadedFilePath, mimeType: 'application/zip')],
-          subject: zipName,
-          sharePositionOrigin: origin,
-        );
-      } catch (e) {
-        logger.e('Could not share file', e);
-      }
-    } catch (e, s) {
-      _onOperationError(e, s, 'download');
-    } finally {
-      state = state.copyWith(download: null);
-    }
-  }
-
-  Future<void> _uploadFileAction(List<String> allowed, [bool multiple = false]) async {
-    final isSup = await ref.read(isSupporterAsyncProvider.future);
-    if (!isSup) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.full_file_management'),
-        duration: const Duration(seconds: 5),
-      ));
-      return;
-    }
-
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] uploading file. Allowed: $allowed');
-
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: kDebugMode ? FileType.any : FileType.custom,
-      allowedExtensions: allowed.unless(kDebugMode),
-      withReadStream: true,
-      allowMultiple: multiple,
-      withData: false,
-    );
-
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] FilePicker result: $result');
-    if (result == null || result.count == 0) return;
-    for (var toUpload in result.files) {
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Selected file: ${toUpload.name}');
-
-      final mPrt = MultipartFile.fromStream(() => toUpload.readStream!, toUpload.size,
-          filename: '$_relativeToRoot/${toUpload.name}');
-
-      final wasSuccessful = await _handleFileUpload(filePath, mPrt);
-      if (!wasSuccessful) return;
-    }
-  }
-
-  Future<void> _newFileAction() async {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating new file');
-
-    // final allowedExtensions = _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
-
-    final res = await _dialogService.show(
-      DialogRequest(
-        type: DialogType.textInput,
-        title: tr('dialogs.create_file.title'),
-        actionLabel: tr('general.create'),
-        data: TextInputDialogArguments(
-          initialValue: '',
-          labelText: tr('dialogs.create_file.label'),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.match(
-              RegExp(r'^\w?[\w .-]*[\w-]$'),
-              errorText: tr('pages.files.no_matches_file_pattern'),
-            ),
-            notContains(
-              state.folderContent.requireValue.folderFileNames,
-              errorText: tr('form_validators.file_name_in_use'),
-            ),
-          ]),
-        ),
-      ),
-    );
-
-    if (res?.confirmed != true) return;
-    final fileName = res!.data;
-    final multipartFile = MultipartFile.fromString('', filename: '$_relativeToRoot/$fileName');
-
-    await _handleFileUpload(filePath, multipartFile);
-  }
-
-  Future<void> _zipFilesAction(List<RemoteFile> toZip) async {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating new archive for files');
-
-    final initialName = toZip.length == 1 ? toZip.first.name : _zipDateFormat.format(DateTime.now());
-
-    final res = await _dialogService.show(
-      DialogRequest(
-        type: DialogType.textInput,
-        title: tr('dialogs.create_archive.title'),
-        actionLabel: tr('general.create'),
-        data: TextInputDialogArguments(
-          initialValue: initialName,
-          labelText: tr('dialogs.create_archive.label'),
-          suffixText: '.zip',
-          valueTransformer: (value) => value?.let((it) => '$it.zip'),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.match(
-              RegExp(r'^\w?[\w .-]*[\w-]$'),
-              errorText: tr('pages.files.no_matches_file_pattern'),
-            ),
-          ]),
-        ),
-      ),
-    );
-
-    if (res?.confirmed != true) return;
-    state = state.copyWith(folderContent: state.folderContent.toLoading(false));
-
-    final archiveDest = '${toZip.first.parentPath}/${res!.data as String}';
-    await _handleZipOperation(archiveDest, toZip.map((e) => e.absolutPath).toList());
-  }
-
-  //////////////////// END ACTIONS ////////////////////
 
   //////////////////// MISC ////////////////////
-  Future<bool> _handleFileUpload(String path, MultipartFile toUpload) async {
-    try {
-      _uploadToken = CancelToken();
-      final uploadStream = _fileService.uploadFile(path, toUpload, _uploadToken);
 
-      await for (var update in uploadStream) {
-        state = state.copyWith(upload: update);
-      }
-
-      if (state.upload is FileOperationCanceled) {
-        _onOperationCanceled(true);
-        return false;
-      }
-
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] File uploaded');
-
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.info,
-        title: tr('pages.files.file_operation.upload_success.title'),
-        message: tr('pages.files.file_operation.upload_success.body'),
-      ));
-    } catch (e, s) {
-      logger.e('[ModernFileManagerController($machineUUID, $filePath)] Could not upload file.', e, s);
-      _onOperationError(e, s, 'upload');
-      return false;
-    } finally {
-      state = state.copyWith(upload: null);
+  Future<void> _handleFileInteractionEventStream(Stream<FileInteractionMenuEvent> stream) async {
+    await for (var event in stream) {
+      _onFileInteractionMenuEvents(event);
     }
-    return true;
-  }
-
-  Future<FileItem?> _handleZipOperation(String dest, List<String> targets, [bool showSnack = true]) async {
-    try {
-      final zipFile = await _fileService.zipFiles(dest, targets);
-
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Files zipped');
-
-      if (showSnack) {
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.info,
-          title: tr('pages.files.file_operation.zipping_success.title'),
-          message: tr('pages.files.file_operation.zipping_success.body'),
-        ));
-      }
-      return zipFile;
-    } catch (e, s) {
-      logger.e('[ModernFileManagerController($machineUUID, $filePath)] Could not zip files.', e, s);
-      _onOperationError(e, s, 'zipping');
-    }
-    return null;
   }
 
   //////////////////// NOTIFICATIONS ////////////////////
+
+  void _onFileInteractionMenuEvents(FileInteractionMenuEvent event) {
+    // logger.w('[ModernFileManagerController($machineUUID, $filePath)] file interaction menu event: $event');
+    switch (event) {
+      case FileActionSelected():
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] multi file action selected: ${event.action}');
+        break;
+      case FileOperationTriggered():
+        state = state.copyWith(folderContent: state.folderContent.toLoading(false));
+        break;
+      case FileTransferOperationProgress(action: FileSheetAction.download) when _downloadToken == null:
+        _downloadToken = event.token;
+      case FileTransferOperationProgress(action: FileSheetAction.download):
+        state = state.copyWith(download: event.event);
+        break;
+      case FileTransferOperationProgress(action: FileSheetAction.uploadFile) when _uploadToken == null:
+        _uploadToken = event.token;
+      case FileTransferOperationProgress(action: FileSheetAction.uploadFile):
+        state = state.copyWith(upload: event.event);
+        break;
+      case FileOperationCompleted():
+        logger.i('[ModernFileManagerController($machineUUID, $filePath)] file action completed: ${event.action}');
+        // it is NOT possible to have an up and download at the same time!
+        _downloadToken = null;
+        _uploadToken = null;
+        state = state.copyWith(download: null, upload: null, selectedFiles: []);
+        ref.invalidateSelf();
+        break;
+      default:
+      // Do nothing
+    }
+  }
 
   void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
     final notification = next.valueOrNull;
@@ -2073,25 +1313,6 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           '[ModernFileManagerController($machineUUID, $filePath)] Timelapse component was removed/not available anymore, will move to gcodes');
       _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'gcodes'});
     }
-  }
-
-  void _onOperationCanceled(bool isUpload) {
-    final prefix = isUpload ? 'upload' : 'download';
-    _snackBarService.show(SnackBarConfig(
-      type: SnackbarType.warning,
-      title: tr('pages.files.file_operation.${prefix}_canceled.title'),
-      message: tr('pages.files.file_operation.${prefix}_canceled.body'),
-    ));
-  }
-
-  void _onOperationError(Object error, StackTrace stack, String operation) {
-    _snackBarService.show(SnackBarConfig.stacktraceDialog(
-      dialogService: _dialogService,
-      snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
-      snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
-      exception: error,
-      stack: stack,
-    ));
   }
 }
 

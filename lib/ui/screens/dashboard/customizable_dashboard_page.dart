@@ -15,6 +15,7 @@ import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
@@ -37,6 +38,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -581,6 +583,8 @@ class _DashboardPageController extends _$DashboardPageController {
 
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
+  GoRouter get _router => ref.read(goRouterProvider);
+
   DashboardLayoutService get _dashboardLayoutService => ref.read(dashboardLayoutServiceProvider);
 
   DashboardLayout? _originalLayout;
@@ -739,8 +743,9 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   Future<void> showLayoutOptionsSheet() async {
-    var result = await _bottomSheetService.show(BottomSheetConfig(
-        type: SheetType.dashobardLayout, data: [machineUUID, state.requireValue.layout], isScrollControlled: true));
+    var result = await _router.pushNamed(SheetType.dashobardLayout.name,
+        extra: state.requireValue.layout, queryParameters: {'machineUUID': machineUUID});
+
     // switch (result ){
     //   case BottomSheetResult(confirmed: true, data: DashboardLayoutSheetResult(layout: var layout!, type: DashboardLayoutSheetResultType.save)):
     //     updateLayout(layout);

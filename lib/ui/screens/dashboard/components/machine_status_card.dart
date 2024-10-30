@@ -64,21 +64,30 @@ class MachineStatusCard extends HookConsumerWidget {
             _M117Message(machineUUID: machineUUID),
             _ExcludeObject(machineUUID: machineUUID),
             Consumer(builder: (ctx, iref, _) {
-              var model = iref.watch(_machineStatusCardControllerProvider(machineUUID)
-                  .selectRequireValue((data) => data.showToolheadTable));
+              var (model, isCC) = iref.watch(_machineStatusCardControllerProvider(machineUUID)
+                  .selectRequireValue((data) => (data.showToolheadTable, data.isCompleteOrCancelled)));
               // logger.i('Rebuilding ToolheadInfoTable for $machineUUID');
               return AnimatedSizeAndFade(
                 sizeDuration: kThemeAnimationDuration,
                 fadeDuration: kThemeAnimationDuration,
                 child: model
                     ? Column(
+                        key: Key('ShowTable-cc-$isCC'),
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Divider(thickness: 1, height: 0),
-                          ToolheadInfoTable(machineUUID: machineUUID),
+                          ToolheadInfoTable(
+                            machineUUID: machineUUID,
+                            rowsToShow: isCC
+                                ? [ToolheadInfoTable.SUMMARY_ROW]
+                                : [
+                                    ToolheadInfoTable.POS_ROW,
+                                    ToolheadInfoTable.MOV_ROW,
+                                  ],
+                          ),
                         ],
                       )
-                    : const SizedBox.shrink(),
+                    : const SizedBox.shrink(key: Key('NoTable')),
               );
             }),
           ],
@@ -136,7 +145,6 @@ class _CardTitle extends ConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(
         _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
-
     var printState =
         ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
     return ListTile(
@@ -144,7 +152,7 @@ class _CardTitle extends ConsumerWidget {
       leading: Icon(klippyCanReceiveCommands ? FlutterIcons.monitor_dashboard_mco : FlutterIcons.disconnect_ant),
       title: _Title(machineUUID: machineUUID),
       subtitle: switch (printState) {
-        PrintState.printing || PrintState.paused => Text(
+        PrintState.printing || PrintState.paused || PrintState.complete || PrintState.cancelled => Text(
             ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.filename))),
         PrintState.error =>
           Text(ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.message))),
@@ -164,7 +172,6 @@ class _Title extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref.watch(
         _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
-
 
     final Widget text;
     if (klippyCanReceiveCommands) {
@@ -204,7 +211,6 @@ class _Trailing extends ConsumerWidget {
     var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
     // Here it is fine to just use the model directly, as the most updates will be triggered via the progress which we are using here
     var model = ref.watch(_machineStatusCardControllerProvider(machineUUID).requireValue());
-
 
     var themeData = Theme.of(context);
     // Slider()
@@ -585,9 +591,11 @@ class _Model with _$Model {
 
   bool get isPrintingOrPaused => printState == PrintState.printing || printState == PrintState.paused;
 
+  bool get isCompleteOrCancelled => printState == PrintState.complete || printState == PrintState.cancelled;
+
   bool get showExcludeObject => klippyCanReceiveCommands && isPrintingOrPaused && excludeObject?.available == true;
 
-  bool get showToolheadTable => klippyCanReceiveCommands && isPrintingOrPaused;
+  bool get showToolheadTable => klippyCanReceiveCommands && (isPrintingOrPaused || isCompleteOrCancelled);
 
   bool get klippyCanReceiveCommands => klipperState == KlipperState.ready && klippyConnected;
 }

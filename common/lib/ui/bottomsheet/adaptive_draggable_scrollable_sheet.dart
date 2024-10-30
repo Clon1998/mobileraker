@@ -20,19 +20,19 @@ class AdaptiveDraggableScrollableSheet extends StatefulWidget {
   final ScrollableWidgetBuilder builder;
 
   @override
-  State<AdaptiveDraggableScrollableSheet> createState() => _AdaptiveDraggableScrollableSheet();
+  State<AdaptiveDraggableScrollableSheet> createState() => AdaptiveDraggableScrollableSheetState();
 }
 
-class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollableSheet> {
+class AdaptiveDraggableScrollableSheetState extends State<AdaptiveDraggableScrollableSheet> {
   final _contentKey = GlobalKey();
-
   double? _bodyHeight;
+  ScrollMetrics? _scrollMetrics;
+  bool _isScrolling = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeight());
-    // ViewInserts are required for the keyboard, in case the sheet has text fields. Otherwise the keyboard might overlap the text fields.
+    WidgetsBinding.instance.addPostFrameCallback((_) => refreshHeight());
   }
 
   @override
@@ -69,9 +69,44 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
             minChildSize: widget.minChildSize,
             builder: (ctx, scrollController) {
               return Scaffold(
-                body: KeyedSubtree(
-                  key: _contentKey,
-                  child: widget.builder(ctx, scrollController),
+                body: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollStartNotification) {
+                      // logger.e(
+                      //     'START Metrics: ${notification.metrics}');
+                      _scrollMetrics = notification.metrics;
+                      WidgetsBinding.instance.addPostFrameCallback((_) => refreshHeight());
+                      _isScrolling = true;
+                    } else if (notification is ScrollEndNotification) {
+                      // logger.e(
+                      //     'END Metrics: ${notification.metrics}');
+                      _isScrolling = false;
+                    } else if (notification is ScrollUpdateNotification) {
+                      // logger.e(
+                      //     'UPDATE Metrics: ${notification.metrics}');
+                      // _scrollMetrics = notification.metrics;
+                      // WidgetsBinding.instance.addPostFrameCallback((_) => refreshHeight());
+                    }
+                    return false;
+                  },
+                  child: NotificationListener<SizeChangedLayoutNotification>(
+                    onNotification: (_) {
+                      if (!_isScrolling) {
+                        if (_scrollMetrics != null) {
+                          _scrollMetrics = null;
+                          return false;
+                        }
+                        WidgetsBinding.instance.addPostFrameCallback((_) => refreshHeight());
+                      }
+                      return true;
+                    },
+                    child: SizeChangedLayoutNotifier(
+                      child: KeyedSubtree(
+                        key: _contentKey,
+                        child: widget.builder(ctx, scrollController),
+                      ),
+                    ),
+                  ),
                 ),
               );
             },
@@ -79,13 +114,19 @@ class _AdaptiveDraggableScrollableSheet extends State<AdaptiveDraggableScrollabl
         },
       );
 
-  _updateHeight() {
+  void refreshHeight() {
     var renderObject = _contentKey.currentContext?.findRenderObject();
-    if (renderObject case RenderBox()) {
-      setState(() {
-        _bodyHeight = renderObject.size.height;
-      });
-      // logger.i('Body height: $_bodyHeight');
+
+    if (renderObject is RenderBox) {
+      final newHeight =
+          renderObject.size.height + (_scrollMetrics?.extentBefore ?? 0) + (_scrollMetrics?.extentAfter ?? 0);
+      // logger.w('renderHeight: ${renderObject.size.height}, metrics: $_scrollMetrics');
+      if (_bodyHeight == null || newHeight != _bodyHeight) {
+        setState(() {
+          _bodyHeight = newHeight;
+        });
+      }
     }
+    // logger.i('Body height: $_bodyHeight');
   }
 }

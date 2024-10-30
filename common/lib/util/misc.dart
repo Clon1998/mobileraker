@@ -17,7 +17,6 @@ import '../exceptions/octo_everywhere_exception.dart';
 import '../network/json_rpc_client.dart';
 import '../util/extensions/object_extension.dart';
 import '../util/extensions/uri_extension.dart';
-import 'logger.dart';
 
 Uri? buildMoonrakerWebSocketUri(String? enteredURL, [bool defaultPathIfEmpty = true]) {
   var normalizedURL = _normalizeURL(enteredURL);
@@ -106,7 +105,6 @@ FormFieldValidator<T> notContains<T>(
   return (T? valueCandidate) {
     if (valueCandidate != null) {
       assert(valueCandidate is! List && valueCandidate is! Map && valueCandidate is! Set);
-      logger.wtf('Checking $valueCandidate');
       if (blockList.contains(valueCandidate)) {
         return errorText ?? 'Value in Blocklist!';
       }
