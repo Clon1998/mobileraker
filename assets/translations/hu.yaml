@@ -62,6 +62,7 @@ general:
   discard: Eldobás
   hide: Elrejtés
   finish: Kész
+  select: Kiválaszt
 pages:
   dashboard:
     title: Irányítópult
@@ -94,6 +95,7 @@ pages:
           Fájl: {file}
           Nyomtatószál: {filament}
         remaining: Fennmaradó
+        print_time: Nyomtatási idő
       cam_card:
         webcam: Webkamera
         fullscreen: Teljes képernyő
@@ -927,6 +929,8 @@ components:
     show_travel:
       title: Utazási mozgások mutatása
       subtitle: Nem nyomtatási mozgás kijelzése
+  select_color_sheet:
+    title: Szín kiválasztása
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
@@ -966,7 +970,6 @@ dialogs:
     title: Archívum létrehozása
     label: Archívum neve
   delete_files:
-    title: Fájlok törlése
     description: A {} fájlok törlésének megerősítése.
   exclude_object:
     title: Objektum kizárása a nyomtatásból
