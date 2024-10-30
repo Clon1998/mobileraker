@@ -15,7 +15,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/bottomsheet/non_printing_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
@@ -227,6 +226,7 @@ class _ManualTab extends ConsumerWidget {
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Flexible(
           child: ListView(
@@ -290,7 +290,7 @@ class _ManualTab extends ConsumerWidget {
         if (model.activeClientType == null || model.activeClientType == ClientType.manual)
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: FullWidthButton(
+            child: OutlinedButton(
               onPressed: controller.saveManual,
               child: Text(MaterialLocalizations.of(context).saveButtonLabel),
             ),
