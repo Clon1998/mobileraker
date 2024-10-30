@@ -2,6 +2,10 @@
 
 ## [2.8.2] - 2024-10-31
 
+### Enhancements
+- **File name Tooltip**: It is now possible to long-press the filename in the file action bottom sheet to see the full 
+  name of the file.
+
 ### Bug Fixes
 
 - **Restart Bottom Sheet**: Fixed broken button behavior in the restart menu where PI restart, shutdown, and firmware
@@ -9,6 +13,9 @@
 
 - **UI Improvements**: Standardized bottom sheet behavior with consistent animations and layouts across all instances,
   enhancing overall navigation fluidity.
+
+- **Copying of Files**: Copying a file to a different folder than the currently open one, no longer causes the app to show
+  the loading indicator indefinitely.
 
 ## [2.8.1] - 2024-10-23
 
