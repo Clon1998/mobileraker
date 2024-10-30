@@ -1,6 +1,16 @@
 # Mobileraker - Changelog
 
-## [2.8.1] - 2024-10-x
+## [2.8.2] - 2024-10-31
+
+### Bug Fixes
+
+- **Restart Bottom Sheet**: Fixed broken button behavior in the restart menu where PI restart, shutdown, and firmware
+  restart actions only worked with long-press instead of normal taps after confirmation.
+
+- **UI Improvements**: Standardized bottom sheet behavior with consistent animations and layouts across all instances,
+  enhancing overall navigation fluidity.
+
+## [2.8.1] - 2024-10-23
 
 ### Enhancements
 

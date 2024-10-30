@@ -3,13 +3,13 @@
  * All rights reserved.
  */
 
-import 'dart:async';
-
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/bottomsheet/confirmation_bottom_sheet.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -17,13 +17,16 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'non_printing_bottom_sheet.g.dart';
 
 class NonPrintingBottomSheet extends ConsumerWidget {
   const NonPrintingBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyService = ref.watch(klipperServiceSelectedProvider);
+    final controller = ref.read(_nonPrintingBottomSheetControllerProvider.notifier);
 
     var themeData = Theme.of(context);
     return SafeArea(
@@ -41,8 +44,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () => _btnActionWithConfirm(context, klippyService.shutdownHost, 'pi_shutdown'),
-                      onLongPress: _btnAction(context, klippyService.shutdownHost),
+                      onPressed: () => controller.onPressButton('pi_shutdown'),
+                      onLongPress: () => controller.onPressButton('pi_shutdown', false),
                       style: OutlinedButton.styleFrom(
                         backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
                         foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
@@ -67,8 +70,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                         backgroundColor: themeData.extension<CustomColors>()?.warning ?? Colors.red,
                         foregroundColor: themeData.extension<CustomColors>()?.onWarning ?? Colors.white,
                       ),
-                      onPressed: () => _btnActionWithConfirm(context, klippyService.rebootHost, 'pi_restart'),
-                      onLongPress: _btnAction(context, klippyService.rebootHost),
+                      onPressed: () => controller.onPressButton('pi_restart'),
+                      onLongPress: () => controller.onPressButton('pi_restart', false),
                       child: AutoSizeText(tr('general.restart'), maxLines: 1),
                     ),
                   ),
@@ -77,8 +80,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 5),
             OutlinedButton(
-              onPressed: () => _btnActionWithConfirm(context, klippyService.restartMCUs, 'fw_restart'),
-              onLongPress: _btnAction(context, klippyService.restartMCUs),
+              onPressed: () => controller.onPressButton('fw_restart'),
+              onLongPress: () => controller.onPressButton('fw_restart', false),
               child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
             ),
             OutlinedButton(
@@ -119,53 +122,44 @@ class NonPrintingBottomSheet extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _btnActionWithConfirm(BuildContext context, VoidCallback toCall, [String? gender]) async {
-    final result = await context.pushNamed(
-      SheetType.confirm.name,
-      extra: ConfirmationBottomSheetArgs(
-        title: tr('bottom_sheets.non_printing.confirm_action.title'),
-        description: tr('bottom_sheets.non_printing.confirm_action.body', gender: gender),
-        hint: tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
-      ),
-    );
-
-    if (result == true) {
-      _btnAction(context, toCall);
-    }
-  }
-
-  VoidCallback _btnAction(BuildContext ctx, VoidCallback toCall) {
-    return () {
-      ctx.pop();
-      toCall();
-    };
-  }
 }
 
-class FullWidthButton extends StatelessWidget {
-  final VoidCallback? onPressed;
+@riverpod
+class _NonPrintingBottomSheetController extends _$NonPrintingBottomSheetController {
+  GoRouter get router => ref.read(goRouterProvider);
 
-  final Widget child;
-
-  final ButtonStyle? buttonStyle;
-
-  const FullWidthButton({
-    super.key,
-    required this.onPressed,
-    required this.child,
-    this.buttonStyle,
-  });
+  KlippyService get klippyService => ref.read(klipperServiceSelectedProvider);
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: buttonStyle,
-        child: child,
-      ),
-    );
+  void build() {}
+
+  void onPressButton(String type, [bool requireConfirm = true]) async {
+    var performAction = !requireConfirm;
+    if (requireConfirm) {
+      final confirmed = await router.pushNamed(
+        SheetType.confirm.name,
+        extra: ConfirmationBottomSheetArgs(
+          title: tr('bottom_sheets.non_printing.confirm_action.title'),
+          description: tr('bottom_sheets.non_printing.confirm_action.body', gender: type),
+          hint: tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
+        ),
+      );
+      performAction = performAction || confirmed == true;
+    }
+    if (!performAction) return;
+    switch (type) {
+      case 'pi_shutdown':
+        klippyService.shutdownHost();
+        break;
+      case 'pi_restart':
+        klippyService.rebootHost();
+        break;
+      case 'fw_restart':
+        klippyService.restartMCUs();
+        break;
+      default:
+        logger.e('Unknown type: $type');
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => router.pop());
   }
 }
