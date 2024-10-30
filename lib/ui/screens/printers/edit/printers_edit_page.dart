@@ -32,7 +32,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
-import 'package:mobileraker/ui/components/bottomsheet/non_printing_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
@@ -128,6 +127,7 @@ class _Body extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(6.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   SectionHeader(
                     title: 'pages.setting.general.title'.tr(),
@@ -225,7 +225,7 @@ class _Body extends ConsumerWidget {
                     leadingIcon: const Icon(Icons.wifi_off_outlined),
                     onTap: controller.requestLocationPermission,
                   ),
-                  FullWidthButton(
+                  OutlinedButton(
                     onPressed: controller.openRemoteConnectionSheet,
                     child: const Text(
                       'pages.printer_edit.configure_remote_connection',
@@ -312,6 +312,7 @@ class _WebCamItem extends HookConsumerWidget {
         maintainState: true,
         tilePadding: const EdgeInsets.symmetric(horizontal: 10),
         childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
+        expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
         title: Text(camName.value),
         // TODO Add webcam reorder again?
         // leading: ReorderableDragStartListener(
@@ -443,7 +444,7 @@ class _WebCamItem extends HookConsumerWidget {
                   name: '${cam.uuid}-camFH',
                   activeColor: themeData.colorScheme.primary,
                 ),
-                FullWidthButton(
+                OutlinedButton(
                   onPressed: serviceType.value.supported
                       ? () => (ref.read(webcamListControllerProvider.notifier).previewWebcam(cam))
                       : null,
