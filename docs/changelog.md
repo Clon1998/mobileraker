@@ -5,7 +5,7 @@
 ### Bug Fixes
 
 - **GCode-Preview**: Fixed an issue within the GCode-Parser that caused the preview to show an error if the
-  `SET_RETRACTION` was used in the STL file.
+  `SET_RETRACTION` was used in the GCode file.
 
 ## [2.8.2] - 2024-10-31
 
