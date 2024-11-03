@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.8.3] - 2024-11-xx
+
+### Bug Fixes
+
+- **GCode-Preview**: Fixed an issue within the GCode-Parser that caused the preview to show an error if the
+  `SET_RETRACTION` was used in the STL file.
+
 ## [2.8.2] - 2024-10-31
 
 ### Bug Fixes
