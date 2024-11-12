@@ -36,7 +36,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
 
   ProviderSubscription<AsyncValue<Map<(ConfigFileObjectIdentifiers, String), FilamentSensor>>>? _subscription;
 
-  bool _enabled = true;
+  bool? _enabled;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
         logger.i('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
         if (next != _enabled) {
           _enabled = next;
-          if (_enabled) {
+          if (_enabled == true) {
             _setup();
           } else {
             _subscription?.close();
@@ -60,7 +60,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
 
   @override
   void didUpdateWidget(FilamentSensorWatcher oldWidget) {
-    if (_enabled && oldWidget.machineUUID != widget.machineUUID) _setup();
+    if (_enabled == true && oldWidget.machineUUID != widget.machineUUID) _setup();
     super.didUpdateWidget(oldWidget);
   }
 
@@ -71,13 +71,14 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
   }
 
   void _setup() {
+    logger.i('FilamentSensorWatcher: Setting up filamentSensorWatcher for ${widget.machineUUID}');
     _subscription?.close();
     _subscription = ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.filamentSensors),
       (previous, next) {
         if (!next.hasValue) return;
         if (_dialogService.isDialogOpen) return;
-        if (!_enabled) return;
+        if (_enabled != true) return;
 
         var filamentSensors = next.value!;
 
@@ -88,7 +89,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
           if (_dialogService.isDialogOpen) return;
 
           if (sensor.enabled && !sensor.filamentDetected && model[entry.key] != true) {
-            logger.i('Detected filamentSensor triggered ${sensor.name}... opening Dialog');
+            logger.i('FilamentSensorWatcher: Detected filamentSensor triggered ${sensor.name}... opening Dialog');
             model[entry.key] = true;
             _dialogService.show(DialogRequest(
               type: DialogType.info,

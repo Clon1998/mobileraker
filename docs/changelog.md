@@ -6,6 +6,11 @@
 
 - **GCode-Preview**: Fixed an issue within the GCode-Parser that caused the preview to show an error if the
   `SET_RETRACTION` was used in the GCode file.
+- **Object Naming**: Klipper objects (Config entries) of the same class with the same name no longer cause the app to
+  show a permanent error message. This could happen if the user configured different kind of fans, e.g. a `fan_generic`
+  and `temperature_fan`, with the same name. The app is now aware of the object kind and will allow users to have
+  objects of the same class with
+  the same name but different kind, applies to fans, leds and filament sensors.
 
 ## [2.8.2] - 2024-10-31
 
