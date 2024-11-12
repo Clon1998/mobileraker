@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -33,7 +34,7 @@ class FilamentSensorWatcher extends StatefulHookConsumerWidget {
 class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
-  ProviderSubscription<AsyncValue<Map<String, FilamentSensor>>>? _subscription;
+  ProviderSubscription<AsyncValue<Map<(ConfigFileObjectIdentifiers, String), FilamentSensor>>>? _subscription;
 
   bool _enabled = true;
 
@@ -113,7 +114,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
 
 // Provider to keep track of triggered filament sensors during the lifetime of the app rather than just the widget
 @riverpod
-Map<String, bool> _triggered(_TriggeredRef ref, String machineUUID) {
+Map<(ConfigFileObjectIdentifiers, String), bool> _triggered(_TriggeredRef ref, String machineUUID) {
   ref.keepAlive();
   return {};
 }

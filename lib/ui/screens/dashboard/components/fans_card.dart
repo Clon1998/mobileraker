@@ -317,10 +317,7 @@ class _FansCardController extends _$FansCardController {
       var printFan = value.printFan;
       var fans = value.fans;
 
-      return [
-        if (printFan != null) printFan,
-        ...fans.values,
-      ];
+      return [if (printFan != null) printFan, ...fans.values];
     }))
         // Use map here since this prevents to many operations if the original list not changes!
         .map((fans) {

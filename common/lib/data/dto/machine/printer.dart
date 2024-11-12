@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
@@ -56,14 +57,14 @@ class Printer with _$Printer {
     BedMesh? bedMesh,
     GCodeFile? currentFile,
     ZThermalAdjust? zThermalAdjust,
-    @Default({}) Map<String, NamedFan> fans,
+    @Default({}) Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<String, OutputPin> outputPins,
     @Default([]) List<String> queryableObjects,
     @Default({}) Map<String, GcodeMacro> gcodeMacros,
-    @Default({}) Map<String, Led> leds,
+    @Default({}) Map<(ConfigFileObjectIdentifiers, String), Led> leds,
     @Default({}) Map<String, GenericHeater> genericHeaters,
-    @Default({}) Map<String, FilamentSensor> filamentSensors,
+    @Default({}) Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> filamentSensors,
   }) = _Printer;
 
   Extruder get extruder => extruders[0]; // Fast way for first extruder -> always present!

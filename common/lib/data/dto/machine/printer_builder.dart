@@ -141,14 +141,14 @@ class PrinterBuilder {
   FirmwareRetraction? firmwareRetraction;
   BedMesh? bedMesh;
   ZThermalAdjust? zThermalAdjust;
-  Map<String, NamedFan> fans = {};
+  Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
   List<String> queryableObjects = [];
   Map<String, GcodeMacro> gcodeMacros = {};
-  Map<String, Led> leds = {};
+  Map<(ConfigFileObjectIdentifiers, String), Led> leds = {};
   Map<String, GenericHeater> genericHeaters = {};
-  Map<String, FilamentSensor> filamentSensors = {};
+  Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> filamentSensors = {};
 
   Printer build() {
     if (toolhead == null) {
@@ -211,10 +211,6 @@ class PrinterBuilder {
     final updateMethodToCall = _partialUpdateMethodMappings[cIdentifier];
     if (updateMethodToCall == null) return this; //
 
-    // if (updateMethodToCall case _MultiObjectUpdate()) {
-    //   return this;
-    // }
-
     return switch (updateMethodToCall) {
       _SingleObjectUpdate() => updateMethodToCall(json[key], this),
       // Extruder is a special case....
@@ -253,7 +249,7 @@ class PrinterBuilder {
   static PrinterBuilder _updateNamedFan(
       ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> fanJson, PrinterBuilder builder) {
     // We need to combine identifier and name again because fans can have the same name as long as they are not the same type causing issues here!
-    final key = '${identifier.name}::$name';
+    final key = (identifier, name);
     final curFan = builder.fans[key] ?? NamedFan.fallback(identifier, name);
 
     return builder..fans = {...builder.fans, key: NamedFan.partialUpdate(curFan, fanJson)};
@@ -265,7 +261,7 @@ class PrinterBuilder {
 
   static PrinterBuilder _updateLed(
       ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> json, PrinterBuilder builder) {
-    final key = '${identifier.name}::$name';
+    final key = (identifier, name);
     final curLed = builder.leds[key] ?? Led.fallback(identifier, name);
 
     return builder..leds = {...builder.leds, key: Led.partialUpdate(curLed, json)};
@@ -300,7 +296,7 @@ class PrinterBuilder {
 
   static PrinterBuilder _updateFilamentSensor(
       ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> json, PrinterBuilder builder) {
-    final key = '${identifier.name}::$name';
+    final key = (identifier, name);
     final filamentSensor = builder.filamentSensors[key] ?? FilamentSensor.fallback(identifier, name);
 
     return builder
@@ -378,5 +374,3 @@ class PrinterBuilder {
 // END CODE to update fields  //
 ////////////////////////////////
 }
-
-String _typeOrNull(dynamic obj) => obj == null ? 'null' : obj.runtimeType.toString();

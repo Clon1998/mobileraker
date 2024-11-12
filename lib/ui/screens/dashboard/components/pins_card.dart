@@ -515,11 +515,7 @@ class _PinsCardController extends _$PinsCardController {
       var filamentSensors = value.filamentSensors;
       var pins = value.outputPins;
 
-      return [
-        ...leds.values,
-        ...pins.values,
-        ...filamentSensors.values,
-      ];
+      return [...leds.values, ...pins.values, ...filamentSensors.values];
     }))
         // Use map here since this prevents to many operations if the original list not changes!
         .map((elements) {
@@ -544,8 +540,18 @@ class _PinsCardController extends _$PinsCardController {
 
       // Sort output by ordering, if ordering is not found it will be placed at the end
       output.sort((a, b) {
-        var aIndex = ordering.indexWhere((element) => element.name == a.name);
-        var bIndex = ordering.indexWhere((element) => element.name == b.name);
+        determineKind(obj) => switch (obj) {
+              Led() => a.kind,
+              FilamentSensor() => a.kind,
+              OutputPin() => ConfigFileObjectIdentifiers.output_pin,
+              _ => null,
+            };
+
+        ConfigFileObjectIdentifiers? aKind = determineKind(a);
+        ConfigFileObjectIdentifiers? bKind = determineKind(b);
+
+        var aIndex = ordering.indexWhere((element) => element.name == a.name && element.kind == aKind);
+        var bIndex = ordering.indexWhere((element) => element.name == b.name && element.kind == bKind);
 
         if (aIndex == -1) aIndex = output.length;
         if (bIndex == -1) bIndex = output.length;

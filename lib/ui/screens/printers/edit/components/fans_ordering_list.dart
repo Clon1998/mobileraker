@@ -152,14 +152,14 @@ class FansOrderingListController extends _$FansOrderingListController {
 
     // Only include elements that are available in the printer
     for (var setting in settings) {
-      if (availableElements.any((e) => e.kindName == setting.kindName)) {
+      if (availableElements.any((e) => e.kind == setting.kind && e.name == setting.name)) {
         normalizedSettings.add(setting);
       }
     }
 
     // Add missing elements from the printer
     for (var element in availableElements) {
-      if (!normalizedSettings.any((e) => e.kindName == element.kindName)) {
+      if (!normalizedSettings.any((e) => e.kind == element.kind && e.name == element.name)) {
         normalizedSettings.add(element);
       }
     }
