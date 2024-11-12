@@ -1,0 +1,163 @@
+---
+general:
+  pause: 暫停
+  resume: 恢復
+  connected: 已連線
+  'off': '關閉'
+  'on': '開啟'
+  none: 無
+  add: 新增
+  create: 建立
+  rename: 重新命名
+  remove: 刪除
+  set: 設定
+  use: 使用
+  restart: 重新啟動
+  shutdown: 關機
+  firmware: 韌體
+  fetching: 擷取
+  loading: 讀取中
+  unknown: 未知
+  disabled: 停用
+  confirm: 確認
+  cancel: 取消
+  close: 關閉
+  edit: 編輯
+  preview: 預覽
+  retry: 重試
+  supported: 支援
+  unsupported: 未支援
+  details: 詳細資料
+  google_play: GooglePlay
+  ios_store: AppStore
+  active: 啟用
+  canceled: 已取消
+  monthly: 每月
+  restore: 還原
+  accept: 接受
+  abort: 忽略
+  offset: 偏移
+  valid: 有效
+  invalid: 無效
+  free: 免費
+  one_time: 一次
+  delete: 刪除
+  clear: 清除
+  unlink: 未連結
+  save: 儲存
+  apply: 套用
+  completed: 已完成
+  activate: 啟用
+  stop: 停止
+  start: 開始
+pages:
+  dashboard:
+    general:
+      move_card:
+        home_xy_tooltip: 歸位X和Y軸
+        home_z_tooltip: 歸位Z軸
+        home_all_tooltip: 歸位所有軸
+        home_all_btn: 全部
+        qgl_tooltip: 執行龍門調平
+        qgl_btn: 龍門調平
+        mesh_tooltip: 執行中間網格校準
+        mesh_btn: 網格
+        m84_tooltip: 停用馬達
+        m84_btn: M84
+        step_size: 步進尺寸
+        poff_tooltip: 執行探針偏移校準
+        poff_btn: 探針校準
+        zoff_tooltip: 執行Z終點偏移校準
+        zoff_btn: Z終點校準
+        bsa_tooltip: 執行床面螺絲調整校準
+        bsa_btn: 床面螺絲調整
+        save_tooltip: 儲存校準結果
+        save_btn: 儲存設定
+        more_btn: 更多
+        homed: 已歸位的軸
+      baby_step_card:
+        z_offset: Z偏移
+      restart_klipper: 重啟Klipper
+    control:
+      fan_card:
+        title:
+          zero: 風扇
+          one: 風扇
+          other: 風扇
+        part_fan: 列印件冷卻風扇
+        static_fan_btn: 風扇
+      extrude_card:
+        title: 擠出頭
+        extrude: 擠出
+        retract: 回抽
+      macro_card:
+        title: G碼 - 巨集
+        add_grp_hint: 您可建立不同群組來編組您的巨集。只需至列表機設定中並新增群組。
+        show_all_tooltip: 顯示所有巨集
+      pin_card:
+        title_misc: 雜項
+        pin_btn: Pin
+        filament_sensor:
+          detected: 已刪除
+          not_detected: 空白
+      power_card:
+        title: 電源面板
+        pin_btn: Pin
+  customizing_dashboard:
+    editing_card:
+      title: 編輯模式
+      body: 現在您可重新排序、新增和刪除卡片及頁面。所有卡片顯示預覽資料。
+    error_save_snack:
+      title: 儲存版面錯誤！
+      body: 嘗試儲存排版時發生錯誤。
+    error_no_components:
+      title: 版面空白！
+      body: 您尚未新增任何小工具。至少新增一個小工具以儲存排版。
+  files:
+    title: 檔案
+    empty_folder:
+      title: 此資料夾為空白
+      subtitle: 未找到檔案
+    sort_by:
+      sort_by: 排序以
+      name: 名稱
+      last_modified: 上次修改
+      last_printed: 上次列印
+      file_size: 尺寸
+    file_actions:
+      download: 下載
+      delete: 刪除
+      copy: 複製
+      move: 移動
+      rename: 重新命名
+      create_file: 建立檔案
+      create_folder: 建立資料夾
+      upload: 上傳檔案
+      upload_bulk: 上傳多個檔案
+      zip_file: 建立文件
+    gcode_file_actions:
+      submit: 送出列印工作
+      preheat: 預熱
+      enqueue: 新增至列印佇列
+      preview: 預覽
+    file_operation:
+      download_canceled:
+        title: 取消下載
+        body: 下載已取消
+      download_failed:
+        title: 下載失敗
+        body: 嘗試下載此檔案時發生錯誤，請稍後重試。
+      upload_canceled:
+        title: 取消上傳
+        body: 已取消上傳
+      upload_success:
+        title: 上傳成功
+        body: 檔案已上傳成功
+      upload_failed:
+        title: 上傳失敗
+        body: 嘗試上傳檔案時發生錯誤，請稍後重試。
+      zipping_success:
+        title: 壓縮成功
+        body: 文件已成功建立。
+      zipping_failed:
+        title: 壓縮失敗
