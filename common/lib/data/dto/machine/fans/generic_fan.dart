@@ -5,6 +5,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../config/config_file_object_identifiers_enum.dart';
 import 'named_fan.dart';
 
 part 'generic_fan.freezed.dart';
@@ -27,4 +28,7 @@ class GenericFan extends NamedFan with _$GenericFan {
     var mergedJson = {...current.toJson(), ...partialJson};
     return GenericFan.fromJson(mergedJson);
   }
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.fan_generic;
 }

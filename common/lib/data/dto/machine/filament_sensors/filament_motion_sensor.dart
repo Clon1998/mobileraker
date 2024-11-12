@@ -6,6 +6,8 @@
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../config/config_file_object_identifiers_enum.dart';
+
 part 'filament_motion_sensor.freezed.dart';
 part 'filament_motion_sensor.g.dart';
 
@@ -20,6 +22,8 @@ part 'filament_motion_sensor.g.dart';
 
 @freezed
 class FilamentMotionSensor with _$FilamentMotionSensor implements FilamentSensor {
+  const FilamentMotionSensor._();
+
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory FilamentMotionSensor({
     required String name,
@@ -34,4 +38,7 @@ class FilamentMotionSensor with _$FilamentMotionSensor implements FilamentSensor
     var mergedJson = {...current.toJson(), ...partialJson};
     return FilamentMotionSensor.fromJson(mergedJson);
   }
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.filament_motion_sensor;
 }

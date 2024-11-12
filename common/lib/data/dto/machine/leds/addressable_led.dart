@@ -6,6 +6,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../converters/pixel_converter.dart';
+import '../../config/config_file_object_identifiers_enum.dart';
 import 'led.dart';
 
 part 'addressable_led.freezed.dart';
@@ -16,6 +17,7 @@ class AddressableLed extends Led with _$AddressableLed {
   const AddressableLed._();
   const factory AddressableLed({
     required String name,
+    required ConfigFileObjectIdentifiers kind,
     @PixelConverter() @JsonKey(name: 'color_data') @Default([]) List<Pixel> pixels,
   }) = _AddressableLed;
 

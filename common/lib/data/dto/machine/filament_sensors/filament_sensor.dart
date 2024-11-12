@@ -13,6 +13,8 @@ abstract interface class FilamentSensor {
   abstract final bool filamentDetected;
   abstract final bool enabled;
 
+  ConfigFileObjectIdentifiers get kind;
+
   factory FilamentSensor.fallback(ConfigFileObjectIdentifiers identifier, String name) {
     return switch (identifier) {
       ConfigFileObjectIdentifiers.filament_motion_sensor => FilamentMotionSensor(name: name),

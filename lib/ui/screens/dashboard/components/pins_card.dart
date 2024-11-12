@@ -6,6 +6,7 @@
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/config/config_output.dart';
 import 'package:common/data/dto/config/led/config_dumb_led.dart';
 import 'package:common/data/dto/config/led/config_led.dart';
@@ -663,7 +664,7 @@ class _PinsCardPreviewController extends _PinsCardController {
       klippyCanReceiveCommands: true,
       elements: [
         OutputPin(name: 'Preview Pin', value: 0),
-        DumbLed(name: 'Preview Led'),
+        DumbLed(name: 'Preview Led', kind: ConfigFileObjectIdentifiers.led),
       ],
       ledConfig: {
         'preview led': ConfigDumbLed(

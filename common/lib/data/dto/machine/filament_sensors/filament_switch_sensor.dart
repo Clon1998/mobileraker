@@ -5,6 +5,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../config/config_file_object_identifiers_enum.dart';
 import 'filament_sensor.dart';
 
 part 'filament_switch_sensor.freezed.dart';
@@ -21,6 +22,8 @@ part 'filament_switch_sensor.g.dart';
 
 @freezed
 class FilamentSwitchSensor with _$FilamentSwitchSensor implements FilamentSensor {
+  const FilamentSwitchSensor._();
+
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory FilamentSwitchSensor({
     required String name,
@@ -35,4 +38,7 @@ class FilamentSwitchSensor with _$FilamentSwitchSensor implements FilamentSensor
     var mergedJson = {...current.toJson(), ...partialJson};
     return FilamentSwitchSensor.fromJson(mergedJson);
   }
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.filament_switch_sensor;
 }

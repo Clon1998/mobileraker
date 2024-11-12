@@ -302,7 +302,7 @@ class _FansCardController extends _$FansCardController {
     int getOrderingIndex(Fan fan) {
       return ordering.indexWhere((element) {
         return switch (fan) {
-          NamedFan() => element.name == fan.name,
+          NamedFan() => element.name == fan.name && element.kind == fan.kind,
           PrintFan() => element.kind == ConfigFileObjectIdentifiers.fan,
           _ => false
         };

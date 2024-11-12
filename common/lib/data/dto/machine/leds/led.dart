@@ -55,13 +55,17 @@ abstract class Led {
 
   String get configName => name.toLowerCase();
 
+  ConfigFileObjectIdentifiers get kind;
+
   factory Led.fallback(ConfigFileObjectIdentifiers identifier, String name) {
     return switch (identifier) {
-      ConfigFileObjectIdentifiers.dotstar || ConfigFileObjectIdentifiers.neopixel => AddressableLed(name: name),
+      ConfigFileObjectIdentifiers.dotstar ||
+      ConfigFileObjectIdentifiers.neopixel =>
+        AddressableLed(name: name, kind: identifier),
       ConfigFileObjectIdentifiers.led ||
       ConfigFileObjectIdentifiers.pca9533 ||
       ConfigFileObjectIdentifiers.pca9632 =>
-        DumbLed(name: name),
+        DumbLed(name: name, kind: identifier),
       _ => throw UnsupportedError('Unknown led type: $identifier, can not create fallback.'),
     };
   }

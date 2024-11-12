@@ -6,6 +6,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../converters/pixel_converter.dart';
+import '../../config/config_file_object_identifiers_enum.dart';
 import 'led.dart';
 
 part 'dumb_led.freezed.dart';
@@ -17,6 +18,7 @@ class DumbLed extends Led with _$DumbLed {
 
   const factory DumbLed({
     required String name,
+    required ConfigFileObjectIdentifiers kind,
     @PixelConverter() @JsonKey(name: 'color_data', readValue: _extractFirstLed) @Default(Pixel())
     Pixel color,
   }) = _DumbLed;
