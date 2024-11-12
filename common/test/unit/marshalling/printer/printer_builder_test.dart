@@ -188,13 +188,14 @@ void main() {
 
     test('Update generic fan', () {
       final builder = PrinterBuilder.preview();
-      builder.fans['hotend_fan'] = GenericFan(name: 'hotend_fan');
+      final key = 'fan_generic::hotend_fan';
+      builder.fans[key] = GenericFan(name: 'hotend_fan');
 
       final json = {
         'fan_generic hotend_fan': {'speed': 100}
       };
       final updatedBuilder = builder.partialUpdateField('fan_generic hotend_fan', json);
-      expect(updatedBuilder.fans['hotend_fan']!.speed, 100);
+      expect(updatedBuilder.fans[key]!.speed, 100);
     });
   });
 }
