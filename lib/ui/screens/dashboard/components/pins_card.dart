@@ -364,8 +364,8 @@ class _Led extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    var ledConfig = ref
-        .watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.ledConfig[led.configName]));
+    var ledConfig = ref.watch(_pinsCardControllerProvider(machineUUID)
+        .selectRequireValue((data) => data.ledConfig[(led.kind, led.configName)]));
     var klippyCanReceiveCommands =
         ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
@@ -601,7 +601,7 @@ class _PinsCardController extends _$PinsCardController {
 
   Future<void> onEditLed(Led led) async {
     if (!state.hasValue) return;
-    ConfigLed? configLed = state.requireValue.ledConfig[led.configName];
+    ConfigLed? configLed = state.requireValue.ledConfig[(led.kind, led.configName)];
     if (configLed == null) return;
 
     String name = beautifyName(led.name);
@@ -667,7 +667,7 @@ class _PinsCardPreviewController extends _PinsCardController {
         DumbLed(name: 'Preview Led', kind: ConfigFileObjectIdentifiers.led),
       ],
       ledConfig: {
-        'preview led': ConfigDumbLed(
+        (ConfigFileObjectIdentifiers.led, 'preview led'): ConfigDumbLed(
           name: 'preview led',
         ),
       },
@@ -711,7 +711,7 @@ class _Model with _$Model {
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required List<dynamic> elements,
-    required Map<String, ConfigLed> ledConfig,
+    required Map<(ConfigFileObjectIdentifiers, String), ConfigLed> ledConfig,
     required Map<String, ConfigOutput> pinConfig,
   }) = __Model;
 

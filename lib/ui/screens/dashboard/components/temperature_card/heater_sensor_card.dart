@@ -23,7 +23,6 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -592,7 +591,8 @@ class _Controller extends _$Controller {
 
   editTemperatureFan(TemperatureFan temperatureFan) {
     var configFan = ref
-        .read(printerProvider(machineUUID).selectAs((value) => value.configFile.fans[temperatureFan.configName]))
+        .read(printerProvider(machineUUID)
+            .selectAs((value) => value.configFile.fans[(temperatureFan.kind, temperatureFan.configName)]))
         .requireValue;
 
     ref

@@ -41,8 +41,8 @@ class ConfigFile {
   Map<String, ConfigOutput> outputs = {};
   Map<String, ConfigStepper> steppers = {};
   Map<String, ConfigGcodeMacro> gcodeMacros = {};
-  Map<String, ConfigLed> leds = {};
-  Map<String, ConfigFan> fans = {};
+  Map<(ConfigFileObjectIdentifiers, String), ConfigLed> leds = {};
+  Map<(ConfigFileObjectIdentifiers, String), ConfigFan> fans = {};
   Map<String, ConfigHeaterGeneric> genericHeaters = {};
 
   ConfigFile();
@@ -53,56 +53,54 @@ class ConfigFile {
 
   ConfigFile.parse(this.rawConfig) {
     for (String key in rawConfig.keys) {
-      var klipperObjectIdentifier = key.toKlipperObjectIdentifier();
-      String objectIdentifier = klipperObjectIdentifier.$1;
-      String objectName = klipperObjectIdentifier.$2 ?? klipperObjectIdentifier.$1;
+      var (cIdentifier, objectName) = key.toKlipperObjectIdentifierNEW();
 
       Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
 
-      if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_bed)) {
+      if (cIdentifier == ConfigFileObjectIdentifiers.heater_bed) {
         configHeaterBed = ConfigHeaterBed.fromJson(rawConfig['heater_bed']);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.printer)) {
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.printer) {
         configPrinter = ConfigPrinter.fromJson(rawConfig['printer']);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.extruder)) {
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.extruder) {
         if (jsonChild.containsKey('shared_heater')) {
           String sharedHeater = jsonChild['shared_heater'];
           Map<String, dynamic> sharedHeaterConfig = Map.of(rawConfig[sharedHeater]);
           sharedHeaterConfig.removeWhere((key, value) => jsonChild.containsKey(key));
           jsonChild.addAll(sharedHeaterConfig);
         }
-        extruders[objectIdentifier] = ConfigExtruder.fromJson(objectIdentifier, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.output_pin)) {
-        outputs[objectName] = ConfigOutput.fromJson(objectName, jsonChild);
+        extruders[key] = ConfigExtruder.fromJson(key, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.output_pin) {
+        outputs[objectName!] = ConfigOutput.fromJson(objectName, jsonChild);
       } else if (stepperRegex.hasMatch(key)) {
         var match = stepperRegex.firstMatch(key)!;
         steppers[match.group(1)!] = ConfigStepper.fromJson(match.group(1)!, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.gcode_macro)) {
-        gcodeMacros[objectName] = ConfigGcodeMacro.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.dotstar)) {
-        leds[objectName] = ConfigDotstar.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.neopixel)) {
-        leds[objectName] = ConfigNeopixel.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.led)) {
-        leds[objectName] = ConfigDumbLed.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.pca9533) ||
-          objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.pca9632)) {
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.gcode_macro) {
+        gcodeMacros[objectName!] = ConfigGcodeMacro.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.dotstar) {
+        leds[(cIdentifier!, objectName!)] = ConfigDotstar.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.neopixel) {
+        leds[(cIdentifier!, objectName!)] = ConfigNeopixel.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.led) {
+        leds[(cIdentifier!, objectName!)] = ConfigDumbLed.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.pca9533 ||
+          cIdentifier == ConfigFileObjectIdentifiers.pca9632) {
         //pca9533 and pcapca9632
-        leds[objectName] = ConfigPcaLed.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.fan)) {
+        leds[(cIdentifier!, objectName!)] = ConfigPcaLed.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.fan) {
         configPrintCoolingFan = ConfigPrintCoolingFan.fromJson(jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_fan)) {
-        fans[objectName] = ConfigHeaterFan.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.controller_fan)) {
-        fans[objectName] = ConfigControllerFan.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.temperature_fan)) {
-        fans[objectName] = ConfigTemperatureFan.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.fan_generic)) {
-        fans[objectName] = ConfigGenericFan.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_generic)) {
-        genericHeaters[objectName] = ConfigHeaterGeneric.fromJson(objectName, jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.bed_screws)) {
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.heater_fan) {
+        fans[(cIdentifier!, objectName!)] = ConfigHeaterFan.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.controller_fan) {
+        fans[(cIdentifier!, objectName!)] = ConfigControllerFan.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.temperature_fan) {
+        fans[(cIdentifier!, objectName!)] = ConfigTemperatureFan.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.fan_generic) {
+        fans[(cIdentifier!, objectName!)] = ConfigGenericFan.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.heater_generic) {
+        genericHeaters[objectName!] = ConfigHeaterGeneric.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.bed_screws) {
         configBedScrews = ConfigBedScrews.fromJson(jsonChild);
-      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.screws_tilt_adjust)) {
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.screws_tilt_adjust) {
         configScrewsTiltAdjust = ConfigScrewsTiltAdjust.fromJson(jsonChild);
       }
     }

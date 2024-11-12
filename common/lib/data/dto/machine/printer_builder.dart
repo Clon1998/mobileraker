@@ -35,7 +35,7 @@ import 'temperature_sensor.dart';
 import 'toolhead.dart';
 import 'virtual_sd_card.dart';
 
-final Map<ConfigFileObjectIdentifiers, Function?> _subToPrinterObjects = {
+final Map<ConfigFileObjectIdentifiers, Function?> _partialUpdateMethodMappings = {
   ConfigFileObjectIdentifiers.bed_mesh: PrinterBuilder._updateBedMesh,
   ConfigFileObjectIdentifiers.bed_screws: PrinterBuilder._updateBedScrew,
   ConfigFileObjectIdentifiers.configfile: PrinterBuilder._updateConfigFile,
@@ -208,7 +208,7 @@ class PrinterBuilder {
     // The config identifier is not yet supported
     if (cIdentifier == null) return this;
 
-    final updateMethodToCall = _subToPrinterObjects[cIdentifier];
+    final updateMethodToCall = _partialUpdateMethodMappings[cIdentifier];
     if (updateMethodToCall == null) return this; //
 
     // if (updateMethodToCall case _MultiObjectUpdate()) {

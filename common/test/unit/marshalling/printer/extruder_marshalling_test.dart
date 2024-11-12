@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -74,9 +74,9 @@ void main() {
   });
 
   test('config key matching', () {
-    expect('extruder'.isKlipperObject(ConfigFileObjectIdentifiers.extruder), isTrue);
-    expect('extruder1'.isKlipperObject(ConfigFileObjectIdentifiers.extruder), isTrue);
-    expect('extruder2'.isKlipperObject(ConfigFileObjectIdentifiers.extruder), isTrue);
+    expect('extruder'.toKlipperObjectIdentifierNEW(), (ConfigFileObjectIdentifiers.extruder, null));
+    expect('extruder1'.toKlipperObjectIdentifierNEW(), (ConfigFileObjectIdentifiers.extruder, null));
+    expect('extruder2'.toKlipperObjectIdentifierNEW(), (ConfigFileObjectIdentifiers.extruder, null));
   });
 }
 
