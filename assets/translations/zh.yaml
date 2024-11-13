@@ -50,9 +50,34 @@ general:
   activate: 啟用
   stop: 停止
   start: 開始
+  repeat: 重複
+  load_more: 載入更多
+  archived: 已封存
+  leave: 離開
+  export: 匯出
+  import: 匯入
+  current: 目前
+  load: 載入
+  unload: 卸載
+  discard: 放棄
+  hide: 隱藏
+  finish: 完成
+  select: 選擇
 pages:
   dashboard:
+    title: 儀表板
+    ems_btn: 緊急停止
+    ems_confirmation:
+      title: 確認緊急停止
+      body: 您將向印表機發送緊急停止指令。這將立刻停止所有馬達與加熱器。
+      confirm: 停止！
+    server_status:
+      unavailable: 沒有可用的伺服器
+      available: 伺服器狀態為 {} 且Klippy為 {}
     general:
+      print_card:
+        reset: 重設
+        reprint: 重新列印
       move_card:
         home_xy_tooltip: 歸位X和Y軸
         home_z_tooltip: 歸位Z軸
@@ -109,7 +134,22 @@ pages:
           未選擇料盤。
           將不追蹤線材用量。
         select_spool: 選擇料盤
+        provider_error_title: 取得Spoolman資料時發生錯誤
+      gcode_preview_card:
+        title: GCode預覽
+        start_preview:
+          btn: 開始預覽
   customizing_dashboard:
+    add_card: 增加卡片
+    remove_page: 移除頁面
+    saved_snack:
+      title: 排版已儲存！
+      body: 您的變更已經儲存。
+    cant_remove_snack:
+      title: 無法移除頁面！
+    confirm_removal:
+      title: 移除頁面？
+      body: 您確定真的要移除此頁面？
     editing_card:
       title: 編輯模式
       body: 現在您可重新排序、新增和刪除卡片及頁面。所有卡片顯示預覽資料。
@@ -167,3 +207,40 @@ pages:
         body: 文件已成功建立。
       zipping_failed:
         title: 壓縮失敗
+    cancel_fab:
+      download: 取消下載
+    no_matches_file_pattern: 只允許使用英文字母、數字、底線、破折號和點！。
+    details:
+      general_card:
+        last_mod: 上次修改
+        last_printed: 上次列印
+        no_data: 沒有資料
+      meta_card:
+        filament: 線材
+        filament_type: 類型
+        filament_name: 名稱
+        filament_weight: 重量
+        filament_length: 長度
+        est_print_time: 預計列印時間
+        slicer: 使用的切片軟體
+        nozzle_diameter: 噴嘴直徑
+        layer_higher: 層高
+        first_layer: 首層
+        others: 其他
+      stat_card:
+        title: 統計
+      preheat_snackbar:
+        title: 開始預熱
+        body: |-
+          擠出機：{}°C
+          床面：{}°C
+      spoolman_warnings:
+        insufficient_filament_title: 線材不足
+        insufficient_filament_body: |-
+          正在使用中的線盤只剩下 {} 線材，這對列印此檔案來說是不足的。點選以變更要使用的線盤。
+        material_mismatch_title: 材質不相符
+        material_mismatch_body: |-
+          此檔案使用材料 {} 與使用中的線盤材料 {} 不相符，點選來更換要使用的線材。
+  setting:
+    general:
+      title: 一般
