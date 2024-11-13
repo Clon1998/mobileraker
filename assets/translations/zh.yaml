@@ -103,6 +103,12 @@ pages:
       power_card:
         title: 電源面板
         pin_btn: Pin
+      spoolman_card:
+        title: Spoolman
+        no_spool: |-
+          未選擇料盤。
+          將不追蹤線材用量。
+        select_spool: 選擇料盤
   customizing_dashboard:
     editing_card:
       title: 編輯模式
