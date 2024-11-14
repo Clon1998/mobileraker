@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../dto/machine/print_state_enum.dart';
 import 'gcode_macro.dart';
 
 part 'macro_group.freezed.dart';
@@ -49,14 +50,14 @@ class MacroGroup with _$MacroGroup {
 
   bool get isDefaultGroup => uuid == 'default';
 
-  bool hasMacros(bool isPrinting) {
+  bool hasMacros(PrintState printState) {
     return macros
-        .any((element) => element.visible && (!isPrinting || element.showWhilePrinting) && element.forRemoval == null);
+        .any((element) => element.visible && element.showForState.contains(printState) && element.forRemoval == null);
   }
 
-  List<GCodeMacro> filtered(bool isPrinting) {
+  List<GCodeMacro> filtered(PrintState printState) {
     return macros
-        .where((element) => element.visible && (!isPrinting || element.showWhilePrinting) && element.forRemoval == null)
+        .where((element) => element.visible && element.showForState.contains(printState) && element.forRemoval == null)
         .toList();
   }
 }

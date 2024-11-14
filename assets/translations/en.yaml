@@ -1131,7 +1131,8 @@ dialogs:
     value: Header-Value
     value_hint: The value of the header
   macro_settings:
-    show_while_printing: Show while printing
+    show_for_states: Print States
+    show_for_states_hint: Select the states for which the macro should be displayed
     visible: Visible
   extruder_feedrate:
     title: Extruder Velocity [mm/s]

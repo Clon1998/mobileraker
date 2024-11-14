@@ -1049,7 +1049,8 @@ dialogs:
     value: Header-Wert
     value_hint: Der Wert des HTTP-Headers
   macro_settings:
-    show_while_printing: Während des Drucks anzeigen
+    show_for_states: Druck-Zustände
+    show_for_states_hint: Wählen Sie die Druckzustände, in denen das Makro angezeigt werden soll
     visible: Sichtbar
   extruder_feedrate:
     title: Extruder-Geschwindigkeit [mm/s]

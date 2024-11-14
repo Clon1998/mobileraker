@@ -2,6 +2,13 @@
 
 ## [2.8.3] - 2024-11-xx
 
+### Enhancements
+
+- **Macro Visibility**: It is now possible to configure the actual printer state for which a macro should be visible.
+  This
+  allows users to hide macros that are not relevant for the current printer state. To adjust the visibility of macros,
+  just tap on the macro within the group editor of the printer edit page.
+
 ### Bug Fixes
 
 - **GCode-Preview**: Fixed an issue within the GCode-Parser that caused the preview to show an error if the

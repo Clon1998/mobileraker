@@ -3,9 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -69,10 +71,15 @@ class _MacroSettingsDialog extends ConsumerWidget {
                   onChanged: controller.onVisibleChanged,
                   title: const Text('dialogs.macro_settings.visible').tr(),
                 ),
-                _Switch(
-                  value: model.showWhilePrinting,
-                  onChanged: controller.onShowWhilePrintingChanged,
-                  title: const Text('dialogs.macro_settings.show_while_printing').tr(),
+                _WrapStates(
+                  inputDecoration: InputDecoration(
+                    labelText: 'dialogs.macro_settings.show_for_states'.tr(),
+                    labelStyle: themeData.textTheme.bodyLarge,
+                    helperText: 'dialogs.macro_settings.show_for_states_hint'.tr(),
+                    helperMaxLines: 10,
+                  ),
+                  active: model.showForState,
+                  onChanged: controller.onShowForStateChanged,
                 ),
               ],
             ),
@@ -112,6 +119,37 @@ class _Switch extends StatelessWidget {
   }
 }
 
+class _WrapStates extends StatelessWidget {
+  const _WrapStates({super.key, required this.inputDecoration, required this.active, required this.onChanged});
+
+  final InputDecoration inputDecoration;
+  final Set<PrintState> active;
+  final void Function(PrintState, bool) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
+    return InputDecorator(
+      decoration: inputDecoration,
+      child: Wrap(
+        alignment: WrapAlignment.spaceEvenly,
+        children: [
+          for (var state in PrintState.values)
+            FilterChip(
+              selected: active.contains(state),
+              avatar: const Icon(Icons.circle_outlined).unless(active.contains(state)),
+              iconTheme: IconThemeData(color: themeData.disabledColor),
+              checkmarkColor: themeData.colorScheme.primary,
+              elevation: 2,
+              label: Text(state.displayName),
+              onSelected: (bool s) => onChanged(state, s),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 @riverpod
 class _MacroSettingsDialogController extends _$MacroSettingsDialogController {
   @override
@@ -119,15 +157,19 @@ class _MacroSettingsDialogController extends _$MacroSettingsDialogController {
     return request.data as GCodeMacro;
   }
 
-  cancel() => completer(DialogResponse(confirmed: false));
+  void cancel() => completer(DialogResponse(confirmed: false));
 
-  save() => completer(DialogResponse(confirmed: true, data: state));
+  void save() => completer(DialogResponse(confirmed: true, data: state));
 
-  onVisibleChanged(bool value) {
+  void onVisibleChanged(bool value) {
     state = state.copyWith(visible: value);
   }
 
-  onShowWhilePrintingChanged(bool value) {
-    state = state.copyWith(showWhilePrinting: value);
+  void onShowForStateChanged(PrintState printState, bool selected) {
+    if (selected) {
+      state = state.copyWith(showForState: {...state.showForState, printState});
+    } else {
+      state = state.copyWith(showForState: {...state.showForState}..remove(printState));
+    }
   }
 }

@@ -6,6 +6,8 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../dto/machine/print_state_enum.dart';
+
 part 'gcode_macro.freezed.dart';
 part 'gcode_macro.g.dart';
 
@@ -17,20 +19,20 @@ class GCodeMacro with _$GCodeMacro {
     required String uuid,
     required String name,
     @Default(true) bool visible,
-    @Default(true) bool showWhilePrinting,
+    @Default({...PrintState.values}) Set<PrintState> showForState,
     DateTime? forRemoval,
   }) = _GCodeMacro;
 
   factory GCodeMacro({
     required String name,
     bool visible = true,
-    bool showWhilePrinting = true,
+    Set<PrintState> showForState = const {...PrintState.values},
   }) {
     return GCodeMacro.__(
       uuid: const Uuid().v4(),
       name: name,
       visible: visible,
-      showWhilePrinting: showWhilePrinting,
+      showForState: showForState,
     );
   }
 
