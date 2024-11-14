@@ -647,7 +647,6 @@ dialogs:
     value: Valeur de l'en-tête
     value_hint: La valeur de l'en-tête
   macro_settings:
-    show_while_printing: Afficher lors de l'impression
     visible: Visible
   extruder_feedrate:
     title: Vitesse de l'extrudeur [mm/s]
