@@ -1053,7 +1053,6 @@ dialogs:
     value: Fejléc-érték
     value_hint: A fejléc értéke
   macro_settings:
-    show_while_printing: Megjelenítés nyomtatáskor
     visible: Látható
   extruder_feedrate:
     title: Extruder sebesség [mm/s]
