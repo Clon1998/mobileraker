@@ -18,7 +18,6 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -807,9 +806,15 @@ class _StateNotificationSettingField extends ConsumerWidget {
               children: PrintState.values.map((e) {
                 var selected = value.contains(e);
                 return FilterChip(
-                  avatar: const Icon(Icons.circle_outlined).unless(selected),
-                  iconTheme: IconThemeData(color: themeData.disabledColor),
-                  checkmarkColor: themeData.colorScheme.primary,
+                  avatar: AnimatedCrossFade(
+                    firstChild: Icon(Icons.circle_notifications, color: themeData.colorScheme.primary),
+                    secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
+                    crossFadeState: selected ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    duration: kThemeAnimationDuration,
+                    firstCurve: Curves.easeInOutCirc,
+                    secondCurve: Curves.easeInOutCirc,
+                  ),
+                  showCheckmark: false,
                   selected: selected,
                   elevation: 2,
                   label: Text(e.displayName),
