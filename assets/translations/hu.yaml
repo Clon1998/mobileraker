@@ -1053,6 +1053,8 @@ dialogs:
     value: Fejléc-érték
     value_hint: A fejléc értéke
   macro_settings:
+    show_for_states: Nyomtatás állapotok
+    show_for_states_hint: Válaszd ki azokat az állapotokat, amelyekre a makrót meg kell jeleníteni
     visible: Látható
   extruder_feedrate:
     title: Extruder sebesség [mm/s]
