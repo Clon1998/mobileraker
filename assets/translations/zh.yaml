@@ -78,7 +78,42 @@ pages:
       print_card:
         reset: 重設
         reprint: 重新列印
+        printing_for: '列印中： {}'
+        speed: 速度
+        layer: 層
+        eta: 預計完成時間
+        current_object: 目前物件
+        elapsed: 經過的
+        flow: 流量
+        filament: 線材
+        eta_tooltip: |-
+          剩餘時間：
+          平均： {avg}
+          切片軟體:：{slicer}
+          檔案：{file}
+          線材：{filament}
+        remaining: 剩餘
+        print_time: 列印時間
+      cam_card:
+        webcam: 攝影機
+        fullscreen: 全螢幕
+        error_connecting: |-
+          連接至 {} 錯誤。請檢查連線設定並確認攝像頭已連線。
+      temp_card:
+        title: 溫度控制
+        presets_btn: 預設集
+        hotend: 熱端
+        bed: 床面
+        temp_presets: 溫度預設集
+        sensors: 感測器
+        heater_on: "目標 {} °C"
+        btn_thermistor: 感測器
+      temp_preset_card:
+        cooloff: 關閉冷卻
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
+        title: 移動軸
         home_xy_tooltip: 歸位X和Y軸
         home_z_tooltip: 歸位Z軸
         home_all_tooltip: 歸位所有軸
@@ -90,6 +125,9 @@ pages:
         m84_tooltip: 停用馬達
         m84_btn: M84
         step_size: 步進尺寸
+        stc_tooltip: 執行螺絲-傾斜計算
+        ztilt_tooltip: 執行Z-傾斜計算
+        ztilt_btn: z傾斜
         poff_tooltip: 執行探針偏移校準
         poff_btn: 探針校準
         zoff_tooltip: 執行Z終點偏移校準
@@ -101,8 +139,10 @@ pages:
         more_btn: 更多
         homed: 已歸位的軸
       baby_step_card:
+        title: 微調z軸
         z_offset: Z偏移
       restart_klipper: 重啟Klipper
+      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -115,6 +155,8 @@ pages:
         title: 擠出頭
         extrude: 擠出
         retract: 回抽
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
+        cold_extrude_error: 擠出頭尚未達到最低擠出溫度（ {}°C ）
       macro_card:
         title: G碼 - 巨集
         add_grp_hint: 您可建立不同群組來編組您的巨集。只需至列表機設定中並新增群組。
@@ -128,6 +170,20 @@ pages:
       power_card:
         title: 電源面板
         pin_btn: Pin
+      multipl_card:
+        flow: 擠出流量
+        press_adv: 壓力提前
+        smooth_time: 平滑時間
+      limit_card:
+        title: 限制
+        velocity: 速度
+        accel: 加速度
+        sq_corn_vel: 轉角速度
+        accel_to_decel: 加速到減速
+      fw_retraction_card:
+        title: 韌體回抽
+        retract_length: 回抽長度
+        retract_speed: 回抽速度
       spoolman_card:
         title: Spoolman
         no_spool: |-
@@ -244,3 +300,4 @@ pages:
   setting:
     general:
       title: 一般
+      ems_confirm: 確認緊急停止
