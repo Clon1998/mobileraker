@@ -301,3 +301,63 @@ pages:
     general:
       title: 一般
       ems_confirm: 確認緊急停止
+      ems_confirm_hint: 在傳送緊急停止命令前顯示確認對話方塊
+      always_baby: 始終顯示Z偏移卡片頁面
+      always_baby_hint: 始終在儀表板上顯示Z偏移卡片頁面
+      num_edit: 數字輸入模式
+      num_edit_hint: 使用數字鍵盤輸入數值，而非滑桿
+      start_with_overview: 將 @:pages.overview.title 設定為起始頁面
+      start_with_overview_hint: 啟動應用程式時顯示概覽頁面，而非啟動列印機的儀表板
+      use_offset_pos: 位置偏移
+      use_offset_pos_hint: 增加一個偏移到所顯示的座標軸
+      lcFullCam: 全螢幕攝像頭
+      language: 語言
+      companion: "想接收遠端通知嗎？\n了解如何在其設備上設定 Mobileraker 的Companion "
+      time_format: 時間格式
+      system_theme: 介面主題
+      system_theme_mode: 主題亮度
+      printer_theme_warning: 您目前正在使用與列印機相關的主題。若要修改，請前往列印機的設定。
+      filament_sensor_dialog: 顯示線材感測器警告
+      filament_sensor_dialog_hint: 當線材感測器被觸發時顯示對話框
+      confirm_gcode: 巨集執行確認
+      confirm_gcode_hint: 在儀表板上執行 GCode 巨集前，始終顯示確認對話框
+      eta_sources: 預計完成時間計算
+      eta_sources_hint: 選擇應用於預計完成時間計算的來源
+      medium_ui: 平板介面
+      medium_ui_hint: 在較大螢幕或橫屏模式下，切換是否使用平板介面
+    notification:
+      title: 通知
+      progress_label: 列印進度通知
+      progress_helper: 列印進度通知的更新間隔
+      state_label: 列印狀態通知
+      state_helper: 選擇在進行中的列印工作中觸發通知的狀態
+      no_permission_title: 沒有通知權限！
+      no_permission_desc: |-
+        無法顯示通知。
+        請點擊以請求權限！
+      no_firebase_title: 無法顯示通知
+      no_firebase_desc: |-
+        Mobileraker 無法將通知傳送到您的裝置。
+        看起來您的裝置缺少 Google Play 服務或阻擋了 Firebase 連線！
+      ios_notifications_title: IOS通知傳送
+      ios_notifications_desc: |-
+        通知需要至少打開一次 Mobileraker 並保持在背景運行。
+        不過某些通知可能仍會被操作系統阻擋！
+      missing_companion_title: 未找到Companion！
+      missing_companion_body: |-
+        看起來 Companion 並未安裝，因此以下機器無法發送通知：{}
+
+        點擊了解更多！
+      enable_live_activity: 啟用即時活動
+      enable_live_activity_helper: 啟用即時活動，並且除了預設的進度通知外，還能使用即時活動功能。
+      opt_out_marketing: 行銷通知
+      opt_out_marketing_helper: 接收有關銷售和促銷活動的更新
+      use_progressbar_notification: 啟用進度條通知
+      use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
+    developer:
+      title: 開發者
+      crashlytics: 啟用 Crashlytics 報告
+    imprint: 隱私權政策 / 法律聲明
+  printer_edit:
+    extruders:
+      steps_extrude: 擠出步驟
