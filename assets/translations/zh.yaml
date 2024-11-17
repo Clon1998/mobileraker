@@ -1175,12 +1175,44 @@ bottom_sheets:
     qr_error: '載入 QR 掃描器時發生錯誤：{}'
     scan_again: 重新掃描
     set_active: 設為使用中
+  non_printing:
+    manage_service:
+      title: 管理服務
+      no_services: 未找到服務！
+      provider_error: 獲取服務時發生錯誤
+    confirm_action:
+      title: 您確定嗎？
+      hint:
+        long_press: '提示：要跳過此操作，長按開啟此確認的按鈕。'
+  dashboard_cards:
+    title: 加入卡片
+    subtitle: 選擇一張卡片來加入儀表板
+  dashboard_layout:
+    title: 儀表板佈局
+    subtitle: '目前佈局：'
+    available_layouts:
+      label: '可用的佈局：'
+      empty: 沒有可用的佈局
+      add_empty: 加入空白佈局
+    layout_preview:
+      not_saved: 尚未儲存
+    rename_layout:
+      title: 重新命名佈局
+      label: 佈局名稱
+    delete_layout:
+      title: 刪除佈局
+    import_snackbar:
+      title: 佈局已匯入！
+    falsy_import_snackbar:
+      title: 匯入佈局時發生錯誤！
   selections:
     no_selections:
       subtitle: 嘗試不同的搜尋詞
 klipper_state:
   ready: 就緒
   shutdown: 關機
+  starting: 啟動中
+  disconnected: 已斷開連接
   error: 錯誤
   unauthorized: 未授權
   initializing: 正在初始化
