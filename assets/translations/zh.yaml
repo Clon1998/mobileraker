@@ -421,7 +421,13 @@ pages:
     title: 編輯 {}
     import_settings: 匯入設定
     remove_printer: 移除列印機
+    store_error:
+      message: |-
+        某些欄位包含無效的值！
+        請確認所有欄位的值都是有效的。
+      unexpected_error: 儲存機器資料時發生了未預期的錯誤！
     confirm_deletion:
+      title: 刪除 {}？
       body: "您即將移除連接於 '{}' 的列印機 '{}'。\n\n請確認您的操作。"
     general:
       displayname: 顯示名稱
@@ -448,6 +454,13 @@ pages:
       invert_y_short: 反轉Y
       invert_z: 反轉Z軸
       invert_z_short: 反轉Z
+      speed_xy: X/Y軸速度
+      speed_xy_short: X/Y速度
+      speed_z: Z軸速度
+      speed_z_short: Z速度
+      steps_move: 移動距離
+      steps_baby: Z偏移距離
+      steps_baby_short: Z距離
     extruders:
       title: 擠出機
       feedrate: 擠出機速度
@@ -460,7 +473,10 @@ pages:
         loading_speed_helper: 從噴嘴到擠出機的線材裝載和卸載速度
         purge_amount: 清理長度
         purge_amount_helper: 清理的線材長度
+        purge_speed: 清理速度
+        purge_speed_helper: 清理線材的速度
     cams:
+      target_fps: 目標幀率
       new_cam: 新增網路攝影機
       no_webcams: 未加入網絡攝影機！
       stream_url: 串流URL
@@ -482,6 +498,12 @@ pages:
       default_name: 新增巨集群組
       macros_to_default:
         one: 已移動一個巨集至預設群組！
+        two: 已將兩個巨集移至預設群組！
+        other: 已將 {} 個巨集移至預設群組！
+      macro_removed: 找不到該巨集，將會在稍後自動刪除。
+    presets:
+      no_presets: 未加入預設集！
+      new_preset: 新增預設集
     confirm_fcm_reset:
       title: 清除通知設備註冊嗎？
       body: "您即將重置設備註冊，該註冊用於確定Companion 應用程式將通知發送到哪些設備。 要重新建立推送通知，您需要在所有設備上重新啟動應用程式並再次將它們連接到機器。"
@@ -531,3 +553,50 @@ pages:
       no_sensors: 未找到溫度感測器！
     fan_ordering:
       title: 風扇介面排序
+      helper: 變更儀表板上風扇的排列順序
+      no_fans: 未找到風扇！
+    misc_ordering:
+      title: 其他項元素界面排序
+      helper: 更改儀表板上其他項元素的順序。
+      no_controls: 未找到其他項元素！
+  printer_add:
+    steps:
+      mode: 模式
+      input: 輸入
+      test: 測試
+      done: 完成
+    title: 新增列印機
+    select_mode:
+      simple: 簡易
+      advanced: 進階
+      add_via_oe: 一鍵設定OctoEverywhere
+      add_via_obico: 一鍵設定Obico 
+    simple_form:
+      hint_title: 提示－簡易模式
+      hint_body: 簡易模式允許您輸入主機和連接埠。如果您需要自訂路徑、標頭、憑證或其他設置，請切換到進階模式。
+      url_hint: 列印機的IP或主機名稱
+    advanced_form:
+      hint_title: 提示－進階模式
+      hint_body: 請注意，在進階模式下，大多數驗證已被停用。請確保您輸入的 URL 是有效的。
+      http_helper: 請輸入 Moonraker 的 HTTP 端點
+    test_connection:
+      awaiting: 等待結果...
+      continue: 繼續
+      continue_anyway: 仍然繼續
+      proceed_warning: "看起來應用程式無法連接到機器。這可能是因為您與機器不在同一個網路上，或是您沒有必要的權限來存取它。儘管您可以選擇繼續加入機器，但請注意無法保證它會正確連接。請小心操作。\n\n\n\n\n\n\n"
+      button: 測試連線
+    confirmed:
+      title: 列印機 {} 已加入！
+  console:
+    title: 控制台
+    card_title: GCode控制台
+    macro_suggestions: G-Code建議
+    no_suggestions: 找不到建議
+    command_input:
+      hint: 輸入控制台命令
+    provider_error:
+      title: 獲取控制台資料時發生錯誤
+      body: 嘗試獲取控制台資料時發生錯誤，請稍後再試！
+  overview:
+    title: 總覽
+    no_entries: 未找到機器
