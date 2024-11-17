@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
@@ -271,24 +272,29 @@ class _MjpegController extends _$MjpegController {
 
   @override
   Stream<_Model> build(Dio dio, MjpegConfig config) async* {
-    // await Future.delayed(const Duration(seconds: 15));
+    // Get the manager
+    final manager = ref.watch(mjpegManagerProvider(dio, config));
 
-    ref.listen(appLifecycleProvider, (_, appState) {
-      switch (appState) {
-        case AppLifecycleState.resumed:
-          _manager.start();
-          break;
+    // Listen to the app lifecycle to start/stop the camera
+    ref.listen(
+      appLifecycleProvider,
+      (_, appState) {
+        switch (appState) {
+          case AppLifecycleState.resumed:
+            _manager.start();
+            break;
 
-        case AppLifecycleState.paused:
-          _manager.stop();
-          break;
-        default:
-        // Do Nothing
-      }
-    });
+          case AppLifecycleState.paused:
+            _manager.stop();
+            break;
+          default:
+          // Do Nothing
+        }
+      },
+      fireImmediately: true,
+    );
 
-    var manager = ref.watch(mjpegManagerProvider(dio, config));
-    manager.start();
+    ref.keepAliveFor();
     yield* manager.jpegStream.doOnData(_frameReceived).map((event) => _Model(fps: _fps, image: event));
   }
 
