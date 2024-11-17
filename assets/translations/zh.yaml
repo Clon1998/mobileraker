@@ -115,7 +115,7 @@ pages:
         b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: 移動軸
-        home_xy_tooltip: 歸位X和Y軸
+        home_xy_tooltip: 歸位X軸和Y軸
         home_z_tooltip: 歸位Z軸
         home_all_tooltip: 歸位所有軸
         home_all_btn: 全部
@@ -1101,7 +1101,7 @@ bottom_sheets:
       service_name: OctoEverywhere
       link: 連結OctoEverywhere
       unlink: 取消連結OctoEverywhere
-      description: OctoEverywhere.com 是一個社群專案，讓您可以從任何地方安全地連接到您的打印機。OctoEverywhere 還提供免費的 AI列印故障檢測、通知、即時串流媒體等功能。設置只需 20 秒鐘！
+      description: OctoEverywhere.com 是一個社群專案，讓您可以從任何地方安全地連接到您的列印機。OctoEverywhere 還提供免費的 AI列印故障檢測、通知、即時串流媒體等功能。設置只需 20 秒鐘！
     manual:
       service_name: 手動設定遠端連線
       tab_name: 手動
@@ -1201,6 +1201,9 @@ bottom_sheets:
       label: 佈局名稱
     delete_layout:
       title: 刪除佈局
+      body: |-
+        您確定要刪除佈局 {} 嗎？
+        所有使用此佈局的機器將恢復為預設佈局。
     import_snackbar:
       title: 佈局已匯入！
     falsy_import_snackbar:
@@ -1216,6 +1219,7 @@ klipper_state:
   error: 錯誤
   unauthorized: 未授權
   initializing: 正在初始化
+  not_connected: Moonraker 無法與 Klipper 建立連線。請確認 Klipper 是否正在您的系統上運行。
 print_state:
   standby: 待機
   printing: 列印中
