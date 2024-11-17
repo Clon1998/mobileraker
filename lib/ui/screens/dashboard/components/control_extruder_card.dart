@@ -345,7 +345,7 @@ class _CardBody extends ConsumerWidget {
         const SizedBox(height: 8),
         SingleValueSelector(
           selectedIndex: model.stepIndex,
-          onSelected: canExtrude ? controller.onSelectedStepChanged : null,
+          onSelected: controller.onSelectedStepChanged,
           values: [for (var step in model.steps) step.toString()],
         ),
         const SizedBox(height: 8),
