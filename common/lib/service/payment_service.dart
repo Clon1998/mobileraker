@@ -12,6 +12,7 @@ import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -27,10 +28,12 @@ part 'payment_service.g.dart';
 final customerInfoProvider = customerInfoNotifierProvider;
 
 @Riverpod(keepAlive: true)
-Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
-  try {
-    var customerInfo = await Purchases.getCustomerInfo();
-    logger.i('Got customerInfo: $customerInfo');
+class CustomerInfoNotifier extends _$CustomerInfoNotifier {
+  @override
+  Future<CustomerInfo> build() async {
+    try {
+      var customerInfo = await Purchases.getCustomerInfo();
+      logger.i('Got customerInfo: $customerInfo');
 
       checkForExpired() async {
         logger.i('Checking for expired subs!');
@@ -64,13 +67,11 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
 
 @Riverpod(keepAlive: true)
 bool isSupporter(Ref ref) {
-  return true;
   return ref.watch(isSupporterAsyncProvider).valueOrNull == true;
 }
 
 @Riverpod(keepAlive: true)
 FutureOr<bool> isSupporterAsync(Ref ref) async {
-  return true;
   var customerInfo = await ref.watch(customerInfoProvider.future);
   return customerInfo.entitlements.active.containsKey('Supporter') == true;
 }
