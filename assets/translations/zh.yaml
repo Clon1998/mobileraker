@@ -662,6 +662,7 @@ pages:
     title: Spoolman
     spoolman_actions:
       add_spool: 加入線捲
+      add_filament: 加入線材
     create:
       success:
         title: "{} 已建立！"
@@ -735,3 +736,248 @@ pages:
       print_settings: 列印設定
     vendor_details:
       page_title: 製造商 {}
+      info_card: 製造商資訊
+      filaments_card: 根據製造商的線材
+      spools_card: 根據製造商的線盤
+    filament_details:
+      info_card: 線材資訊
+      spools_card: 線材線盤
+    spool_details:
+      page_title: 線盤 {}
+      info_card: 線盤資訊
+      set_active: 將其設為目前使用的線盤
+      archived_warning:
+        title: 線盤已封存
+        body: 此線盤已封存，無法用於新的列印。
+      alternative_spool:
+        same_filament: 替代線盤(相同線材)
+        same_material: 替代線捲(相同製造商)
+    spool_form:
+      create_page_title: 建立線盤
+      update_page_title: 編輯線盤
+      helper:
+        used_weight: 已使用的耗材重量。若為 0 克，則表示該線捲尚未使用。
+        location: 您存放線捲的位置
+        lot_number: 製造商的批次號碼。可用於確保使用多個線盤時，列印顏色的一致性。
+    filament_form:
+      create_page_title: 建立線材
+      update_page_title: 編輯線材
+      helper:
+        price: 一捲線材的價格
+        initial_weight: 這是整捲線材的淨重，排除線盤的重量。通常會標示在包裝上。
+        empty_weight: 空線盤的重量。
+    vendor_form:
+      create_page_title: 建立製造商
+      update_page_title: 編輯製造商
+      helper:
+        empty_weight: 此製造商空線盤的重量。
+components:
+  app_version_display:
+    version: '版本：'
+    installed_version: '已安裝版本：'
+  pull_to_refresh:
+    pull_up_idle: 向下拉以重新整理
+  nav_drawer:
+    printer_settings: 列印機設定
+    manage_printers: 管理列印機
+    footer: |-
+      由 Patrick Schmidt 用 ❤️ 製作
+      查看該專案的
+  connection_watcher:
+    reconnect: 重新連接
+    trying_connect: 嘗試重新連接...
+    trying_connect_remote: 嘗試透過遠端重新連接...
+    server_starting: 伺服器正在啟動...
+    more_details: 更多詳細資料
+    add_printer: |-
+      您好，
+      很高興見到您！
+      為了開始使用，請將一台列印機新增到 Mobileraker。完成這一步後，您就能直接在 Mobileraker 內控制你的列印機了。
+  octo_indicator:
+    tooltip: 使用OctoEveryWhere！
+  supporter_add:
+    title: 喜歡Mobileraker嗎？
+    subtitle: 點擊我！了解如何支持開發！
+  supporter_only_feature:
+    dialog_title: 僅限支持者功能
+    button: 成為Mobileraker支持者
+    webcam: 抱歉，類型為 {} 的攝影機僅對支持者可用。作為替代，Mjpeg 攝影機對所有使用者開放。
+    printer_add: 您已達到機器上限。只有 Mobileraker 支持者才能加入超過 {} 台機器。
+    job_queue: 抱歉，工作佇列僅對支持者開放。
+    timelaps_share: 抱歉，縮時攝影分享僅對支持者開放。
+    printer_theme: 抱歉，列印機特有主題僅對支持者開放。
+    spoolman_page: 抱歉，Spoolman頁面僅對支持者開放。
+    custom_dashboard: 抱歉，自訂儀表板功能僅對支持者開放。
+    full_file_management: 抱歉，完整檔案管理功能(下載、上傳...) 僅對支持者開放。
+    gcode_preview: 抱歉，GCode預覽功能僅對支持者開放。
+  machine_deletion_warning:
+    title: 刪除機器
+    subtitle: 看起來您不是支持者。只有支持者才能擁有超過 {} 台機器。您還有 {} 天，超過數量的機器將會被刪除。
+  remote_connection_indicator:
+    title: 使用遠端連線！
+  web_rtc:
+    renderer_missing: WebRtc影像不可用！
+    oe_warning: 尚不支援透過OctoEverywhere 使用WebRtc！
+  ri_indicator:
+    tooltip: 使用遠端連線！
+  obico_indicator:
+    tooltip: 使用Obico通道！
+  gcode_preview:
+    layer:
+      one: 層
+      other: 層
+    move:
+      one: 移動
+      other: 移動
+    downloading:
+      starting: 等待下載以開始...
+      progress: 下載Gcode檔案中({})...
+    parsing:
+      setting_up: 正在設定 GCode 解析器...
+      progress: 解析Gcode中 ({})...
+      canceled: Gcode解析已取消！
+      error:
+        title: Gcode解析時發生錯誤！
+        body: 嘗試解析 GCode 時發生錯誤。請重試。如果問題持續存在，請在 GitHub 上提交問題並附上 GCode 檔案。
+    error:
+      config:
+        title: 獲取列印機配置時發生錯誤！
+        body: 嘗試獲取列印機配置時發生錯誤。請確保列印機可連接，並且 Mobileraker 已經連接到列印機。
+  gcode_preview_settings_sheet:
+    title: 可視化設置
+    show_grid:
+      title: 顯示格點
+      subtitle: 顯示參考格點
+    show_axes:
+      title: 顯示軸
+      subtitle: 顯示X/Y軸
+    show_next_layer:
+      title: 顯示下一層
+      subtitle: 在預覽中顯示即將到來的層
+    show_previous_layer:
+      title: 顯示前一層
+      subtitle: 顯示先前已列印的層
+    extrusion_width_multiplier:
+      prefix: 線寬調整
+    show_extrusion:
+      title: 顯示擠出路徑
+      subtitle: 亮顯材料擠出移動
+    show_retraction:
+      title: 顯示回抽路徑
+      subtitle: 亮顯線材回抽移動
+    show_travel:
+      title: 顯示空打移動
+      subtitle: 顯示空打的移動路徑
+  select_color_sheet:
+    title: 設定顏色
+dialogs:
+  rate_my_app:
+    title: 評價Mobileraker？
+    message: 如果您喜歡 Mobileraker 並希望支持開發，請考慮給 Mobileraker 評分！
+  import_setting:
+    fetching: 獲取來源...
+    fetching_error_title: 無法獲取設定
+    fetching_error_sub: 確保其他機器已連接。
+  supporter_perks:
+    unlimited_printers_perk:
+      title: 無限制的印表機數量
+    custom_dashboard_perk:
+      title: 自訂儀表板
+      subtitle: 自訂儀表板以符合您的需求！
+    full_file_management_perk:
+      title: 完整檔案管理
+      subtitle: 解鎖 Mobileraker 的完整檔案管理功能！
+  bed_screw_adjust:
+    title: 床台螺絲調整
+    xy_plane: '列印機X/Y平面：'
+    hint: 如果需要對目前螺絲進行重大調整，請點擊「調整」；否則，請點擊「接受」以繼續。
+  macro_settings:
+    show_for_states: 列印機狀態
+  extruder_feedrate:
+    title: 擠出機速度 [mm/s]
+  fan_speed:
+    title: 編輯 {} %
+  filament_sensor_triggered:
+    body: |-
+      感測器 {} 已被觸發。
+  filament_switch:
+    title:
+      load: 線材裝載精靈
+      unload: 線材卸載精靈
+    controls:
+      repeat_load: 重複裝載
+    steps:
+      set_temps:
+        subtitle: 選擇目標溫度
+bottom_sheets:
+  add_remote_con:
+    octoeverywehre:
+      service_name: OctoEverywhere
+      link: 連結OctoEverywhere
+      unlink: 取消連結OctoEverywhere
+      description: OctoEverywhere.com 是一個社群專案，讓您可以從任何地方安全地連接到您的打印機。OctoEverywhere 還提供免費的 AI列印故障檢測、通知、即時串流媒體等功能。設置只需 20 秒鐘！
+    manual:
+      service_name: 手動設定遠端連線
+      tab_name: 手動
+    obico:
+      link: 連結Obico
+      unlink: 取消連結Obico
+      description: Obico 是一款由社群驅動的完全開源 3D 列印軟體。它讓您可以隨時隨地控制和監控您的 Klipper 列印機，且完全免費。作為 AI 基於失敗檢測的先驅解決方案之一，Obico 僅使用您的列印機網路攝影機進行檢測。
+      self_hosted:
+        title: 自架服務
+        description: 預設情況下，Mobileraker 將使用官方的 Obico 實例。然而，如果您正在管理自己的實例，您可以在此指定其 URL。
+        url_label: 自架服務URL
+        url_hint: 自建 Obico 實例的基本 URL
+  manage_macros_in_grp:
+    title: 加入巨集
+    hint: 選取群組 {} 的巨集
+  signIn:
+    subtitle: 雖然建立帳戶是可選的，但若要在其他設備或平台上恢復購買記錄，則必須建立帳戶。
+    forgot_password: 忘記密碼？
+    forgot_password_success: 密碼重設信件已寄出！
+    hint:
+      sign_in: 還沒有帳號嗎？
+      sign_up: 已有帳號了嗎？
+      reset_password: 請提供您的email以接收重設密碼的連結。
+    action:
+      sign_in: 登入
+      sign_up: 註冊
+      reset_password: 重設密碼
+print_state:
+  standby: 待機
+  printing: 列印中
+  paused: 暫停
+  complete: 完成
+theme_mode:
+  system: 系統
+notifications:
+  channel_printer_grp: 列印機 {}
+  channels:
+    status:
+      name: 列印狀態更新－{}
+date:
+  year:
+    one: 年
+    other: 年
+  month:
+    one: 月
+    other: 月
+  week:
+    one: 週
+    other: 週
+  day:
+    one: 日
+    other: 日
+date_periods:
+  year:
+    one: 每年
+    other: 年
+  month:
+    one: 每月
+    other: 月
+  week:
+    one: 每週
+    other: 週
+  day:
+    one: 每日
+    other: 日
