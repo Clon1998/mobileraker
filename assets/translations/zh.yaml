@@ -86,6 +86,7 @@ pages:
         elapsed: 經過的
         flow: 流量
         filament: 線材
+        filament_tooltip: 已使用 {} % 的線材，相當於 {} m，總預測長度為 {} m。
         eta_tooltip: |-
           剩餘時間：
           平均： {avg}
@@ -159,6 +160,7 @@ pages:
         cold_extrude_error: 擠出頭尚未達到最低擠出溫度（ {}°C ）
       macro_card:
         title: G碼 - 巨集
+        no_macros: 目前在此群組中沒有可見的巨集
         add_grp_hint: 您可建立不同群組來編組您的巨集。只需至列表機設定中並新增群組。
         show_all_tooltip: 顯示所有巨集
       pin_card:
@@ -170,7 +172,9 @@ pages:
       power_card:
         title: 電源面板
         pin_btn: Pin
+        provider_error_title: 獲取電源 Api 設備時發生錯誤
       multipl_card:
+        title: 倍率調整
         flow: 擠出流量
         press_adv: 壓力提前
         smooth_time: 平滑時間
@@ -184,18 +188,37 @@ pages:
         title: 韌體回抽
         retract_length: 回抽長度
         retract_speed: 回抽速度
+        extra_unretract_length: 回抽補償長度
+        unretract_speed: 回抽補償速度
+      bed_mesh_card:
+        title: 床面網格
+        profiles: 設定檔
+        range_tooltip: 最高和最低點之間的範圍
+        showing_matrix:
+          probed: 顯示探測矩陣
+          mesh: 顯示網格矩陣
       spoolman_card:
         title: Spoolman
         no_spool: |-
           未選擇料盤。
           將不追蹤線材用量。
         select_spool: 選擇料盤
+        used: '已使用：{}'
         provider_error_title: 取得Spoolman資料時發生錯誤
       gcode_preview_card:
         title: GCode預覽
+        follow: 跟隨進度
+        kinematic_not_supported: 目前應用程式不支援此印表機的運動學系統的 GCode 渲染。
         start_preview:
           btn: 開始預覽
+          hint: 應用程式將下載目前的列印檔案並嘗試進行渲染。
   customizing_dashboard:
+    title: 個性化儀表板
+    cancel_confirm:
+      title: 放棄變更？
+      body: |-
+        您確定要離開佈局編輯模式嗎？
+        所有更改將會遺失。若要儲存您的更改，請按下儲存按鈕。
     add_card: 增加卡片
     remove_page: 移除頁面
     saved_snack:
@@ -203,6 +226,7 @@ pages:
       body: 您的變更已經儲存。
     cant_remove_snack:
       title: 無法移除頁面！
+      body: 您至少需要兩個頁面才能刪除其中一頁。
     confirm_removal:
       title: 移除頁面？
       body: 您確定真的要移除此頁面？
@@ -264,15 +288,38 @@ pages:
       zipping_failed:
         title: 壓縮失敗
         body: 嘗試建立檔案時發生錯誤，請稍後重試。
+      copy_created:
+        body: 複製已成功建立於 '{}'。
+      move_success:
+        title: 移動成功
+        body: 檔案已成功移動至 '{}'。
+      move_failed:
+        title: 移動失敗
+        body: 嘗試移動檔案時發生錯誤。請稍後再試。
+    search_files: 在資料夾中搜尋
+    search:
+      clear_search: 清除搜尋紀錄
+      waiting: 等待搜尋！
+      no_results:
+        title: 未找到檔案
+        subtitle: 嘗試使用不同的搜尋詞
     cancel_fab:
+      upload: 取消上傳
       download: 取消下載
+    move_here: 移動到這裡
+    copy_here: 複製到這裡
     no_matches_file_pattern: 只允許使用英文字母、數字、底線、破折號和點！。
+    gcode_tab: GCode
+    config_tab: 設定檔
+    timelapse_tab: 縮時攝影
     element:
       one: 元素
       other: 元素
     details:
+      preheat: 預熱
       print: 列印
       general_card:
+        path: 路徑
         last_mod: 上次修改
         last_printed: 上次列印
         no_data: 沒有資料
@@ -371,8 +418,15 @@ pages:
       crashlytics: 啟用 Crashlytics 報告
     imprint: 隱私權政策 / 法律聲明
   printer_edit:
+    title: 編輯 {}
+    import_settings: 匯入設定
+    remove_printer: 移除列印機
+    confirm_deletion:
+      body: "您即將移除連接於 '{}' 的列印機 '{}'。\n\n請確認您的操作。"
     general:
+      displayname: 顯示名稱
       printer_addr: 列印機－位址
+      ws_addr: WebSocket - 位址
       moonraker_api_key: Moonraker－API 金鑰
       moonraker_api_desc: 僅在使用受信任的使用端時需要。FluiddPI 強制執行此設定！
       full_url: 完整URL
@@ -398,7 +452,7 @@ pages:
       title: 擠出機
       feedrate: 擠出機速度
       feedrate_short: 速度
-      steps_extrude: 擠出步驟
+      steps_extrude: 擠出長度
       filament:
         loading_distance: 擠出機噴嘴距離
         loading_distance_helper: 從噴嘴到擠出機的距離，用於裝載或卸載線材
@@ -406,6 +460,74 @@ pages:
         loading_speed_helper: 從噴嘴到擠出機的線材裝載和卸載速度
         purge_amount: 清理長度
         purge_amount_helper: 清理的線材長度
+    cams:
+      new_cam: 新增網路攝影機
+      no_webcams: 未加入網絡攝影機！
+      stream_url: 串流URL
+      snapshot_url: 快照URL
+      default_url: 預設URL
+      flip_vertical: 垂直翻轉
+      flip_horizontal: 水平翻轉
+      cam_mode: 攝影模式
+      cam_rotate: 旋轉
+      read_only: 網路攝影機為唯讀
+    macros:
+      default_grp: 預設
+      new_macro_grp: 新增巨集－群組
+      no_macros_available: 沒有可用的巨集！
+      no_macros_found: 未找到巨集！
+      no_macros_in_grp: 此群組中沒有巨集！
+      deleted_grp: 刪除群組 {}
+      macros: 巨集
+      default_name: 新增巨集群組
+      macros_to_default:
+        one: 已移動一個巨集至預設群組！
     confirm_fcm_reset:
       title: 清除通知設備註冊嗎？
       body: "您即將重置設備註冊，該註冊用於確定Companion 應用程式將通知發送到哪些設備。 要重新建立推送通知，您需要在所有設備上重新啟動應用程式並再次將它們連接到機器。"
+    confirm_remote_interface_removal:
+      title:
+        oe: 解除連結 {}？
+        other: 刪除連線？
+      body:
+        oe: 請確認解除將列印機 {} 與 OctoEverywhere 的連結。
+        other: 請確認移除列印機 {} 的遠端連線。
+    remote_interface_exists:
+      title: 發現遠端連線
+      body:
+        oe: 這台列印機已經與 OctoEverywhere 連結以進行遠端存取。請先解除連結後再繼續。
+        obico: 這台列印機已經與 Obico 連結以進行遠端存取。請先解除連結後再繼續。
+        other: 此列印機已經建立遠端連線。請在繼續之前先移除該連線。
+    remote_interface_removed:
+      title: 遠端連線已移除！
+      body: 請確保儲存列表機設置以套用變更。
+    remote_interface_added:
+      title:
+        oe: 連線至OctoEverywhere。
+        obico: 連線至Obico。
+        other: 遠端連線已增加。
+      body: 請確認儲存列表機設置以套用變更。
+    wifi_access_warning:
+      title: WiFi資訊不可用
+      subtitle: |-
+        要確保Mobileraker是否應使用遠程連接，請授予位置存取權限。這樣應用程式可以獲取目前WiFi網路的名稱。
+
+        點擊以授予權限。
+    local_ssid:
+      section_header: 智能切換
+      no_ssids: 未加入 WiFi 名稱！
+      helper: 智能切換使應用程式根據目前的 WiFi 網路自動在本地和遠端連接之間切換。要啟用此功能，請將您家中的 WiFi 名稱加入到列表中。
+      dialog:
+        title_add: 將 WiFi 名稱加入到列表
+        title_edit: 編輯WiFi名稱
+        label: WiFi名稱 (SSID)
+        quick_add_hint: '提示：要快速加入目前的 WiFi 名稱，長按打開此對話框的按鈕。'
+      error_fetching_snackbar:
+        title: 獲取 WiFi 名稱時發生錯誤！
+        body: 請確保應用程式已獲得必要的權限來存取裝置的 WiFi 狀態。
+    temp_ordering:
+      title: 溫度感測器介面排序
+      helper: 更改儀表板上溫度感測器的順序。
+      no_sensors: 未找到溫度感測器！
+    fan_ordering:
+      title: 風扇介面排序
