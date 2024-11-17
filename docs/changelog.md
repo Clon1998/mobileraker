@@ -19,6 +19,9 @@
   objects of the same class with
   the same name but different kind, applies to fans, leds and filament sensors.
 
+- **WebRtc Cam Creation**: Fixed an issue in the code that handles the creation of WebRtc cams in the app's internals.
+  This caused to many webRTC cam streams to be opened in a short time, which could lead to a crash of the app.
+
 ## [2.8.2] - 2024-10-31
 
 ### Bug Fixes
