@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
@@ -88,7 +89,7 @@ enum AppRoute implements RouteDefinitionMixin {
 }
 
 @riverpod
-Future<String> initialRoute(InitialRouteRef ref) async {
+Future<String> initialRoute(Ref ref) async {
   ref.keepAlive();
   SettingService settingService = ref.watch(settingServiceProvider);
 

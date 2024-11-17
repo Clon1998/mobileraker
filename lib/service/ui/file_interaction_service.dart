@@ -32,6 +32,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -49,7 +50,7 @@ part 'file_interaction_service.g.dart';
 final _zipDateFormat = DateFormat('yyyy-MM-dd_HH-mm-ss');
 
 @riverpod
-FileInteractionService fileInteractionService(FileInteractionServiceRef ref, String machineUUID) {
+FileInteractionService fileInteractionService(Ref ref, String machineUUID) {
   return FileInteractionService(
     machineUUID,
     ref.watch(bottomSheetServiceProvider),

@@ -59,10 +59,10 @@ part 'printers_edit_controller.g.dart';
 GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef _) => GlobalKey<FormBuilderState>();
 
 @Riverpod(dependencies: [])
-Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
+Machine currentlyEditing(Ref ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [currentlyEditing])
-Future<MachineSettings> machineRemoteSettings(MachineRemoteSettingsRef ref) {
+Future<MachineSettings> machineRemoteSettings(Ref ref) {
   var machine = ref.watch(currentlyEditingProvider);
   return ref.watch(machineSettingsProvider(machine.uuid).future);
 }

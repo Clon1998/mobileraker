@@ -564,7 +564,7 @@ class _PropertyTile extends StatelessWidget {
 }
 
 @Riverpod(dependencies: [])
-GCodeFile gcode(GcodeRef ref) => throw UnimplementedError();
+GCodeFile gcode(Ref ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [gcode])
 class _GCodeFileDetailsController extends _$GCodeFileDetailsController {

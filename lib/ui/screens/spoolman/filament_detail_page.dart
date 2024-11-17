@@ -32,7 +32,7 @@ import 'common_detail.dart';
 part 'filament_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-GetFilament _filament(_FilamentRef ref) {
+GetFilament _filament(Ref ref) {
   throw UnimplementedError();
 }
 

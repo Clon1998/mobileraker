@@ -9,7 +9,6 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 const int darkRed = 0xffb21818;
 var redish = const MaterialColor(darkRed, <int, Color>{
@@ -645,7 +644,7 @@ ThemePack _oePack() {
   );
 }
 
-List<ThemePack> themePacks(ProviderRef ref) {
+List<ThemePack> themePacks(Ref ref) {
   var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrNull;
   return [
     _mobilerakerPack(),

@@ -45,7 +45,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   confirm;
 }
 
-BottomSheetService bottomSheetServiceImpl(BottomSheetServiceRef ref) => BottomSheetServiceImpl(ref);
+BottomSheetService bottomSheetServiceImpl(Ref ref) => BottomSheetServiceImpl(ref);
 
 class BottomSheetServiceImpl implements BottomSheetService {
   BottomSheetServiceImpl(this.ref);

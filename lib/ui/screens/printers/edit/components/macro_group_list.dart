@@ -447,6 +447,6 @@ class MacroGroupListController extends _$MacroGroupListController {
 }
 
 @riverpod
-ExpansionTileController _expansionTileController(_ExpansionTileControllerRef ref, String macroGroupUUID) {
+ExpansionTileController _expansionTileController(Ref ref, String macroGroupUUID) {
   return ExpansionTileController();
 }

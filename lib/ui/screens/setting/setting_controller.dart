@@ -36,7 +36,7 @@ final notificationPermissionControllerProvider =
 );
 
 class NotificationPermissionController extends StateNotifier<bool> {
-  NotificationPermissionController(AutoDisposeRef ref)
+  NotificationPermissionController(ref)
       : notificationService = ref.watch(notificationServiceProvider),
         super(true) {
     evaluatePermission();

@@ -23,7 +23,7 @@ part 'config_file_details_controller.freezed.dart';
 part 'config_file_details_controller.g.dart';
 
 @Riverpod(dependencies: [])
-GenericFile configFile(ConfigFileRef ref) => throw UnimplementedError();
+GenericFile configFile(Ref ref) => throw UnimplementedError();
 
 final configFileDetailsControllerProvider =
     StateNotifierProvider.autoDispose<ConfigFileDetailsController, ConfigDetailPageState>(
