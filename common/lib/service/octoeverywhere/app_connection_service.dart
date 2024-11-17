@@ -18,12 +18,12 @@ import '../../network/dio_provider.dart';
 part 'app_connection_service.g.dart';
 
 @riverpod
-AppConnectionService appConnectionService(AppConnectionServiceRef ref) {
+AppConnectionService appConnectionService(Ref ref) {
   return AppConnectionService(ref);
 }
 
 class AppConnectionService {
-  AppConnectionService(AutoDisposeRef ref) : _dio = ref.watch(octoApiClientProvider);
+  AppConnectionService(Ref ref) : _dio = ref.watch(octoApiClientProvider);
 
   final Dio _dio;
 

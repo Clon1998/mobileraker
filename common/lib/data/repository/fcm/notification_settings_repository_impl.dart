@@ -14,12 +14,11 @@ import '../fcm/notification_settings_repository.dart';
 part 'notification_settings_repository_impl.g.dart';
 
 @riverpod
-NotificationSettingsRepository notificationSettingsRepository(
-        NotificationSettingsRepositoryRef ref, String machineUUID) =>
+NotificationSettingsRepository notificationSettingsRepository(Ref ref, String machineUUID) =>
     NotificationSettingsRepositoryImpl(ref, machineUUID);
 
 class NotificationSettingsRepositoryImpl extends NotificationSettingsRepository {
-  NotificationSettingsRepositoryImpl(AutoDisposeRef ref, String machineUUID)
+  NotificationSettingsRepositoryImpl(Ref ref, String machineUUID)
       : _databaseService = ref.watch(moonrakerDatabaseClientProvider(machineUUID));
 
   final MoonrakerDatabaseClient _databaseService;

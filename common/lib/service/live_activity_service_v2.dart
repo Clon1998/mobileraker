@@ -39,7 +39,7 @@ part 'live_activity_service_v2.g.dart';
 const int PRINTER_DATA_REFRESH_INTERVAL = 5; // SECONDS
 
 @riverpod
-LiveActivityServiceV2 v2LiveActivity(V2LiveActivityRef ref) {
+LiveActivityServiceV2 v2LiveActivity(Ref ref) {
   ref.keepAlive();
   return LiveActivityServiceV2(ref);
 }
@@ -53,7 +53,7 @@ class LiveActivityServiceV2 {
     ref.onDispose(dispose);
   }
 
-  final AutoDisposeRef ref;
+  final Ref ref;
   final MachineService _machineService;
   final SettingService _settingsService;
   final LiveActivities _liveActivityAPI;

@@ -9,7 +9,6 @@ import 'dart:math';
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
-import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -92,7 +91,7 @@ class _Preview extends HookWidget {
     return ProviderScope(
       overrides: [
         _controlXYZCardControllerProvider(_machineUUID).overrideWith(_ControlXYZCardPreviewController.new),
-        printerProvider(_machineUUID).overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+        printerProvider(_machineUUID).overrideWith(PrinterPreviewNotifier.new),
         toolheadInfoProvider(_machineUUID).overrideWith(
           (provider) => Stream.value(
             const ToolheadInfo(

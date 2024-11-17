@@ -9,19 +9,20 @@ import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'remote_config.g.dart';
 
 @Riverpod(keepAlive: true)
-FirebaseRemoteConfig remoteConfigInstance(RemoteConfigInstanceRef ref) {
+FirebaseRemoteConfig remoteConfigInstance(Ref ref) {
   final instance = FirebaseRemoteConfig.instance;
 
   return instance;
 }
 
 @Riverpod(keepAlive: true)
-Stream<RemoteConfigUpdate> _remoteConfigUpdateStream(_RemoteConfigUpdateStreamRef ref) async* {
+Stream<RemoteConfigUpdate> _remoteConfigUpdateStream(Ref ref) async* {
   final instance = ref.watch(remoteConfigInstanceProvider);
   await for (final update in instance.onConfigUpdated) {
     logger.i('[Remote-Config] Received update for keys: ${update.updatedKeys.join(', ')}');
@@ -41,7 +42,7 @@ Stream<RemoteConfigUpdate> _remoteConfigUpdateStream(_RemoteConfigUpdateStreamRe
 }
 
 @riverpod
-int remoteConfigInt(RemoteConfigIntRef ref, String key) {
+int remoteConfigInt(Ref ref, String key) {
   final instance = ref.watch(remoteConfigInstanceProvider);
 
   ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
@@ -57,7 +58,7 @@ int remoteConfigInt(RemoteConfigIntRef ref, String key) {
 }
 
 @riverpod
-String remoteConfigString(RemoteConfigStringRef ref, String key) {
+String remoteConfigString(Ref ref, String key) {
   final instance = ref.watch(remoteConfigInstanceProvider);
 
   ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
@@ -73,7 +74,7 @@ String remoteConfigString(RemoteConfigStringRef ref, String key) {
 }
 
 @riverpod
-bool remoteConfigBool(RemoteConfigBoolRef ref, String key) {
+bool remoteConfigBool(Ref ref, String key) {
   final instance = ref.watch(remoteConfigInstanceProvider);
 
   ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
@@ -88,7 +89,7 @@ bool remoteConfigBool(RemoteConfigBoolRef ref, String key) {
 }
 
 @riverpod
-DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
+DeveloperAnnouncement developerAnnouncement(Ref ref) {
   ref.keepAlive();
 
   // var d =   {

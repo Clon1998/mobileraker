@@ -67,7 +67,7 @@ Future<MachineSettings> machineRemoteSettings(MachineRemoteSettingsRef ref) {
   return ref.watch(machineSettingsProvider(machine.uuid).future);
 }
 
-@riverpod
+@Riverpod(dependencies: [currentlyEditing, machineRemoteSettings])
 class PrinterEditController extends _$PrinterEditController {
   MachineService get _machineService => ref.read(machineServiceProvider);
 
@@ -529,7 +529,7 @@ class PrinterEditController extends _$PrinterEditController {
   }
 }
 
-@Riverpod(dependencies: [currentlyEditing, jrpcClientState])
+@Riverpod(dependencies: [currentlyEditing, currentlyEditing])
 class WebcamListController extends _$WebcamListController {
   Machine get _machine => ref.read(currentlyEditingProvider);
   final List<WebcamInfo> _camsToDelete = [];

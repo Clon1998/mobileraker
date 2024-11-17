@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/moonraker_database_client.dart';
@@ -12,7 +13,7 @@ import 'apns_repository.dart';
 part 'apns_repository_impl.g.dart';
 
 @riverpod
-APNsRepository apnsRepository(ApnsRepositoryRef ref, String machineUUID) {
+APNsRepository apnsRepository(Ref ref, String machineUUID) {
   return APNsRepositoryImpl(ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
 }
 

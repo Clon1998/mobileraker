@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/hive/notification.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'notifications_repository.dart';
@@ -12,7 +13,7 @@ import 'notifications_repository.dart';
 part 'notifications_hive_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-NotificationsRepository notificationRepository(NotificationRepositoryRef ref) => NotificationsHiveRepository();
+NotificationsRepository notificationRepository(Ref ref) => NotificationsHiveRepository();
 
 class NotificationsHiveRepository extends NotificationsRepository {
   NotificationsHiveRepository() : _box = Hive.box<Notification>('notifications');

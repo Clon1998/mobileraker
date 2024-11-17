@@ -4,6 +4,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'bottom_sheet_service_interface.g.dart';
@@ -13,7 +14,7 @@ mixin BottomSheetIdentifierMixin implements Enum {
 }
 
 @Riverpod(keepAlive: true)
-BottomSheetService bottomSheetService(BottomSheetServiceRef ref) => throw UnimplementedError();
+BottomSheetService bottomSheetService(Ref ref) => throw UnimplementedError();
 
 abstract interface class BottomSheetService {
   Map<BottomSheetIdentifierMixin, Widget Function(BuildContext, Object?)> get availableSheets;

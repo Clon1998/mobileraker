@@ -17,14 +17,14 @@ import 'jrpc_client_provider.dart';
 part 'moonraker_database_client.g.dart';
 
 @riverpod
-MoonrakerDatabaseClient moonrakerDatabaseClient(MoonrakerDatabaseClientRef ref, String machineUUID) =>
+MoonrakerDatabaseClient moonrakerDatabaseClient(Ref ref, String machineUUID) =>
     MoonrakerDatabaseClient(ref, machineUUID);
 
 /// The DatabaseService handles interacts with moonrakers database!
 class MoonrakerDatabaseClient {
   MoonrakerDatabaseClient(this.ref, this.machineUUID) : _jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
-  final AutoDisposeRef ref;
+  final Ref ref;
   final JsonRpcClient _jsonRpcClient;
   final String machineUUID;
 

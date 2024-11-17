@@ -12,7 +12,6 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
-import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
@@ -106,8 +105,7 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
         _controllerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(() {
           return _PreviewController();
         }),
-        printerProvider(_HeaterSensorCardPreview._machineUUID)
-            .overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+        printerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(PrinterPreviewNotifier.new),
       ],
       child: const HeaterSensorCard(machineUUID: _HeaterSensorCardPreview._machineUUID),
     );

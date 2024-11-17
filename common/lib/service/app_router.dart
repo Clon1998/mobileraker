@@ -4,6 +4,7 @@
  */
 
 import 'package:go_router/go_router.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -13,4 +14,4 @@ mixin RouteDefinitionMixin implements Enum {
 }
 
 @riverpod
-Raw<GoRouter> goRouter(GoRouterRef ref) => throw UnimplementedError();
+Raw<GoRouter> goRouter(Ref ref) => throw UnimplementedError();

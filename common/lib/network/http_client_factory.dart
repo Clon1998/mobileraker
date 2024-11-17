@@ -9,12 +9,13 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/dio_options_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:hashlib/hashlib.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'http_client_factory.g.dart';
 
 @Riverpod(keepAlive: true)
-HttpClientFactory httpClientFactory(HttpClientFactoryRef ref) {
+HttpClientFactory httpClientFactory(Ref ref) {
   return HttpClientFactory._();
 }
 

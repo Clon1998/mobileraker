@@ -18,6 +18,7 @@ import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:hashlib/hashlib.dart';
 import 'package:hashlib_codecs/hashlib_codecs.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../exceptions/mobileraker_exception.dart';
@@ -27,7 +28,7 @@ part 'dio_provider.g.dart';
 const _thirdPartyRemoteConnectionTimeout = Duration(seconds: 30);
 
 @riverpod
-Dio dioClient(DioClientRef ref, String machineUUID) {
+Dio dioClient(Ref ref, String machineUUID) {
   final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
   final baseOptions = ref.watch(baseOptionsProvider(machineUUID, clientType));
 
@@ -47,7 +48,7 @@ Dio dioClient(DioClientRef ref, String machineUUID) {
 }
 
 @riverpod
-BaseOptions baseOptions(BaseOptionsRef ref, String machineUUID, ClientType clientType) {
+BaseOptions baseOptions(Ref ref, String machineUUID, ClientType clientType) {
   var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
 
   if (machine == null) {
@@ -98,7 +99,7 @@ BaseOptions baseOptions(BaseOptionsRef ref, String machineUUID, ClientType clien
 
 
 @riverpod
-Dio octoApiClient(OctoApiClientRef ref) {
+Dio octoApiClient(Ref ref) {
   var dio = Dio(BaseOptions(
     baseUrl: 'https://octoeverywhere.com/api',
     connectTimeout: const Duration(seconds: 10),
@@ -111,7 +112,7 @@ Dio octoApiClient(OctoApiClientRef ref) {
 }
 
 @riverpod
-Dio obicoApiClient(ObicoApiClientRef ref, String baseUri) {
+Dio obicoApiClient(Ref ref, String baseUri) {
   var dio = Dio(BaseOptions(
     baseUrl: baseUri,
     connectTimeout: const Duration(seconds: 10),

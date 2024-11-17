@@ -15,6 +15,7 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../service/machine_service.dart';
@@ -24,7 +25,7 @@ import 'http_client_factory.dart';
 part 'jrpc_client_provider.g.dart';
 
 @riverpod
-JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientType type) {
+JsonRpcClient _jsonRpcClient(Ref ref, String machineUUID, ClientType type) {
   var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
   if (machine == null) {
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
@@ -52,14 +53,14 @@ JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientTy
 }
 
 @riverpod
-Stream<ClientState> _jsonRpcState(_JsonRpcStateRef ref, String machineUUID, ClientType type) {
+Stream<ClientState> _jsonRpcState(Ref ref, String machineUUID, ClientType type) {
   JsonRpcClient activeClient = ref.watch(_jsonRpcClientProvider(machineUUID, type));
 
   return activeClient.stateStream;
 }
 
 @riverpod
-JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
+JsonRpcClient jrpcClient(Ref ref, String machineUUID) {
   var providerToWatch = ref.watch(jrpcClientManagerProvider(machineUUID));
   return ref.watch(providerToWatch);
 }
@@ -160,14 +161,14 @@ class JrpcClientManager extends _$JrpcClientManager {
 }
 
 @riverpod
-Stream<ClientState> jrpcClientState(JrpcClientStateRef ref, String machineUUID) {
+Stream<ClientState> jrpcClientState(Ref ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
   return ref.watchAsSubject(_jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType));
 }
 
 @riverpod
-ClientType jrpcClientType(JrpcClientTypeRef ref, String machineUUID) {
+ClientType jrpcClientType(Ref ref, String machineUUID) {
   return ref.watch(jrpcClientProvider(machineUUID).select((value) => value.clientType));
 }
 
@@ -188,7 +189,7 @@ ClientType jrpcClientType(JrpcClientTypeRef ref, String machineUUID) {
 //     });
 
 @riverpod
-JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
+JsonRpcClient jrpcClientSelected(Ref ref) {
   var machine = ref.watch(selectedMachineProvider).value;
   if (machine == null) {
     throw const MobilerakerException('Machine was null!');
@@ -197,7 +198,7 @@ JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
 }
 
 @riverpod
-Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) async* {
+Stream<ClientState> jrpcClientStateSelected(Ref ref) async* {
   try {
     Machine? machine = await ref.watch(selectedMachineProvider.future);
     if (machine == null) return;
@@ -209,8 +210,7 @@ Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) asyn
 }
 
 @riverpod
-Stream<Map<String, dynamic>> jrpcMethodEvent(JrpcMethodEventRef ref, String machineUUID,
-    [String method = WILDCARD_METHOD]) {
+Stream<Map<String, dynamic>> jrpcMethodEvent(Ref ref, String machineUUID, [String method = WILDCARD_METHOD]) {
   StreamController<Map<String, dynamic>> streamController = StreamController.broadcast();
   JsonRpcClient jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 

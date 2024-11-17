@@ -6,6 +6,7 @@
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../util/logger.dart';
@@ -14,7 +15,7 @@ import 'dashboard_layout_repository.dart';
 part 'dashboard_layout_hive_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-DashboardLayoutHiveRepository dashboardLayoutHiveRepository(DashboardLayoutHiveRepositoryRef ref) {
+DashboardLayoutHiveRepository dashboardLayoutHiveRepository(Ref ref) {
   return DashboardLayoutHiveRepository();
 }
 

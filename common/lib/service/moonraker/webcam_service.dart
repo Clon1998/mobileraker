@@ -18,12 +18,12 @@ import '../../network/jrpc_client_provider.dart';
 part 'webcam_service.g.dart';
 
 @riverpod
-WebcamService webcamService(WebcamServiceRef ref, String machineUUID) {
+WebcamService webcamService(Ref ref, String machineUUID) {
   return WebcamService(ref, machineUUID);
 }
 
 @riverpod
-Stream<List<WebcamInfo>> allWebcamInfos(AllWebcamInfosRef ref, String machineUUID) async* {
+Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
   final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
   if (jrpcState != ClientState.connected) return;
 
@@ -34,7 +34,7 @@ Stream<List<WebcamInfo>> allWebcamInfos(AllWebcamInfosRef ref, String machineUUI
 }
 
 @riverpod
-Future<List<WebcamInfo>> allSupportedWebcamInfos(AllSupportedWebcamInfosRef ref, String machineUUID) async {
+Future<List<WebcamInfo>> allSupportedWebcamInfos(Ref ref, String machineUUID) async {
   return (await ref.watch(allWebcamInfosProvider(machineUUID).future))
       .where((element) => element.service.supported)
       .toList(growable: false);
@@ -48,7 +48,7 @@ class WebcamService {
       : _webcamInfoRepository = ref.watch(webcamInfoRepositoryProvider(machineUUID));
 
   final String machineUUID;
-  final AutoDisposeRef ref;
+  final Ref ref;
   final WebcamInfoRepository _webcamInfoRepository;
 
   Future<List<WebcamInfo>> listWebcamInfos() async {

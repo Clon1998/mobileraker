@@ -19,13 +19,13 @@ import '../../network/jrpc_client_provider.dart';
 part 'power_service.g.dart';
 
 @riverpod
-PowerService powerService(PowerServiceRef ref, String machineUUID) {
+PowerService powerService(Ref ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
   return PowerService(ref, jsonRpcClient, machineUUID);
 }
 
 @riverpod
-Stream<List<PowerDevice>> powerDevices(PowerDevicesRef ref, String machineUUID) {
+Stream<List<PowerDevice>> powerDevices(Ref ref, String machineUUID) {
   return ref.watch(powerServiceProvider(machineUUID)).devices;
 }
 
@@ -34,7 +34,7 @@ Stream<List<PowerDevice>> powerDevices(PowerDevicesRef ref, String machineUUID) 
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#power-apis
 class PowerService {
-  PowerService(AutoDisposeRef ref, this._jRpcClient, String machineUUID) {
+  PowerService(Ref ref, this._jRpcClient, String machineUUID) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(_onPowerChanged, 'notify_power_changed');
     ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {

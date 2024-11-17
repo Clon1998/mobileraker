@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_repository.dart';
@@ -12,7 +13,7 @@ import 'machine_repository.dart';
 part 'machine_hive_repository.g.dart';
 
 @Riverpod(keepAlive: true)
-MachineHiveRepository machineRepository(MachineRepositoryRef ref) => MachineHiveRepository();
+MachineHiveRepository machineRepository(Ref ref) => MachineHiveRepository();
 
 class MachineHiveRepository implements MachineRepository {
   MachineHiveRepository() : _boxMachines = Hive.box<Machine>('printers');

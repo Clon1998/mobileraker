@@ -18,12 +18,12 @@ import '../../network/dio_provider.dart';
 part 'gadget_service.g.dart';
 
 @riverpod
-GadgetService gadgetService(GadgetServiceRef ref) {
+GadgetService gadgetService(Ref ref) {
   return GadgetService(ref);
 }
 
 @riverpod
-Future<GadgetStatus> gadgetStatus(GadgetStatusRef ref, String appToken) async {
+Future<GadgetStatus> gadgetStatus(Ref ref, String appToken) async {
   var gadgetService = ref.watch(gadgetServiceProvider);
 
   createTimer() => Timer(const Duration(seconds: 10), () => ref.invalidateSelf());
@@ -53,7 +53,7 @@ Future<GadgetStatus> gadgetStatus(GadgetStatusRef ref, String appToken) async {
 }
 
 class GadgetService {
-  GadgetService(AutoDisposeRef ref) : _dio = ref.watch(octoApiClientProvider);
+  GadgetService(Ref ref) : _dio = ref.watch(octoApiClientProvider);
 
   final Dio _dio;
 

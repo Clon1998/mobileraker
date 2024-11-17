@@ -16,12 +16,12 @@ import '../data/repository/machine_hive_repository.dart';
 part 'selected_machine_service.g.dart';
 
 @riverpod
-SelectedMachineService selectedMachineService(SelectedMachineServiceRef ref) {
+SelectedMachineService selectedMachineService(Ref ref) {
   return SelectedMachineService(ref);
 }
 
 @riverpod
-Stream<Machine?> selectedMachine(SelectedMachineRef ref) {
+Stream<Machine?> selectedMachine(Ref ref) {
   ref.keepAlive();
   return ref.watch(selectedMachineServiceProvider).selectedMachine;
 }
@@ -35,7 +35,7 @@ class SelectedMachineService {
     _init();
   }
 
-  final AutoDisposeRef ref;
+  final Ref ref;
 
   final MachineHiveRepository _machineRepo;
 

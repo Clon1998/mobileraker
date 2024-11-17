@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../network/moonraker_database_client.dart';
@@ -12,8 +13,7 @@ import 'machine_settings_repository.dart';
 part 'machine_settings_moonraker_repository.g.dart';
 
 @riverpod
-MachineSettingsRepository machineSettingsRepository(
-    MachineSettingsRepositoryRef ref, String machineUUID) {
+MachineSettingsRepository machineSettingsRepository(Ref ref, String machineUUID) {
   return MachineSettingsMoonrakerRepository(
       ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
 }
