@@ -370,6 +370,7 @@ pages:
       use_offset_pos: 位置偏移
       use_offset_pos_hint: 增加一個偏移到所顯示的座標軸
       lcFullCam: 全螢幕攝像頭
+      lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
       companion: "想接收遠端通知嗎？\n了解如何在其設備上設定 Mobileraker 的Companion "
       time_format: 時間格式
@@ -421,7 +422,12 @@ pages:
     title: 編輯 {}
     import_settings: 匯入設定
     remove_printer: 移除列印機
+    could_not_fetch_additional: 無法獲取附加設置！
+    fetch_error_hint: 請確保機器是可連接的，並且 Mobileraker 已成功連接到它。
+    reset_notification_registry: 清除通知裝置註冊
+    configure_remote_connection: 配置遠端連線
     store_error:
+      title: 儲存失敗！
       message: |-
         某些欄位包含無效的值！
         請確認所有欄位的值都是有效的。
@@ -566,7 +572,9 @@ pages:
       test: 測試
       done: 完成
     title: 新增列印機
+    initial_name: 我的列印機
     select_mode:
+      body: 如果您是新手，建議使用簡易模式。然而如果您有經驗並需要使用自訂標頭、憑證等，則可以選擇進階模式。請記住，您選擇的模式不會影響應用程式本身，但它會決定如何驗證和顯示輸入，以及在加入機器時可用的選項。
       simple: 簡易
       advanced: 進階
       add_via_oe: 一鍵設定OctoEverywhere
@@ -579,7 +587,14 @@ pages:
       hint_title: 提示－進階模式
       hint_body: 請注意，在進階模式下，大多數驗證已被停用。請確保您輸入的 URL 是有效的。
       http_helper: 請輸入 Moonraker 的 HTTP 端點
+      ws_helper: 可選的，Moonraker 的 WebSocket 端點
+      section_security: 安全性
+      section_headers: HTTP－標頭
     test_connection:
+      section_connection: 連線資料
+      section_test: 連線測試
+      http_label: Http端點－測試
+      ws_label: Webscoket端點－測試
       awaiting: 等待結果...
       continue: 繼續
       continue_anyway: 仍然繼續
@@ -587,9 +602,11 @@ pages:
       button: 測試連線
     confirmed:
       title: 列印機 {} 已加入！
+      to_dashboard: 到儀表板
   console:
     title: 控制台
     card_title: GCode控制台
+    no_entries: 找不到緩存的命令
     macro_suggestions: G-Code建議
     no_suggestions: 找不到建議
     command_input:
@@ -600,3 +617,121 @@ pages:
   overview:
     title: 總覽
     no_entries: 未找到機器
+    add_machine: 加入機器
+  faq:
+    title: FAQ
+  changelog:
+    title: 變更紀錄
+  paywall:
+    manage_view:
+      title: 感謝您的支持！
+      list_title: '更改支持者等級：'
+      store_btn: 取消訂閱於{}
+      sub_warning: 請注意，購買終身支持者等級並不會自動取消任何其他啟用的訂閱。您需要手動取消任何現有的訂閱。然而，即使在購買終身支持者等級後，您仍然可以選擇繼續以定期方式支持Mobileraker的開發。
+    subscribe_view:
+      title: 成為Mobileraker支持者！
+      info: |-
+        Mobileraker 的目標是提供一個快速且可靠的 Klipper 行動裝置介面，並秉持 RepRap 精神，推動開源軟體與硬體對社會產生積極影響。
+        由於 Mobileraker 由單一開發者開發並免費提供，因此依賴社群資金來支付運營和開發成本。
+      list_title: '選擇支持者等級：'
+      subscription_info: 如果您選擇訂閱，您可以隨時取消訂閱。訂閱將在目前期間結束前自動續訂，除非您提前取消。要取消訂閱，請前往 {} 並從那裡取消訂閱。
+    contact_dialog:
+      title: 聯繫開發者
+      body: |-
+        Mail: {}
+        Discord: {}
+    calling_store: 處理請求中...
+    promo_title: 促銷方案
+    tip_developer: 打賞開發者
+    trial_disclaimer: 在免費試用結束之前，您不會被收費，並且您可以隨時取消訂閱。
+    restore_sign_in: 恢復/登入
+  tool:
+    title: 工具
+  beltTuner:
+    title: 皮帶調整器
+    description: 確保皮帶張力適當對於3D列印機的最佳性能至關重要。不正確的張力，無論是過緊還是過鬆，都可能導致機械故障、過早磨損以及影響列印質量。提供的張力值僅作為參考點；然而，建議查閱製造商的建議，以獲取針對您的列印機型號的具體指南。調整應基於這些建議以及個別列印機的需求和狀況進行。
+    beltType: '選擇您的皮帶類型：'
+    target: '目標：{} Hz於 {} mm'
+    permissionWarning:
+      title: 需要麥克風權限
+      subtitle: |-
+        皮帶調整器使用您的裝置麥克風來分析皮帶的頻率。
+
+        點擊授予權限。
+  spoolman:
+    title: Spoolman
+    spoolman_actions:
+      add_spool: 加入線捲
+    create:
+      success:
+        title: "{} 已建立！"
+        message:
+          one: 已成功建立 {}。
+          other: 已成功建立 {}。
+      error:
+        title: 建立 {} 時發生錯誤！
+        message: 未預期的錯誤，請稍後再試。
+    update:
+      success:
+        title: "已更新 {}！"
+        message: 已成功更新 {}。
+      error:
+        title: 更新 {} 時發生錯誤！
+        message: 未預期的錯誤，請稍後再試。
+      no_changes:
+        title: 沒有進行任何變更！
+        message: 未對 {} 進行任何變更。
+    delete:
+      confirm:
+        title: 要刪除 {} 嗎？
+        body: |-
+          您即將刪除 {}。
+          此操作無法撤銷。
+
+          請確認您的操作。
+      success:
+        title: "已刪除 {} ！"
+        message:
+          one: 已成功刪除 {}。
+          other: 已成功刪除 {}。
+      error:
+        title: 刪除 {} 時發生錯誤！
+        message: 未預期錯誤，請稍後再試。
+    spool:
+      one: 線捲
+      other: 線捲
+    filament:
+      one: 線材
+      other: 線材
+    vendor:
+      one: 製造商
+      other: 製造商
+    properties:
+      id: ID
+      name: 名稱
+      registered: 已登記
+      comment: 註解
+      material: 材料
+      price: 價格
+      density: 密度
+      diameter: 線徑
+      weight: 重量
+      spool_weight: 線捲重量
+      article_number: 製造編號
+      first_used: 首次使用
+      last_used: 上次使用
+      remaining_weight: 剩餘重量
+      used_weight: 已使用重量
+      remaining_length: 剩餘長度
+      used_length: 已使用長度
+      location: 位置
+      lot_number: 批號
+      color: 顏色
+    property_sections:
+      basic: 基本資訊
+      usage: 使用量細節
+      additional: 附加資訊
+      physical: 實體屬性
+      print_settings: 列印設定
+    vendor_details:
+      page_title: 製造商 {}
