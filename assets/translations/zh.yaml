@@ -263,15 +263,21 @@ pages:
         body: 文件已成功建立。
       zipping_failed:
         title: 壓縮失敗
+        body: 嘗試建立檔案時發生錯誤，請稍後重試。
     cancel_fab:
       download: 取消下載
     no_matches_file_pattern: 只允許使用英文字母、數字、底線、破折號和點！。
+    element:
+      one: 元素
+      other: 元素
     details:
+      print: 列印
       general_card:
         last_mod: 上次修改
         last_printed: 上次列印
         no_data: 沒有資料
       meta_card:
+        title: GCode 中繼資料
         filament: 線材
         filament_type: 類型
         filament_name: 名稱
@@ -285,6 +291,11 @@ pages:
         others: 其他
       stat_card:
         title: 統計
+      preheat_dialog:
+        body: |-
+          目標溫度
+          擠出機： {}°C
+          熱床： {}°C
       preheat_snackbar:
         title: 開始預熱
         body: |-
@@ -298,6 +309,7 @@ pages:
         material_mismatch_body: |-
           此檔案使用材料 {} 與使用中的線盤材料 {} 不相符，點選來更換要使用的線材。
   setting:
+    title: App - 設定
     general:
       title: 一般
       ems_confirm: 確認緊急停止
@@ -359,5 +371,41 @@ pages:
       crashlytics: 啟用 Crashlytics 報告
     imprint: 隱私權政策 / 法律聲明
   printer_edit:
+    general:
+      printer_addr: 列印機－位址
+      moonraker_api_key: Moonraker－API 金鑰
+      moonraker_api_desc: 僅在使用受信任的使用端時需要。FluiddPI 強制執行此設定！
+      full_url: 完整URL
+      timeout_label: 使用端逾時設定
+      timeout_helper: 使用端連線的逾時秒數
+      theme: 介面主題
+      theme_helper: 列印機的介面主題
+      theme_unavailable: 打印機的使用者介面主題，僅限支持者使用
+    ssl:
+      title: SSL－設定
+      pin_certificate_label: 憑證綁定
+      pin_certificate_helper: 選擇一個 PEM 格式的憑證檔案以進行 SSL 綁定
+      self_signed: 信任自簽名憑證
+    motion_system:
+      title: 運動系統
+      invert_x: 反轉X軸
+      invert_x_short: 反轉X
+      invert_y: 反轉Y軸
+      invert_y_short: 反轉Y
+      invert_z: 反轉Z軸
+      invert_z_short: 反轉Z
     extruders:
+      title: 擠出機
+      feedrate: 擠出機速度
+      feedrate_short: 速度
       steps_extrude: 擠出步驟
+      filament:
+        loading_distance: 擠出機噴嘴距離
+        loading_distance_helper: 從噴嘴到擠出機的距離，用於裝載或卸載線材
+        loading_speed: "(卸載)裝載速度"
+        loading_speed_helper: 從噴嘴到擠出機的線材裝載和卸載速度
+        purge_amount: 清理長度
+        purge_amount_helper: 清理的線材長度
+    confirm_fcm_reset:
+      title: 清除通知設備註冊嗎？
+      body: "您即將重置設備註冊，該註冊用於確定Companion 應用程式將通知發送到哪些設備。 要重新建立推送通知，您需要在所有設備上重新啟動應用程式並再次將它們連接到機器。"
