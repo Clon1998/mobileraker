@@ -127,6 +127,7 @@ pages:
         m84_btn: M84
         step_size: 步進尺寸
         stc_tooltip: 執行螺絲-傾斜計算
+        stc_btn: STC
         ztilt_tooltip: 執行Z-傾斜計算
         ztilt_btn: z傾斜
         poff_tooltip: 執行探針偏移校準
@@ -140,7 +141,7 @@ pages:
         more_btn: 更多
         homed: 已歸位的軸
       baby_step_card:
-        title: 微調z軸
+        title: 微調Z軸
         z_offset: Z偏移
       restart_klipper: 重啟Klipper
       restart_mcu: "@:general.restart @:general.firmware"
@@ -153,21 +154,21 @@ pages:
         part_fan: 列印件冷卻風扇
         static_fan_btn: 風扇
       extrude_card:
-        title: 擠出頭
+        title: 擠出機
         extrude: 擠出
         retract: 回抽
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
         cold_extrude_error: 擠出頭尚未達到最低擠出溫度（ {}°C ）
       macro_card:
-        title: G碼 - 巨集
+        title: Gcode－巨集
         no_macros: 目前在此群組中沒有可見的巨集
-        add_grp_hint: 您可建立不同群組來編組您的巨集。只需至列表機設定中並新增群組。
+        add_grp_hint: 您可建立不同群組來編組您的巨集。只需至列印機設定中並新增群組。
         show_all_tooltip: 顯示所有巨集
       pin_card:
         title_misc: 雜項
         pin_btn: Pin
         filament_sensor:
-          detected: 已刪除
+          detected: 已偵測到
           not_detected: 空白
       power_card:
         title: 電源面板
@@ -204,14 +205,14 @@ pages:
           將不追蹤線材用量。
         select_spool: 選擇料盤
         used: '已使用：{}'
-        provider_error_title: 取得Spoolman資料時發生錯誤
+        provider_error_title: 獲取Spoolman資料時發生錯誤
       gcode_preview_card:
         title: GCode預覽
         follow: 跟隨進度
-        kinematic_not_supported: 目前應用程式不支援此印表機的運動學系統的 GCode 渲染。
+        kinematic_not_supported: 目前app不支援此印表機的運動學系統的 GCode 渲染。
         start_preview:
           btn: 開始預覽
-          hint: 應用程式將下載目前的列印檔案並嘗試進行渲染。
+          hint: App將下載目前的列印檔案並嘗試進行渲染。
   customizing_dashboard:
     title: 個性化儀表板
     cancel_confirm:
@@ -222,7 +223,7 @@ pages:
     add_card: 增加卡片
     remove_page: 移除頁面
     saved_snack:
-      title: 排版已儲存！
+      title: 佈局已儲存！
       body: 您的變更已經儲存。
     cant_remove_snack:
       title: 無法移除頁面！
@@ -234,11 +235,11 @@ pages:
       title: 編輯模式
       body: 現在您可重新排序、新增和刪除卡片及頁面。所有卡片顯示預覽資料。
     error_save_snack:
-      title: 儲存版面錯誤！
-      body: 嘗試儲存排版時發生錯誤。
+      title: 儲存佈局時發生錯誤！
+      body: 嘗試儲存佈局時發生錯誤。
     error_no_components:
-      title: 版面空白！
-      body: 您尚未新增任何小工具。至少新增一個小工具以儲存排版。
+      title: 佈局為空白！
+      body: 您尚未新增任何小工具。至少新增一個小工具以儲存佈局。
   files:
     title: 檔案
     empty_folder:
@@ -260,11 +261,11 @@ pages:
       create_folder: 建立資料夾
       upload: 上傳檔案
       upload_bulk: 上傳多個檔案
-      zip_file: 建立文件
+      zip_file: 建立壓縮檔
     gcode_file_actions:
       submit: 送出列印工作
       preheat: 預熱
-      enqueue: 新增至列印佇列
+      enqueue: 加入至列印佇列
       preview: 預覽
     file_operation:
       download_canceled:
@@ -284,11 +285,12 @@ pages:
         body: 嘗試上傳檔案時發生錯誤，請稍後重試。
       zipping_success:
         title: 壓縮成功
-        body: 文件已成功建立。
+        body: 已成功建立壓縮檔。
       zipping_failed:
         title: 壓縮失敗
-        body: 嘗試建立檔案時發生錯誤，請稍後重試。
+        body: 嘗試建立壓縮檔案時發生錯誤，請稍後重試。
       copy_created:
+        title: 已建立複製檔案
         body: 複製已成功建立於 '{}'。
       move_success:
         title: 移動成功
@@ -308,7 +310,7 @@ pages:
       download: 取消下載
     move_here: 移動到這裡
     copy_here: 複製到這裡
-    no_matches_file_pattern: 只允許使用英文字母、數字、底線、破折號和點！。
+    no_matches_file_pattern: 只允許使用英文字母、數字、底線、破折號和點！
     gcode_tab: GCode
     config_tab: 設定檔
     timelapse_tab: 縮時攝影
@@ -352,7 +354,7 @@ pages:
         insufficient_filament_title: 線材不足
         insufficient_filament_body: |-
           正在使用中的線盤只剩下 {} 線材，這對列印此檔案來說是不足的。點選以變更要使用的線盤。
-        material_mismatch_title: 材質不相符
+        material_mismatch_title: 材料不相符
         material_mismatch_body: |-
           此檔案使用材料 {} 與使用中的線盤材料 {} 不相符，點選來更換要使用的線材。
   setting:
@@ -360,16 +362,16 @@ pages:
     general:
       title: 一般
       ems_confirm: 確認緊急停止
-      ems_confirm_hint: 在傳送緊急停止命令前顯示確認對話方塊
+      ems_confirm_hint: 在傳送緊急停止命令前顯示確認對話框
       always_baby: 始終顯示Z偏移卡片頁面
       always_baby_hint: 始終在儀表板上顯示Z偏移卡片頁面
       num_edit: 數字輸入模式
       num_edit_hint: 使用數字鍵盤輸入數值，而非滑桿
       start_with_overview: 將 @:pages.overview.title 設定為起始頁面
-      start_with_overview_hint: 啟動應用程式時顯示概覽頁面，而非啟動列印機的儀表板
+      start_with_overview_hint: 啟動app時顯示總覽頁面，而非啟動列印機的儀表板
       use_offset_pos: 位置偏移
       use_offset_pos_hint: 增加一個偏移到所顯示的座標軸
-      lcFullCam: 全螢幕攝像頭
+      lcFullCam: 全螢幕攝影機畫面
       lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
       companion: "想接收遠端通知嗎？\n了解如何在其設備上設定 Mobileraker 的Companion "
@@ -422,6 +424,7 @@ pages:
     title: 編輯 {}
     import_settings: 匯入設定
     remove_printer: 移除列印機
+    no_values_found: 未找到任何值！
     could_not_fetch_additional: 無法獲取附加設置！
     fetch_error_hint: 請確保機器是可連接的，並且 Mobileraker 已成功連接到它。
     reset_notification_registry: 清除通知裝置註冊
@@ -446,7 +449,7 @@ pages:
       timeout_helper: 使用端連線的逾時秒數
       theme: 介面主題
       theme_helper: 列印機的介面主題
-      theme_unavailable: 打印機的使用者介面主題，僅限支持者使用
+      theme_unavailable: 列印機的介面主題，僅限支持者使用
     ssl:
       title: SSL－設定
       pin_certificate_label: 憑證綁定
@@ -538,13 +541,13 @@ pages:
     wifi_access_warning:
       title: WiFi資訊不可用
       subtitle: |-
-        要確保Mobileraker是否應使用遠程連接，請授予位置存取權限。這樣應用程式可以獲取目前WiFi網路的名稱。
+        要確保Mobileraker是否應使用遠程連接，請授予位置存取權限。這樣app可以獲取目前WiFi網路的名稱。
 
         點擊以授予權限。
     local_ssid:
-      section_header: 智能切換
+      section_header: 智慧切換
       no_ssids: 未加入 WiFi 名稱！
-      helper: 智能切換使應用程式根據目前的 WiFi 網路自動在本地和遠端連接之間切換。要啟用此功能，請將您家中的 WiFi 名稱加入到列表中。
+      helper: 智慧切換使app根據目前的 WiFi 網路自動在本地和遠端連接之間切換。要啟用此功能，請將您家中的 WiFi 名稱加入到列表中。
       dialog:
         title_add: 將 WiFi 名稱加入到列表
         title_edit: 編輯WiFi名稱
@@ -552,7 +555,7 @@ pages:
         quick_add_hint: '提示：要快速加入目前的 WiFi 名稱，長按打開此對話框的按鈕。'
       error_fetching_snackbar:
         title: 獲取 WiFi 名稱時發生錯誤！
-        body: 請確保應用程式已獲得必要的權限來存取裝置的 WiFi 狀態。
+        body: 請確保app已獲得必要的權限來存取裝置的 WiFi 狀態。
     temp_ordering:
       title: 溫度感測器介面排序
       helper: 更改儀表板上溫度感測器的順序。
@@ -562,9 +565,9 @@ pages:
       helper: 變更儀表板上風扇的排列順序
       no_fans: 未找到風扇！
     misc_ordering:
-      title: 其他項元素界面排序
-      helper: 更改儀表板上其他項元素的順序。
-      no_controls: 未找到其他項元素！
+      title: 雜項元素界面排序
+      helper: 更改儀表板上雜項元素的順序。
+      no_controls: 未找到雜項元素！
   printer_add:
     steps:
       mode: 模式
@@ -574,6 +577,7 @@ pages:
     title: 新增列印機
     initial_name: 我的列印機
     select_mode:
+      title: '選擇輸入模式：'
       body: 如果您是新手，建議使用簡易模式。然而如果您有經驗並需要使用自訂標頭、憑證等，則可以選擇進階模式。請記住，您選擇的模式不會影響應用程式本身，但它會決定如何驗證和顯示輸入，以及在加入機器時可用的選項。
       simple: 簡易
       advanced: 進階
@@ -590,6 +594,7 @@ pages:
       ws_helper: 可選的，Moonraker 的 WebSocket 端點
       section_security: 安全性
       section_headers: HTTP－標頭
+      empty_headers: 未加入標頭！
     test_connection:
       section_connection: 連線資料
       section_test: 連線測試
@@ -660,8 +665,24 @@ pages:
         點擊授予權限。
   spoolman:
     title: Spoolman
+    not_available: "Spoolman 在這台列印機上不可用。\n請確保 Spoolman 已經安裝並啟用在您的列印機上。"
+    learn_more: 若要了解更多關於 Spoolman 及如何安裝，請造訪該專案的
+    learn_more_link: GitHub頁面。
+    no_spools: 未找到線盤！
+    no_filaments: 未找到線材！
+    no_vendors: 未找到製造商！
+    error_loading_spools: 載入線盤時發生錯誤
+    error_loading_filaments: 載入線材時發生錯誤
     spoolman_actions:
-      add_spool: 加入線捲
+      deactivate: 未使用
+      clone: 建立副本
+      edit: "@:general.edit"
+      archive: 封存
+      unarchive: 解除封存
+      adjust: 調整線材量
+      share_qr: 分享QR碼
+      delete: "@:general.delete"
+      add_spool: 加入線盤
       add_filament: 加入線材
     create:
       success:
@@ -878,9 +899,59 @@ dialogs:
     fetching: 獲取來源...
     fetching_error_title: 無法獲取設定
     fetching_error_sub: 確保其他機器已連接。
+    select_source: 選擇來源
+  create_folder:
+    title: 建立資料夾
+    label: 資料夾名稱
+  delete_folder:
+    title: 您確定嗎？
+  rename_folder:
+    title: 重新命名資料夾
+    label: 資料夾名稱
+  copy_folder:
+    title: 複製資料夾
+    label: 資料夾名稱
+  create_file:
+    title: 建立檔案
+    label: 檔案名稱
+  create_archive:
+    title: 建立封存
+    label: 封存名稱
+  exclude_object:
+    confirm_tile_title: 您確定嗎？
+    confirm_tile_subtitle: 此操作無法還原！
+    exclude: 排除
+  gcode_params:
+    confirm_title: 執行 {}？
+    confirm_body: |-
+      您即將執行巨集“{}”。
+
+      請確認您的操作。
+  rgbw:
+    recent_colors: 最近使用的顏色
+  select_machine:
+    title: 選擇機器
+    active_machine: '使用中的機器：{}'
+    hint: 點擊一台機器將其設為啟用。
   supporter_perks:
+    title: 支持者福利
+    body: 通過支持 Mobileraker，您幫助確保該應用能夠免費供社群使用。此外，支持者還可以獲得以下福利。
+    hint: '提示：目前，福利是基於裝置的。未來可能會有所變更。'
+    theme_perk:
+      title: 支持者主題
+    notification_perk:
+      title: 快照通知
+    webrtc_perk:
+      title: 支援WebRtc
+    job_queue_perk:
+      title: 工作佇列
+      subtitle: 在 Mobileraker 中管理 Moonraker 的工作佇列！
     unlimited_printers_perk:
       title: 無限制的印表機數量
+      subtitle: 使用 Mobileraker 控制您想要的任意數量的 3D列印機！
+    printer_theme_perk:
+      title: 列印機基本主題
+      subtitle: 為每台列印機選擇不同的主題！
     custom_dashboard_perk:
       title: 自訂儀表板
       subtitle: 自訂儀表板以符合您的需求！
@@ -890,9 +961,24 @@ dialogs:
   bed_screw_adjust:
     title: 床台螺絲調整
     xy_plane: '列印機X/Y平面：'
+    active_screw_title: '使用中的調整螺絲：'
+    accept_screw_title: '已接受的調整螺絲：'
     hint: 如果需要對目前螺絲進行重大調整，請點擊「調整」；否則，請點擊「接受」以繼續。
+    adjusted_btn: 已調整
+  manual_offset:
+    hint_tooltip: Klipper的紙張測試文件
+    snackbar_title: 校準完成
+    snackbar_message: 確保通過「儲存配置」操作來永久化偏移量。
+  tipping:
+    title: 打賞開發者！
+    body: 這個打賞僅僅是用來感謝開發者的努力，並不會授予額外的功能。
+    amount_label: 打賞金額
+    tip: 打賞
+  http_header:
+    header: 標頭
   macro_settings:
     show_for_states: 列印機狀態
+    show_for_states_hint: 選擇應顯示巨集的狀態
   extruder_feedrate:
     title: 擠出機速度 [mm/s]
   fan_speed:
@@ -909,7 +995,26 @@ dialogs:
     steps:
       set_temps:
         subtitle: 選擇目標溫度
+  confirm_print_cancelation:
+    body: |-
+      您即將取消列印工作。
+
+      確認您的操作。
+  adjust_spool_filament:
+    title: 調整線捲線材
+    subtitle: 從線盤中增加或減少線材。正值會消耗線材，負值會增加線材。
+    input_label: 調整數量
+    submit_label: 調整
+    tooltip:
+      weight: 切換至重量模式
+      length: 切換至長度模式
 bottom_sheets:
+  job_queue_sheet:
+    next: 下個列印工作
+    start_queue: 開始佇列
+    pause_queue: 暫停佇列
+    remove_all: 清除佇列
+    remove_all_confirm: 此操作將從佇列中移除所有工作。
   add_remote_con:
     octoeverywehre:
       service_name: OctoEverywhere
@@ -943,18 +1048,76 @@ bottom_sheets:
       sign_in: 登入
       sign_up: 註冊
       reset_password: 重設密碼
+    email:
+      label: Email
+      hint: 您的Email地址
+    password:
+      label: 密碼
+      hint: 您的密碼
+    confirm_password:
+      label: 確認密碼
+      hint: 確認您的密碼
+      error: 密碼不相符！
+  profile:
+    title: 您已登入
+    description: 歡迎回來！您的使用者帳號是提升任何行動裝置體驗的關鍵。輕鬆分享您的支持者身份，無論您使用手機、平板或其他裝置，都能輕鬆享受專屬權益。
+    restore_purchases: 恢復購買紀錄
+    restore_success: 已成功恢復購買紀錄！
+    sign_out: 登出
+    delete_account: 刪除帳號
+    email_verification:
+      title:
+        pending: 傳送驗證Email
+    delete_account_dialog:
+      title: 刪除帳號？
+  bedMesh:
+    no_mesh_loaded: 尚未加載床面網格。
+    load_bed_mesh_profile: 讀取床面網格設定檔
+    no_mesh: 無網格
+    clear_loaded_profile: 清除已載入的設定檔
+  select_spool:
+    header:
+      spools: 線盤
+      qr: QR碼
+  selections:
+    no_selections:
+      subtitle: 嘗試不同的搜尋詞
+klipper_state:
+  ready: 就緒
+  shutdown: 關機
+  error: 錯誤
+  unauthorized: 未授權
+  initializing: 正在初始化
 print_state:
   standby: 待機
   printing: 列印中
   paused: 暫停
   complete: 完成
+  cancelled: 已取消
+  error: 錯誤
 theme_mode:
+  light: 亮
+  dark: 暗
   system: 系統
 notifications:
   channel_printer_grp: 列印機 {}
   channels:
     status:
       name: 列印狀態更新－{}
+      desc: 有關列印狀態的通知。
+      title: '{} 的列印狀態已變更！'
+      body_printing: '開始列印檔案："{}"'
+      body_paused: '暫停列印檔案："{}"'
+      body_complete: '完成列印檔案："{}"'
+      body_error: '列印檔案："{}" 時發生錯誤'
+    progress:
+      name: 列印進度更新－{}
+      desc: 有關列印進度的通知。
+      title: 列印進度：{}
+form_validators:
+  simple_url: '輸入僅允許 URL元件：主機名稱和連接埠。'
+  disallow_mdns: 不支援 mDNS (.local) 位址
+  file_name_in_use: 檔案名稱已經在使用中
 date:
   year:
     one: 年
