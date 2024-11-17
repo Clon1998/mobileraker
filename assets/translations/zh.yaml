@@ -55,7 +55,7 @@ general:
   archived: 已封存
   leave: 離開
   export: 匯出
-  import: 匯入
+  import: 匯出
   current: 目前
   load: 載入
   unload: 卸載
@@ -208,7 +208,7 @@ pages:
         provider_error_title: 獲取Spoolman資料時發生錯誤
       gcode_preview_card:
         title: GCode預覽
-        follow: 跟隨進度
+        follow: 追蹤進度
         kinematic_not_supported: 目前app不支援此印表機的運動學系統的 GCode 渲染。
         start_preview:
           btn: 開始預覽
@@ -720,8 +720,8 @@ pages:
         title: 刪除 {} 時發生錯誤！
         message: 未預期錯誤，請稍後再試。
     spool:
-      one: 線捲
-      other: 線捲
+      one: 線盤
+      other: 線盤
     filament:
       one: 線材
       other: 線材
@@ -731,27 +731,27 @@ pages:
     properties:
       id: ID
       name: 名稱
-      registered: 已登記
-      comment: 註解
+      registered: 登記於
+      comment: 備註
       material: 材料
       price: 價格
       density: 密度
       diameter: 線徑
       weight: 重量
-      spool_weight: 線捲重量
-      article_number: 製造編號
+      spool_weight: 線盤重量
+      article_number: 商品條碼
       first_used: 首次使用
       last_used: 上次使用
       remaining_weight: 剩餘重量
-      used_weight: 已使用重量
+      used_weight: 已用重量
       remaining_length: 剩餘長度
-      used_length: 已使用長度
+      used_length: 已用長度
       location: 位置
       lot_number: 批號
       color: 顏色
     property_sections:
       basic: 基本資訊
-      usage: 使用量細節
+      usage: 用量細節
       additional: 附加資訊
       physical: 實體屬性
       print_settings: 列印設定
@@ -772,13 +772,13 @@ pages:
         body: 此線盤已封存，無法用於新的列印。
       alternative_spool:
         same_filament: 替代線盤(相同線材)
-        same_material: 替代線捲(相同製造商)
+        same_material: 替代線盤(相同製造商)
     spool_form:
       create_page_title: 建立線盤
       update_page_title: 編輯線盤
       helper:
-        used_weight: 已使用的耗材重量。若為 0 克，則表示該線捲尚未使用。
-        location: 您存放線捲的位置
+        used_weight: 已使用的線材重量。若為 0 克，則表示該線盤尚未使用。
+        location: 您存放線盤的位置
         lot_number: 製造商的批次號碼。可用於確保使用多個線盤時，列印顏色的一致性。
     filament_form:
       create_page_title: 建立線材
@@ -905,23 +905,47 @@ dialogs:
     label: 資料夾名稱
   delete_folder:
     title: 您確定嗎？
+    description: |-
+      該資料夾中的所有檔案也將被刪除！
+
+      確認刪除資料夾 '/{}'。
   rename_folder:
     title: 重新命名資料夾
     label: 資料夾名稱
   copy_folder:
     title: 複製資料夾
     label: 資料夾名稱
+  delete_file:
+    description: 確認刪除檔案 '{}'。
+  rename_file:
+    title: 重新命名檔案
+    label: 檔案名稱
+  copy_file:
+    title: 複製檔案
+    label: 檔案名稱
   create_file:
     title: 建立檔案
     label: 檔案名稱
   create_archive:
-    title: 建立封存
-    label: 封存名稱
+    title: 建立壓縮檔
+    label: 壓縮檔名稱
+  delete_files:
+    description: 確認刪除檔案 '{}'。
   exclude_object:
+    title: 從列印中排除物件
+    label: 要排除的物件
     confirm_tile_title: 您確定嗎？
     confirm_tile_subtitle: 此操作無法還原！
     exclude: 排除
+    no_visualization: 沒有可用的視覺化資料！
+  ws_input_help:
+    title: URL 輸入幫助
+    body: |-
+      您可以輸入 IP 地址、URL 或完整的 URI 來指向您的網頁介面，或直接指向由 Moonraker 提供的 WebSocket 實例。
+
+      有效範例：
   gcode_params:
+    hint: '提示：如果您想送出具有預設值的巨集，可以長按！'
     confirm_title: 執行 {}？
     confirm_body: |-
       您即將執行巨集“{}”。
@@ -939,15 +963,21 @@ dialogs:
     hint: '提示：目前，福利是基於裝置的。未來可能會有所變更。'
     theme_perk:
       title: 支持者主題
+      subtitle: 獨家主題，使用 Material 3 設計風格
+    contact_perk:
+      title: 開發者聯繫
+      subtitle: 輕鬆聯繫開發者！
     notification_perk:
       title: 快照通知
+      subtitle: 狀態通知包含攝影機快照
     webrtc_perk:
       title: 支援WebRtc
+      subtitle: 允許使用 WebRtc 攝影機！
     job_queue_perk:
       title: 工作佇列
       subtitle: 在 Mobileraker 中管理 Moonraker 的工作佇列！
     unlimited_printers_perk:
-      title: 無限制的印表機數量
+      title: 無限制的列印機數量
       subtitle: 使用 Mobileraker 控制您想要的任意數量的 3D列印機！
     printer_theme_perk:
       title: 列印機基本主題
@@ -975,27 +1005,69 @@ dialogs:
     amount_label: 打賞金額
     tip: 打賞
   http_header:
+    title: Http標頭
     header: 標頭
+    header_hint: HTTP標頭名稱
+    value: 標頭值
+    value_hint: 標頭的值
   macro_settings:
     show_for_states: 列印機狀態
     show_for_states_hint: 選擇應顯示巨集的狀態
+    visible: 可見
   extruder_feedrate:
     title: 擠出機速度 [mm/s]
   fan_speed:
     title: 編輯 {} %
   filament_sensor_triggered:
+    title: 線材感測器已觸發
     body: |-
       感測器 {} 已被觸發。
+  screws_tilt_adjust:
+    hint: "這個對話框幫助您調整床台的螺絲。對於每個螺絲，您將看到需要的調整量，格式為 HH\n，表示時鐘的方向。例如，01:15 表示旋轉一圈再加上一個四分之一圈，按照圖示指示的方向調整。"
+  dashboard_page_settings:
+    title: 儀表板頁面設定
+    icon_label: '為此頁面選擇一個圖示：'
   filament_switch:
     title:
       load: 線材裝載精靈
       unload: 線材卸載精靈
     controls:
+      heat_up: 加熱中
+      change_temp: 變更溫度
+      purge: 清除
       repeat_load: 重複裝載
+      repeat_unload: 重複卸載
+      repeat_purge: 重複清除
     steps:
       set_temps:
+        title: 線材溫度
         subtitle: 選擇目標溫度
+      heat_up:
+        title: 工具頭加熱中
+        subtitle: 正在加熱至目標溫度
+      move:
+        title:
+          load: 裝載線材
+          unload: 卸載線材
+        subtitle:
+          load:
+            idle: 將線材插入擠出機
+            processing: 裝載線材中...
+            processed: 已經到達噴嘴嗎？如果需要，請重複操作。
+          unload:
+            idle: 將線材移出擠出機
+            processing: 卸載線材中...
+            processed: 是否已從擠出機中退出線材？如果需要，請重複操作。
+      purge:
+        title: 清理線材
+        subtitle:
+          idle: 裝載線材至噴嘴中
+          processing: 清理線材中...
+          processed: 確認清理過的線材是否乾淨。如有需要，請重複操作。
+  heater_temperature:
+    title: "{} 溫度 [°C]"
   confirm_print_cancelation:
+    title: 取消列印？
     body: |-
       您即將取消列印工作。
 
@@ -1008,14 +1080,23 @@ dialogs:
     tooltip:
       weight: 切換至重量模式
       length: 切換至長度模式
+  num_range_dialog:
+    helper:
+      min: 輸入至少 {} 的數值
+      range: 輸入介於 {} 和 {} 之間的數值
 bottom_sheets:
   job_queue_sheet:
     next: 下個列印工作
+    empty: 工作佇列為空。您可以通過檔案瀏覽器加入工作。
     start_queue: 開始佇列
     pause_queue: 暫停佇列
     remove_all: 清除佇列
     remove_all_confirm: 此操作將從佇列中移除所有工作。
   add_remote_con:
+    disclosure: "{service} 與 Mobileraker 無關。它可能需要額外的訂閱。請查閱 {service} 的網站以獲取更多資訊。"
+    active_service_info:
+      title: 發現現有配置檔！
+      body: 您目前使用的是 {} 作為遠端連線服務。在增加新服務之前，請先將其移除。
     octoeverywehre:
       service_name: OctoEverywhere
       link: 連結OctoEverywhere
@@ -1024,7 +1105,11 @@ bottom_sheets:
     manual:
       service_name: 手動設定遠端連線
       tab_name: 手動
+      description: 如果您是進階使用者，您可以選擇手動加入替代連線。當嘗試連線到主要位址失敗時，替代連線將生效。這在您使用反向代理連接到列印機，或擁有可以用來連接列印機的次要 IP 位址時非常有用。
+      address_label: 替代位址
+      address_hint: 將要使用的遠端連線的基本位址
     obico:
+      service_name: Obico
       link: 連結Obico
       unlink: 取消連結Obico
       description: Obico 是一款由社群驅動的完全開源 3D 列印軟體。它讓您可以隨時隨地控制和監控您的 Klipper 列印機，且完全免費。作為 AI 基於失敗檢測的先驅解決方案之一，Obico 僅使用您的列印機網路攝影機進行檢測。
@@ -1068,17 +1153,28 @@ bottom_sheets:
     email_verification:
       title:
         pending: 傳送驗證Email
+        not_verified: 電子郵件未驗證
+      description: 請驗證您的電子郵件地址，以確保您始終可以存取您的帳號。
+      send: 傳送驗證信
     delete_account_dialog:
       title: 刪除帳號？
+      body: 您即將刪除您的帳號。此操作無法撤銷。
   bedMesh:
     no_mesh_loaded: 尚未加載床面網格。
     load_bed_mesh_profile: 讀取床面網格設定檔
     no_mesh: 無網格
     clear_loaded_profile: 清除已載入的設定檔
+    cant_render: 目前尚不支援列印機運動學的床面網格渲染。
   select_spool:
     header:
       spools: 線盤
       qr: QR碼
+    no_spools: 未找到線盤。請將線盤加入到 Spoolman
+    error: '載入線盤時發生錯誤：{}'
+    qr_loading: 正在載入 QR 掃描器...
+    qr_error: '載入 QR 掃描器時發生錯誤：{}'
+    scan_again: 重新掃描
+    set_active: 設為使用中
   selections:
     no_selections:
       subtitle: 嘗試不同的搜尋詞
