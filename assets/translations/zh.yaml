@@ -74,13 +74,14 @@ pages:
     server_status:
       unavailable: 沒有可用的伺服器
       available: 伺服器狀態為 {} 且Klippy為 {}
+    fetching_printer: "@:general.fetching 列印機..."
     general:
       print_card:
         reset: 重設
         reprint: 重新列印
         printing_for: '列印中： {}'
         speed: 速度
-        layer: 層
+        layer: 層數
         eta: 預計完成時間
         current_object: 目前物件
         elapsed: 經過的
@@ -168,7 +169,7 @@ pages:
         title_misc: 雜項
         pin_btn: Pin
         filament_sensor:
-          detected: 已偵測到
+          detected: 監測中
           not_detected: 空白
       power_card:
         title: 電源面板
@@ -338,9 +339,14 @@ pages:
         layer_higher: 層高
         first_layer: 首層
         others: 其他
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer－溫度"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: 統計
       preheat_dialog:
+        title: "@:pages.files.details.preheat ？"
         body: |-
           目標溫度
           擠出機： {}°C
@@ -375,6 +381,8 @@ pages:
       lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
       companion: "想接收遠端通知嗎？\n了解如何在其設備上設定 Mobileraker 的Companion "
+      sliders_grouping: 編組滑桿卡片
+      sliders_grouping_hint: 編組所有滑桿在一張卡片中
       time_format: 時間格式
       system_theme: 介面主題
       system_theme_mode: 主題亮度
@@ -468,6 +476,7 @@ pages:
       speed_z: Z軸速度
       speed_z_short: Z速度
       steps_move: 移動距離
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Z偏移距離
       steps_baby_short: Z距離
     extruders:
@@ -475,6 +484,7 @@ pages:
       feedrate: 擠出機速度
       feedrate_short: 速度
       steps_extrude: 擠出長度
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: 擠出機噴嘴距離
         loading_distance_helper: 從噴嘴到擠出機的距離，用於裝載或卸載線材
@@ -512,6 +522,8 @@ pages:
       macro_removed: 找不到該巨集，將會在稍後自動刪除。
     presets:
       no_presets: 未加入預設集！
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend 溫度"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed 溫度"
       new_preset: 新增預設集
     confirm_fcm_reset:
       title: 清除通知設備註冊嗎？
@@ -523,6 +535,9 @@ pages:
       body:
         oe: 請確認解除將列印機 {} 與 OctoEverywhere 的連結。
         other: 請確認移除列印機 {} 的遠端連線。
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
     remote_interface_exists:
       title: 發現遠端連線
       body:
@@ -623,6 +638,9 @@ pages:
     title: 總覽
     no_entries: 未找到機器
     add_machine: 加入機器
+  markdown:
+    error: 嘗試獲取 {} 時發生錯誤；
+    open_in_browser: 在瀏覽器中開啟 @:pages.faq.title
   faq:
     title: FAQ
   changelog:
@@ -640,11 +658,15 @@ pages:
         由於 Mobileraker 由單一開發者開發並免費提供，因此依賴社群資金來支付運營和開發成本。
       list_title: '選擇支持者等級：'
       subscription_info: 如果您選擇訂閱，您可以隨時取消訂閱。訂閱將在目前期間結束前自動續訂，除非您提前取消。要取消訂閱，請前往 {} 並從那裡取消訂閱。
+    supporter_tier_list:
+      error_title: 載入支持者等級時發生錯誤！
+      error_body: 抱歉，發生了意外錯誤。無法載入支持者等級。請稍後再試！
     contact_dialog:
       title: 聯繫開發者
       body: |-
         Mail: {}
         Discord: {}
+    title: 支持開發者！
     calling_store: 處理請求中...
     promo_title: 促銷方案
     tip_developer: 打賞開發者
@@ -777,6 +799,9 @@ pages:
       create_page_title: 建立線盤
       update_page_title: 編輯線盤
       helper:
+        price: "@:pages.spoolman.filament_form.helper.price 如果未設定，則預設為線材的價格。"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight 如果未設定，則預設為線材的重量。"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight 如果未設定，則預設為線材或製造商的線捲重量。"
         used_weight: 已使用的線材重量。若為 0 克，則表示該線盤尚未使用。
         location: 您存放線盤的位置
         lot_number: 製造商的批次號碼。可用於確保使用多個線盤時，列印顏色的一致性。
@@ -784,7 +809,7 @@ pages:
       create_page_title: 建立線材
       update_page_title: 編輯線材
       helper:
-        price: 一捲線材的價格
+        price: 整捲線材的價格。
         initial_weight: 這是整捲線材的淨重，排除線盤的重量。通常會標示在包裝上。
         empty_weight: 空線盤的重量。
     vendor_form:
@@ -845,7 +870,7 @@ components:
     tooltip: 使用Obico通道！
   gcode_preview:
     layer:
-      one: 層
+      one: 層數
       other: 層
     move:
       one: 移動
