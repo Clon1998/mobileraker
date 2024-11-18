@@ -40,7 +40,7 @@ general:
   valid: 有效
   invalid: 無效
   free: 免費
-  one_time: 一次
+  one_time: 一次性
   delete: 刪除
   clear: 清除
   unlink: 未連結
@@ -433,6 +433,7 @@ pages:
     import_settings: 匯入設定
     remove_printer: 移除列印機
     no_values_found: 未找到任何值！
+    fetching_additional_settings: "0"
     could_not_fetch_additional: 無法獲取附加設置！
     fetch_error_hint: 請確保機器是可連接的，並且 Mobileraker 已成功連接到它。
     reset_notification_registry: 清除通知裝置註冊
@@ -636,9 +637,11 @@ pages:
       body: 嘗試獲取控制台資料時發生錯誤，請稍後再試！
   overview:
     title: 總覽
+    fetching_machines: "@:general.fetching 機器…"
     no_entries: 未找到機器
     add_machine: 加入機器
   markdown:
+    loading: "@:general.loading {}…"
     error: 嘗試獲取 {} 時發生錯誤；
     open_in_browser: 在瀏覽器中開啟 @:pages.faq.title
   faq:
@@ -669,9 +672,13 @@ pages:
     title: 支持開發者！
     calling_store: 處理請求中...
     promo_title: 促銷方案
+    intro_phase: 享受 {} {} 的折扣
+    iap_offer: "原價的 {} 折扣"
     tip_developer: 打賞開發者
     trial_disclaimer: 在免費試用結束之前，您不會被收費，並且您可以隨時取消訂閱。
     restore_sign_in: 恢復/登入
+  video_player:
+    downloading_for_sharing: 正在下載影片以供分享… ({})
   tool:
     title: 工具
   beltTuner:
@@ -696,6 +703,7 @@ pages:
     error_loading_spools: 載入線盤時發生錯誤
     error_loading_filaments: 載入線材時發生錯誤
     spoolman_actions:
+      activate: "@:general.activate"
       deactivate: 未使用
       clone: 建立副本
       edit: "@:general.edit"
@@ -826,6 +834,7 @@ components:
   nav_drawer:
     printer_settings: 列印機設定
     manage_printers: 管理列印機
+    fetching_printers: "@:general.fetching 列印機…"
     footer: |-
       由 Patrick Schmidt 用 ❤️ 製作
       查看該專案的
@@ -1021,6 +1030,7 @@ dialogs:
     hint: 如果需要對目前螺絲進行重大調整，請點擊「調整」；否則，請點擊「接受」以繼續。
     adjusted_btn: 已調整
   manual_offset:
+    title: "@:general.offset 校準"
     hint_tooltip: Klipper的紙張測試文件
     snackbar_title: 校準完成
     snackbar_message: 確保通過「儲存配置」操作來永久化偏移量。
@@ -1048,6 +1058,7 @@ dialogs:
     body: |-
       感測器 {} 已被觸發。
   screws_tilt_adjust:
+    title: 螺絲傾斜調整
     hint: "這個對話框幫助您調整床台的螺絲。對於每個螺絲，您將看到需要的調整量，格式為 HH\n，表示時鐘的方向。例如，01:15 表示旋轉一圈再加上一個四分之一圈，按照圖示指示的方向調整。"
   dashboard_page_settings:
     title: 儀表板頁面設定
@@ -1124,6 +1135,7 @@ bottom_sheets:
       body: 您目前使用的是 {} 作為遠端連線服務。在增加新服務之前，請先將其移除。
     octoeverywehre:
       service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
       link: 連結OctoEverywhere
       unlink: 取消連結OctoEverywhere
       description: OctoEverywhere.com 是一個社群專案，讓您可以從任何地方安全地連接到您的列印機。OctoEverywhere 還提供免費的 AI列印故障檢測、通知、即時串流媒體等功能。設置只需 20 秒鐘！
@@ -1135,6 +1147,7 @@ bottom_sheets:
       address_hint: 將要使用的遠端連線的基本位址
     obico:
       service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: 連結Obico
       unlink: 取消連結Obico
       description: Obico 是一款由社群驅動的完全開源 3D 列印軟體。它讓您可以隨時隨地控制和監控您的 Klipper 列印機，且完全免費。作為 AI 基於失敗檢測的先驅解決方案之一，Obico 僅使用您的列印機網路攝影機進行檢測。
@@ -1200,6 +1213,7 @@ bottom_sheets:
     qr_error: '載入 QR 掃描器時發生錯誤：{}'
     scan_again: 重新掃描
     set_active: 設為使用中
+    spool_id_not_found: '抱歉，未找到具有指定 ID #{} 的線盤。'
   non_printing:
     manage_service:
       title: 管理服務
@@ -1209,6 +1223,13 @@ bottom_sheets:
       title: 您確定嗎？
       hint:
         long_press: '提示：要跳過此操作，長按開啟此確認的按鈕。'
+      body:
+        pi_restart: 您即將重新啟動上位機，確定要繼續嗎？
+        pi_shutdown: 您即將關閉上位機。這將中斷所有啟動中的連線並停止所有正在執行的程序。確定要繼續嗎？
+        fw_restart: 您即將重新啟動韌體，確定要繼續嗎？
+        service_start: 您即將啟動服務 '{}'。確定要繼續嗎？
+        service_restart: 您即將重新啟動服務 '{}'。確定要繼續嗎？
+        service_stop: 您即將停止服務 '{}'。確定要繼續嗎？
   dashboard_cards:
     title: 加入卡片
     subtitle: 選擇一張卡片來加入儀表板
@@ -1231,10 +1252,13 @@ bottom_sheets:
         所有使用此佈局的機器將恢復為預設佈局。
     import_snackbar:
       title: 佈局已匯入！
+      body: 請確保按下儲存按鈕以套用變更。
     falsy_import_snackbar:
       title: 匯入佈局時發生錯誤！
+      body: 無法匯入佈局。請確保剪貼簿中包含有效的佈局。
   selections:
     no_selections:
+      title: 未找到結果
       subtitle: 嘗試不同的搜尋詞
 klipper_state:
   ready: 就緒
@@ -1280,8 +1304,8 @@ date:
     one: 年
     other: 年
   month:
-    one: 月
-    other: 月
+    one: 個月
+    other: 個月
   week:
     one: 週
     other: 週
@@ -1294,7 +1318,7 @@ date_periods:
     other: 年
   month:
     one: 每月
-    other: 月
+    other: 個月
   week:
     one: 每週
     other: 週
