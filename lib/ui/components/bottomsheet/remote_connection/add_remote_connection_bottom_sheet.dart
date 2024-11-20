@@ -353,7 +353,7 @@ class _ObicoTab extends ConsumerWidget {
                           ),
                           validator: FormBuilderValidators.compose([
                             // FormBuilderValidators.required(),
-                            FormBuilderValidators.url(requireTld: false),
+                            FormBuilderValidators.url(requireTld: false, checkNullOrEmpty: false),
                           ]),
                         ),
                       ],
