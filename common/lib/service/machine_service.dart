@@ -741,7 +741,7 @@ class MachineService {
       logger.w('Rpc Client was not connected, could not fetch obico.printer_id. User can select by himself!');
     }
 
-    return ref.watch(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
+    return ref.read(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
   }
 
   Future<void> reordered(String machineUUID, int oldIndex, int newIndex) async {

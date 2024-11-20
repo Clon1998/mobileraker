@@ -31,7 +31,7 @@ ObicoTunnelService obicoTunnelService(Ref ref, [Uri? uri]) {
 class ObicoTunnelService {
   ObicoTunnelService(Ref ref, Uri uri)
       : _obicoUri = uri,
-        _dio = ref.read(obicoApiClientProvider(uri.toString()));
+        _dio = ref.watch(obicoApiClientProvider(uri.toString()));
 
   final Dio _dio;
 

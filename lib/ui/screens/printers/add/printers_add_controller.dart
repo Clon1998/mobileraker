@@ -26,6 +26,7 @@ import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/dio_options_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -91,7 +92,6 @@ class PrinterAddViewController extends _$PrinterAddViewController {
 
     try {
       AppPortalResult appPortalResult = await appConnectionService.linkAppWithOcto();
-
       AppConnectionInfoResponse appConnectionInfo = await appConnectionService.getInfo(appPortalResult.appApiToken);
 
       var infoResult = appConnectionInfo.result;
@@ -130,7 +130,8 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   addFromObico() async {
     if (state.nonSupporterError != null) return;
     state = state.copyWith(step: 3);
-    var tunnelService = ref.read(obicoTunnelServiceProvider());
+    var keepAliveExternally = ref.keepAliveExternally(obicoTunnelServiceProvider());
+    var tunnelService = keepAliveExternally.read();
 
     try {
       var tunnel = await tunnelService.linkApp();
@@ -157,6 +158,8 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     } catch (e, s) {
       logger.e('Error while trying to add printer via Obico', e, s);
       _thirdPartyAddError('Error', e.toString());
+    } finally {
+      keepAliveExternally.close();
     }
   }
 
