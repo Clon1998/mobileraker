@@ -54,7 +54,7 @@ class GCodeFileDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [gcodeProvider.overrideWithValue(gcodeFile)],
+      overrides: [_gcodeProvider.overrideWithValue(gcodeFile)],
       child: const _GCodeFileDetailPage(),
     );
   }
@@ -103,7 +103,6 @@ class _CompactBody extends HookConsumerWidget {
           return SliverAppBar(
             expandedHeight: 220,
             floating: true,
-            actions: const [_PreHeatBtn()],
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.pin,
               background: Stack(alignment: Alignment.center, children: [
@@ -493,10 +492,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(_gCodeFileDetailsControllerProvider);
 
-    return AppBar(
-      title: Text(model.file.name),
-      actions: const [_PreHeatBtn()],
-    );
+    return AppBar(title: Text(model.file.name));
   }
 
   @override
@@ -511,29 +507,23 @@ class _Fab extends ConsumerWidget {
     var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     var canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((data) => data.canStartPrint));
 
+    return FloatingActionButton.extended(
+      icon: const Icon(Icons.more_vert),
+      label: const Text('pages.files.details.actions').tr(),
+      onPressed: () {
+        final box = context.findRenderObject() as RenderBox?;
+        final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+        controller.onActionsTap(pos);
+      },
+    );
+
     var themeData = Theme.of(context);
     return FloatingActionButton.extended(
       backgroundColor: (canStartPrint) ? null : themeData.disabledColor,
       onPressed: (canStartPrint) ? controller.onStartPrintTap : null,
       icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
       label: const Text('pages.files.details.print').tr(),
-    );
-  }
-}
-
-class _PreHeatBtn extends ConsumerWidget {
-  const _PreHeatBtn({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
-    var canPreheat = ref.watch(_gCodeFileDetailsControllerProvider
-        .select((data) => data.canStartPrint && data.file.firstLayerTempBed != null));
-
-    return IconButton(
-      onPressed: canPreheat ? controller.onPreHeatPrinterTap : null,
-      icon: const Icon(MobilerakerIcons.nozzle_heat),
-      tooltip: 'pages.files.details.preheat'.tr(),
     );
   }
 }
@@ -564,9 +554,9 @@ class _PropertyTile extends StatelessWidget {
 }
 
 @Riverpod(dependencies: [])
-GCodeFile gcode(Ref ref) => throw UnimplementedError();
+GCodeFile _gcode(Ref ref) => throw UnimplementedError();
 
-@Riverpod(dependencies: [gcode])
+@Riverpod(dependencies: [_gcode])
 class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   @override
   _Model build() {
@@ -575,7 +565,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
     canPrintCalc(PrintState? d) => d != null && (d != PrintState.printing || d != PrintState.paused);
 
     final machineUUID = ref.watch(selectedMachineProvider.selectRequireValue((value) => value!.uuid));
-    final gCodeFile = ref.watch(gcodeProvider);
+    final gCodeFile = ref.watch(_gcodeProvider);
     final klippy = ref.watch(klipperProvider(machineUUID)).valueOrNull;
     final printer = ref.read(printerProvider(machineUUID)).valueOrNull;
     ref.listen(printerProvider(machineUUID), (previous, next) {
@@ -638,13 +628,15 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
 
   SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
-  onStartPrintTap() {
-    _printerService.startPrintFile(ref.read(gcodeProvider));
-    ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
+  GoRouter get _goRouter => ref.read(goRouterProvider);
+
+  void onStartPrintTap() {
+    _printerService.startPrintFile(ref.read(_gcodeProvider));
+    _goRouter.goNamed(AppRoute.dashBoard.name);
   }
 
-  onPreHeatPrinterTap() {
-    var gCodeFile = ref.read(gcodeProvider);
+  void onPreHeatPrinterTap() {
+    var gCodeFile = ref.read(_gcodeProvider);
     var tempArgs = [
       '170',
       gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60',

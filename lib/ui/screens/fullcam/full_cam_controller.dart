@@ -18,7 +18,7 @@ Machine fullCamMachine(Ref ref) => throw UnimplementedError();
 @Riverpod(dependencies: [])
 WebcamInfo initialCam(Ref ref) => throw UnimplementedError();
 
-@Riverpod(dependencies: [fullCamMachine, initialCam, settingService])
+@Riverpod(dependencies: [initialCam])
 class FullCamPageController extends _$FullCamPageController {
   @override
   WebcamInfo build() {
