@@ -4,24 +4,24 @@
 
 ### Enhancements
 
-- **Macro Visibility**: It is now possible to configure the actual printer state for which a macro should be visible.
-  This
-  allows users to hide macros that are not relevant for the current printer state. To adjust the visibility of macros,
-  just tap on the macro within the group editor of the printer edit page.
+- **Macro Visibility**: Added configurable printer state visibility for macros. Users can now hide macros irrelevant to
+  the current printer state by tapping the macro in the group editor on the printer edit page.
+
+- **Remote Services Randomization**: Randomized the order of remote services on the printer add and edit pages to ensure
+  a more fair representation.
 
 ### Bug Fixes
 
-- **GCode-Preview**: Fixed an issue within the GCode-Parser that caused the preview to show an error if the
-  `SET_RETRACTION` was used in the GCode file.
-- **Object Naming**: Klipper objects (Config entries) of the same class with the same name no longer cause the app to
-  show a permanent error message. This could happen if the user configured different kind of fans, e.g. a `fan_generic`
-  and `temperature_fan`, with the same name. The app is now aware of the object kind and will allow users to have
-  objects of the same class with
-  the same name but different kind, applies to fans, leds and filament sensors.
-- **WebRtc Cam Creation**: Fixed an issue in the code that handles the creation of WebRtc cams in the app's internals.
-  This caused to many webRTC cam streams to be opened in a short time, which could lead to a crash of the app.
-- **Obico One Click Setup**: Fixed an issue where the app would not allow to setup an Obico connection with a single
-  click via the app page due to an issue with the used http client.
+- **GCode Preview**: Fixed a parser error in the GCode preview when `SET_RETRACTION` command is used.
+
+- **Object Naming**: Resolved an issue with Klipper objects (Config entries) of the same class and name. The app now
+  distinguishes between different object kinds (e.g., `fan_generic` and `temperature_fan`) when preventing naming
+  conflicts.
+
+- **WebRTC Camera Streams**: Fixed a stability issue that could cause app crashes by opening too many WebRTC camera
+  streams simultaneously.
+
+- **Obico One-Click Setup**: Corrected an HTTP client-related problem preventing single-click Obico connection setup.
 
 ## [2.8.2] - 2024-10-31
 
