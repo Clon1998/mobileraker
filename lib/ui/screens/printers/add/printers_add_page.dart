@@ -180,6 +180,34 @@ class _InputModeStepScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(printerAddViewControllerProvider.notifier);
 
+    // Randomize how its shown to the user for fairness
+    final oneClick3rdParty = [
+      Align(
+        alignment: Alignment.center,
+        child: TextButton.icon(
+          onPressed: controller.addFromOcto,
+          icon: SvgPicture.asset(
+            'assets/vector/oe_rocket.svg',
+            width: 24,
+            height: 24,
+          ),
+          label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
+        ),
+      ),
+      Align(
+        alignment: Alignment.center,
+        child: TextButton.icon(
+          onPressed: controller.addFromObico,
+          icon: SvgPicture.asset(
+            'assets/vector/obico_logo.svg',
+            width: 24,
+            height: 24,
+          ),
+          label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
+        ),
+      ),
+    ]..shuffle();
+
     var themeData = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -223,32 +251,7 @@ class _InputModeStepScreen extends ConsumerWidget {
             ),
           ],
         ),
-        Align(
-          alignment: Alignment.center,
-          child: TextButton.icon(
-            onPressed: controller.addFromOcto,
-            icon: SvgPicture.asset(
-              'assets/vector/oe_rocket.svg',
-              width: 24,
-              height: 24,
-            ),
-            label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
-          ),
-        ),
-        Align(
-          alignment: Alignment.center,
-          child: TextButton.icon(
-            onPressed: controller.addFromObico,
-            icon: SvgPicture.asset(
-              'assets/vector/obico_logo.svg',
-              width: 24,
-              height: 24,
-            ),
-            label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
-          ),
-        ),
-        // OctoEveryWhereBtn(
-        //     title: 'Add using OctoEverywhere', onPressed: () => null),
+        ...oneClick3rdParty,
       ],
     );
   }
