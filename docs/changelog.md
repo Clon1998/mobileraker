@@ -18,9 +18,10 @@
   and `temperature_fan`, with the same name. The app is now aware of the object kind and will allow users to have
   objects of the same class with
   the same name but different kind, applies to fans, leds and filament sensors.
-
 - **WebRtc Cam Creation**: Fixed an issue in the code that handles the creation of WebRtc cams in the app's internals.
   This caused to many webRTC cam streams to be opened in a short time, which could lead to a crash of the app.
+- **Obico One Click Setup**: Fixed an issue where the app would not allow to setup an Obico connection with a single
+  click via the app page due to an issue with the used http client.
 
 ## [2.8.2] - 2024-10-31
 
