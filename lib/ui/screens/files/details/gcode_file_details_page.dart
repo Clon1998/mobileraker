@@ -508,16 +508,16 @@ class _Fab extends ConsumerWidget {
     var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     var canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((data) => data.canStartPrint));
 
-    return FloatingActionButton.extended(
-      icon: const Icon(Icons.more_vert),
-      label: const Text('pages.files.details.actions').tr(),
-      onPressed: () {
-        final box = context.findRenderObject() as RenderBox?;
-        final pos = box!.localToGlobal(Offset.zero) & box.size;
-
-        controller.onActionsTap(pos);
-      },
-    );
+    // return FloatingActionButton.extended(
+    //   icon: const Icon(Icons.more_vert),
+    //   label: const Text('pages.files.details.actions').tr(),
+    //   onPressed: () {
+    //     final box = context.findRenderObject() as RenderBox?;
+    //     final pos = box!.localToGlobal(Offset.zero) & box.size;
+    //
+    //     controller.onActionsTap(pos);
+    //   },
+    // );
 
     var themeData = Theme.of(context);
     return FloatingActionButton.extended(
