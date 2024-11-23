@@ -25,8 +25,6 @@ environment:
 dependency_overrides:
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
   # used by appinio_video_player, this fixes an issue with gradle
-
-
 dependencies:
   flutter:
     sdk: flutter
@@ -158,7 +156,11 @@ dependencies:
   flutter_markdown: ^0.7.3+1
   flutter_svg: ^2.0.5
   loader_overlay: ^4.0.0
-  #  appinio_video_player: ^1.3.0
+  appinio_video_player:
+    git:
+      url: https://github.com/JahnChoi/appinio_flutter_packages
+      path: packages/appinio_video_player
+      ref: feature/switch-cached-video-player-dep
   file_picker: ^8.0.7
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
