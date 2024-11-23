@@ -34,6 +34,19 @@ subprojects {
                 }
             }
         }
+        if (project.hasProperty('android')) {
+            project.android {
+                if (namespace == null) {
+                    project.logger.warn(
+                            "Warning: No namespace defined for project: "
+                                    + project.name
+                                    + ". Automatically setting namespace to project group: "
+                                    + project.group
+                    )
+                    namespace project.group
+                }
+            }
+        }
     }
 
     project.evaluationDependsOn(':app')

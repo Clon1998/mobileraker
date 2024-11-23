@@ -52,7 +52,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
-import '../ui/screens/files/details/video_player_page.dart';
 import '../ui/screens/files/move_file_destination_page.dart';
 import '../ui/screens/spoolman/filament_form_page.dart';
 import '../ui/screens/spoolman/spool_form_page.dart';
@@ -212,11 +211,11 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             name: AppRoute.fileManager_exlorer_editor.name,
             builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
           ),
-          GoRoute(
-            path: 'video-player',
-            name: AppRoute.fileManager_exlorer_videoPlayer.name,
-            builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
-          ),
+          // GoRoute(
+          //   path: 'video-player',
+          //   name: AppRoute.fileManager_exlorer_videoPlayer.name,
+          //   builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+          // ),
           GoRoute(
             path: 'image-viewer',
             name: AppRoute.fileManager_exlorer_imageViewer.name,

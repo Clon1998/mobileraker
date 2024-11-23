@@ -23,13 +23,9 @@ environment:
 
 
 dependency_overrides:
-  intl: ^0.18.1 # required due to awesome notifications and formbuilder
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
   # used by appinio_video_player, this fixes an issue with gradle
-  cached_video_player:
-    git:
-      url: https://github.com/vikram25897/flutter_cached_video_player
-      ref: feature/gradle_version_bump
+
 
 dependencies:
   flutter:
@@ -44,13 +40,13 @@ dependencies:
 
   #firebase
   firebase_core_platform_interface: ^5.3.0
-  firebase_core: ^2.30.0
-  firebase_analytics: ^10.10.2
-  firebase_app_check: ^0.2.2+2
-  firebase_crashlytics: ^3.5.2
-  firebase_remote_config: ^4.4.2
-  cloud_firestore: ^4.17.0
-  firebase_auth: ^4.19.2
+  firebase_core: ^3.6.0
+  firebase_analytics: ^11.3.5
+  firebase_app_check: ^0.3.1+6
+  firebase_crashlytics: ^4.1.5
+  firebase_remote_config: ^5.1.5
+  cloud_firestore: ^5.5.0
+  firebase_auth: ^5.3.3
 
   #architecture
   freezed_annotation: ^2.4.1
@@ -93,9 +89,9 @@ dependencies:
   google_fonts: ^6.2.0 # 6.2.0 preventing the app from building
 
   #notification
-  awesome_notifications_core: ^0.9.3
-  awesome_notifications: ^0.9.3
-  awesome_notifications_fcm: ^0.9.3
+  awesome_notifications_core: ^0.10.0
+  awesome_notifications: ^0.10.0
+  awesome_notifications_fcm: ^0.10.0
   #  live_activities: ^1.9.3
   live_activities:
     #    path: ../flutter_live_activities
@@ -162,7 +158,7 @@ dependencies:
   flutter_markdown: ^0.7.3+1
   flutter_svg: ^2.0.5
   loader_overlay: ^4.0.0
-  appinio_video_player: ^1.3.0
+  #  appinio_video_player: ^1.3.0
   file_picker: ^8.0.7
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
