@@ -598,7 +598,7 @@ pages:
       simple: 簡易
       advanced: 進階
       add_via_oe: 一鍵設定OctoEverywhere
-      add_via_obico: 一鍵設定Obico 
+      add_via_obico: 一鍵設定Obico
     simple_form:
       hint_title: 提示－簡易模式
       hint_body: 簡易模式允許您輸入主機和連接埠。如果您需要自訂路徑、標頭、憑證或其他設置，請切換到進階模式。
