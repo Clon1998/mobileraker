@@ -3,6 +3,27 @@ general:
   pause: Pauza
   resume: Wznów
   connected: Połączono
+  'off': 'Wyłącz'
+  'on': 'Włącz'
+  none: Nic
+  add: Dodaj
+  create: Utwórz
+  rename: Zmień
+  remove: Usuń
+  set: Ustaw
+  use: Użyj
+  restart: Restartuj
+  shutdown: Wyłącz
+  firmware: Firmware
+  fetching: Pobieranie danych
+  loading: Ładowanie
+  unknown: Nieznany
+  disabled: Wyłączony
+  confirm: Potwierdź
+  cancel: Anuluj
+  close: Zamknij
+  edit: Edytuj
+  preview: Podgląd
   retry: Ponów
   supported: Wspierane
   unsupported: Niewspierane
@@ -34,12 +55,25 @@ general:
   archived: Zarchiwizowano
   leave: Opuść
   export: Eksport
+  import: Importuj
+  current: Aktualny
+  load: Ładuj
+  unload: Wyładuj
   discard: Pomiń
   hide: Ukryj
+  finish: Zakończ
+  select: Wybierz
 pages:
   dashboard:
+    title: Panel
+    ems_btn: Awaryjne zatrzymanie
     ems_confirmation:
+      title: Potwierdź awaryjne zatrzymanie
+      body: Zamierzasz wysłać polecenie zatrzymania awaryjnego do drukarki. Spowoduje to natychmiastowe zatrzymanie wszystkich silników i grzałek.
       confirm: STOP!
+    server_status:
+      unavailable: Serwer niedostępny
+      available: Status serwera {} oraz Klippy {}
     general:
       print_card:
         reset: Reset
@@ -47,19 +81,36 @@ pages:
         printing_for: 'Drukowanie: {}'
         speed: Prędkość
         layer: Warstwa
+        eta: Pozostało
         current_object: Aktualny obiekt
         elapsed: Upłynęło
+        flow: Flow
         filament: Filament
+        eta_tooltip: |-
+          Pozostały czas:
+          Średni:
+          Slicer:
+          Plik:
+          Filament:
         remaining: Pozostało
+        print_time: Czas druku
       cam_card:
         webcam: Kamera
         fullscreen: Pełny ekran
       temp_card:
         title: Kontrola temperatury
+        presets_btn: Nastawy
+        hotend: Głowica grzewcza
         bed: Łoże
+        temp_presets: Ustawienia temperatury
         sensors: Sensory
         btn_thermistor: Sensor
       move_card:
+        title: Przesuń oś
+        home_xy_tooltip: Pozycja startowa X i Y
+        home_z_tooltip: Pozycja startowa Z
+        home_all_tooltip: Pozycjonuj wszystkie osie
+        home_all_btn: Wszystko
         qgl_tooltip: Uruchom QGL
         qgl_btn: QGL
         mesh_tooltip: Uruchom kalibrację mesh
@@ -68,6 +119,26 @@ pages:
         m84_btn: M84
         step_size: Wielkość kroku
         stc_tooltip: Uruchom pomiar Screws-Tilt
+        poff_tooltip:
+        poff_btn: Kalibracja Probe
+        zoff_btn: Kalibracja krańcówki Z
+        save_tooltip: Zapisz rezultat kalibracji
+        save_btn: Zapisz konfigurację
+    control:
+      extrude_card:
+        retract: Retrakcja
+      macro_card:
+        no_macros: W tej grupie nie widać obecnie żadnych makr
+        show_all_tooltip: Pokaż wszystkie makra
+      pin_card:
+        title_misc: Różne
+        filament_sensor:
+          detected: Wykryto
+          not_detected: Pusty
+      multipl_card:
+        title: Mnożnik
+        press_adv: Kalibracja ciśnienia PA
+        smooth_time: Czas wygładzania
 bottom_sheets:
   non_printing:
     manage_service:
