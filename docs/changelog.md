@@ -2,6 +2,10 @@
 
 ## [2.8.3] - 2024-11-xx
 
+### General
+
+- **IOS Support**: Due to libraries used in the app, the app now requires IOS 15.5 or newer to run.
+
 ### Enhancements
 
 - **Macro Visibility**: Added configurable printer state visibility for macros. Users can now hide macros irrelevant to
