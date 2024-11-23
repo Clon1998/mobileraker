@@ -27,6 +27,11 @@
 
 - **Obico One-Click Setup**: Corrected an HTTP client-related problem preventing single-click Obico connection setup.
 
+### i18n
+
+- **Hungarian Translation**: Updated the Hungarian translation, thanks to [@AntoszHUN](https://github.com/AntoszHUN).
+- **Chinese Taiwan Translation**: Added a Chinese Taiwan translation, thanks to Kayzed.
+
 ## [2.8.2] - 2024-10-31
 
 ### Bug Fixes
