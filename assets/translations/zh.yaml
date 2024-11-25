@@ -58,7 +58,7 @@ general:
   import: 匯出
   current: 目前
   load: 載入
-  unload: 卸載
+  unload: 退料
   discard: 放棄
   hide: 隱藏
   finish: 完成
@@ -142,7 +142,7 @@ pages:
         more_btn: 更多
         homed: 已歸位的軸
       baby_step_card:
-        title: 微調Z軸
+        title: 微調Z軸距離
         z_offset: Z偏移
       restart_klipper: 重啟Klipper
       restart_mcu: "@:general.restart @:general.firmware"
@@ -158,8 +158,8 @@ pages:
         title: 擠出機
         extrude: 擠出
         retract: 回抽
-        extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
-        cold_extrude_error: 擠出頭尚未達到最低擠出溫度（ {}°C ）
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude長度"
+        cold_extrude_error: 擠出機尚未達到最低擠出溫度（ {}°C ）
       macro_card:
         title: Gcode－巨集
         no_macros: 目前在此群組中沒有可見的巨集
@@ -435,7 +435,7 @@ pages:
     no_values_found: 未找到任何值！
     fetching_additional_settings: "0"
     could_not_fetch_additional: 無法獲取附加設置！
-    fetch_error_hint: 請確保機器是可連接的，並且 Mobileraker 已成功連接到它。
+    fetch_error_hint: 請確保機器是可連接的，並且Mobileraker已成功連接到它。
     reset_notification_registry: 清除通知裝置註冊
     configure_remote_connection: 配置遠端連線
     store_error:
@@ -523,8 +523,8 @@ pages:
       macro_removed: 找不到該巨集，將會在稍後自動刪除。
     presets:
       no_presets: 未加入預設集！
-      hotend_temp: "@:pages.dashboard.general.temp_card.hotend 溫度"
-      bed_temp: "@:pages.dashboard.general.temp_card.bed 溫度"
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend溫度"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed溫度"
       new_preset: 新增預設集
     confirm_fcm_reset:
       title: 清除通知設備註冊嗎？
@@ -573,15 +573,15 @@ pages:
         title: 獲取 WiFi 名稱時發生錯誤！
         body: 請確保app已獲得必要的權限來存取裝置的 WiFi 狀態。
     temp_ordering:
-      title: 溫度感測器介面排序
+      title: 溫度感測器介面順序
       helper: 更改儀表板上溫度感測器的順序。
       no_sensors: 未找到溫度感測器！
     fan_ordering:
-      title: 風扇介面排序
+      title: 風扇介面順序
       helper: 變更儀表板上風扇的排列順序
       no_fans: 未找到風扇！
     misc_ordering:
-      title: 雜項元素界面排序
+      title: 雜項元素界面順序
       helper: 更改儀表板上雜項元素的順序。
       no_controls: 未找到雜項元素！
   printer_add:
@@ -1066,13 +1066,13 @@ dialogs:
   filament_switch:
     title:
       load: 線材裝載精靈
-      unload: 線材卸載精靈
+      unload: 退料精靈
     controls:
       heat_up: 加熱中
       change_temp: 變更溫度
       purge: 清除
       repeat_load: 重複裝載
-      repeat_unload: 重複卸載
+      repeat_unload: 重複退料操作
       repeat_purge: 重複清除
     steps:
       set_temps:
@@ -1084,7 +1084,7 @@ dialogs:
       move:
         title:
           load: 裝載線材
-          unload: 卸載線材
+          unload: 退料
         subtitle:
           load:
             idle: 將線材插入擠出機
@@ -1092,7 +1092,7 @@ dialogs:
             processed: 已經到達噴嘴嗎？如果需要，請重複操作。
           unload:
             idle: 將線材移出擠出機
-            processing: 卸載線材中...
+            processing: 退料中...
             processed: 是否已從擠出機中退出線材？如果需要，請重複操作。
       purge:
         title: 清理線材
@@ -1289,7 +1289,7 @@ notifications:
       title: '{} 的列印狀態已變更！'
       body_printing: '開始列印檔案："{}"'
       body_paused: '暫停列印檔案："{}"'
-      body_complete: '完成列印檔案："{}"'
+      body_complete: '列印完成："{}"'
       body_error: '列印檔案："{}" 時發生錯誤'
     progress:
       name: 列印進度更新－{}
