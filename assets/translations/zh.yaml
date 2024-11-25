@@ -652,7 +652,7 @@ pages:
     manage_view:
       title: 感謝您的支持！
       list_title: '更改支持者等級：'
-      store_btn: 取消訂閱於{}
+      store_btn: 在{} 取消訂閱
       sub_warning: 請注意，購買終身支持者等級並不會自動取消任何其他啟用的訂閱。您需要手動取消任何現有的訂閱。然而，即使在購買終身支持者等級後，您仍然可以選擇繼續以定期方式支持Mobileraker的開發。
     subscribe_view:
       title: 成為Mobileraker支持者！
