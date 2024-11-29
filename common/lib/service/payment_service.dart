@@ -283,8 +283,8 @@ class PaymentService {
       (prev, next) async {
         if (!next.hasValue) return;
         var packageInfo = next.requireValue;
-        logger.i('Setting device version to Purchases: ${packageInfo.version}-${packageInfo.buildNumber}');
-        await Purchases.setAttributes({r'$deviceVersion': '${packageInfo.version}-${packageInfo.buildNumber}'});
+        logger.i('Setting device version to Purchases: $packageInfo');
+        await Purchases.setAttributes({r'$deviceVersion': packageInfo.toString()});
         logger.i('Set device version to Purchases');
       },
       fireImmediately: true,
