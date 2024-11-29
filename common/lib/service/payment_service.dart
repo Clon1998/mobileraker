@@ -7,8 +7,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:common/service/firebase/auth.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -67,11 +69,13 @@ class CustomerInfoNotifier extends _$CustomerInfoNotifier {
 
 @Riverpod(keepAlive: true)
 bool isSupporter(Ref ref) {
+  if (kDebugMode) return true;
   return ref.watch(isSupporterAsyncProvider).valueOrNull == true;
 }
 
 @Riverpod(keepAlive: true)
 FutureOr<bool> isSupporterAsync(Ref ref) async {
+  if (kDebugMode) return true;
   var customerInfo = await ref.watch(customerInfoProvider.future);
   return customerInfo.entitlements.active.containsKey('Supporter') == true;
 }
@@ -130,6 +134,13 @@ class PaymentService {
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+        FirebaseCrashlytics.instance.recordError(
+          e,
+          StackTrace.current,
+          reason: 'Error while trying to purchase',
+          fatal: true,
+        );
+
         logger.e('Error while trying to purchase; $e');
         _ref.read(snackBarServiceProvider).show(
             SnackBarConfig(type: SnackbarType.error, title: 'Unexpected Error', message: errorCode.name.capitalize()));
@@ -252,6 +263,29 @@ class PaymentService {
           }
         }
         _ref.invalidate(customerInfoProvider);
+      },
+      fireImmediately: true,
+    );
+
+    _ref.listen(
+      fcmTokenProvider,
+      (prev, next) async {
+        if (!next.hasValue) return;
+        logger.i('Syncing FCM token with Purchases: ${next.value}');
+        await Purchases.setPushToken(next.value!);
+        logger.i('Synced FCM token with Purchases');
+      },
+      fireImmediately: true,
+    );
+
+    _ref.listen(
+      versionInfoProvider,
+      (prev, next) async {
+        if (!next.hasValue) return;
+        var packageInfo = next.requireValue;
+        logger.i('Setting device version to Purchases: ${packageInfo.version}-${packageInfo.buildNumber}');
+        await Purchases.setAttributes({r'$deviceVersion': '${packageInfo.version}-${packageInfo.buildNumber}'});
+        logger.i('Set device version to Purchases');
       },
       fireImmediately: true,
     );
