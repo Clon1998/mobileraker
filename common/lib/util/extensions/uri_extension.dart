@@ -8,10 +8,15 @@ import 'dart:convert';
 import 'package:common/util/extensions/string_extension.dart';
 
 extension MobilerakerUri on Uri {
-  String skipScheme() => (hasScheme) ? toString().replaceRange(0, scheme.length - 1, '') : toString();
+  Uri appendPath(String pathToAppend) {
+    final List<String> adjustedSegments = pathSegments.toList();
+    if (adjustedSegments.isNotEmpty && adjustedSegments.last.isEmpty) {
+      adjustedSegments.removeLast();
+    }
+    adjustedSegments.addAll(pathToAppend.split('/').where((element) => element.isNotEmpty));
 
-  Uri appendPath(String path) =>
-      replace(pathSegments: pathSegments + path.split('/').where((element) => element.isNotEmpty).toList());
+    return replace(pathSegments: adjustedSegments);
+  }
 
   Uri removePort() => replace(
           port: switch (scheme) {
