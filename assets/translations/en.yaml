@@ -700,6 +700,7 @@ pages:
   paywall:
     manage_view:
       title: Thanks for your Support!
+
       list_title: 'Change Supporter Tier:'
       store_btn: Cancel Subscription in {}
       sub_warning: Please take note that purchasing the lifetime supporter tier does
@@ -1073,6 +1074,7 @@ dialogs:
     active_machine: 'Active Machine: {}'
     hint: Tap on a machine to set it as active.
   supporter_perks:
+    learn_more: Learn about Supporter Perks
     title: Supporter Perks
     body: By supporting Mobileraker, you ensure the app can stay free for the community.
       Additionally supporters gain the following list of perks.
