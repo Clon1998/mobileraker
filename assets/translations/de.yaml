@@ -994,6 +994,7 @@ dialogs:
     active_machine: 'Aktive Maschine: {}'
     hint: Tippen Sie auf eine Maschine, um sie zu aktivieren.
   supporter_perks:
+    learn_more: Erfahren mehr über die Vorteile
     title: Supporter Vorteile
     body: Indem Sie Mobileraker unterstützen, stellen Sie sicher, dass die App für die Community kostenlos bleiben kann. Zusätzlich erhalten Supporter die folgenden Funktionen.
     hint: 'Hinweis: Zurzeit sind die Vergünstigungen geräteabhängig. Dies könnte sich in Zukunft ändern.'
