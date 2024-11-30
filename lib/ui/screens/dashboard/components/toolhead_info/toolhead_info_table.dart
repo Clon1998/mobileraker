@@ -179,7 +179,9 @@ class _ToolheadData extends ConsumerWidget {
                       var format = dateFormat.format(eta);
                       int? inDays = null;
                       if (eta.isNotToday()) {
-                        inDays = eta.difference(DateTime.now()).inDays;
+                        // Add 1 day as the difference requires 24 hours to be a day
+                        // 1.1.2024 23:59 - 2.1.2024 04:00 = 0 days -> still next day -> +1 to show eta at 04:00 + 1 day
+                        inDays = eta.difference(DateTime.now()).inDays + 1;
                       }
                       return (format, inDays);
                     }));
