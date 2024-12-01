@@ -124,6 +124,7 @@ pages:
         zoff_btn: Kalibracja krańcówki Z
         save_tooltip: Zapisz rezultat kalibracji
         save_btn: Zapisz konfigurację
+        more_btn: Więcej
     control:
       extrude_card:
         retract: Retrakcja
@@ -140,25 +141,101 @@ pages:
         press_adv: Kalibracja ciśnienia PA
         smooth_time: Czas wygładzania
       limit_card:
+        velocity: Prędkość
         accel: Akceleracja
+      fw_retraction_card:
+        retract_length: Długość retrakcji
+        retract_speed: Prędkość retrakcji
+      bed_mesh_card:
+        title: Siatka stołu
+        profiles: Profile
       gcode_preview_card:
         follow: Śledź postęp
+        start_preview:
+          btn: Włącz podgląd
+  customizing_dashboard:
+    cancel_confirm:
+      title: Odrzucić zmiany?
+    add_card: Dodaj kartę
+    remove_page: Usuń stronę
+    saved_snack:
+      title: Układ zapisany!
+      body: Twoje zmiany zostały zapisane.
+    confirm_removal:
+      title: Usunąć stronę?
+    editing_card:
+      title: Tryb edycji
+    error_save_snack:
+      title: Błąd w zapisie układu!
+    error_no_components:
+      title: Pusty układ!
   files:
     title: Pliki
+    empty_folder:
+      title: Ten folder jest pusty
+      subtitle: Nie znaleziono plików
     sort_by:
       sort_by: Sortuj według
+      name: Nazwa
+      last_modified: Ostatnia modyfikacja
+      last_printed: Ostatnio drukowany
+      file_size: Wielkość
       estimated_time: Przewidywany czas druku
+    file_actions:
+      download: Pobierz
+      delete: Usuń
+      copy: Kopiuj
+      move: Przenieś
+      rename: Zmień nazwę
+      create_file: Utwórz plik
+      create_folder: Utwórz folder
+      upload: Wyślij plik
+      upload_bulk: Wyślij pliki
+      zip_file: Utwórz archiwum
+    gcode_file_actions:
+      preheat: Podgrzej
+      enqueue: Dodaj do kolejki wydruku
+      preview: Podgląd
+    file_operation:
+      download_canceled:
+        title: Pobieranie anulowane
+        body: Pobieranie zostało anulowane.
+      download_failed:
+        title: Pobieranie nieudane
+        body: Wystąpił błąd podczas próby pobrania pliku. Spróbuj ponownie później.
+      upload_canceled:
+        title: Wysyłanie anulowane
+        body: Wysyłanie zostało anulowane.
+      upload_success:
+        title: Wysyłanie powiodło się
+        body: Plik został poprawnie wysłany.
+    search:
+      no_results:
+        title: Nie znaleziono plików
+    details:
+      print: Drukuj
+      general_card:
+        path: Scieżka
   setting:
     general:
+      language: Język
       time_format: Format czasu
   printer_edit:
+    general:
+      displayname: Wyświetlana nazwa
+      printer_addr: Drukarka - adres
+      theme: Motyw UI
+      theme_helper: Motyw UI dla drukarki
+    motion_system:
+      invert_x_short: Odwróć X
+      invert_y_short: Odwróć Y
     cams:
       flip_horizontal: Odwróć w poziomie
   overview:
     title: Podsumowanie
   spoolman:
     spoolman_actions:
-      clone:
+      clone: Klonuj
 bottom_sheets:
   bedMesh:
     no_mesh: Brak siatki stołu
@@ -175,6 +252,11 @@ bottom_sheets:
       not_saved: Nie zapisano
 klipper_state:
   shutdown: Zamknięcie
+print_state:
+  error: Błąd
+theme_mode:
+  light: Jasny
+  dark: Ciemny
 notifications:
   channels:
     status:
