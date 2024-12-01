@@ -998,6 +998,7 @@ dialogs:
     active_machine: 'Aktív gép: {}'
     hint: Érintsd meg a gépet az aktívként való beállításhoz.
   supporter_perks:
+    learn_more: Tudjon meg többet a támogatói kedvezményekről
     title: Támogatói jutalmak
     body: A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.
     hint: 'Tipp: Jelenleg a jutalmak eszközalapúak. Ez változhat a jövőben.'
