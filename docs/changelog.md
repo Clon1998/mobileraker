@@ -10,9 +10,12 @@
 
 - **Macro Visibility**: Added configurable printer state visibility for macros. Users can now hide macros irrelevant to
   the current printer state by tapping the macro in the group editor on the printer edit page.
-
 - **Remote Services Randomization**: Randomized the order of remote services on the printer add and edit pages to ensure
   a more fair representation.
+- **GCode File Sorting**: Added support for sorting GCode files by estimated print time, allowing users to quickly find
+  the shortest or longest print jobs.
+- **Eta Day Indicator**: Enhanced the ETA cell in the status card to display a `+n` to indicate the the eta is in n
+  days. (e.g. `+1` for tomorrow)
 
 ### Bug Fixes
 
