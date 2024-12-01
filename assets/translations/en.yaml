@@ -257,6 +257,7 @@ pages:
       last_modified: Last modified
       last_printed: Last printed
       file_size: Size
+      estimated_time: Estimated print time
     file_actions:
       download: Download
       delete: Delete

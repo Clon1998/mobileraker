@@ -5,8 +5,8 @@
 
 import 'package:easy_localization/easy_localization.dart';
 
-String secondsToDurationText(int sec) {
-  var d = Duration(seconds: sec);
+String secondsToDurationText(num sec) {
+  var d = Duration(seconds: sec.toInt());
   var seconds = d.inSeconds;
   final days = seconds ~/ Duration.secondsPerDay;
   seconds -= days * Duration.secondsPerDay;

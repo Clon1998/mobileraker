@@ -21,7 +21,6 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/warning_card.dart';
-import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
@@ -240,7 +239,7 @@ class _CompactBody extends HookConsumerWidget {
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.est_print_time'.tr(),
                     subtitle:
-                        '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
+                        '${secondsToDurationText(model.file.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.slicer'.tr(),
@@ -449,7 +448,7 @@ class _MediumBody extends HookConsumerWidget {
                           _PropertyTile(
                             title: 'pages.files.details.meta_card.est_print_time'.tr(),
                             subtitle:
-                                '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
+                                '${secondsToDurationText(model.file.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
                           ),
                           _PropertyTile(
                             title: 'pages.files.details.meta_card.slicer'.tr(),

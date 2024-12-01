@@ -252,6 +252,7 @@ pages:
       last_modified: Zuletzt bearbeitet
       last_printed: Zuletzt gedruckt
       file_size: Dateigröße
+      estimated_time: Geschätzte Druckzeit
     file_actions:
       download: Herunterladen
       delete: Löschen

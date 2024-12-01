@@ -27,6 +27,9 @@ class SortConfiguration {
       SortMode.lastModified when kind == SortKind.descending => (a, b) => RemoteFile.modifiedComparator(b, a),
       SortMode.size when kind == SortKind.ascending => RemoteFile.sizeComparator,
       SortMode.size when kind == SortKind.descending => (a, b) => RemoteFile.sizeComparator(b, a),
+      SortMode.estimatedPrintTime when kind == SortKind.ascending => GCodeFile.estimatedPrintTimeComparator,
+      SortMode.estimatedPrintTime when kind == SortKind.descending => (a, b) =>
+          GCodeFile.estimatedPrintTimeComparator(b, a),
       _ => throw UnimplementedError('Unknown sort mode: $mode'),
     };
     return comp;
