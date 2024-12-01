@@ -139,7 +139,29 @@ pages:
         title: Mnożnik
         press_adv: Kalibracja ciśnienia PA
         smooth_time: Czas wygładzania
+      limit_card:
+        accel: Akceleracja
+      gcode_preview_card:
+        follow: Śledź postęp
+  files:
+    title: Pliki
+    sort_by:
+      sort_by: Sortuj według
+      estimated_time: Przewidywany czas druku
+  setting:
+    general:
+      time_format: Format czasu
+  printer_edit:
+    cams:
+      flip_horizontal: Odwróć w poziomie
+  overview:
+    title: Podsumowanie
+  spoolman:
+    spoolman_actions:
+      clone:
 bottom_sheets:
+  bedMesh:
+    no_mesh: Brak siatki stołu
   non_printing:
     manage_service:
       no_services: Nie znaleziono usług!
@@ -148,6 +170,11 @@ bottom_sheets:
       title: Jesteś pewien?
       hint:
         long_press: 'Podpowiedź: Aby pominąć, przytrzymaj dłużej przycisk, który otworzył to potwierdzenie.'
+  dashboard_layout:
+    layout_preview:
+      not_saved: Nie zapisano
+klipper_state:
+  shutdown: Zamknięcie
 notifications:
   channels:
     status:
