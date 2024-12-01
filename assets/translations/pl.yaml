@@ -209,28 +209,50 @@ pages:
       upload_success:
         title: Wysyłanie powiodło się
         body: Plik został poprawnie wysłany.
+      copy_created:
+        title: Kopia utworzona
+    search_files: Szukaj w katalogu
     search:
+      clear_search: Wyczyść wyszukiwanie
       no_results:
         title: Nie znaleziono plików
+    move_here: Przenieś tutaj
+    copy_here: Kopiuj tutaj
     details:
       print: Drukuj
       general_card:
         path: Scieżka
+      meta_card:
+        layer_higher: Wysokość warstwy
   setting:
     general:
       language: Język
       time_format: Format czasu
   printer_edit:
+    store_error:
+      message: |-
+        Niektóre pola zawierają nieprawidłowe wartości!
+        Upewnij się, że wszystkie pola są prawidłowe.
     general:
       displayname: Wyświetlana nazwa
       printer_addr: Drukarka - adres
+      full_url: '!Wysokość warstwy'
       theme: Motyw UI
       theme_helper: Motyw UI dla drukarki
     motion_system:
       invert_x_short: Odwróć X
       invert_y_short: Odwróć Y
+    extruders:
+      filament:
+        loading_distance: Odległość dyszy ekstrudera
     cams:
       flip_horizontal: Odwróć w poziomie
+    local_ssid:
+      dialog:
+        label: Nazwa WiFi (SSID)
+  printer_add:
+    steps:
+      done: Zrobione
   overview:
     title: Podsumowanie
   spoolman:
