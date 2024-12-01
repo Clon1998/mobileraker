@@ -209,13 +209,22 @@ pages:
       upload_success:
         title: Wysyłanie powiodło się
         body: Plik został poprawnie wysłany.
+      upload_failed:
+        title: Wysyłanie nieudane
       copy_created:
         title: Kopia utworzona
+      move_success:
+        title: Ruch zakończony sukcesem
+      move_failed:
+        title: Ruch nieudany
     search_files: Szukaj w katalogu
     search:
       clear_search: Wyczyść wyszukiwanie
       no_results:
         title: Nie znaleziono plików
+    cancel_fab:
+      upload: Anuluj wysyłanie
+      download: Anuluj pobieranie
     move_here: Przenieś tutaj
     copy_here: Kopiuj tutaj
     details:
@@ -223,41 +232,101 @@ pages:
       general_card:
         path: Scieżka
       meta_card:
+        filament_name: Nazwa
+        filament_weight: Waga
+        filament_length: Długość
+        est_print_time: Szacowany czas wydruku
+        slicer: Użyty Slicer
+        nozzle_diameter: Średnica dyszy
         layer_higher: Wysokość warstwy
+      stat_card:
+        title: Statystyki
   setting:
     general:
       language: Język
       time_format: Format czasu
   printer_edit:
+    import_settings: Importuj ustawienia
+    remove_printer: Usuń drukarkę
     store_error:
+      title: Zapisywanie nieudane!
       message: |-
         Niektóre pola zawierają nieprawidłowe wartości!
         Upewnij się, że wszystkie pola są prawidłowe.
+      unexpected_error: Wystąpił nieoczekiwany błąd podczas próby zapisania danych maszyny!
+    confirm_deletion:
+      title: Usunąć {}?
+      body: "Zamierzasz usunąć drukarkę '{}' podłączoną do '{}'.\n\nPotwierdź swoją czynność."
     general:
       displayname: Wyświetlana nazwa
       printer_addr: Drukarka - adres
       full_url: '!Wysokość warstwy'
+      timeout_label: Upłynął czas oczekiwania
       theme: Motyw UI
       theme_helper: Motyw UI dla drukarki
     motion_system:
       invert_x_short: Odwróć X
       invert_y_short: Odwróć Y
+      invert_z_short: Odwróć Z
     extruders:
+      feedrate_short: Prędkość
       filament:
         loading_distance: Odległość dyszy ekstrudera
     cams:
+      target_fps: Decelowa ilość FPS
+      new_cam: Nowa kamera
+      no_webcams: Nie dodano kamer!
+      flip_vertical: Odwróć w pionie
       flip_horizontal: Odwróć w poziomie
     local_ssid:
+      no_ssids: Nie dodano nazwy sieci WiFi!
       dialog:
+        title_add: Dodaj nazwę WiFi do listy
+        title_edit: Edytuj nazwę WiFi
         label: Nazwa WiFi (SSID)
   printer_add:
     steps:
       done: Zrobione
+    test_connection:
+      button: Przetestuj połączenie
+    confirmed:
+      title: Drukarka {} dodana!
+  console:
+    title: Konsola
+    card_title: GCode Konsola
+    no_suggestions: Nie znaleziono sugestii!
+    command_input:
+      hint: Wprowadź polecenie konsoli
   overview:
     title: Podsumowanie
+    add_machine: Dodaj maszyę
+  tool:
+    title: Narzędzia
+  beltTuner:
+    title: Tuning paska
   spoolman:
+    learn_more_link: Strona GitHub.
     spoolman_actions:
+      deactivate: Dezaktywacja
       clone: Klonuj
+    properties:
+      comment: Komentarz
+      first_used: Pierwsze użycie
+      last_used: Ostanie użycie
+      location: Lokalizacja
+      color: Kolor
+    property_sections:
+      basic: Podstawowe informacje
+    filament_form:
+      create_page_title: Utwórz filament
+      update_page_title: Edytuj filament
+components:
+  app_version_display:
+    version: 'Wersja:'
+    installed_version: 'Zainstalowana wersja:'
+  nav_drawer:
+    printer_settings: Ustawienia drukarki
+    fetching_printers: "…………"
 bottom_sheets:
   bedMesh:
     no_mesh: Brak siatki stołu
