@@ -253,6 +253,7 @@ pages:
       last_modified: Utolsó módosítás
       last_printed: Utoljára nyomtatott
       file_size: Méret
+      estimated_time: Becsült nyomtatási idő
     file_actions:
       download: Letöltés
       delete: Törlés
