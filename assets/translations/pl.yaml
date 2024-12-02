@@ -344,6 +344,7 @@ bottom_sheets:
 klipper_state:
   shutdown: Zamknięcie
 print_state:
+  printing: Drukowanie
   error: Błąd
 theme_mode:
   light: Jasny
