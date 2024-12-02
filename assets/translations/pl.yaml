@@ -373,6 +373,8 @@ pages:
     delete:
       confirm:
         title: Usunąć {}?
+      success:
+        title: "{} usunięto!"
     properties:
       comment: Komentarz
       price: Cena
