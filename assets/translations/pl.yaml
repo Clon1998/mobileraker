@@ -343,6 +343,12 @@ pages:
   printer_add:
     steps:
       done: Zrobione
+    title: Dodaj nową drukarkę
+    initial_name: Moja drukarka
+    select_mode:
+      advanced: Zaawansowane
+    advanced_form:
+      section_security: Bezpieczeństwo
     test_connection:
       button: Przetestuj połączenie
     confirmed:
@@ -366,7 +372,10 @@ pages:
       deactivate: Dezaktywacja
       clone: Klonuj
     update:
+      success:
+        title: "{} zaktualizowano!"
       error:
+        title: Błąd aktualizacji {}!
         message: Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.
       no_changes:
         title: Nie wprowadzono żadnych zmian!
