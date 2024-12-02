@@ -104,6 +104,7 @@ pages:
         bed: Łoże
         temp_presets: Ustawienia temperatury
         sensors: Sensory
+        heater_on: "{} °C cel"
         btn_thermistor: Sensor
       move_card:
         title: Przesuń oś
@@ -125,11 +126,25 @@ pages:
         save_tooltip: Zapisz rezultat kalibracji
         save_btn: Zapisz konfigurację
         more_btn: Więcej
+      baby_step_card:
+        title: Mikro Kalibracja Osi Z
+      restart_klipper: Zrestartuj Klippera
     control:
+      fan_card:
+        title:
+          zero: Wentylator
+          one: Wentylator
+          other: Wentylatory
+        part_fan: Wentylator druku
+        static_fan_btn: Wentylator
       extrude_card:
+        title: Ekstruder
+        extrude: Ekstruzja
         retract: Retrakcja
       macro_card:
+        title: Gcode - Makra
         no_macros: W tej grupie nie widać obecnie żadnych makr
+        add_grp_hint: Możesz tworzyć różne grupy, aby organizować swoje makra. Po prostu przejdź do ustawień drukarki i dodaj nową grupę.
         show_all_tooltip: Pokaż wszystkie makra
       pin_card:
         title_misc: Różne
@@ -138,9 +153,11 @@ pages:
           not_detected: Pusty
       multipl_card:
         title: Mnożnik
+        flow: Przepływ
         press_adv: Kalibracja ciśnienia PA
         smooth_time: Czas wygładzania
       limit_card:
+        title: Limity
         velocity: Prędkość
         accel: Akceleracja
       fw_retraction_card:
@@ -149,8 +166,15 @@ pages:
       bed_mesh_card:
         title: Siatka stołu
         profiles: Profile
+      spoolman_card:
+        no_spool: |-
+          Nie wybrano szpuli.
+          Zużycie filamentu nie będzie śledzone.
+        used: 'Użyty: {}'
       gcode_preview_card:
+        title: GCode Podgląd
         follow: Śledź postęp
+        kinematic_not_supported: Obecnie aplikacja nie obsługuje renderowania kodu GCode dla układu kinematycznego tej drukarki.
         start_preview:
           btn: Włącz podgląd
   customizing_dashboard:
@@ -227,11 +251,20 @@ pages:
       download: Anuluj pobieranie
     move_here: Przenieś tutaj
     copy_here: Kopiuj tutaj
+    element:
+      one: Element
+      other: Elementy
     details:
+      preheat: Podgrzanie
       print: Drukuj
       general_card:
         path: Scieżka
+        last_mod: Ostatnio modyfikowany
+        last_printed: Ostatnio drukowany
+        no_data: Brak danych
       meta_card:
+        filament: Filament
+        filament_type: Typ
         filament_name: Nazwa
         filament_weight: Waga
         filament_length: Długość
@@ -239,15 +272,36 @@ pages:
         slicer: Użyty Slicer
         nozzle_diameter: Średnica dyszy
         layer_higher: Wysokość warstwy
+        first_layer: Pierwsza warstwa
+        others: Inne
       stat_card:
         title: Statystyki
+      preheat_dialog:
+        body: |-
+          Zadane temperatury
+          Ekstruder: {}°C
+          Stół: {}°C
+      preheat_snackbar:
+        body: |-
+          Ekstruder: {}°C
+          Stół: {}°C
+      spoolman_warnings:
+        insufficient_filament_title: Niewystarczająca ilość filamentu
+        material_mismatch_title: Niedopasowanie materiałów
   setting:
+    title: Ustawienia aplikacji
     general:
+      title: Ogólne
+      ems_confirm: Potwierdź zatrzymanie awaryjne
       language: Język
       time_format: Format czasu
+    notification:
+      title: Powiadomienia
   printer_edit:
+    title: Edytuj {}
     import_settings: Importuj ustawienia
     remove_printer: Usuń drukarkę
+    reset_notification_registry: Wyczyść rejestr urządzeń powiadamiających
     store_error:
       title: Zapisywanie nieudane!
       message: |-
@@ -284,6 +338,8 @@ pages:
         title_add: Dodaj nazwę WiFi do listy
         title_edit: Edytuj nazwę WiFi
         label: Nazwa WiFi (SSID)
+    fan_ordering:
+      no_fans: Brak wentylatorów!
   printer_add:
     steps:
       done: Zrobione
@@ -309,8 +365,18 @@ pages:
     spoolman_actions:
       deactivate: Dezaktywacja
       clone: Klonuj
+    update:
+      error:
+        message: Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.
+      no_changes:
+        title: Nie wprowadzono żadnych zmian!
+    delete:
+      confirm:
+        title: Usunąć {}?
     properties:
       comment: Komentarz
+      price: Cena
+      weight: Waga
       first_used: Pierwsze użycie
       last_used: Ostanie użycie
       location: Lokalizacja
@@ -326,10 +392,83 @@ components:
     installed_version: 'Zainstalowana wersja:'
   nav_drawer:
     printer_settings: Ustawienia drukarki
+    manage_printers: Zarządzaj drukarkami
     fetching_printers: "…………"
+  connection_watcher:
+    reconnect: Połącz ponownie
+  supporter_add:
+    title: Lubisz Mobileraker?
+  gcode_preview:
+    layer:
+      one: Warstwa
+      other: Warstwy
+    move:
+      one: Ruch
+      other: Ruchy
+  gcode_preview_settings_sheet:
+    show_grid:
+      title: Pokaż siatkę
+  select_color_sheet:
+    title: Wybierz kolor
+dialogs:
+  create_folder:
+    title: Utwórz folder
+  macro_settings:
+    visible: Widoczny
+  filament_switch:
+    steps:
+      move:
+        title:
+          load: Ładuj filament
+          unload: Wyładuj filament
+        subtitle:
+          load:
+            processing: Ładowanie filamentu...
+          unload:
+            processing: Wyładowywanie filamentu...
+      purge:
+        title: Oczyść filament
+        subtitle:
+          processing: Czyszczenie filamentu...
+  confirm_print_cancelation:
+    title: Anulować drukowanie?
+    body: |-
+      Zamierzasz anulować zadanie drukowania.
+
+      Potwierdź swoją akcję.
 bottom_sheets:
+  manage_macros_in_grp:
+    title: Dodaj makro
+  signIn:
+    forgot_password: Zapomniałeś hasła?
+    action:
+      sign_in: Zaloguj
+      sign_up: Wyloguj
+      reset_password: Zresetuj hasło
+    email:
+      label: Email
+      hint: Twój adres email
+    password:
+      label: Hasło
+      hint: Twoje hasło
+    confirm_password:
+      label: Potwierdź hasło
+      hint: Potwierdź swoje hasło
+      error: Hasła są niezgodne!
+  profile:
+    title: Jesteś zalogowany.
+    restore_purchases: Przywróć zakupy
+    restore_success: Zakupy zostały pomyślnie przywrócone!
+    delete_account: Usuń konto.
+    delete_account_dialog:
+      title: Usunąć konto?
   bedMesh:
+    load_bed_mesh_profile: Załaduj profil siatki stołu
     no_mesh: Brak siatki stołu
+  select_spool:
+    header:
+      qr: Kod QR
+    scan_again: Skanuj ponownie
   non_printing:
     manage_service:
       no_services: Nie znaleziono usług!
@@ -341,17 +480,39 @@ bottom_sheets:
   dashboard_layout:
     layout_preview:
       not_saved: Nie zapisano
+    rename_layout:
+      label: Nazwa układu
+    delete_layout:
+      title: Usuń układ
+  selections:
+    no_selections:
+      title: Nie znaleziono wyników.
 klipper_state:
+  ready: Gotowy
   shutdown: Zamknięcie
+  starting: Startowanie
+  disconnected: Rozłączony
+  error: Błąd
+  unauthorized: Nieautoryzowany
+  initializing: Inicjalizacja
 print_state:
+  standby: Czuwanie
   printing: Drukowanie
+  paused: Pauza
+  complete: Zakończono
+  cancelled: Anulowany
   error: Błąd
 theme_mode:
   light: Jasny
   dark: Ciemny
+  system: System
 notifications:
+  channel_printer_grp: Drukarka {}
   channels:
     status:
+      name: Aktualizacje statusu wydruku - {}
+      desc: Powiadomienia dotyczące statusu drukowania.
+      body_printing: 'Drukowanie pliku: "{}"'
       body_paused: 'Wstrzymano drukowanie pliku: "{}"'
       body_complete: 'Zakończono druk: "{}"'
       body_error: 'Błąd podczas druku pliku: "{}"'
