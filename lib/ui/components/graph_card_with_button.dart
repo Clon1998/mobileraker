@@ -18,6 +18,7 @@ class GraphCardWithButton extends StatelessWidget {
     required this.builder,
     required this.buttonChild,
     required this.onTap,
+    this.onLongPress,
   });
 
   final Color? backgroundColor;
@@ -25,6 +26,7 @@ class GraphCardWithButton extends StatelessWidget {
   final WidgetBuilder builder;
   final Widget buttonChild;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final List<FlSpot> plotSpots;
 
   @override
@@ -93,6 +95,7 @@ class GraphCardWithButton extends StatelessWidget {
               disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
             ),
             onPressed: onTap,
+            onLongPress: onLongPress,
             child: buttonChild,
           ),
         ],

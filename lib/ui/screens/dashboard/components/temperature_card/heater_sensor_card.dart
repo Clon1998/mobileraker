@@ -245,6 +245,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
       plotSpots: spots.value,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
+      onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
       builder: (BuildContext context) {
         var innerTheme = Theme.of(context);
         return Tooltip(
@@ -554,7 +555,7 @@ class _Controller extends _$Controller {
     );
   }
 
-  adjustHeater(HeaterMixin heater) {
+  void adjustHeater(HeaterMixin heater) {
     double? maxValue;
     var configFile = ref.read(printerProvider(machineUUID).selectRequireValue((value) => value.configFile));
     if (heater is Extruder) {
@@ -587,7 +588,7 @@ class _Controller extends _$Controller {
     });
   }
 
-  editTemperatureFan(TemperatureFan temperatureFan) {
+  void editTemperatureFan(TemperatureFan temperatureFan) {
     var configFan = ref
         .read(printerProvider(machineUUID)
             .selectAs((value) => value.configFile.fans[(temperatureFan.kind, temperatureFan.configName)]))
@@ -611,6 +612,10 @@ class _Controller extends _$Controller {
       num v = value.data;
       ref.read(printerServiceSelectedProvider).setTemperatureFanTarget(temperatureFan.name, v.toInt());
     });
+  }
+
+  void turnOffHeater(HeaterMixin heater) {
+    _printerService.setHeaterTemperature(heater.name, 0);
   }
 }
 
