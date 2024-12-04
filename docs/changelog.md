@@ -16,6 +16,8 @@
   the shortest or longest print jobs.
 - **Eta Day Indicator**: Enhanced the ETA cell in the status card to display a `+n` to indicate the the eta is in n
   days. (e.g. `+1` for tomorrow)
+- **Heater Shortcut**: Added a convenient long-press gesture on the "Set" button within the heater card to instantly
+  disable the heater, improving user interaction and control.
 
 ### Bug Fixes
 
