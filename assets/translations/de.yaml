@@ -285,6 +285,10 @@ pages:
       upload_failed:
         title: Upload fehlgeschlagen
         body: Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
+        reasons:
+          type_mismatch:
+            title: Dateityp nicht unterstützt
+            body: Nur '{}' Dateien sind erlaubt.
       zipping_success:
         title: Archiv erstellt
         body: Das Archiv wurde erfolgreich erstellt.

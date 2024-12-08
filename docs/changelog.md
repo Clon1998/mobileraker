@@ -32,6 +32,9 @@
 
 - **Obico One-Click Setup**: Corrected an HTTP client-related problem preventing single-click Obico connection setup.
 
+- **Filepicker on Android**: Fixed an issue that prevented the user from choosing a file to upload on some Android
+  versions.
+
 ### i18n
 
 - **Hungarian Translation**: Updated the Hungarian translation, thanks to [@AntoszHUN](https://github.com/AntoszHUN).

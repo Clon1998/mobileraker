@@ -203,8 +203,8 @@ Future<FolderContentWrapper> fileApiResponse(Ref ref, String machineUUID, String
 }
 
 @riverpod
-Future<FolderContentWrapper> moonrakerFolderContent(Ref ref, String machineUUID, String path,
-    SortConfiguration sortConfig) async {
+Future<FolderContentWrapper> moonrakerFolderContent(
+    Ref ref, String machineUUID, String path, SortConfiguration sortConfig) async {
   ref.keepAliveFor();
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
   // await Future.delayed(const Duration(milliseconds: 5000));
@@ -226,15 +226,13 @@ Future<FolderContentWrapper> moonrakerFolderContent(Ref ref, String machineUUID,
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
   FileService(Ref ref, this._machineUUID, this._jRpcClient, this._dio)
-      : _downloadReceiverPortName = 'downloadFilePort-${_machineUUID.hashCode}',
-        _apiRequestTimeout =
+      : _apiRequestTimeout =
             _jRpcClient.timeout > const Duration(seconds: 30) ? _jRpcClient.timeout : const Duration(seconds: 30) {
     ref.onDispose(dispose);
     ref.listen(jrpcMethodEventProvider(_machineUUID, 'notify_filelist_changed'), _onFileListChanged);
   }
 
   final String _machineUUID;
-  final String _downloadReceiverPortName;
 
   final StreamController<FileActionResponse> _fileActionStreamCtrler = StreamController();
 

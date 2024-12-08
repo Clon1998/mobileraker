@@ -290,6 +290,10 @@ pages:
       upload_failed:
         title: Upload failed
         body: An error occurred while trying to upload the file. Please retry later.
+        reasons:
+          type_mismatch:
+            title: File type mismatch
+            body: Only '{}' files are allowed.
       zipping_success:
         title: Zipping successful
         body: The archive was successfully created.

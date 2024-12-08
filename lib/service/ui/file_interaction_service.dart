@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:io';
+
 import 'package:common/common.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
@@ -620,9 +622,11 @@ class FileInteractionService {
 
     logger.i('[FileInteractionService($_machineUUID)] uploading file. Allowed: $allowedFileTypes');
 
+    bool useAny = kDebugMode || Platform.isAndroid;
+
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: kDebugMode ? FileType.any : FileType.custom,
-      allowedExtensions: allowedFileTypes.unless(kDebugMode),
+      type: useAny ? FileType.any : FileType.custom,
+      allowedExtensions: allowedFileTypes.unless(useAny),
       withReadStream: true,
       allowMultiple: multiple,
       withData: false,
@@ -630,6 +634,23 @@ class FileInteractionService {
 
     logger.i('[FileInteractionService($_machineUUID)] FilePicker result: $result');
     if (result == null || result.count == 0) return;
+
+    // If we did not filter by OS, we need to check the file extension manually here
+
+    if (useAny) {
+      final invalidFiles = result.files.where((e) => !allowedFileTypes.contains(e.extension));
+      if (invalidFiles.isNotEmpty) {
+        _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: tr('pages.files.file_operation.upload_failed.reasons.type_mismatch.title'),
+          message: tr('pages.files.file_operation.upload_failed.reasons.type_mismatch.body',
+              args: [allowedFileTypes.map((e) => '.$e').join(', ')]),
+        ));
+        yield const FileActionFailed(action: FileSheetAction.uploadFile, files: [], error: 'Invalid file type');
+        return;
+      }
+    }
+
     for (var toUpload in result.files) {
       logger.i('[FileInteractionService($_machineUUID)] Selected file: ${toUpload.name}');
 
@@ -868,6 +889,7 @@ class FileInteractionService {
     } catch (e, s) {
       logger.e('[FileInteractionService($_machineUUID)] Could not upload file.', e, s);
       _onOperationError(e, s, 'upload');
+      yield const FileActionFailed(action: FileSheetAction.uploadFile, files: [], error: 'Upload failed');
     }
   }
 
