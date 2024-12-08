@@ -120,12 +120,14 @@ To edit an existing language file manually:
 - 🇿🇦 Afrikaans, [@DMT07](https://github.com/DMT07)
 - 🇭🇰 Chinese Hong Kong, [@old-cookie](https://github.com/old-cookie)
 - 🇨🇳 Chinese Mainland, [@emo64](https://github.com/emo64), [@ptsa](https://github.com/ptsa)
+- 🇹🇼 Chinese Taiwan, Kayzed
 - 🇳🇱 Dutch, [@JSMPI](https://github.com/JSMPI)
 - 🇬🇧 English, [@Clon1998](https://github.com/Clon1998)
 - 🇫🇷 French, [@Jothoreptile](https://github.com/Jothoreptile), Arnaud Petetin, [@dtourde](https://github.com/dtourde)
 - 🇩🇪 German, [@Clon1998](https://github.com/Clon1998)
 - 🇭🇺 Hungarian, [@AntoszHUN](https://github.com/AntoszHUN)
 - 🇮🇹 Italian, [@Livex97](https://github.com/Livex97)
+- 🇵🇱 Polish, solargrim
 - 🇧🇷 Portuguese Brasil, [@opastorello](https://github.com/opastorello)
 - 🇷🇴 Romanian, [@vaxxi](https://github.com/vaxxi)
 - 🇷🇺 Russian, [@teuchezh](https://github.com/teuchezh)

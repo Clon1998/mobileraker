@@ -39,6 +39,7 @@
 
 - **Hungarian Translation**: Updated the Hungarian translation, thanks to [@AntoszHUN](https://github.com/AntoszHUN).
 - **Chinese Taiwan Translation**: Added a Chinese Taiwan translation, thanks to Kayzed.
+- **Polish Translation**: Added a Polish translation, thanks to Solargrim.
 
 ## [2.8.2] - 2024-10-31
 
