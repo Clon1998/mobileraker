@@ -158,7 +158,7 @@ class JsonRpcClient {
 
   /// Closes the WebSocket communication
   _resetChannel() {
-    _channel?.sink.close(WebSocketStatus.goingAway).ignore();
+    _channel?.sink.close(WebSocketStatus.normalClosure).ignore();
   }
 
   /// Ensures that the ws is still connected.

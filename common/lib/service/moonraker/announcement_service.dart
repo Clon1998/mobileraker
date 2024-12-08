@@ -18,12 +18,12 @@ import '../../network/jrpc_client_provider.dart';
 part 'announcement_service.g.dart';
 
 @riverpod
-AnnouncementService announcementService(AnnouncementServiceRef ref, String machineUUID) {
+AnnouncementService announcementService(Ref ref, String machineUUID) {
   return AnnouncementService(ref, machineUUID);
 }
 
 @riverpod
-Stream<List<AnnouncementEntry>> announcement(AnnouncementRef ref, String machineUUID) {
+Stream<List<AnnouncementEntry>> announcement(Ref ref, String machineUUID) {
   return ref.watch(announcementServiceProvider(machineUUID)).announcementNotificationStream;
 }
 
@@ -31,8 +31,7 @@ Stream<List<AnnouncementEntry>> announcement(AnnouncementRef ref, String machine
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#announcement-apis
 class AnnouncementService {
-  AnnouncementService(AutoDisposeRef ref, String machineUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
+  AnnouncementService(Ref ref, String machineUUID) : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(_onNotifyAnnouncementUpdate, 'notify_announcement_update');
     _jRpcClient.addMethodListener(_onNotifyAnnouncementDismissed, 'notify_announcement_dismissed');

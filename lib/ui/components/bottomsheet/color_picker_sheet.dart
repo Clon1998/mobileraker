@@ -60,7 +60,7 @@ class ColorPickerSheet extends HookConsumerWidget {
                 style: ElevatedButton.styleFrom(
                     foregroundColor: themeData.colorScheme.primary, backgroundColor: themeData.colorScheme.surface),
                 onPressed: () {
-                  Navigator.pop(context, BottomSheetResult.confirmed(null));
+                  context.pop(BottomSheetResult.confirmed(null));
                 },
                 icon: const Icon(Icons.search_off),
                 tooltip: 'general.clear'.tr(),

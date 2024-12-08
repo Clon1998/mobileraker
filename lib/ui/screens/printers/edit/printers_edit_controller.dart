@@ -59,15 +59,22 @@ part 'printers_edit_controller.g.dart';
 GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef _) => GlobalKey<FormBuilderState>();
 
 @Riverpod(dependencies: [])
-Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
+Machine currentlyEditing(Ref ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [currentlyEditing])
-Future<MachineSettings> machineRemoteSettings(MachineRemoteSettingsRef ref) {
+Future<MachineSettings> machineRemoteSettings(Ref ref) {
   var machine = ref.watch(currentlyEditingProvider);
   return ref.watch(machineSettingsProvider(machine.uuid).future);
 }
 
-@riverpod
+@Riverpod(dependencies: [
+  currentlyEditing,
+  machineRemoteSettings,
+  _ObicoTunnel,
+  _OctoEverywhere,
+  _RemoteInterface,
+  WebcamListController
+])
 class PrinterEditController extends _$PrinterEditController {
   MachineService get _machineService => ref.read(machineServiceProvider);
 
@@ -275,14 +282,14 @@ class PrinterEditController extends _$PrinterEditController {
     }
   }
 
-  printerThemeSupporterDialog() {
+  void printerThemeSupporterDialog() {
     ref.read(dialogServiceProvider).show(DialogRequest(
           type: DialogType.supporterOnlyFeature,
           body: tr('components.supporter_only_feature.printer_theme'),
         ));
   }
 
-  resetFcmCache() async {
+  Future<void> resetFcmCache() async {
     var dialogResponse = await ref.read(dialogServiceProvider).showDangerConfirm(
           title: tr(
             'pages.printer_edit.confirm_fcm_reset.title',
@@ -326,7 +333,7 @@ class PrinterEditController extends _$PrinterEditController {
     ref.invalidate(permissionStatusProvider(Permission.location));
   }
 
-  deleteIt() async {
+  Future<void> deleteIt() async {
     var dialogResponse = await ref.read(dialogServiceProvider).showDangerConfirm(
           title: tr(
             'pages.printer_edit.confirm_deletion.title',
@@ -346,17 +353,15 @@ class PrinterEditController extends _$PrinterEditController {
     }
   }
 
-  openImportSettings() {
-    ref
-        .read(dialogServiceProvider)
-        .show(DialogRequest(
+  Future<void> openImportSettings() async {
+    final res = await ref.read(dialogServiceProvider).show(DialogRequest(
           type: DialogType.importSettings,
           data: ref.read(currentlyEditingProvider),
-        ))
-        .then(onImportSettingsReturns);
+        ));
+    onImportSettingsReturns(res);
   }
 
-  onImportSettingsReturns(DialogResponse? response) {
+  void onImportSettingsReturns(DialogResponse? response) {
     if (response != null && response.confirmed) {
       FormBuilderState formState = ref.read(editPrinterFormKeyProvider).currentState!;
       ImportSettingsDialogViewResults result = response.data;
@@ -413,7 +418,7 @@ class PrinterEditController extends _$PrinterEditController {
     }
   }
 
-  openRemoteConnectionSheet() async {
+  Future<void> openRemoteConnectionSheet() async {
     var octoEverywhere = ref.read(_octoEverywhereProvider);
     var remoteInterface = ref.read(_remoteInterfaceProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
@@ -529,7 +534,7 @@ class PrinterEditController extends _$PrinterEditController {
   }
 }
 
-@Riverpod(dependencies: [currentlyEditing, jrpcClientState])
+@Riverpod(dependencies: [currentlyEditing])
 class WebcamListController extends _$WebcamListController {
   Machine get _machine => ref.read(currentlyEditingProvider);
   final List<WebcamInfo> _camsToDelete = [];

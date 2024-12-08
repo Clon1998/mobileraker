@@ -79,11 +79,13 @@ class MyApp extends ConsumerWidget {
         Locale('hu'),
         Locale('it'),
         Locale('nl'),
+        Locale('pl'),
         Locale('pt', 'BR'),
         Locale('ro'),
         Locale('ru'),
         Locale('tr'),
         Locale('uk'),
+        Locale('zh'),
         Locale('zh', 'CN'),
         Locale('zh', 'HK'),
       ],
@@ -150,7 +152,7 @@ class _WarmUp extends HookConsumerWidget {
 
     return Container(
       color: splashBgColorForBrightness(brightness),
-      child: ref.watch(warmupProviderProvider).when(
+      child: ref.watch(warmupProvider).when(
             data: (step) {
               if (step == StartUpStep.complete) {
                 return ResponsiveBuilder(childBuilder: (context) => const MyApp());
@@ -295,7 +297,7 @@ class _EmojiIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var step = ref.watch(warmupProviderProvider).valueOrNull;
+    var step = ref.watch(warmupProvider).valueOrNull;
     if (step == null) return const SizedBox.shrink();
     return Text(step.emoji);
   }

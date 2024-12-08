@@ -232,7 +232,7 @@ pages:
       speed_z: 默认 Z 轴移动速度
       speed_z_short: 速度z
       steps_move: 挤出头移动距离预设值
-      steps_move_short: "@：pages.printer_edit.motion_system.steps_move"
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
       steps_baby: Z轴偏移量
       steps_baby_short: Z Offset
     extruders:

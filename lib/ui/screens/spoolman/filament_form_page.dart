@@ -56,13 +56,13 @@ enum _FilamentFormFormComponent {
 }
 
 @Riverpod(dependencies: [])
-GetVendor? _initialVendor(_) => throw UnimplementedError();
+GetVendor? _initialVendor(Ref _) => throw UnimplementedError();
 
 @Riverpod(dependencies: [])
-GetFilament? _initialFilament(_) => throw UnimplementedError();
+GetFilament? _initialFilament(Ref _) => throw UnimplementedError();
 
 @Riverpod(dependencies: [])
-_FormMode _formMode(_) => _FormMode.create;
+_FormMode _formMode(Ref _) => _FormMode.create;
 
 class FilamentFormPage extends StatelessWidget {
   const FilamentFormPage({

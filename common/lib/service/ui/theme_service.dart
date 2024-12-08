@@ -9,6 +9,7 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -18,25 +19,25 @@ import '../payment_service.dart';
 part 'theme_service.g.dart';
 
 @Riverpod(keepAlive: true)
-List<ThemePack> themePack(ThemePackRef ref) {
+List<ThemePack> themePack(Ref ref) {
   throw UnimplementedError();
 }
 
 @Riverpod()
-ThemeService themeService(ThemeServiceRef ref) => ThemeService(ref);
+ThemeService themeService(Ref ref) => ThemeService(ref);
 
 @riverpod
-Stream<ThemeModel> activeTheme(ActiveThemeRef ref) => ref.watch(themeServiceProvider).themesStream;
+Stream<ThemeModel> activeTheme(Ref ref) => ref.watch(themeServiceProvider).themesStream;
 
 class ThemeService {
-  ThemeService(ThemeServiceRef ref)
+  ThemeService(Ref ref)
       : themePacks = ref.watch(themePackProvider),
         _settingService = ref.watch(settingServiceProvider) {
     assert(themePacks.isNotEmpty, 'No ThemePacks provided!');
     _init(ref);
   }
 
-  _init(ThemeServiceRef ref) {
+  _init(Ref ref) {
     ref.keepAlive();
     selectSystemThemePack();
     // Listen to changes in the selected machine and update the active theme accordingly

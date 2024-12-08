@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -90,7 +90,7 @@ AddressableLed addressableLedObject() {
 
   var jsonRaw = objectFromHttpApiResult(input, 'neopixel sb_leds');
 
-  return AddressableLed.fromJson(jsonRaw, 'sb_leds');
+  return AddressableLed.fromJson({...jsonRaw, 'kind': 'neopixel'}, 'sb_leds');
 }
 
 AddressableLed legacyAddressableLedObject() {
@@ -99,5 +99,5 @@ AddressableLed legacyAddressableLedObject() {
 
   var jsonRaw = objectFromHttpApiResult(input, 'neopixel sb_leds');
 
-  return AddressableLed.fromJson(jsonRaw, 'sb_leds');
+  return AddressableLed.fromJson({...jsonRaw, 'kind': 'neopixel'}, 'sb_leds');
 }

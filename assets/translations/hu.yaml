@@ -62,6 +62,7 @@ general:
   discard: Eldobás
   hide: Elrejtés
   finish: Kész
+  select: Kiválaszt
 pages:
   dashboard:
     title: Irányítópult
@@ -94,6 +95,7 @@ pages:
           Fájl: {file}
           Nyomtatószál: {filament}
         remaining: Fennmaradó
+        print_time: Nyomtatási idő
       cam_card:
         webcam: Webkamera
         fullscreen: Teljes képernyő
@@ -251,6 +253,7 @@ pages:
       last_modified: Utolsó módosítás
       last_printed: Utoljára nyomtatott
       file_size: Méret
+      estimated_time: Becsült nyomtatási idő
     file_actions:
       download: Letöltés
       delete: Törlés
@@ -927,6 +930,8 @@ components:
     show_travel:
       title: Utazási mozgások mutatása
       subtitle: Nem nyomtatási mozgás kijelzése
+  select_color_sheet:
+    title: Szín kiválasztása
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
@@ -966,7 +971,6 @@ dialogs:
     title: Archívum létrehozása
     label: Archívum neve
   delete_files:
-    title: Fájlok törlése
     description: A {} fájlok törlésének megerősítése.
   exclude_object:
     title: Objektum kizárása a nyomtatásból
@@ -995,6 +999,7 @@ dialogs:
     active_machine: 'Aktív gép: {}'
     hint: Érintsd meg a gépet az aktívként való beállításhoz.
   supporter_perks:
+    learn_more: Tudjon meg többet a támogatói kedvezményekről
     title: Támogatói jutalmak
     body: A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.
     hint: 'Tipp: Jelenleg a jutalmak eszközalapúak. Ez változhat a jövőben.'
@@ -1050,7 +1055,8 @@ dialogs:
     value: Fejléc-érték
     value_hint: A fejléc értéke
   macro_settings:
-    show_while_printing: Megjelenítés nyomtatáskor
+    show_for_states: Nyomtatás állapotok
+    show_for_states_hint: Válaszd ki azokat az állapotokat, amelyekre a makrót meg kell jeleníteni
     visible: Látható
   extruder_feedrate:
     title: Extruder sebesség [mm/s]

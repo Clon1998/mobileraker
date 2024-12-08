@@ -20,6 +20,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../screens/printers/components/http_headers.dart';
@@ -33,17 +34,9 @@ GlobalKey<FormBuilderState> formKey(FormKeyRef _) {
 }
 
 @Riverpod(dependencies: [])
-AddRemoteConnectionSheetArgs sheetArgs(SheetArgsRef _) {
-  throw UnimplementedError();
-}
+AddRemoteConnectionSheetArgs sheetArgs(Ref _) => throw UnimplementedError();
 
-@Riverpod(dependencies: [
-  sheetArgs,
-  goRouter,
-  machineService,
-  snackBarService,
-  dialogService,
-])
+@Riverpod(dependencies: [sheetArgs])
 class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBottomSheetController {
   FormBuilderState get _formState => ref.read(formKeyProvider).currentState!;
 

@@ -46,7 +46,7 @@ class PaywallPage extends HookConsumerWidget {
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.parallax,
                 background: SvgPicture.asset(
-                  'assets/vector/undraw_pair_programming_re_or4x.svg',
+                  'assets/vector/undraw_maker_launch_re_rq81.svg',
                 ),
               ),
             );
@@ -310,9 +310,9 @@ class _BenefitOverview extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Learn about Supporter Perks',
+          'dialogs.supporter_perks.learn_more',
           style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        ).tr(),
         IconButton(
           onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
           icon: const Icon(Icons.info_outline),
@@ -338,11 +338,6 @@ class _ManageTiers extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ).tr(),
-        FilledButton.tonalIcon(
-          icon: const Icon(Icons.contact_support_outlined),
-          onPressed: ref.read(paywallPageControllerProvider.notifier).openDevContact,
-          label: const Text('pages.paywall.contact_dialog.title').tr(),
-        ),
         const _BenefitOverview(),
         Align(
           alignment: Alignment.centerLeft,
@@ -363,8 +358,13 @@ class _ManageTiers extends ConsumerWidget {
           style: textTheme.bodySmall,
           textAlign: TextAlign.justify,
         ).tr(),
+        FilledButton.tonalIcon(
+          icon: const Icon(Icons.contact_support_outlined),
+          onPressed: ref.read(paywallPageControllerProvider.notifier).openDevContact,
+          label: const Text('pages.paywall.contact_dialog.title').tr(),
+        ),
         if (model.tipAvailable) const _TippingButton(),
-        ElevatedButton.icon(
+        OutlinedButton.icon(
           icon: const Icon(Icons.subscriptions_outlined),
           label: const Text('pages.paywall.manage_view.store_btn').tr(args: [storeName()]),
           onPressed:
@@ -393,7 +393,8 @@ class _OfferedProductList extends ConsumerWidget {
       );
     }
 
-    logger.e('Got ${packets?.length ?? 0} available Packets: $packets');
+    logger.w('Got ${packets?.length ?? 0} available Packets: $packets');
+    logger.w('Got ${iapPromos?.length ?? 0} available Promos: $iapPromos');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),

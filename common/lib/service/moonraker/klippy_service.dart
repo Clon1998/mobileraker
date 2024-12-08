@@ -26,22 +26,22 @@ import '../selected_machine_service.dart';
 part 'klippy_service.g.dart';
 
 @riverpod
-KlippyService klipperService(KlipperServiceRef ref, String machineUUID) {
+KlippyService klipperService(Ref ref, String machineUUID) {
   return KlippyService(ref, machineUUID);
 }
 
 @riverpod
-Stream<KlipperInstance> klipper(KlipperRef ref, String machineUUID) {
+Stream<KlipperInstance> klipper(Ref ref, String machineUUID) {
   return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
 }
 
 @riverpod
-KlippyService klipperServiceSelected(KlipperServiceSelectedRef ref) {
+KlippyService klipperServiceSelected(Ref ref) {
   return ref.watch(klipperServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod
-Stream<KlipperInstance> klipperSelected(KlipperSelectedRef ref) async* {
+Stream<KlipperInstance> klipperSelected(Ref ref) async* {
   try {
     var machine = await ref.watch(selectedMachineProvider.future);
     if (machine == null) return;
@@ -79,7 +79,7 @@ class KlippyService {
     }, fireImmediately: true);
   }
 
-  final AutoDisposeRef ref;
+  final Ref ref;
 
   final JsonRpcClient _jRpcClient;
 

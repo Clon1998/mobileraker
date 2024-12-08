@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/data/dto/config/config_file.dart';
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -152,10 +153,10 @@ void main() {
 
     // Verify leds
     expect(config.leds, hasLength(4));
-    expect(config.leds['sb_leds'], isNotNull);
-    expect(config.leds['case_dotstars'], isNotNull);
-    expect(config.leds['fysetc_mini12864'], isNotNull);
-    expect(config.leds['caselight'], isNotNull);
+    expect(config.leds[(ConfigFileObjectIdentifiers.neopixel, 'sb_leds')], isNotNull);
+    expect(config.leds[(ConfigFileObjectIdentifiers.dotstar, 'case_dotstars')], isNotNull);
+    expect(config.leds[(ConfigFileObjectIdentifiers.neopixel, 'fysetc_mini12864')], isNotNull);
+    expect(config.leds[(ConfigFileObjectIdentifiers.led, 'caselight')], isNotNull);
 
     // Verify Print cooling fan
     expect(config.configPrintCoolingFan, isNotNull);
@@ -173,10 +174,10 @@ void main() {
 
     // Verify fans
     expect(config.fans, hasLength(4));
-    expect(config.fans['bedfans'], isNotNull);
-    expect(config.fans['hotend_fan'], isNotNull);
-    expect(config.fans['skirt fan'], isNotNull);
-    expect(config.fans['exhaust_fan'], isNotNull);
+    expect(config.fans[(ConfigFileObjectIdentifiers.fan_generic, 'bedfans')], isNotNull);
+    expect(config.fans[(ConfigFileObjectIdentifiers.heater_fan, 'hotend_fan')], isNotNull);
+    expect(config.fans[(ConfigFileObjectIdentifiers.controller_fan, 'skirt fan')], isNotNull);
+    expect(config.fans[(ConfigFileObjectIdentifiers.heater_fan, 'exhaust_fan')], isNotNull);
 
     // Verify Heaters
     expect(config.genericHeaters, hasLength(0));

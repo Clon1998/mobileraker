@@ -22,7 +22,7 @@ part 'nav_widget_controller.g.dart';
 
 @riverpod
 class NavWidgetController extends _$NavWidgetController {
-  GoRouter get goRouter => ref.read(goRouterProvider);
+  GoRouter get _goRouter => ref.read(goRouterProvider);
 
   @override
   NavWidgetModel build() {
@@ -103,23 +103,23 @@ class NavWidgetController extends _$NavWidgetController {
   }
 
   navigateTo(String route, {dynamic arguments}) {
-    if (goRouter.canPop()) goRouter.pop();
+    if (_goRouter.canPop()) _goRouter.pop();
     logger.i('Navigating to $route');
-    goRouter.go(route, extra: arguments);
+    _goRouter.go(route, extra: arguments);
   }
 
   pushingTo(String route, {dynamic arguments}) async {
-    if (goRouter.canPop()) goRouter.pop();
+    if (_goRouter.canPop()) _goRouter.pop();
 
     logger.i('Pushing route to $route');
-    await goRouter.push(route, extra: arguments);
+    await _goRouter.push(route, extra: arguments);
   }
 
   replace(String route, {dynamic arguments}) async {
-    // if (goRouter.canPop()) goRouter.pop();
+    // if (_goRouter.canPop()) _goRouter.pop();
     logger.i('Replacing route to $route');
 
-    goRouter.replace(route, extra: arguments);
+    _goRouter.replace(route, extra: arguments);
   }
 
   void disable() {

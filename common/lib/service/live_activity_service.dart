@@ -37,12 +37,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'live_activity_service.g.dart';
 
 @Riverpod(keepAlive: true)
-LiveActivities liveActivity(LiveActivityRef ref) {
+LiveActivities liveActivity(Ref ref) {
   return LiveActivities();
 }
 
 @riverpod
-LiveActivityService liveActivityService(LiveActivityServiceRef ref) => LiveActivityService(ref);
+LiveActivityService liveActivityService(Ref ref) => LiveActivityService(ref);
 
 class LiveActivityService {
   LiveActivityService(this.ref)
@@ -54,7 +54,7 @@ class LiveActivityService {
     ref.onDispose(dispose);
   }
 
-  final AutoDisposeRef ref;
+  final Ref ref;
   final MachineService _machineService;
   final SettingService _settingsService;
   final LiveActivities _liveActivityAPI;

@@ -252,6 +252,7 @@ pages:
       last_modified: Zuletzt bearbeitet
       last_printed: Zuletzt gedruckt
       file_size: Dateigröße
+      estimated_time: Geschätzte Druckzeit
     file_actions:
       download: Herunterladen
       delete: Löschen
@@ -284,6 +285,10 @@ pages:
       upload_failed:
         title: Upload fehlgeschlagen
         body: Beim Hochladen der Datei ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.
+        reasons:
+          type_mismatch:
+            title: Dateityp nicht unterstützt
+            body: Nur '{}' Dateien sind erlaubt.
       zipping_success:
         title: Archiv erstellt
         body: Das Archiv wurde erfolgreich erstellt.
@@ -899,33 +904,32 @@ components:
     error:
       config:
         title: Fehler beim Abrufen der Druckerkonfiguration!
-        body: Beim Abrufen der Druckerkonfiguration ist ein Fehler aufgetreten. Stellen Sie sicher,
-          dass die Maschine erreichbar ist und Mobileraker verbunden ist.
+        body: Beim Abrufen der Druckerkonfiguration ist ein Fehler aufgetreten. Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker verbunden ist.
   gcode_preview_settings_sheet:
-    title: 'Anzeige-Einstellungen'
+    title: Anzeige-Einstellungen
     show_grid:
-      title: 'Gitter anzeigen'
-      subtitle: 'Zeigt ein Referenzgitter'
+      title: Gitter anzeigen
+      subtitle: Zeigt ein Referenzgitter
     show_axes:
-      title: 'Achsen anzeigen'
-      subtitle: 'Zeigt die X-, Y-Achsen an'
+      title: Achsen anzeigen
+      subtitle: Zeigt die X-, Y-Achsen an
     show_next_layer:
-      title: 'Nächste Schicht anzeigen'
-      subtitle: 'Zeigt die nächste Schicht an'
+      title: Nächste Schicht anzeigen
+      subtitle: Zeigt die nächste Schicht an
     show_previous_layer:
-      title: 'Vorherige Schicht anzeigen'
-      subtitle: 'Zeigt die zuvor gedruckte Schicht an'
+      title: Vorherige Schicht anzeigen
+      subtitle: Zeigt die zuvor gedruckte Schicht an
     extrusion_width_multiplier:
-      prefix: 'Linienbreiten-Multiplikator'
+      prefix: Linienbreiten-Multiplikator
     show_extrusion:
-      title: 'Extrusionen anzeigen'
-      subtitle: 'Zeige Materialbewegungen in der Vorschau an'
+      title: Extrusionen anzeigen
+      subtitle: Zeige Materialbewegungen in der Vorschau an
     show_retraction:
-      title: 'Rückzüge anzeigen'
-      subtitle: 'Zeige Filament-Rückzugsbewegungen in der Vorschau an'
+      title: Rückzüge anzeigen
+      subtitle: Zeige Filament-Rückzugsbewegungen in der Vorschau an
     show_travel:
-      title: 'Verfahrbewegungen anzeigen'
-      subtitle: 'Zeigt nicht-druckende Bewegungen in der Vorschau an'
+      title: Verfahrbewegungen anzeigen
+      subtitle: Zeigt nicht-druckende Bewegungen in der Vorschau an
   select_color_sheet:
     title: Farbe auswählen
 dialogs:
@@ -995,6 +999,7 @@ dialogs:
     active_machine: 'Aktive Maschine: {}'
     hint: Tippen Sie auf eine Maschine, um sie zu aktivieren.
   supporter_perks:
+    learn_more: Erfahren mehr über die Vorteile
     title: Supporter Vorteile
     body: Indem Sie Mobileraker unterstützen, stellen Sie sicher, dass die App für die Community kostenlos bleiben kann. Zusätzlich erhalten Supporter die folgenden Funktionen.
     hint: 'Hinweis: Zurzeit sind die Vergünstigungen geräteabhängig. Dies könnte sich in Zukunft ändern.'
@@ -1050,7 +1055,8 @@ dialogs:
     value: Header-Wert
     value_hint: Der Wert des HTTP-Headers
   macro_settings:
-    show_while_printing: Während des Drucks anzeigen
+    show_for_states: Druck-Zustände
+    show_for_states_hint: Wählen Sie die Druckzustände, in denen das Makro angezeigt werden soll
     visible: Sichtbar
   extruder_feedrate:
     title: Extruder-Geschwindigkeit [mm/s]

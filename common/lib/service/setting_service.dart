@@ -6,17 +6,18 @@
 import 'dart:async';
 
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'setting_service.g.dart';
 
 @Riverpod(keepAlive: true)
-SettingService settingService(SettingServiceRef ref) {
+SettingService settingService(Ref ref) {
   return SettingService();
 }
 
 @riverpod
-bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = false]) {
+bool boolSetting(Ref ref, KeyValueStoreKey key, [bool fallback = false]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');
@@ -26,7 +27,7 @@ bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = fals
 }
 
 @riverpod
-String? stringSetting(StringSettingRef ref, KeyValueStoreKey key, [String? fallback]) {
+String? stringSetting(Ref ref, KeyValueStoreKey key, [String? fallback]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');
@@ -36,7 +37,7 @@ String? stringSetting(StringSettingRef ref, KeyValueStoreKey key, [String? fallb
 }
 
 @riverpod
-int intSetting(IntSettingRef ref, KeyValueStoreKey key, [int fallback = 0]) {
+int intSetting(Ref ref, KeyValueStoreKey key, [int fallback = 0]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');
@@ -46,7 +47,7 @@ int intSetting(IntSettingRef ref, KeyValueStoreKey key, [int fallback = 0]) {
 }
 
 @riverpod
-double doubleSetting(DoubleSettingRef ref, KeyValueStoreKey key, [double fallback = 0.0]) {
+double doubleSetting(Ref ref, KeyValueStoreKey key, [double fallback = 0.0]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');
@@ -56,7 +57,7 @@ double doubleSetting(DoubleSettingRef ref, KeyValueStoreKey key, [double fallbac
 }
 
 @riverpod
-Type objectSetting<Type>(ObjectSettingRef ref, KeyValueStoreKey key, Type fallback) {
+Type objectSetting<Type>(Ref ref, KeyValueStoreKey key, Type fallback) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');
@@ -66,7 +67,7 @@ Type objectSetting<Type>(ObjectSettingRef ref, KeyValueStoreKey key, Type fallba
 }
 
 @riverpod
-List<String> stringListSetting(StringListSettingRef ref, KeyValueStoreKey key, [List<String>? fallback]) {
+List<String> stringListSetting(Ref ref, KeyValueStoreKey key, [List<String>? fallback]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');

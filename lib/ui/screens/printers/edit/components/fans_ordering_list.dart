@@ -7,9 +7,6 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
-import 'package:common/data/dto/machine/fans/controller_fan.dart';
-import 'package:common/data/dto/machine/fans/heater_fan.dart';
-import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/service/machine_service.dart';
@@ -143,14 +140,7 @@ class FansOrderingListController extends _$FansOrderingListController {
     }
 
     for (var fan in printerData.fans.values) {
-      var kind = switch (fan) {
-        HeaterFan() => ConfigFileObjectIdentifiers.heater_fan,
-        TemperatureFan() => ConfigFileObjectIdentifiers.temperature_fan,
-        ControllerFan() => ConfigFileObjectIdentifiers.controller_fan,
-        _ => ConfigFileObjectIdentifiers.fan_generic,
-      };
-
-      availableElements.add(ReordableElement(name: fan.name, kind: kind));
+      availableElements.add(ReordableElement(name: fan.name, kind: fan.kind));
     }
 
     return availableElements;
@@ -162,14 +152,14 @@ class FansOrderingListController extends _$FansOrderingListController {
 
     // Only include elements that are available in the printer
     for (var setting in settings) {
-      if (availableElements.any((e) => e.kindName == setting.kindName)) {
+      if (availableElements.any((e) => e.kind == setting.kind && e.name == setting.name)) {
         normalizedSettings.add(setting);
       }
     }
 
     // Add missing elements from the printer
     for (var element in availableElements) {
-      if (!normalizedSettings.any((e) => e.kindName == element.kindName)) {
+      if (!normalizedSettings.any((e) => e.kind == element.kind && e.name == element.name)) {
         normalizedSettings.add(element);
       }
     }

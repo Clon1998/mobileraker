@@ -3,6 +3,27 @@ general:
   pause: Pauza
   resume: Wznów
   connected: Połączono
+  'off': 'Wyłącz'
+  'on': 'Włącz'
+  none: Nic
+  add: Dodaj
+  create: Utwórz
+  rename: Zmień
+  remove: Usuń
+  set: Ustaw
+  use: Użyj
+  restart: Restartuj
+  shutdown: Wyłącz
+  firmware: Firmware
+  fetching: Pobieranie danych
+  loading: Ładowanie
+  unknown: Nieznany
+  disabled: Wyłączony
+  confirm: Potwierdź
+  cancel: Anuluj
+  close: Zamknij
+  edit: Edytuj
+  preview: Podgląd
   retry: Ponów
   supported: Wspierane
   unsupported: Niewspierane
@@ -34,12 +55,25 @@ general:
   archived: Zarchiwizowano
   leave: Opuść
   export: Eksport
+  import: Importuj
+  current: Aktualny
+  load: Ładuj
+  unload: Wyładuj
   discard: Pomiń
   hide: Ukryj
+  finish: Zakończ
+  select: Wybierz
 pages:
   dashboard:
+    title: Panel
+    ems_btn: Awaryjne zatrzymanie
     ems_confirmation:
+      title: Potwierdź awaryjne zatrzymanie
+      body: Zamierzasz wysłać polecenie zatrzymania awaryjnego do drukarki. Spowoduje to natychmiastowe zatrzymanie wszystkich silników i grzałek.
       confirm: STOP!
+    server_status:
+      unavailable: Serwer niedostępny
+      available: Status serwera {} oraz Klippy {}
     general:
       print_card:
         reset: Reset
@@ -47,19 +81,37 @@ pages:
         printing_for: 'Drukowanie: {}'
         speed: Prędkość
         layer: Warstwa
+        eta: Pozostało
         current_object: Aktualny obiekt
         elapsed: Upłynęło
+        flow: Flow
         filament: Filament
+        eta_tooltip: |-
+          Pozostały czas:
+          Średni:
+          Slicer:
+          Plik:
+          Filament:
         remaining: Pozostało
+        print_time: Czas druku
       cam_card:
         webcam: Kamera
         fullscreen: Pełny ekran
       temp_card:
         title: Kontrola temperatury
+        presets_btn: Nastawy
+        hotend: Głowica grzewcza
         bed: Łoże
+        temp_presets: Ustawienia temperatury
         sensors: Sensory
+        heater_on: "{} °C cel"
         btn_thermistor: Sensor
       move_card:
+        title: Przesuń oś
+        home_xy_tooltip: Pozycja startowa X i Y
+        home_z_tooltip: Pozycja startowa Z
+        home_all_tooltip: Pozycjonuj wszystkie osie
+        home_all_btn: Wszystko
         qgl_tooltip: Uruchom QGL
         qgl_btn: QGL
         mesh_tooltip: Uruchom kalibrację mesh
@@ -68,7 +120,366 @@ pages:
         m84_btn: M84
         step_size: Wielkość kroku
         stc_tooltip: Uruchom pomiar Screws-Tilt
+        poff_tooltip:
+        poff_btn: Kalibracja Probe
+        zoff_btn: Kalibracja krańcówki Z
+        save_tooltip: Zapisz rezultat kalibracji
+        save_btn: Zapisz konfigurację
+        more_btn: Więcej
+      baby_step_card:
+        title: Mikro Kalibracja Osi Z
+      restart_klipper: Zrestartuj Klippera
+    control:
+      fan_card:
+        title:
+          zero: Wentylator
+          one: Wentylator
+          other: Wentylatory
+        part_fan: Wentylator druku
+        static_fan_btn: Wentylator
+      extrude_card:
+        title: Ekstruder
+        extrude: Ekstruzja
+        retract: Retrakcja
+      macro_card:
+        title: Gcode - Makra
+        no_macros: W tej grupie nie widać obecnie żadnych makr
+        add_grp_hint: Możesz tworzyć różne grupy, aby organizować swoje makra. Po prostu przejdź do ustawień drukarki i dodaj nową grupę.
+        show_all_tooltip: Pokaż wszystkie makra
+      pin_card:
+        title_misc: Różne
+        filament_sensor:
+          detected: Wykryto
+          not_detected: Pusty
+      multipl_card:
+        title: Mnożnik
+        flow: Przepływ
+        press_adv: Kalibracja ciśnienia PA
+        smooth_time: Czas wygładzania
+      limit_card:
+        title: Limity
+        velocity: Prędkość
+        accel: Akceleracja
+      fw_retraction_card:
+        retract_length: Długość retrakcji
+        retract_speed: Prędkość retrakcji
+      bed_mesh_card:
+        title: Siatka stołu
+        profiles: Profile
+      spoolman_card:
+        no_spool: |-
+          Nie wybrano szpuli.
+          Zużycie filamentu nie będzie śledzone.
+        used: 'Użyty: {}'
+      gcode_preview_card:
+        title: GCode Podgląd
+        follow: Śledź postęp
+        kinematic_not_supported: Obecnie aplikacja nie obsługuje renderowania kodu GCode dla układu kinematycznego tej drukarki.
+        start_preview:
+          btn: Włącz podgląd
+  customizing_dashboard:
+    cancel_confirm:
+      title: Odrzucić zmiany?
+    add_card: Dodaj kartę
+    remove_page: Usuń stronę
+    saved_snack:
+      title: Układ zapisany!
+      body: Twoje zmiany zostały zapisane.
+    confirm_removal:
+      title: Usunąć stronę?
+    editing_card:
+      title: Tryb edycji
+    error_save_snack:
+      title: Błąd w zapisie układu!
+    error_no_components:
+      title: Pusty układ!
+  files:
+    title: Pliki
+    empty_folder:
+      title: Ten folder jest pusty
+      subtitle: Nie znaleziono plików
+    sort_by:
+      sort_by: Sortuj według
+      name: Nazwa
+      last_modified: Ostatnia modyfikacja
+      last_printed: Ostatnio drukowany
+      file_size: Wielkość
+      estimated_time: Przewidywany czas druku
+    file_actions:
+      download: Pobierz
+      delete: Usuń
+      copy: Kopiuj
+      move: Przenieś
+      rename: Zmień nazwę
+      create_file: Utwórz plik
+      create_folder: Utwórz folder
+      upload: Wyślij plik
+      upload_bulk: Wyślij pliki
+      zip_file: Utwórz archiwum
+    gcode_file_actions:
+      preheat: Podgrzej
+      enqueue: Dodaj do kolejki wydruku
+      preview: Podgląd
+    file_operation:
+      download_canceled:
+        title: Pobieranie anulowane
+        body: Pobieranie zostało anulowane.
+      download_failed:
+        title: Pobieranie nieudane
+        body: Wystąpił błąd podczas próby pobrania pliku. Spróbuj ponownie później.
+      upload_canceled:
+        title: Wysyłanie anulowane
+        body: Wysyłanie zostało anulowane.
+      upload_success:
+        title: Wysyłanie powiodło się
+        body: Plik został poprawnie wysłany.
+      upload_failed:
+        title: Wysyłanie nieudane
+      copy_created:
+        title: Kopia utworzona
+      move_success:
+        title: Ruch zakończony sukcesem
+      move_failed:
+        title: Ruch nieudany
+    search_files: Szukaj w katalogu
+    search:
+      clear_search: Wyczyść wyszukiwanie
+      no_results:
+        title: Nie znaleziono plików
+    cancel_fab:
+      upload: Anuluj wysyłanie
+      download: Anuluj pobieranie
+    move_here: Przenieś tutaj
+    copy_here: Kopiuj tutaj
+    element:
+      one: Element
+      other: Elementy
+    details:
+      preheat: Podgrzanie
+      print: Drukuj
+      general_card:
+        path: Scieżka
+        last_mod: Ostatnio modyfikowany
+        last_printed: Ostatnio drukowany
+        no_data: Brak danych
+      meta_card:
+        filament: Filament
+        filament_type: Typ
+        filament_name: Nazwa
+        filament_weight: Waga
+        filament_length: Długość
+        est_print_time: Szacowany czas wydruku
+        slicer: Użyty Slicer
+        nozzle_diameter: Średnica dyszy
+        layer_higher: Wysokość warstwy
+        first_layer: Pierwsza warstwa
+        others: Inne
+      stat_card:
+        title: Statystyki
+      preheat_dialog:
+        body: |-
+          Zadane temperatury
+          Ekstruder: {}°C
+          Stół: {}°C
+      preheat_snackbar:
+        body: |-
+          Ekstruder: {}°C
+          Stół: {}°C
+      spoolman_warnings:
+        insufficient_filament_title: Niewystarczająca ilość filamentu
+        material_mismatch_title: Niedopasowanie materiałów
+  setting:
+    title: Ustawienia aplikacji
+    general:
+      title: Ogólne
+      ems_confirm: Potwierdź zatrzymanie awaryjne
+      language: Język
+      time_format: Format czasu
+    notification:
+      title: Powiadomienia
+  printer_edit:
+    title: Edytuj {}
+    import_settings: Importuj ustawienia
+    remove_printer: Usuń drukarkę
+    reset_notification_registry: Wyczyść rejestr urządzeń powiadamiających
+    store_error:
+      title: Zapisywanie nieudane!
+      message: |-
+        Niektóre pola zawierają nieprawidłowe wartości!
+        Upewnij się, że wszystkie pola są prawidłowe.
+      unexpected_error: Wystąpił nieoczekiwany błąd podczas próby zapisania danych maszyny!
+    confirm_deletion:
+      title: Usunąć {}?
+      body: "Zamierzasz usunąć drukarkę '{}' podłączoną do '{}'.\n\nPotwierdź swoją czynność."
+    general:
+      displayname: Wyświetlana nazwa
+      printer_addr: Drukarka - adres
+      full_url: '!Wysokość warstwy'
+      timeout_label: Upłynął czas oczekiwania
+      theme: Motyw UI
+      theme_helper: Motyw UI dla drukarki
+    motion_system:
+      invert_x_short: Odwróć X
+      invert_y_short: Odwróć Y
+      invert_z_short: Odwróć Z
+    extruders:
+      feedrate_short: Prędkość
+      filament:
+        loading_distance: Odległość dyszy ekstrudera
+    cams:
+      target_fps: Decelowa ilość FPS
+      new_cam: Nowa kamera
+      no_webcams: Nie dodano kamer!
+      flip_vertical: Odwróć w pionie
+      flip_horizontal: Odwróć w poziomie
+    local_ssid:
+      no_ssids: Nie dodano nazwy sieci WiFi!
+      dialog:
+        title_add: Dodaj nazwę WiFi do listy
+        title_edit: Edytuj nazwę WiFi
+        label: Nazwa WiFi (SSID)
+    fan_ordering:
+      no_fans: Brak wentylatorów!
+  printer_add:
+    steps:
+      done: Zrobione
+    title: Dodaj nową drukarkę
+    initial_name: Moja drukarka
+    select_mode:
+      advanced: Zaawansowane
+    advanced_form:
+      section_security: Bezpieczeństwo
+    test_connection:
+      button: Przetestuj połączenie
+    confirmed:
+      title: Drukarka {} dodana!
+  console:
+    title: Konsola
+    card_title: GCode Konsola
+    no_suggestions: Nie znaleziono sugestii!
+    command_input:
+      hint: Wprowadź polecenie konsoli
+  overview:
+    title: Podsumowanie
+    add_machine: Dodaj maszyę
+  tool:
+    title: Narzędzia
+  beltTuner:
+    title: Tuning paska
+  spoolman:
+    learn_more_link: Strona GitHub.
+    spoolman_actions:
+      deactivate: Dezaktywacja
+      clone: Klonuj
+    update:
+      success:
+        title: "{} zaktualizowano!"
+      error:
+        title: Błąd aktualizacji {}!
+        message: Wystąpił nieoczekiwany błąd. Spróbuj ponownie później.
+      no_changes:
+        title: Nie wprowadzono żadnych zmian!
+    delete:
+      confirm:
+        title: Usunąć {}?
+      success:
+        title: "{} usunięto!"
+    properties:
+      comment: Komentarz
+      price: Cena
+      weight: Waga
+      first_used: Pierwsze użycie
+      last_used: Ostanie użycie
+      location: Lokalizacja
+      color: Kolor
+    property_sections:
+      basic: Podstawowe informacje
+    filament_form:
+      create_page_title: Utwórz filament
+      update_page_title: Edytuj filament
+components:
+  app_version_display:
+    version: 'Wersja:'
+    installed_version: 'Zainstalowana wersja:'
+  nav_drawer:
+    printer_settings: Ustawienia drukarki
+    manage_printers: Zarządzaj drukarkami
+    fetching_printers: "…………"
+  connection_watcher:
+    reconnect: Połącz ponownie
+  supporter_add:
+    title: Lubisz Mobileraker?
+  gcode_preview:
+    layer:
+      one: Warstwa
+      other: Warstwy
+    move:
+      one: Ruch
+      other: Ruchy
+  gcode_preview_settings_sheet:
+    show_grid:
+      title: Pokaż siatkę
+  select_color_sheet:
+    title: Wybierz kolor
+dialogs:
+  create_folder:
+    title: Utwórz folder
+  macro_settings:
+    visible: Widoczny
+  filament_switch:
+    steps:
+      move:
+        title:
+          load: Ładuj filament
+          unload: Wyładuj filament
+        subtitle:
+          load:
+            processing: Ładowanie filamentu...
+          unload:
+            processing: Wyładowywanie filamentu...
+      purge:
+        title: Oczyść filament
+        subtitle:
+          processing: Czyszczenie filamentu...
+  confirm_print_cancelation:
+    title: Anulować drukowanie?
+    body: |-
+      Zamierzasz anulować zadanie drukowania.
+
+      Potwierdź swoją akcję.
 bottom_sheets:
+  manage_macros_in_grp:
+    title: Dodaj makro
+  signIn:
+    forgot_password: Zapomniałeś hasła?
+    action:
+      sign_in: Zaloguj
+      sign_up: Wyloguj
+      reset_password: Zresetuj hasło
+    email:
+      label: Email
+      hint: Twój adres email
+    password:
+      label: Hasło
+      hint: Twoje hasło
+    confirm_password:
+      label: Potwierdź hasło
+      hint: Potwierdź swoje hasło
+      error: Hasła są niezgodne!
+  profile:
+    title: Jesteś zalogowany.
+    restore_purchases: Przywróć zakupy
+    restore_success: Zakupy zostały pomyślnie przywrócone!
+    delete_account: Usuń konto.
+    delete_account_dialog:
+      title: Usunąć konto?
+  bedMesh:
+    load_bed_mesh_profile: Załaduj profil siatki stołu
+    no_mesh: Brak siatki stołu
+  select_spool:
+    header:
+      qr: Kod QR
+    scan_again: Skanuj ponownie
   non_printing:
     manage_service:
       no_services: Nie znaleziono usług!
@@ -77,9 +488,42 @@ bottom_sheets:
       title: Jesteś pewien?
       hint:
         long_press: 'Podpowiedź: Aby pominąć, przytrzymaj dłużej przycisk, który otworzył to potwierdzenie.'
+  dashboard_layout:
+    layout_preview:
+      not_saved: Nie zapisano
+    rename_layout:
+      label: Nazwa układu
+    delete_layout:
+      title: Usuń układ
+  selections:
+    no_selections:
+      title: Nie znaleziono wyników.
+klipper_state:
+  ready: Gotowy
+  shutdown: Zamknięcie
+  starting: Startowanie
+  disconnected: Rozłączony
+  error: Błąd
+  unauthorized: Nieautoryzowany
+  initializing: Inicjalizacja
+print_state:
+  standby: Czuwanie
+  printing: Drukowanie
+  paused: Pauza
+  complete: Zakończono
+  cancelled: Anulowany
+  error: Błąd
+theme_mode:
+  light: Jasny
+  dark: Ciemny
+  system: System
 notifications:
+  channel_printer_grp: Drukarka {}
   channels:
     status:
+      name: Aktualizacje statusu wydruku - {}
+      desc: Powiadomienia dotyczące statusu drukowania.
+      body_printing: 'Drukowanie pliku: "{}"'
       body_paused: 'Wstrzymano drukowanie pliku: "{}"'
       body_complete: 'Zakończono druk: "{}"'
       body_error: 'Błąd podczas druku pliku: "{}"'

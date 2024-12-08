@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,7 +14,7 @@ import '../fcm/device_fcm_settings_repository.dart';
 part 'device_fcm_settings_repository_impl.g.dart';
 
 @riverpod
-DeviceFcmSettingsRepository deviceFcmSettingsRepository(DeviceFcmSettingsRepositoryRef ref, String machineUUID) {
+DeviceFcmSettingsRepository deviceFcmSettingsRepository(Ref ref, String machineUUID) {
   return DeviceFcmSettingsRepositoryImpl(ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
 }
 

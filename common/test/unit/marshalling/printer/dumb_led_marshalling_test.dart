@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -56,5 +56,5 @@ DumbLed dumbLedObject() {
 
   var jsonRaw = objectFromHttpApiResult(input, 'led caselight');
 
-  return DumbLed.fromJson(jsonRaw, 'caselight');
+  return DumbLed.fromJson({...jsonRaw, 'kind': 'led'}, 'caselight');
 }

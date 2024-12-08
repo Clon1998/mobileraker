@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/snackbar/snackbar.dart';
 
-SnackBarService snackBarServiceImpl(SnackBarServiceRef ref) => SnackBarServiceImpl(ref);
+SnackBarService snackBarServiceImpl(Ref ref) => SnackBarServiceImpl(ref);
 
 class SnackBarServiceImpl implements SnackBarService {
   const SnackBarServiceImpl(this.ref);

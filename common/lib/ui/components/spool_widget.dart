@@ -13,12 +13,12 @@ part 'spool_widget.g.dart';
 
 // Used to ensure we only load the SVG once
 @Riverpod(keepAlive: true)
-Future<String> _svg(_SvgRef ref) async {
+Future<String> _svg(Ref ref) async {
   return rootBundle.loadString('assets/vector/spool-yellow-small.svg');
 }
 
 @Riverpod(keepAlive: true)
-Future<String> _coloredSpool(_ColoredSpoolRef ref, String color, Brightness brightness) async {
+Future<String> _coloredSpool(Ref ref, String color, Brightness brightness) async {
   var rawSvg = await ref.watch(_svgProvider.future);
 
   // Extract alpha channel from color

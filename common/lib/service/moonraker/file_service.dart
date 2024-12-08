@@ -86,7 +86,7 @@ class FolderContentWrapper with _$FolderContentWrapper {
 }
 
 @riverpod
-CacheManager httpCacheManager(HttpCacheManagerRef ref, String machineUUID) {
+CacheManager httpCacheManager(Ref ref, String machineUUID) {
   final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
   final baseOptions = ref.watch(baseOptionsProvider(machineUUID, clientType));
   final httpClientFactory = ref.watch(httpClientFactoryProvider);
@@ -105,7 +105,7 @@ CacheManager httpCacheManager(HttpCacheManagerRef ref, String machineUUID) {
 }
 
 @riverpod
-Uri? previewImageUri(PreviewImageUriRef ref) {
+Uri? previewImageUri(Ref ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
 
   if (machine == null) return null;
@@ -116,7 +116,7 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
 }
 
 @riverpod
-Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
+Map<String, String> previewImageHttpHeader(Ref ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
   if (machine == null) return {};
 
@@ -125,7 +125,7 @@ Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
 }
 
 @riverpod
-FileService fileService(FileServiceRef ref, String machineUUID) {
+FileService fileService(Ref ref, String machineUUID) {
   var dio = ref.watch(dioClientProvider(machineUUID));
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
@@ -133,12 +133,12 @@ FileService fileService(FileServiceRef ref, String machineUUID) {
 }
 
 @riverpod
-Stream<FileActionResponse> _rawFileNotifications(_RawFileNotificationsRef ref, String machineUUID, [String? path]) {
+Stream<FileActionResponse> _rawFileNotifications(Ref ref, String machineUUID, [String? path]) {
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
 }
 
 @riverpod
-Stream<FileActionResponse> fileNotifications(FileNotificationsRef ref, String machineUUID, [String? path]) {
+Stream<FileActionResponse> fileNotifications(Ref ref, String machineUUID, [String? path]) {
   StreamController<FileActionResponse> streamController = StreamController();
   ref.onDispose(streamController.close);
 
@@ -176,12 +176,12 @@ Stream<FileActionResponse> fileNotifications(FileNotificationsRef ref, String ma
 }
 
 @riverpod
-FileService fileServiceSelected(FileServiceSelectedRef ref) {
+FileService fileServiceSelected(Ref ref) {
   return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod
-Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRef ref) async* {
+Stream<FileActionResponse> fileNotificationsSelected(Ref ref) async* {
   ref.keepAliveFor();
   try {
     var machine = await ref.watch(selectedMachineProvider.future);
@@ -193,7 +193,7 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 }
 
 @riverpod
-Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String machineUUID, String path) async {
+Future<FolderContentWrapper> fileApiResponse(Ref ref, String machineUUID, String path) async {
   ref.keepAliveFor();
   // Invalidation of the cache is done by the fileNotificationsProvider
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
@@ -204,7 +204,7 @@ Future<FolderContentWrapper> fileApiResponse(FileApiResponseRef ref, String mach
 
 @riverpod
 Future<FolderContentWrapper> moonrakerFolderContent(
-    MoonrakerFolderContentRef ref, String machineUUID, String path, SortConfiguration sortConfig) async {
+    Ref ref, String machineUUID, String path, SortConfiguration sortConfig) async {
   ref.keepAliveFor();
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
   // await Future.delayed(const Duration(milliseconds: 5000));
@@ -225,16 +225,14 @@ Future<FolderContentWrapper> moonrakerFolderContent(
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, this._machineUUID, this._jRpcClient, this._dio)
-      : _downloadReceiverPortName = 'downloadFilePort-${_machineUUID.hashCode}',
-        _apiRequestTimeout =
+  FileService(Ref ref, this._machineUUID, this._jRpcClient, this._dio)
+      : _apiRequestTimeout =
             _jRpcClient.timeout > const Duration(seconds: 30) ? _jRpcClient.timeout : const Duration(seconds: 30) {
     ref.onDispose(dispose);
     ref.listen(jrpcMethodEventProvider(_machineUUID, 'notify_filelist_changed'), _onFileListChanged);
   }
 
   final String _machineUUID;
-  final String _downloadReceiverPortName;
 
   final StreamController<FileActionResponse> _fileActionStreamCtrler = StreamController();
 

@@ -9,7 +9,7 @@ environment:
 
 dependency_overrides:
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
-
+  collection: 1.19.0 # Required because dio_smart_retry is in conflict with the flutter sdk otherwise
 
 dependencies:
   flutter:
@@ -18,28 +18,28 @@ dependencies:
   #network
   web_socket_channel: ^3.0.1
   dio: ^5.3.3
-  dio_smart_retry: ^6.0.0
-  flutter_web_auth: ^0.5.0
+  dio_smart_retry: ^7.0.1
+  flutter_web_auth: ^0.6.0
   http: ^1.2.1
 
   #firebase
   firebase_core_platform_interface: ^5.3.0
-  firebase_core: ^2.30.0
-  firebase_analytics: ^10.10.2
-  firebase_app_check: ^0.2.2+2
-  firebase_crashlytics: ^3.5.2
-  firebase_remote_config: ^4.4.2
-  cloud_firestore: ^4.17.0
-  firebase_auth: ^4.19.2
+  firebase_core: ^3.6.0
+  firebase_analytics: ^11.3.5
+  firebase_app_check: ^0.3.1+6
+  firebase_crashlytics: ^4.1.5
+  firebase_remote_config: ^5.1.5
+  cloud_firestore: ^5.5.0
+  firebase_auth: ^5.3.3
 
   #purchases
-  purchases_flutter: ^8.1.2
+  purchases_flutter: ^8.2.2
 
   #notification
-  awesome_notifications_core: ^0.9.3
-  awesome_notifications: ^0.9.3
-  awesome_notifications_fcm: ^0.9.3
-  #  live_activities: ^1.9.3
+  awesome_notifications_core: ^0.10.0
+  awesome_notifications: ^0.10.0
+  awesome_notifications_fcm: ^0.10.0
+  #  live_activities: ^2.1.0
   live_activities:
     git:
       url: https://github.com/Clon1998/flutter_live_activities
@@ -54,16 +54,16 @@ dependencies:
   #architecture
   freezed_annotation: ^2.4.1
   flutter_hooks: ^0.20.1
-  hooks_riverpod: ^2.3.8
-  riverpod_annotation: ^2.1.6
+  hooks_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
   json_annotation: ^4.8.1
 
   #i18n
   easy_localization: ^3.0.3
 
   #persisstent
-  path_provider: ^2.1.0
-  hive_ce: ^2.6.0
+  path_provider: ^2.1.5
+  hive_ce: ^2.8.0+1
   hive_ce_flutter: ^2.1.0
   flutter_cache_manager: ^3.3.1
 
@@ -71,12 +71,12 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #bottomsheet:
-  smooth_sheets: ^1.0.0-f324.0.10.1
+  smooth_sheets: ^1.0.0-f324.0.10.2
 
   #ui
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git
-  flutter_svg: ^2.0.5
+  flutter_svg: ^2.0.15
   progress_indicators: ^1.0.0
 
   #misc
@@ -85,30 +85,30 @@ dependencies:
   stringr: ^1.0.0
   collection: ^1.18.0
   uuid: ^4.3.3
-  network_info_plus: ^6.0.1
+  network_info_plus: ^6.1.1
   permission_handler: ^11.0.0
-  url_launcher: ^6.1.6
-  package_info_plus: ^8.0.2
+  url_launcher: ^6.3.1
+  package_info_plus: ^8.1.1
   vector_math: ^2.1.4
   form_builder_validators: ^11.0.0
 
   #crypto
   hashlib_codecs: ^2.2.0
-  hashlib: ^1.21.0
+  hashlib: ^1.21.1
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^5.3.2
-  flutter_lints: ^4.0.0
-  riverpod_lint: ^2.3.13
-  custom_lint: ^0.6.4
-  build_runner: ^2.4.9
+  flutter_lints: ^5.0.0
+  riverpod_lint: ^2.6.3
+  custom_lint: ^0.7.0
+  build_runner: ^2.4.13
   freezed: ^2.5.2
-  json_serializable: ^6.4.1
-  riverpod_generator: ^2.4.3
-  hive_ce_generator: ^1.6.0
+  json_serializable: ^6.9.0
+  riverpod_generator: ^2.6.3
+  hive_ce_generator: ^1.8.0
 
 flutter:
   fonts:

@@ -302,7 +302,7 @@ class _FansCardController extends _$FansCardController {
     int getOrderingIndex(Fan fan) {
       return ordering.indexWhere((element) {
         return switch (fan) {
-          NamedFan() => element.name == fan.name,
+          NamedFan() => element.name == fan.name && element.kind == fan.kind,
           PrintFan() => element.kind == ConfigFileObjectIdentifiers.fan,
           _ => false
         };
@@ -317,10 +317,7 @@ class _FansCardController extends _$FansCardController {
       var printFan = value.printFan;
       var fans = value.fans;
 
-      return [
-        if (printFan != null) printFan,
-        ...fans.values,
-      ];
+      return [if (printFan != null) printFan, ...fans.values];
     }))
         // Use map here since this prevents to many operations if the original list not changes!
         .map((fans) {

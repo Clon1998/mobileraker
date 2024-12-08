@@ -49,7 +49,7 @@ class DevPage extends HookConsumerWidget {
     logger.i('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
 
-    var systemInfo = ref.watch(klipperSystemInfoProvider(selMachine!.uuid));
+    var systemInfo = ref.watch(klippySystemInfoProvider(selMachine!.uuid));
 
     Widget body = ListView(
       children: [

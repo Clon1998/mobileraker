@@ -62,7 +62,7 @@ GetFilament? _initialFilament(_) => throw UnimplementedError();
 GetSpool? _initialSpool(_) => throw UnimplementedError();
 
 @Riverpod(dependencies: [])
-_FormMode _formMode(_FormModeRef ref) => _FormMode.create;
+_FormMode _formMode(Ref ref) => _FormMode.create;
 
 class SpoolFormPage extends StatelessWidget {
   const SpoolFormPage({

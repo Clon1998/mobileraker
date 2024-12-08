@@ -7,11 +7,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:common/service/firebase/auth.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -23,54 +26,62 @@ import 'ui/snackbar_service_interface.dart';
 
 part 'payment_service.g.dart';
 
-@Riverpod(keepAlive: true)
-Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
-  try {
-    var customerInfo = await Purchases.getCustomerInfo();
-    logger.i('Got customerInfo: $customerInfo');
+@ProviderFor(CustomerInfoNotifier)
+final customerInfoProvider = customerInfoNotifierProvider;
 
-    checkForExpired() async {
-      logger.i('Checking for expired subs!');
-      var v = ref.state;
-      var now = DateTime.now();
-      if (v.hasValue) {
-        var hasExpired = v.requireValue.entitlements.active.values
-            .any((ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
-        if (hasExpired) {
-          logger.i('Found expired Entitlement, force refresh!');
-          ref.state = await AsyncValue.guard(() async {
-            await Purchases.invalidateCustomerInfoCache();
-            return Purchases.getCustomerInfo();
-          });
-          // ref.state = AsyncValue.guard(() => )
+@Riverpod(keepAlive: true)
+class CustomerInfoNotifier extends _$CustomerInfoNotifier {
+  @override
+  Future<CustomerInfo> build() async {
+    try {
+      var customerInfo = await Purchases.getCustomerInfo();
+      logger.i('Got customerInfo: $customerInfo');
+
+      checkForExpired() async {
+        logger.i('Checking for expired subs!');
+        var curUserInfo = state;
+        var now = DateTime.now();
+        if (curUserInfo.hasValue) {
+          var hasExpired = curUserInfo.requireValue.entitlements.active.values.any(
+              (ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
+          if (hasExpired) {
+            logger.i('Found expired Entitlement, force refresh!');
+            state = await AsyncValue.guard(() async {
+              await Purchases.invalidateCustomerInfoCache();
+              return Purchases.getCustomerInfo();
+            });
+            // ref.state = AsyncValue.guard(() => )
+          }
         }
       }
+
+      ref.onAddListener(checkForExpired);
+      ref.onResume(checkForExpired);
+      logger.i('RCat ID: ${customerInfo.originalAppUserId}');
+
+      return customerInfo;
+    } on PlatformException catch (e, s) {
+      logger.w('Could not fetch customer info. Platform code: ${e.code}!', e, s);
+      return const CustomerInfo(EntitlementInfos({}, {}), {}, [], [], [], "", "", {}, "");
     }
-
-    ref.onAddListener(checkForExpired);
-    ref.onResume(checkForExpired);
-    logger.i('RCat ID: ${customerInfo.originalAppUserId}');
-
-    return customerInfo;
-  } on PlatformException catch (e, s) {
-    logger.w('Could not fetch customer info. Platform code: ${e.code}!', e, s);
-    return const CustomerInfo(EntitlementInfos({}, {}), {}, [], [], [], "", "", {}, "");
   }
 }
 
 @Riverpod(keepAlive: true)
-bool isSupporter(IsSupporterRef ref) {
+bool isSupporter(Ref ref) {
+  if (kDebugMode) return true;
   return ref.watch(isSupporterAsyncProvider).valueOrNull == true;
 }
 
 @Riverpod(keepAlive: true)
-FutureOr<bool> isSupporterAsync(IsSupporterAsyncRef ref) async {
+FutureOr<bool> isSupporterAsync(Ref ref) async {
+  if (kDebugMode) return true;
   var customerInfo = await ref.watch(customerInfoProvider.future);
   return customerInfo.entitlements.active.containsKey('Supporter') == true;
 }
 
 @Riverpod(keepAlive: true)
-PaymentService paymentService(PaymentServiceRef ref) {
+PaymentService paymentService(Ref ref) {
   return PaymentService(ref);
 }
 
@@ -80,7 +91,7 @@ class PaymentService {
 
   final SettingService _settingService;
 
-  final PaymentServiceRef _ref;
+  final Ref _ref;
 
   Future<void> initialize() async {
     if (kDebugMode) await Purchases.setLogLevel(LogLevel.info);
@@ -123,6 +134,13 @@ class PaymentService {
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+        FirebaseCrashlytics.instance.recordError(
+          e,
+          StackTrace.current,
+          reason: 'Error while trying to purchase',
+          fatal: true,
+        );
+
         logger.e('Error while trying to purchase; $e');
         _ref.read(snackBarServiceProvider).show(
             SnackBarConfig(type: SnackbarType.error, title: 'Unexpected Error', message: errorCode.name.capitalize()));
@@ -245,6 +263,29 @@ class PaymentService {
           }
         }
         _ref.invalidate(customerInfoProvider);
+      },
+      fireImmediately: true,
+    );
+
+    _ref.listen(
+      fcmTokenProvider,
+      (prev, next) async {
+        if (!next.hasValue) return;
+        logger.i('Syncing FCM token with Purchases: ${next.value}');
+        await Purchases.setPushToken(next.value!);
+        logger.i('Synced FCM token with Purchases');
+      },
+      fireImmediately: true,
+    );
+
+    _ref.listen(
+      versionInfoProvider,
+      (prev, next) async {
+        if (!next.hasValue) return;
+        var packageInfo = next.requireValue;
+        logger.i('Setting device version to Purchases: $packageInfo');
+        await Purchases.setAttributes({r'$deviceVersion': packageInfo.toString()});
+        logger.i('Set device version to Purchases');
       },
       fireImmediately: true,
     );

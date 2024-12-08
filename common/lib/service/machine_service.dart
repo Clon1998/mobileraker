@@ -58,13 +58,13 @@ import 'setting_service.dart';
 part 'machine_service.g.dart';
 
 @riverpod
-MachineService machineService(MachineServiceRef ref) {
+MachineService machineService(Ref ref) {
   ref.keepAlive();
   return MachineService(ref);
 }
 
 @riverpod
-Future<Machine?> machine(MachineRef ref, String uuid) async {
+Future<Machine?> machine(Ref ref, String uuid) async {
   /// Using keepAliveFor ensures that the machineProvider remains active until all users of this provider are disposed.
   /// While ensuring that it eventually gets disposed.
   ref.keepAliveFor();
@@ -77,75 +77,81 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
 }
 
 @riverpod
-Future<List<Machine>> allMachines(AllMachinesRef ref) async {
-  ref.listenSelf((previous, next) {
-    next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.logName).join()}'));
-  });
+class AllMachines extends _$AllMachines {
+  @override
+  FutureOr<List<Machine>> build() async {
+    listenSelf((previous, next) {
+      next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.logName).join()}'));
+    });
 
-  logger.i('Received fetchAll');
+    logger.i('Received fetchAll');
 
-  var settingService = ref.watch(settingServiceProvider);
-  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
-  var machines = await ref.read(machineServiceProvider).fetchAll();
-  final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
+    var settingService = ref.watch(settingServiceProvider);
+    // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
+    var machines = await ref.read(machineServiceProvider).fetchAll();
+    final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
 
-  logger.i('Received ordering $ordering');
-  machines = machines.sorted((a, b) {
-    final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
-    final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
-    return aOrder.compareTo(bOrder);
-  });
+    logger.i('Received ordering $ordering');
+    machines = machines.sorted((a, b) {
+      final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
+      final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
+      return aOrder.compareTo(bOrder);
+    });
 
-  var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
-  logger.i('Received isSupporter $isSupporter');
-  var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
-  logger.i('Max allowed machines for non Supporters is $maxNonSupporterMachines');
-  if (isSupporter) {
-    await settingService.delete(UtilityKeys.nonSupporterMachineCleanup);
-  }
+    var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
+    logger.i('Received isSupporter $isSupporter');
+    var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
+    logger.i('Max allowed machines for non Supporters is $maxNonSupporterMachines');
+    if (isSupporter) {
+      await settingService.delete(UtilityKeys.nonSupporterMachineCleanup);
+    }
 
-  if (isSupporter || maxNonSupporterMachines <= 0 || machines.length <= maxNonSupporterMachines) {
+    if (isSupporter || maxNonSupporterMachines <= 0 || machines.length <= maxNonSupporterMachines) {
+      return machines;
+    }
+
+    DateTime? cleanupDate = settingService.read<DateTime?>(UtilityKeys.nonSupporterMachineCleanup, null);
+
+    if (cleanupDate == null) {
+      cleanupDate = DateTime.now().add(const Duration(days: 7));
+      cleanupDate = DateTime(cleanupDate.year, cleanupDate.month, cleanupDate.day);
+      logger.i('Writing nonSupporter machine cleanup date $cleanupDate');
+      settingService.write(UtilityKeys.nonSupporterMachineCleanup, cleanupDate);
+      return machines;
+    }
+
+    if (cleanupDate.isBefore(DateTime.now())) {
+      // if (cleanupDate.difference(DateTime.now()).inDays >= 0) {
+      var oLen = machines.length;
+      machines = machines.sublist(0, maxNonSupporterMachines);
+      logger.i(
+          'Hiding machines from user since he is not a supporter! Original len was $oLen, new length is ${machines.length}');
+      return machines;
+    }
+
     return machines;
   }
-
-  DateTime? cleanupDate = settingService.read<DateTime?>(UtilityKeys.nonSupporterMachineCleanup, null);
-
-  if (cleanupDate == null) {
-    cleanupDate = DateTime.now().add(const Duration(days: 7));
-    cleanupDate = DateTime(cleanupDate.year, cleanupDate.month, cleanupDate.day);
-    logger.i('Writing nonSupporter machine cleanup date $cleanupDate');
-    settingService.write(UtilityKeys.nonSupporterMachineCleanup, cleanupDate);
-    return machines;
-  }
-
-  if (cleanupDate.isBefore(DateTime.now())) {
-    // if (cleanupDate.difference(DateTime.now()).inDays >= 0) {
-    var oLen = machines.length;
-    machines = machines.sublist(0, maxNonSupporterMachines);
-    logger.i(
-        'Hiding machines from user since he is not a supporter! Original len was $oLen, new length is ${machines.length}');
-    return machines;
-  }
-
-  return machines;
 }
 
 @riverpod
-Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
-  ref.listenSelf((previous, next) {
-    next.whenData((value) => logger.i('Updated hiddenMachinesProvider: ${value.map((e) => e.logName).join()}'));
-  });
+class HiddenMachines extends _$HiddenMachines {
+  @override
+  FutureOr<List<Machine>> build() async {
+    listenSelf((previous, next) {
+      next.whenData((value) => logger.i('Updated hiddenMachinesProvider: ${value.map((e) => e.logName).join()}'));
+    });
 
-  var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
-  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
-  var actualStoredMachines = await ref.read(machineServiceProvider).fetchAll();
-  var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));
+    var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
+    // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
+    var actualStoredMachines = await ref.read(machineServiceProvider).fetchAll();
+    var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));
 
-  return hiddenMachines.toList(growable: false);
+    return hiddenMachines.toList(growable: false);
+  }
 }
 
 @riverpod
-Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
+Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
 
   // Just ensure we have a machine to prevent errors while we dispose the machine/on remove the machine.
@@ -171,7 +177,7 @@ Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUU
 }
 
 @riverpod
-Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async* {
+Stream<MachineSettings> selectedMachineSettings(Ref ref) async* {
   try {
     var machine = await ref.watch(selectedMachineProvider.future);
     if (machine == null) return;
@@ -194,7 +200,7 @@ class MachineService {
     ref.onDispose(dispose);
   }
 
-  final AutoDisposeRef ref;
+  final Ref ref;
   final MachineHiveRepository _machineRepo;
   final SelectedMachineService _selectedMachineService;
   final SettingService _settingService;
@@ -735,7 +741,7 @@ class MachineService {
       logger.w('Rpc Client was not connected, could not fetch obico.printer_id. User can select by himself!');
     }
 
-    return ref.watch(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
+    return ref.read(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
   }
 
   Future<void> reordered(String machineUUID, int oldIndex, int newIndex) async {

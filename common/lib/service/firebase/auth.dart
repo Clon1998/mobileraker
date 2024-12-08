@@ -4,6 +4,7 @@
  */
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../util/logger.dart';
@@ -11,12 +12,12 @@ import '../../util/logger.dart';
 part 'auth.g.dart';
 
 @Riverpod(keepAlive: true)
-FirebaseAuth auth(AuthRef ref) {
+FirebaseAuth auth(Ref ref) {
   return FirebaseAuth.instance;
 }
 
 @Riverpod(keepAlive: true)
-Stream<User?> firebaseUser(FirebaseUserRef ref) {
+Stream<User?> firebaseUser(Ref ref) {
   var firebaseAuth = ref.watch(authProvider);
 
   ref.listenSelf((previous, next) {

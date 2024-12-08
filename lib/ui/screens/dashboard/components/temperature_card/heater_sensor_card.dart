@@ -12,7 +12,6 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
-import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
@@ -23,7 +22,6 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -107,8 +105,7 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
         _controllerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(() {
           return _PreviewController();
         }),
-        printerProvider(_HeaterSensorCardPreview._machineUUID)
-            .overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+        printerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(PrinterPreviewNotifier.new),
       ],
       child: const HeaterSensorCard(machineUUID: _HeaterSensorCardPreview._machineUUID),
     );
@@ -248,6 +245,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
       plotSpots: spots.value,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
+      onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
       builder: (BuildContext context) {
         var innerTheme = Theme.of(context);
         return Tooltip(
@@ -557,7 +555,7 @@ class _Controller extends _$Controller {
     );
   }
 
-  adjustHeater(HeaterMixin heater) {
+  void adjustHeater(HeaterMixin heater) {
     double? maxValue;
     var configFile = ref.read(printerProvider(machineUUID).selectRequireValue((value) => value.configFile));
     if (heater is Extruder) {
@@ -590,9 +588,10 @@ class _Controller extends _$Controller {
     });
   }
 
-  editTemperatureFan(TemperatureFan temperatureFan) {
+  void editTemperatureFan(TemperatureFan temperatureFan) {
     var configFan = ref
-        .read(printerProvider(machineUUID).selectAs((value) => value.configFile.fans[temperatureFan.configName]))
+        .read(printerProvider(machineUUID)
+            .selectAs((value) => value.configFile.fans[(temperatureFan.kind, temperatureFan.configName)]))
         .requireValue;
 
     ref
@@ -613,6 +612,10 @@ class _Controller extends _$Controller {
       num v = value.data;
       ref.read(printerServiceSelectedProvider).setTemperatureFanTarget(temperatureFan.name, v.toInt());
     });
+  }
+
+  void turnOffHeater(HeaterMixin heater) {
+    _printerService.setHeaterTemperature(heater.name, 0);
   }
 }
 

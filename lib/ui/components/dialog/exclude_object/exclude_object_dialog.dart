@@ -119,7 +119,7 @@ class _ExcludeObjectDialog extends ConsumerWidget {
                         labelText: 'dialogs.exclude_object.label'.tr(),
                       ),
                     ),
-                    (isConfirmed) ? const ExcludeBtnRow() : const DefaultBtnRow(),
+                    (isConfirmed) ? const _ExcludeBtnRow() : const _DefaultBtnRow(),
                   ],
                 );
               },
@@ -131,8 +131,8 @@ class _ExcludeObjectDialog extends ConsumerWidget {
   }
 }
 
-class DefaultBtnRow extends ConsumerWidget {
-  const DefaultBtnRow({super.key});
+class _DefaultBtnRow extends ConsumerWidget {
+  const _DefaultBtnRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -158,8 +158,8 @@ class DefaultBtnRow extends ConsumerWidget {
   }
 }
 
-class ExcludeBtnRow extends ConsumerWidget {
-  const ExcludeBtnRow({super.key});
+class _ExcludeBtnRow extends ConsumerWidget {
+  const _ExcludeBtnRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

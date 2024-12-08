@@ -7,17 +7,18 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:flutter/services.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'full_cam_controller.g.dart';
 
 @Riverpod(dependencies: [])
-Machine fullCamMachine(FullCamMachineRef ref) => throw UnimplementedError();
+Machine fullCamMachine(Ref ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [])
-WebcamInfo initialCam(InitialCamRef ref) => throw UnimplementedError();
+WebcamInfo initialCam(Ref ref) => throw UnimplementedError();
 
-@Riverpod(dependencies: [fullCamMachine, initialCam, settingService])
+@Riverpod(dependencies: [initialCam])
 class FullCamPageController extends _$FullCamPageController {
   @override
   WebcamInfo build() {

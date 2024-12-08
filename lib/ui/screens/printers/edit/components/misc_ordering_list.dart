@@ -7,8 +7,6 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
-import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
-import 'package:common/data/dto/machine/filament_sensors/filament_switch_sensor.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/service/machine_service.dart';
@@ -138,10 +136,7 @@ class MiscOrderingListController extends _$MiscOrderingListController {
     var availableElements = <ReordableElement>[];
 
     for (var led in printerData.leds.values) {
-      availableElements.add(ReordableElement(
-        kind: ConfigFileObjectIdentifiers.led,
-        name: led.name,
-      ));
+      availableElements.add(ReordableElement(kind: led.kind, name: led.name));
     }
 
     for (var pin in printerData.outputPins.values) {
@@ -152,16 +147,7 @@ class MiscOrderingListController extends _$MiscOrderingListController {
     }
 
     for (var sensor in printerData.filamentSensors.values) {
-      var kind = switch (sensor) {
-        FilamentMotionSensor() => ConfigFileObjectIdentifiers.filament_motion_sensor,
-        FilamentSwitchSensor() => ConfigFileObjectIdentifiers.filament_switch_sensor,
-        _ => throw UnimplementedError('Unknown sensor type: $sensor'),
-      };
-
-      availableElements.add(ReordableElement(
-        kind: kind,
-        name: sensor.name,
-      ));
+      availableElements.add(ReordableElement(kind: sensor.kind, name: sensor.name));
     }
     return availableElements;
   }
@@ -172,14 +158,14 @@ class MiscOrderingListController extends _$MiscOrderingListController {
 
     // Only include elements that are available in the printer
     for (var setting in settings) {
-      if (availableElements.any((e) => e.kindName == setting.kindName)) {
+      if (availableElements.any((e) => e.kind == setting.kind && e.name == setting.name)) {
         normalizedSettings.add(setting);
       }
     }
 
     // Add missing elements from the printer
     for (var element in availableElements) {
-      if (!normalizedSettings.any((e) => e.kindName == element.kindName)) {
+      if (!normalizedSettings.any((e) => e.kind == element.kind && e.name == element.name)) {
         normalizedSettings.add(element);
       }
     }

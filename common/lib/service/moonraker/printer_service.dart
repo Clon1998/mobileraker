@@ -2,7 +2,6 @@
  * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -40,50 +39,64 @@ import 'klippy_service.dart';
 part 'printer_service.g.dart';
 
 @riverpod
-PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
+PrinterService printerService(Ref ref, String machineUUID) {
   return PrinterService(ref, machineUUID);
 }
 
-@riverpod
-Stream<Printer> printer(PrinterRef ref, String machineUUID) {
-  // ref.keepAlive();
-  var printerService = ref.watch(printerServiceProvider(machineUUID));
-  ref.listenSelf((previous, next) {
-    final previousFileName = previous?.valueOrNull?.print.filename;
-    final nextFileName = next.valueOrNull?.print.filename;
-    // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
-    if (previousFileName != nextFileName ||
-        next.hasValue &&
-            (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
-                nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
-      printerService.updateCurrentFile(nextFileName).ignore();
-    }
+// Kinda "hacky" but the only way to keep the name PrinterProvider without a conflict of the Printer name..
+@ProviderFor(PrinterNotifier)
+const printerProvider = printerNotifierProvider;
 
-    final prevMessage = previous?.valueOrNull?.print.message;
-    final nextMessage = next.valueOrNull?.print.message;
-    if (prevMessage != nextMessage && nextMessage?.isNotEmpty == true) {
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.warning,
-            title: 'Klippy-Message',
-            message: nextMessage,
-          ));
-    }
-  });
-  return printerService.printerStream;
+@riverpod
+class PrinterNotifier extends _$PrinterNotifier {
+  @override
+  Stream<Printer> build(String machineUUID) {
+    // ref.keepAlive();
+    var printerService = ref.watch(printerServiceProvider(machineUUID));
+    listenSelf((previous, next) {
+      final previousFileName = previous?.valueOrNull?.print.filename;
+      final nextFileName = next.valueOrNull?.print.filename;
+      // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
+      if (previousFileName != nextFileName ||
+          next.hasValue &&
+              (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
+                  nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
+        printerService.updateCurrentFile(nextFileName).ignore();
+      }
+
+      final prevMessage = previous?.valueOrNull?.print.message;
+      final nextMessage = next.valueOrNull?.print.message;
+      if (prevMessage != nextMessage && nextMessage?.isNotEmpty == true) {
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+              type: SnackbarType.warning,
+              title: 'Klippy-Message',
+              message: nextMessage,
+            ));
+      }
+    });
+    return printerService.printerStream;
+  }
+}
+
+final class PrinterPreviewNotifier extends PrinterNotifier {
+  @override
+  Stream<Printer> build(String machineUUID) async* {
+    yield PrinterBuilder.preview().build();
+  }
 }
 
 @riverpod
-Future<List<Command>> printerAvailableCommands(PrinterAvailableCommandsRef ref, String machineUUID) async {
+Future<List<Command>> printerAvailableCommands(Ref ref, String machineUUID) async {
   return ref.watch(printerServiceProvider(machineUUID)).gcodeHelp();
 }
 
 @riverpod
-PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
+PrinterService printerServiceSelected(Ref ref) {
   return ref.watch(printerServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod
-Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
+Stream<Printer> printerSelected(Ref ref) async* {
   try {
     var machine = await ref.watch(selectedMachineProvider.future);
     if (machine == null) return;
@@ -95,7 +108,7 @@ Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
 }
 
 class PrinterService {
-  PrinterService(AutoDisposeRef ref, this.ownerUUID)
+  PrinterService(Ref ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
         _fileService = ref.watch(fileServiceProvider(ownerUUID)),
         _snackBarService = ref.watch(snackBarServiceProvider),

@@ -172,9 +172,8 @@ class _SelectedGroup extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isPrinting =
-        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.isPrinting)).valueOrNull ==
-            true;
+    var printState =
+        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
     var groupProvider = _macroGroupCardControllerProvider(machineUUID)
         .selectAs((value) => value.groups.elementAtOrNull(value.selected));
     var group = ref.watch(groupProvider).valueOrNull;
@@ -213,13 +212,13 @@ class _SelectedGroup extends HookConsumerWidget {
           sizeDuration: dur,
           fadeDuration: dur,
           // The column is required to make it stretch
-          child: group.hasMacros(isPrinting)
+          child: group.hasMacros(printState)
               ? Column(
                   key: ValueKey('group-${group.uuid}'),
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _ChipsWrap(
-                      macros: group.filtered(isPrinting),
+                      macros: group.filtered(printState),
                       machineUUID: machineUUID,
                       showAll: showAll.value,
                       hasMoreMacros: (value) => showAllAvailable.value = value || showAll.value,
@@ -338,27 +337,20 @@ class _MacroChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
+    final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
 
-    // Test if the macro is available on the printer
-    ConfigGcodeMacro? configMacro = ref
-        .watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.configMacros[macro.configName]))
-        .valueOrNull;
+    final (configMacro, klippyCanReceiveCommands, printState) =
+        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => (
+              data.configMacros[macro.configName],
+              data.klippyCanReceiveCommands,
+              data.printState,
+            )));
 
-    var klippyCanReceiveCommands = ref
-            .watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-            .valueOrNull ??
-        false;
-
-    var isPrinting =
-        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.isPrinting)).valueOrNull ??
-            false;
-
-    var themeData = Theme.of(context);
+    final themeData = Theme.of(context);
     var enabled = klippyCanReceiveCommands;
     //Note, the visibility is just an additional check. The group already filters out removed macros and the once that should not be shown while printing/are hidden
     return Visibility(
-      visible: configMacro != null && macro.visible && (!isPrinting || macro.showWhilePrinting),
+      visible: configMacro != null && macro.visible && macro.showForState.contains(printState),
       child: GestureDetector(
         onLongPress: enabled ? () => controller.onMacroLongPressed(configMacro!) : null,
         child: ActionChip(
@@ -395,8 +387,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
     );
-    var isPrinting = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.print.state == PrintState.printing),
+    var printState = ref.watchAsSubject(
+      printerProvider(machineUUID).selectAs((data) => data.print.state),
     );
 
     var groups = ref.watchAsSubject(
@@ -409,11 +401,11 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
     var initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    yield* Rx.combineLatest4(klippyCanReceiveCommands, groups, configMacros, isPrinting, (a, b, c, d) {
+    yield* Rx.combineLatest4(klippyCanReceiveCommands, groups, configMacros, printState, (a, b, c, d) {
       var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex;
       return _Model(
         klippyCanReceiveCommands: a,
-        isPrinting: d,
+        printState: d,
         groups: b,
         selected: min(b.length - 1, max(0, idx)),
         configMacros: c,
@@ -461,7 +453,7 @@ class _MacroGroupCardPreviewController extends _MacroGroupCardController {
   Stream<_Model> build(String machineUUID) {
     state = AsyncValue.data(_Model(
       klippyCanReceiveCommands: true,
-      isPrinting: false,
+      printState: PrintState.standby,
       groups: [
         MacroGroup(
           name: 'Preview Group',
@@ -512,7 +504,7 @@ class _Model with _$Model {
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
-    required bool isPrinting,
+    required PrintState printState,
     required int selected,
     required List<MacroGroup> groups,
     required Map<String, ConfigGcodeMacro> configMacros, // Raw Macros available on the printer

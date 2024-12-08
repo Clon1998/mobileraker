@@ -65,12 +65,12 @@ enum DialogType implements DialogIdentifierMixin {
   filamentOperation,
 }
 
-DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
+DialogService dialogServiceImpl(Ref ref) => DialogServiceImpl(ref);
 
 class DialogServiceImpl implements DialogService {
   DialogServiceImpl(this._ref);
 
-  final DialogServiceRef _ref;
+  final Ref _ref;
 
   DialogRequest? _currentDialogRequest;
 

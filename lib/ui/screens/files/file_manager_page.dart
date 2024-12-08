@@ -41,6 +41,7 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/time_util.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -948,6 +949,8 @@ class _FileItem extends ConsumerWidget {
 
     Widget subtitle = switch (sortMode) {
       SortMode.size => Text(numberFormat.formatFileSize(file.size)),
+      SortMode.estimatedPrintTime when file is GCodeFile =>
+        Text((file as GCodeFile).estimatedTime?.let(secondsToDurationText) ?? '--'),
       SortMode.lastPrinted when file is GCodeFile =>
         Text((file as GCodeFile).lastPrintDate?.let(dateFormat.format) ?? '--'),
       SortMode.lastPrinted => const Text('--'),
@@ -1015,7 +1018,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   String get _relativeToRoot => filePath.split('/').skip(1).join('/');
 
   List<SortMode> get _availableSortModes => switch (_root) {
-        'gcodes' => [SortMode.name, SortMode.lastModified, SortMode.lastPrinted, SortMode.size],
+        'gcodes' => [
+            SortMode.name,
+            SortMode.lastModified,
+            SortMode.lastPrinted,
+            SortMode.estimatedPrintTime,
+            SortMode.size
+          ],
         _ => [SortMode.name, SortMode.lastModified, SortMode.size],
       };
 

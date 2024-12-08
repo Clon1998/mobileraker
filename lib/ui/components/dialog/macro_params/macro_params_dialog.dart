@@ -65,9 +65,9 @@ class _MacroParamsDialog extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min, // To make the card compact
           children: [
             if (paramNames.isNotEmpty)
-              _ParamsDialog(macro: macro, paramNames: paramNames)
+              Flexible(child: _ParamsDialog(macro: macro, paramNames: paramNames))
             else
-              _ConfirmDialog(macro: macro),
+              Flexible(child: _ConfirmDialog(macro: macro)),
             const Divider(),
             Text(
               'dialogs.gcode_params.hint',

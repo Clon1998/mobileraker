@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dialog_service_interface.g.dart';
@@ -114,7 +115,7 @@ class DialogResponse<T> {
 }
 
 @Riverpod(keepAlive: true)
-DialogService dialogService(DialogServiceRef ref) => throw UnimplementedError();
+DialogService dialogService(Ref ref) => throw UnimplementedError();
 
 abstract interface class DialogService {
   bool get isDialogOpen;

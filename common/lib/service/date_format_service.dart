@@ -5,12 +5,13 @@
 
 import 'package:common/service/setting_service.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'date_format_service.g.dart';
 
 @Riverpod(keepAlive: true)
-DateFormatService dateFormatService(DateFormatServiceRef ref) {
+DateFormatService dateFormatService(Ref ref) {
   var settingService = ref.watch(settingServiceProvider);
   return DateFormatService(settingService);
 }

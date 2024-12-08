@@ -257,6 +257,7 @@ pages:
       last_modified: Last modified
       last_printed: Last printed
       file_size: Size
+      estimated_time: Estimated print time
     file_actions:
       download: Download
       delete: Delete
@@ -289,6 +290,10 @@ pages:
       upload_failed:
         title: Upload failed
         body: An error occurred while trying to upload the file. Please retry later.
+        reasons:
+          type_mismatch:
+            title: File type mismatch
+            body: Only '{}' files are allowed.
       zipping_success:
         title: Zipping successful
         body: The archive was successfully created.
@@ -700,6 +705,7 @@ pages:
   paywall:
     manage_view:
       title: Thanks for your Support!
+
       list_title: 'Change Supporter Tier:'
       store_btn: Cancel Subscription in {}
       sub_warning: Please take note that purchasing the lifetime supporter tier does
@@ -1073,6 +1079,7 @@ dialogs:
     active_machine: 'Active Machine: {}'
     hint: Tap on a machine to set it as active.
   supporter_perks:
+    learn_more: Learn about Supporter Perks
     title: Supporter Perks
     body: By supporting Mobileraker, you ensure the app can stay free for the community.
       Additionally supporters gain the following list of perks.
@@ -1131,7 +1138,8 @@ dialogs:
     value: Header-Value
     value_hint: The value of the header
   macro_settings:
-    show_while_printing: Show while printing
+    show_for_states: Print States
+    show_for_states_hint: Select the states for which the macro should be displayed
     visible: Visible
   extruder_feedrate:
     title: Extruder Velocity [mm/s]

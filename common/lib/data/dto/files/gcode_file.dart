@@ -67,6 +67,12 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     return a.printStartTime?.compareTo(b.printStartTime ?? 0) ?? -1;
   }
 
+  static int estimatedPrintTimeComparator(RemoteFile a, RemoteFile b) {
+    if (a is! GCodeFile || b is! GCodeFile) return 0;
+
+    return a.estimatedTime?.compareTo(b.estimatedTime ?? 0) ?? -1;
+  }
+
   const GCodeFile._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

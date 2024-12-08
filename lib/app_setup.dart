@@ -254,81 +254,83 @@ initializeAvailableMachines(Ref ref) async {
 }
 
 @riverpod
-Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
-  logger.i('*****************************');
-  logger.i('Mobileraker is warming up...');
+class Warmup extends _$Warmup {
+  @override
+  Stream<StartUpStep> build() async* {
+    logger.i('*****************************');
+    logger.i('Mobileraker is warming up...');
 
-  logger.i('Mobileraker Version: ${await ref.read(versionInfoProvider.future)}');
-  logger.i('*****************************');
+    logger.i('Mobileraker Version: ${await ref.read(versionInfoProvider.future)}');
+    logger.i('*****************************');
 
-  // Firebase stuff
-  yield StartUpStep.firebaseCore;
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    // Firebase stuff
+    yield StartUpStep.firebaseCore;
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // only start listening after Firebase is initialized
-  ref.listenSelf((previous, next) {
-    if (next.hasError) {
-      var error = next.asError!;
-      FirebaseCrashlytics.instance.recordError(
-        error.error,
-        error.stackTrace,
-        fatal: true,
-        reason: 'Error during WarmUp!',
-      );
+    // only start listening after Firebase is initialized
+    listenSelf((previous, next) {
+      if (next.hasError) {
+        var error = next.asError!;
+        FirebaseCrashlytics.instance.recordError(
+          error.error,
+          error.stackTrace,
+          fatal: true,
+          reason: 'Error during WarmUp!',
+        );
+      }
+    });
+
+    yield StartUpStep.firebaseAppCheck;
+    await FirebaseAppCheck.instance.activate();
+
+    yield StartUpStep.firebaseRemoteConfig;
+    await ref.read(remoteConfigInstanceProvider).initialize();
+    if (kDebugMode) {
+      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
     }
-  });
 
-  yield StartUpStep.firebaseAppCheck;
-  await FirebaseAppCheck.instance.activate();
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (!kDebugMode)
+        logger.e('FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
+      FirebaseCrashlytics.instance.recordFlutterError(details).ignore();
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack).ignore();
+      return true;
+    };
+    yield StartUpStep.firebaseAnalytics;
+    ref.read(analyticsProvider).logAppOpen().ignore();
 
-  yield StartUpStep.firebaseRemoteConfig;
-  await ref.read(remoteConfigInstanceProvider).initialize();
-  if (kDebugMode) {
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    yield StartUpStep.firebaseAuthUi;
+    // Just make sure it is created!
+    ref.read(firebaseUserProvider);
+
+    setupLicenseRegistry();
+
+    // Prepare "Database"
+    yield StartUpStep.hiveBoxes;
+    await setupBoxes();
+
+    // Prepare Translations
+    yield StartUpStep.easyLocalization;
+    await EasyLocalization.ensureInitialized();
+
+    yield StartUpStep.paymentService;
+    await ref.read(paymentServiceProvider).initialize();
+
+    // await for the initial rout provider to be ready and setup!
+    yield StartUpStep.goRouter;
+    await ref.read(initialRouteProvider.future);
+    logger.i('Completed initialRoute init');
+    // Wait for the machines to be ready
+    yield StartUpStep.initMachines;
+    await initializeAvailableMachines(ref);
+
+    yield StartUpStep.notificationService;
+    await ref.read(notificationServiceProvider).initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+
+    yield StartUpStep.complete;
   }
-
-  FlutterError.onError = (FlutterErrorDetails details) {
-    if (!kDebugMode)
-      logger.e('FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
-    FirebaseCrashlytics.instance.recordFlutterError(details).ignore();
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack).ignore();
-    return true;
-  };
-  yield StartUpStep.firebaseAnalytics;
-  ref.read(analyticsProvider).logAppOpen().ignore();
-
-  yield StartUpStep.firebaseAuthUi;
-  // Just make sure it is created!
-  ref.read(firebaseUserProvider);
-
-  setupLicenseRegistry();
-
-  // Prepare "Database"
-  yield StartUpStep.hiveBoxes;
-  await setupBoxes();
-
-  // Prepare Translations
-  yield StartUpStep.easyLocalization;
-  await EasyLocalization.ensureInitialized();
-
-  yield StartUpStep.paymentService;
-  await ref.read(paymentServiceProvider).initialize();
-
-  // await for the initial rout provider to be ready and setup!
-  yield StartUpStep.goRouter;
-  await ref.read(initialRouteProvider.future);
-  logger.i('Completed initialRoute init');
-  // Wait for the machines to be ready
-  yield StartUpStep.initMachines;
-  await initializeAvailableMachines(ref);
-
-  yield StartUpStep.notificationService;
-  await ref.read(notificationServiceProvider).initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
-
-
-  yield StartUpStep.complete;
 }
 
 enum StartUpStep {

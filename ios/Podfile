@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '13.6'
+platform :ios, '15.5'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -95,6 +95,10 @@ post_install do |installer|
         ## dart: PermissionGroup.criticalAlerts
         # 'PERMISSION_CRITICAL_ALERTS=1'
       ]
+      ###### Awesome Notifications pod modification to prevent generic archive! ######
+      unless target.name == 'Runner'
+        config.build_settings['SKIP_INSTALL'] = "YES"
+      end
     end
   end
   ################  Awesome Notifications pod modification  ###################
@@ -103,6 +107,10 @@ post_install do |installer|
   update_awesome_pod_build_settings(installer)
   ################  Awesome Notifications pod modification  ###################
 end
+
+
+
+
 
 ################  Awesome Notifications pod modification  ###################
 awesome_pod_file = File.expand_path(File.join('plugins', 'awesome_notifications', 'ios', 'Scripts', 'AwesomePodFile'), '.symlinks')

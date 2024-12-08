@@ -5,6 +5,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'dialog_service_interface.dart';
@@ -59,7 +60,7 @@ class SnackBarConfig {
 }
 
 @Riverpod(keepAlive: true)
-SnackBarService snackBarService(SnackBarServiceRef ref) => throw UnimplementedError();
+SnackBarService snackBarService(Ref ref) => throw UnimplementedError();
 
 abstract interface class SnackBarService {
   show(SnackBarConfig config);

@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:math';
+
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/ui/components/info_card.dart';
@@ -33,22 +35,31 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
       overrides: [sheetArgsProvider.overrideWithValue(args)],
-      child: const _AddRemoteConnectionBottomSheet(),
+      child: _AddRemoteConnectionBottomSheet(thirdPartyFairness: Random().nextInt(2)),
     );
   }
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({super.key});
+  const _AddRemoteConnectionBottomSheet({super.key, required this.thirdPartyFairness});
+
+  // random offset for fairness to determine the order of the tabs
+  final int thirdPartyFairness;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var obicoEnabled = ref.watch(remoteConfigBoolProvider('obico_remote_connection'));
+    final obicoEnabled = ref.watch(remoteConfigBoolProvider('obico_remote_connection'));
+    final obicoIndex = 1 - thirdPartyFairness;
+    final octoIndex = obicoEnabled ? 0 + thirdPartyFairness : 0;
 
-    var activeIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
+    final initialIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
       if (obicoEnabled && value.obicoTunnel != null) {
-        return 1;
+        return obicoIndex;
       }
+      if (value.octoEverywhere != null) {
+        return octoIndex;
+      }
+
       if (value.remoteInterface != null) {
         if (obicoEnabled) {
           return 2;
@@ -60,30 +71,34 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 
     var tabController = useTabController(
       initialLength: obicoEnabled ? 3 : 2,
-      initialIndex: activeIndex,
+      initialIndex: initialIndex,
     );
 
     // Close keyboard when switching tabs
-    useEffect(() {
-      closeKeyBoard() {
-        FocusManager.instance.primaryFocus?.unfocus();
-      }
+    useEffect(
+      () {
+        closeKeyBoard() {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
 
-      tabController.addListener(closeKeyBoard);
+        tabController.addListener(closeKeyBoard);
 
-      return () => tabController.removeListener(closeKeyBoard);
-    }, [tabController]);
+        return () => tabController.removeListener(closeKeyBoard);
+      },
+      [tabController],
+    );
 
     return SheetContentScaffold(
-      appBar: _TabHeader(tabController: tabController, obicoEnabled: obicoEnabled),
+      appBar: _TabHeader(tabController: tabController, obicoEnabled: obicoEnabled, octoIndex: octoIndex),
       body: FormBuilder(
         key: ref.watch(formKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: TabBarView(
           controller: tabController,
           children: [
-            const _OctoTab(),
+            if (octoIndex == 0) const _OctoTab(),
             if (obicoEnabled) const _ObicoTab(),
+            if (octoIndex == 1) const _OctoTab(),
             const _ManualTab(),
           ],
         ),
@@ -93,10 +108,11 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 }
 
 class _TabHeader extends StatelessWidget implements PreferredSizeWidget {
-  const _TabHeader({super.key, required this.tabController, required this.obicoEnabled});
+  const _TabHeader({super.key, required this.tabController, required this.obicoEnabled, required this.octoIndex});
 
   final TabController tabController;
   final bool obicoEnabled;
+  final int octoIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -117,15 +133,22 @@ class _TabHeader extends StatelessWidget implements PreferredSizeWidget {
               automaticIndicatorColorAdjustment: false,
               tabAlignment: TabAlignment.start,
               tabs: [
-                Tab(
-                  text: tr(
-                    'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
+                if (octoIndex == 0)
+                  Tab(
+                    text: tr(
+                      'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
+                    ),
                   ),
-                ),
                 if (obicoEnabled)
                   Tab(
                     text: tr(
                       'bottom_sheets.add_remote_con.obico.service_name',
+                    ),
+                  ),
+                if (octoIndex == 1)
+                  Tab(
+                    text: tr(
+                      'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
                     ),
                   ),
                 Tab(
@@ -353,7 +376,7 @@ class _ObicoTab extends ConsumerWidget {
                           ),
                           validator: FormBuilderValidators.compose([
                             // FormBuilderValidators.required(),
-                            FormBuilderValidators.url(requireTld: false),
+                            FormBuilderValidators.url(requireTld: false, checkNullOrEmpty: false),
                           ]),
                         ),
                       ],

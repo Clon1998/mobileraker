@@ -563,7 +563,6 @@ dialogs:
     value: Başlık Değeri
     value_hint: Başlığın değeri
   macro_settings:
-    show_while_printing: Yazdırırken göster
     visible: Görünür
 bottom_sheets:
   job_queue_sheet:

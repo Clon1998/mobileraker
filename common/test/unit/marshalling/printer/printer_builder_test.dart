@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/fans/generic_fan.dart';
 import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -188,13 +189,14 @@ void main() {
 
     test('Update generic fan', () {
       final builder = PrinterBuilder.preview();
-      builder.fans['hotend_fan'] = GenericFan(name: 'hotend_fan');
+      final key = (ConfigFileObjectIdentifiers.fan_generic, 'hotend_fan');
+      builder.fans[key] = GenericFan(name: 'hotend_fan');
 
       final json = {
         'fan_generic hotend_fan': {'speed': 100}
       };
       final updatedBuilder = builder.partialUpdateField('fan_generic hotend_fan', json);
-      expect(updatedBuilder.fans['hotend_fan']!.speed, 100);
+      expect(updatedBuilder.fans[key]!.speed, 100);
     });
   });
 }

@@ -6,6 +6,7 @@
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/config/config_output.dart';
 import 'package:common/data/dto/config/led/config_dumb_led.dart';
 import 'package:common/data/dto/config/led/config_led.dart';
@@ -363,8 +364,8 @@ class _Led extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    var ledConfig = ref
-        .watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.ledConfig[led.configName]));
+    var ledConfig = ref.watch(_pinsCardControllerProvider(machineUUID)
+        .selectRequireValue((data) => data.ledConfig[(led.kind, led.configName)]));
     var klippyCanReceiveCommands =
         ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
@@ -514,11 +515,7 @@ class _PinsCardController extends _$PinsCardController {
       var filamentSensors = value.filamentSensors;
       var pins = value.outputPins;
 
-      return [
-        ...leds.values,
-        ...pins.values,
-        ...filamentSensors.values,
-      ];
+      return [...leds.values, ...pins.values, ...filamentSensors.values];
     }))
         // Use map here since this prevents to many operations if the original list not changes!
         .map((elements) {
@@ -543,8 +540,18 @@ class _PinsCardController extends _$PinsCardController {
 
       // Sort output by ordering, if ordering is not found it will be placed at the end
       output.sort((a, b) {
-        var aIndex = ordering.indexWhere((element) => element.name == a.name);
-        var bIndex = ordering.indexWhere((element) => element.name == b.name);
+        determineKind(obj) => switch (obj) {
+              Led() => a.kind,
+              FilamentSensor() => a.kind,
+              OutputPin() => ConfigFileObjectIdentifiers.output_pin,
+              _ => null,
+            };
+
+        ConfigFileObjectIdentifiers? aKind = determineKind(a);
+        ConfigFileObjectIdentifiers? bKind = determineKind(b);
+
+        var aIndex = ordering.indexWhere((element) => element.name == a.name && element.kind == aKind);
+        var bIndex = ordering.indexWhere((element) => element.name == b.name && element.kind == bKind);
 
         if (aIndex == -1) aIndex = output.length;
         if (bIndex == -1) bIndex = output.length;
@@ -600,7 +607,7 @@ class _PinsCardController extends _$PinsCardController {
 
   Future<void> onEditLed(Led led) async {
     if (!state.hasValue) return;
-    ConfigLed? configLed = state.requireValue.ledConfig[led.configName];
+    ConfigLed? configLed = state.requireValue.ledConfig[(led.kind, led.configName)];
     if (configLed == null) return;
 
     String name = beautifyName(led.name);
@@ -663,10 +670,10 @@ class _PinsCardPreviewController extends _PinsCardController {
       klippyCanReceiveCommands: true,
       elements: [
         OutputPin(name: 'Preview Pin', value: 0),
-        DumbLed(name: 'Preview Led'),
+        DumbLed(name: 'Preview Led', kind: ConfigFileObjectIdentifiers.led),
       ],
       ledConfig: {
-        'preview led': ConfigDumbLed(
+        (ConfigFileObjectIdentifiers.led, 'preview led'): ConfigDumbLed(
           name: 'preview led',
         ),
       },
@@ -710,7 +717,7 @@ class _Model with _$Model {
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required List<dynamic> elements,
-    required Map<String, ConfigLed> ledConfig,
+    required Map<(ConfigFileObjectIdentifiers, String), ConfigLed> ledConfig,
     required Map<String, ConfigOutput> pinConfig,
   }) = __Model;
 

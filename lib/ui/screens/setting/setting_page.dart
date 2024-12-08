@@ -806,6 +806,15 @@ class _StateNotificationSettingField extends ConsumerWidget {
               children: PrintState.values.map((e) {
                 var selected = value.contains(e);
                 return FilterChip(
+                  avatar: AnimatedCrossFade(
+                    firstChild: Icon(Icons.circle_notifications, color: themeData.colorScheme.primary),
+                    secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
+                    crossFadeState: selected ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    duration: kThemeAnimationDuration,
+                    firstCurve: Curves.easeInOutCirc,
+                    secondCurve: Curves.easeInOutCirc,
+                  ),
+                  showCheckmark: false,
                   selected: selected,
                   elevation: 2,
                   label: Text(e.displayName),

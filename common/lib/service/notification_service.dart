@@ -32,13 +32,13 @@ import 'live_activity_service_v2.dart';
 part 'notification_service.g.dart';
 
 @Riverpod(keepAlive: true)
-AwesomeNotifications awesomeNotification(AwesomeNotificationRef ref) => AwesomeNotifications();
+AwesomeNotifications awesomeNotification(Ref ref) => AwesomeNotifications();
 
 @riverpod
-AwesomeNotificationsFcm awesomeNotificationFcm(AwesomeNotificationFcmRef ref) => AwesomeNotificationsFcm();
+AwesomeNotificationsFcm awesomeNotificationFcm(Ref ref) => AwesomeNotificationsFcm();
 
 @riverpod
-NotificationService notificationService(NotificationServiceRef ref) {
+NotificationService notificationService(Ref ref) {
   ref.keepAlive();
   var notificationService = NotificationService(ref);
   ref.onDispose(notificationService.dispose);
@@ -46,7 +46,7 @@ NotificationService notificationService(NotificationServiceRef ref) {
 }
 
 @riverpod
-Future<String> fcmToken(FcmTokenRef ref) async {
+Future<String> fcmToken(Ref ref) async {
   // Need to use read on the notificationService to prevent a circular dependency, this is fine because the service is kept alive anyway.
   var notificationService = ref.read(notificationServiceProvider);
   await notificationService.initialized;
@@ -67,7 +67,7 @@ class NotificationService {
         _liveActivityServicev2 = _ref.watch(v2LiveActivityProvider),
         _notifyFCM = _ref.watch(awesomeNotificationFcmProvider);
 
-  final AutoDisposeRef _ref;
+  final Ref _ref;
   final MachineService _machineService;
   final SettingService _settingsService;
   final AwesomeNotifications _notifyAPI;

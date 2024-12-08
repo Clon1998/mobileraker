@@ -15,14 +15,6 @@ extension MobilerakerString on String {
   /// E.g. 'temperature_sensor sensor_name'
   /// Note that it returns (ObjectIdentifier, ObjectName),
   /// The ObjectIdentifier is always lowercase and
-  (String, String?) toKlipperObjectIdentifier() {
-    final trimmed = trim();
-    final parts = trimmed.split(RegExp(r'\s+'));
-    if (parts.length == 1) return (parts[0].toLowerCase(), null);
-
-    return (parts[0].toLowerCase(), trimmed.substring(parts[0].length).trim());
-  }
-
   (ConfigFileObjectIdentifiers?, String?) toKlipperObjectIdentifierNEW() {
     final trimmed = trim();
     final parts = trimmed.split(RegExp(r'\s+'));
@@ -33,14 +25,6 @@ extension MobilerakerString on String {
     if (parts.length == 1) return (cIdentifier, null);
 
     return (cIdentifier, trimmed.substring(parts[0].length).trim());
-  }
-
-  bool isKlipperObject(ConfigFileObjectIdentifiers objectIdentifier) {
-    if (objectIdentifier.regex != null) {
-      return RegExp(objectIdentifier.regex!).hasMatch(this);
-    }
-
-    return this == objectIdentifier.name;
   }
 
   String obfuscate([int nonObfuscated = 4]) {

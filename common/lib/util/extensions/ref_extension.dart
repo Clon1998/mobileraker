@@ -9,7 +9,7 @@ import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-extension MobilerakerAutoDispose on AutoDisposeRef {
+extension MobilerakerAutoDispose on Ref {
   // Returns a stream that alwways issues the latest/cached value of the provider
   // if the provider has one, even if multiple listeners listen to the stream!
   Stream<T> watchAsSubject<T>(ProviderListenable<AsyncValue<T>> provider,

@@ -5,6 +5,7 @@
 
 import 'package:common/data/repository/webcam_info_repository_impl.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../network/jrpc_client_provider.dart';
@@ -17,7 +18,7 @@ import 'webcam_info_repository_legacy.dart';
 part 'webcam_info_repository.g.dart';
 
 @riverpod
-WebcamInfoRepository webcamInfoRepository(WebcamInfoRepositoryRef ref, String machineUUID) {
+WebcamInfoRepository webcamInfoRepository(Ref ref, String machineUUID) {
   var moonrakerVersion = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.moonrakerVersion)).valueOrNull;
   // Prior to this commit, there was a bug in moonraker that caused the webcam API to not work properly.
   // https://github.com/Arksine/moonraker/commit/f487de77bc4c2db154299747aefce0ed2354bbf8

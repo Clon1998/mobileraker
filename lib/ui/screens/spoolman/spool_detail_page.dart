@@ -44,7 +44,7 @@ part 'spool_detail_page.freezed.dart';
 part 'spool_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-GetSpool _spool(_SpoolRef ref) {
+GetSpool _spool(Ref ref) {
   throw UnimplementedError();
 }
 

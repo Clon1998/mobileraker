@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'named_fan.dart';
@@ -27,4 +28,7 @@ class ControllerFan extends NamedFan with _$ControllerFan {
     var mergedJson = {...current.toJson(), ...partialJson};
     return ControllerFan.fromJson(mergedJson);
   }
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.controller_fan;
 }

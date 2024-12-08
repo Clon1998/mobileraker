@@ -1,5 +1,46 @@
 # Mobileraker - Changelog
 
+## [2.8.3] - 2024-11-xx
+
+### General
+
+- **IOS Support**: Due to libraries used in the app, the app now requires IOS 15.5 or newer to run.
+
+### Enhancements
+
+- **Macro Visibility**: Added configurable printer state visibility for macros. Users can now hide macros irrelevant to
+  the current printer state by tapping the macro in the group editor on the printer edit page.
+- **Remote Services Randomization**: Randomized the order of remote services on the printer add and edit pages to ensure
+  a more fair representation.
+- **GCode File Sorting**: Added support for sorting GCode files by estimated print time, allowing users to quickly find
+  the shortest or longest print jobs.
+- **Eta Day Indicator**: Enhanced the ETA cell in the status card to display a `+n` to indicate the the eta is in n
+  days. (e.g. `+1` for tomorrow)
+- **Heater Shortcut**: Added a convenient long-press gesture on the "Set" button within the heater card to instantly
+  disable the heater, improving user interaction and control.
+
+### Bug Fixes
+
+- **GCode Preview**: Fixed a parser error in the GCode preview when `SET_RETRACTION` command is used.
+
+- **Object Naming**: Resolved an issue with Klipper objects (Config entries) of the same class and name. The app now
+  distinguishes between different object kinds (e.g., `fan_generic` and `temperature_fan`) when preventing naming
+  conflicts.
+
+- **WebRTC Camera Streams**: Fixed a stability issue that could cause app crashes by opening too many WebRTC camera
+  streams simultaneously.
+
+- **Obico One-Click Setup**: Corrected an HTTP client-related problem preventing single-click Obico connection setup.
+
+- **Filepicker on Android**: Fixed an issue that prevented the user from choosing a file to upload on some Android
+  versions.
+
+### i18n
+
+- **Hungarian Translation**: Updated the Hungarian translation, thanks to [@AntoszHUN](https://github.com/AntoszHUN).
+- **Chinese Taiwan Translation**: Added a Chinese Taiwan translation, thanks to Kayzed.
+- **Polish Translation**: Added a Polish translation, thanks to Solargrim.
+
 ## [2.8.2] - 2024-10-31
 
 ### Enhancements

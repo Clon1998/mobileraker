@@ -237,8 +237,8 @@ class _MacroGroup extends HookConsumerWidget {
 
   Icon? _macroAvatar(GCodeMacro macro) {
     if (!macro.visible) return const Icon(Icons.visibility_off_outlined);
-    if (!macro.showWhilePrinting) return const Icon(Icons.disabled_visible_outlined);
-    return null;
+    // if (!macro.s) return const Icon(Icons.disabled_visible_outlined);
+    return const Icon(Icons.visibility_outlined);
   }
 }
 
@@ -447,6 +447,6 @@ class MacroGroupListController extends _$MacroGroupListController {
 }
 
 @riverpod
-ExpansionTileController _expansionTileController(_ExpansionTileControllerRef ref, String macroGroupUUID) {
+ExpansionTileController _expansionTileController(Ref ref, String macroGroupUUID) {
   return ExpansionTileController();
 }

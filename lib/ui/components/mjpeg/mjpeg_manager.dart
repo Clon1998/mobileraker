@@ -5,6 +5,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/mjpeg/stream_mjpeg_manager.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -25,7 +26,7 @@ abstract class MjpegManager {
 }
 
 @riverpod
-MjpegManager mjpegManager(MjpegManagerRef ref, Dio dio, MjpegConfig config) {
+MjpegManager mjpegManager(Ref ref, Dio dio, MjpegConfig config) {
   var manager = switch (config.mode) {
     MjpegMode.adaptiveStream => AdaptiveMjpegManager(dio, config),
     MjpegMode.stream => StreamMjpegManager(dio, config),

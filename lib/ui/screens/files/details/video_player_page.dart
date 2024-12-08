@@ -32,7 +32,7 @@ class VideoPlayerPage extends ConsumerStatefulWidget {
 }
 
 class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
-  late CachedVideoPlayerController videoPlayerController;
+  late CachedVideoPlayerPlusController videoPlayerController;
   late CustomVideoPlayerController _customVideoPlayerController;
   bool loading = true;
   double? fileDownloadProgress;
@@ -48,7 +48,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
 
     Map<String, String> headers = dio.options.headers.cast<String, String>();
 
-    videoPlayerController = CachedVideoPlayerController.network(fileUri.toString(), httpHeaders: headers)
+    videoPlayerController = CachedVideoPlayerPlusController.networkUrl(fileUri, httpHeaders: headers)
       ..initialize()
           .then(
         (value) => setState(() {

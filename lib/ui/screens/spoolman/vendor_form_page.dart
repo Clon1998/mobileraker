@@ -38,12 +38,12 @@ enum _VendorFormFormComponent {
 }
 
 @Riverpod(dependencies: [])
-GetVendor? _vendor(_VendorRef ref) {
+GetVendor? _vendor(Ref ref) {
   throw UnimplementedError();
 }
 
 @Riverpod(dependencies: [])
-_FormMode _formMode(_FormModeRef ref) {
+_FormMode _formMode(Ref ref) {
   return _FormMode.create;
 }
 

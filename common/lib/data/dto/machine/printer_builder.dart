@@ -4,8 +4,6 @@
  */
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
-import 'package:common/data/dto/machine/fans/generic_fan.dart';
-import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
@@ -21,19 +19,13 @@ import '../files/gcode_file.dart';
 import 'bed_screw.dart';
 import 'display_status.dart';
 import 'exclude_object.dart';
-import 'fans/controller_fan.dart';
-import 'fans/heater_fan.dart';
 import 'fans/named_fan.dart';
 import 'fans/print_fan.dart';
-import 'fans/temperature_fan.dart';
-import 'filament_sensors/filament_switch_sensor.dart';
 import 'firmware_retraction.dart';
 import 'gcode_move.dart';
 import 'heaters/extruder.dart';
 import 'heaters/generic_heater.dart';
 import 'heaters/heater_bed.dart';
-import 'leds/addressable_led.dart';
-import 'leds/dumb_led.dart';
 import 'leds/led.dart';
 import 'manual_probe.dart';
 import 'motion_report.dart';
@@ -43,40 +35,45 @@ import 'temperature_sensor.dart';
 import 'toolhead.dart';
 import 'virtual_sd_card.dart';
 
-final Map<ConfigFileObjectIdentifiers, Function?> _subToPrinterObjects = {
+final Map<ConfigFileObjectIdentifiers, Function?> _partialUpdateMethodMappings = {
   ConfigFileObjectIdentifiers.bed_mesh: PrinterBuilder._updateBedMesh,
   ConfigFileObjectIdentifiers.bed_screws: PrinterBuilder._updateBedScrew,
   ConfigFileObjectIdentifiers.configfile: PrinterBuilder._updateConfigFile,
-  ConfigFileObjectIdentifiers.controller_fan: PrinterBuilder._updateControllerFan,
+  ConfigFileObjectIdentifiers.controller_fan: PrinterBuilder._updateNamedFan,
   ConfigFileObjectIdentifiers.display_status: PrinterBuilder._updateDisplayStatus,
-  ConfigFileObjectIdentifiers.dotstar: PrinterBuilder._updateAddressableLed,
+  ConfigFileObjectIdentifiers.dotstar: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.exclude_object: PrinterBuilder._updateExcludeObject,
   ConfigFileObjectIdentifiers.extruder: PrinterBuilder._updateExtruder,
   ConfigFileObjectIdentifiers.fan: PrinterBuilder._updatePrintFan,
-  ConfigFileObjectIdentifiers.fan_generic: PrinterBuilder._updateGenericFan,
-  ConfigFileObjectIdentifiers.filament_motion_sensor: PrinterBuilder._updateFilamentMotionSensor,
-  ConfigFileObjectIdentifiers.filament_switch_sensor: PrinterBuilder._updateFilamentSwitchSensor,
+  ConfigFileObjectIdentifiers.fan_generic: PrinterBuilder._updateNamedFan,
+  ConfigFileObjectIdentifiers.filament_motion_sensor: PrinterBuilder._updateFilamentSensor,
+  ConfigFileObjectIdentifiers.filament_switch_sensor: PrinterBuilder._updateFilamentSensor,
   ConfigFileObjectIdentifiers.firmware_retraction: PrinterBuilder._updateFirmwareRetraction,
   ConfigFileObjectIdentifiers.gcode_macro: PrinterBuilder._updateGcodeMacro,
   ConfigFileObjectIdentifiers.gcode_move: PrinterBuilder._updateGCodeMove,
   ConfigFileObjectIdentifiers.heater_bed: PrinterBuilder._updateHeaterBed,
-  ConfigFileObjectIdentifiers.heater_fan: PrinterBuilder._updateHeaterFan,
+  ConfigFileObjectIdentifiers.heater_fan: PrinterBuilder._updateNamedFan,
   ConfigFileObjectIdentifiers.heater_generic: PrinterBuilder._updateGenericHeater,
-  ConfigFileObjectIdentifiers.led: PrinterBuilder._updateDumbLed,
+  ConfigFileObjectIdentifiers.led: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.manual_probe: PrinterBuilder._updateManualProbe,
   ConfigFileObjectIdentifiers.motion_report: PrinterBuilder._updateMotionReport,
-  ConfigFileObjectIdentifiers.neopixel: PrinterBuilder._updateAddressableLed,
+  ConfigFileObjectIdentifiers.neopixel: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.output_pin: PrinterBuilder._updateOutputPin,
-  ConfigFileObjectIdentifiers.pca9533: PrinterBuilder._updateDumbLed,
-  ConfigFileObjectIdentifiers.pca9632: PrinterBuilder._updateDumbLed,
+  ConfigFileObjectIdentifiers.pca9533: PrinterBuilder._updateLed,
+  ConfigFileObjectIdentifiers.pca9632: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.print_stats: PrinterBuilder._updatePrintStat,
   ConfigFileObjectIdentifiers.screws_tilt_adjust: PrinterBuilder._updateScrewsTiltAdjust,
-  ConfigFileObjectIdentifiers.temperature_fan: PrinterBuilder._updateTemperatureFan,
+  ConfigFileObjectIdentifiers.temperature_fan: PrinterBuilder._updateNamedFan,
   ConfigFileObjectIdentifiers.temperature_sensor: PrinterBuilder._updateTemperatureSensor,
   ConfigFileObjectIdentifiers.toolhead: PrinterBuilder._updateToolhead,
   ConfigFileObjectIdentifiers.virtual_sdcard: PrinterBuilder._updateVirtualSd,
   ConfigFileObjectIdentifiers.z_thermal_adjust: PrinterBuilder._updateZThermalAdjust,
 };
+
+typedef _SingleObjectUpdate = PrinterBuilder Function(Map<String, dynamic>, PrinterBuilder);
+typedef _MultiObjectUpdate = PrinterBuilder Function(String, Map<String, dynamic>, PrinterBuilder);
+typedef _MultiObjectWithIdentifierUpdate = PrinterBuilder Function(
+    ConfigFileObjectIdentifiers, String, Map<String, dynamic>, PrinterBuilder);
 
 class PrinterBuilder {
   PrinterBuilder();
@@ -144,20 +141,19 @@ class PrinterBuilder {
   FirmwareRetraction? firmwareRetraction;
   BedMesh? bedMesh;
   ZThermalAdjust? zThermalAdjust;
-  Map<String, NamedFan> fans = {};
+  Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
   List<String> queryableObjects = [];
   Map<String, GcodeMacro> gcodeMacros = {};
-  Map<String, Led> leds = {};
+  Map<(ConfigFileObjectIdentifiers, String), Led> leds = {};
   Map<String, GenericHeater> genericHeaters = {};
-  Map<String, FilamentSensor> filamentSensors = {};
+  Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> filamentSensors = {};
 
   Printer build() {
     if (toolhead == null) {
       throw const MobilerakerException('Missing field: toolhead');
     }
-
     if (gCodeMove == null) {
       throw const MobilerakerException('Missing field: gCodeMove');
     }
@@ -212,19 +208,19 @@ class PrinterBuilder {
     // The config identifier is not yet supported
     if (cIdentifier == null) return this;
 
-    final updateMethodToCall = _subToPrinterObjects[cIdentifier];
+    final updateMethodToCall = _partialUpdateMethodMappings[cIdentifier];
     if (updateMethodToCall == null) return this; //
-    // No method to update the object -> skip
-    if (objectName != null) {
-      updateMethodToCall(objectName, json[key], this);
-    } else if (cIdentifier == ConfigFileObjectIdentifiers.extruder) {
-      // Extruder is a special case....
-      updateMethodToCall(key, json[key], this);
-    } else {
-      updateMethodToCall(json[key], this);
-    }
 
-    return this;
+    return switch (updateMethodToCall) {
+      _SingleObjectUpdate() => updateMethodToCall(json[key], this),
+      // Extruder is a special case....
+      _MultiObjectUpdate() when cIdentifier == ConfigFileObjectIdentifiers.extruder =>
+        updateMethodToCall(key, json[key], this),
+      _MultiObjectUpdate() when objectName != null => updateMethodToCall(objectName, json[key], this),
+      _MultiObjectWithIdentifierUpdate() when objectName != null =>
+        updateMethodToCall(cIdentifier, objectName, json[key], this),
+      _ => throw UnsupportedError('The provided update method is not implemented yet!')
+    };
   }
 
   ////////////////////////////////
@@ -250,30 +246,25 @@ class PrinterBuilder {
     return builder..configFile = config;
   }
 
-  static PrinterBuilder _updateControllerFan(String fanName, Map<String, dynamic> fanJson, PrinterBuilder builder) {
-    final curFan = builder.fans[fanName] ?? ControllerFan(name: fanName);
+  static PrinterBuilder _updateNamedFan(
+      ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> fanJson, PrinterBuilder builder) {
+    // We need to combine identifier and name again because fans can have the same name as long as they are not the same type causing issues here!
+    final key = (identifier, name);
+    final curFan = builder.fans[key] ?? NamedFan.fallback(identifier, name);
 
-    if (curFan is! ControllerFan) {
-      logger.w('Fan "$fanName" is not a ControllerFan');
-      throw MobilerakerException('Fan "$fanName" is not a ControllerFan. Found ${_typeOrNull(curFan)}');
-    }
-
-    return builder..fans = {...builder.fans, fanName: ControllerFan.partialUpdate(curFan, fanJson)};
+    return builder..fans = {...builder.fans, key: NamedFan.partialUpdate(curFan, fanJson)};
   }
 
   static PrinterBuilder _updateDisplayStatus(Map<String, dynamic> json, PrinterBuilder builder) {
     return builder..displayStatus = DisplayStatus.partialUpdate(builder.displayStatus, json);
   }
 
-  static PrinterBuilder _updateAddressableLed(String led, Map<String, dynamic> json, PrinterBuilder builder) {
-    final curLed = builder.leds[led] ?? AddressableLed(name: led);
+  static PrinterBuilder _updateLed(
+      ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> json, PrinterBuilder builder) {
+    final key = (identifier, name);
+    final curLed = builder.leds[key] ?? Led.fallback(identifier, name);
 
-    if (curLed is! AddressableLed) {
-      logger.w('Led "$led" is not an AddressableLed');
-      throw MobilerakerException('Led "$led" is not an AddressableLed. Found ${_typeOrNull(led)}');
-    }
-
-    return builder..leds = {...builder.leds, led: AddressableLed.partialUpdate(curLed, json)};
+    return builder..leds = {...builder.leds, key: Led.partialUpdate(curLed, json)};
   }
 
   static PrinterBuilder _updateExcludeObject(Map<String, dynamic> json, PrinterBuilder builder) {
@@ -303,44 +294,13 @@ class PrinterBuilder {
     return builder..printFan = PrintFan.partialUpdate(builder.printFan, json);
   }
 
-  static PrinterBuilder _updateGenericFan(String fanName, Map<String, dynamic> fanJson, PrinterBuilder builder) {
-    final curFan = builder.fans[fanName] ?? GenericFan(name: fanName);
-
-    if (curFan is! GenericFan) {
-      logger.w('Fan "$fanName" is not a GenericFan');
-      throw MobilerakerException('Fan "$fanName" is not a GenericFan. Found ${_typeOrNull(curFan)}');
-    }
-
-    return builder..fans = {...builder.fans, fanName: GenericFan.partialUpdate(curFan, fanJson)};
-  }
-
-  static PrinterBuilder _updateFilamentMotionSensor(String sensor, Map<String, dynamic> json, PrinterBuilder builder) {
-    final filamentSensor = builder.filamentSensors[sensor] ?? FilamentMotionSensor(name: sensor);
-
-    if (filamentSensor is! FilamentMotionSensor) {
-      logger.w('Sensor "$sensor" is not a FilamentMotionSensor');
-      throw MobilerakerException('Sensor "$sensor" is not a FilamentMotionSensor. Found ${_typeOrNull(sensor)}');
-    }
+  static PrinterBuilder _updateFilamentSensor(
+      ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> json, PrinterBuilder builder) {
+    final key = (identifier, name);
+    final filamentSensor = builder.filamentSensors[key] ?? FilamentSensor.fallback(identifier, name);
 
     return builder
-      ..filamentSensors = {
-        ...builder.filamentSensors,
-        sensor: FilamentMotionSensor.partialUpdate(filamentSensor, json)
-      };
-  }
-
-  static PrinterBuilder _updateFilamentSwitchSensor(String sensor, Map<String, dynamic> json, PrinterBuilder builder) {
-    final filamentSensor = builder.filamentSensors[sensor] ?? FilamentSwitchSensor(name: sensor);
-    if (filamentSensor is! FilamentSwitchSensor) {
-      logger.w('Sensor "$sensor" is not a FilamentSwitchSensor');
-      throw MobilerakerException('Sensor "$sensor" is not a FilamentSwitchSensor. Found ${_typeOrNull(sensor)}');
-    }
-
-    return builder
-      ..filamentSensors = {
-        ...builder.filamentSensors,
-        sensor: FilamentSwitchSensor.partialUpdate(filamentSensor, json)
-      };
+      ..filamentSensors = {...builder.filamentSensors, key: FilamentSensor.partialUpdate(filamentSensor, json)};
   }
 
   static PrinterBuilder _updateFirmwareRetraction(Map<String, dynamic> json, PrinterBuilder builder) {
@@ -360,32 +320,10 @@ class PrinterBuilder {
     return builder..heaterBed = HeaterBed.partialUpdate(builder.heaterBed, json);
   }
 
-  static PrinterBuilder _updateHeaterFan(String fanName, Map<String, dynamic> fanJson, PrinterBuilder builder) {
-    final curFan = builder.fans[fanName] ?? HeaterFan(name: fanName);
-
-    if (curFan is! HeaterFan) {
-      logger.w('Fan "$fanName" is not a HeaterFan');
-      throw MobilerakerException('Fan "$fanName" is not a HeaterFan. Found ${_typeOrNull(curFan)}');
-    }
-
-    return builder..fans = {...builder.fans, fanName: HeaterFan.partialUpdate(curFan, fanJson)};
-  }
-
   static PrinterBuilder _updateGenericHeater(String heater, Map<String, dynamic> json, PrinterBuilder builder) {
     final genericHeater = builder.genericHeaters[heater] ?? GenericHeater(name: heater, lastHistory: DateTime(1990));
     return builder
       ..genericHeaters = {...builder.genericHeaters, heater: GenericHeater.partialUpdate(genericHeater, json)};
-  }
-
-  static PrinterBuilder _updateDumbLed(String led, Map<String, dynamic> json, PrinterBuilder builder) {
-    final curLed = builder.leds[led] ?? DumbLed(name: led);
-
-    if (curLed is! DumbLed) {
-      logger.w('Led "$led" is not an DumbLed');
-      throw MobilerakerException('Led "$led" is not an DumbLed. Found ${_typeOrNull(led)}');
-    }
-
-    return builder..leds = {...builder.leds, led: DumbLed.partialUpdate(curLed, json)};
   }
 
   static PrinterBuilder _updateManualProbe(Map<String, dynamic> json, PrinterBuilder builder) {
@@ -407,17 +345,6 @@ class PrinterBuilder {
 
   static PrinterBuilder _updateScrewsTiltAdjust(Map<String, dynamic> json, PrinterBuilder builder) {
     return builder..screwsTiltAdjust = ScrewsTiltAdjust.partialUpdate(builder.screwsTiltAdjust, json);
-  }
-
-  static PrinterBuilder _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson, PrinterBuilder builder) {
-    final curFan = builder.fans[fanName] ?? TemperatureFan(name: fanName, lastHistory: DateTime(1990));
-
-    if (curFan is! TemperatureFan) {
-      logger.w('Fan "$fanName" is not a TemperatureFan');
-      throw MobilerakerException('Fan "$fanName" is not a TemperatureFan. Found ${_typeOrNull(curFan)}');
-    }
-
-    return builder..fans = {...builder.fans, fanName: TemperatureFan.partialUpdate(curFan, fanJson)};
   }
 
   static PrinterBuilder _updateTemperatureSensor(String sensor, Map<String, dynamic> json, PrinterBuilder builder) {
@@ -447,5 +374,3 @@ class PrinterBuilder {
 // END CODE to update fields  //
 ////////////////////////////////
 }
-
-String _typeOrNull(dynamic obj) => obj == null ? 'null' : obj.runtimeType.toString();

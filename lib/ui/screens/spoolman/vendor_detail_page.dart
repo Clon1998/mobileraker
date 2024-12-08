@@ -31,7 +31,7 @@ import 'common_detail.dart';
 part 'vendor_detail_page.g.dart';
 
 @Riverpod(dependencies: [])
-GetVendor _vendor(_VendorRef ref) {
+GetVendor _vendor(Ref ref) {
   throw UnimplementedError();
 }
 

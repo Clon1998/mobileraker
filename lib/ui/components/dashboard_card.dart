@@ -34,17 +34,17 @@ import '../screens/dashboard/components/z_offset_card.dart';
 part 'dashboard_card.g.dart';
 
 @Riverpod(dependencies: [], keepAlive: true)
-DashboardComponentType _cardType(_CardTypeRef ref) {
+DashboardComponentType _cardType(Ref ref) {
   throw UnimplementedError();
 }
 
 @Riverpod(dependencies: [], keepAlive: true)
-String _cardUUID(_CardUUIDRef ref) {
+String _cardUUID(Ref ref) {
   throw UnimplementedError();
 }
 
 @Riverpod(dependencies: [_cardUUID, _cardType])
-String dashboardCardUUID(DashboardCardUUIDRef ref, String machineUUID) {
+String dashboardCardUUID(Ref ref, String machineUUID) {
   final dashboard = ref.watch(dashboardLayoutProvider(machineUUID).requireValue());
 
   if (dashboard.created == null) {

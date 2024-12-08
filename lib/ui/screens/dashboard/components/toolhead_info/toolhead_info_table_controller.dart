@@ -13,6 +13,7 @@ import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'toolhead_info_table_controller.freezed.dart';
@@ -118,7 +119,7 @@ class ToolheadInfo with _$ToolheadInfo {
 }
 
 @riverpod
-Stream<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref, String machineUUID) async* {
+Stream<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
   final applyOffsetSettings = ref.watch(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion));
 

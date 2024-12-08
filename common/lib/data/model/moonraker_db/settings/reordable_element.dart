@@ -36,7 +36,5 @@ class ReordableElement with _$ReordableElement {
 
   factory ReordableElement.fromJson(Map<String, dynamic> json) => _$ReordableElementFromJson(json);
 
-  String get kindName => '${kind.name}::$name';
-
   String get beautifiedName => beautifyName(name);
 }

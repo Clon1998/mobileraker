@@ -10,6 +10,7 @@ enum SortMode {
   name('pages.files.sort_by.name', SortKind.ascending),
   lastModified('pages.files.sort_by.last_modified', SortKind.descending),
   lastPrinted('pages.files.sort_by.last_printed', SortKind.descending),
+  estimatedPrintTime('pages.files.sort_by.estimated_time', SortKind.descending),
   size('pages.files.sort_by.file_size', SortKind.ascending);
 
   const SortMode(this.translation, this.defaultKind);
