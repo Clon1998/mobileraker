@@ -286,6 +286,10 @@ pages:
       upload_failed:
         title: Feltöltés sikertelen
         body: Hiba történt a fájl feltöltése közben. Kérjük, próbáld újra később.
+        reasons:
+          type_mismatch:
+            title: Fájltípus eltérés
+            body: Csak a '{}' fájlok engedélyezettek.
       zipping_success:
         title: Becsomagolás sikeres
         body: Az archívum sikeresen létrejött.
