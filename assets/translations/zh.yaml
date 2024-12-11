@@ -84,7 +84,7 @@ pages:
         layer: 層數
         eta: 預計完成時間
         current_object: 目前物件
-        elapsed: 經過的
+        elapsed: 已用時間
         flow: 流量
         filament: 線材
         filament_tooltip: 已使用 {} % 的線材，相當於 {} m，總預測長度為 {} m。
@@ -1072,7 +1072,7 @@ dialogs:
       load: 線材裝載精靈
       unload: 退料精靈
     controls:
-      heat_up: 加熱中
+      heat_up: 加熱
       change_temp: 變更溫度
       purge: 清除
       repeat_load: 重複裝載
