@@ -51,13 +51,13 @@ general:
   stop: 停止
   start: 開始
   repeat: 重複
-  load_more: 載入更多
+  load_more: 再次進料
   archived: 已封存
   leave: 離開
   export: 匯出
   import: 匯出
   current: 目前
-  load: 載入
+  load: 進料
   unload: 退料
   discard: 放棄
   hide: 隱藏
@@ -84,7 +84,7 @@ pages:
         layer: 層數
         eta: 預計完成時間
         current_object: 目前物件
-        elapsed: 經過的
+        elapsed: 已用時間
         flow: 流量
         filament: 線材
         filament_tooltip: 已使用 {} % 的線材，相當於 {} m，總預測長度為 {} m。
@@ -284,6 +284,10 @@ pages:
       upload_failed:
         title: 上傳失敗
         body: 嘗試上傳檔案時發生錯誤，請稍後重試。
+        reasons:
+          type_mismatch:
+            title: 檔案類型不符
+            body: 僅允許 '{}' 檔案
       zipping_success:
         title: 壓縮成功
         body: 已成功建立壓縮檔。
@@ -1068,7 +1072,7 @@ dialogs:
       load: 線材裝載精靈
       unload: 退料精靈
     controls:
-      heat_up: 加熱中
+      heat_up: 加熱
       change_temp: 變更溫度
       purge: 清除
       repeat_load: 重複裝載

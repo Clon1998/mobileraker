@@ -235,6 +235,10 @@ pages:
         body: Plik został poprawnie wysłany.
       upload_failed:
         title: Wysyłanie nieudane
+        reasons:
+          type_mismatch:
+            title: Niezgodność typu pliku
+            body: Dozwolone są tylko pliki '{}'.
       copy_created:
         title: Kopia utworzona
       move_success:
@@ -318,6 +322,8 @@ pages:
       timeout_label: Upłynął czas oczekiwania
       theme: Motyw UI
       theme_helper: Motyw UI dla drukarki
+    ssl:
+      title: SSL - Ustawienia
     motion_system:
       invert_x_short: Odwróć X
       invert_y_short: Odwróć Y
@@ -332,6 +338,9 @@ pages:
       no_webcams: Nie dodano kamer!
       flip_vertical: Odwróć w pionie
       flip_horizontal: Odwróć w poziomie
+    macros:
+      no_macros_available: Brak dostępnych makr!
+      macros: Makra
     local_ssid:
       no_ssids: Nie dodano nazwy sieci WiFi!
       dialog:
