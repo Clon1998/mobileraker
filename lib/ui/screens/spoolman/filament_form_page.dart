@@ -200,7 +200,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                   initialValue: sourceFilament?.price?.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: priceFocusNode,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: 'pages.spoolman.properties.price'.tr(),
@@ -220,7 +220,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                   valueTransformer: (text) => text?.let(double.tryParse),
                   initialValue: sourceFilament?.diameter.let(numFormatInputs.format) ?? '1.75',
                   focusNode: diameterFocusNode,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(labelText: 'pages.spoolman.properties.diameter'.tr(), suffixText: '[mm]'),
                   onSubmitted: (txt) =>
@@ -234,7 +234,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                   initialValue: sourceFilament?.density.let(numFormatInputs.format),
                   valueTransformer: (text) => text?.let(double.tryParse),
                   focusNode: densityFocusNode,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration:
                       InputDecoration(labelText: 'pages.spoolman.properties.density'.tr(), suffixText: '[g/cm³]'),

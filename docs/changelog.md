@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.8.4] - 2025-01-xx
+
+### Bug Fixes
+
+- **Keyboard Input Spoolman**: Fixed an issue that prevented users from entering decimal values on the spool form page.
+
 ## [2.8.3] - 2024-12-08
 
 ### General

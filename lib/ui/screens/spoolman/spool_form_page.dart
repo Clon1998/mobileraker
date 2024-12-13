@@ -175,7 +175,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                     initialValue: sourceSpool?.price?.let(numFormatInputs.format),
                     valueTransformer: (text) => text?.let(double.tryParse),
                     focusNode: priceFocusNode,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
                       labelText: 'pages.spoolman.properties.price'.tr(),
