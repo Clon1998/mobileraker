@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 2.8.4+580
 
 environment:
-  sdk: '>=3.2.3 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
   flutter: '>=3.16.5'
 
 
@@ -56,7 +56,7 @@ dependencies:
 
   #routing
   go_router: ^14.2.2
-  go_transitions: ^0.7.0
+  go_transitions: ^0.7.1
 
   #util
   rxdart: ^0.28.0
@@ -162,7 +162,7 @@ dependencies:
       url: https://github.com/JahnChoi/appinio_flutter_packages
       path: packages/appinio_video_player
       ref: feature/switch-cached-video-player-dep
-  file_picker: ^8.0.7
+  file_picker: 8.1.4
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
 
