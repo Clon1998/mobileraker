@@ -4,7 +4,8 @@
 
 ### Bug Fixes
 
-- **Keyboard Input Spoolman**: Fixed an issue that prevented users from entering decimal values on the spool form page.
+- **Keyboard Input Spoolman**: Fixed an issue that prevented users from entering decimal values on the spool form
+  page. [#444](https://github.com/Clon1998/mobileraker/issues/444)
 
 ## [2.8.3] - 2024-12-08
 
