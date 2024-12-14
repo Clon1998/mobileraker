@@ -91,6 +91,7 @@ dependencies:
   package_info_plus: ^8.1.1
   vector_math: ^2.1.4
   form_builder_validators: ^11.0.0
+  keep_screen_on: ^3.0.0
 
   #crypto
   hashlib_codecs: ^2.2.0

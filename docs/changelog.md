@@ -2,6 +2,13 @@
 
 ## [2.8.4] - 2025-01-xx
 
+### Enhancements
+
+- **Keep Screen Awake**: Added a new setting to keep the screen on while the app is open. This feature is especially
+  useful
+  for users who want to keep their device awake while monitoring a print job or using the app for an extended period. To
+  enable this feature, navigate to the app settings and toggle the "Keep Screen Awake" option.
+
 ### Bug Fixes
 
 - **Keyboard Input Spoolman**: Fixed an issue that prevented users from entering decimal values on the spool form

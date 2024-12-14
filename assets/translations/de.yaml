@@ -402,6 +402,8 @@ pages:
       eta_sources_hint: Wählen Sie die Quellen, die zur Berechnung der ETA verwendet werden sollen
       medium_ui: Tablet UI
       medium_ui_hint: Aktiviert das Tablet-UI für größere Bildschirme
+      keep_screen_on: Bildschirm aktiviert lassen
+      keep_screen_on_hint: Verhindert, dass sich der Bildschirm ausschaltet, solange die App aktiv ist
     notification:
       title: Benachrichtigung
       progress_label: Druckfortschritt Benachrichtigungen

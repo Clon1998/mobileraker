@@ -172,6 +172,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   useProgressbarNotifications('useProgressNotifications'),
   etaSources('etaCalS', ['slicer', 'filament']),
   useMediumUI('useMediumUI', true),
+  keepScreenOn('keepScreenOn', false),
   ;
 
   @override

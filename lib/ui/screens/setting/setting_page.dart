@@ -241,6 +241,23 @@ class _UiSection extends ConsumerWidget {
         const _ThemeModeSelector(),
         if (context.canBecomeLargerThanCompact) const _ToggleMediumUI(),
         FormBuilderSwitch(
+          name: 'keepScreenOn',
+          title: const Text('pages.setting.general.keep_screen_on').tr(),
+          subtitle: const Text('pages.setting.general.keep_screen_on_hint').tr(),
+          onChanged: (b) => settingService.writeBool(
+            AppSettingKeys.keepScreenOn,
+            b ?? false,
+          ),
+          initialValue: ref.read(
+            boolSettingProvider(AppSettingKeys.keepScreenOn),
+          ),
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            isCollapsed: true,
+          ),
+          activeColor: themeData.colorScheme.primary,
+        ),
+        FormBuilderSwitch(
           name: 'alwaysShowBaby',
           title: const Text('pages.setting.general.always_baby').tr(),
           subtitle: const Text('pages.setting.general.always_baby_hint').tr(),

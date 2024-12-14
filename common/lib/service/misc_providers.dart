@@ -44,7 +44,7 @@ Future<ServiceStatus> permissionServiceStatus(Ref ref, PermissionWithService per
 class AppLifecycle extends _$AppLifecycle {
   @override
   AppLifecycleState build() {
-    ref.listenSelf((previous, next) {
+    listenSelf((previous, next) {
       logger.i('AppLifecycleState changed from $previous to $next');
     });
 

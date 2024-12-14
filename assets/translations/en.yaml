@@ -415,6 +415,8 @@ pages:
       medium_ui: Tablet UI
       medium_ui_hint: Toggle if the tablet UI should be used on larger screens or
         landscape mode
+      keep_screen_on: Keep Screen Awake
+      keep_screen_on_hint: Prevent the screen from turning off while the app is active
     notification:
       title: Notification
       progress_label: Print-Progress Notification
