@@ -7,7 +7,8 @@
 - **Keep Screen Awake**: Added a new setting to keep the screen on while the app is open. This feature is especially
   useful
   for users who want to keep their device awake while monitoring a print job or using the app for an extended period. To
-  enable this feature, navigate to the app settings and toggle the "Keep Screen Awake" option.
+  enable this feature, navigate to the app settings and toggle the "Keep Screen Awake"
+  option. [#432](https://github.com/Clon1998/mobileraker/issues/432)
 
 ### Bug Fixes
 
