@@ -39,10 +39,7 @@ dependencies:
   awesome_notifications_core: ^0.10.0
   awesome_notifications: ^0.10.0
   awesome_notifications_fcm: ^0.10.0
-  #  live_activities: ^2.1.0
-  live_activities:
-    git:
-      url: https://github.com/Clon1998/flutter_live_activities
+  live_activities: ^2.2.0
   #        ref: main
   #      ref: feature/multi-state-req
   #  live_activities:
