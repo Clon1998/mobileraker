@@ -81,7 +81,7 @@ pages:
         printing_for: 'Drukowanie: {}'
         speed: Prędkość
         layer: Warstwa
-        eta: Pozostało
+        eta: Godzina zakończenia
         current_object: Aktualny obiekt
         elapsed: Upłynęło
         flow: Flow
