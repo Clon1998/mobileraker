@@ -15,6 +15,9 @@
 - **Keyboard Input Spoolman**: Fixed an issue that prevented users from entering decimal values on the spool form
   page. [#444](https://github.com/Clon1998/mobileraker/issues/444)
 
+- **Misc Card**: Resolved an issue where the misc card would not be displayed in certain circumstances due to a bug in
+  the ordering code of the available misc-items. [#449](https://github.com/Clon1998/mobileraker/issues/449)
+
 ## [2.8.3] - 2024-12-08
 
 ### General
