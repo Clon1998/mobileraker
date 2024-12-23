@@ -252,6 +252,7 @@ pages:
       last_modified: 上次修改
       last_printed: 上次列印
       file_size: 尺寸
+      estimated_time: 預估列印時間
     file_actions:
       download: 下載
       delete: 刪除
@@ -399,6 +400,8 @@ pages:
       eta_sources_hint: 選擇應用於預計完成時間計算的來源
       medium_ui: 平板介面
       medium_ui_hint: 在較大螢幕或橫屏模式下，切換是否使用平板介面
+      keep_screen_on: 保持螢幕喚醒
+      keep_screen_on_hint: 防止app運行時螢幕自動關閉
     notification:
       title: 通知
       progress_label: 列印進度通知
