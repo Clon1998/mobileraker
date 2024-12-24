@@ -26,6 +26,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -393,7 +394,13 @@ class _QuickActionsWidget extends ConsumerWidget {
           Tooltip(
             message: action.description,
             child: AsyncElevatedButton.icon(
-              onPressed: klippyCanReceiveCommands ? action.callback : null,
+              onPressed: klippyCanReceiveCommands
+                  ? () async {
+                      if (action.callback == null) return;
+                      HapticFeedback.selectionClick().ignore();
+                      await action.callback!();
+                    }
+                  : null,
               icon: Icon(action.icon),
               label: Text(action.title.toUpperCase()),
             ),
@@ -564,6 +571,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         true;
     double dirStep = (positive ^ invert) ? step : -1 * step;
 
+    HapticFeedback.selectionClick().ignore();
     await switch (axis) {
       PrinterAxis.X => _printerService.movePrintHead(
           x: dirStep,
@@ -581,7 +589,10 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     };
   }
 
-  Future<void> onHomeAxisBtn(Set<PrinterAxis> axis) => _printerService.homePrintHead(axis);
+  Future<void> onHomeAxisBtn(Set<PrinterAxis> axis) {
+    HapticFeedback.selectionClick().ignore();
+    return _printerService.homePrintHead(axis);
+  }
 
   Future<void> onQuadGantry() => _printerService.quadGantryLevel();
 

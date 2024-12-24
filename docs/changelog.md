@@ -9,6 +9,8 @@
   for users who want to keep their device awake while monitoring a print job or using the app for an extended period. To
   enable this feature, navigate to the app settings and toggle the "Keep Screen Awake"
   option. [#432](https://github.com/Clon1998/mobileraker/issues/432)
+- **Button feedback**: Added haptic feedback to the move axis buttons on the move axis card. This feature
+  provides users with tactile feedback when pressing the buttons, enhancing the overall user experience.
 
 ### Bug Fixes
 
