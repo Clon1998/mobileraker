@@ -4,6 +4,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SingleValueSelector extends StatelessWidget {
   final Function(int)? onSelected;
@@ -20,6 +21,7 @@ class SingleValueSelector extends StatelessWidget {
 
   _onSelectionChanged(int newIndex) {
     if (newIndex == selectedIndex) return;
+    HapticFeedback.selectionClick().ignore();
     onSelected!(newIndex);
   }
 
