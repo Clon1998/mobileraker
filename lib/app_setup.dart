@@ -132,7 +132,6 @@ setupBoxes() async {
 }
 
 Future<Uint8List> _hiveKey() async {
-
   /// due to the move to encSharedPref it could be that the hive_key is still in the normmal shared pref
   /// Therfore first try to load it from the secureShared pref else try the normal one else generate a new one
   var secureStorage = const FlutterSecureStorage(
@@ -269,8 +268,11 @@ class Warmup extends _$Warmup {
 
     // only start listening after Firebase is initialized
     listenSelf((previous, next) {
-      if (next.hasError) {
+      if (next.hasValue) {
+        logger.i('Warmup provider changed from ${previous?.valueOrNull} to ${next?.valueOrNull}');
+      } else if (next.hasError) {
         var error = next.asError!;
+        logger.e('Received a warmup error', error.error, error.stackTrace);
         FirebaseCrashlytics.instance.recordError(
           error.error,
           error.stackTrace,
