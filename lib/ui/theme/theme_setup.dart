@@ -169,11 +169,11 @@ ThemePack _mobilerakerPack() {
       elevatedButtonTheme: _elevatedButtonThemeData,
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
-        selectedLabelSchemeColor: SchemeColor.onBackground,
-        unselectedLabelSchemeColor: SchemeColor.onBackground,
-        selectedIconSchemeColor: SchemeColor.onBackground,
-        unselectedIconSchemeColor: SchemeColor.onBackground,
-        backgroundSchemeColor: SchemeColor.background,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.onSurface,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
@@ -260,11 +260,11 @@ ThemePack _voronPack() {
       elevatedButtonTheme: _elevatedButtonThemeData,
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
-        selectedLabelSchemeColor: SchemeColor.onBackground,
-        unselectedLabelSchemeColor: SchemeColor.onBackground,
-        selectedIconSchemeColor: SchemeColor.onBackground,
-        unselectedIconSchemeColor: SchemeColor.onBackground,
-        backgroundSchemeColor: SchemeColor.background,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.surface,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
@@ -355,11 +355,11 @@ ThemePack _ratRigPack() {
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
-        selectedLabelSchemeColor: SchemeColor.onBackground,
-        unselectedLabelSchemeColor: SchemeColor.onBackground,
-        selectedIconSchemeColor: SchemeColor.onBackground,
-        unselectedIconSchemeColor: SchemeColor.onBackground,
-        backgroundSchemeColor: SchemeColor.background,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.surface,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
@@ -389,6 +389,7 @@ ThemePack _vzBot() {
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.varela().fontFamily,
+    useMaterial3: false,
   );
 
   var dark = FlexThemeData.dark(
@@ -405,6 +406,7 @@ ThemePack _vzBot() {
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.varela().fontFamily,
+    useMaterial3: false,
   );
 
   return ThemePack(
@@ -433,11 +435,11 @@ ThemePack _vzBot() {
       elevatedButtonTheme: _elevatedButtonThemeData,
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
-        selectedLabelSchemeColor: SchemeColor.onBackground,
-        unselectedLabelSchemeColor: SchemeColor.onBackground,
-        selectedIconSchemeColor: SchemeColor.onBackground,
-        unselectedIconSchemeColor: SchemeColor.onBackground,
-        backgroundSchemeColor: SchemeColor.background,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.surface,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
@@ -502,11 +504,22 @@ ThemePack _mobilerakerSupporterPack() {
   return ThemePack(
     name: 'Mobileraker Supporter',
     lightTheme: light.copyWith(
-      elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
-        colorScheme: light.colorScheme,
-        radius: 5,
-        padding: const EdgeInsets.all(8),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: light.colorScheme.primary,
+          foregroundColor: light.colorScheme.onPrimary,
+          iconColor: light.colorScheme.onPrimary,
+          padding: const EdgeInsets.all(8),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+          ),
+        ),
       ),
+      // elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
+      //   colorScheme: light.colorScheme,
+      //   radius: 5,
+      //   padding: const EdgeInsets.all(8),
+      // ),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: light.colorScheme,
         selectedLabelSchemeColor: SchemeColor.onPrimary,
@@ -534,16 +547,17 @@ ThemePack _mobilerakerSupporterPack() {
     darkTheme: dark.copyWith(
       elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
         colorScheme: dark.colorScheme,
+        onBaseSchemeColor: SchemeColor.onPrimary,
         radius: 5,
         padding: const EdgeInsets.all(8),
       ),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
-        selectedLabelSchemeColor: SchemeColor.onBackground,
-        unselectedLabelSchemeColor: SchemeColor.onBackground,
-        selectedIconSchemeColor: SchemeColor.onBackground,
-        unselectedIconSchemeColor: SchemeColor.onBackground,
-        backgroundSchemeColor: SchemeColor.background,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.surface,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
@@ -627,11 +641,11 @@ ThemePack _oePack() {
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
-        selectedLabelSchemeColor: SchemeColor.onBackground,
-        unselectedLabelSchemeColor: SchemeColor.onBackground,
-        selectedIconSchemeColor: SchemeColor.onBackground,
-        unselectedIconSchemeColor: SchemeColor.onBackground,
-        backgroundSchemeColor: SchemeColor.background,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.surface,
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),

@@ -456,6 +456,7 @@ class _MoreActionsPopup extends ConsumerWidget {
             ? ElevatedButton.styleFrom(
                 disabledBackgroundColor: themeData.colorScheme.primary,
                 disabledForegroundColor: themeData.colorScheme.onPrimary,
+                disabledIconColor: themeData.colorScheme.onPrimary,
               )
             : null,
         onPressed: null,
