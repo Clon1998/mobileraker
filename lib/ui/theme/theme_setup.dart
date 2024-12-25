@@ -545,11 +545,16 @@ ThemePack _mobilerakerSupporterPack() {
       extensions: [CustomColors.light],
     ),
     darkTheme: dark.copyWith(
-      elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
-        colorScheme: dark.colorScheme,
-        onBaseSchemeColor: SchemeColor.onPrimary,
-        radius: 5,
-        padding: const EdgeInsets.all(8),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: light.colorScheme.primary,
+          foregroundColor: light.colorScheme.onPrimary,
+          iconColor: light.colorScheme.onPrimary,
+          padding: const EdgeInsets.all(8),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+          ),
+        ),
       ),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
         colorScheme: dark.colorScheme,
