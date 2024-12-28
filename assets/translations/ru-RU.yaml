@@ -1,0 +1,215 @@
+---
+general:
+  resume: Продолжить
+  connected: Подключено
+  'off': 'Выкл'
+  'on': 'Вкл'
+  none: Отсутствует
+  add: Добавить
+  create: Создать
+  rename: Переименовать
+  remove: Удалить
+  set: Установить
+  use: Использовать
+  restart: Перезагрузка
+  shutdown: Выключение
+  firmware: Прошивка
+  fetching: Получение
+  unknown: Неизвестно
+  disabled: Выключено
+  confirm: Подтвердить
+pages:
+  dashboard:
+    title: Панель
+    ems_btn: Аварийное выключение
+    server_status:
+      unavailable: Нет доступных серверов
+      available: Состояние сервера {} и Klippy {}
+    fetching_printer: "@:general.fetching printer..."
+    general:
+      print_card:
+        reset: Сброс
+        printing_for: 'Печать: {}'
+        speed: Скорость
+        layer: Слой
+        current_object: Текущий объект
+        elapsed: Прошло
+        flow: Поток
+        filament: Филамент
+        filament_tooltip: Использовано {} % Филамента, т.е {} m из {} m прогнозированного.
+      cam_card:
+        webcam: Веб-камера
+        fullscreen: Полноэкранный
+      temp_card:
+        title: Управление Температурой
+        presets_btn: Предустановки
+        hotend: Хотэнд
+        bed: Стол
+        temp_presets: Предустановки температуры
+        sensors: Датчики
+        heater_on: "{} °C установленная"
+        btn_thermistor: Датчик
+      temp_preset_card:
+        cooloff: Охлаждение
+      move_card:
+        title: Движение Осей
+        home_xy_tooltip: Парковка осей X и Y
+        home_z_tooltip: Парковка оси Z
+        home_all_tooltip: Парковка всех осей
+        home_all_btn: Все
+        mesh_tooltip: Запуск калибровки Med-Mesh
+        mesh_btn: Сетка
+        m84_tooltip: Отключить моторы
+        step_size: Размер шага
+        ztilt_tooltip: Запуск Z-Tilt калибровки
+      restart_klipper: Перезагрузка Klipper
+    control:
+      fan_card:
+        title:
+          zero: Вентилятор
+          one: Вентилятор
+          other: Вентиляторы
+      extrude_card:
+        title: Экструдер
+        extrude: Выдавить
+        retract: Втянуть
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude длина"
+        cold_extrude_error: Экструдер не достиг min_extrude_temp из {}°C!
+      macro_card:
+        title: Gcode - Макросы
+      power_card:
+        title: Панель питания
+      multipl_card:
+        title: Множители
+        flow: Поток
+        smooth_time: Время сглаживания
+      limit_card:
+        title: Лимиты
+        velocity: Скорость
+        accel: Ускорение
+        sq_corn_vel: Угловая Скорость
+        accel_to_decel: Ускорение до замедления
+  files:
+    title: Файлы
+    search_files: Поиск файлов
+    details:
+      preheat: Преднагрев
+      print: Печать
+      general_card:
+        path: Путь
+        last_mod: Последнее изменение
+        last_printed: Последняя печать
+        no_data: Нет информации
+      meta_card:
+        filament: Филамент
+        filament_type: Тип филамента
+        filament_name: Имя филамента
+        est_print_time: Расчетное время печати
+        slicer: Использованный слайсер
+        nozzle_diameter: Диаметр сопла
+        layer_higher: Высота слоя
+        first_layer: Первый слой
+        others: Прочее
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Температуры"
+      stat_card:
+        title: Статистика
+      preheat_dialog:
+        body: |-
+          Установленные Температуры
+          Экструдер: {}°C
+          Кровать: {}°C
+      preheat_snackbar:
+        title: Начат преднагрев
+        body: |-
+          Экструдер: {}°C
+          Стол: {}°C
+  setting:
+    title: Настройки приложения
+    general:
+      title: Основное
+      ems_confirm: Подтверждение Аварийной остановки
+      always_baby: Always show Z-Offset Card
+      num_edit: Использовать клавиатуру для ввода чисел
+      start_with_overview: Показать @:pages.overview.title по умолчанию
+      use_offset_pos: Показать координаты с примененным смещением.
+      language: Язык
+      companion: "Хотите получать удаленные уведомления?\nПрочтите как настроить Mobileraker's Companion "
+    notification:
+      title: Уведомления
+      progress_helper: Интервал обновления для уведомления о ходе печати
+      no_permission_title: Нет разрешения на уведомления!
+      no_permission_desc: |-
+        Не возможно отобразить уведомления.
+        Запрос разрешения по нажатию!
+      ios_notifications_title: Доставка уведомлений на IOS
+      ios_notifications_desc: |-
+        Уведомления требуют, чтобы mobileraker был открыт хотя бы один раз и работал в фоновом режиме..
+        Тем не менее, некоторые уведомления могут быть заблокированы ОС.!
+    imprint: Конфиденциальность/Выходные данные
+  printer_edit:
+    title: Редактировать {}
+    import_settings: Импорт настроек
+    remove_printer: Удалить принтер
+    no_values_found: Значения не найдены!
+    fetching_additional_settings: "@:general.fetching additional settings from network..."
+    could_not_fetch_additional: Не удалось получить дополнительные настройки!
+    fetch_error_hint: Убедитесь, что машина доступна и к ней подключен Mobileraker.
+    general:
+      displayname: Отображаемое имя
+      printer_addr: Принтер - Адрес
+      ws_addr: Веб-сокет - Адрес
+      moonraker_api_key: Moonraker - API Ключ
+      moonraker_api_desc: Требуется только в том случае, если вы используете доверенных клиентов. FluiddPI обеспечивает это!
+      full_url: Полный URL
+    motion_system:
+      title: Система движения
+      invert_x: Инвертировать ось - X
+      invert_x_short: Инвертировать X
+      invert_y: Инвертировать ось - Y
+      invert_y_short: Инвертировать Y
+      invert_z: Инвертировать ось - Z
+      invert_z_short: Инвертировать Z
+      speed_xy: Скоровть осей - X/Y
+      speed_xy_short: Скорость X/Y
+      speed_z: Скрость оси - Z
+      speed_z_short: Скорость Z
+      steps_move: Шаги перемещения
+    extruders:
+      feedrate: Extruder feed rate
+      feedrate_short: Feed rate
+    cams:
+      target_fps: Установленный FPS
+      new_cam: Новая веб-камера
+      no_webcams: Нет добавленных веб-камер!
+      flip_vertical: Отобразить вертикально
+      flip_horizontal: Отобразить горизонтально
+      cam_mode: Режим камеры
+    presets:
+      no_presets: Нет добавленных предустановок!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Температура"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Температура"
+      new_preset: Новая предустановка
+  printer_add:
+    title: Добавить новый принтер
+  console:
+    title: Консоль
+    no_entries: Не найдены кэшированные команды
+    fetching_console: "@:general.fetching console entries..."
+    command_input:
+      hint: Введите команду
+  overview:
+    fetching_machines: "@:general.fetching machines..."
+components:
+  pull_to_refresh:
+    pull_up_idle: Потяните вверх, чтобы обновить
+  nav_drawer:
+    fetching_printers: "@:general.fetching printers..."
+  connection_watcher:
+    reconnect: Переподключение
+    trying_connect: Попытка подключения ...
+    server_starting: Запуск сервера...
+dialogs:
+  rate_my_app:
+    message: If you like Mobileraker and want to support the open source development, please consider rating Mobileraker!
+  import_setting:
+    fetching: Fetching sources...
