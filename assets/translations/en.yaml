@@ -2008,9 +2008,12 @@ languages:
     CN:
       name: Simplified
       nativeName: 简体
-    HK:
+    TW:
       name: Traditional
       nativeName: 繁體
+    HK:
+      name: Traditional, Hong Kong
+      nativeName: 繁體, 香港
     BR:
       name: Brasil
       nativeName: Brasil
