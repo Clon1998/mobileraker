@@ -1,0 +1,303 @@
+---
+general:
+  pause: Pauză
+  resume: Reia
+  connected: Conectat
+  'off': 'Oprit'
+  'on': 'Pornit'
+  none: Nimic
+  add: Adaugă
+  create: Creează
+  rename: Redenumește
+  remove: Șterge
+  set: Setează
+  use: Folosește
+  restart: Repornire
+  shutdown: Oprire
+  fetching: Descarcă
+  loading: Încarcă
+  unknown: Necunoscut
+  disabled: Dezactivat
+  confirm: Confirmă
+  cancel: Anulează
+  close: Închide
+  edit: Editează
+pages:
+  dashboard:
+    title: Bord
+    ems_btn: Oprire de urgență
+    server_status:
+      unavailable: Nici un server disponibil
+      available: Starea server este {} și Klippy este {}
+    fetching_printer: "@:general.fetching imprimantă..."
+    general:
+      print_card:
+        reset: Resetează
+        printing_for: 'Tipărește: {}'
+        speed: Viteză
+        layer: Strat
+        current_object: Obiect Curent
+        elapsed: Timp Scurs
+        flow: Flux
+        filament_tooltip: Utilizat {} % din Filament, adică {} m din cei {} m estimați.
+      cam_card:
+        webcam: Cameră web
+        fullscreen: Ecran complet
+      temp_card:
+        title: Control Temperaturi
+        presets_btn: Predefinite
+        bed: Pat
+        temp_presets: Șabloane temperaturi
+        sensors: Senzori
+        heater_on: "Țintă {} °C"
+        btn_thermistor: Senzor
+      temp_preset_card:
+        cooloff: Răcire
+      move_card:
+        title: Mișcă Axe
+        home_xy_tooltip: Origine axe X și Y
+        home_z_tooltip: Origine axa Z
+        home_all_tooltip: Origine toate axele
+        home_all_btn: Toate
+        qgl_tooltip: Rulează autonivelare Quad-Gantry
+        mesh_tooltip: Rulează calibrarea-pânză a patului
+        mesh_btn: Pânză
+        m84_tooltip: Dezactivează Motoare
+        step_size: Dimensiune pas
+        stc_tooltip: Rulează calibrarea Înclinație-Șurub
+        ztilt_tooltip: Rulează calibrarea Înclinație-Z
+      baby_step_card:
+        title: Reglaj fin axă Z
+      restart_klipper: Repornește Klipper
+    control:
+      fan_card:
+        title:
+          zero: Ventilator
+          one: Ventilator
+          other: Ventilatoare
+        part_fan: Ventilator Piese
+        static_fan_btn: Ventilator
+      extrude_card:
+        extrude: Extrudează
+        retract: Retractează
+        cold_extrude_error: Extruderul nu a atins încă temperatura de min_extrude_temp {}°C !
+      macro_card:
+        title: Gcode - Macro-uri
+      power_card:
+        title: Panou Alimentare
+      multipl_card:
+        title: Multiplicatori
+        flow: Flux
+        press_adv: Avans Presiune
+        smooth_time: Timp Netezire
+      limit_card:
+        title: Limite
+        velocity: Viteză
+        accel: Accelerație
+        sq_corn_vel: Viteză Colț Pătrat
+        accel_to_decel: Accel spre Decel
+  files:
+    title: Fișiere
+    search_files: Caută fișiere
+    details:
+      preheat: Preîncălzire
+      print: Tipărire
+      general_card:
+        path: Cale
+        last_mod: Ultima modificare
+        last_printed: Ultima tipărire
+        no_data: Nu există informații
+      meta_card:
+        filament_type: Tip Filament
+        filament_name: Nume Filament
+        est_print_time: Timp Estimat Tipărire
+        slicer: Slicer folosit
+        nozzle_diameter: Diametru Duză
+        layer_higher: Înălțime Strat
+        first_layer: Primul Strat
+        others: Altele
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperaturi"
+      stat_card:
+        title: Statistici
+      preheat_dialog:
+        body: |-
+          Temperaturi Țintă
+          Extruder: {}°C
+          Pat: {}°C
+      preheat_snackbar:
+        title: Preîncălzire Începută
+        body: |-
+          Extruder: {}°C
+          Pat: {}°C
+  setting:
+    title: Aplicație - Setări
+    general:
+      title: Generale
+      ems_confirm: Confirmă Oprire-Urgentă
+      always_baby: Arată mereu reglaj fin
+      num_edit: Folosește tastatură pentru introducerea numerelor
+      start_with_overview: Arată @:pages.overview.title implicit
+      use_offset_pos: Arată coordonate cu decalaj aplicat.
+      language: Limbă
+      companion: "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi Mobileraker Companion "
+    notification:
+      title: Notificare
+      progress_helper: Interval actualizare pentru notificările de progres
+      no_permission_title: Nu există permisiuni pentru notificări!
+      no_permission_desc: |-
+        Nu pot afișa notificări.
+        Solicită permisiunea cu un click!
+      ios_notifications_title: Livrare notificări IOS
+      ios_notifications_desc: |-
+        Notificările necesită ca Mobileraker să fie deschis cel puțin o data și să fie activ în fundal.
+        Anumite notificări pot fi în continuare blocate de sistemul de operare!
+    imprint: Confidențialitate/Impressum
+  printer_edit:
+    title: Editează {}
+    import_settings: Importă Setări
+    remove_printer: Șterge Imprimantă
+    no_values_found: Nu s-au găsit valori!
+    fetching_additional_settings: "@:general.fetching setări adiționale din rețea..."
+    could_not_fetch_additional: Nu am putut descărca setările adiționale!
+    fetch_error_hint: Asigură-te că imprimanta este accesibilă și Mobileraker este conectat la ea.
+    general:
+      displayname: Nume afișat
+      printer_addr: Imprimantă - Adresă
+      ws_addr: Websocket - Adresă
+      moonraker_api_key: Moonraker - cheie API
+      moonraker_api_desc: Necesar doar dacă folosiți clienți de încredere. Obligatoriu pentru FluiddPI!
+      full_url: URL Complet
+    motion_system:
+      title: Sistem Axe
+      invert_x: Inversează axa X
+      invert_x_short: Inversează X
+      invert_y: Inversează axa Y
+      invert_y_short: Inversează Y
+      invert_z: Inversează axa Z
+      invert_z_short: Inversează Z
+      speed_xy: Viteze axe X/Y
+      speed_xy_short: Viteze X/Y
+      speed_z: Viteză axa Z
+      speed_z_short: Viteză Z
+      steps_move: Pași mișcare
+      steps_baby: Reglaj fin axa Z
+      steps_baby_short: Reglaj fin
+    extruders:
+      title: Extruder(e)
+      feedrate: Rată alimentare Extruder
+      feedrate_short: Rată alimentare
+      steps_extrude: Pași Extruder
+    cams:
+      target_fps: Țintă FPS
+      new_cam: Webcam nou
+      no_webcams: Nu s-a adăugat un webcam!
+      flip_vertical: Răstoarnă vertical
+      flip_horizontal: Răstoarnă orizontal
+      cam_mode: Mod cameră
+      cam_rotate: Rotește
+    macros:
+      new_macro_grp: Grup macro nou
+      no_macros_available: Nu există macro-uri!
+      no_macros_found: Nu s-au găsit mcro-uri!
+      macros_to_default:
+        one: S-a mutat un macro în grupul implicit!
+        two: S-au mutat două macro în grupul implicit!
+        other: S-au mutat {} macro în grupul implicit!
+    presets:
+      no_presets: Nu s-au adăugat valori predefinite!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperatură"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Temperatură"
+      new_preset: Valoare nouă predefinită
+  printer_add:
+    title: Adaugă Imprimantă Nouă
+  console:
+    title: Consolă
+    no_entries: Nu s-au găsit comenzi
+    fetching_console: "@:general.fetching intrări consolă..."
+    command_input:
+      hint: Introdu comanda pentru consolă
+  overview:
+    title: Prezentare generală
+    fetching_machines: "@:general.fetching mașini..."
+    no_entries: No s-au găsit mașini
+    add_machine: Adaugă Mașină
+components:
+  pull_to_refresh:
+    pull_up_idle: Trage în sus pentru actualizare
+  nav_drawer:
+    printer_settings: Setări Imprimantă
+    manage_printers: Gestionează Imprimante
+    fetching_printers: "@:general.fetching imprimante..."
+    footer: |-
+      Scris cu ❤️ de Patrick Schmidt
+      Vezi pagina proiectului pe
+  connection_watcher:
+    reconnect: Reconectează
+    trying_connect: Încerc să mă conectez...
+    trying_connect_remote: Încerc să utilizez client de la distanță...
+    server_starting: Serverul pornește...
+    more_details: Mai multe detalii
+dialogs:
+  rate_my_app:
+    title: Dai o notă Mobileraker?
+    message: Daca îți place Mobileraker și vrei să sprijini dezvoltarea open-source, te rog să acorzi o notă Mobileraker!
+  import_setting:
+    fetching: Descarc surse...
+    fetching_error_title: Nu am putut descărca setările!
+    fetching_error_sub: Asigură-te că alte mașini sunt conectate.
+    select_source: Alege Sursă
+  create_folder:
+    title: Creează Dosar
+    label: Nume Dosar
+  delete_folder:
+    title: Ești sigur(ă)?
+    description: |-
+      Toate fișierele din dosar vor fi șterse!
+
+      Confirmă ștergerea dosarului '/{}'.
+  rename_folder:
+    title: Redenumește Dosar
+    label: Nume Dosar
+  delete_file:
+    description: Confirmă ștergerea fișierului '{}'.
+  rename_file:
+    title: Redenumește Fișier
+    label: Nume Fișier
+  exclude_object:
+    title: Exclude Obiect de la Tipărire
+    label: Obiect de exclus
+    confirm_tile_title: Ești sigur(ă)?
+    confirm_tile_subtitle: Această operațiune nu poate fi anulată!
+    no_visualization: Nu sunt disponibile date de vizualizare!
+  ws_input_help:
+    title: Ajutor Introducere URL
+    body: |-
+      Poți introduce o adresă IP, URL sau URI complet către interfața web sau a instanței WebSocket oferită de Moonraker.
+
+      Exemple valide:
+  gcode_params:
+    hint: 'Indiciu: Poți de asemenea ține lung apăsat pentru a trimite macro cu valorile implicite!'
+  rgbw:
+    recent_colors: Culori Recente
+klipper_state:
+  ready: Disponibil
+  shutdown: Închidere
+  starting: Pornire
+  disconnected: Deconectat
+  error: Eroare
+  unauthorized: Neautorizat
+notifications:
+  channel_printer_grp: Imprimantă {}
+  channels:
+    status:
+      name: Actualizări Stare Imprimare - {}
+      desc: Notificări despre starea imprimării.
+      title: Starea imprimării {} s-a schimbat!
+      body_printing: 'Am început tipărirea fișierului: "{}"'
+      body_paused: 'Am suspendat tipărirea fișierului: "{}"'
+      body_complete: 'Am terminat tipărirea fișierului: "{}"'
+      body_error: 'Eroare la tipărirea fișierului: "{}"'
+    progress:
+      name: Actualizări Progres Tipărire - {}
+      desc: Notificări despre progresul tipăririi.
+      title: Progresul tipăririi pentru {}
