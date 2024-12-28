@@ -1,0 +1,1906 @@
+---
+general:
+  pause: Szünet
+  resume: Folytatás
+  connected: Csatlakozva
+  'off': 'Ki'
+  'on': 'Be'
+  none: Nincs
+  add: Hozzáad
+  create: Létrehozás
+  rename: Átnevezés
+  remove: Törlés
+  set: Készlet
+  use: Használ
+  restart: Újraindítás
+  shutdown: Leállítás
+  firmware: Firmware
+  fetching: Elvesz
+  loading: Betöltés
+  unknown: Ismeretlen
+  disabled: Tiltva
+  confirm: Megerősít
+  cancel: Mégse
+  close: Bezár
+  edit: Szerkeszt
+  preview: Előnézet
+  retry: Újra
+  supported: Támogatott
+  unsupported: Nem támogatott
+  details: Részletek
+  google_play: GooglePlay
+  ios_store: AppStore
+  active: Aktív
+  canceled: Törölve
+  monthly: Havi
+  restore: Visszaállítás
+  accept: Elfogad
+  abort: Elvet
+  offset: Eltolás
+  valid: Érvényes
+  invalid: Érvénytelen
+  free: Ingyenes
+  one_time: Egyszer
+  delete: Töröl
+  clear: Egyértelmű
+  unlink: Leválasztás
+  save: Mentés
+  apply: Alkalmaz
+  completed: Befejezve
+  activate: Aktiválás
+  stop: Állj
+  start: Start
+  repeat: Ismét
+  load_more: Több betöltése
+  archived: Archivált
+  leave: Elhagy
+  export: Export
+  import: Import
+  current: Aktuális
+  load: Betöltés
+  unload: Kiürítés
+  discard: Eldobás
+  hide: Elrejtés
+  finish: Kész
+  select: Kiválaszt
+pages:
+  dashboard:
+    title: Irányítópult
+    ems_btn: Vész-STOP
+    ems_confirmation:
+      title: Vészleállítás megerősítése
+      body: Vészleállítási parancsot készülsz küldeni a nyomtatónak. Ez azonnal leállítja az összes motort és fűtőberendezést.
+      confirm: Állj!
+    server_status:
+      unavailable: Nincs elérhető szerver
+      available: A szerver állapota {} és Klippy {}
+    fetching_printer: "@:general.fetching nyomtató…"
+    general:
+      print_card:
+        reset: Visszaállítás
+        reprint: Újranyomtatás
+        printing_for: 'Nyomtatás: {}'
+        speed: Sebesség
+        layer: Réteg
+        eta: ETA
+        current_object: Aktuális objektum
+        elapsed: Eltelt
+        flow: Áramlás
+        filament: Nyomtatószál
+        filament_tooltip: A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.
+        eta_tooltip: |-
+          Hátralévő idő:
+          AVG: {avg}
+          Szeletelő: {slicer}
+          Fájl: {file}
+          Nyomtatószál: {filament}
+        remaining: Fennmaradó
+        print_time: Nyomtatási idő
+      cam_card:
+        webcam: Webkamera
+        fullscreen: Teljes képernyő
+        error_connecting: |-
+          Kapcsolódási hiba {}.
+          Kérjük, ellenőrizd a kapcsolat beállításait, és győződj meg róla, hogy a webkamera online van.
+      temp_card:
+        title: Hőmérsékletszabályzók
+        presets_btn: Előbeállítások
+        hotend: Nyomtatófej
+        bed: Ágy
+        temp_presets: Hőmérséklet előbeállítások
+        sensors: Érzékelők
+        heater_on: "{} °C cél"
+        btn_thermistor: Szenzor
+      temp_preset_card:
+        cooloff: Hűtés Ki
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
+      move_card:
+        title: Tengelyek mozgatása
+        home_xy_tooltip: Kezdőpont X és Y tengely
+        home_z_tooltip: Kezdőpont Z tengely
+        home_all_tooltip: Kezdőpont minden tengely
+        home_all_btn: Minden
+        qgl_tooltip: Quad-Gantry szintezés futtatása
+        qgl_btn: QGL
+        mesh_tooltip: Futtasson ágyrács kalibrálást
+        mesh_btn: Háló
+        m84_tooltip: Motorok kikapcsolása
+        m84_btn: M84
+        step_size: Lépésméret
+        stc_tooltip: Csavar dőlésszámítás indítása
+        stc_btn: STC
+        ztilt_tooltip: Z-Tilt kalibráció indítása
+        ztilt_btn: Z-Tilt
+        poff_tooltip: Futtasd a Szonda eltolás kalibrálást
+        poff_btn: Szonda kalibrálása
+        zoff_tooltip: Futtasd a Z végpont eltolás kalibrálását
+        zoff_btn: Z-Végpont kalibráció
+        bsa_tooltip: Futtasd az ágycsavarok kalibrálását
+        bsa_btn: Ágy csavarjainak beállítása
+        save_tooltip: Mentse a kalibrálási eredményeket
+        save_btn: Konfiguráció mentése
+        more_btn: Több
+        homed: Tengelyek kezdőponton
+      baby_step_card:
+        title: Mikrolépés Z tengely
+        z_offset: Z-Eltolás
+      restart_klipper: Klipper újraindítása
+      restart_mcu: "@:general.restart @:general.firmware"
+    control:
+      fan_card:
+        title:
+          zero: Ventilátor
+          one: Ventilátor
+          other: Ventilátorok
+        part_fan: Tárgyhűtő
+        static_fan_btn: Ventilátor
+      extrude_card:
+        title: Adagoló
+        extrude: Száladagolás
+        retract: Visszahúzás
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude hossza"
+        cold_extrude_error: A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !
+      macro_card:
+        title: G-kód - Makrók
+        no_macros: Jelenleg nincsenek makrók ebben a csoportban
+        add_grp_hint: A makrók rendszerezéséhez különböző csoportokat hozhatsz létre. Csak menj a nyomtató beállításaihoz, és adj hozzá egy új csoportot.
+        show_all_tooltip: Összes makró mutatása
+      pin_card:
+        title_misc: Különböző
+        pin_btn: Tű
+        filament_sensor:
+          detected: Érzékelt
+          not_detected: Üres
+      power_card:
+        title: Energia Panel
+        pin_btn: Tű
+        provider_error_title: Hiba a Power Api-eszközök lekérdezésében
+      multipl_card:
+        title: Szorzók
+        flow: Átfolyás
+        press_adv: Nyomás előtolás
+        smooth_time: Simítási idő
+      limit_card:
+        title: Korlátok
+        velocity: Sebesség
+        accel: Gyorsulás
+        sq_corn_vel: Sebesség a sarkokban
+        accel_to_decel: Gyorsítás-Lassítás
+      fw_retraction_card:
+        title: Firmware visszahúzás
+        retract_length: Visszahúzás hossza
+        retract_speed: Visszahúzási sebesség
+        extra_unretract_length: Extra kihúzási hossz
+        unretract_speed: Kihúzási sebesség
+      bed_mesh_card:
+        title: Ágy háló
+        profiles: Profilok
+        range_tooltip: A legmagasabb és legalacsonyabb pont közötti tartomány
+        showing_matrix:
+          probed: Megmutatja a vizsgált mátrixot
+          mesh: Hálómátrix megjelenítése
+      spoolman_card:
+        title: Orsómester
+        no_spool: |-
+          Nincs kiválasztott orsó.
+          A szálhasználat nem kerül nyomonkövetésre.
+        select_spool: Orsó kiválasztása
+        used: 'Használt: {}'
+        provider_error_title: Hiba az Orsómester adatainak lekérdezésében
+      gcode_preview_card:
+        title: G-kód Előnézet
+        follow: Folyamat követése
+        kinematic_not_supported: Jelenleg az alkalmazás nem támogatja a G-kód renderelést a nyomtató kinematikai rendszeréhez.
+        start_preview:
+          btn: Előnézet indítása
+          hint: Az alkalmazás letölti az aktív nyomtatási fájlt, és megpróbálja megjeleníteni.
+  customizing_dashboard:
+    title: Műszerfal testreszabása
+    cancel_confirm:
+      title: Elveted a változásokat?
+      body: |-
+        Biztos, hogy el akarod hagyni az elrendezésszerkesztési módot?
+        Minden módosítás elveszik. A módosítások mentéséhez nyomd meg a mentés gombot.
+    add_card: Kártya hozzáadása
+    remove_page: Oldal törlése
+    saved_snack:
+      title: Elrendezés mentve!
+      body: A módosítások mentésre kerültek.
+    cant_remove_snack:
+      title: Nem lehet törölni az oldalt!
+      body: Legalább 2 oldalra van szükséged ahhoz, hogy egyet törölhess.
+    confirm_removal:
+      title: Törlöd az oldalt?
+      body: Biztos, hogy törölni akarod ezt az oldalt?
+    editing_card:
+      title: Szerkesztési mód
+      body: Mostantól átrendezheted, hozzáadhatsz és eltávolíthatsz kártyákat és oldalakat. Minden kártya előnézeti adatokat mutat.
+    error_save_snack:
+      title: Hiba az elrendezés mentése során!
+      body: Hiba történt az elrendezés mentése közben.
+    error_no_components:
+      title: Üres elrendezés!
+      body: Nem adtál hozzá widgetet. Adj hozzá legalább egy widgetet az elrendezés mentéséhez.
+  files:
+    title: Fájlok
+    empty_folder:
+      title: Ez a mappa üres
+      subtitle: Nem találtam fájlokat
+    sort_by:
+      sort_by: Rendezés
+      name: Név
+      last_modified: Utolsó módosítás
+      last_printed: Utoljára nyomtatott
+      file_size: Méret
+      estimated_time: Becsült nyomtatási idő
+    file_actions:
+      download: Letöltés
+      delete: Törlés
+      copy: Másolás
+      move: Mozgatás
+      rename: Átnevezés
+      create_file: Fájl létrehozása
+      create_folder: Mappa létrehozása
+      upload: Fájl feltöltése
+      upload_bulk: Fájlok feltöltése
+      zip_file: Archívum létrehozása
+    gcode_file_actions:
+      submit: Nyomtatási feladat elküldése
+      preheat: Előmelegítés
+      enqueue: Hozzáadás a nyomtatási sorhoz
+      preview: Előnézet
+    file_operation:
+      download_canceled:
+        title: Letöltés visszavonva
+        body: A letöltés törlésre került.
+      download_failed:
+        title: Letöltés sikertelen
+        body: Hiba történt a fájl letöltése közben. Kérjük, próbáld újra később.
+      upload_canceled:
+        title: Feltöltés visszavonva
+        body: A feltöltés vissza lett vonva.
+      upload_success:
+        title: Sikeres feltöltés
+        body: A fájl feltöltése sikeres volt.
+      upload_failed:
+        title: Feltöltés sikertelen
+        body: Hiba történt a fájl feltöltése közben. Kérjük, próbáld újra később.
+        reasons:
+          type_mismatch:
+            title: Fájltípus eltérés
+            body: Csak a '{}' fájlok engedélyezettek.
+      zipping_success:
+        title: Becsomagolás sikeres
+        body: Az archívum sikeresen létrejött.
+      zipping_failed:
+        title: Becsomagolás sikertelen
+        body: Hiba történt az archívum létrehozásakor. Kérjük, próbáld újra később.
+      copy_created:
+        title: Másolat létrehozva
+        body: A másolat sikeresen létrejött a '{}' címen.
+      move_success:
+        title: Mozgatás sikeres
+        body: A fájl(ok) sikeresen átkerültek a '{}' címre.
+      move_failed:
+        title: Mozgatás sikertelen
+        body: Hiba történt a fájl(ok) mozgatása közben. Kérjük, próbálja újra később.
+    search_files: Keresés mappában
+    search:
+      clear_search: Keresés törlése
+      waiting: Várakozás a keresésre!
+      no_results:
+        title: Nem találtam fájlokat
+        subtitle: Keress rá egy másik kifejezésre
+    cancel_fab:
+      upload: Feltöltés visszavonása
+      download: Letöltés visszavonása
+    move_here: Mozgasd ide
+    copy_here: Másold ide
+    no_matches_file_pattern: Csak betűk, számok, aláhúzásjelek, kötőjelek és pontok megengedettek!
+    gcode_tab: G-Kódok
+    config_tab: Konfigok
+    timelapse_tab: Timelapse-ok
+    element:
+      one: Elem
+      other: Elemek
+    details:
+      preheat: Előmelegítés
+      print: Nyomtatás
+      general_card:
+        path: Útvonal
+        last_mod: Utoljára módosítva
+        last_printed: Utoljára nyomtatott
+        no_data: Nincs adat
+      meta_card:
+        title: G-kód Meta adatok
+        filament: Nyomtatószál
+        filament_type: Nyomtatószál típusa
+        filament_name: Nyomtatószál neve
+        filament_weight: Súly
+        filament_length: Hossz
+        est_print_time: Becsült nyomtatási idő
+        slicer: Használt szeletelő
+        nozzle_diameter: Fúvóka átmérője
+        layer_higher: Rétegmagasság
+        first_layer: Első réteg
+        others: Egyebek
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Hőmérsékletek"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
+      stat_card:
+        title: Statisztikák
+      preheat_dialog:
+        title: "@:pages.files.details.preheat ?"
+        body: |-
+          Célhőmérséklet
+          Fúvóka: {}°C
+          Ágy: {}°C
+      preheat_snackbar:
+        title: Előmelegítés elkezdődött
+        body: |-
+          Fúvóka: {}°C
+          Ágy: {}°C
+      spoolman_warnings:
+        insufficient_filament_title: Elégtelen nyomtatószál
+        insufficient_filament_body: |-
+          Az aktív orsón már csak {} szál maradt, ami nem elég ehhez a fájlhoz.
+          Érintsd meg a gombot az aktív orsó megváltoztatásához.
+        material_mismatch_title: Anyagi eltérés
+        material_mismatch_body: |-
+          A fájl {} anyaga nem egyezik az aktív orsó {} anyagával.
+          Érintsd meg a gombot az aktív orsó megváltoztatásához.
+  setting:
+    title: Alkalmazás - Beállítások
+    general:
+      title: Általános
+      ems_confirm: Vészleállítás megerősítése
+      ems_confirm_hint: Megerősítő párbeszédpanel megjelenítése a vészleállító parancs elküldése előtt
+      always_baby: Z-Eltolás kártyamód
+      always_baby_hint: Mindig jelenítse meg a Z-Eltolás kártyát a műszerfalon
+      num_edit: Számbevitelhez billentyűzet használata
+      num_edit_hint: Számbillentyűk használata a számbemenethez csúszkák helyett
+      start_with_overview: '@:pages.overview.title mutatása alapesetben'
+      start_with_overview_hint: Alkalmazás indítása az áttekintő oldallal az aktív nyomtató műszerfala helyett
+      use_offset_pos: Koordináták megjelenítése adott eltolás mellett
+      use_offset_pos_hint: Hozzáadja az eltolást a megjelenített koordinátákhoz
+      lcFullCam: Teljes képernyős webkamera fekvő helyzetben
+      lcFullCam_hint: A kamera tájképre váltása teljes képernyős módban
+      language: Nyelv
+      companion: "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
+      sliders_grouping: Csúszó kártyák csoportosítása
+      sliders_grouping_hint: Minden csúszka egy kártyába csoportosítása
+      time_format: Időformátum
+      system_theme: UI Téma
+      system_theme_mode: Téma fényereje
+      printer_theme_warning: Jelenleg egy nyomtatóspecifikus témát használsz. Ha módosítani szeretnéd, lépjen a nyomtató beállításaihoz.
+      filament_sensor_dialog: Szálérzékelő riasztások mutatása
+      filament_sensor_dialog_hint: Párbeszéd megjelenítése a szálérzékelő működésekor
+      confirm_gcode: Makró végrehajtás megerősítése
+      confirm_gcode_hint: A G-kód-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel
+      eta_sources: ETA számítás
+      eta_sources_hint: Válaszd ki az ETA-számításhoz használandó forrást
+      medium_ui: Tablet UI
+      medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
+      keep_screen_on: Tartsa ébren a képernyőt
+      keep_screen_on_hint: A képernyő kikapcsolásának megakadályozása az alkalmazás működése közben
+    notification:
+      title: Értesítés
+      progress_label: Nyomtatás-előrehaladási értesítés
+      progress_helper: Frissítési időköz a nyomtatási folyamatról szóló értesítéshez
+      state_label: Nyomtatás-állapot értesítés
+      state_helper: Az aktív nyomtatási értesítéseket kiváltó állapotok kiválasztása
+      no_permission_title: Nincs értesítési engedély!
+      no_permission_desc: |-
+        Az értesítések nem jeleníthetők meg.
+        Kérj engedélyt kattintással!
+      no_firebase_title: Az értesítések nem jeleníthetők meg
+      no_firebase_desc: |-
+        A Mobileraker nem tud értesítést küldeni az eszközre.
+        Úgy tűnik, hogy eszközödről hiányoznak a Google Play-szolgáltatások, vagy blokkolja a Firebase-kapcsolatot!
+      ios_notifications_title: IOS értesítések kézbesítése
+      ios_notifications_desc: |-
+        Az értesítésekhez a Mobilerakert legalább egyszer meg kell nyitni, és a háttérben kell futnia.
+        Előfordulhat, hogy néhány értesítést még mindig letiltott az operációs rendszer!
+      missing_companion_title: Társ nem található!
+      missing_companion_body: |-
+        Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}
+        Koppints további információért!
+      enable_live_activity: Élő tevékenység engedélyezése
+      enable_live_activity_helper: Engedélyezi az élő tevékenységeket az alapértelmezett előrehaladási értesítések mellett
+      opt_out_marketing: Marketing értesítések
+      opt_out_marketing_helper: Értesítést küld az eladásokról és promóciókról
+      use_progressbar_notification: Előrehaladási sáv értesítés engedélyezése
+      use_progressbar_notification_helper: Engedélyezi az előrehaladási sáv értesítést az alapértelmezett szöveges előrehaladási értesítések mellett
+    developer:
+      title: Fejlesztő
+      crashlytics: Crashlytics jelentések engedélyezése
+    imprint: Adatvédelem/Impresszum
+  printer_edit:
+    title: Szerkesztés {}
+    import_settings: Beállítások importálása
+    remove_printer: Nyomtató eltávolítása
+    no_values_found: Nincsenek értékek!
+    fetching_additional_settings: "@:general.fetching további hálózati beállítások…"
+    could_not_fetch_additional: Nem tudtam lekérni a további beállításokat!
+    fetch_error_hint: Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.
+    reset_notification_registry: Töröli az értesítési eszköz nyilvántartását
+    configure_remote_connection: Távoli kapcsolat konfigurálása
+    store_error:
+      title: Sikertelen mentés!
+      message: |-
+        Egyes mezők érvénytelen értékeket tartalmaznak!
+        Kérjük, győződj meg róla, hogy minden mező érvényes.
+      unexpected_error: Váratlan hiba történt a gépadatok mentésekor!
+    confirm_deletion:
+      title: Törlöd {}?
+      body: "A csatlakoztatott nyomtató '{}' eltávolítására készülsz '{}'. \n\nErősítsd meg döntésed."
+    general:
+      displayname: Megjelenítendő név
+      printer_addr: Nyomtató - Cím
+      ws_addr: Websocket – Cím
+      moonraker_api_key: Moonraker - API Kulcs
+      moonraker_api_desc: Csak akkor szükséges, ha megbízható klienst használsz. A FluiddPI ezt kikényszeríti!
+      full_url: Teljes URL
+      timeout_label: Kliens időtúllépés
+      timeout_helper: Az ügyfélkapcsolat időtúllépése másodpercben
+      theme: UI-Téma
+      theme_helper: UI téma a nyomtatóhoz
+      theme_unavailable: UI téma a nyomtatóhoz, csak támogatók számára érhető el
+    ssl:
+      title: SSL - Beállítások
+      pin_certificate_label: Tanúsítvány ujjlenyomat rögzítése
+      pin_certificate_helper: Válassz ki egy PEM formátumú tanúsítványfájlt az SSL-beszúráshoz
+      self_signed: Önaláírt tanúsítványok megbízhatósága
+    motion_system:
+      title: Mozgásrendszer
+      invert_x: Fordított X - tengely
+      invert_x_short: Fordított X
+      invert_y: Fordított Y - tengely
+      invert_y_short: Fordított Y
+      invert_z: Fordított Z - tengely
+      invert_z_short: Fordított Z
+      speed_xy: Sebesség X/Y - tengely
+      speed_xy_short: Sebesség X/Y
+      speed_z: Sebesség Z - tengely
+      speed_z_short: Sebesség Z
+      steps_move: Mozgási lépések
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
+      steps_baby: Z-eltolási lépések
+      steps_baby_short: Z lépések
+    extruders:
+      title: Adagolók
+      feedrate: Adagoló előtolási sebesség
+      feedrate_short: Adagolási sebesség
+      steps_extrude: Adagolási hossz
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
+      filament:
+        loading_distance: Adagoló fúvóka távolsága
+        loading_distance_helper: A fúvóka-adagoló közti távolság. Nyomtatószál (kiadás)betöltéshez használatos
+        loading_speed: "(Kiadási)betöltési sebesség"
+        loading_speed_helper: A fúvókából az extruderbe történő nyomtatószál be- és kiadásának sebessége
+        purge_amount: Tisztítás hossza
+        purge_amount_helper: A tisztítandó nyomtatószál hossza
+        purge_speed: Tisztítás sebessége
+        purge_speed_helper: Sebesség a nyomtatószál tisztításához
+    cams:
+      target_fps: Cél FPS
+      new_cam: Új webkamera
+      no_webcams: Nincs webkamera hozzáadva!
+      stream_url: Sugárzási URL
+      snapshot_url: Pillanatkép URL
+      default_url: Alapértelmezett URL
+      flip_vertical: Függőleges fordítás
+      flip_horizontal: Vízszintesen fordít
+      cam_mode: Kamera mód
+      cam_rotate: Forgatás
+      read_only: Webkamera csak olvasható
+    macros:
+      default_grp: Alapértelmezett
+      new_macro_grp: Új makró - Csoport
+      no_macros_available: Nincsenek elérhető makrók!
+      no_macros_found: Nem találtam makrókat!
+      no_macros_in_grp: Nincs makró a csoportban!
+      deleted_grp: Törölt csoport {}
+      macros: Makrók
+      default_name: Új makró
+      macros_to_default:
+        one: Áthelyeztem egy makrót az alapértelmezett csoportba!
+        two: Két makró áthelyezve az alapértelmezett csoportba!
+        other: '{} makrók áthelyezve az alapértelmezett csoportba!'
+      macro_removed: A makrót nem találtuk meg, és hamarosan automatikusan el lesz távolítva
+    presets:
+      no_presets: Nincs előbeállítás hozzáadva!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Hőmérséklet"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Hőmérséklet"
+      new_preset: Új előbeállítás
+    confirm_fcm_reset:
+      title: Értesítési eszköz nyilvántartás törlése?
+      body: "Most készülsz visszaállítani az eszközregisztert, amely meghatározza, hogy a társ milyen eszközökre küld értesítést.\nA push-értesítések visszaállításához újra kell indítanod az alkalmazást az összes eszközön, és újra csatlakoztatnia kell őket a géphez. \n\nErősítsd meg a műveletet."
+    confirm_remote_interface_removal:
+      title:
+        oe: Leválasztod {}?
+        other: Eltávolítod a kapcsolatot?
+      body:
+        oe: Kérjük, erősítsd meg a nyomtató {} leválasztását az OctoEverywhere-ről.
+        other: Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról {}.
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
+    remote_interface_exists:
+      title: Távoli kapcsolat található
+      body:
+        oe: Ez a nyomtató már összekapcsolódott az OctoEverywhere rendszerrel a távoli hozzáférés érdekében. Kérjük, a folytatás előtt old fel a kapcsolatot.
+        obico: Ez a nyomtató már Obico távoli hozzáféréshez van beállítva. Kérjük, a folytatás előtt távolítsd el a linket.
+        other: Ehhez a nyomtatóhoz már létrejött egy távoli kapcsolat. Kérjük, távolítsd el azt a folytatás előtt.
+    remote_interface_removed:
+      title: Távoli kapcsolat eltávolítva!
+      body: Mentsd el a nyomtatót a módosítások alkalmazásához.
+    remote_interface_added:
+      title:
+        oe: Kapcsolódás az OctoEverywhere-hez.
+        obico: Kapcsolódás az Obico-hoz.
+        other: Távoli kapcsolat hozzáadva.
+      body: Mentsd el a nyomtatót a módosítások alkalmazásához.
+    wifi_access_warning:
+      title: WiFi információ nem érhető el
+      subtitle: |-
+        Annak meghatározásához, hogy a Mobilerakernek használnia kell-e a távoli kapcsolatot, engedélyezd a helyhozzáférést. Ez lehetővé teszi az alkalmazás számára, hogy lekérje az aktuális WiFi hálózat nevét.
+
+        Koppints az engedély megadásához.
+    local_ssid:
+      section_header: Intelligens váltás
+      no_ssids: Nincs hozzáadva WiFi név!
+      helper: Az intelligens váltás révén az alkalmazás automatikusan vált a helyi és a távoli kapcsolat között az aktuális WiFi hálózat alapján. A funkció engedélyezéséhez add hozzá az otthoni WiFi nevét a listához.
+      dialog:
+        title_add: Add hozzá a WiFi nevét a listához
+        title_edit: WiFi név szerkesztése
+        label: WiFi Név (SSID)
+        quick_add_hint: 'Tipp: Az aktuális WiFi név gyors hozzáadásához nyomd hosszan a párbeszédablakot megnyitó gombot.'
+      error_fetching_snackbar:
+        title: Hiba történt a WiFi név lekérésekor!
+        body: Győződj meg róla, hogy az alkalmazás rendelkezik e szükséges engedélyekkel az eszköz WiFi állapotának eléréséhez.
+    temp_ordering:
+      title: Hőmérséklet érzékelő UI-Rendelés
+      helper: Megváltoztatja a hőmérséklet érzékelők sorrendjét a műszerfalon.
+      no_sensors: Nem találtam hőmérséklet érzékelőt!
+    fan_ordering:
+      title: Ventilátor UI-Rendelés
+      helper: Megváltoztatja a ventilátorok sorrendjét a műszerfalon.
+      no_fans: Nincs talált ventilátor!
+    misc_ordering:
+      title: Egyéb elem UI-Rendelés
+      helper: A műszerfal különféle elemei sorrendjének módosítása.
+      no_controls: Nem találtam egyéb elemeket!
+  printer_add:
+    steps:
+      mode: Mód
+      input: Bemenet
+      test: Teszt
+      done: Kész
+    title: Új nyomtató hozzáadása
+    initial_name: Saját nyomtatóm
+    select_mode:
+      title: 'Válassz beviteli módot:'
+      body: Ha még nem ismered ezt, a legjobb, ha maradsz az egyszerű módnál. Ha azonban tapasztalt vagy, és egyéni fejléceket, tanúsítványokat stb. kell használnod, akkor a haladó mód neked készült. Ne feledd, hogy a választott mód nem befolyásolja magát az alkalmazást, de meghatározza, hogy a bemenet hogyan kerül ellenőrzésre és megjelenítésre, és milyen lehetőségek állnak rendelkezésre a gép hozzáadása során.
+      simple: Egyszerű
+      advanced: Haladó
+      add_via_oe: Egykattintásos OctoEverywhere beállítás
+      add_via_obico: Egykattintásos Obico beállítás
+    simple_form:
+      hint_title: Tipp – Egyszerű mód
+      hint_body: Az egyszerű mód lehetővé teszi a gazdagép és a port megadását. Ha azonban testre kell szabnod az elérési utat, a fejléceket, a tanúsítványokat vagy más beállításokat, válts haladó módra.
+      url_hint: A nyomtató IP-címe vagy gazdagép neve
+    advanced_form:
+      hint_title: Tipp – Haladó mód
+      hint_body: Kérjük, vedd figyelembe, hogy haladó módban az érvényesítés többnyire le van tiltva. Fontos, hogy teljes felelősséget vállalj azért, hogy a megadott URL érvényes legyen.
+      http_helper: Kérjük, add meg a Moonraker HTTP-végpontját
+      ws_helper: Opcionális, a Moonraker WebSocket végpontja
+      section_security: Biztonság
+      section_headers: HTTP-fejlécek
+      empty_headers: Nincsenek fejlécek hozzáadva!
+    test_connection:
+      section_connection: Csatlakozási adatok
+      ws_url_label: Az eredmény WebSocket-URL
+      http_url_label: Az eredmény HTTP-URL
+      section_test: Csatlakozási tesztek
+      http_label: HTTP végpont – Teszt
+      ws_label: Websocket végpont – Teszt
+      awaiting: Eredményre vár…
+      continue: Folytatás
+      continue_anyway: Mindenképp folytatás
+      proceed_warning: Úgy tűnik, hogy az alkalmazás nem csatlakozik a géphez. Ennek az lehet az oka, hogy nem ugyanazon a hálózaton van, mint a gép, vagy nem rendelkezik a hozzáféréshez szükséges engedélyekkel. Bár a probléma ellenére választhatod a gép hozzáadását, kérjük, vedd figyelembe, hogy nincs garancia a megfelelő csatlakozásra. Kérjük, óvatosan járj el.
+      button: Kapcsolat tesztelése
+    confirmed:
+      title: Nyomtató {} hozzáadva!
+      to_dashboard: Az Irányítópultra
+  console:
+    title: Konzol
+    card_title: G-kód konzol
+    no_entries: Nem találtunk gyorsítótárazott parancsokat
+    fetching_console: "@:general.fetching konzol bejegyzések…"
+    macro_suggestions: G-kód javaslatok
+    no_suggestions: Nem találtam javaslatokat!
+    command_input:
+      hint: Konzolparancs megadása
+    provider_error:
+      title: Hiba a konzoladatok lehívásában
+      body: Hiba történt a konzoladatok lekérdezése közben. Kérjük, próbáld újra később!
+  overview:
+    title: Áttekintés
+    fetching_machines: "@:general.fetching gépek…"
+    no_entries: Nem találtam gépeket
+    add_machine: Gép hozzáadása
+  markdown:
+    loading: "@:general.loading {}…"
+    error: Hiba történt a lekérés során {};
+    open_in_browser: Megnyitás @:pages.faq.title a böngészőben
+  faq:
+    title: GYIK
+  changelog:
+    title: Változási napló
+  paywall:
+    manage_view:
+      title: Köszönet a támogatásodért!
+      list_title: 'Támogatói szint módosítása:'
+      store_btn: Előfizetés lemondása itt {}
+      sub_warning: Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem mond le automatikusan más aktív előfizetést. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is.
+    subscribe_view:
+      title: Legyél Mobileraker támogató!
+      info: |-
+        A Mobileraker célja, hogy gyors és megbízható mobil felhasználói felületet adjon a Klipper számára, amelyet a RepRap szellemisége vezérel, és a nyílt forráskódú szoftverek és hardverek pozitív hatást gyakorolhatnak.
+        Mivel a Mobileraker-t egyetlen fejlesztő fejleszti és ingyenesen kínálja, közösségi finanszírozásra támaszkodik mind a működési, mind a fejlesztési költségek fedezésére.
+      list_title: 'Válassz támogatói szintet:'
+      subscription_info: Ha előfizetést kötsz, azt bármikor lemondhatod. Az előfizetés automatikusan megújul, hacsak nem mondod le a jelenlegi időszak vége előtt. A lemondáshoz lépj a {} oldalra, és onnan mondd le az előfizetést.
+    supporter_tier_list:
+      error_title: Hiba a támogatói szintek betöltésekor!
+      error_body: Sajnálom, váratlan hiba történt. Nem sikerült betölteni a támogatói szintet. Kérlek, próbáld újra később!
+    contact_dialog:
+      title: Fejlesztői kapcsolattartó
+      body: |-
+        Email: {}
+        Discord: {}
+    title: Támogasd a Fejlesztést!
+    calling_store: Kérés feldolgozása…
+    promo_title: Promóció
+    free_phase: Első {} ingyenes
+    intro_phase: Élvezd {} kedvezményes {} áron
+    iap_offer: "{} eredeti árból"
+    tip_developer: Borravaló a fejlesztőnek
+    trial_disclaimer: Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést.
+    restore_sign_in: Visszaállítás / Bejelentkezés
+  video_player:
+    downloading_for_sharing: Videó letöltése megosztáshoz… ({})
+  tool:
+    title: Eszközök
+  beltTuner:
+    title: Szíjhangoló
+    description: A megfelelő szíjfeszítés biztosítása elengedhetetlen a 3D nyomtatók optimális teljesítményéhez. A nem megfelelő feszesség, akár túl szoros, akár túl laza, mechanikai problémákhoz, idő előtti kopáshoz és a nyomtatás minőségének romlásához vezethet. A megadott feszítési értékek referenciaként szolgálnak, azonban a nyomtatómodellre szabott egyedi irányelvekért célszerű a gyártó ajánlásait is figyelembe venni. A beállításokat mind ezen ajánlások, mind pedig az egyedi nyomtatási követelmények és feltételek alapján kell elvégezni.
+    beltType: 'Válaszd ki a szíj típusát:'
+    target: 'Cél: {} Hz több mint {} mm'
+    permissionWarning:
+      title: Mikrofon engedély szükséges
+      subtitle: |-
+        A szíjhangoló a telefon mikrofonját használja az szíjak frekvenciájának elemzésére.
+
+        Érintsd meg az engedély megadásához.
+  spoolman:
+    title: Orsómester
+    not_available: "Orsómester nem érhető el ehhez a nyomtatóhoz. \nKérjük, győződj meg róla, hogy az Orsómester telepítve és engedélyezve van a nyomtatón."
+    learn_more: Ha többet szeretnél megtudni az Orsómesterről és a telepítéséről, látogass el a projekt weboldalára
+    learn_more_link: GitHub oldal.
+    no_spools: Nem találtam orsót!
+    no_filaments: Nem található nyomtatószál!
+    no_vendors: Nem találtam gyártót!
+    error_loading_spools: Hiba az orsók betöltésekor
+    error_loading_filaments: Hiba a nyomtatószál betöltésekor
+    spoolman_actions:
+      activate: "@:general.activate"
+      deactivate: Deaktiválás
+      clone: Klón
+      edit: "@:general.edit"
+      archive: Archívum
+      unarchive: Archívum feloldása
+      adjust: Állítsd be az orsószálat
+      share_qr: QR-kód megosztása
+      delete: "@:general.delete"
+      add_spool: Orsó hozzáadása
+      add_filament: Szál hozzáadása
+    create:
+      success:
+        title: "{} létrehozva!"
+        message:
+          one: A(z) {} sikeresen létrehozva.
+          other: A(z) {} sikeresen létrehozva.
+      error:
+        title: Hiba a {} létrehozásakor!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+    update:
+      success:
+        title: "{} frissítve!"
+        message: A {} sikeresen frissült.
+      error:
+        title: Hiba a {} frissítésénél!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+      no_changes:
+        title: Nem történt változás!
+        message: A {} nem lett megváltoztatva.
+    delete:
+      confirm:
+        title: Törlöd {}?
+        body: |-
+          A {} törlésére készülsz.
+          Ez a művelet nem vonható vissza.
+
+          Erősítsd meg a műveletet.
+      success:
+        title: "{} törölve!"
+        message:
+          one: A {} sikeresen törölve lett.
+          other: A {} sikeresen törölve lettek.
+      error:
+        title: Törlési hiba {}!
+        message: Váratlan hiba, kérjük, próbáld újra később.
+    spool:
+      one: Orsó
+      other: Orsók
+    filament:
+      one: Nyomtatószál
+      other: Nyomtatószálak
+    vendor:
+      one: Gyártó
+      other: Gyártók
+    properties:
+      id: ID
+      name: Név
+      registered: Regisztrált
+      comment: Megjegyzés
+      material: Anyag
+      price: Ár
+      density: Sűrűség
+      diameter: Átmérő
+      weight: Súly
+      spool_weight: Orsó súlya
+      article_number: Cikkszám
+      first_used: Első használat
+      last_used: Legutóbb használt
+      remaining_weight: Maradék súly
+      used_weight: Használt súly
+      remaining_length: Maradék hossz
+      used_length: Használt hossz
+      location: Helyszín
+      lot_number: Tételszám
+      color: Szín
+    property_sections:
+      basic: Alapvető információ
+      usage: Használat részletei
+      additional: További információ
+      physical: Fizikai tulajdonságok
+      print_settings: Nyomtatás beállításai
+    vendor_details:
+      page_title: Gyártó {}
+      info_card: Gyártói információ
+      filaments_card: Nyomtatószálak gyártó szerint
+      spools_card: Orsók gyártó szerint
+    filament_details:
+      info_card: Nyomtatószál infó
+      spools_card: Nyomtatószál orsók
+    spool_details:
+      page_title: Orsó {}
+      info_card: Orsó infó
+      set_active: Beállítva aktív orsóként
+      archived_warning:
+        title: Archivált orsó
+        body: Ez az orsó archiválva van, és nem használható új nyomtatáshoz.
+      alternative_spool:
+        same_filament: Alternatív orsók (ugyanaz a szál)
+        same_material: Alternatív orsók (azonos anyag)
+    spool_form:
+      create_page_title: Orsó létrehozása
+      update_page_title: Orsó szerkesztése
+      helper:
+        price: "@:pages.spoolman.filament_form.helper.price Alapértelmezett ár, ha nincs a szál ára megadva"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight Alapértelmezett súly, ha nincs a szál súlya megadva"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight Alapértelmezett gyártói súlya az orsónak, ha nincs megadva"
+        used_weight: A felhasznált nyomtatószál súlya. A 0 grammos érték azt jelenti, hogy az orsó nem használt
+        location: Az orsó tárolási helye
+        lot_number: A gyártó tételszáma. Több orsó használata esetén a nyomtatás egységes színének biztosítására használható.
+    filament_form:
+      create_page_title: Nyomtatószál létrehozása
+      update_page_title: Nyomtatószál szerkesztése
+      helper:
+        price: Egy orsó nyomtatószál ára.
+        initial_weight: A teljes orsón lévő nyomtatószál nettó súlya, az orsó nélkül. Ez általában a csomagoláson fel van tüntetve.
+        empty_weight: Az üres orsó súlya.
+    vendor_form:
+      create_page_title: Gyártó létrehozása
+      update_page_title: Gyártó szerkesztése
+      helper:
+        empty_weight: A gyártó üres orsójának a súlya.
+components:
+  app_version_display:
+    version: 'Verzió:'
+    installed_version: 'Telepített verzió:'
+  pull_to_refresh:
+    pull_up_idle: Húzza fel a Frissítéshez
+  nav_drawer:
+    printer_settings: Nyomtató beállítások
+    manage_printers: Nyomtatók kezelése
+    fetching_printers: "@:general.fetching nyomtatók…"
+    footer: |-
+      Készítette ❤️ Patrick Schmidt
+      Nézd meg a projektet
+  connection_watcher:
+    reconnect: Újracsatlakoztatás
+    trying_connect: Próbálok csatlakozni…
+    trying_connect_remote: Távoli kliensel próbálok csatlakozni…
+    server_starting: Szerver indítása…
+    more_details: További részletek
+    add_printer: |-
+      Halihó,
+      Örülök, hogy itt vagy!
+      Az élmény beindításához kérjük, adj hozzá nyomtatót a Mobilerakerhez. Miután befejezted ezt a lépést, közvetlenül a Mobilerakerből irányíthatod a nyomtatót.
+  octo_indicator:
+    tooltip: Az OctoEveryWhere használata!
+  supporter_add:
+    title: Tetszik a Mobileraker?
+    subtitle: Koppints rám! Nézd meg, hogyan támogathatod a fejlesztést!
+  supporter_only_feature:
+    dialog_title: Csak támogató funkció
+    button: Legyél Mobileraker támogató
+    webcam: Sajnáljuk, a {} típusú webkamerák csak a Támogatók számára érhetők el.
+    printer_add: Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára érhető el.
+    job_queue: Sajnáljuk, a Várólista csak a Támogatók számára érhető el.
+    timelaps_share: Sajnáljuk, az időzített felvételek megosztása csak a Támogatók számára érhető el.
+    printer_theme: Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek el.
+    spoolman_page: Sajnáljuk, az Orsómester csak a Támogatóknak érhető el.
+    custom_dashboard: Sajnáljuk, a műszerfal testreszabása csak a Támogatóknak érhető el.
+    full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak a Támogatóknak érhető el.
+    gcode_preview: Sajnáljuk, a G-Kód előnézet csak Támogatóknak érhető el.
+  machine_deletion_warning:
+    title: Gépi törlés
+    subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
+  remote_connection_indicator:
+    title: Távoli kapcsolat használata!
+  web_rtc:
+    renderer_missing: WebRtc videó nem elérhető!
+    oe_warning: WebRtc az OctoEverywhere-en keresztül még nem támogatott!
+  ri_indicator:
+    tooltip: Távoli kapcsolat használata!
+  obico_indicator:
+    tooltip: Obico Tunnel használata!
+  gcode_preview:
+    layer:
+      one: Réteg
+      other: Rétegek
+    move:
+      one: Mozgatás
+      other: Mozgások
+    downloading:
+      starting: Várom a letöltés megkezdését…
+      progress: G-kód fájl letöltése ({})…
+    parsing:
+      setting_up: G-kód elemző beállítása…
+      progress: G-kód elemzése ({})…
+      canceled: A G-kód elemzése megszakadt!
+      error:
+        title: Hiba a G-kód elemzésekor!
+        body: Hiba a G-kód elemzésekor. Kérjük, próbáld újra. Ha a probléma továbbra is fennáll, kérjük, nyiss probléma jelentést a GitHubon, és csatold a G-kód fájlt.
+    error:
+      config:
+        title: Hiba a nyomtató konfiguráció lekérésében!
+        body: Hiba történt a nyomtató konfigurációja lekérdezése során. Győződj meg róla, hogy elérhető és a Mobileraker csatlakoztatva van.
+  gcode_preview_settings_sheet:
+    title: Visualizer beállítások
+    show_grid:
+      title: Rács mutatása
+      subtitle: Referenciarács mutatása
+    show_axes:
+      title: Tengelyek mutatása
+      subtitle: X és Y tengelyek kijelzése
+    show_next_layer:
+      title: Következő réteg mutatása
+      subtitle: Készülő réteg mutatása az előnézetben
+    show_previous_layer:
+      title: Előző réteg mutatása
+      subtitle: Korábban nyomtatott réteg mutatása
+    extrusion_width_multiplier:
+      prefix: Vonalszélesség szorzó
+    show_extrusion:
+      title: Extrudálások mutatása
+      subtitle: Anyaglerakódások mozgásának kiemelése
+    show_retraction:
+      title: Visszahúzások mutatása
+      subtitle: Jelölje meg a nyomtatószál visszahúzásokat
+    show_travel:
+      title: Utazási mozgások mutatása
+      subtitle: Nem nyomtatási mozgás kijelzése
+  select_color_sheet:
+    title: Szín kiválasztása
+dialogs:
+  rate_my_app:
+    title: Értékeled a Mobileraker-t?
+    message: Ha tetszik a Mobileraker, és támogatni szeretnéd a nyílt forráskódú fejlesztést, kérjük, fontold meg a Mobileraker értékelését!
+  import_setting:
+    fetching: Források keresése…
+    fetching_error_title: Nem sikerült lekérni a beállításokat!
+    fetching_error_sub: Győződj meg arról, hogy a többi gép csatlakoztatva van.
+    select_source: Válassz forrást
+  create_folder:
+    title: Mappa létrehozása
+    label: Mappa neve
+  delete_folder:
+    title: Biztos vagy benne?
+    description: |-
+      A mappában lévő összes fájl is törlődik!
+
+      Erősítsd meg a mappa törlését '/{}'.
+  rename_folder:
+    title: Mappa átnevezése
+    label: Mappa neve
+  copy_folder:
+    title: Mappa másolása
+    label: Mappa neve
+  delete_file:
+    description: A fájl törlésének megerősítése '{}'.
+  rename_file:
+    title: Fájl átnevezése
+    label: Fájlnév
+  copy_file:
+    title: Fájl másolása
+    label: Fájl neve
+  create_file:
+    title: Fájl létrehozása
+    label: Fájl neve
+  create_archive:
+    title: Archívum létrehozása
+    label: Archívum neve
+  delete_files:
+    description: A {} fájlok törlésének megerősítése.
+  exclude_object:
+    title: Objektum kizárása a nyomtatásból
+    label: Kizárandó objektum
+    confirm_tile_title: Biztos vagy benne?
+    confirm_tile_subtitle: Ez a művelet nem vonható vissza!
+    exclude: Kizárás
+    no_visualization: Nem állnak rendelkezésre vizualizációs adatok!
+  ws_input_help:
+    title: URL beviteli súgó
+    body: |-
+      Megadhatsz egy IP-címet, URL-t vagy teljes URI-t a webes felületen, vagy közvetlenül a moonraker által biztosított websocket példányban.
+
+      Érvényes példák:
+  gcode_params:
+    hint: 'Tipp: Ha a makrót alapértelmezett értékekkel szeretnéd elküldeni, akkor hosszan nyomd!'
+    confirm_title: Végrehajtod {}?
+    confirm_body: |-
+      A '{}' makró végrehajtásához készülsz.
+
+      Erősítsd meg a műveletet.
+  rgbw:
+    recent_colors: Legutóbbi színek
+  select_machine:
+    title: Válassz gépet
+    active_machine: 'Aktív gép: {}'
+    hint: Érintsd meg a gépet az aktívként való beállításhoz.
+  supporter_perks:
+    learn_more: Tudjon meg többet a támogatói kedvezményekről
+    title: Támogatói jutalmak
+    body: A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.
+    hint: 'Tipp: Jelenleg a jutalmak eszközalapúak. Ez változhat a jövőben.'
+    theme_perk:
+      title: Támogatói téma
+      subtitle: Exkluzív téma a Material 3 használatával
+    contact_perk:
+      title: Fejlesztői kapcsolattartás
+      subtitle: Könnyű kapcsolatfelvétel a fejlesztővel!
+    notification_perk:
+      title: Pillanatkép értesítések
+      subtitle: Az állapotértesítések közé tartozik a Webcam pillanatkép
+    webrtc_perk:
+      title: WebRtc támogatás
+      subtitle: Lehetővé teszi a WebRtc webkamerák használatát!
+    job_queue_perk:
+      title: Várólista
+      subtitle: Kezeld a Moonraker várólistát a Mobilerakerből!
+    unlimited_printers_perk:
+      title: Korlátlan nyomtatók
+      subtitle: Vezérelj annyi nyomtatót, amennyit csak akarsz a Mobileraker segítségével!
+    printer_theme_perk:
+      title: Nyomtató alapú témák
+      subtitle: Válassz különböző témát minden nyomtatóhoz!
+    custom_dashboard_perk:
+      title: Egyedi műszerfal
+      subtitle: Testreszabhatod a műszerfalat a saját ízlésed szerint!
+    full_file_management_perk:
+      title: Teljes fájlkezelés
+      subtitle: Old fel a Mobileraker teljes fájlkezelési képességeit!
+  bed_screw_adjust:
+    title: Ágycsavar beállítása
+    xy_plane: 'Nyomtató X/Y sík:'
+    active_screw_title: 'Aktív csavar:'
+    accept_screw_title: 'Elfogadott csavarok:'
+    accept_screw_value: "{} vagy {}"
+    hint: Kattints a Beállított gombra, ha az aktuális csavaron jelentős módosításra van szükség; ellenkező esetben kattints az Elfogadás gombra a folytatáshoz.
+    adjusted_btn: Beállított
+  manual_offset:
+    title: "@:general.offset Kalibráció"
+    hint_tooltip: Klipper papírteszt dokumentációja
+    snackbar_title: Kalibráció kész
+    snackbar_message: Ügyelj rá, hogy az eltolás megmaradjon a Konfiguráció mentése művelettel.
+  tipping:
+    title: Borravaló a fejlesztőnek!
+    body: Ez a borravaló kizárólag a fejlesztő erőfeszítéseinek elismerésére szolgál, és NEM biztosít hozzáférést semmilyen további funkcióhoz.
+    amount_label: Borravaló összege
+    tip: Borravaló
+  http_header:
+    title: HTTP-fejléc
+    header: Fejléc
+    header_hint: A HTTP-Fejléc neve
+    value: Fejléc-érték
+    value_hint: A fejléc értéke
+  macro_settings:
+    show_for_states: Nyomtatás állapotok
+    show_for_states_hint: Válaszd ki azokat az állapotokat, amelyekre a makrót meg kell jeleníteni
+    visible: Látható
+  extruder_feedrate:
+    title: Extruder sebesség [mm/s]
+  fan_speed:
+    title: Szerkeszt {} %
+  filament_sensor_triggered:
+    title: Szálérzékelő kiváltva
+    body: |-
+      A érzékelő '{}' működésbe lépett.
+
+      Kérjük, ellenőrizd a nyomtatót és az érzékelőt, hogy biztosítsd a szál rendelkezésre állását, vagy tiltsd le az érzékelőt.
+  screws_tilt_adjust:
+    title: Csavarok dőlésbeállítás
+    base: Bázis
+    hint: A párbeszédpanel segít az ágy csavarjainak beállításában. Minden egyes csavar esetében a szükséges beállításokat órában látod ÓÓ:PP formátumban. Például a 01:15 egy teljes fordulatot plusz egy negyed fordulatot jelent az ikon által jelzett irányba.
+  dashboard_page_settings:
+    title: Műszerfal oldal beállítása
+    icon_label: 'Válaszd ki a lap ikonját:'
+  filament_switch:
+    title:
+      load: Szálbetöltés varázsló
+      unload: Szálkiadás varázsló
+    controls:
+      heat_up: Felmelegítés
+      change_temp: Hőfok állítás
+      purge: Tisztítás
+      repeat_load: Ismétlődő betöltés
+      repeat_unload: Ismétlődő kiadás
+      repeat_purge: Ismétlődő tisztítás
+    steps:
+      set_temps:
+        title: Szálhőmérséklet
+        subtitle: Célhőmérséklet kiválasztása
+      heat_up:
+        title: Nyomtatófej fűtése
+        subtitle: Felfűtés célhőmérsékletre
+      move:
+        title:
+          load: Nyomtatószál betöltése
+          unload: Nyomtatószál kiadása
+        subtitle:
+          load:
+            idle: Helyezz nyomtatószálat az adagolóba
+            processing: Nyomtatószál betöltése...
+            processed: Elérte a nyomtatószál a fúvókát? Ismételd meg, ha szükséges
+          unload:
+            idle: Adja ki a nyomtatószálat az adagolóból
+            processing: Nyomtatószál kiadása...
+            processed: Kijött a nyomtatószál az adagolóból? Ismételd meg, ha szükséges
+      purge:
+        title: Nyomtatószál tisztítás
+        subtitle:
+          idle: Töltsd be az izzószálat a fúvókába
+          processing: Nyomtatószál tisztítása...
+          processed: Ellenőrizd, hogy a tisztított anyag tiszta-e. Szükség esetén ismételd meg
+      tip_form:
+        title: Hegy formázása
+        subtitle: Szálhegy formázása
+  heater_temperature:
+    title: "{} Hőmérséklet [°C]"
+  confirm_print_cancelation:
+    title: Nyomtatás leállítása?
+    body: |-
+      A nyomtatási feladat törlésére készülsz.
+
+      Erősítsd meg a műveletet.
+  adjust_spool_filament:
+    title: Állítsd be az orsószálat
+    subtitle: Szál hozzáadása vagy kivonása az orsóról. A pozitív érték a szál fogyasztását, a negatív érték a hozzáadását eredményezi.
+    input_label: Összeg megadása
+    submit_label: Beállítás
+    tooltip:
+      weight: Súly módra váltás
+      length: Hosszúság módra váltás
+  num_range_dialog:
+    helper:
+      min: Adj meg legalább egy értéket {}
+      range: Adj meg egy {} és {} közötti értéket
+bottom_sheets:
+  job_queue_sheet:
+    next: Következő nyomtatási feladat
+    empty: A várólista üres. A fájlböngészőn keresztül adhatsz hozzá feladatokat.
+    start_queue: Várólista indítása
+    pause_queue: Várólista szünetelése
+    remove_all: Várólista törlése
+    remove_all_confirm: Ez a művelet eltávolítja az összes feladatot a várólistáról.
+  add_remote_con:
+    disclosure: "{service} nem állsz kapcsolatban a Mobilerakerrel. További előfizetést igényelhetsz. További információkért kérjük, nézd meg a {service} weboldalát."
+    active_service_info:
+      title: Meglévő konfigurációt találtunk!
+      body: Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként. Távolítsd el, mielőtt újat adnál hozzá.
+    octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: Kapcsolódás OctoEverywhere
+      unlink: Leválasztás OctoEverywhere
+      description: OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi, hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést, értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze 20 másodpercet vesz igénybe!
+    manual:
+      service_name: Kézi távoli csatlakozás
+      tab_name: Kézi
+      description: Ha haladó felhasználó vagy, manuálisan is hozzáadhatsz egy alternatív kapcsolatot. Az alternatív kapcsolat akkor lép működésbe, ha az elsődleges címhez való kapcsolódási kísérletek sikertelenek. Ez hasznos lehet, ha fordított proxy-kapcsolatod van a nyomtatóhoz, vagy ha van egy másodlagos IP-címed, amelyet a nyomtatóhoz való csatlakozáshoz használhatsz.
+      address_label: Alternatív cím
+      address_hint: A használni kívánt távoli kapcsolat báziscíme
+    obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: Kapcsolódás Obico
+      unlink: Leválasztás Obico
+      description: Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.
+      self_hosted:
+        title: Saját-Gazdagép
+        description: Alapértelmezés szerint a Mobileraker a hivatalos Obico példányt használja. Ha azonban saját példányt kezelsz, itt megadhatod annak URL-címét.
+        url_label: Saját-Gazdagép URL
+        url_hint: A saját-gazdagép Obico-példány alap-URL-je
+  manage_macros_in_grp:
+    title: Makrók hozzáadása
+    hint: Makrók kiválasztása a csoporthoz {}
+  signIn:
+    subtitle: Bár a fiók létrehozása nem kötelező, a más eszközön vagy platformon végzett vásárlások visszaállításához szükséges.
+    forgot_password: Elfelejtetted a jelszavad?
+    forgot_password_success: Jelszó-visszaállítási e-mail elküldve!
+    hint:
+      sign_in: Még nincs fiókod?
+      sign_up: Már van fiókod?
+      reset_password: Add meg az e-mail címed, hogy jelszó-visszaállítási linket kapj.
+    action:
+      sign_in: Bejelentkezés
+      sign_up: Regisztráció
+      reset_password: Jelszó visszaállítás
+    email:
+      label: E-mail
+      hint: Az e-mail címed
+    password:
+      label: Jelszó
+      hint: Jelszavad
+    confirm_password:
+      label: Jelszó megerősítése
+      hint: Jelszavad megerősítése
+      error: Nem egyeznek a jelszavak!
+  profile:
+    title: Bejelentkeztél.
+    description: Üdvözöljük újra itt! A felhasználói fiókod a kulcsa a mobileszközökön való fokozott felhasználói élménynek. Oszd meg zökkenőmentesen támogatói státuszod, hogy könnyedén élvezhesd a kiváltságokat, bárhová is mész telefonoddal, táblagépeddel vagy más eszközöddel.
+    restore_purchases: Vásárlások visszaállítása
+    restore_success: Sikeresen helyreállítottuk a vásárlásokat!
+    sign_out: Kijelentkezés
+    delete_account: Fiók törlése
+    email_verification:
+      title:
+        pending: Megerősítő e-mail elküldve
+        not_verified: E-mail nem ellenőrzött
+      description: Kérjük, ellenőrizd az e-mail címed, hogy mindig hozzáférhess a fiókodhoz.
+      send: Ellenőrzés küldése
+    delete_account_dialog:
+      title: Törlöd a fiókod?
+      body: Törölni készülsz a fiókodat. Ezt a műveletet nem lehet visszacsinálni.
+  bedMesh:
+    no_mesh_loaded: Még nincs ágyháló betöltve.
+    load_bed_mesh_profile: Ágyháló profil betöltése
+    no_mesh: Nincs háló
+    clear_loaded_profile: Törölje a betöltött profilt
+    cant_render: Az ágy hálójának renderelése a nyomtató kinematikájához még nem támogatott.
+  select_spool:
+    header:
+      spools: Orsók
+      qr: QR-kód
+    no_spools: Nem találtam orsót. Kérjük, adjon hozzá egy orsót az Orsómesterhez
+    error: 'Hiba lépett fel az orsók betöltése közben: {}'
+    qr_loading: QR szkenner betöltése…
+    qr_error: 'Hiba a QR szkenner betöltése közben: {}'
+    scan_again: Újraszkennelés
+    set_active: Aktív beállítva
+    spool_id_not_found: 'Sajnálom, a megadott azonosítóval #{} nincs orsó.'
+  non_printing:
+    manage_service:
+      title: Szolgáltatások kezelése
+      no_services: Nincs szolgáltatás!
+      provider_error: Hiba a szolgáltatások lekérése során
+    confirm_action:
+      title: Biztos vagy benne?
+      hint:
+        long_press: 'Tipp: Ennek kihagyásához nyomd meg hosszan a megerősítésre szolgáló gombot.'
+      body:
+        pi_restart: A Raspberry Pi újraindítása előtt állsz. Biztos vagy benne, hogy folytatod?
+        pi_shutdown: A Raspberry Pi leállítása előtt állsz. Ez minden aktív kapcsolatot megszakít, és leállítja az összes futó folyamatot. Biztos vagy benne, hogy folytatod?
+        fw_restart: A firmware újraindítása előtt állsz. Biztos, hogy folytatod?
+        service_start: Szolgáltatást '{}' készülsz elindítani. Biztos, hogy folytatod?
+        service_restart: Szolgáltatás '{}' újraindítása előtt állsz. Biztos, hogy folytatod?
+        service_stop: '''{}'' szolgáltatás leállítására készülsz. Biztos, hogy folytatod?'
+  dashboard_cards:
+    title: Kártya hozzáadása
+    subtitle: Válaszd ki a műszerfalhoz hozzáadandó kártyát
+  dashboard_layout:
+    title: Műszerfal elrendezése
+    subtitle: 'Aktuális elrendezés:'
+    available_layouts:
+      label: 'Elérhető elrendezések:'
+      empty: Nincs elérhető elrendezés
+      add_empty: Üres elrendezés hozzáadása
+    layout_preview:
+      not_saved: Nincs mentve
+    rename_layout:
+      title: Elrendezés átnevezése
+      label: Elrendezés neve
+    delete_layout:
+      title: Elrendezés törlése
+      body: |-
+        Biztos, hogy törölni szeretnéd az elrendezést {}?
+        Minden gép, ami ezt használja, visszaáll az alapértelmezettre.
+    import_snackbar:
+      title: Elrendezés importálva!
+      body: Ügyelj rá, hogy a módosítások alkalmazásához nyomd meg a mentés gombot.
+    falsy_import_snackbar:
+      title: Hiba az elrendezés importálásakor!
+      body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon van-e érvényes elrendezés.
+  selections:
+    no_selections:
+      title: Nem találtam eredményt
+      subtitle: Próbálj meg egy másik kifejezésre keresni
+klipper_state:
+  ready: Kész
+  shutdown: Leállítás
+  starting: Indítás
+  disconnected: Szétkapcsolt
+  error: Hiba
+  unauthorized: Jogosulatlan
+  initializing: Inicializálás
+  not_connected: Moonraker nem tud kapcsolódni a Klipper-hez. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden.
+print_state:
+  standby: Készenlét
+  printing: Nyomtatás
+  paused: Szünetel
+  complete: Befejezve
+  cancelled: Törölt
+  error: Hiba
+theme_mode:
+  light: Világos
+  dark: Sötét
+  system: Rendszer
+notifications:
+  channel_printer_grp: Nyomtató {}
+  channels:
+    status:
+      name: Nyomtatási állapotfrissítések - {}
+      desc: Értesítések a nyomtatás állapotáról.
+      title: A {} nyomtatási állapota megváltozott!
+      body_printing: 'Elkezdődött a fájl nyomtatása: "{}"'
+      body_paused: 'Szünetel a fájl nyomtatása: "{}"'
+      body_complete: 'Kész a nyomtatás: "{}"'
+      body_error: 'Hiba a fájl nyomtatásakor: "{}"'
+    progress:
+      name: Nyomtatási folyamatfrissítések - {}
+      desc: Értesítések a nyomtatás előrehaladásáról.
+      title: Nyomtatás folyamata {}
+form_validators:
+  simple_url: 'A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port'
+  disallow_mdns: Az MDNs (.local) címek nem támogatottak.
+  file_name_in_use: Fájlnév már használatban van
+date:
+  year:
+    one: Év
+    other: Évek
+  month:
+    one: Hónap
+    other: Hónapok
+  week:
+    one: Hét
+    other: Hetek
+  day:
+    one: Nap
+    other: Napok
+date_periods:
+  year:
+    one: Éves
+    other: Évek
+  month:
+    one: Havi
+    other: Hónapig
+  week:
+    one: Heti
+    other: Hetek
+  day:
+    one: Napi
+    other: Napok
+languages:
+  languageCode:
+    ab:
+      name: Abház
+      nativeName: аҧсуа
+    aa:
+      name: Afar
+      nativeName: Afaraf
+    af:
+      name: Afrikaans
+      nativeName: Afrikaans
+    ak:
+      name: Akan
+      nativeName: Akan
+    sq:
+      name: Albán
+      nativeName: Shqip
+    am:
+      name: Amharic
+      nativeName: አማርኛ
+    ar:
+      name: Arab
+      nativeName: العربية
+    an:
+      name: Aragóniai
+      nativeName: Aragonés
+    hy:
+      name: Örmény
+      nativeName: Հայերեն
+    as:
+      name: Assamese
+      nativeName: অসমীয়া
+    av:
+      name: Avaric
+      nativeName: авар мацӀ, магӀарул мацӀ
+    ae:
+      name: Avestan
+      nativeName: avesta
+    ay:
+      name: Aymara
+      nativeName: aymar aru
+    az:
+      name: Azerbaijani
+      nativeName: azərbaycan dili
+    bm:
+      name: Bambara
+      nativeName: bamanankan
+    ba:
+      name: Bashkir
+      nativeName: башҡорт теле
+    eu:
+      name: Basque
+      nativeName: euskara, euskera
+    be:
+      name: Fehérorosz
+      nativeName: Беларуская
+    bn:
+      name: Bengáli
+      nativeName: বাংলা
+    bh:
+      name: Bihari
+      nativeName: भोजपुरी
+    bi:
+      name: Bislama
+      nativeName: Bislama
+    bs:
+      name: Bosnyák
+      nativeName: bosnyák nyelv
+    br:
+      name: Breton
+      nativeName: brezhoneg
+    bg:
+      name: Bolgár
+      nativeName: български език
+    my:
+      name: Burmai
+      nativeName: ဗမာစာ
+    ca:
+      name: Katalán; valenciai
+      nativeName: Katalán
+    ch:
+      name: Chamorro
+      nativeName: Chamoru
+    ce:
+      name: Csecsen
+      nativeName: нохчийн мотт
+    ny:
+      name: Chichewa; Chewa; Nyanja
+      nativeName: chiCheŵa, chinyanja
+    zh:
+      name: Kínai
+      nativeName: 中文
+    cv:
+      name: Csuvas
+      nativeName: чӑваш чӗлхи
+    kw:
+      name: Cornish
+      nativeName: Kernewek
+    co:
+      name: Korzikai
+      nativeName: corsu, lingua corsa
+    cr:
+      name: Cree
+      nativeName: ᓀᐦᐃᔭᐍᐏᐣ
+    hr:
+      name: Horvát
+      nativeName: hrvatski
+    cs:
+      name: Cseh
+      nativeName: česky, čeština
+    da:
+      name: Dán
+      nativeName: dán
+    dv:
+      name: Divehi; Dhivehi; Maldivian;
+      nativeName: ދިވެހި
+    nl:
+      name: Holland
+      nativeName: Holland, flamand
+    en:
+      name: Angol
+      nativeName: Angol
+    eo:
+      name: Eszperantó
+      nativeName: Eszperantó
+    et:
+      name: Észt
+      nativeName: eesti, eesti keel
+    ee:
+      name: Ewe
+      nativeName: Eʋegbe
+    fo:
+      name: Feröer
+      nativeName: føroyskt
+    fj:
+      name: Fidzsi
+      nativeName: vosa Vakaviti
+    fi:
+      name: Finn
+      nativeName: suomi, suomen kieli
+    fr:
+      name: Francia
+      nativeName: français, langue française
+    ff:
+      name: Fula; Fulah; Pulaar; Pular
+      nativeName: Fulfulde, Pulaar, Pular
+    gl:
+      name: Galíciai
+      nativeName: Galego
+    ka:
+      name: Grúz
+      nativeName: ქართული
+    de:
+      name: Német
+      nativeName: Német
+    el:
+      name: Greek, Modern
+      nativeName: Ελληνικά
+    gn:
+      name: Guaraní
+      nativeName: Avañeẽ
+    gu:
+      name: Gujarati
+      nativeName: ગુજરાતી
+    ht:
+      name: Haitian; Haitian Creole
+      nativeName: Kreyòl ayisyen
+    ha:
+      name: Hausa
+      nativeName: Hausa, هَوُسَ
+    he:
+      name: Héber (modern)
+      nativeName: עברית
+    hz:
+      name: Herero
+      nativeName: Otjiherero
+    hi:
+      name: Hindi
+      nativeName: हिन्दी, हिंदी
+    ho:
+      name: Hiri Motu
+      nativeName: Hiri Motu
+    hu:
+      name: Magyar
+      nativeName: Magyar
+    ia:
+      name: Interlingua
+      nativeName: Interlingua
+    id:
+      name: Indonéz
+      nativeName: Bahasa Indonesia
+    ie:
+      name: Interlingue
+      nativeName: Originally called Occidental; then Interlingue after WWII
+    ga:
+      name: Ír
+      nativeName: Gaeilge
+    ig:
+      name: Igbo
+      nativeName: Asụsụ Igbo
+    ik:
+      name: Inupiaq
+      nativeName: Iñupiaq, Iñupiatun
+    io:
+      name: Ido
+      nativeName: Ido
+    is:
+      name: Icelandic
+      nativeName: Íslenska
+    it:
+      name: Olasz
+      nativeName: Olasz
+    iu:
+      name: Inuktitut
+      nativeName: ᐃᓄᒃᑎᑐᑦ
+    ja:
+      name: Japán
+      nativeName: 日本語 (にほんご／にっぽんご)
+    jv:
+      name: Javanese
+      nativeName: basa Jawa
+    kl:
+      name: Kalaallisut, Greenlandic
+      nativeName: kalaallisut, kalaallit oqaasii
+    kn:
+      name: Kannada
+      nativeName: ಕನ್ನಡ
+    kr:
+      name: Kanuri
+      nativeName: Kanuri
+    ks:
+      name: Kashmiri
+      nativeName: कश्मीरी, كشميري‎
+    kk:
+      name: Kazakh
+      nativeName: Қазақ тілі
+    km:
+      name: Khmer
+      nativeName: ភាសាខ្មែរ
+    ki:
+      name: Kikuyu, Gikuyu
+      nativeName: Gĩkũyũ
+    rw:
+      name: Kinyarwanda
+      nativeName: Ikinyarwanda
+    ky:
+      name: Kirghiz, Kyrgyz
+      nativeName: кыргыз тили
+    kv:
+      name: Komi
+      nativeName: коми кыв
+    kg:
+      name: Kongo
+      nativeName: KiKongo
+    ko:
+      name: Kóreai
+      nativeName: 한국어 (韓國語), 조선말 (朝鮮語)
+    ku:
+      name: Kurdish
+      nativeName: Kurdî, كوردی‎
+    kj:
+      name: Kwanyama, Kuanyama
+      nativeName: Kuanyama
+    la:
+      name: Latin
+      nativeName: latine, lingua latina
+    lb:
+      name: Luxembourgish, Letzeburgesch
+      nativeName: Lëtzebuergesch
+    lg:
+      name: Luganda
+      nativeName: Luganda
+    li:
+      name: Limburgish, Limburgan, Limburger
+      nativeName: Limburgs
+    ln:
+      name: Lingala
+      nativeName: Lingála
+    lo:
+      name: Lao
+      nativeName: ພາສາລາວ
+    lt:
+      name: Litván
+      nativeName: lietuvių kalba
+    lu:
+      name: Luba-Katanga
+      nativeName: '[empty string]'
+    lv:
+      name: Litván
+      nativeName: latviešu valoda
+    gv:
+      name: Manx
+      nativeName: Gaelg, Gailck
+    mk:
+      name: Macedón
+      nativeName: македонски јазик
+    mg:
+      name: Malagasy
+      nativeName: Malagasy fiteny
+    ms:
+      name: Malay
+      nativeName: bahasa Melayu, بهاس ملايو‎
+    ml:
+      name: Malayalam
+      nativeName: മലയാളം
+    mt:
+      name: Maltese
+      nativeName: Malti
+    mi:
+      name: Māori
+      nativeName: te reo Māori
+    mr:
+      name: Marathi (Marāṭhī)
+      nativeName: मराठी
+    mh:
+      name: Marshallese
+      nativeName: Kajin M̧ajeļ
+    mn:
+      name: Mongol
+      nativeName: монгол
+    na:
+      name: Nauru
+      nativeName: Ekakairũ Naoero
+    nv:
+      name: Navajo, Navaho
+      nativeName: Diné bizaad, Dinékʼehǰí
+    nb:
+      name: Norwegian Bokmål
+      nativeName: Norsk bokmål
+    nd:
+      name: North Ndebele
+      nativeName: isiNdebele
+    ne:
+      name: Nepali
+      nativeName: नेपाली
+    ng:
+      name: Ndonga
+      nativeName: Owambo
+    nn:
+      name: Norwegian Nynorsk
+      nativeName: Norsk nynorsk
+    'no':
+      name: Norvég
+      nativeName: Norsk
+    ii:
+      name: Nuosu
+      nativeName: ꆈꌠ꒿ Nuosuhxop
+    nr:
+      name: South Ndebele
+      nativeName: isiNdebele
+    oc:
+      name: Occitan
+      nativeName: Occitan
+    oj:
+      name: Ojibwe, Ojibwa
+      nativeName: ᐊᓂᔑᓈᐯᒧᐎᓐ
+    cu:
+      name: ótemplomi szláv, egyházi szláv, egyházi szláv, óbolgár, ószláv
+      nativeName: ѩзыкъ словѣньскъ
+    om:
+      name: Oromo
+      nativeName: Afaan Oromoo
+    or:
+      name: Oriya
+      nativeName: ଓଡ଼ିଆ
+    os:
+      name: Ossetian, Ossetic
+      nativeName: ирон æвзаг
+    pa:
+      name: Panjabi, Punjabi
+      nativeName: ਪੰਜਾਬੀ, پنجابی‎
+    pi:
+      name: Pāli
+      nativeName: पाऴि
+    fa:
+      name: Persian
+      nativeName: فارسی
+    pl:
+      name: Polish
+      nativeName: polski
+    ps:
+      name: Pashto, Pushto
+      nativeName: پښتو
+    pt:
+      name: Portuguese
+      nativeName: Português
+    qu:
+      name: Quechua
+      nativeName: Runa Simi, Kichwa
+    rm:
+      name: Romansh
+      nativeName: rumantsch grischun
+    rn:
+      name: Kirundi
+      nativeName: kiRundi
+    ro:
+      name: Romanian, Moldavian, Moldovan
+      nativeName: Román
+    ru:
+      name: Orosz
+      nativeName: русский язык
+    sa:
+      name: Sanskrit (Saṁskṛta)
+      nativeName: संस्कृतम्
+    sc:
+      name: Sardinian
+      nativeName: sardu
+    sd:
+      name: Sindhi
+      nativeName: सिन्धी, سنڌي، سندھی‎
+    se:
+      name: Northern Sami
+      nativeName: Davvisámegiella
+    sm:
+      name: Samoan
+      nativeName: gagana faa Samoa
+    sg:
+      name: Sango
+      nativeName: yângâ tî sängö
+    sr:
+      name: Szerb
+      nativeName: српски језик
+    gd:
+      name: Scottish Gaelic; Gaelic
+      nativeName: Gàidhlig
+    sn:
+      name: Shona
+      nativeName: chiShona
+    si:
+      name: Sinhala, Sinhalese
+      nativeName: සිංහල
+    sk:
+      name: Szlovák
+      nativeName: slovenčina
+    sl:
+      name: Szlovén
+      nativeName: slovenščina
+    so:
+      name: Somali
+      nativeName: Soomaaliga, af Soomaali
+    st:
+      name: Southern Sotho
+      nativeName: Sesotho
+    es:
+      name: Spanish; Castilian
+      nativeName: español, castellano
+    su:
+      name: Sundanese
+      nativeName: Basa Sunda
+    sw:
+      name: Swahili
+      nativeName: Kiswahili
+    ss:
+      name: Swati
+      nativeName: SiSwati
+    sv:
+      name: Swedish
+      nativeName: svenska
+    ta:
+      name: Tamil
+      nativeName: தமிழ்
+    te:
+      name: Telugu
+      nativeName: తెలుగు
+    tg:
+      name: Tajik
+      nativeName: тоҷикӣ, toğikī, تاجیکی‎
+    th:
+      name: Thai
+      nativeName: ไทย
+    ti:
+      name: Tigrinya
+      nativeName: ትግርኛ
+    bo:
+      name: Tibetan Standard, Tibetan, Central
+      nativeName: བོད་ཡིག
+    tk:
+      name: Turkmen
+      nativeName: Türkmen, Түркмен
+    tl:
+      name: Tagalog
+      nativeName: Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔
+    tn:
+      name: Tswana
+      nativeName: Setswana
+    to:
+      name: Tonga (Tonga Islands)
+      nativeName: faka Tonga
+    tr:
+      name: Turkish
+      nativeName: Türkçe
+    ts:
+      name: Tsonga
+      nativeName: Xitsonga
+    tt:
+      name: Tatar
+      nativeName: татарча, tatarça, تاتارچا‎
+    tw:
+      name: Twi
+      nativeName: Twi
+    ty:
+      name: Tahitian
+      nativeName: Reo Tahiti
+    ug:
+      name: Uighur, Uyghur
+      nativeName: Uyƣurqə, ئۇيغۇرچە‎
+    uk:
+      name: Ukrán
+      nativeName: українська
+    ur:
+      name: Urdu
+      nativeName: اردو
+    uz:
+      name: Uzbek
+      nativeName: zbek, Ўзбек, أۇزبېك‎
+    ve:
+      name: Venda
+      nativeName: Tshivenḓa
+    vi:
+      name: Vietnamese
+      nativeName: Tiếng Việt
+    vo:
+      name: Volapük
+      nativeName: Volapük
+    wa:
+      name: Walloon
+      nativeName: Walon
+    cy:
+      name: Welsh
+      nativeName: Cymraeg
+    wo:
+      name: Wolof
+      nativeName: Wollof
+    fy:
+      name: Western Frisian
+      nativeName: Frysk
+    xh:
+      name: Xhosa
+      nativeName: isiXhosa
+    yi:
+      name: Yiddish
+      nativeName: ייִדיש
+    yo:
+      name: Yoruba
+      nativeName: Yorùbá
+    za:
+      name: Zhuang, Chuang
+      nativeName: Saɯ cueŋƅ, Saw cuengh
+  countryCode:
+    CN:
+      name: Simplified
+      nativeName: 简体
+    HK:
+      name: Tradicionális
+      nativeName: 繁體
+    BR:
+      name: Brazil
+      nativeName: Brazil
