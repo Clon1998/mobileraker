@@ -1,0 +1,367 @@
+---
+general:
+  pause: Pauzeren
+  resume: Hervatten
+  connected: Verbonden
+  'off': 'Uit'
+  'on': 'Aan'
+  none: Geen
+  add: Toevoegen
+  create: Aanmaken
+  rename: Hernoemen
+  remove: Verwijderen
+  set: Instellen
+  use: Gebruiken
+  restart: Herstarten
+  shutdown: Afsluiten
+  fetching: Ophalen
+  loading: Laden
+  unknown: Onbekend
+  disabled: Uitgeschakeld
+  confirm: Bevestigen
+  cancel: Annuleren
+  close: Sluiten
+  edit: Bewerken
+  preview: Voorbeeld
+  retry: Opnieuw proberen
+  supported: Ondersteund
+  unsupported: Niet ondersteund
+  active: Actief
+  canceled: Geannuleerd
+  monthly: Maandelijks
+  restore: Herstellen
+  accept: Accepteren
+  abort: Afbreken
+  offset: Afstand
+pages:
+  dashboard:
+    ems_btn: Noodstop
+    server_status:
+      unavailable: Geen Server beschikbaar
+      available: Server status is {} en Klippy is {}
+    fetching_printer: "@:general.fetching printer..."
+    general:
+      print_card:
+        printing_for: 'Printen: {}'
+        speed: Snelheid
+        layer: Laag
+        current_object: Huidig Object
+        elapsed: Verlopen
+        flow: Stroom
+        filament_tooltip: '{} % Filament gebruikt, dat is {} m van de verwachtte {} m'
+      cam_card:
+        webcam: Camera
+        fullscreen: Volledig Scherm
+      temp_card:
+        title: Temperatuurbediening
+        presets_btn: Voorinstellingen
+        bed: Bouwplaat
+        temp_presets: Temperatuur voorinstellingen
+        heater_on: "{} °C doel"
+      temp_preset_card:
+        cooloff: Afkoelen
+      move_card:
+        title: Assen verplaatsen
+        home_xy_tooltip: X- en Y-as naar thuispositie
+        home_z_tooltip: Z-as naar thuispositie
+        home_all_tooltip: Alle assen naar thuispositie
+        home_all_btn: Alle
+        qgl_tooltip: Quad-Gantry nivellering uitvoeren
+        mesh_tooltip: Med-Mesh kalibratie uitvoeren
+        m84_tooltip: Motors uitzetten
+        step_size: Stapgrootte
+        stc_tooltip: Schroef-kanteling berekenen
+        ztilt_tooltip: Z-kanteling kalibratie uitvoeren
+        ztilt_btn: zKantel
+        poff_tooltip: Sondeafstands kalibratie uitvoeren
+        poff_btn: Sonde Kalibratie
+        zoff_tooltip: Z-stop afstand kalibratie uitvoeren
+        zoff_btn: Z-stop kalibratie
+        bsa_tooltip: Bouwplaatschroeven afstel kalibratie uitvoeren
+        bsa_btn: Bouwplaatschroeven afstellen
+        save_tooltip: Kalibratieresultaten opslaan
+        save_btn: Configuratie Opslaan
+        more_btn: Meer
+      baby_step_card:
+        title: Micro-Step Z-as
+      restart_klipper: Klipper Herstarten
+    control:
+      fan_card:
+        title:
+          zero: Ventilator
+          one: Ventilator
+          other: Ventilators
+        part_fan: Onderdeelventilator
+        static_fan_btn: Ventilator
+      extrude_card:
+        extrude: Extruderen
+        retract: Terugtrekken
+        cold_extrude_error: Extruder heeft de minimale extrudeertemperatuur van {}°C nog niet bereikt!
+      multipl_card:
+        title: Multiplicators
+        flow: Stroom
+      limit_card:
+        title: Limieten
+        velocity: Snelheid
+        accel: Versnelling
+        sq_corn_vel: Rechte hoeksnelheid
+        accel_to_decel: Versnellen naar vertragen
+  files:
+    title: Bestanden
+    empty_folder:
+      title: Deze map is leeg
+    search_files: Bestanden zoeken
+    timelapse_tab: Timelapses
+    element:
+      one: Element
+      other: Elementen
+    details:
+      preheat: Voorverwarmen
+      print: Printen
+      general_card:
+        path: Pad
+        last_mod: Laatst aangepast
+        last_printed: Laatst geprint
+        no_data: Geen gegevens
+      meta_card:
+        filament_type: Filament Type
+        filament_name: Filament Naam
+        est_print_time: Geschatte Print Tijd
+        slicer: Gebruikte Slicer
+        layer_higher: Laaghoogte
+        first_layer: Eerste laag
+        others: Andere
+      stat_card:
+        title: Statistieken
+      preheat_dialog:
+        body: |-
+          Temperatuurdoelen
+          Extruder: {}°C
+          Bouwplaat: {}°C
+      preheat_snackbar:
+        title: Voorverwarmen gestart
+        body: |-
+          Extruder: {}°C
+          Bouwplaat: {}°C
+  setting:
+    title: App - Instellingen
+    general:
+      title: Algemeen
+      ems_confirm: Noodstop bevestigen
+      always_baby: Babystappenvenster altijd weergeven
+      num_edit: Toetsenbord gebruiken voor getalinvoer
+      start_with_overview: Show @:pages.overview.title by default
+      use_offset_pos: Coördinaten met verschuivingen weergeven
+      lcFullCam: Camera op volledig scherm in landschapmodus
+      language: Taal
+      companion: "Wil je notificaties op afstand ontvangen?\nLeer hoe je Mobileraker's Companion moet instellen op "
+    notification:
+      title: Notificatie
+      progress_helper: Tijd tussen voortgangsmeldingen
+      no_permission_title: Geen toestemming voor meldingen!
+      no_permission_desc: |-
+        Meldingen weergeven niet mogelijk.
+        Vraag om toestemming door te klikken!
+      no_firebase_title: Meldingen weergeven niet mogelijk
+      no_firebase_desc: |-
+        Mobileraker kan geen notificaties naar het apparaat sturen.
+        Het lijkt erop dat je apparaat Google Play-diensten mist of Firebaseverbindingen blokkeert!
+      ios_notifications_title: IOS Meldingen
+      ios_notifications_desc: |-
+        Meldingen vereisen dat Mobileraker minstens een keer geopend is en zich op de achtergrond bevindt.
+        Sommige meldingen worden misschien geblokkeerd door het besturingssysteem!
+      missing_companion_title: Companion niet gevonden!
+      missing_companion_body: |-
+        Het lijkt erop dat de companion niet is geïnstalleerd, waardoor de volgende machines geen meldingen kunnen versturen: {}
+        Klik voor meer informatie!
+    developer:
+      title: Ontwikkelaar
+      crashlytics: Crashlytics rapportering inschakelen
+  printer_edit:
+    import_settings: Instellingen Importeren
+    remove_printer: Printer Verwijderen
+    no_values_found: Geen waardes gevonden!
+    fetching_additional_settings: "@:general.fetching additional settings from network..."
+    could_not_fetch_additional: Het ophalen van aanvullende instellingen is mislukt!
+    fetch_error_hint: Zorg ervoor dat de machine bereikbaar is en dat mobileraker ermee is verbonden.
+    store_error:
+      title: Opslaan mislukt!
+      message: |-
+        Sommige velden bevatten ongeldige waardes!
+        Zorg ervoor dat alle waardes geldig zijn.
+    general:
+      displayname: Weergavenaam
+      printer_addr: Printer - Adres
+      ws_addr: Websocket - Adres
+      moonraker_api_key: Moonraker - API Sleutel
+      moonraker_api_desc: Alleen nodig als je vertrouwde clients gebruikt. FluiddPI verplicht dit!
+      full_url: Volledige URL
+    extruders:
+      feedrate: Extruder feed rate
+      feedrate_short: Feed rate
+      steps_extrude: Extrudeerstappen
+    cams:
+      target_fps: FPS Doel
+      new_cam: Nieuwe Camera
+      no_webcams: Geen Camera's toegevoegd!
+      default_url: Standaard URL
+      flip_vertical: Verticaal omdraaien
+      flip_horizontal: Horizontaal omdraaien
+      cam_mode: Cameramodus
+      cam_rotate: Draaiing
+    macros:
+      new_macro_grp: Nieuwe Macro - Groep
+      no_macros_available: Geen Macro's beschikbaar!
+      no_macros_found: Geen Macro's gevonden!
+      macros_to_default:
+        one: Een macro naar de standaardgroep verplaatst!
+        two: Twee Macro's naar de standaardgroep verplaatst!
+        other: '{} Macro''s naar de standaardgroep verplaatst!'
+    presets:
+      no_presets: Geen voorinstelling toegevoegd!
+      new_preset: Nieuwe voorinstelling
+  printer_add:
+    title: Nieuwe printer toevoegen
+  console:
+    no_entries: Geen opgeslagen commando's gevonden
+    fetching_console: "@:general.fetching console entries..."
+    command_input:
+      hint: Voer een consolecommando in
+  overview:
+    title: Overzicht
+    fetching_machines: "@:general.fetching machines..."
+    no_entries: Geen machines gevonden
+    add_machine: Machine toevoegen
+  markdown:
+    loading: "@:general.loading {}..."
+    error: Er is een fout opgetreden bij het ophalen van {};
+  paywall:
+    manage_view:
+      title: Bedankt voor je ondersteuning!
+      list_title: 'Verander ondersteuningsrang:'
+      store_btn: Annuleer abbonnement over {}
+    subscribe_view:
+      title: Ondersteun Mobileraker!
+      info: |-
+        Mobileraker streeft ernaar een snelle en betrouwbare mobiele interface voor Klipper te verzorgen, gedreven door de geest van RepRap, dat open-source software en hardware een positieve impact kan maken.
+        Aangezien Mobileraker door een enkele ontwikkelaar wordt ontwikkeld en gratis aangeboden wordt, is het afhankelijk van financiering van de gemeenschap voor operationele- en ontwikkelingskosten.
+      list_title: 'Kies een ondersteuningsrang:'
+    supporter_tier_list:
+      error_title: Fout tijdens het laden van de ondersteuningsrangen!
+      error_body: Sorry, er is een onverwachte fout opgetreden. Kon de ondersteuningsrangen niet laden. Probeer het later opnieuw!
+    contact_dialog:
+      title: Contact met ontwikkelaar
+    title: Ondersteun de ontwikkelaar!
+    calling_store: Aanvraag verwerken...
+components:
+  pull_to_refresh:
+    pull_up_idle: Trek omhoog om te verversen
+  nav_drawer:
+    printer_settings: Printer Instellingen
+    manage_printers: Printers beheren
+    fetching_printers: "@:general.fetching printers..."
+    footer: |-
+      Gemaakt met ❤️ door Patrick Schmidt
+      Bekijk het projects
+  connection_watcher:
+    reconnect: Opnieuw verbinden
+    trying_connect: Proberen te verbinden...
+    trying_connect_remote: Proberen te verbinden met remote client...
+    server_starting: Server is aan het starten...
+    more_details: Meer Details
+  octo_indicator:
+    tooltip: Met OctoEveryWhere!
+  supporter_add:
+    title: Vind je MobileRaker fijn?
+    subtitle: Klik op mij! Om te leren hoe je de ontwikkeling kan ondersteunen!
+dialogs:
+  rate_my_app:
+    title: Beoordeel Mobileraker
+    message: Als je Mobileraker fijn vindt en de open source ontwikkeling wilt ondersteunen, overweeg het dan om Mobileraker te beoordelen!
+  import_setting:
+    fetching: Bronnen ophalen...
+    fetching_error_title: Kan de instellingen niet ophalen!
+    fetching_error_sub: Zorg ervoor dat andere machines verbonden zijn.
+    select_source: Selecteer Bron
+  create_folder:
+    title: Map aanmaken
+    label: Mapnaam
+  delete_folder:
+    title: Weet je het zeker?
+    description: |-
+      Alle bestanden in deze map zullen verwijderd worden!
+
+      Bevestig verwijdering van map '/{}'.
+  rename_folder:
+    title: Map Hernoemen
+    label: Mapnaam
+  delete_file:
+    description: Bevestig verwijdering van bestand '{}'.
+  rename_file:
+    title: Bestand Hernoemen
+    label: Bestandsnaam
+  exclude_object:
+    title: Onderdeel Uitsluiten van Print
+    label: Onderdeel om uit te sluiten
+    confirm_tile_title: Weet je het zeker?
+    confirm_tile_subtitle: Deze actie kan niet worden teruggedraaid!
+    exclude: Uitsluiten
+    no_visualization: Geen visualisatiegegevens beschikbaar!
+  ws_input_help:
+    title: URL Invoer Hulp
+    body: |-
+      Je kan een IP, URL of volledige URI invoeren naar je webinterface of direct naar de websocket instantie van moonraker.
+
+      Geldige Voorbeelden:
+  gcode_params:
+    hint: 'Hint: Je kan ook lang indrukken om de de Macro met standaardwaardes in te dienen!'
+  rgbw:
+    recent_colors: Recente Kleuren
+  select_machine:
+    title: Selecteer Machine
+    active_machine: 'Actieve Machine: {}'
+    hint: Druk op een machine om hem te activeren.
+  supporter_perks:
+    title: Voordelen voor ondersteuners
+    body: Door het ondersteunen van Mobileraker, zorg je ervoor dat het gratis kan blijven voor de gemeenschap. Ook krijg je de volgende voordelen.
+    hint: 'Hint: Op dit moment zijn de voordelen per apparaat. Dit verandert mogelijk in de toekomst.'
+    theme_perk:
+      title: Ondersteuner Thema
+      subtitle: Exclusief thema met Materiaal 3
+    contact_perk:
+      title: Contact met ontwikkelaar
+      subtitle: Makkelijk contact met de ontwikkelaar!
+    notification_perk:
+      title: Snapshotmeldingen
+      subtitle: Statusmeldingen bevatten een snapshot van de camera.
+  bed_screw_adjust:
+    title: Bedschroeven afstellen
+    xy_plane: 'Printer X/Y Vlak:'
+    active_screw_title: 'Actieve Schroef:'
+    accept_screw_title: 'Geaccepteerde Schroeven:'
+    hint: Klik op Aanpassen als een aanpassing van de schroef nodig is; zo niet, klik op accepteren om verder te gaan.
+    adjusted_btn: Aanpassen
+  manual_offset:
+    hint_tooltip: Klipper's Papier Test Documentatie
+    snackbar_title: Kalibratie klaar
+    snackbar_message: Zorg ervoor dat de afstand behouden blijft via de Configuratie Opslaan actie.
+klipper_state:
+  ready: Gereed
+  shutdown: Afgesloten
+  starting: Starten
+  disconnected: Niet Verbonden
+  error: Fout
+  unauthorized: Onbevoegd
+notifications:
+  channels:
+    status:
+      desc: Meldingen met betrekking op de status van de print.
+      title: Print status van {} is veranderd!
+      body_printing: 'Begonnen met het printen van bestand: "{}"'
+      body_paused: 'Printen van bestand gepauzeerd: "{}"'
+      body_complete: 'Klaar met printen: "{}"'
+      body_error: 'Fout tijdens het printen van bestand: "{}"'
+    progress:
+      name: Printvoortgang Updates - {}
+      desc: Meldingen met betrekking op de voortgang van de print.
+      title: Printvoortgang van {}
