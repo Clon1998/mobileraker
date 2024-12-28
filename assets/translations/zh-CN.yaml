@@ -28,6 +28,8 @@ general:
   supported: 支持
   unsupported: 不支持
   details: 详细
+  google_play: 谷歌游戏
+  ios_store: 应用商店
   active: 激活
   canceled: 取消
   monthly: 每月
@@ -35,6 +37,17 @@ general:
   accept: 接受
   abort: 中止
   offset: 抵消
+  valid: 有效的
+  invalid: 无效的
+  free: 免费
+  one_time: 一次
+  delete: 删除
+  clear: 清空
+  unlink: 取消连接
+  save: 保存
+  apply: 应用
+  stop: 停止
+  start: 开始
 pages:
   dashboard:
     title: 仪表板
