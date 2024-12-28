@@ -46,12 +46,31 @@ general:
   unlink: 取消连接
   save: 保存
   apply: 应用
+  completed: 已完成
+  activate: 启用
   stop: 停止
   start: 开始
+  repeat: 重复
+  load_more: 再次进料
+  archived: 已保存
+  leave: 离开
+  export: 导出
+  import: 导入
+  current: 当前
+  load: 进料
+  unload: 退料
+  discard: 放弃
+  hide: 隐藏
+  finish: 完成
+  select: 选择
 pages:
   dashboard:
     title: 仪表板
     ems_btn: 紧急停止
+    ems_confirmation:
+      title: 确认紧急停止
+      body: 您将要向打印机发送一个紧急停止命令！这将立即停止所有电机以及加热器！
+      confirm: 停止！
     server_status:
       unavailable: 服务器不可用
       available: 服务器状态为{}，klippy是{}
@@ -59,6 +78,7 @@ pages:
     general:
       print_card:
         reset: 重置
+        reprint: 重新打印
         printing_for: '打印： {}'
         speed: 速度
         layer: 层
@@ -68,9 +88,20 @@ pages:
         flow: 流量
         filament: 耗材
         filament_tooltip: 使用的{}％的丝，即{} m的{} m预测。
+        eta_tooltip: |-
+          剩余时间：
+          平均： {avg}
+          切片:：{slicer}
+          文件：{file}
+          耗材：{filament}
+        remaining: 剩余
+        print_time: 打印时间
       cam_card:
         webcam: 摄像头
         fullscreen: 全屏
+        error_connecting: |-
+          连接到 {}时出错。
+          请检查连接设置并确保摄像头在线。
       temp_card:
         title: 温度控制
         presets_btn: 预设
@@ -82,6 +113,8 @@ pages:
         btn_thermistor: 传感器
       temp_preset_card:
         cooloff: 冷却
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: 移动控制
         home_xy_tooltip: 主X和Y轴
@@ -89,12 +122,14 @@ pages:
         home_all_tooltip: 主轴
         home_all_btn: 全部归位
         qgl_tooltip: 运行四轮锻炼
+        qgl_btn: 龙门架调平
         mesh_tooltip: 运行MED-MESH校准
         mesh_btn: 网床
         m84_tooltip: 禁用电动机
         m84_btn: 关闭电机
         step_size: 步长
         stc_tooltip: 手动调平螺丝
+        stc_btn: STC
         ztilt_tooltip: 运行Z倾斜校准
         ztilt_btn: ZTILT
         poff_tooltip: 运行探头偏移校准
@@ -106,8 +141,10 @@ pages:
         save_tooltip: 保存校准结果
         save_btn: 保存配置
         more_btn: 更多
+        homed: 已归位的轴
       baby_step_card:
         title: Z轴偏移
+        z_offset: Z偏移
       restart_klipper: 重新启动Klipper
       restart_mcu: "@:general.restart@:general.firmware"
     control:
@@ -126,11 +163,19 @@ pages:
         cold_extrude_error: 挤出机还没有达到{}°C的最低挤出温度！
       macro_card:
         title: 宏指令
+        no_macros: 当前在该分类中没有可用的宏
+        add_grp_hint: 您可以创建不同的分类来整理您的宏。只需前往打印机设置并添加一个新的分类。
+        show_all_tooltip: 显示所有分类
       pin_card:
+        title_misc: 其它
         pin_btn: 别针
+        filament_sensor:
+          detected: 检测中
+          not_detected: 空白
       power_card:
         title: 动力面板
         pin_btn: 别针
+        provider_error_title: 获取功率 Api 设备时出错
       multipl_card:
         title: 乘数
         flow: 挤出流量
@@ -142,8 +187,43 @@ pages:
         accel: 加速度
         sq_corn_vel: 转角速度
         accel_to_decel: 加速到减速度
+      fw_retraction_card:
+        title: 固件回抽
+        retract_length: 回抽长度
+        retract_speed: 回抽速度
+        extra_unretract_length: 额外回填长度
+        unretract_speed: 回抽补偿速度
+      bed_mesh_card:
+        title: 网床
+        profiles: 配置列表
+        range_tooltip: 最高点和最低点之间的范围
+        showing_matrix:
+          probed: 显示探测范围
+          mesh: 显示网床范围
+      spoolman_card:
+        title: 料盘
+        no_spool: |-
+          未选择料盘，
+          文件使用情况将不会被记录
+        select_spool: 选择料盘
+        used: '已使用：{}'
+        provider_error_title: 获取 Spoolman 数据出错
+      gcode_preview_card:
+        title: GCode预览
+        follow: 跟踪进度
+        kinematic_not_supported: 当前应用程序不支持此打印机的 Kinematic 系统渲染。
+        start_preview:
+          btn: 开始预览
+          hint: 应用程序将下载活动打印文件，并尝试渲染它。
   files:
     title: 文件
+    file_operation:
+      upload_failed:
+        reasons:
+          type_mismatch:
+            body: 只允许“{}”文件。
+      zipping_success:
+        title: 压缩成功
     search_files: 搜索文件
     details:
       preheat: 预热
