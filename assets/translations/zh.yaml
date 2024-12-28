@@ -620,6 +620,8 @@ pages:
       empty_headers: 未加入標頭！
     test_connection:
       section_connection: 連線資料
+      ws_url_label: 生成的 WebSocket-URL
+      http_url_label: 生成的 HTTP-URL
       section_test: 連線測試
       http_label: Http端點－測試
       ws_label: Webscoket端點－測試
@@ -635,6 +637,7 @@ pages:
     title: 控制台
     card_title: GCode控制台
     no_entries: 找不到緩存的命令
+    fetching_console: "@:general.fetching console entries..."
     macro_suggestions: G-Code建議
     no_suggestions: 找不到建議
     command_input:
@@ -679,6 +682,7 @@ pages:
     title: 支持開發者！
     calling_store: 處理請求中...
     promo_title: 促銷方案
+    free_phase: 第一個{}免費
     intro_phase: 享受 {} {} 的折扣
     iap_offer: "原價的 {} 折扣"
     tip_developer: 打賞開發者
@@ -1034,6 +1038,7 @@ dialogs:
     xy_plane: '列印機X/Y平面：'
     active_screw_title: '使用中的調整螺絲：'
     accept_screw_title: '已接受的調整螺絲：'
+    accept_screw_value: "{} 的 {}"
     hint: 如果需要對目前螺絲進行重大調整，請點擊「調整」；否則，請點擊「接受」以繼續。
     adjusted_btn: 已調整
   manual_offset:
