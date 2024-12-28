@@ -1,0 +1,296 @@
+---
+general:
+  resume: Продовжити
+  connected: Підключено
+  'off': 'Вимк'
+  'on': 'Увімк'
+  none: Відсутній
+  add: Додати
+  create: Створити
+  rename: Перейменувати
+  remove: Видалити
+  set: Встановити
+  use: Використовувати
+  restart: Перезавантаження
+  shutdown: Вимкнення
+  firmware: Прошивка
+  fetching: Отримання
+  unknown: Невідомо
+  disabled: Вимкнено
+  confirm: Підтвердити
+pages:
+  dashboard:
+    title: Панель
+    ems_btn: Аварійне вимкнення
+    server_status:
+      unavailable: Немає доступних серверів
+      available: Стан сервера {} та Klippy {}
+    fetching_printer: "@:general.fetching printer..."
+    general:
+      print_card:
+        reset: Скидання
+        printing_for: 'Друк: {}'
+        speed: Швидкість
+        layer: Шар
+        current_object: Поточний об'єкт
+        elapsed: Минуло
+        flow: Потік
+        filament: Філамент
+        filament_tooltip: Використано {} % Філаменту, тобто {} м з {} м прогнозованого.
+      cam_card:
+        webcam: Веб-камера
+        fullscreen: На весь екран
+      temp_card:
+        title: Керування Температурою
+        presets_btn: Попередні налаштування
+        hotend: Хотенд
+        bed: Стіл
+        temp_presets: Попередні налаштування температури
+        sensors: Датчики
+        heater_on: "{} °C встановлена"
+        btn_thermistor: Датчик
+      temp_preset_card:
+        cooloff: Охолодження
+      move_card:
+        title: Рух Осей
+        home_xy_tooltip: Паркування осей X та Y
+        home_z_tooltip: Паркування осі Z
+        home_all_tooltip: Паркування всіх осей
+        home_all_btn: Всі
+        qgl_tooltip: Запустити Quad-Gantry рівнювання
+        mesh_tooltip: Запуск калібрування Med-Mesh
+        mesh_btn: Сітка
+        m84_tooltip: Вимкнути мотори
+        step_size: Розмір кроку
+        stc_tooltip: Запустити Screws-Tilt розрахунок
+        ztilt_tooltip: Запуск Z-Tilt калібрування
+      restart_klipper: Перезавантаження Klipper
+    control:
+      fan_card:
+        title:
+          zero: Вентилятор
+          one: Вентилятор
+          other: Вентилятори
+        part_fan: Вентилятор деталі
+        static_fan_btn: Вентилятор
+      extrude_card:
+        title: Екструдер
+        extrude: Видавити
+        retract: Втягнути
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude довжина"
+        cold_extrude_error: Екструдер не досяг min_extrude_temp з {}°C!
+      macro_card:
+        title: Gcode - Макроси
+      pin_card:
+        pin_btn: Пін
+      power_card:
+        title: Панель живлення
+        pin_btn: Пін
+      multipl_card:
+        title: Множники
+        flow: Потік
+        smooth_time: Час згладжування
+      limit_card:
+        title: Ліміти
+        velocity: Швидкість
+        accel: Прискорення
+        sq_corn_vel: Кутова Швидкість
+        accel_to_decel: Прискорення до сповільнення
+  files:
+    title: Файли
+    search_files: Пошук файлів
+    details:
+      preheat: Попередній нагрів
+      print: Друк
+      general_card:
+        path: Шлях
+        last_mod: Остання зміна
+        last_printed: Останній друк
+        no_data: Немає інформації
+      meta_card:
+        title: GCode Мета Дані
+        filament: Філамент
+        filament_type: Тип філамента
+        filament_name: Ім'я філамента
+        est_print_time: Розрахунковий час друку
+        slicer: Використаний слайсер
+        nozzle_diameter: Діаметр сопла
+        layer_higher: Висота шару
+        first_layer: Перший шар
+        others: Інше
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Температури"
+      stat_card:
+        title: Статистика
+      preheat_dialog:
+        body: |-
+          Встановлені Температури
+          Екструдер: {}°C
+          Ліжко: {}°C
+      preheat_snackbar:
+        title: Початок попереднього нагріву
+        body: |-
+          Екструдер: {}°C
+          Стіл: {}°C
+  setting:
+    title: Налаштування додатку
+    general:
+      title: Основне
+      ems_confirm: Підтвердження Аварійної зупинки
+      always_baby: Завжди показувати картку Babystepping
+      num_edit: Використовувати клавіатуру для введення чисел
+      start_with_overview: Показати @:pages.overview.title за замовчуванням
+      use_offset_pos: Показати координати з застосованим зміщенням.
+      language: Мова
+      companion: "Хочете отримувати віддалені сповіщення?\nПрочитайте, як налаштувати Mobileraker's Companion "
+    notification:
+      title: Сповіщення
+      progress_helper: Інтервал оновлення для сповіщення про хід друку
+      no_permission_title: Немає дозволу на сповіщення!
+      no_permission_desc: |-
+        Не можливо відобразити сповіщення.
+        Запит дозволу за натисканням!
+      ios_notifications_title: Доставка сповіщень на IOS
+      ios_notifications_desc: |-
+        Сповіщення вимагають, щоб mobileraker був відкритий принаймні один раз та працював у фоновому режимі..
+        Однак, деякі сповіщення можуть бути заблоковані ОС.!
+    imprint: Конфіденційність/Вихідні дані
+  printer_edit:
+    title: Редагувати {}
+    import_settings: Імпорт налаштувань
+    remove_printer: Видалити принтер
+    no_values_found: Значення не знайдено!
+    fetching_additional_settings: "@:general.fetching additional settings from network..."
+    could_not_fetch_additional: Не вдалося отримати додаткові налаштування!
+    fetch_error_hint: Переконайтеся, що машина доступна та до неї підключений Mobileraker.
+    general:
+      displayname: Відображуване ім'я
+      printer_addr: Принтер - Адреса
+      ws_addr: Веб-сокет - Адреса
+      moonraker_api_key: Moonraker - API Ключ
+      moonraker_api_desc: Потрібно лише у тому випадку, якщо ви використовуєте довірених клієнтів. FluiddPI забезпечує це!
+      full_url: Повний URL
+    motion_system:
+      title: Система руху
+      invert_x: Інвертувати ось - X
+      invert_x_short: Інвертувати X
+      invert_y: Інвертувати ось - Y
+      invert_y_short: Інвертувати Y
+      invert_z: Інвертувати ось - Z
+      invert_z_short: Інвертувати Z
+      speed_xy: Швидкість осей - X/Y
+      speed_xy_short: Швидкість X/Y
+      speed_z: Швидкість осі - Z
+      speed_z_short: Швидкість Z
+      steps_move: Кроки переміщення
+    extruders:
+      title: Екструдер(и)
+      feedrate: Швидкість подачі екструдера
+      feedrate_short: Швидкість подачі
+      steps_extrude: Кроки екструзії
+    cams:
+      target_fps: Встановлений FPS
+      new_cam: Нова веб-камера
+      no_webcams: Не додано веб-камер!
+      flip_vertical: Відобразити вертикально
+      flip_horizontal: Відобразити горизонтально
+      cam_mode: Режим камери
+    macros:
+      new_macro_grp: Нова макро - Група
+      no_macros_available: Макросів немає!
+      no_macros_found: Макроси не знайдено!
+      macros_to_default:
+        one: Переміщено один макрос до групи за замовчуванням!
+        two: Переміщено два макроси до групи за замовчуванням!
+        other: Переміщено {} макросів до групи за замовчуванням!
+    presets:
+      no_presets: Не додано жодних пресетів!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Температура"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Температура"
+      new_preset: Новий пресет
+  printer_add:
+    title: Додати новий принтер
+  console:
+    title: Консоль
+    no_entries: Не знайдено кешованих команд
+    fetching_console: "@:general.fetching console entries..."
+    command_input:
+      hint: Введіть команду
+  overview:
+    title: Огляд
+    fetching_machines: "@:general.fetching machines..."
+    no_entries: Машин не знайдено
+    add_machine: Додати машину
+components:
+  pull_to_refresh:
+    pull_up_idle: Потягніть вгору, щоб оновити
+  nav_drawer:
+    printer_settings: Налаштування принтера
+    manage_printers: Керування принтерами
+    fetching_printers: "@:general.fetching printers..."
+    footer: |-
+      Створено з ❤️ Patrick Schmidt
+      Ознайомтеся з проектом
+  connection_watcher:
+    reconnect: Перепідключення
+    trying_connect: Спроба підключення ...
+    server_starting: Запуск сервера...
+dialogs:
+  rate_my_app:
+    title: Оцінити Mobileraker?
+    message: Якщо вам подобається Mobileraker і ви хочете підтримати розробку відкритого коду, будь ласка, розгляньте можливість оцінки Mobileraker!
+  import_setting:
+    fetching: Отримання джерел...
+    fetching_error_title: Не можливо отримати налаштування!
+    fetching_error_sub: Переконайтеся, що інші машини підключені.
+    select_source: Вибрати джерело
+  create_folder:
+    title: Створити папку
+    label: Назва папки
+  delete_folder:
+    title: Ви впевнені?
+    description: |-
+      Всі файли у папці також будуть видалені!
+
+      Підтвердіть видалення папки '/{}'.
+  rename_folder:
+    title: Перейменувати папку
+    label: Назва папки
+  delete_file:
+    description: Підтвердіть видалення файлу '{}'.
+  rename_file:
+    title: Перейменувати файл
+    label: Назва файлу
+  exclude_object:
+    title: Виключити об'єкт з друку
+    label: Об'єкт для виключення
+    confirm_tile_title: Ви впевнені?
+    confirm_tile_subtitle: Цю операцію не можна скасувати!
+    exclude: Виключити
+    no_visualization: Дані для візуалізації відсутні!
+  ws_input_help:
+    title: Допомога з введенням URL
+    body: |-
+      Ви можете ввести IP, URL або повний URI до вашого веб-інтерфейсу або безпосередньо до екземпляра веб-сокету, наданого moonraker.
+
+      Приклади:
+klipper_state:
+  ready: Готовий
+  shutdown: Вимкнення
+  starting: Запуск
+  disconnected: Відключено
+  error: Помилка
+notifications:
+  channel_printer_grp: Принтер {}
+  channels:
+    status:
+      name: Оновлення статусу друку - {}
+      desc: Сповіщення щодо статусу друку.
+      title: Стан друку {} змінився!
+      body_printing: 'Початок друку файлу: "{}"'
+      body_paused: 'Друк файлу призупинено: "{}"'
+      body_complete: 'Друк завершено: "{}"'
+      body_error: 'Помилка під час друку файлу: "{}"'
+    progress:
+      name: Оновлення ходу друку - {}
+      desc: Сповіщення щодо ходу друку.
+      title: Хід друку {}
