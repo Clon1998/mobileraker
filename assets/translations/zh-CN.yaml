@@ -215,6 +215,18 @@ pages:
         start_preview:
           btn: 开始预览
           hint: 应用程序将下载活动打印文件，并尝试渲染它。
+  customizing_dashboard:
+    title: 个性化控制面板
+    cancel_confirm:
+      title: 放弃更改？
+      body: |-
+        您确定要离开布局编辑模式吗？
+        所有更改都将丢失。要保存您的更改，请按保存按钮。
+    add_card: 添加模块
+    remove_page: 移除页面
+    saved_snack:
+      title: 布局已保存！
+      body: 您的修改已保存
   files:
     title: 文件
     file_operation:
