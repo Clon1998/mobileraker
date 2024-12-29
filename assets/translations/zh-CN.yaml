@@ -227,9 +227,52 @@ pages:
     saved_snack:
       title: 布局已保存！
       body: 您的修改已保存
+    cant_remove_snack:
+      title: 无法移除页面！
+      body: 您需要至少 2 个页面才能删除一个。
+    confirm_removal:
+      title: 移除页面？
+      body: 您确定要删除此页面吗？
+    editing_card:
+      title: 编辑模式
+      body: 您现在可以重新排序、添加和移除卡片和页面。所有卡片显示预览数据。
+    error_save_snack:
+      title: 保存布局时出错 ！
+      body: 试图保存布局时出错。
+    error_no_components:
+      title: 空布局 ！
+      body: 您尚未添加任何部件。添加至少一个部件来保存布局。
   files:
     title: 文件
+    empty_folder:
+      title: 该文件夹下为空
+      subtitle: 未找到任何文件
+    sort_by:
+      sort_by: 排序方式
+      name: 名称
+      last_modified: 最后修改时间
+      last_printed: 最近打印
+      file_size: 大小
+      estimated_time: 预计打印时间
+    file_actions:
+      download: 下载
+      delete: 删除
+      copy: 复制
+      move: 移动
+      rename: 重命名
+      create_file: 新建文件
+      create_folder: 新建文件夹
+      upload: 导入文件
+      upload_bulk: 上传文件
+      zip_file: 创建压缩文件
+    gcode_file_actions:
+      submit: 提交打印任务
+      preheat: 预热
+      enqueue: 添加到打印队列
+      preview: 预览
     file_operation:
+      download_canceled:
+        title: 取消下载
       upload_failed:
         reasons:
           type_mismatch:
