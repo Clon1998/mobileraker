@@ -22,6 +22,7 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -278,6 +279,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
   void onBabyStepping(bool positive) {
     var step = state.value?.let((it) => it.steps.elementAtOrNull(it.selected));
     if (step == null) return;
+    HapticFeedback.selectionClick().ignore();
 
     double dirStep = (positive) ? step : -1 * step;
     var zHomed = ref.read(printerProvider(machineUUID)).value?.toolhead.homedAxes.contains(PrinterAxis.Z) ?? false;
