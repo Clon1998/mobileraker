@@ -1898,6 +1898,12 @@ languages:
     CN:
       name: Simplified
       nativeName: 简体
+    TW:
+      name: Tradicionális
+      nativeName: 繁體
+    HK:
+      name: Tradicionális, HongKong
+      nativeName: 繁體, 香港
     BR:
       name: Brazil
       nativeName: Brazil
