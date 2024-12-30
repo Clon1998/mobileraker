@@ -399,9 +399,16 @@ pages:
       confirm_gcode_hint: 在控制面板上执行GCode-宏命令之前总是显示确认对话框
       eta_sources: 预计完成时间计算
       eta_sources_hint: 选择用于计算预计时间的方式
+      medium_ui: 平板界面
+      medium_ui_hint: 是否在大屏幕或横屏模式上使用平板界面
+      keep_screen_on: 保持屏幕唤醒状态
+      keep_screen_on_hint: 防止APP运行时屏幕自动关闭
     notification:
       title: 消息通知
+      progress_label: 打印进度通知
       progress_helper: 打印进度通知的更新间隔
+      state_label: 打印状态通知
+      state_helper: 选择在活动打印任务期间触发通知的状态
       no_permission_title: 没有通知权限！
       no_permission_desc: |-
         无权限的情况下无法显示通知。
@@ -418,6 +425,12 @@ pages:
       missing_companion_body: |-
         似乎没有安装配套软件，因此以下计算机无法发送通知：｛｝
         点击了解更多信息！
+      enable_live_activity: 启用实时活动
+      enable_live_activity_helper: 除默认进度通知外，启用活动的使用
+      opt_out_marketing: 营销通知
+      opt_out_marketing_helper: 接收关于销售和促销的更新
+      use_progressbar_notification: 开启进度条通知
+      use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
     imprint: 隐私声明及用户协议
   printer_edit:
     title: 编辑 {}
@@ -482,7 +495,41 @@ pages:
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend温度"
       bed_temp: "@:pages.dashboard.general.temp_card.bed温度"
       new_preset: 新预设
+    remote_interface_added:
+      body: 请务必保存打印机应用更改。
+    wifi_access_warning:
+      title: WiFi信息不可用
+      subtitle: |-
+        确保Mobileraker远程连接，请授权位置读取权限。这样APP将可以获取当前的WiFi名称。
+
+        点击以授权权限。
+    local_ssid:
+      section_header: 智能切换
+      no_ssids: 未添加WiFi名称！
+      helper: 智能开关使应用程序在当前WiFi网络的基础上自动切换本地和远程连接。 要启用此功能，请将您的家庭WiFi名称添加到列表。
+      dialog:
+        title_add: 添加WiFi名称到列表
+        title_edit: 编辑WiFi名称
+        label: WiFi名称 (SSID)
+        quick_add_hint: '提示：要快速添加当前WiFi名称，长按打开此对话框的按钮。'
+      error_fetching_snackbar:
+        title: 获取 WiFi 名称时出错 ！
+        body: 请确保应用程序拥有访问设备的 WiFi 状态所需的权限。
+    temp_ordering:
+      title: 温度传感器界面排序
+      helper: 更改控制面板上温度传感器的排序。
+      no_sensors: 未发现温度传感器！
+    fan_ordering:
+      title: 风扇界面排序
+      helper: 更改控制面板上风扇的排序。
+      no_fans: 未发现风扇！
+    misc_ordering:
+      title: 其它元素界面排序
+      helper: 更改控制面板上其它元素的排序。
+      no_controls: 未找到其它元素！
   printer_add:
+    steps:
+      mode: 模式
     title: 添加新打印机
   console:
     title: 控制台
