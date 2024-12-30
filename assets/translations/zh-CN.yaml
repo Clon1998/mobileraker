@@ -431,6 +431,9 @@ pages:
       opt_out_marketing_helper: 接收关于销售和促销的更新
       use_progressbar_notification: 开启进度条通知
       use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
+    developer:
+      title: 开发者
+      crashlytics: 启用崩溃报告
     imprint: 隐私声明及用户协议
   printer_edit:
     title: 编辑 {}
@@ -440,10 +443,16 @@ pages:
     fetching_additional_settings: "@:general.fetching从网络..."
     could_not_fetch_additional: 无法获取其他设置！
     fetch_error_hint: 确保机器可以触及，并连接到它。
+    reset_notification_registry: 清除通知设备注册
+    configure_remote_connection: 配置远程连接
     store_error:
       title: 保存失败！
       message: |-
         某些字段包含无效值！请确保所有字段都有效。
+      unexpected_error: 试图保存机器数据时发生异常错误！
+    confirm_deletion:
+      title: 删除 {} 吗？
+      body: "您即将移除连接于 '{}' 的打印机 '{}'。\n\n请确认您的操作。"
     general:
       displayname: 显示名称
       printer_addr: 打印机地址
@@ -451,6 +460,16 @@ pages:
       moonraker_api_key: Moonraker API 密钥
       moonraker_api_desc: 只有在您启用了 Moonraker 的鉴权配置才需要填入密钥！
       full_url: 完整的URL
+      timeout_label: 客户端超时
+      timeout_helper: 客户端连接超时时间（秒）
+      theme: 界面主题
+      theme_helper: 打印机的界面主题
+      theme_unavailable: 打印机的界面主题，仅供支持者使用
+    ssl:
+      title: SSL - 设置
+      pin_certificate_label: 凭证绑定
+      pin_certificate_helper: 选择一个 PEM 格式的 SSL-Pinning 证书
+      self_signed: 信任自签名证书
     motion_system:
       title: 移动控制
       invert_x: 反转X轴控制
@@ -472,29 +491,64 @@ pages:
       feedrate: 默认挤出速度
       feedrate_short: 挤出速度
       steps_extrude: 默认挤出距离
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
+      filament:
+        loading_distance: 挤出机喷嘴距离
+        loading_distance_helper: 从喷嘴到挤出轮的距离，用于装载或卸载耗材
+        loading_speed: "装载/卸载耗材速度"
+        loading_speed_helper: 从挤出机到喷嘴装载或卸载耗材的速度
+        purge_amount: 清理长度
+        purge_amount_helper: 要清理的耗材长度
+        purge_speed: 清理耗材的速度
+        purge_speed_helper: 清理耗材的速度
     cams:
       target_fps: 当前FPS
       new_cam: 新网络摄像头
       no_webcams: 没有添加网络摄像头！
+      stream_url: 直播网址
       snapshot_url: 快照地址
       default_url: 默认地址
       flip_vertical: 垂直翻转
       flip_horizontal: 水平翻转
       cam_mode: 凸轮模式
       cam_rotate: 旋转
+      read_only: 摄像头为只读
     macros:
+      default_grp: 预设
       new_macro_grp: 新建宏命令组
       no_macros_available: 没有宏！
       no_macros_found: 找不到宏！
+      no_macros_in_grp: 分类中没有宏命令!
+      deleted_grp: 删除分类 {}
+      macros: 宏命令
+      default_name: 新增宏命令分类
       macros_to_default:
         one: 将一个宏移至默认组！
         two: 将两个宏移至默认组！
         other: 将{}宏移至默认组！
+      macro_removed: 找不到宏，不久将会自动删除
     presets:
       no_presets: 没有预设！
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend温度"
       bed_temp: "@:pages.dashboard.general.temp_card.bed温度"
       new_preset: 新预设
+    confirm_fcm_reset:
+      title: 清除通知设备注册？
+      body: "您将要重置设备注册表，这个注册表用来确定伴侣发送通知到的设备。\n要重新创建推送通知，您需要在所有设备上重新启动应用并再次连接到机器。 \n\n确认您的操作。"
+    confirm_remote_interface_removal:
+      title:
+        oe: 断开 {}?
+        other: 删除连接？
+      body:
+        oe: 请确认将解除打印机 {} 与 OctoEverywhere 的连接。
+        other: 请确认从打印机{}中删除远程连接。
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
+    remote_interface_exists:
+      title: 发现远程连接
+      body:
+        oe: 该打印机已经与OctoEverywhere连接以进行远程存取。请先解除连接后再继续操作。
     remote_interface_added:
       body: 请务必保存打印机应用更改。
     wifi_access_warning:
@@ -596,6 +650,13 @@ pages:
     calling_store: 正在处理请求。。。
   spoolman:
     spoolman_actions:
+      clone: 复制
+      edit: "@:general.edit"
+      archive: 存档
+      unarchive: 取消存档
+      adjust: 调整耗材量
+      share_qr: 分享二维码
+      delete: "@:general.delete"
       add_spool: 添加料盘
       add_filament: 添加耗材
     create:
@@ -668,6 +729,12 @@ pages:
       usage: 使用详情
       additional: 其它信息
       physical: 实际属性
+      print_settings: 打印设置
+    vendor_details:
+      page_title: 制造商 {}
+      info_card: 制造商信息
+      filaments_card: 制造商的耗材
+      spools_card: 制造商的料盘
 components:
   pull_to_refresh:
     pull_up_idle: 刷新
