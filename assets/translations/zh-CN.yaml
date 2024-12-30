@@ -530,7 +530,39 @@ pages:
   printer_add:
     steps:
       mode: 模式
+      input: 输入
+      test: 测试
+      done: 完成
     title: 添加新打印机
+    initial_name: 我的打印机
+    select_mode:
+      title: '选择输入模式：'
+      body: 如果您是新手，则最好使用简单模式。 然而，如果您有经验并且需要使用自定义、证书等等，那么可以使用高级模式。 请注意，您选择的模式不会影响应用程序本身。 但它将决定输入的验证和显示方式，以及在您添加机器时有哪些设置选项。
+      simple: 简单模式
+      advanced: 高级模式
+      add_via_oe: 一键设置OctoEverywhere模式
+      add_via_obico: 一键设置Obico模式
+    simple_form:
+      hint_title: 提示 - 简单模式
+      hint_body: 简单模式只需您输入主机和端口即可。 但如果您需要自定义路径、名称、证书或其它设置，请切换到高级模式。
+      url_hint: 打印机的IP或主机名
+    advanced_form:
+      hint_title: 提示 - 高级模式
+      hint_body: 请注意，在高级模式中，大多数验证被禁用。 请确保您输入的URL有效。
+      http_helper: 请输入Moonraker的HTTP端口
+      ws_helper: 可选的，Moonraker的WebSocket端口
+      section_security: 安全性
+      section_headers: HTTP标题
+      empty_headers: 未添加标题！
+    test_connection:
+      section_connection: 连接数据
+      ws_url_label: 生成 WebSocket URL
+      http_url_label: 生成 HTTP URL
+      section_test: 连接测试
+      http_label: Http端口-测试
+      ws_label: Websocket 端口-测试
+      awaiting: 等待结果...
+      continue: 继续
   console:
     title: 控制台
     no_entries: 找不到缓存命令
@@ -562,6 +594,80 @@ pages:
       title: 开发人员联系人
     title: 支持开发人员！
     calling_store: 正在处理请求。。。
+  spoolman:
+    spoolman_actions:
+      add_spool: 添加料盘
+      add_filament: 添加耗材
+    create:
+      success:
+        title: "{} 已创建 ！"
+        message:
+          one: 已成功创建 {} 。
+          other: 已成功创建 {} 。
+      error:
+        title: 创建 {} 时出错 ！
+        message: 意外错误，请稍后再试。
+    update:
+      success:
+        title: "{} 已更新 ！"
+        message: '{} 已成功更新。'
+      error:
+        title: 更新 {} 时出错 ！
+        message: 意外的错误，请稍后再试。
+      no_changes:
+        title: 未做任何更改！
+        message: 没有对 {} 做任何修改。
+    delete:
+      confirm:
+        title: 删除 {} 吗？
+        body: |-
+          您即将删除 {}。
+          此操作无法撤消。
+
+          确认您的操作。
+      success:
+        title: "{} 已删除 ！"
+        message:
+          one: '{} 已成功删除。'
+          other: '{} 已成功删除。'
+      error:
+        title: 删除 {} 时发生错误！
+        message: 意外的错误，请稍后再试。
+    spool:
+      one: 料盘
+      other: 料盘
+    filament:
+      one: 耗材
+      other: 耗材
+    vendor:
+      one: 制造商
+      other: 制造商
+    properties:
+      id: 编号
+      name: 名称
+      registered: 已注册
+      comment: 备注
+      material: 材料
+      price: 价格
+      density: 密度
+      diameter: 线径
+      weight: 重量
+      spool_weight: 料盘重量
+      article_number: 商品编号
+      first_used: 首次使用
+      last_used: 上次使用
+      remaining_weight: 剩余重量
+      used_weight: 已使用的重量
+      remaining_length: 剩余长度
+      used_length: 已用长度
+      location: 位置
+      lot_number: 批号
+      color: 颜色
+    property_sections:
+      basic: 基本信息
+      usage: 使用详情
+      additional: 其它信息
+      physical: 实际属性
 components:
   pull_to_refresh:
     pull_up_idle: 刷新
@@ -583,6 +689,56 @@ components:
   supporter_add:
     title: 喜欢 Mobileraker?
     subtitle: 点击我！了解如何支持发展!
+  obico_indicator:
+    tooltip: 使用Obico通道！
+  gcode_preview:
+    layer:
+      one: 层数
+      other: 层
+    move:
+      one: 移动
+      other: 移动
+    downloading:
+      starting: 等待下载以启动…
+      progress: 正在下载 GCode 文件 ({})…
+    parsing:
+      setting_up: 设置 GCode 解析器…
+      progress: 解析Gcode中 ({})...
+      canceled: Gcode解析已取消！
+      error:
+        title: Gcode解析时发生错误！
+        body: 尝试解析 GCode时出错。请重试。 如果问题仍然存在，请在 GitHub 上打开一个问题并附上GCode文件。
+    error:
+      config:
+        title: 获取打印机配置时发生错误！
+        body: 试图获取打印机配置时发生错误，确保机器可以访问并且移动设备已经连接到它。
+  gcode_preview_settings_sheet:
+    title: 可视化设置
+    show_grid:
+      title: 显示网格
+      subtitle: 显示参考网格
+    show_axes:
+      title: 显示坐标轴
+      subtitle: 显示 X 和 Y 轴
+    show_next_layer:
+      title: 显示下一层
+      subtitle: 在预览中显示下一个图层
+    show_previous_layer:
+      title: 显示上一层
+      subtitle: 显示之前打印的图层
+    extrusion_width_multiplier:
+      prefix: 线宽调整
+    show_extrusion:
+      title: 显示挤出机路径
+      subtitle: 高亮显示耗材挤出路径
+    show_retraction:
+      title: 显示回抽路径
+      subtitle: 高亮显示耗材回抽路径
+    show_travel:
+      title: 显示空驶路径
+      subtitle: 显示空驶的移动
+  select_color_sheet:
+    title: 选择颜色
 dialogs:
   rate_my_app:
     title: 为应用评分？
@@ -604,11 +760,25 @@ dialogs:
   rename_folder:
     title: 重命名文件夹
     label: 文件夹名称
+  copy_folder:
+    title: 复制文件夹
+    label: 文件夹名称
   delete_file:
     description: 确认文件'{}'的删除。
   rename_file:
     title: 重新命名文件
     label: 文件名
+  copy_file:
+    title: 复制文件
+    label: 文件名
+  create_file:
+    title: 新建文件
+    label: 文件名
+  create_archive:
+    title: 创建压缩文件
+    label: 压缩包名称
+  delete_files:
+    description: 确认删除 {} 文件。
   exclude_object:
     title: 从打印中排除对象
     label: 排除对象
@@ -624,6 +794,11 @@ dialogs:
       有效示例：
   gcode_params:
     hint: '提示：如果您想提交默认值的宏，可以长按！'
+    confirm_title: 执行 {} 吗？
+    confirm_body: |-
+      您即将执行分类“{}”。
+
+      请确认您的操作。
   rgbw:
     recent_colors: 最近使用的颜色
   select_machine:
@@ -631,6 +806,7 @@ dialogs:
     active_machine: '激活的机器: {}'
     hint: 点击机器以将其设置为激活状态。
   supporter_perks:
+    learn_more: 了解支持者增益效果
     title: 支持者福利
     body: 通过支持Mobileaker，您可以确保该应用程序对社区免费。此外，支持者还可以获得以下福利。
     hint: '提示：到目前为止，福利是基于设备的。这种情况将来可能会改变。'
@@ -643,6 +819,17 @@ dialogs:
     notification_perk:
       title: 快照通知
       subtitle: 状态通知包括网络摄像头快照
+    webrtc_perk:
+      title: 支持 WebRtc
+      subtitle: 允许使用 WebRtc 网络摄像头！
+    job_queue_perk:
+      title: 任务队列
+      subtitle: 从Moberaker中管理Moonraker的任务队列！
+    unlimited_printers_perk:
+      title: 无限制打印机数量
+      subtitle: 使用Mobileraker控制任意数量的3D打印机
+    printer_theme_perk:
+      title: 基于打印机的主题
   bed_screw_adjust:
     title: 热床螺丝调整
     xy_plane: '打印机X/Y平面:'
@@ -654,6 +841,92 @@ dialogs:
     hint_tooltip: Klipper的纸质测试文档
     snackbar_title: 校准完成
     snackbar_message: 确保通过“保存配置”操作保存偏移.
+  filament_switch:
+    steps:
+      purge:
+        subtitle:
+          processing: 清理耗材中...
+          processed: 确认清理过的耗材是否干净。如有需要请重复操作！
+      tip_form:
+        title: 小贴士
+        subtitle: 构建一个文件提示
+  heater_temperature:
+    title: "{} 温度 [°C]"
+  confirm_print_cancelation:
+    title: 取消打印？
+    body: |-
+      您即将取消打印！
+
+      确认您的操作。
+  adjust_spool_filament:
+    title: 调整料盘耗材
+    subtitle: 从料盘中增加或减少耗材。正值会消耗耗材，负值会增加耗材。
+    input_label: 调整数量
+    submit_label: 调整
+    tooltip:
+      weight: 切换至重量模式
+      length: 切换至长度模式
+  num_range_dialog:
+    helper:
+      min: 输入至少 {} 的数值
+      range: 输入 {} 到 {} 之间的数值
+bottom_sheets:
+  job_queue_sheet:
+    next: 下一个打印任务
+    empty: 任务队列为空，您可以通过文件浏览器添加任务。
+    start_queue: 开始队列
+    pause_queue: 暂停队列
+    remove_all: 删除队列
+    remove_all_confirm: 此操作将从队列中删除所有任务。
+  add_remote_con:
+    disclosure: "{service} 与Mobileraker无关，它可能需要额外的订阅。请查阅 {service} 的网站以获取更多资讯。"
+    active_service_info:
+      title: 找到现有的配置！
+      body: 您目前使用 {} 作为您的远程连接服务，在添加一个新的服务之前请删除它。
+    octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: 连接OctoEveryWhere
+      unlink: 取消连接OctoEveryWhere
+      description: Everywhere.com是一个社区项目，允许您从任何地方安全地连接到您的打印机。 所有地方都提供社区免费的 AI 打印故障检测、通知、直播等等。设置仅需20秒钟！
+    manual:
+      service_name: 手动设置远程连接
+      tab_name: 手动
+      description: 如果您是高级模式用户，您可以选择手动添加其它连接。 当尝试连接到主地址失败时，替代连接开始运行。 如果您与打印机有反向代理连接，那么这可能是有用的， 或如果您有一个可用来连接到打印机的次要IP地址。
+      address_label: 备选地址
+      address_hint: 要使用的远程连接的基本地址
+    obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: 链接Obico
+      unlink: 取消链接Obico
+      description: Obico 是一个社区驱动、完全开放源码3D打印软件。它使您能够控制和监视任何地方的 Klipper 打印机，无需花费。 它是基于 AI的故障检测的开创性解决方案之一，只能使用您的打印机摄像头。
+      self_hosted:
+        title: 自建服务器
+        description: 默认情况下，Mobieraker 将使用官方的Obico实例。然而，如果您正在管理自己的实例，您可以在此为其指定URL。
+        url_label: 自建服务器URL
+        url_hint: 自托管Obico 实例的基本URL
+  manage_macros_in_grp:
+    title: 添加宏
+    hint: 为组 {} 选择宏。
+  signIn:
+    subtitle: 尽管创建一个账户是可选的，但为了恢复在另一个设备或平台上进行的购买，必须这样做。
+    forgot_password: 忘记密码？
+    forgot_password_success: 密码重置邮件已发送!
+    hint:
+      sign_in: 还没有账户？
+      sign_up: 已经有帐户了？
+  dashboard_layout:
+    title: 控制面板布局
+    subtitle: '当前布局：'
+    available_layouts:
+      label: '可用布局：'
+      empty: 没有可用的布局
+      add_empty: 添加空白布局
+    layout_preview:
+      not_saved: 尚未保存
+    rename_layout:
+      title: 重命名布局
 klipper_state:
   ready: 就绪
   shutdown: 关闭
