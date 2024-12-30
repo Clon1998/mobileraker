@@ -273,12 +273,35 @@ pages:
     file_operation:
       download_canceled:
         title: 取消下载
+        body: 下载已取消
+      download_failed:
+        title: 下载失败！
+        body: 尝试下载文件时出错。请稍后再试。
+      upload_canceled:
+        title: 取消上传
+        body: 已取消上传
+      upload_success:
+        title: 上传成功
+        body: 文件上传成功
       upload_failed:
+        title: 上传失败
+        body: 尝试上传文件时发生错误。请稍后重试。
         reasons:
           type_mismatch:
+            title: 文件类型错误
             body: 只允许“{}”文件。
       zipping_success:
         title: 压缩成功
+        body: 已成功创建压缩文件
+      zipping_failed:
+        title: 压缩失败
+        body: 尝试创建压缩文件时出错。请稍后再试。
+      copy_created:
+        title: 已创建复制
+        body: 复制成功在 '{}'
+      move_success:
+        title: 移动成功
+        body: 文件成功移动到 '{}'。
     search_files: 搜索文件
     details:
       preheat: 预热
