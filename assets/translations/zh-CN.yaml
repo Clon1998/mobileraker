@@ -1248,6 +1248,7 @@ bottom_sheets:
         service_stop: 您即将停止服务“{}”。您确定要继续吗？
   dashboard_cards:
     title: 添加卡片
+    subtitle: 选择要添加到控制面板的卡片
   dashboard_layout:
     title: 控制面板布局
     subtitle: '当前布局：'
@@ -1259,6 +1260,15 @@ bottom_sheets:
       not_saved: 尚未保存
     rename_layout:
       title: 重命名布局
+      label: 布局名称
+    delete_layout:
+      title: 删除布局
+      body: |-
+        您确定要删除布局 {}？
+        所有使用此布局的机器都将回到默认布局。
+    import_snackbar:
+      title: 布局已导入！
+      body: 请确保点击保存按钮来应用更改。
     falsy_import_snackbar:
       title: 导入布局时发生错误！
       body: 无法导入布局。请确保剪贴板包含一个有效的布局。
