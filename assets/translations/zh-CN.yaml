@@ -634,37 +634,89 @@ pages:
       to_dashboard: 到控制面板
   console:
     title: 控制台
+    card_title: "GCode控制台\n"
     no_entries: 找不到缓存命令
     fetching_console: "@:general.fetching Console条目..."
+    macro_suggestions: G-Code建议
+    no_suggestions: 未找到建议
     command_input:
       hint: 输入控制台命令
+    provider_error:
+      title: 获取控制台数据时出错
+      body: 尝试获取控制台数据时发生错误。请稍后重试！
   overview:
     title: 概述
     fetching_machines: "@:general.fetching机器..."
     no_entries: 找不到机器
     add_machine: 添加机器
+  markdown:
+    loading: "@:general.loading {}…\n\n"
+    error: 尝试获取 {} 时发生错误；
+    open_in_browser: 在浏览器中打开 @:pages.faq.title
   faq:
     title: 常问问题
+  changelog:
+    title: 变更记录
   paywall:
     manage_view:
       title: 感谢您的支持！
       list_title: '更改支持者级别：'
       store_btn: 取消订阅 {}
+      sub_warning: "请注意，购买终身支持者等级并不会自动取消任何其他活动订阅。 您需要手动取消任何活动订阅。 然而，即使在购买终身支持者等级之后，你也可以选择继续经常性地支持mobileraker的发展。\n"
     subscribe_view:
       title: 成为Mobileraker的支持者！
       info: |-
         Mobileraker旨在为Klipper提供快速可靠的移动用户界面，这得益于RepRap的精神，即开源软件和硬件可以产生积极影响。
         由于Mobileraker由一家开发商开发并免费提供，它依靠社区资金来支付运营和开发成本。
       list_title: '选择支持者等级:'
+      subscription_info: 如果您选择订阅，可以随时取消订阅。 订阅将自动续订，除非您在本期结束之前取消订阅。 若要取消订阅，请到 {} 并取消订阅。
     supporter_tier_list:
       error_title: 加载支持者等级时出错!
       error_body: 很抱歉，发生了意外错误。无法加载支持者等级。请稍后重试！
     contact_dialog:
       title: 开发人员联系人
+      body: |-
+        Mail: {}
+        Discord: {}
+
     title: 支持开发人员！
     calling_store: 正在处理请求。。。
+    promo_title: 优惠活动
+    free_phase: 第一个免费的 {}
+    intro_phase: "享受 {} {} 的折扣\n"
+    iap_offer: "原价的 {} 折扣\n"
+    tip_developer: "打赏开发者\n"
+    trial_disclaimer: "在免费试用结束之前，您将不会被收费，并且您可以随时取消。\n"
+    restore_sign_in: 恢复/登录
+  video_player:
+    downloading_for_sharing: 正在下载视频，用于共享…({})
+  tool:
+    title: 工具
+  beltTuner:
+    title: "皮带调节器\n"
+    description: 确保适当的松紧度对于3D打印机的最佳性能至关重要。 不正确的松紧度，无论松紧，都可能导致机械问题、早损耗以及打印质量受到损害。 所提供的紧张值是参考点；但是，最好能够参考制造商的建议，根据您的打印机模型制定具体的准则。 应根据这些建议和个别打印机的要求和条件作出调整
+    beltType: "选择你的皮带类型：\n"
+    target: "目标：{} Hz于{} mm\n"
+    permissionWarning:
+      title: 需要麦克风权限
+      subtitle: |-
+        皮带调节器使用您的手机麦克风来分析皮带的共振频率。
+
+        点击授予权限。
+
   spoolman:
+    title: Spoolman
+    not_available: "Spoolman 在这台打印机上不可用。\n请确保 Spoolman 已经安装并启用在您的打印机上。\n"
+    learn_more: 若要了解更多关于Spoolman和如何安装它，请访问此项目
+    learn_more_link: "GitHub页面。\n"
+    no_spools: "未找到料盘！\n"
+    no_filaments: "未找到耗材！\n"
+    no_vendors: 未找到制造商！
+    error_loading_spools: 载入料盘时发生错误
+    error_loading_filaments: "载入耗材时发生错误\n"
     spoolman_actions:
+      activate: "@:general.activate\n"
+      deactivate: "未使用\n"
       clone: 复制
       edit: "@:general.edit"
       archive: 存档
@@ -917,12 +969,40 @@ dialogs:
     xy_plane: '打印机X/Y平面:'
     active_screw_title: '激活螺丝:'
     accept_screw_title: '确认的螺丝:'
+    accept_screw_value: "{} / {}"
     hint: 如果需要对当前螺钉进行重大调整，请单击“调整”；否则，请单击“接受”继续。
     adjusted_btn: 调整过的
   manual_offset:
+    title: "@:general.偏移校准"
     hint_tooltip: Klipper的纸质测试文档
     snackbar_title: 校准完成
     snackbar_message: 确保通过“保存配置”操作保存偏移.
+  tipping:
+    title: "打赏开发者!\n"
+    body: 这个打赏仅仅是用来感谢开发者的努力，并不会授予额外的功能。
+    amount_label: 打赏金额
+    tip: "打赏\n"
+  http_header:
+    title: Http-标题
+    header: 标题
+    header_hint: HTTP标题名称
+    value: 标题值
+    value_hint: 标题的值
+  macro_settings:
+    show_for_states: "打印机状态\n"
+    show_for_states_hint: 选择要显示宏的状态
+    visible: 可见
+  extruder_feedrate:
+    title: "挤出机速度 [mm/s]\n"
+  fan_speed:
+    title: 编辑 {} %
+  filament_sensor_triggered:
+    title: "耗材传感器已触发\n"
+    body: |-
+      传感器 {} 已被触发！
+  screws_tilt_adjust:
+    title: "框架倾斜调整\n"
+    base: 基本值
   filament_switch:
     steps:
       purge:
