@@ -802,7 +802,45 @@ pages:
       info_card: 制造商信息
       filaments_card: 制造商的耗材
       spools_card: 制造商的料盘
+    filament_details:
+      info_card: 耗材信息
+      spools_card: 耗材料盘
+    spool_details:
+      page_title: 料盘 {}
+      info_card: 料盘信息
+      set_active: 将其设置为目前的料盘
+      archived_warning:
+        title: 料盘已锁定
+        body: 这个料盘已锁定，不能用于新的打印。
+      alternative_spool:
+        same_filament: 替代料盘（相同耗材）
+        same_material: 替代料盘（相同制造商）
+    spool_form:
+      create_page_title: 创建料盘
+      update_page_title: 编辑料盘
+      helper:
+        price: "@:pages.spoolman.filament_form.helper.price 如果未设置，则预设为耗材的价格。"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight 如果未设置，则预设为耗材的重量。"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight 如果未设置，则预设为耗材或制造商的耗材重量。"
+        used_weight: 已使用的耗材重量。若为 0 克，则表示该料盘耗材尚未使用。
+        location: 您存放料盘的位置
+        lot_number: 制造商的批次号。可用于确保使用多个料盘耗材，打印颜色的一致性。
+    filament_form:
+      create_page_title: 创建材料
+      update_page_title: 编辑材料
+      helper:
+        price: 料盘耗材的价格。
+        initial_weight: 这是整卷耗材的净重，排除料盘的重量。通常会标在包装上。
+        empty_weight: 空料盘的重量。
+    vendor_form:
+      create_page_title: 创建制造商
+      update_page_title: 编辑制造商
+      helper:
+        empty_weight: 此制造商空料盘的重量。
 components:
+  app_version_display:
+    version: '版本：'
+    installed_version: '已安装的版本： '
   pull_to_refresh:
     pull_up_idle: 刷新
   nav_drawer:
@@ -818,11 +856,35 @@ components:
     trying_connect_remote: 正在尝试使用远程客户端进行连接。。。
     server_starting: 服务器正在启动...
     more_details: 更多详细信息
+    add_printer: |-
+      您好！很高兴见到您。将你的3D打印机添加到 Mobileraker。完成后您就能直接在 Mobileraker 里控制你的3D打印机了。
   octo_indicator:
     tooltip: 使用OctoEveryWhere!
   supporter_add:
     title: 喜欢 Mobileraker?
     subtitle: 点击我！了解如何支持发展!
+  supporter_only_feature:
+    dialog_title: 仅限支持者的功能
+    button: 成为Mobileraker的支持者！
+    webcam: 抱歉！类型为 {} 的网络摄像头仅供支持者使用。作为替代品，所有用户都可以使用Mjpeg摄像头。
+    printer_add: 您添加的机器数量已达到上限。只有Mobileraker支持者才可以添加超过 {} 台机器。
+    job_queue: 抱歉！打印工作队列仅对支持者可用。
+    timelaps_share: 抱歉！延时摄影分享仅对支持者可用。
+    printer_theme: 抱歉！打印机特定主题仅供支持者使用。
+    spoolman_page: 抱歉！Spoolman页面仅对支持者可用。
+    custom_dashboard: 抱歉！自定义控制面板仅对支持者可用。
+    full_file_management: 抱歉！完整的文件管理(下载，上传…) 功能仅对支持者可用。
+    gcode_preview: 抱歉！GCode预览功能仅对支持者可用。
+  machine_deletion_warning:
+    title: 机器删除
+    subtitle: 看起来你不是支持者。只有支持者可以拥有超过 {} 台机器。  {} 天后将移除多余的机器。
+  remote_connection_indicator:
+    title: 使用远程连接！
+  web_rtc:
+    renderer_missing: WebRtc 视频不可用！
+    oe_warning: 尚不支持 WebRtc 通过 OctoberOverywhere
+  ri_indicator:
+    tooltip: 使用远程连接！
   obico_indicator:
     tooltip: 使用Obico通道！
   gcode_preview:
@@ -964,6 +1026,13 @@ dialogs:
       subtitle: 使用Mobileraker控制任意数量的3D打印机
     printer_theme_perk:
       title: 基于打印机的主题
+      subtitle: 为每个打印机选择不同的主题！
+    custom_dashboard_perk:
+      title: 自定义控制面板
+      subtitle: 根据您的喜欢自定义控制面板！
+    full_file_management_perk:
+      title: 完整的文件管理
+      subtitle: 解锁Mobileraker的完整文件管理功能！
   bed_screw_adjust:
     title: 热床螺丝调整
     xy_plane: '打印机X/Y平面:'
@@ -1003,10 +1072,45 @@ dialogs:
   screws_tilt_adjust:
     title: "框架倾斜调整\n"
     base: 基本值
+    hint: 这个对话框将帮助您调整框架的螺丝。对于每个螺丝，您将看到需要的调整量，格式为HH:MM，表示时钟的方向。例如，01:15表示旋转一圈再加上一个四分之一圈，按照图示指示的方向调整。
+  dashboard_page_settings:
+    title: "控制面板页面设置\n"
+    icon_label: "为此页面选择一个图示：\n"
   filament_switch:
+    title:
+      load: 耗材装载向导
+      unload: "退料向导\n"
+    controls:
+      heat_up: "加热\n"
+      change_temp: 更改温度
+      purge: 清除
+      repeat_load: "重新载入\n"
+      repeat_unload: "再次退料操作\n"
+      repeat_purge: 重复清除
     steps:
-      purge:
+      set_temps:
+        title: "耗材温度\n"
+        subtitle: 选定目标温度
+      heat_up:
+        title: "喷嘴加热中\n"
+        subtitle: "正在加热至目标温度\n"
+      move:
+        title:
+          load: "载入耗材\n"
+          unload: "退料\n\n"
         subtitle:
+          load:
+            idle: "将耗材插入挤出机\n"
+            processing: "载入耗材中…\n"
+            processed: "喷嘴是否有材料挤出？如果没有，请重复载入操作。\n"
+          unload:
+            idle: "将耗材拉出挤出机\n"
+            processing: "退料中…\n"
+            processed: "是否已从挤出机中退出耗材？如果没有，请重复操作。\n"
+      purge:
+        title: "清理耗材\n"
+        subtitle:
+          idle: "载入耗材至喷嘴里\n"
           processing: 清理耗材中...
           processed: 确认清理过的耗材是否干净。如有需要请重复操作！
       tip_form:
@@ -1078,6 +1182,72 @@ bottom_sheets:
     hint:
       sign_in: 还没有账户？
       sign_up: 已经有帐户了？
+      reset_password: 请提供您的电子邮件地址以接收密码重置链接。
+    action:
+      sign_in: 登录
+      sign_up: 注册
+      reset_password: 重置密码
+    email:
+      label: 电子邮件
+      hint: 你的电子邮箱地址
+    password:
+      label: 密码
+      hint: 您的密码
+    confirm_password:
+      label: 确认密码
+      hint: 确认您的密码
+      error: 密码不匹配！
+  profile:
+    title: 您已登录。
+    description: 欢迎回来！您的用户帐户是在您的任何移动设备上增强体验的钥匙。 无缝分享您的支持者状态，不论您使用您的手机、 平板电脑或其他设备都可以轻松享受权限。
+    restore_purchases: 恢复购买记录
+    restore_success: 恢复购买成功！
+    sign_out: 退出
+    delete_account: 删除账户
+    email_verification:
+      title:
+        pending: 验证邮件已发送
+        not_verified: 电子邮箱未验证
+      description: 请验证您的电子邮件地址，以确保您始终可以访问您的帐户。
+      send: 发送验证邮件
+    delete_account_dialog:
+      title: 删除账户?
+      body: 您将要删除您的帐户。此操作无法撤消。
+  bedMesh:
+    no_mesh_loaded: 尚未加载网床补偿。
+    load_bed_mesh_profile: 加载网床补偿配置
+    no_mesh: 没有网床补偿
+    clear_loaded_profile: 清除已加载的配置文件
+    cant_render: 目前暂不支持打印机运动学的网床补偿渲染。
+  select_spool:
+    header:
+      spools: 料盘
+      qr: 二维码
+    no_spools: 未找到料盘。请将料盘添加到Spoolman
+    error: '载入料盘时发生错误：{}'
+    qr_loading: 正在加载二维码扫描器…
+    qr_error: '加载二维码扫描器时发生错误: {}'
+    scan_again: 重新扫描
+    set_active: 设置为激活状态
+    spool_id_not_found: '抱歉，没有找到指定ID#{}的料盘。'
+  non_printing:
+    manage_service:
+      title: 管理服务
+      no_services: 未找到服务！
+      provider_error: 获取服务时发生错误
+    confirm_action:
+      title: 您确定吗？
+      hint:
+        long_press: '提示：要跳过此操作，长按打开此确认按钮。'
+      body:
+        pi_restart: 您即将重新启动上位机，确定要继续吗？
+        pi_shutdown: 您即将关闭上位机。 这将断开所有活动连接并停止所有正在运行的进程。您确定要继续吗？
+        fw_restart: 您即将重新启动固件。您确定要继续吗？
+        service_start: 您即将启动服务“{}”。您确定要继续吗？
+        service_restart: 您即将重新启动服务“{}”。您确定要继续吗？
+        service_stop: 您即将停止服务“{}”。您确定要继续吗？
+  dashboard_cards:
+    title: 添加卡片
   dashboard_layout:
     title: 控制面板布局
     subtitle: '当前布局：'
@@ -1089,6 +1259,13 @@ bottom_sheets:
       not_saved: 尚未保存
     rename_layout:
       title: 重命名布局
+    falsy_import_snackbar:
+      title: 导入布局时发生错误！
+      body: 无法导入布局。请确保剪贴板包含一个有效的布局。
+  selections:
+    no_selections:
+      title: 未找到结果
+      subtitle: 尝试不同的搜索词
 klipper_state:
   ready: 就绪
   shutdown: 关闭
@@ -1096,6 +1273,19 @@ klipper_state:
   disconnected: 已断开
   error: 错误
   unauthorized: 未经授权
+  initializing: 正在初始化
+  not_connected: Moonraker 无法与 Klipper建立连接。请验证 Klipper 正在您的系统上运行。
+print_state:
+  standby: 待机
+  printing: 打印中
+  paused: 暂停
+  complete: 完成
+  cancelled: 已取消
+  error: 错误
+theme_mode:
+  light: "照明灯\n\n"
+  dark: "补光灯\n"
+  system: 系统
 notifications:
   channel_printer_grp: 打印机{}
   channels:
@@ -1111,3 +1301,41 @@ notifications:
       name: 打印进度更新 -  {}
       desc: 有关打印进度的通知。
       title: 打印{}的进度
+form_validators:
+  simple_url: '输入仅允许 URL 组件： 主机名和端口'
+  disallow_mdns: 不支持 mDNS (.local) 地址
+  file_name_in_use: 文件名已被使用
+date:
+  year:
+    one: 年
+    other: 年
+  month:
+    one: 月
+    other: 月
+  week:
+    one: 周
+    other: 周
+  day:
+    one: 日
+    other: 日
+date_periods:
+  year:
+    one: 每年
+    other: 年
+  month:
+    one: 每月
+    other: 月
+  week:
+    one: 每周
+    other: 周
+  day:
+    one: 每日
+    other: 日
+languages:
+  countryCode:
+    TW:
+      name: 繁体
+      nativeName: 繁體
+    HK:
+      name: 香港繁体
+      nativeName: 繁體, 香港
