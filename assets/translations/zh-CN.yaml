@@ -549,7 +549,16 @@ pages:
       title: 发现远程连接
       body:
         oe: 该打印机已经与OctoEverywhere连接以进行远程存取。请先解除连接后再继续操作。
+        obico: "此打印机已经是用于远程访问的 Obico通道。请在继续之前取消连接。\n"
+        other: 此打印机已经建立远程连接。请在继续操作之前删除它。
+    remote_interface_removed:
+      title: 远程连接已删除!
+      body: 请务必保存打印机应用更改。
     remote_interface_added:
+      title:
+        oe: 连接OctoEveryWhere.
+        obico: 链接到Obico。
+        other: 已添加远程连接。
       body: 请务必保存打印机应用更改。
     wifi_access_warning:
       title: WiFi信息不可用
@@ -617,6 +626,12 @@ pages:
       ws_label: Websocket 端口-测试
       awaiting: 等待结果...
       continue: 继续
+      continue_anyway: 仍然继续
+      proceed_warning: 似乎应用连接机器有问题。 这可能是因为您与机器不在同一个网络上，或者您没有访问它的必要权限。 尽管您可以选择添加机器，尽管有这个问题，但请注意它无法保证它将正确连接。 请小心操作。
+      button: 测试连接
+    confirmed:
+      title: 打印机 {} 已添加！
+      to_dashboard: 到控制面板
   console:
     title: 控制台
     no_entries: 找不到缓存命令
