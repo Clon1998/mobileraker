@@ -23,6 +23,8 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/printer_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -30,10 +32,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stringr/stringr.dart';
@@ -165,7 +168,7 @@ class _SensorMixinTile extends ConsumerWidget {
   const _SensorMixinTile({super.key, required this.machineUUID, required this.sensorProvider});
 
   final String machineUUID;
-  final ProviderListenable<SensorMixin> sensorProvider;
+  final ProviderListenable<TemperatureSensorMixin> sensorProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -211,14 +214,9 @@ class _HeaterMixinTile extends HookConsumerWidget {
     var klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
-    var spots = useRef(<FlSpot>[]);
-
-    var temperatureHistory = heater.temperatureHistory;
-    if (temperatureHistory != null) {
-      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-      spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
-    }
+    var spots = heater.temperatureHistory
+            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
+        [];
 
     NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     ThemeData themeData = Theme.of(context);
@@ -242,7 +240,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
     return GraphCardWithButton(
       backgroundColor: colorBg,
-      plotSpots: spots.value,
+      plotSpots: spots,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
       onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
@@ -302,19 +300,14 @@ class _TemperatureSensorTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var spots = useRef(<FlSpot>[]);
-    var temperatureHistory = temperatureSensor.temperatureHistory;
-
-    if (temperatureHistory != null) {
-      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-      spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
-    }
+    var spots = temperatureSensor.temperatureHistory
+            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
+        [];
     var beautifiedNamed = beautifyName(temperatureSensor.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
     return GraphCardWithButton(
-      plotSpots: spots.value,
+      plotSpots: spots,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       builder: (context) {
@@ -365,20 +358,15 @@ class _TemperatureFanTile extends HookConsumerWidget {
     var klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
-    var spots = useRef(<FlSpot>[]);
-    var temperatureHistory = temperatureFan.temperatureHistory;
-    //
-    if (temperatureHistory != null) {
-      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-      spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
-    }
+    var spots = temperatureFan.temperatureHistory
+            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
+        [];
     var beautifiedNamed = beautifyName(temperatureFan.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      plotSpots: spots.value,
+      plotSpots: spots,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
       builder: (context) {
@@ -436,24 +424,15 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
-
-    var spots = useRef(<FlSpot>[]);
-    var temperatureHistory = zThermalAdjust.temperatureHistory;
-    //
-    if (temperatureHistory != null) {
-      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-      spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
-    }
+    var spots = zThermalAdjust.temperatureHistory
+            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
+        [];
     var beautifiedNamed = beautifyName(zThermalAdjust.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      plotSpots: spots.value,
+      plotSpots: spots,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       builder: (context) {
@@ -510,43 +489,10 @@ class _Controller extends _$Controller {
     // - More boilerPlate
     // - Potentially more updates since more streams are listened to?
 
-    final senors = ref.watchAsSubject(printerProviderr.selectAs((value) {
-      final extruders = value.extruders;
-      final genericHeaters = value.genericHeaters;
-      final tempSensors = value.temperatureSensors;
-      final tempFans = value.fans.values.whereType<TemperatureFan>().toList();
-      final zAdjust = value.zThermalAdjust;
-
-      return [
-        ...extruders,
-        if (value.heaterBed != null) value.heaterBed!,
-        ...genericHeaters.values,
-        ...tempSensors.values,
-        ...tempFans,
-        if (zAdjust != null) zAdjust,
-      ];
-    }))
-        // Use map here since this prevents to many operations if the original list not changes!
-        .map((sensors) {
-      var output = <SensorMixin>[];
-
-      for (var sensor in sensors) {
-        if (sensor.name.startsWith('_')) continue;
-        output.add(sensor);
-      }
-
-      // Sort output by ordering, if ordering is not found it will be placed at the end
-      output.sort((a, b) {
-        var aIndex = ordering.indexWhere((element) => element.name == a.name);
-        var bIndex = ordering.indexWhere((element) => element.name == b.name);
-
-        if (aIndex == -1) aIndex = output.length;
-        if (bIndex == -1) bIndex = output.length;
-
-        return aIndex.compareTo(bIndex);
-      });
-      return output;
-    });
+    final senors = ref
+        .watchAsSubject(printerProviderr.selectAs((value) => value.allTemperatureSensors))
+        // Use map here since this prevents to many operations if the original list (Stream) not changes!
+        .map((sensors) => CombinedSensorExtension.filterAndSortSensors(sensors, ordering));
 
     yield* Rx.combineLatest2(
       klippyCanReceiveCommands,
@@ -668,6 +614,6 @@ class _Model with _$Model {
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
-    required List<SensorMixin> sensors,
+    required List<TemperatureSensorMixin> sensors,
   }) = __Model;
 }
