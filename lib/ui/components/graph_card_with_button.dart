@@ -19,6 +19,7 @@ class GraphCardWithButton extends StatelessWidget {
     required this.buttonChild,
     required this.onTap,
     this.onLongPress,
+    this.onTapGraph,
   });
 
   final Color? backgroundColor;
@@ -27,6 +28,7 @@ class GraphCardWithButton extends StatelessWidget {
   final Widget buttonChild;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final VoidCallback? onTapGraph;
   final List<FlSpot> plotSpots;
 
   @override
@@ -36,48 +38,49 @@ class GraphCardWithButton extends StatelessWidget {
     var gcColor =
         graphColor ?? ((Theme.of(context).brightness == Brightness.dark) ? bgColor.brighten(15) : bgColor.darken(15));
     var onBackgroundColor = (ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
-            ? Colors.white
-                .blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
-            : Colors.black
-                .blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
+        ? Colors.white.blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
+        : Colors.black.blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
 
     return Padding(
       padding: CardTheme.of(context).margin ?? const EdgeInsets.all(4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
-            ),
-            child: Stack(
+          GestureDetector(
+            onTap: onTapGraph,
+            child: Container(
               alignment: Alignment.centerLeft,
-              children: [
-                // Only way i found to expand the stack completly...
-                Container(width: double.infinity),
-                Positioned.fill(
-                  top: radius,
-                  child: _Chart(
-                    graphColor: gcColor,
-                    plotSpots: plotSpots,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
-                  child: Theme(
-                    data: themeData.copyWith(
-                      textTheme: themeData.textTheme.apply(
-                        bodyColor: onBackgroundColor,
-                        displayColor: onBackgroundColor,
-                      ),
-                      iconTheme: themeData.iconTheme.copyWith(color: onBackgroundColor),
+              decoration: BoxDecoration(
+                color: bgColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
+              ),
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  // Only way i found to expand the stack completly...
+                  Container(width: double.infinity),
+                  Positioned.fill(
+                    top: radius,
+                    child: _Chart(
+                      graphColor: gcColor,
+                      plotSpots: plotSpots,
                     ),
-                    child: Builder(builder: builder),
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
+                    child: Theme(
+                      data: themeData.copyWith(
+                        textTheme: themeData.textTheme.apply(
+                          bodyColor: onBackgroundColor,
+                          displayColor: onBackgroundColor,
+                        ),
+                        iconTheme: themeData.iconTheme.copyWith(color: onBackgroundColor),
+                      ),
+                      child: Builder(builder: builder),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           TextButton(
@@ -86,8 +89,7 @@ class GraphCardWithButton extends StatelessWidget {
               maximumSize: const Size.fromHeight(48),
               padding: EdgeInsets.zero,
               shape: const RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(radius)),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(radius)),
               ),
               foregroundColor: themeData.colorScheme.onPrimary,
               backgroundColor: themeData.colorScheme.primary,
@@ -123,6 +125,8 @@ class _Chart extends StatelessWidget {
         titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
         minY: 0,
+        minX: 0,
+        maxX: plotSpots.length.toDouble(),
         lineTouchData: const LineTouchData(enabled: false),
         lineBarsData: [
           LineChartBarData(
