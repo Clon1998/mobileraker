@@ -684,6 +684,63 @@ ThemePack _oePack() {
   );
 }
 
+ThemePack _mobilerakerOLEDPack() {
+  final dark = FlexThemeData.dark(
+    colors: const FlexSchemeColor(
+      primary: Color(0xFF0288D1),
+      secondary: Color(0xff00a69d),
+      appBarColor: Color(0xFF000000),
+    ),
+    surfaceMode: FlexSurfaceMode.highBackgroundLowScaffold,
+    blendLevel: 0,
+    darkIsTrueBlack: true,
+    // Enable true black for OLED
+    keyColors: const FlexKeyColors(keepPrimary: true),
+    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: true,
+  );
+
+  return ThemePack(
+    name: 'Mobileraker (OLED)',
+    lightTheme: dark.copyWith(
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: dark.colorScheme.primary,
+          foregroundColor: dark.colorScheme.onPrimary,
+          iconColor: dark.colorScheme.onPrimary,
+          padding: const EdgeInsets.all(8),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+          ),
+        ),
+      ),
+      bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBarTheme(
+        colorScheme: dark.colorScheme,
+        selectedLabelSchemeColor: SchemeColor.onSurface,
+        unselectedLabelSchemeColor: SchemeColor.onSurface,
+        selectedIconSchemeColor: SchemeColor.onSurface,
+        unselectedIconSchemeColor: SchemeColor.onSurface,
+        backgroundSchemeColor: SchemeColor.surfaceContainerLow,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+      ),
+      drawerTheme: FlexSubThemes.drawerTheme(
+        colorScheme: dark.colorScheme,
+        backgroundSchemeColor: SchemeColor.black,
+      ),
+      inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
+      bottomSheetTheme: dark.bottomSheetTheme.copyWith(
+        modalBackgroundColor: dark.colorScheme.background,
+        shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
+      ),
+      cardTheme: dark.cardTheme.copyWith(elevation: 3),
+      extensions: [CustomColors.dark],
+    ),
+  );
+}
+
 List<ThemePack> themePacks(Ref ref) {
   var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrNull;
   return [
@@ -692,6 +749,7 @@ List<ThemePack> themePacks(Ref ref) {
     _ratRigPack(),
     _vzBot(),
     _oePack(),
+    _mobilerakerOLEDPack(),
     if (isSupporter ?? true) _mobilerakerSupporterPack(),
   ];
 }

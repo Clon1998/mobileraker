@@ -11,6 +11,9 @@
   option. [#432](https://github.com/Clon1998/mobileraker/issues/432)
 - **Button feedback**: Added haptic feedback to the move axis buttons on the move axis card. This feature
   provides users with tactile feedback when pressing the buttons, enhancing the overall user experience.
+- **OLED Theme**: Introduced a new OLED theme for users with OLED displays. The OLED theme features a dark background
+  with vibrant colors, optimized for OLED screens to reduce power consumption and improve readability in low-light
+  environments.
 
 ### Bug Fixes
 
