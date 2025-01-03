@@ -81,7 +81,7 @@ pages:
         printing_for: 'Drukowanie: {}'
         speed: Prędkość
         layer: Warstwa
-        eta: Pozostało
+        eta: Godzina zakończenia
         current_object: Aktualny obiekt
         elapsed: Upłynęło
         flow: Flow
@@ -185,6 +185,8 @@ pages:
     saved_snack:
       title: Układ zapisany!
       body: Twoje zmiany zostały zapisane.
+    cant_remove_snack:
+      title: Nie mogę usunąć strony!
     confirm_removal:
       title: Usunąć stronę?
     editing_card:
@@ -235,6 +237,10 @@ pages:
         body: Plik został poprawnie wysłany.
       upload_failed:
         title: Wysyłanie nieudane
+        reasons:
+          type_mismatch:
+            title: Niezgodność typu pliku
+            body: Dozwolone są tylko pliki '{}'.
       copy_created:
         title: Kopia utworzona
       move_success:
@@ -293,10 +299,17 @@ pages:
     general:
       title: Ogólne
       ems_confirm: Potwierdź zatrzymanie awaryjne
+      use_offset_pos: Pozycja Offsetu
       language: Język
       time_format: Format czasu
+      eta_sources: Obliczanie zakończenia
+      keep_screen_on: Utrzymuj ekran w stanie czuwania
+      keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
     notification:
       title: Powiadomienia
+      no_firebase_title: Nie mogę wyświetlić powiadomień
+    developer:
+      crashlytics: Włącz raportowanie Crashlytics
   printer_edit:
     title: Edytuj {}
     import_settings: Importuj ustawienia
@@ -318,6 +331,8 @@ pages:
       timeout_label: Upłynął czas oczekiwania
       theme: Motyw UI
       theme_helper: Motyw UI dla drukarki
+    ssl:
+      title: SSL - Ustawienia
     motion_system:
       invert_x_short: Odwróć X
       invert_y_short: Odwróć Y
@@ -330,8 +345,16 @@ pages:
       target_fps: Decelowa ilość FPS
       new_cam: Nowa kamera
       no_webcams: Nie dodano kamer!
+      default_url: Domyślny URL
       flip_vertical: Odwróć w pionie
       flip_horizontal: Odwróć w poziomie
+    macros:
+      default_grp: Domyślny
+      no_macros_available: Brak dostępnych makr!
+      macros: Makra
+    presets:
+      no_presets: Nie dodano ustawień wstępnych!
+      new_preset: Nowe ustawienie wstępne
     local_ssid:
       no_ssids: Nie dodano nazwy sieci WiFi!
       dialog:
@@ -342,6 +365,7 @@ pages:
       no_fans: Brak wentylatorów!
   printer_add:
     steps:
+      mode: Tryb
       done: Zrobione
     title: Dodaj nową drukarkę
     initial_name: Moja drukarka

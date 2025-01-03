@@ -113,6 +113,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       GoTransition.observer,
       MobilerakerRouteObserver('Main'),
     ],
+
     // redirect: (state) {
     //
     //   return null;

@@ -13,6 +13,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/keep_screen_on_trigger.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -73,6 +74,7 @@ class MyApp extends ConsumerWidget {
     return EasyLocalization(
       supportedLocales: const [
         Locale('af'),
+        Locale('ca'),
         Locale('de'),
         Locale('en'),
         Locale('fr'),
@@ -85,9 +87,8 @@ class MyApp extends ConsumerWidget {
         Locale('ru'),
         Locale('tr'),
         Locale('uk'),
-        Locale('zh'),
         Locale('zh', 'CN'),
-        Locale('zh', 'HK'),
+        Locale('zh', 'TW'),
       ],
       fallbackLocale: const Locale('en'),
       saveLocale: true,
@@ -155,7 +156,9 @@ class _WarmUp extends HookConsumerWidget {
       child: ref.watch(warmupProvider).when(
             data: (step) {
               if (step == StartUpStep.complete) {
-                return ResponsiveBuilder(childBuilder: (context) => const MyApp());
+                return KeepScreenOnTrigger(
+                  child: ResponsiveBuilder(childBuilder: (context) => const MyApp()),
+                );
               }
               return const _LoadingSplashScreen();
             },

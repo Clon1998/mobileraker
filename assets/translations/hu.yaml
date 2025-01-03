@@ -286,6 +286,10 @@ pages:
       upload_failed:
         title: Feltöltés sikertelen
         body: Hiba történt a fájl feltöltése közben. Kérjük, próbáld újra később.
+        reasons:
+          type_mismatch:
+            title: Fájltípus eltérés
+            body: Csak a '{}' fájlok engedélyezettek.
       zipping_success:
         title: Becsomagolás sikeres
         body: Az archívum sikeresen létrejött.
@@ -399,6 +403,8 @@ pages:
       eta_sources_hint: Válaszd ki az ETA-számításhoz használandó forrást
       medium_ui: Tablet UI
       medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
+      keep_screen_on: Tartsa ébren a képernyőt
+      keep_screen_on_hint: A képernyő kikapcsolásának megakadályozása az alkalmazás működése közben
     notification:
       title: Értesítés
       progress_label: Nyomtatás-előrehaladási értesítés
@@ -1892,9 +1898,12 @@ languages:
     CN:
       name: Simplified
       nativeName: 简体
-    HK:
+    TW:
       name: Tradicionális
       nativeName: 繁體
+    HK:
+      name: Tradicionális, HongKong
+      nativeName: 繁體, 香港
     BR:
       name: Brazil
       nativeName: Brazil

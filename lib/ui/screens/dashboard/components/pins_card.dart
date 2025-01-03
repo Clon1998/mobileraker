@@ -541,8 +541,8 @@ class _PinsCardController extends _$PinsCardController {
       // Sort output by ordering, if ordering is not found it will be placed at the end
       output.sort((a, b) {
         determineKind(obj) => switch (obj) {
-              Led() => a.kind,
-              FilamentSensor() => a.kind,
+              Led() => obj.kind,
+              FilamentSensor() => obj.kind,
               OutputPin() => ConfigFileObjectIdentifiers.output_pin,
               _ => null,
             };

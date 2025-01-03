@@ -28,6 +28,8 @@ general:
   supported: 支持
   unsupported: 不支持
   details: 详细
+  google_play: 谷歌游戏
+  ios_store: 应用商店
   active: 激活
   canceled: 取消
   monthly: 每月
@@ -35,10 +37,40 @@ general:
   accept: 接受
   abort: 中止
   offset: 抵消
+  valid: 有效的
+  invalid: 无效的
+  free: 免费
+  one_time: 一次
+  delete: 删除
+  clear: 清空
+  unlink: 取消连接
+  save: 保存
+  apply: 应用
+  completed: 已完成
+  activate: 启用
+  stop: 停止
+  start: 开始
+  repeat: 重复
+  load_more: 再次进料
+  archived: 已保存
+  leave: 离开
+  export: 导出
+  import: 导入
+  current: 当前
+  load: 进料
+  unload: 退料
+  discard: 放弃
+  hide: 隐藏
+  finish: 完成
+  select: 选择
 pages:
   dashboard:
     title: 仪表板
     ems_btn: 紧急停止
+    ems_confirmation:
+      title: 确认紧急停止
+      body: 您将要向打印机发送一个紧急停止命令！这将立即停止所有电机以及加热器！
+      confirm: 停止！
     server_status:
       unavailable: 服务器不可用
       available: 服务器状态为{}，klippy是{}
@@ -46,6 +78,7 @@ pages:
     general:
       print_card:
         reset: 重置
+        reprint: 重新打印
         printing_for: '打印： {}'
         speed: 速度
         layer: 层
@@ -55,9 +88,20 @@ pages:
         flow: 流量
         filament: 耗材
         filament_tooltip: 使用的{}％的丝，即{} m的{} m预测。
+        eta_tooltip: |-
+          剩余时间：
+          平均： {avg}
+          切片:：{slicer}
+          文件：{file}
+          耗材：{filament}
+        remaining: 剩余
+        print_time: 打印时间
       cam_card:
         webcam: 摄像头
         fullscreen: 全屏
+        error_connecting: |-
+          连接到 {}时出错。
+          请检查连接设置并确保摄像头在线。
       temp_card:
         title: 温度控制
         presets_btn: 预设
@@ -69,6 +113,8 @@ pages:
         btn_thermistor: 传感器
       temp_preset_card:
         cooloff: 冷却
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: 移动控制
         home_xy_tooltip: 主X和Y轴
@@ -76,12 +122,14 @@ pages:
         home_all_tooltip: 主轴
         home_all_btn: 全部归位
         qgl_tooltip: 运行四轮锻炼
+        qgl_btn: 龙门架调平
         mesh_tooltip: 运行MED-MESH校准
         mesh_btn: 网床
         m84_tooltip: 禁用电动机
         m84_btn: 关闭电机
         step_size: 步长
         stc_tooltip: 手动调平螺丝
+        stc_btn: STC
         ztilt_tooltip: 运行Z倾斜校准
         ztilt_btn: ZTILT
         poff_tooltip: 运行探头偏移校准
@@ -93,8 +141,10 @@ pages:
         save_tooltip: 保存校准结果
         save_btn: 保存配置
         more_btn: 更多
+        homed: 已归位的轴
       baby_step_card:
         title: Z轴偏移
+        z_offset: Z偏移
       restart_klipper: 重新启动Klipper
       restart_mcu: "@:general.restart@:general.firmware"
     control:
@@ -113,11 +163,19 @@ pages:
         cold_extrude_error: 挤出机还没有达到{}°C的最低挤出温度！
       macro_card:
         title: 宏指令
+        no_macros: 当前在该分类中没有可用的宏
+        add_grp_hint: 您可以创建不同的分类来整理您的宏。只需前往打印机设置并添加一个新的分类。
+        show_all_tooltip: 显示所有分类
       pin_card:
+        title_misc: 其它
         pin_btn: 别针
+        filament_sensor:
+          detected: 检测中
+          not_detected: 空白
       power_card:
         title: 动力面板
         pin_btn: 别针
+        provider_error_title: 获取功率 Api 设备时出错
       multipl_card:
         title: 乘数
         flow: 挤出流量
@@ -129,9 +187,143 @@ pages:
         accel: 加速度
         sq_corn_vel: 转角速度
         accel_to_decel: 加速到减速度
+      fw_retraction_card:
+        title: 固件回抽
+        retract_length: 回抽长度
+        retract_speed: 回抽速度
+        extra_unretract_length: 额外回填长度
+        unretract_speed: 回抽补偿速度
+      bed_mesh_card:
+        title: 网床
+        profiles: 配置列表
+        range_tooltip: 最高点和最低点之间的范围
+        showing_matrix:
+          probed: 显示探测范围
+          mesh: 显示网床范围
+      spoolman_card:
+        title: 料盘
+        no_spool: |-
+          未选择料盘，
+          文件使用情况将不会被记录
+        select_spool: 选择料盘
+        used: '已使用：{}'
+        provider_error_title: 获取 Spoolman 数据出错
+      gcode_preview_card:
+        title: GCode预览
+        follow: 跟踪进度
+        kinematic_not_supported: 当前应用程序不支持此打印机的 Kinematic 系统渲染。
+        start_preview:
+          btn: 开始预览
+          hint: 应用程序将下载活动打印文件，并尝试渲染它。
+  customizing_dashboard:
+    title: 个性化控制面板
+    cancel_confirm:
+      title: 放弃更改？
+      body: |-
+        您确定要离开布局编辑模式吗？
+        所有更改都将丢失。要保存您的更改，请按保存按钮。
+    add_card: 添加模块
+    remove_page: 移除页面
+    saved_snack:
+      title: 布局已保存！
+      body: 您的修改已保存
+    cant_remove_snack:
+      title: 无法移除页面！
+      body: 您需要至少 2 个页面才能删除一个。
+    confirm_removal:
+      title: 移除页面？
+      body: 您确定要删除此页面吗？
+    editing_card:
+      title: 编辑模式
+      body: 您现在可以重新排序、添加和移除卡片和页面。所有卡片显示预览数据。
+    error_save_snack:
+      title: 保存布局时出错 ！
+      body: 试图保存布局时出错。
+    error_no_components:
+      title: 空布局 ！
+      body: 您尚未添加任何部件。添加至少一个部件来保存布局。
   files:
     title: 文件
+    empty_folder:
+      title: 该文件夹下为空
+      subtitle: 未找到任何文件
+    sort_by:
+      sort_by: 排序方式
+      name: 名称
+      last_modified: 最后修改时间
+      last_printed: 最近打印
+      file_size: 大小
+      estimated_time: 预计打印时间
+    file_actions:
+      download: 下载
+      delete: 删除
+      copy: 复制
+      move: 移动
+      rename: 重命名
+      create_file: 新建文件
+      create_folder: 新建文件夹
+      upload: 导入文件
+      upload_bulk: 上传文件
+      zip_file: 创建压缩文件
+    gcode_file_actions:
+      submit: 提交打印任务
+      preheat: 预热
+      enqueue: 添加到打印队列
+      preview: 预览
+    file_operation:
+      download_canceled:
+        title: 取消下载
+        body: 下载已取消
+      download_failed:
+        title: 下载失败！
+        body: 尝试下载文件时出错。请稍后再试。
+      upload_canceled:
+        title: 取消上传
+        body: 已取消上传
+      upload_success:
+        title: 上传成功
+        body: 文件上传成功
+      upload_failed:
+        title: 上传失败
+        body: 尝试上传文件时发生错误。请稍后重试。
+        reasons:
+          type_mismatch:
+            title: 文件类型错误
+            body: 只允许“{}”文件。
+      zipping_success:
+        title: 压缩成功
+        body: 已成功创建压缩文件
+      zipping_failed:
+        title: 压缩失败
+        body: 尝试创建压缩文件时出错。请稍后再试。
+      copy_created:
+        title: 已创建复制
+        body: 复制成功在 '{}'
+      move_success:
+        title: 移动成功
+        body: 文件成功移动到 '{}'。
+      move_failed:
+        title: 移动失败
+        body: 尝试移动文件 (s) 时发生错误。请稍后重试。
     search_files: 搜索文件
+    search:
+      clear_search: 清除搜索内容
+      waiting: 等待搜索！
+      no_results:
+        title: 未找到文件
+        subtitle: 不妨试试其他关键词
+    cancel_fab:
+      upload: 取消上传
+      download: 取消下载
+    move_here: 移动到这里
+    copy_here: 复制到这里
+    no_matches_file_pattern: 只允许字母、 数字、 下划线、 破折号和点！
+    gcode_tab: GCode
+    config_tab: 配置文件
+    timelapse_tab: 延时摄影
+    element:
+      one: 元素
+      other: 元素
     details:
       preheat: 预热
       print: 打印
@@ -145,6 +337,8 @@ pages:
         filament: 耗材
         filament_type: 耗材类型
         filament_name: 耗材名称
+        filament_weight: 重量
+        filament_length: 长度
         est_print_time: 预计打印时间
         slicer: 切片软件
         nozzle_diameter: 喷嘴直径
@@ -168,21 +362,53 @@ pages:
         body: |-
           挤出头：{}°C
           床：{}°C
+      spoolman_warnings:
+        insufficient_filament_title: 耗材不足
+        insufficient_filament_body: |-
+          当前使用的耗材只剩下{}，不足以打印该模型，请更换耗材！
+        material_mismatch_title: 材料不匹配
+        material_mismatch_body: |-
+          此模型使用的材料 {} 与当前料盘材料 {} 不相符，请更换要使用的耗材！
   setting:
     title: 应用设置
     general:
       title: 通用设置
       ems_confirm: 紧急停止时是否需要确认
+      ems_confirm_hint: 发送紧急停止命令之前显示确认对话框
       always_baby: 始终显示 Z轴偏移 选项卡
+      always_baby_hint: 总是在仪表盘上显示Z偏移模块
       num_edit: 使用键盘进行数字输入
+      num_edit_hint: 使用数字键盘来输入数字，而不是滑块
       start_with_overview: show @:pages.overview.title默认
+      start_with_overview_hint: 启动APP后的默认页面为总预览页面，并非打印机的仪表盘页面
       use_offset_pos: 显示使用偏移量的坐标。
+      use_offset_pos_hint: 将偏移添加到显示坐标上
       lcFullCam: 横向全屏显示摄像头
+      lcFullCam_hint: 在全屏模式下切换摄像头到横屏模式
       language: 语言
       companion: "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
+      sliders_grouping: 编组滑杆模块
+      sliders_grouping_hint: 将所有滑块分类为一个模块
+      time_format: 时间格式
+      system_theme: 界面主题
+      system_theme_mode: 主题亮度
+      printer_theme_warning: 您当前使用的是打印机特定主题。请前往打印机设置修改设置。
+      filament_sensor_dialog: 显示耗材传感器警告
+      filament_sensor_dialog_hint: 当耗材传感器被触发时显示对话框
+      confirm_gcode: 确认执行宏命令
+      confirm_gcode_hint: 在控制面板上执行GCode-宏命令之前总是显示确认对话框
+      eta_sources: 预计完成时间计算
+      eta_sources_hint: 选择用于计算预计时间的方式
+      medium_ui: 平板界面
+      medium_ui_hint: 是否在大屏幕或横屏模式上使用平板界面
+      keep_screen_on: 保持屏幕唤醒状态
+      keep_screen_on_hint: 防止APP运行时屏幕自动关闭
     notification:
       title: 消息通知
+      progress_label: 打印进度通知
       progress_helper: 打印进度通知的更新间隔
+      state_label: 打印状态通知
+      state_helper: 选择在活动打印任务期间触发通知的状态
       no_permission_title: 没有通知权限！
       no_permission_desc: |-
         无权限的情况下无法显示通知。
@@ -199,6 +425,15 @@ pages:
       missing_companion_body: |-
         似乎没有安装配套软件，因此以下计算机无法发送通知：｛｝
         点击了解更多信息！
+      enable_live_activity: 启用实时活动
+      enable_live_activity_helper: 除默认进度通知外，启用活动的使用
+      opt_out_marketing: 营销通知
+      opt_out_marketing_helper: 接收关于销售和促销的更新
+      use_progressbar_notification: 开启进度条通知
+      use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
+    developer:
+      title: 开发者
+      crashlytics: 启用崩溃报告
     imprint: 隐私声明及用户协议
   printer_edit:
     title: 编辑 {}
@@ -208,10 +443,16 @@ pages:
     fetching_additional_settings: "@:general.fetching从网络..."
     could_not_fetch_additional: 无法获取其他设置！
     fetch_error_hint: 确保机器可以触及，并连接到它。
+    reset_notification_registry: 清除通知设备注册
+    configure_remote_connection: 配置远程连接
     store_error:
       title: 保存失败！
       message: |-
         某些字段包含无效值！请确保所有字段都有效。
+      unexpected_error: 试图保存机器数据时发生异常错误！
+    confirm_deletion:
+      title: 删除 {} 吗？
+      body: "您即将移除连接于 '{}' 的打印机 '{}'。\n\n请确认您的操作。"
     general:
       displayname: 显示名称
       printer_addr: 打印机地址
@@ -219,6 +460,16 @@ pages:
       moonraker_api_key: Moonraker API 密钥
       moonraker_api_desc: 只有在您启用了 Moonraker 的鉴权配置才需要填入密钥！
       full_url: 完整的URL
+      timeout_label: 客户端超时
+      timeout_helper: 客户端连接超时时间（秒）
+      theme: 界面主题
+      theme_helper: 打印机的界面主题
+      theme_unavailable: 打印机的界面主题，仅供支持者使用
+    ssl:
+      title: SSL - 设置
+      pin_certificate_label: 凭证绑定
+      pin_certificate_helper: 选择一个 PEM 格式的 SSL-Pinning 证书
+      self_signed: 信任自签名证书
     motion_system:
       title: 移动控制
       invert_x: 反转X轴控制
@@ -240,63 +491,354 @@ pages:
       feedrate: 默认挤出速度
       feedrate_short: 挤出速度
       steps_extrude: 默认挤出距离
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
+      filament:
+        loading_distance: 挤出机喷嘴距离
+        loading_distance_helper: 从喷嘴到挤出轮的距离，用于装载或卸载耗材
+        loading_speed: "装载/卸载耗材速度"
+        loading_speed_helper: 从挤出机到喷嘴装载或卸载耗材的速度
+        purge_amount: 清理长度
+        purge_amount_helper: 要清理的耗材长度
+        purge_speed: 清理耗材的速度
+        purge_speed_helper: 清理耗材的速度
     cams:
       target_fps: 当前FPS
       new_cam: 新网络摄像头
       no_webcams: 没有添加网络摄像头！
+      stream_url: 直播网址
       snapshot_url: 快照地址
       default_url: 默认地址
       flip_vertical: 垂直翻转
       flip_horizontal: 水平翻转
       cam_mode: 凸轮模式
       cam_rotate: 旋转
+      read_only: 摄像头为只读
     macros:
+      default_grp: 预设
       new_macro_grp: 新建宏命令组
       no_macros_available: 没有宏！
       no_macros_found: 找不到宏！
+      no_macros_in_grp: 分类中没有宏命令!
+      deleted_grp: 删除分类 {}
+      macros: 宏命令
+      default_name: 新增宏命令分类
       macros_to_default:
         one: 将一个宏移至默认组！
         two: 将两个宏移至默认组！
         other: 将{}宏移至默认组！
+      macro_removed: 找不到宏，不久将会自动删除
     presets:
       no_presets: 没有预设！
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend温度"
       bed_temp: "@:pages.dashboard.general.temp_card.bed温度"
       new_preset: 新预设
+    confirm_fcm_reset:
+      title: 清除通知设备注册？
+      body: "您将要重置设备注册表，这个注册表用来确定伴侣发送通知到的设备。\n要重新创建推送通知，您需要在所有设备上重新启动应用并再次连接到机器。 \n\n确认您的操作。"
+    confirm_remote_interface_removal:
+      title:
+        oe: 断开 {}?
+        other: 删除连接？
+      body:
+        oe: 请确认将解除打印机 {} 与 OctoEverywhere 的连接。
+        other: 请确认从打印机{}中删除远程连接。
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
+    remote_interface_exists:
+      title: 发现远程连接
+      body:
+        oe: 该打印机已经与OctoEverywhere连接以进行远程存取。请先解除连接后再继续操作。
+        obico: "此打印机已经是用于远程访问的 Obico通道。请在继续之前取消连接。\n"
+        other: 此打印机已经建立远程连接。请在继续操作之前删除它。
+    remote_interface_removed:
+      title: 远程连接已删除!
+      body: 请务必保存打印机应用更改。
+    remote_interface_added:
+      title:
+        oe: 连接OctoEveryWhere.
+        obico: 链接到Obico。
+        other: 已添加远程连接。
+      body: 请务必保存打印机应用更改。
+    wifi_access_warning:
+      title: WiFi信息不可用
+      subtitle: |-
+        确保Mobileraker远程连接，请授权位置读取权限。这样APP将可以获取当前的WiFi名称。
+
+        点击以授权权限。
+    local_ssid:
+      section_header: 智能切换
+      no_ssids: 未添加WiFi名称！
+      helper: 智能开关使应用程序在当前WiFi网络的基础上自动切换本地和远程连接。 要启用此功能，请将您的家庭WiFi名称添加到列表。
+      dialog:
+        title_add: 添加WiFi名称到列表
+        title_edit: 编辑WiFi名称
+        label: WiFi名称 (SSID)
+        quick_add_hint: '提示：要快速添加当前WiFi名称，长按打开此对话框的按钮。'
+      error_fetching_snackbar:
+        title: 获取 WiFi 名称时出错 ！
+        body: 请确保应用程序拥有访问设备的 WiFi 状态所需的权限。
+    temp_ordering:
+      title: 温度传感器界面排序
+      helper: 更改控制面板上温度传感器的排序。
+      no_sensors: 未发现温度传感器！
+    fan_ordering:
+      title: 风扇界面排序
+      helper: 更改控制面板上风扇的排序。
+      no_fans: 未发现风扇！
+    misc_ordering:
+      title: 其它元素界面排序
+      helper: 更改控制面板上其它元素的排序。
+      no_controls: 未找到其它元素！
   printer_add:
+    steps:
+      mode: 模式
+      input: 输入
+      test: 测试
+      done: 完成
     title: 添加新打印机
+    initial_name: 我的打印机
+    select_mode:
+      title: '选择输入模式：'
+      body: 如果您是新手，则最好使用简单模式。 然而，如果您有经验并且需要使用自定义、证书等等，那么可以使用高级模式。 请注意，您选择的模式不会影响应用程序本身。 但它将决定输入的验证和显示方式，以及在您添加机器时有哪些设置选项。
+      simple: 简单模式
+      advanced: 高级模式
+      add_via_oe: 一键设置OctoEverywhere模式
+      add_via_obico: 一键设置Obico模式
+    simple_form:
+      hint_title: 提示 - 简单模式
+      hint_body: 简单模式只需您输入主机和端口即可。 但如果您需要自定义路径、名称、证书或其它设置，请切换到高级模式。
+      url_hint: 打印机的IP或主机名
+    advanced_form:
+      hint_title: 提示 - 高级模式
+      hint_body: 请注意，在高级模式中，大多数验证被禁用。 请确保您输入的URL有效。
+      http_helper: 请输入Moonraker的HTTP端口
+      ws_helper: 可选的，Moonraker的WebSocket端口
+      section_security: 安全性
+      section_headers: HTTP标题
+      empty_headers: 未添加标题！
+    test_connection:
+      section_connection: 连接数据
+      ws_url_label: 生成 WebSocket URL
+      http_url_label: 生成 HTTP URL
+      section_test: 连接测试
+      http_label: Http端口-测试
+      ws_label: Websocket 端口-测试
+      awaiting: 等待结果...
+      continue: 继续
+      continue_anyway: 仍然继续
+      proceed_warning: 似乎应用连接机器有问题。 这可能是因为您与机器不在同一个网络上，或者您没有访问它的必要权限。 尽管您可以选择添加机器，尽管有这个问题，但请注意它无法保证它将正确连接。 请小心操作。
+      button: 测试连接
+    confirmed:
+      title: 打印机 {} 已添加！
+      to_dashboard: 到控制面板
   console:
     title: 控制台
+    card_title: "GCode控制台\n"
     no_entries: 找不到缓存命令
     fetching_console: "@:general.fetching Console条目..."
+    macro_suggestions: G-Code建议
+    no_suggestions: 未找到建议
     command_input:
       hint: 输入控制台命令
+    provider_error:
+      title: 获取控制台数据时出错
+      body: 尝试获取控制台数据时发生错误。请稍后重试！
   overview:
     title: 概述
     fetching_machines: "@:general.fetching机器..."
     no_entries: 找不到机器
     add_machine: 添加机器
+  markdown:
+    loading: "@:general.loading {}…\n\n"
+    error: 尝试获取 {} 时发生错误；
+    open_in_browser: 在浏览器中打开 @:pages.faq.title
   faq:
     title: 常问问题
+  changelog:
+    title: 变更记录
   paywall:
     manage_view:
       title: 感谢您的支持！
       list_title: '更改支持者级别：'
       store_btn: 取消订阅 {}
+      sub_warning: "请注意，购买终身支持者等级并不会自动取消任何其他活动订阅。 您需要手动取消任何活动订阅。 然而，即使在购买终身支持者等级之后，你也可以选择继续经常性地支持mobileraker的发展。\n"
     subscribe_view:
       title: 成为Mobileraker的支持者！
       info: |-
         Mobileraker旨在为Klipper提供快速可靠的移动用户界面，这得益于RepRap的精神，即开源软件和硬件可以产生积极影响。
         由于Mobileraker由一家开发商开发并免费提供，它依靠社区资金来支付运营和开发成本。
       list_title: '选择支持者等级:'
+      subscription_info: 如果您选择订阅，可以随时取消订阅。 订阅将自动续订，除非您在本期结束之前取消订阅。 若要取消订阅，请到 {} 并取消订阅。
     supporter_tier_list:
       error_title: 加载支持者等级时出错!
       error_body: 很抱歉，发生了意外错误。无法加载支持者等级。请稍后重试！
     contact_dialog:
       title: 开发人员联系人
+      body: |-
+        Mail: {}
+        Discord: {}
     title: 支持开发人员！
     calling_store: 正在处理请求。。。
+    promo_title: 优惠活动
+    free_phase: 第一个免费的 {}
+    intro_phase: "享受 {} {} 的折扣\n"
+    iap_offer: "原价的 {} 折扣\n"
+    tip_developer: "打赏开发者\n"
+    trial_disclaimer: "在免费试用结束之前，您将不会被收费，并且您可以随时取消。\n"
+    restore_sign_in: 恢复/登录
+  video_player:
+    downloading_for_sharing: 正在下载视频，用于共享…({})
+  tool:
+    title: 工具
+  beltTuner:
+    title: "皮带调节器\n"
+    description: 确保适当的松紧度对于3D打印机的最佳性能至关重要。 不正确的松紧度，无论松紧，都可能导致机械问题、早损耗以及打印质量受到损害。 所提供的紧张值是参考点；但是，最好能够参考制造商的建议，根据您的打印机模型制定具体的准则。 应根据这些建议和个别打印机的要求和条件作出调整
+    beltType: "选择你的皮带类型：\n"
+    target: "目标：{} Hz于{} mm\n"
+    permissionWarning:
+      title: 需要麦克风权限
+      subtitle: |-
+        皮带调节器使用您的手机麦克风来分析皮带的共振频率。
+
+        点击授予权限。
+  spoolman:
+    title: Spoolman
+    not_available: "Spoolman 在这台打印机上不可用。\n请确保 Spoolman 已经安装并启用在您的打印机上。\n"
+    learn_more: 若要了解更多关于Spoolman和如何安装它，请访问此项目
+    learn_more_link: "GitHub页面。\n"
+    no_spools: "未找到料盘！\n"
+    no_filaments: "未找到耗材！\n"
+    no_vendors: 未找到制造商！
+    error_loading_spools: 载入料盘时发生错误
+    error_loading_filaments: "载入耗材时发生错误\n"
+    spoolman_actions:
+      activate: "@:general.activate\n"
+      deactivate: "未使用\n"
+      clone: 复制
+      edit: "@:general.edit"
+      archive: 存档
+      unarchive: 取消存档
+      adjust: 调整耗材量
+      share_qr: 分享二维码
+      delete: "@:general.delete"
+      add_spool: 添加料盘
+      add_filament: 添加耗材
+    create:
+      success:
+        title: "{} 已创建 ！"
+        message:
+          one: 已成功创建 {} 。
+          other: 已成功创建 {} 。
+      error:
+        title: 创建 {} 时出错 ！
+        message: 意外错误，请稍后再试。
+    update:
+      success:
+        title: "{} 已更新 ！"
+        message: '{} 已成功更新。'
+      error:
+        title: 更新 {} 时出错 ！
+        message: 意外的错误，请稍后再试。
+      no_changes:
+        title: 未做任何更改！
+        message: 没有对 {} 做任何修改。
+    delete:
+      confirm:
+        title: 删除 {} 吗？
+        body: |-
+          您即将删除 {}。
+          此操作无法撤消。
+
+          确认您的操作。
+      success:
+        title: "{} 已删除 ！"
+        message:
+          one: '{} 已成功删除。'
+          other: '{} 已成功删除。'
+      error:
+        title: 删除 {} 时发生错误！
+        message: 意外的错误，请稍后再试。
+    spool:
+      one: 料盘
+      other: 料盘
+    filament:
+      one: 耗材
+      other: 耗材
+    vendor:
+      one: 制造商
+      other: 制造商
+    properties:
+      id: 编号
+      name: 名称
+      registered: 已注册
+      comment: 备注
+      material: 材料
+      price: 价格
+      density: 密度
+      diameter: 线径
+      weight: 重量
+      spool_weight: 料盘重量
+      article_number: 商品编号
+      first_used: 首次使用
+      last_used: 上次使用
+      remaining_weight: 剩余重量
+      used_weight: 已使用的重量
+      remaining_length: 剩余长度
+      used_length: 已用长度
+      location: 位置
+      lot_number: 批号
+      color: 颜色
+    property_sections:
+      basic: 基本信息
+      usage: 使用详情
+      additional: 其它信息
+      physical: 实际属性
+      print_settings: 打印设置
+    vendor_details:
+      page_title: 制造商 {}
+      info_card: 制造商信息
+      filaments_card: 制造商的耗材
+      spools_card: 制造商的料盘
+    filament_details:
+      info_card: 耗材信息
+      spools_card: 耗材料盘
+    spool_details:
+      page_title: 料盘 {}
+      info_card: 料盘信息
+      set_active: 将其设置为目前的料盘
+      archived_warning:
+        title: 料盘已锁定
+        body: 这个料盘已锁定，不能用于新的打印。
+      alternative_spool:
+        same_filament: 替代料盘（相同耗材）
+        same_material: 替代料盘（相同制造商）
+    spool_form:
+      create_page_title: 创建料盘
+      update_page_title: 编辑料盘
+      helper:
+        price: "@:pages.spoolman.filament_form.helper.price 如果未设置，则预设为耗材的价格。"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight 如果未设置，则预设为耗材的重量。"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight 如果未设置，则预设为耗材或制造商的耗材重量。"
+        used_weight: 已使用的耗材重量。若为 0 克，则表示该料盘耗材尚未使用。
+        location: 您存放料盘的位置
+        lot_number: 制造商的批次号。可用于确保使用多个料盘耗材，打印颜色的一致性。
+    filament_form:
+      create_page_title: 创建材料
+      update_page_title: 编辑材料
+      helper:
+        price: 料盘耗材的价格。
+        initial_weight: 这是整卷耗材的净重，排除料盘的重量。通常会标在包装上。
+        empty_weight: 空料盘的重量。
+    vendor_form:
+      create_page_title: 创建制造商
+      update_page_title: 编辑制造商
+      helper:
+        empty_weight: 此制造商空料盘的重量。
 components:
+  app_version_display:
+    version: '版本：'
+    installed_version: '已安装的版本： '
   pull_to_refresh:
     pull_up_idle: 刷新
   nav_drawer:
@@ -312,11 +854,85 @@ components:
     trying_connect_remote: 正在尝试使用远程客户端进行连接。。。
     server_starting: 服务器正在启动...
     more_details: 更多详细信息
+    add_printer: |-
+      您好！很高兴见到您。将你的3D打印机添加到 Mobileraker。完成后您就能直接在 Mobileraker 里控制你的3D打印机了。
   octo_indicator:
     tooltip: 使用OctoEveryWhere!
   supporter_add:
     title: 喜欢 Mobileraker?
     subtitle: 点击我！了解如何支持发展!
+  supporter_only_feature:
+    dialog_title: 仅限支持者的功能
+    button: 成为Mobileraker的支持者！
+    webcam: 抱歉！类型为 {} 的网络摄像头仅供支持者使用。作为替代品，所有用户都可以使用Mjpeg摄像头。
+    printer_add: 您添加的机器数量已达到上限。只有Mobileraker支持者才可以添加超过 {} 台机器。
+    job_queue: 抱歉！打印工作队列仅对支持者可用。
+    timelaps_share: 抱歉！延时摄影分享仅对支持者可用。
+    printer_theme: 抱歉！打印机特定主题仅供支持者使用。
+    spoolman_page: 抱歉！Spoolman页面仅对支持者可用。
+    custom_dashboard: 抱歉！自定义控制面板仅对支持者可用。
+    full_file_management: 抱歉！完整的文件管理(下载，上传…) 功能仅对支持者可用。
+    gcode_preview: 抱歉！GCode预览功能仅对支持者可用。
+  machine_deletion_warning:
+    title: 机器删除
+    subtitle: 看起来你不是支持者。只有支持者可以拥有超过 {} 台机器。  {} 天后将移除多余的机器。
+  remote_connection_indicator:
+    title: 使用远程连接！
+  web_rtc:
+    renderer_missing: WebRtc 视频不可用！
+    oe_warning: 尚不支持 WebRtc 通过 OctoberOverywhere
+  ri_indicator:
+    tooltip: 使用远程连接！
+  obico_indicator:
+    tooltip: 使用Obico通道！
+  gcode_preview:
+    layer:
+      one: 层数
+      other: 层
+    move:
+      one: 移动
+      other: 移动
+    downloading:
+      starting: 等待下载以启动…
+      progress: 正在下载 GCode 文件 ({})…
+    parsing:
+      setting_up: 设置 GCode 解析器…
+      progress: 解析Gcode中 ({})...
+      canceled: Gcode解析已取消！
+      error:
+        title: Gcode解析时发生错误！
+        body: 尝试解析 GCode时出错。请重试。 如果问题仍然存在，请在 GitHub 上打开一个问题并附上GCode文件。
+    error:
+      config:
+        title: 获取打印机配置时发生错误！
+        body: 试图获取打印机配置时发生错误，确保机器可以访问并且移动设备已经连接到它。
+  gcode_preview_settings_sheet:
+    title: 可视化设置
+    show_grid:
+      title: 显示网格
+      subtitle: 显示参考网格
+    show_axes:
+      title: 显示坐标轴
+      subtitle: 显示 X 和 Y 轴
+    show_next_layer:
+      title: 显示下一层
+      subtitle: 在预览中显示下一个图层
+    show_previous_layer:
+      title: 显示上一层
+      subtitle: 显示之前打印的图层
+    extrusion_width_multiplier:
+      prefix: 线宽调整
+    show_extrusion:
+      title: 显示挤出机路径
+      subtitle: 高亮显示耗材挤出路径
+    show_retraction:
+      title: 显示回抽路径
+      subtitle: 高亮显示耗材回抽路径
+    show_travel:
+      title: 显示空驶路径
+      subtitle: 显示空驶的移动
+  select_color_sheet:
+    title: 选择颜色
 dialogs:
   rate_my_app:
     title: 为应用评分？
@@ -338,11 +954,25 @@ dialogs:
   rename_folder:
     title: 重命名文件夹
     label: 文件夹名称
+  copy_folder:
+    title: 复制文件夹
+    label: 文件夹名称
   delete_file:
     description: 确认文件'{}'的删除。
   rename_file:
     title: 重新命名文件
     label: 文件名
+  copy_file:
+    title: 复制文件
+    label: 文件名
+  create_file:
+    title: 新建文件
+    label: 文件名
+  create_archive:
+    title: 创建压缩文件
+    label: 压缩包名称
+  delete_files:
+    description: 确认删除 {} 文件。
   exclude_object:
     title: 从打印中排除对象
     label: 排除对象
@@ -358,6 +988,11 @@ dialogs:
       有效示例：
   gcode_params:
     hint: '提示：如果您想提交默认值的宏，可以长按！'
+    confirm_title: 执行 {} 吗？
+    confirm_body: |-
+      您即将执行分类“{}”。
+
+      请确认您的操作。
   rgbw:
     recent_colors: 最近使用的颜色
   select_machine:
@@ -365,6 +1000,7 @@ dialogs:
     active_machine: '激活的机器: {}'
     hint: 点击机器以将其设置为激活状态。
   supporter_perks:
+    learn_more: 了解支持者增益效果
     title: 支持者福利
     body: 通过支持Mobileaker，您可以确保该应用程序对社区免费。此外，支持者还可以获得以下福利。
     hint: '提示：到目前为止，福利是基于设备的。这种情况将来可能会改变。'
@@ -377,17 +1013,267 @@ dialogs:
     notification_perk:
       title: 快照通知
       subtitle: 状态通知包括网络摄像头快照
+    webrtc_perk:
+      title: 支持 WebRtc
+      subtitle: 允许使用 WebRtc 网络摄像头！
+    job_queue_perk:
+      title: 任务队列
+      subtitle: 从Moberaker中管理Moonraker的任务队列！
+    unlimited_printers_perk:
+      title: 无限制打印机数量
+      subtitle: 使用Mobileraker控制任意数量的3D打印机
+    printer_theme_perk:
+      title: 基于打印机的主题
+      subtitle: 为每个打印机选择不同的主题！
+    custom_dashboard_perk:
+      title: 自定义控制面板
+      subtitle: 根据您的喜欢自定义控制面板！
+    full_file_management_perk:
+      title: 完整的文件管理
+      subtitle: 解锁Mobileraker的完整文件管理功能！
   bed_screw_adjust:
     title: 热床螺丝调整
     xy_plane: '打印机X/Y平面:'
     active_screw_title: '激活螺丝:'
     accept_screw_title: '确认的螺丝:'
+    accept_screw_value: "{} / {}"
     hint: 如果需要对当前螺钉进行重大调整，请单击“调整”；否则，请单击“接受”继续。
     adjusted_btn: 调整过的
   manual_offset:
+    title: "@:general.偏移校准"
     hint_tooltip: Klipper的纸质测试文档
     snackbar_title: 校准完成
     snackbar_message: 确保通过“保存配置”操作保存偏移.
+  tipping:
+    title: "打赏开发者!\n"
+    body: 这个打赏仅仅是用来感谢开发者的努力，并不会授予额外的功能。
+    amount_label: 打赏金额
+    tip: "打赏\n"
+  http_header:
+    title: Http-标题
+    header: 标题
+    header_hint: HTTP标题名称
+    value: 标题值
+    value_hint: 标题的值
+  macro_settings:
+    show_for_states: "打印机状态\n"
+    show_for_states_hint: 选择要显示宏的状态
+    visible: 可见
+  extruder_feedrate:
+    title: "挤出机速度 [mm/s]\n"
+  fan_speed:
+    title: 编辑 {} %
+  filament_sensor_triggered:
+    title: "耗材传感器已触发\n"
+    body: |-
+      传感器 {} 已被触发！
+  screws_tilt_adjust:
+    title: "框架倾斜调整\n"
+    base: 基本值
+    hint: 这个对话框将帮助您调整框架的螺丝。对于每个螺丝，您将看到需要的调整量，格式为HH:MM，表示时钟的方向。例如，01:15表示旋转一圈再加上一个四分之一圈，按照图示指示的方向调整。
+  dashboard_page_settings:
+    title: "控制面板页面设置\n"
+    icon_label: "为此页面选择一个图示：\n"
+  filament_switch:
+    title:
+      load: 耗材装载向导
+      unload: "退料向导\n"
+    controls:
+      heat_up: "加热\n"
+      change_temp: 更改温度
+      purge: 清除
+      repeat_load: "重新载入\n"
+      repeat_unload: "再次退料操作\n"
+      repeat_purge: 重复清除
+    steps:
+      set_temps:
+        title: "耗材温度\n"
+        subtitle: 选定目标温度
+      heat_up:
+        title: "喷嘴加热中\n"
+        subtitle: "正在加热至目标温度\n"
+      move:
+        title:
+          load: "载入耗材\n"
+          unload: "退料\n\n"
+        subtitle:
+          load:
+            idle: "将耗材插入挤出机\n"
+            processing: "载入耗材中…\n"
+            processed: "喷嘴是否有材料挤出？如果没有，请重复载入操作。\n"
+          unload:
+            idle: "将耗材拉出挤出机\n"
+            processing: "退料中…\n"
+            processed: "是否已从挤出机中退出耗材？如果没有，请重复操作。\n"
+      purge:
+        title: "清理耗材\n"
+        subtitle:
+          idle: "载入耗材至喷嘴里\n"
+          processing: 清理耗材中...
+          processed: 确认清理过的耗材是否干净。如有需要请重复操作！
+      tip_form:
+        title: 小贴士
+        subtitle: 构建一个文件提示
+  heater_temperature:
+    title: "{} 温度 [°C]"
+  confirm_print_cancelation:
+    title: 取消打印？
+    body: |-
+      您即将取消打印！
+
+      确认您的操作。
+  adjust_spool_filament:
+    title: 调整料盘耗材
+    subtitle: 从料盘中增加或减少耗材。正值会消耗耗材，负值会增加耗材。
+    input_label: 调整数量
+    submit_label: 调整
+    tooltip:
+      weight: 切换至重量模式
+      length: 切换至长度模式
+  num_range_dialog:
+    helper:
+      min: 输入至少 {} 的数值
+      range: 输入 {} 到 {} 之间的数值
+bottom_sheets:
+  job_queue_sheet:
+    next: 下一个打印任务
+    empty: 任务队列为空，您可以通过文件浏览器添加任务。
+    start_queue: 开始队列
+    pause_queue: 暂停队列
+    remove_all: 删除队列
+    remove_all_confirm: 此操作将从队列中删除所有任务。
+  add_remote_con:
+    disclosure: "{service} 与Mobileraker无关，它可能需要额外的订阅。请查阅 {service} 的网站以获取更多资讯。"
+    active_service_info:
+      title: 找到现有的配置！
+      body: 您目前使用 {} 作为您的远程连接服务，在添加一个新的服务之前请删除它。
+    octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: 连接OctoEveryWhere
+      unlink: 取消连接OctoEveryWhere
+      description: Everywhere.com是一个社区项目，允许您从任何地方安全地连接到您的打印机。 所有地方都提供社区免费的 AI 打印故障检测、通知、直播等等。设置仅需20秒钟！
+    manual:
+      service_name: 手动设置远程连接
+      tab_name: 手动
+      description: 如果您是高级模式用户，您可以选择手动添加其它连接。 当尝试连接到主地址失败时，替代连接开始运行。 如果您与打印机有反向代理连接，那么这可能是有用的， 或如果您有一个可用来连接到打印机的次要IP地址。
+      address_label: 备选地址
+      address_hint: 要使用的远程连接的基本地址
+    obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: 链接Obico
+      unlink: 取消链接Obico
+      description: Obico 是一个社区驱动、完全开放源码3D打印软件。它使您能够控制和监视任何地方的 Klipper 打印机，无需花费。 它是基于 AI的故障检测的开创性解决方案之一，只能使用您的打印机摄像头。
+      self_hosted:
+        title: 自建服务器
+        description: 默认情况下，Mobieraker 将使用官方的Obico实例。然而，如果您正在管理自己的实例，您可以在此为其指定URL。
+        url_label: 自建服务器URL
+        url_hint: 自托管Obico 实例的基本URL
+  manage_macros_in_grp:
+    title: 添加宏
+    hint: 为组 {} 选择宏。
+  signIn:
+    subtitle: 尽管创建一个账户是可选的，但为了恢复在另一个设备或平台上进行的购买，必须这样做。
+    forgot_password: 忘记密码？
+    forgot_password_success: 密码重置邮件已发送!
+    hint:
+      sign_in: 还没有账户？
+      sign_up: 已经有帐户了？
+      reset_password: 请提供您的电子邮件地址以接收密码重置链接。
+    action:
+      sign_in: 登录
+      sign_up: 注册
+      reset_password: 重置密码
+    email:
+      label: 电子邮件
+      hint: 你的电子邮箱地址
+    password:
+      label: 密码
+      hint: 您的密码
+    confirm_password:
+      label: 确认密码
+      hint: 确认您的密码
+      error: 密码不匹配！
+  profile:
+    title: 您已登录。
+    description: 欢迎回来！您的用户帐户是在您的任何移动设备上增强体验的钥匙。 无缝分享您的支持者状态，不论您使用您的手机、 平板电脑或其他设备都可以轻松享受权限。
+    restore_purchases: 恢复购买记录
+    restore_success: 恢复购买成功！
+    sign_out: 退出
+    delete_account: 删除账户
+    email_verification:
+      title:
+        pending: 验证邮件已发送
+        not_verified: 电子邮箱未验证
+      description: 请验证您的电子邮件地址，以确保您始终可以访问您的帐户。
+      send: 发送验证邮件
+    delete_account_dialog:
+      title: 删除账户?
+      body: 您将要删除您的帐户。此操作无法撤消。
+  bedMesh:
+    no_mesh_loaded: 尚未加载网床补偿。
+    load_bed_mesh_profile: 加载网床补偿配置
+    no_mesh: 没有网床补偿
+    clear_loaded_profile: 清除已加载的配置文件
+    cant_render: 目前暂不支持打印机运动学的网床补偿渲染。
+  select_spool:
+    header:
+      spools: 料盘
+      qr: 二维码
+    no_spools: 未找到料盘。请将料盘添加到Spoolman
+    error: '载入料盘时发生错误：{}'
+    qr_loading: 正在加载二维码扫描器…
+    qr_error: '加载二维码扫描器时发生错误: {}'
+    scan_again: 重新扫描
+    set_active: 设置为激活状态
+    spool_id_not_found: '抱歉，没有找到指定ID#{}的料盘。'
+  non_printing:
+    manage_service:
+      title: 管理服务
+      no_services: 未找到服务！
+      provider_error: 获取服务时发生错误
+    confirm_action:
+      title: 您确定吗？
+      hint:
+        long_press: '提示：要跳过此操作，长按打开此确认按钮。'
+      body:
+        pi_restart: 您即将重新启动上位机，确定要继续吗？
+        pi_shutdown: 您即将关闭上位机。 这将断开所有活动连接并停止所有正在运行的进程。您确定要继续吗？
+        fw_restart: 您即将重新启动固件。您确定要继续吗？
+        service_start: 您即将启动服务“{}”。您确定要继续吗？
+        service_restart: 您即将重新启动服务“{}”。您确定要继续吗？
+        service_stop: 您即将停止服务“{}”。您确定要继续吗？
+  dashboard_cards:
+    title: 添加卡片
+    subtitle: 选择要添加到控制面板的卡片
+  dashboard_layout:
+    title: 控制面板布局
+    subtitle: '当前布局：'
+    available_layouts:
+      label: '可用布局：'
+      empty: 没有可用的布局
+      add_empty: 添加空白布局
+    layout_preview:
+      not_saved: 尚未保存
+    rename_layout:
+      title: 重命名布局
+      label: 布局名称
+    delete_layout:
+      title: 删除布局
+      body: |-
+        您确定要删除布局 {}？
+        所有使用此布局的机器都将回到默认布局。
+    import_snackbar:
+      title: 布局已导入！
+      body: 请确保点击保存按钮来应用更改。
+    falsy_import_snackbar:
+      title: 导入布局时发生错误！
+      body: 无法导入布局。请确保剪贴板包含一个有效的布局。
+  selections:
+    no_selections:
+      title: 未找到结果
+      subtitle: 尝试不同的搜索词
 klipper_state:
   ready: 就绪
   shutdown: 关闭
@@ -395,6 +1281,19 @@ klipper_state:
   disconnected: 已断开
   error: 错误
   unauthorized: 未经授权
+  initializing: 正在初始化
+  not_connected: Moonraker 无法与 Klipper建立连接。请验证 Klipper 正在您的系统上运行。
+print_state:
+  standby: 待机
+  printing: 打印中
+  paused: 暂停
+  complete: 完成
+  cancelled: 已取消
+  error: 错误
+theme_mode:
+  light: "照明灯\n\n"
+  dark: "补光灯\n"
+  system: 系统
 notifications:
   channel_printer_grp: 打印机{}
   channels:
@@ -410,3 +1309,41 @@ notifications:
       name: 打印进度更新 -  {}
       desc: 有关打印进度的通知。
       title: 打印{}的进度
+form_validators:
+  simple_url: '输入仅允许 URL 组件： 主机名和端口'
+  disallow_mdns: 不支持 mDNS (.local) 地址
+  file_name_in_use: 文件名已被使用
+date:
+  year:
+    one: 年
+    other: 年
+  month:
+    one: 月
+    other: 月
+  week:
+    one: 周
+    other: 周
+  day:
+    one: 日
+    other: 日
+date_periods:
+  year:
+    one: 每年
+    other: 年
+  month:
+    one: 每月
+    other: 月
+  week:
+    one: 每周
+    other: 周
+  day:
+    one: 每日
+    other: 日
+languages:
+  countryCode:
+    TW:
+      name: 繁体
+      nativeName: 繁體
+    HK:
+      name: 香港繁体
+      nativeName: 繁體, 香港

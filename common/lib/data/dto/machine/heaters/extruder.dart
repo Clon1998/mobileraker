@@ -1,19 +1,20 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../util/json_util.dart';
-import '../sensor_mixin.dart';
+import '../../config/config_file_object_identifiers_enum.dart';
+import '../temperature_sensor_mixin.dart';
 import 'heater_mixin.dart';
 
 part 'extruder.freezed.dart';
 part 'extruder.g.dart';
 
 @freezed
-class Extruder with _$Extruder, SensorMixin, HeaterMixin {
+class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
   static Extruder empty([int num = 0]) {
     return Extruder(num: num, lastHistory: DateTime(1990));
   }
@@ -58,4 +59,7 @@ class Extruder with _$Extruder, SensorMixin, HeaterMixin {
 
   @override
   String get name => 'extruder${this.num > 0 ? this.num : ''}';
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.extruder;
 }

@@ -1,5 +1,28 @@
 # Mobileraker - Changelog
 
+## [2.8.4] - 2025-01-xx
+
+### Enhancements
+
+- **Keep Screen Awake**: Added a new setting to keep the screen on while the app is open. This feature is especially
+  useful
+  for users who want to keep their device awake while monitoring a print job or using the app for an extended period. To
+  enable this feature, navigate to the app settings and toggle the "Keep Screen Awake"
+  option. [#432](https://github.com/Clon1998/mobileraker/issues/432)
+- **Button feedback**: Added haptic feedback to the move axis buttons on the move axis card. This feature
+  provides users with tactile feedback when pressing the buttons, enhancing the overall user experience.
+- **OLED Theme**: Introduced a new OLED theme for users with OLED displays. The OLED theme features a dark background
+  with vibrant colors, optimized for OLED screens to reduce power consumption and improve readability in low-light
+  environments.
+
+### Bug Fixes
+
+- **Keyboard Input Spoolman**: Fixed an issue that prevented users from entering decimal values on the spool form
+  page. [#444](https://github.com/Clon1998/mobileraker/issues/444)
+
+- **Misc Card**: Resolved an issue where the misc card would not be displayed in certain circumstances due to a bug in
+  the ordering code of the available misc-items. [#449](https://github.com/Clon1998/mobileraker/issues/449)
+
 ## [2.8.3] - 2024-12-08
 
 ### General

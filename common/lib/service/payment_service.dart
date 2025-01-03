@@ -34,6 +34,7 @@ class CustomerInfoNotifier extends _$CustomerInfoNotifier {
   @override
   Future<CustomerInfo> build() async {
     try {
+      logger.i('Fetching customer info');
       var customerInfo = await Purchases.getCustomerInfo();
       logger.i('Got customerInfo: $customerInfo');
 
@@ -272,8 +273,12 @@ class PaymentService {
       (prev, next) async {
         if (!next.hasValue) return;
         logger.i('Syncing FCM token with Purchases: ${next.value}');
-        await Purchases.setPushToken(next.value!);
-        logger.i('Synced FCM token with Purchases');
+        try {
+          await Purchases.setPushToken(next.value!);
+          logger.i('Synced FCM token with Purchases');
+        } catch (e) {
+          logger.w('Error while trying to sync FCM token with Purchases', e);
+        }
       },
       fireImmediately: true,
     );
@@ -284,8 +289,12 @@ class PaymentService {
         if (!next.hasValue) return;
         var packageInfo = next.requireValue;
         logger.i('Setting device version to Purchases: $packageInfo');
-        await Purchases.setAttributes({r'$deviceVersion': packageInfo.toString()});
-        logger.i('Set device version to Purchases');
+        try {
+          await Purchases.setAttributes({r'$deviceVersion': packageInfo.toString()});
+          logger.i('Set device version to Purchases');
+        } catch (e) {
+          logger.w('Error while trying to set device version to Purchases', e);
+        }
       },
       fireImmediately: true,
     );

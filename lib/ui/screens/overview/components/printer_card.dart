@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -207,8 +207,8 @@ class _PrintProgressBar extends ConsumerWidget {
         ),
         progressColor: themeData.colorScheme.primary,
         backgroundColor: themeData.useMaterial3
-            ? themeData.colorScheme.surfaceContainerHighest
-            : themeData.colorScheme.primary.withOpacity(0.24),
+            ? themeData.colorScheme.surfaceContainer
+            : themeData.colorScheme.primary.withValues(alpha: 0.24),
       );
     }
 

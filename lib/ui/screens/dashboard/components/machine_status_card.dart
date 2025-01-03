@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -224,8 +224,8 @@ class _Trailing extends ConsumerWidget {
               ? themeData.extension<CustomColors>()?.success
               : themeData.colorScheme.primary,
           backgroundColor: themeData.useMaterial3
-              ? themeData.colorScheme.surfaceVariant
-              : themeData.colorScheme.primary.withOpacity(0.24),
+              ? themeData.colorScheme.surfaceContainer
+              : themeData.colorScheme.primary.withValues(alpha: 0.24),
         ),
       PrintState.complete || PrintState.cancelled => PopupMenuButton(
           enabled: model.klippyCanReceiveCommands,

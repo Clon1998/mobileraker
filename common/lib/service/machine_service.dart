@@ -98,7 +98,7 @@ class AllMachines extends _$AllMachines {
       return aOrder.compareTo(bOrder);
     });
 
-    var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
+    var isSupporter = ref.watch(isSupporterProvider);
     logger.i('Received isSupporter $isSupporter');
     var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
     logger.i('Max allowed machines for non Supporters is $maxNonSupporterMachines');

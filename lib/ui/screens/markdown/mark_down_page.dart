@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -135,7 +135,7 @@ class _ErrorWidget extends StatelessWidget {
     return Center(
       child: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant,
+          color: theme.colorScheme.surfaceContainer,
           borderRadius: const BorderRadius.all(Radius.circular(18)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
@@ -201,7 +201,7 @@ class _MakrdownViewer extends StatelessWidget {
     var base = MarkdownStyleSheet(
       blockquote: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
       blockquoteDecoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.8),
+        color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.8),
         border: Border(
           left: BorderSide(
             width: 3.0,

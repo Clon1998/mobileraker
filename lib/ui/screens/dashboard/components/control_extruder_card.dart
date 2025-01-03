@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -465,13 +465,10 @@ class _ToolItem extends StatelessWidget {
     };
 
     return Row(
+      spacing: 8,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (color != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Icon(Icons.circle, color: color, size: 12),
-          ),
+        if (color != null) Icon(Icons.circle, color: color, size: 12),
         Text(tool.name),
       ],
     );
@@ -570,6 +567,8 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   }
 
   void onFeedrateButtonPressed() {
+    HapticFeedback.selectionClick().ignore();
+
     var maxVelocity = ref
         .read(printerProvider(machineUUID).selectAs((data) => data.configFile.primaryExtruder?.maxExtrudeOnlyVelocity))
         .valueOrNull
@@ -597,6 +596,8 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   }
 
   Future<void> onUnloadFilament() async {
+    HapticFeedback.selectionClick().ignore();
+
     final extruderName =
         state.requireValue.extruderIndex > 0 ? 'extruder${state.requireValue.extruderIndex}' : 'extruder';
 
@@ -611,6 +612,8 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   }
 
   Future<void> onLoadFilament() async {
+    HapticFeedback.selectionClick().ignore();
+
     final extruderName =
         state.requireValue.extruderIndex > 0 ? 'extruder${state.requireValue.extruderIndex}' : 'extruder';
 
@@ -627,6 +630,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   void onToolSelected(int toolIdx) {
     final tool = state.requireValue.toolchangeMacros.elementAtOrNull(toolIdx);
     if (tool == null) return;
+    HapticFeedback.selectionClick().ignore();
     _printerService.gCode(tool.name);
   }
 
@@ -634,12 +638,14 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     if (selected.isEmpty || selected.length > 1) return;
     final tool = selected.firstOrNull;
     if (tool == null) return;
+    HapticFeedback.selectionClick().ignore();
     _printerService.gCode(tool.name);
   }
 
   void onHeatingButtonPressed() {
     final cur = state.requireValue;
     if (cur.activeExtruder == null || cur.activeExtruderConfig == null) return;
+    HapticFeedback.selectionClick().ignore();
 
     _dialogService
         .show(DialogRequest(
