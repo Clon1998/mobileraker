@@ -7,6 +7,8 @@ import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../util/json_util.dart';
+import '../config/config_file_object_identifiers_enum.dart';
+import 'temperature_sensor_mixin.dart';
 
 part 'z_thermal_adjust.freezed.dart';
 part 'z_thermal_adjust.g.dart';
@@ -22,7 +24,7 @@ part 'z_thermal_adjust.g.dart';
 // }
 
 @freezed
-class ZThermalAdjust with _$ZThermalAdjust, SensorMixin {
+class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
   const ZThermalAdjust._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)
@@ -59,4 +61,7 @@ class ZThermalAdjust with _$ZThermalAdjust, SensorMixin {
 
   @override
   String get name => 'z_thermal_adjust';
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.z_thermal_adjust;
 }

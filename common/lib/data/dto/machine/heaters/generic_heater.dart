@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../util/json_util.dart';
@@ -13,7 +14,7 @@ part 'generic_heater.freezed.dart';
 part 'generic_heater.g.dart';
 
 @freezed
-class GenericHeater with _$GenericHeater, SensorMixin, HeaterMixin {
+class GenericHeater with _$GenericHeater, TemperatureSensorMixin, HeaterMixin {
   const GenericHeater._();
 
   const factory GenericHeater({
@@ -48,4 +49,7 @@ class GenericHeater with _$GenericHeater, SensorMixin, HeaterMixin {
 
     return GenericHeater.fromJson(mergedJson);
   }
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.heater_generic;
 }

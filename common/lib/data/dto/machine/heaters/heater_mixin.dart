@@ -5,7 +5,7 @@
 
 import '../sensor_mixin.dart';
 
-mixin HeaterMixin on SensorMixin {
+mixin HeaterMixin on TemperatureSensorMixin {
   double get target;
 
   double get power;
