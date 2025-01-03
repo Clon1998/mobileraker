@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -330,6 +330,7 @@ class _ConsumerTooltipCell extends StatelessWidget {
           return Tooltip(
             margin: const EdgeInsets.all(8.0),
             textAlign: TextAlign.center,
+            triggerMode: TooltipTriggerMode.tap,
             message: asyncTooltipValue.requireValue,
             child: innerChild!,
           );
