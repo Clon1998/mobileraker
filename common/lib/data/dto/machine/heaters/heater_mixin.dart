@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
-import '../sensor_mixin.dart';
+import '../temperature_sensor_mixin.dart';
 
 mixin HeaterMixin on TemperatureSensorMixin {
   double get target;

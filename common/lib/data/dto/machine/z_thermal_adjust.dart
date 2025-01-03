@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../util/json_util.dart';
