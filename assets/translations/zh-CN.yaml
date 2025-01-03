@@ -678,7 +678,6 @@ pages:
       body: |-
         Mail: {}
         Discord: {}
-
     title: 支持开发人员！
     calling_store: 正在处理请求。。。
     promo_title: 优惠活动
@@ -703,7 +702,6 @@ pages:
         皮带调节器使用您的手机麦克风来分析皮带的共振频率。
 
         点击授予权限。
-
   spoolman:
     title: Spoolman
     not_available: "Spoolman 在这台打印机上不可用。\n请确保 Spoolman 已经安装并启用在您的打印机上。\n"
