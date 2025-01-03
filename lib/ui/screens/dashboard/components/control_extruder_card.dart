@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -465,13 +465,10 @@ class _ToolItem extends StatelessWidget {
     };
 
     return Row(
+      spacing: 8,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (color != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Icon(Icons.circle, color: color, size: 12),
-          ),
+        if (color != null) Icon(Icons.circle, color: color, size: 12),
         Text(tool.name),
       ],
     );
