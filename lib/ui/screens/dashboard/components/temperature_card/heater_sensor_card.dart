@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -222,18 +222,18 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
     NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     ThemeData themeData = Theme.of(context);
-    Color colorBg = themeData.colorScheme.surfaceVariant;
+    Color colorBg = themeData.colorScheme.surfaceContainer;
     if (heater.target > 0 && klippyCanReceiveCommands) {
       colorBg = Color.alphaBlend(
-        const Color.fromRGBO(178, 24, 24, 1).withOpacity(
-          min(heater.temperature / heater.target, 1),
+        const Color.fromRGBO(178, 24, 24, 1).withValues(
+          alpha: min(heater.temperature / heater.target, 1),
         ),
         colorBg,
       );
     } else if (heater.temperature > _stillHotTemp) {
       colorBg = Color.alphaBlend(
-        const Color.fromRGBO(243, 106, 65, 1.0).withOpacity(
-          min(heater.temperature / _stillHotTemp - 1, 1),
+        const Color.fromRGBO(243, 106, 65, 1.0).withValues(
+          alpha: min(heater.temperature / _stillHotTemp - 1, 1),
         ),
         colorBg,
       );

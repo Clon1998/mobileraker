@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -137,8 +137,8 @@ class _Body extends ConsumerWidget {
         : themeData.colorScheme.onPrimaryContainer;
 
     final selectedBackgroundColor = (themeData.brightness == Brightness.light)
-        ? themeData.colorScheme.surfaceVariant
-        : themeData.colorScheme.primary.withOpacity(.2);
+        ? themeData.colorScheme.surfaceContainer
+        : themeData.colorScheme.primary.withValues(alpha: .2);
 
     final controller = ref.watch(navWidgetControllerProvider.notifier);
     final model = ref.watch(navWidgetControllerProvider);

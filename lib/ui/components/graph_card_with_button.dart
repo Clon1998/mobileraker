@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -32,7 +32,7 @@ class GraphCardWithButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceVariant;
+    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceContainer;
     var gcColor =
         graphColor ?? ((Theme.of(context).brightness == Brightness.dark) ? bgColor.brighten(15) : bgColor.darken(15));
     var onBackgroundColor = (ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
