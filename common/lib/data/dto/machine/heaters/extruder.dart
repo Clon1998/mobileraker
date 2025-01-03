@@ -7,7 +7,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../util/json_util.dart';
 import '../../config/config_file_object_identifiers_enum.dart';
-import '../sensor_mixin.dart';
+import '../temperature_sensor_mixin.dart';
 import 'heater_mixin.dart';
 
 part 'extruder.freezed.dart';
