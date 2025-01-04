@@ -2,6 +2,12 @@
 
 ## [2.8.5] - 2025-02-xx
 
+### Enhancements
+
+- **Target File Location Page**: The __Back__ and __Cancel__ buttons on the target file location page now function
+  correctly. Users can navigate back to the previous page or cancel the move/copy operation immediately, instead of
+  always moving up to the root folder.
+
 ## [2.8.4] - 2025-01-04
 
 ### Enhancements
