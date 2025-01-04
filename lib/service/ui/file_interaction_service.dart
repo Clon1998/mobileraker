@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,6 +13,7 @@ import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/file_action_sheet_action_enum.dart';
 import 'package:common/data/enums/gcode_file_action_sheet_action_enum.dart';
+import 'package:common/data/model/file_destination_selection_result.dart';
 import 'package:common/data/model/file_interaction_menu_event.dart';
 import 'package:common/data/model/file_operation.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
@@ -305,10 +306,10 @@ class FileInteractionService {
       queryParameters: {'machineUUID': _machineUUID, 'submitLabel': tr('pages.files.move_here')},
     );
 
-    if (res case String()) {
-      if (first.parentPath == res) return;
-      final newPath = res;
-      logger.i('[FileInteractionService($_machineUUID)] moving files to $res');
+    if (res case MoveHereFileDestinationResult(path: final String selectedPath)) {
+      if (first.parentPath == selectedPath) return;
+      final newPath = selectedPath;
+      logger.i('[FileInteractionService($_machineUUID)] moving files to $selectedPath');
 
       final waitFor = <Future>[];
       for (var file in files) {
@@ -358,12 +359,12 @@ class FileInteractionService {
       queryParameters: {'machineUUID': _machineUUID, 'submitLabel': tr('pages.files.copy_here')},
     );
 
-    if (res case String()) {
+    if (res case MoveHereFileDestinationResult(path: final String selectedPath)) {
       //TODO: Verify toLoading:true is not required...
       // state = state.copyWith(folderContent: state.folderContent.toLoading(true));
       yield FileOperationTriggered(action: FileSheetAction.copy, files: [file]);
 
-      final copyPath = '$res/$copyName';
+      final copyPath = '$selectedPath/$copyName';
       logger.i('[FileInteractionService($_machineUUID)] creating copy of file ${file.name} at $copyPath');
       await _fileService.copyFile(file.absolutPath, copyPath);
       _snackBarService.show(SnackBarConfig(

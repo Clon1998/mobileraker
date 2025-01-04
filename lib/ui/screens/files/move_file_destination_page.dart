@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -8,6 +8,7 @@ import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
+import 'package:common/data/model/file_destination_selection_result.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -82,7 +83,7 @@ class _Body extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
       if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
-        if (context.canPop()) context.pop();
+        if (context.canPop()) context.pop(FileDestinationSelectionResult.cancel());
         logger.i('Closing search screen due to client state change');
       }
     });
@@ -227,7 +228,9 @@ class _Footer extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        TextButton(onPressed: () => context.pop(), child: const Text('general.cancel').tr()),
+        TextButton(
+            onPressed: () => context.pop(FileDestinationSelectionResult.cancel()),
+            child: const Text('general.cancel').tr()),
         const Gap(16),
         TextButton(onPressed: onMoveHere, child: Text(submitLabel)),
         const Gap(16),
@@ -286,9 +289,9 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
       queryParameters: {'machineUUID': machineUUID, 'submitLabel': submitLabel},
     );
 
-    //TODO: Add an result. Because we can not handle the path + cancel + back button...
-    if (res == null) return;
-    _goRouter.pop(res);
+    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] onTapFolder CHILD RETURNED: $res');
+    // Only for a cancel or move here result we need to pop -> propagate the result
+    if (res case CancelFileDestinationResult() || MoveHereFileDestinationResult()) _goRouter.pop(res);
   }
 
   void onCreateFolder() async {
@@ -327,7 +330,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   }
 
   void onMoveHere() {
-    _goRouter.pop(filePath);
+    _goRouter.pop(FileDestinationSelectionResult.moveHere(filePath));
   }
 
   void _onFileNotification(FileActionResponse notification) {
@@ -338,12 +341,12 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
     switch (notification.action) {
       case FileAction.delete_dir when notification.item.fullPath == filePath:
         logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was deleted, will move to parent');
-        _goRouter.pop();
+        _goRouter.pop(FileDestinationSelectionResult.back());
         ref.invalidateSelf();
         break;
       case FileAction.move_dir when notification.sourceItem?.fullPath == filePath:
         logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was moved, will move to new location');
-        _goRouter.pop();
+        _goRouter.pop(FileDestinationSelectionResult.back());
         ref.invalidateSelf();
       default:
         // Do Nothing!
