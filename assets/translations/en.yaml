@@ -63,6 +63,7 @@ general:
   hide: Hide
   finish: Finish
   select: Select
+  folder: Folder
 pages:
   dashboard:
     title: Dashboard

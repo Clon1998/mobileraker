@@ -106,7 +106,11 @@ class FileInteractionService {
 
     final arg = ActionBottomSheetArgs(
       title: Tooltip(message: file.name, child: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
-      subtitle: file.fileExtension?.let((ext) => Text(ext.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis)),
+      subtitle: switch (file) {
+        Folder() => Text('@.upper:general.folder', maxLines: 1, overflow: TextOverflow.ellipsis).tr(),
+        RemoteFile(fileExtension: final ext?) => Text(ext.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis),
+        _ => null,
+      },
       leading: SizedBox.square(
         dimension: 33,
         child: RemoteFileIcon(
