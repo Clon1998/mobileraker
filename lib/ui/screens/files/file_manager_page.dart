@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/enums/file_action_enum.dart';
@@ -1290,10 +1291,17 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
 
+    final activeViewName = _goRouter.state?.name;
+    final activeFileUiExtra = _goRouter.state?.extra;
+    final activeFileUiPath = _goRouter.state?.uri.path.substring(7).let(Uri.decodeComponent) ?? filePath;
+
+    if (_goRouter.state?.uri.path.startsWith('/files/') != true) {
+      logger
+          .i('[ModernFileManagerController($machineUUID, $filePath)] Ignoring notification, not in file manager view');
+      return;
+    }
+
     // Check if the notifications are only related to the current folder
-
-    final activeFolderUiPath = _goRouter.state?.uri.path.substring(7).let(Uri.decodeComponent) ?? filePath;
-
     switch (notification.action) {
       case FileAction.delete_dir when notification.item.fullPath == filePath:
         // This controller code section handles UI navigation when folders are deleted from the file system.
@@ -1317,12 +1325,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           [ModernFileManagerController($machineUUID, $filePath)]
             Folder deletion detected:
             - Deleted path: $filePath
-            - Currently active folder: $activeFolderUiPath
+            - Currently active folder: $activeFileUiPath
             - Will navigate to surviving parent folder
         ''');
 
         // Case 1: DIRECT DELETION - Handle deletion of currently active folder
-        if (activeFolderUiPath == filePath) {
+        if (activeFileUiPath == filePath) {
           logger.i('''
             [ModernFileManagerController($machineUUID, $filePath)]
               Direct folder deletion:
@@ -1336,7 +1344,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         }
 
         // Case 2: PARENT DELETION - Handle deletion of a parent folder
-        final activePathSegments = activeFolderUiPath.split('/').toList();
+        final activePathSegments = activeFileUiPath.split('/').toList();
         final deletedPathSegments = filePath.split('/').toList();
 
         // Calculate how many levels need to be popped
@@ -1397,7 +1405,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
         final movedFolder = Folder.fromFileItem(notification.item);
         // The currently active path in the UI (represents the old location)
-        final currentUIPathSegments = activeFolderUiPath.split('/').toList();
+        final currentUIPathSegments = activeFileUiPath.split('/').toList();
         // The destination path where the folder was moved to
         final destinationPathSegments = movedFolder.absolutPath.split('/').toList();
 
@@ -1406,7 +1414,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             Folder move detected:
             - From: $filePath
             - To: ${movedFolder.absolutPath}
-            - Currently active folder: $activeFolderUiPath
+            - Currently active folder: $activeFileUiPath
         ''');
 
         // Calculate how much of the path structure needs to change
@@ -1415,7 +1423,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         final newPathSegmentsToAdd = destinationPathSegments.sublist(sharedPathDepth);
 
         // Handle the PARENT MOVE scenario
-        if (activeFolderUiPath != filePath) {
+        if (activeFileUiPath != filePath) {
           logger.i('''
             [ModernFileManagerController($machineUUID, $filePath)]
               Parent folder move detected:
@@ -1461,16 +1469,47 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
         // Push new views for each path segment
         for (final pathSegment in newPathSegmentsToAdd) {
-          reconstructedPath = '$reconstructedPath/$pathSegment';
-          logger.i(
-              '[ModernFileManagerController($machineUUID, $filePath)] Opening new view for path: $reconstructedPath');
+          final isLast = pathSegment == newPathSegmentsToAdd.last;
 
-          _goRouter.pushNamed(
-            AppRoute.fileManager_explorer.name,
-            pathParameters: {'path': reconstructedPath},
-            // Only pass the folder object if we're at its exact path
-            extra: movedFolder.unless(reconstructedPath == movedFolder.absolutPath),
-          );
+          switch (activeViewName) {
+            case String() when !isLast || activeViewName == AppRoute.fileManager_explorer.name:
+              reconstructedPath = '$reconstructedPath/$pathSegment';
+
+              logger.i(
+                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath');
+
+              _goRouter.pushNamed(
+                AppRoute.fileManager_explorer.name,
+                pathParameters: {'path': reconstructedPath},
+                // Only pass the folder object if we're at its exact path
+                extra: movedFolder.only(reconstructedPath == movedFolder.absolutPath),
+              );
+              break;
+            case String()
+                when activeViewName == AppRoute.fileManager_exlorer_gcodeDetail.name && activeFileUiExtra is GCodeFile:
+              logger.i(
+                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new GCodeDetails view for path: $reconstructedPath');
+
+              _goRouter.pushNamed(
+                AppRoute.fileManager_exlorer_gcodeDetail.name,
+                pathParameters: {'path': reconstructedPath},
+                extra: activeFileUiExtra.copyWith(
+                  parentPath: reconstructedPath,
+                ),
+              );
+              break;
+            case String() when activeFileUiExtra is GenericFile:
+              logger.i(
+                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new $activeViewName view for path: $reconstructedPath');
+
+              _goRouter.pushNamed(
+                activeViewName,
+                pathParameters: {'path': reconstructedPath},
+                extra: activeFileUiExtra.copyWith(parentPath: reconstructedPath),
+              );
+              break;
+            default:
+          }
         }
 
         logger.i('''
