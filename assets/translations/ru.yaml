@@ -93,8 +93,6 @@ pages:
     title: Файлы
     search_files: Поиск файлов
     details:
-      preheat: Преднагрев
-      print: Печать
       general_card:
         path: Путь
         last_mod: Последнее изменение
