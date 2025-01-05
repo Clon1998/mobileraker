@@ -362,6 +362,11 @@ pages:
         body: |-
           Extruder: {}°C
           Bett: {}°C
+      print_queue_snackbar:
+        title: Zur Warteschlange hinzugefügt
+        body:
+          1: Die Datei wurde erfolgreich zur Druckwarteschlange hinzugefügt.
+          other: Die Dateien wurden erfolgreich zur Druckwarteschlange hinzugefügt.
       spoolman_warnings:
         insufficient_filament_title: Unzureichendes Filament
         insufficient_filament_body: |-
