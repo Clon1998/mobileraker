@@ -116,8 +116,6 @@ pages:
       one: Element
       other: Elementen
     details:
-      preheat: Voorverwarmen
-      print: Printen
       general_card:
         path: Pad
         last_mod: Laatst aangepast
