@@ -100,8 +100,6 @@ pages:
     title: Файли
     search_files: Пошук файлів
     details:
-      preheat: Попередній нагрів
-      print: Друк
       general_card:
         path: Шлях
         last_mod: Остання зміна
