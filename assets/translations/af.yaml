@@ -127,8 +127,6 @@ pages:
     title: Lêers
     search_files: Deursoek lêers
     details:
-      preheat: Voorverhit
-      print: Druk
       general_card:
         path: Pad
         last_mod: Laas Verander
