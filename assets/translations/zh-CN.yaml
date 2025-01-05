@@ -326,8 +326,6 @@ pages:
       one: 元素
       other: 元素
     details:
-      preheat: 预热
-      print: 打印
       general_card:
         path: 路径
         last_mod: 修改时间
