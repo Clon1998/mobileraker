@@ -63,6 +63,7 @@ general:
   hide: Verstecken
   finish: Abschließen
   select: Auswählen
+  folder: Ordner
 pages:
   dashboard:
     title: Dashboard
