@@ -100,8 +100,6 @@ pages:
     title: Fișiere
     search_files: Caută fișiere
     details:
-      preheat: Preîncălzire
-      print: Tipărire
       general_card:
         path: Cale
         last_mod: Ultima modificare
