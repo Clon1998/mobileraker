@@ -361,6 +361,11 @@ pages:
         body: |-
           挤出头：{}°C
           床：{}°C
+      print_queue_snackbar:
+        title: 添加到打印队列
+        body:
+          1: 文件已成功添加到打印队列。
+          other: 文件已成功添加到打印队列。
       spoolman_warnings:
         insufficient_filament_title: 耗材不足
         insufficient_filament_body: |-
