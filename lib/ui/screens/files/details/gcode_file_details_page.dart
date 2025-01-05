@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -10,7 +10,9 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
@@ -28,6 +30,7 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/path_utils.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +39,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/file_interaction_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
@@ -69,7 +73,6 @@ class _GCodeFileDetailPage extends StatelessWidget {
       appBar: const _AppBar().only(context.isLargerThanCompact),
       body: context.isCompact ? const _CompactBody() : const _MediumBody(),
       floatingActionButton: const _Fab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -160,6 +163,12 @@ class _CompactBody extends HookConsumerWidget {
                 ),
               ]),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+                onPressed: controller.onStartPrintTap.only(model.canStartPrint),
+              ),
+            ],
           );
         }),
         SliverToBoxAdapter(
@@ -491,8 +500,14 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(_gCodeFileDetailsControllerProvider);
+    final controller = ref.read(_gCodeFileDetailsControllerProvider.notifier);
 
-    return AppBar(title: Text(model.file.name));
+    return AppBar(title: Text(model.file.name), actions: [
+      IconButton(
+        icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+        onPressed: controller.onStartPrintTap.only(model.canStartPrint),
+      ),
+    ]);
   }
 
   @override
@@ -505,25 +520,15 @@ class _Fab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
-    var canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((data) => data.canStartPrint));
 
-    // return FloatingActionButton.extended(
-    //   icon: const Icon(Icons.more_vert),
-    //   label: const Text('pages.files.details.actions').tr(),
-    //   onPressed: () {
-    //     final box = context.findRenderObject() as RenderBox?;
-    //     final pos = box!.localToGlobal(Offset.zero) & box.size;
-    //
-    //     controller.onActionsTap(pos);
-    //   },
-    // );
+    return FloatingActionButton(
+      child: const Icon(FlutterIcons.bars_faw5s),
+      onPressed: () {
+        final box = context.findRenderObject() as RenderBox?;
+        final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-    var themeData = Theme.of(context);
-    return FloatingActionButton.extended(
-      backgroundColor: (canStartPrint) ? null : themeData.disabledColor,
-      onPressed: (canStartPrint) ? controller.onStartPrintTap : null,
-      icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-      label: const Text('pages.files.details.print').tr(),
+        controller.onActionsTap(pos);
+      },
     );
   }
 }
@@ -558,13 +563,25 @@ GCodeFile _gcode(Ref ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [_gcode])
 class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
+  FileInteractionService get _fileInteractionService => ref.read(fileInteractionServiceProvider(machineUUID));
+
+  PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
+
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
+  DialogService get _dialogService => ref.read(dialogServiceProvider);
+
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
+
+  GoRouter get _goRouter => ref.read(goRouterProvider);
+
+  String get machineUUID => ref.read(selectedMachineProvider.selectRequireValue((value) => value!.uuid));
+
   @override
   _Model build() {
     ref.keepAliveFor();
     logger.i('Buildign GCodeFileDetailsController');
     canPrintCalc(PrintState? d) => d != null && (d != PrintState.printing || d != PrintState.paused);
-
-    final machineUUID = ref.watch(selectedMachineProvider.selectRequireValue((value) => value!.uuid));
     final gCodeFile = ref.watch(_gcodeProvider);
     final klippy = ref.watch(klipperProvider(machineUUID)).valueOrNull;
     final printer = ref.read(printerProvider(machineUUID)).valueOrNull;
@@ -573,6 +590,9 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
         state = state.copyWith(canStartPrint: canPrintCalc(next.valueOrNull?.print.state));
       }
     });
+
+    ref.listen(fileNotificationsProvider(machineUUID, gCodeFile.absolutPath), _onFileNotification,
+        fireImmediately: true);
 
     (double?, String?) spoolCalc(GetSpool spool) {
       double? insufficientFilament;
@@ -612,6 +632,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
         materialMissmatch = res.$2;
       }
     }
+    // ref.listen(fileNotificationsProvider, listener)
 
     return _Model(
       file: gCodeFile,
@@ -622,57 +643,112 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
     );
   }
 
-  PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
-
-  DialogService get _dialogService => ref.read(dialogServiceProvider);
-
-  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
-
-  GoRouter get _goRouter => ref.read(goRouterProvider);
-
-  void onStartPrintTap() {
-    _printerService.startPrintFile(ref.read(_gcodeProvider));
-    _goRouter.goNamed(AppRoute.dashBoard.name);
+  Future<void> onStartPrintTap() async {
+    await _fileInteractionService.submitJobAction(state.file).last;
   }
 
-  void onPreHeatPrinterTap() {
-    var gCodeFile = ref.read(_gcodeProvider);
-    var tempArgs = [
-      '170',
-      gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60',
-    ];
-    _dialogService
-        .showConfirm(
-      title: 'pages.files.details.preheat_dialog.title'.tr(),
-      body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
-      actionLabel: 'pages.files.details.preheat'.tr(),
-    )
-        .then((dialogResponse) {
-      if (dialogResponse?.confirmed ?? false) {
-        _printerService.setHeaterTemperature('extruder', 170);
-        if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ?? false) {
-          _printerService.setHeaterTemperature(
-            'heater_bed',
-            (gCodeFile.firstLayerTempBed ?? 60.0).toInt(),
-          );
+  void changeActiveSpool() {
+    _bottomSheetService.show(BottomSheetConfig(
+      type: ProSheetType.selectSpoolman,
+      isScrollControlled: true,
+      data: state.machineUUID,
+    ));
+  }
+
+  Future<void> onActionsTap(Rect position) async {
+    await for (var event
+        in _fileInteractionService.showFileActionMenu(state.file, position, machineUUID, null, false)) {
+      logger.i('[GCodeFileDetailsController] File-interaction-event: $event');
+    }
+  }
+
+  void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
+    final notification = next.valueOrNull;
+    if (notification == null) return;
+    logger.i('[GCodeFileDetailsController] File-notification: $notification');
+
+    switch (notification.action) {
+      case FileAction.delete_file:
+        logger.i('[GCodeFileDetailsController] File deleted: ${notification.item.fullPath}, will close view');
+
+        _goRouter.pop();
+        WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
+        break;
+      case FileAction.move_file:
+        final filePath = state.file.absolutPath;
+        final movedFile = state.file.copyWith(parentPath: notification.item.parentPath, name: notification.item.name);
+        // The currently active path in the UI (represents the old location)
+        final currentUIPathSegments = filePath.split('/').toList();
+        // The destination path where the file was moved to
+        final destinationPathSegments = movedFile.absolutPath.split('/').toList();
+
+        logger.i('''
+          [GCodeFileDetailsController($machineUUID, $filePath)] 
+            File move detected:
+            - From: $filePath
+            - To: ${movedFile.absolutPath}
+        ''');
+
+        // Calculate how much of the path structure needs to change
+        final int sharedPathDepth = findCommonPathLength(currentUIPathSegments, destinationPathSegments);
+        final viewsToClose = currentUIPathSegments.length - sharedPathDepth;
+        final newPathSegmentsToAdd = destinationPathSegments.sublist(sharedPathDepth);
+
+        // Close views back to the common root path
+        for (var i = 0; i < viewsToClose; i++) {
+          final segmentToClose = currentUIPathSegments[currentUIPathSegments.length - 1 - i];
+          final remainingPath = currentUIPathSegments.sublist(0, currentUIPathSegments.length - i).join('/');
+
+          logger.i(
+              '[GCodeFileDetailsController($machineUUID, $filePath)] Closing view for path segment: $segmentToClose');
+          _goRouter.pop();
+
+          // Invalidate references only for affected paths
+          if (remainingPath == filePath) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
+          }
         }
-        _snackBarService.show(SnackBarConfig(
-          title: tr('pages.files.details.preheat_snackbar.title'),
-          message: tr(
-            'pages.files.details.preheat_snackbar.body',
-            args: tempArgs,
-          ),
-        ));
-      }
-    });
-  }
 
-  changeActiveSpool() {
-    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
-          type: ProSheetType.selectSpoolman,
-          isScrollControlled: true,
-          data: state.machineUUID,
-        ));
+        // Rebuild the path with new segments
+        String reconstructedPath = destinationPathSegments.sublist(0, sharedPathDepth).join('/');
+
+        // Push new views for each path segment
+        for (final pathSegment in newPathSegmentsToAdd) {
+          final isLast = pathSegment == newPathSegmentsToAdd.last;
+
+          if (isLast) {
+            logger.i(
+                '[GCodeFileDetailsController($machineUUID, $filePath)] Opening new GCodeDetails view for path: ${movedFile.absolutPath}');
+            _goRouter.pushNamed(
+              AppRoute.fileManager_exlorer_gcodeDetail.name,
+              pathParameters: {'path': reconstructedPath},
+              extra: movedFile,
+            );
+          } else {
+            reconstructedPath = '$reconstructedPath/$pathSegment';
+
+            logger.i(
+                '[GCodeFileDetailsController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath');
+
+            _goRouter.pushNamed(
+              AppRoute.fileManager_explorer.name,
+              pathParameters: {'path': reconstructedPath},
+              // Only pass the folder object if we're at its exact path
+              extra: movedFile.only(reconstructedPath == movedFile.absolutPath),
+            );
+          }
+        }
+
+        logger.i('''
+          [GCodeFileDetailsController($machineUUID, $filePath)]
+            Path reconstruction completed:
+            - Final path: $reconstructedPath
+            - Total views modified: ${viewsToClose + newPathSegmentsToAdd.length}
+        ''');
+      default:
+        // Do Nothing!
+        break;
+    }
   }
 }
 

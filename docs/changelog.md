@@ -12,6 +12,9 @@
   - When a folder is deleted, the view returns to the parent folder
   - These behaviors work correctly for both directly affected folders and their nested children
 
+- **GCode Detail Page**: The GCode detail page now provides the same file management functionality as the normal file
+  manager page when a GCode file is selected.
+
 ## [2.8.4] - 2025-01-04
 
 ### Enhancements
