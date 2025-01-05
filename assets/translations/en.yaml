@@ -332,8 +332,6 @@ pages:
       one: Element
       other: Elements
     details:
-      preheat: Preheat
-      print: Print
       general_card:
         path: Path
         last_mod: Last Modified
