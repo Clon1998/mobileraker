@@ -325,8 +325,6 @@ pages:
       one: Elem
       other: Elemek
     details:
-      preheat: Előmelegítés
-      print: Nyomtatás
       general_card:
         path: Útvonal
         last_mod: Utoljára módosítva
