@@ -369,6 +369,11 @@ pages:
         body: |-
           Extruder: {}°C
           Bed: {}°C
+      print_queue_snackbar:
+        title: Added to Print Queue
+        body:
+          1: The file was successfully added to the print queue.
+          other: The files were successfully added to the print queue.
       spoolman_warnings:
         insufficient_filament_title: Insufficient filament
         insufficient_filament_body: |-

@@ -99,6 +99,7 @@ class FileInteractionService {
     Rect origin,
     String machineUUID, [
     List<String>? usedNames,
+    bool useHero = true,
   ]) async* {
     final canStartPrint = _printerService.current.print.state != PrintState.printing &&
         _printerService.current.print.state != PrintState.paused;
@@ -116,6 +117,7 @@ class FileInteractionService {
         child: RemoteFileIcon(
           machineUUID: machineUUID,
           file: file,
+          useHero: useHero,
           alignment: Alignment.centerLeft,
           imageBuilder: (BuildContext context, ImageProvider imageProvider) {
             return Container(
@@ -402,6 +404,14 @@ class FileInteractionService {
     try {
       final futures = files.map((e) => _jobQueueService.enqueueJob(e.pathForPrint));
       await Future.wait(futures);
+
+      _snackBarService.show(SnackBarConfig(
+        title: tr('pages.files.details.print_queue_snackbar.title'),
+        message: plural(
+          'pages.files.details.print_queue_snackbar.body',
+          files.length,
+        ),
+      ));
     } on JRpcError catch (e) {
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
