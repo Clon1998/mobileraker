@@ -325,8 +325,6 @@ pages:
       one: Element
       other: Elemente
     details:
-      preheat: Vorheizen
-      print: Drucken
       general_card:
         path: Pfad
         last_mod: Zuletzt bearbeitet
