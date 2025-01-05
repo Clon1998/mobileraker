@@ -100,8 +100,6 @@ pages:
     title: Arquivos
     search_files: Procurar Arquivos
     details:
-      preheat: Pré-Aquecer
-      print: Imprimir
       general_card:
         path: Caminho
         last_mod: Última Modificação
