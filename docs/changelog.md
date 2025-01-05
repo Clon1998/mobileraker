@@ -7,6 +7,10 @@
 - **Target File Location Page**: The __Back__ and __Cancel__ buttons on the target file location page now function
   correctly. Users can navigate back to the previous page or cancel the move/copy operation immediately, instead of
   always moving up to the root folder.
+- **File Manager Navigation**: The file manager now automatically follows folder operations:
+  - When a folder is moved, the view automatically navigates to its new location
+  - When a folder is deleted, the view returns to the parent folder
+  - These behaviors work correctly for both directly affected folders and their nested children
 
 ## [2.8.4] - 2025-01-04
 

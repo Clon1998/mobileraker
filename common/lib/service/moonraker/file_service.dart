@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -133,7 +133,7 @@ FileService fileService(Ref ref, String machineUUID) {
 }
 
 @riverpod
-Stream<FileActionResponse> _rawFileNotifications(Ref ref, String machineUUID, [String? path]) {
+Stream<FileActionResponse> _rawFileNotifications(Ref ref, String machineUUID) {
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
 }
 
@@ -193,7 +193,7 @@ Stream<FileActionResponse> fileNotificationsSelected(Ref ref) async* {
 }
 
 @riverpod
-Future<FolderContentWrapper> fileApiResponse(Ref ref, String machineUUID, String path) async {
+Future<FolderContentWrapper> directoryInfoApiResponse(Ref ref, String machineUUID, String path) async {
   ref.keepAliveFor();
   // Invalidation of the cache is done by the fileNotificationsProvider
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
@@ -208,7 +208,7 @@ Future<FolderContentWrapper> moonrakerFolderContent(
   ref.keepAliveFor();
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
   // await Future.delayed(const Duration(milliseconds: 5000));
-  final apiResponse = await ref.watch(fileApiResponseProvider(machineUUID, path).future);
+  final apiResponse = await ref.watch(directoryInfoApiResponseProvider(machineUUID, path).future);
 
   List<Folder> folders = apiResponse.folders.toList();
   List<RemoteFile> files = apiResponse.files.toList();
@@ -218,6 +218,21 @@ Future<FolderContentWrapper> moonrakerFolderContent(
   files.sort(comp);
   folders.sort(comp);
   return FolderContentWrapper(apiResponse.folderPath, folders, files);
+}
+
+@riverpod
+Future<RemoteFile> remoteFile(Ref ref, String machineUUID, String path) async {
+  ref.keepAliveFor();
+  // Note: It is expected that all requested paths point to a FILE and not to a DIR
+  // There is no good way to check this!!! So be careful
+  final parts = path.split('/');
+  final parent = parts.sublist(0, parts.length - 1).join('/');
+
+  // Get the parent data (By default this should already be present in the cache as the primary user is the file manager)
+  final parentData = await ref.watch(directoryInfoApiResponseProvider(machineUUID, parent).future);
+  // Find the file in the parent data
+  var firstWhere = parentData.unwrapped.firstWhere((element) => element.absolutPath == path);
+  return firstWhere;
 }
 
 /// The FileService handles all file changes of the different roots of moonraker
