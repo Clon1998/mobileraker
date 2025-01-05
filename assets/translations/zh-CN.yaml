@@ -63,6 +63,7 @@ general:
   hide: 隐藏
   finish: 完成
   select: 选择
+  folder: 文件夹
 pages:
   dashboard:
     title: 仪表板
