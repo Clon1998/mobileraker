@@ -146,8 +146,6 @@ pages:
     search_files: Dosyaları ara
     no_matches_file_pattern: Yalnızca harflere, sayılara, alt çizgilere, tirelere ve noktalara izin verilir!
     details:
-      preheat: Ön ısıtma
-      print: Yazdır
       general_card:
         path: Yol
         last_mod: Son düzenleme
