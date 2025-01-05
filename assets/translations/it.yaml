@@ -122,8 +122,6 @@ pages:
   files:
     search_files: Ricerca files
     details:
-      preheat: Preriscalda
-      print: Stampa
       general_card:
         path: Percorso
         last_mod: Ultima Modifica
