@@ -11,9 +11,11 @@
   - When a folder is moved, the view automatically navigates to its new location
   - When a folder is deleted, the view returns to the parent folder
   - These behaviors work correctly for both directly affected folders and their nested children
-
 - **GCode Detail Page**: The GCode detail page now provides the same file management functionality as the normal file
   manager page when a GCode file is selected.
+- **Spoolman Page Klipper Offline**: Users can now access the Spoolman page even if Klipper is offline. This allows
+  management of spools and filaments even when the Klipper part of the printer is unavailable (e.g., due to a relay
+  turning off all components except the host/Raspberry Pi).
 
 ## [2.8.4] - 2025-01-04
 
