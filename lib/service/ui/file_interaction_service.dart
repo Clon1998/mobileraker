@@ -101,7 +101,8 @@ class FileInteractionService {
     List<String>? usedNames,
     bool useHero = true,
   ]) async* {
-    final canStartPrint = _printerService.current.print.state != PrintState.printing &&
+    final canStartPrint = _printerService.hasCurrent &&
+        _printerService.current.print.state != PrintState.printing &&
         _printerService.current.print.state != PrintState.paused;
     final klippyReady = _klippyService.klippyCanReceiveCommands;
 

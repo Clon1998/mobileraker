@@ -73,6 +73,7 @@ class _GCodeFileDetailPage extends StatelessWidget {
       appBar: const _AppBar().only(context.isLargerThanCompact),
       body: context.isCompact ? const _CompactBody() : const _MediumBody(),
       floatingActionButton: const _Fab(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -165,8 +166,18 @@ class _CompactBody extends HookConsumerWidget {
             ),
             actions: [
               IconButton(
-                icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-                onPressed: controller.onStartPrintTap.only(model.canStartPrint),
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  final size = MediaQuery.sizeOf(context);
+                  final Rect pos = Rect.fromLTWH(
+                      size.width - 48, // 48 pixels from right edge
+                      0, // Top position
+                      48, // Width of 48 pixels
+                      48 // Height of 48 pixels
+                      );
+
+                  controller.onActionsTap(pos);
+                },
               ),
             ],
           );
@@ -504,8 +515,13 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     return AppBar(title: Text(model.file.name), actions: [
       IconButton(
-        icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-        onPressed: controller.onStartPrintTap.only(model.canStartPrint),
+        icon: const Icon(Icons.more_vert),
+        onPressed: () {
+          final box = context.findRenderObject() as RenderBox?;
+          final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+          controller.onActionsTap(pos);
+        },
       ),
     ]);
   }
@@ -519,16 +535,14 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    final canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.canStartPrint));
 
-    return FloatingActionButton(
-      child: const Icon(FlutterIcons.bars_faw5s),
-      onPressed: () {
-        final box = context.findRenderObject() as RenderBox?;
-        final pos = box!.localToGlobal(Offset.zero) & box.size;
-
-        controller.onActionsTap(pos);
-      },
+    return FloatingActionButton.extended(
+      backgroundColor: (canStartPrint) ? null : Theme.of(context).disabledColor,
+      onPressed: controller.onStartPrintTap.only(canStartPrint),
+      icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+      label: const Text('general.print').tr(),
     );
   }
 }
@@ -643,16 +657,18 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
     );
   }
 
-  Future<void> onStartPrintTap() async {
-    await _fileInteractionService.submitJobAction(state.file).last;
-  }
-
   void changeActiveSpool() {
     _bottomSheetService.show(BottomSheetConfig(
       type: ProSheetType.selectSpoolman,
       isScrollControlled: true,
       data: state.machineUUID,
     ));
+  }
+
+  Future<void> onStartPrintTap() async {
+    await for (var event in _fileInteractionService.submitJobAction(state.file)) {
+      logger.i('[GCodeFileDetailsController] onStartPrintTap File-interaction-event: $event');
+    }
   }
 
   Future<void> onActionsTap(Rect position) async {

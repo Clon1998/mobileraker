@@ -64,6 +64,7 @@ general:
   finish: Abschließen
   select: Auswählen
   folder: Ordner
+  print: Drucken
 pages:
   dashboard:
     title: Dashboard
