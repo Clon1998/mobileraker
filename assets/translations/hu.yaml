@@ -63,6 +63,7 @@ general:
   hide: Elrejtés
   finish: Kész
   select: Kiválaszt
+  folder: Mappa
 pages:
   dashboard:
     title: Irányítópult
@@ -360,6 +361,11 @@ pages:
         body: |-
           Fúvóka: {}°C
           Ágy: {}°C
+      print_queue_snackbar:
+        title: Hozzáadva a nyomtatási sorhoz
+        body:
+          1: A fájl sikeresen hozzá lett adva a nyomtatási sorhoz.
+          other: A fájlok sikeresen hozzá lettek adva a nyomtatási sorhoz.
       spoolman_warnings:
         insufficient_filament_title: Elégtelen nyomtatószál
         insufficient_filament_body: |-
