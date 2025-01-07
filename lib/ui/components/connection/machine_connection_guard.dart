@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -23,6 +23,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/webcam_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -97,7 +98,7 @@ class _WebsocketStateWidget extends ConsumerWidget {
               machineUUID: machineUUID,
               onConnected: onConnected,
               skipKlipperReady: skipKlipperReady,
-              klippyErrorChildren: [PowerApiCard(machineUUID: machineUUID)],
+              klippyErrorChildren: [WebcamCard(machineUUID: machineUUID), PowerApiCard(machineUUID: machineUUID)],
             );
 
           case ClientState.disconnected:

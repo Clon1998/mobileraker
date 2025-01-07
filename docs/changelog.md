@@ -16,6 +16,10 @@
 - **Spoolman Page Klipper Offline**: Users can now access the Spoolman page even if Klipper is offline. This allows
   management of spools and filaments even when the Klipper part of the printer is unavailable (e.g., due to a relay
   turning off all components except the host/Raspberry Pi).  [#462](https://github.com/Clon1998/mobileraker/issues/462)
+- **Webcam Access When Offline**: The webcam card is now displayed alongside the power panel card even if Klipper is
+  offline.
+  This allows users to still access the webcam even if the printer is
+  offline. [#221](https://github.com/Clon1998/mobileraker/issues/221)
 
 ## [2.8.4] - 2025-01-04
 
