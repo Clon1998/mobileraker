@@ -15,7 +15,7 @@
   manager page when a GCode file is selected.
 - **Spoolman Page Klipper Offline**: Users can now access the Spoolman page even if Klipper is offline. This allows
   management of spools and filaments even when the Klipper part of the printer is unavailable (e.g., due to a relay
-  turning off all components except the host/Raspberry Pi).
+  turning off all components except the host/Raspberry Pi).  [#462](https://github.com/Clon1998/mobileraker/issues/462)
 
 ## [2.8.4] - 2025-01-04
 
