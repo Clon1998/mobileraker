@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -24,6 +24,8 @@ enum WebcamServiceType {
   webRtcGo2Rtc(true, true),
   @JsonValue('webrtc-mediamtx')
   webRtcMediaMtx(true, true),
+  @JsonValue('webrtc-creality')
+  webRtcCreality(true, true),
   // This is a special case to make it possible to show "Preview" in the UI
   @JsonValue('_MrPrev_')
   preview(true, true),

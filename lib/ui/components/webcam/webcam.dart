@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -105,6 +105,7 @@ class Webcam extends HookConsumerWidget {
       case WebcamServiceType.webRtcGo2Rtc:
       case WebcamServiceType.webRtcCamStreamer:
       case WebcamServiceType.webRtcMediaMtx:
+      case WebcamServiceType.webRtcCreality:
         return WebcamWebRtc(
           machine: machine,
           webcamInfo: webcamInfo,
