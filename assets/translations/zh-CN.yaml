@@ -64,6 +64,7 @@ general:
   finish: 完成
   select: 选择
   folder: 文件夹
+  print: 打印
 pages:
   dashboard:
     title: 仪表板
