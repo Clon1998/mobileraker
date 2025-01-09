@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'dart:convert';
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:common/data/dto/files/generic_file.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('BedScrew fromJson', () {
