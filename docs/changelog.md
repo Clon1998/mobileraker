@@ -21,7 +21,12 @@
   This allows users to still access the webcam even if the printer is
   offline. [#221](https://github.com/Clon1998/mobileraker/issues/221)
 
+### Bug Fixes
+
 ## [2.8.4] - 2025-01-04
+
+-**Macro Param Parsing**: Fixed an issue that prevented the app from parsing macro parameters
+correctly. [#448](https://github.com/Clon1998/mobileraker/issues/448)
 
 ### Enhancements
 
