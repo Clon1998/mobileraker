@@ -9,7 +9,15 @@ part 'consent_entry_type.g.dart';
 
 @JsonEnum(alwaysCreate: true)
 enum ConsentEntryType {
-  marketingNotifications;
+  marketingNotifications('pages.setting.notification.opt_out_marketing',
+      'pages.setting.notification.opt_out_marketing_helper', 'pages.setting.notification.opt_out_marketing_helper'),
+  ;
+
+  final String title;
+  final String description;
+  final String shortDescription;
+
+  const ConsentEntryType(this.title, this.description, this.shortDescription);
 
   String toJsonEnum() => _$ConsentEntryTypeEnumMap[this]!;
 

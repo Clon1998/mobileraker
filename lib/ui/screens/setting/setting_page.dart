@@ -999,13 +999,15 @@ class _AdPushNotificationsSetting extends HookConsumerWidget {
         isThreeLine: false,
         enabled: enabled,
         contentPadding: EdgeInsets.zero,
-        title: const Text('pages.setting.notification.opt_out_marketing').tr(),
-        subtitle: const Text('pages.setting.notification.opt_out_marketing_helper').tr(),
+        title: Text(ConsentEntryType.marketingNotifications.title).tr(),
+        subtitle: Text(ConsentEntryType.marketingNotifications.shortDescription).tr(),
         trailing: AsyncSwitch(
           value: value,
           onChanged: (b) {
             return consentService.updateConsentEntry(
-                ConsentEntryType.marketingNotifications, b ? ConsentStatus.GRANTED : ConsentStatus.DENIED);
+              ConsentEntryType.marketingNotifications,
+              b ? ConsentStatus.GRANTED : ConsentStatus.DENIED,
+            );
           }.only(enabled),
         ),
       ),
