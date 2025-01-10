@@ -65,6 +65,8 @@ general:
   select: Auswählen
   folder: Ordner
   print: Drucken
+  allow: Erlauben
+  deny: Verweigern
 pages:
   dashboard:
     title: Dashboard
@@ -1345,3 +1347,13 @@ date_periods:
   day:
     one: Täglich
     other: Tage
+consent_cards:
+  marketing_notifications:
+    title: 'Bleiben Sie informiert!'
+    description: "Wir würden Ihnen gerne Benachrichtigungen senden, um Sie über wichtige Aktualisierungen und relevante Angebote auf dem Laufenden zu halten."
+    agreement: 'Mit der Einwilligung stimmen Sie zu, dass wir:'
+    terms: |
+      • die FCM-ID Ihres Geräts für Benachrichtigungszwecke speichern
+      • Ihnen Marketingmitteilungen und Werbeangebote zu senden
+      • diese Daten in Übereinstimmung mit unserer Datenschutzrichtlinie verarbeiten
+    disclaimer: Sie können Ihre Zustimmung jederzeit über die App-Einstellungen widerrufen. Weitere Informationen darüber, wie wir mit Ihren Daten umgehen, finden Sie in unserer Datenschutzerklärung.
