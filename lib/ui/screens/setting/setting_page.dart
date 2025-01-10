@@ -21,6 +21,7 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -985,6 +986,7 @@ class _AdPushNotificationsSetting extends HookConsumerWidget {
     final value = consentState.hasValue && consentState.value!.status == ConsentStatus.GRANTED;
 
     final enabled = consentState.hasValue && !consentState.hasError;
+    logger.wtf('ConsentState: $consentState, Value: $value, Enabled: $enabled');
 
     return InputDecorator(
       decoration: InputDecoration(

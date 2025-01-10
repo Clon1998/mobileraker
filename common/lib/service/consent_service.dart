@@ -114,7 +114,7 @@ class ConsentService {
         logger.i('[ConsentService] Consent data does not exist.');
         consent = await _createNewConsentDoc(hashId);
       } else {
-        logger.i('[ConsentService] Consent data exists.');
+        logger.i('[ConsentService] Consent data exists: $consent');
       }
       currentConsent = consent;
     } catch (e, s) {

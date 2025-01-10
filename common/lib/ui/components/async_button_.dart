@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -279,6 +280,12 @@ class AsyncSwitch extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final switchValue = useState(value);
+    // use sideffect to trigger switchValue update if value changes
+    useEffect(() {
+      switchValue.value = value;
+      return null;
+    }, [value]);
+
     final animCtrler =
         useAnimationController(duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1);
     final actionRunning = useState(false);
@@ -288,6 +295,7 @@ class AsyncSwitch extends HookConsumerWidget {
     } else {
       animCtrler.value = 1;
     }
+    logger.wtf('AsyncSwitch: ${switchValue.value}, ${value}');
 
     return ScaleTransition(
       scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
