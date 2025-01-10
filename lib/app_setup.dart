@@ -22,6 +22,7 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/hive/temperature_preset.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/service/consent_service.dart';
 import 'package:common/service/firebase/analytics.dart';
 import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/firebase/remote_config.dart';
@@ -331,6 +332,9 @@ class Warmup extends _$Warmup {
     yield StartUpStep.notificationService;
     await ref.read(notificationServiceProvider).initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
 
+    yield StartUpStep.consentService;
+    ref.read(consentServiceProvider);
+
     yield StartUpStep.complete;
   }
 }
@@ -347,6 +351,7 @@ enum StartUpStep {
   goRouter('🗺'),
   initMachines('⚙️'),
   notificationService('📢'),
+  consentService('⚖️'),
   complete('🌟');
 
   final String emoji;

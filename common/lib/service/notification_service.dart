@@ -103,6 +103,7 @@ class NotificationService {
       // await _liveActivityService.initialize();
       await _liveActivityServicev2.initialize();
 
+      _initializeFcmTokenListener();
       _initializeMachineRepoListener();
 
       logger.i('Completed NotificationService init');
@@ -188,6 +189,11 @@ class NotificationService {
   Future<void> _initializeNotificationListeners() {
     logger.i('Initializing notification listeners');
     return _notifyAPI.setListeners(onActionReceivedMethod: _onActionReceivedMethod);
+  }
+
+  void _initializeFcmTokenListener() {
+    logger.i('Initializing FCM token listener');
+    _ref.listen(fcmTokenProvider, _onFcmTokenUpdated, fireImmediately: true);
   }
 
   void _initializeMachineRepoListener() {
@@ -327,6 +333,7 @@ class NotificationService {
       return;
     }
     logger.i('Token from FCM updated $token');
+
     _ref.invalidate(fcmTokenProvider);
   }
 
@@ -468,6 +475,23 @@ class NotificationService {
       // Since I initited the provider before and all hidden machines dont have a machineProvider setup, also remove it again!
       keepAliveExternally.close();
       _ref.invalidate(mProvider);
+    }
+  }
+
+  void _onFcmTokenUpdated(AsyncValue<String>? prev, AsyncValue<String> next) {
+    if (prev?.valueOrNull == next.valueOrNull) return;
+    if (!next.hasValue) return;
+    final token = next.value!;
+
+    var savedTokenHistory = _settingsService.readList(UtilityKeys.fcmTokenHistory, <String>[]);
+    if (!savedTokenHistory.contains(token)) {
+      logger.i('Adding token to history');
+      savedTokenHistory = [...savedTokenHistory, token];
+      _settingsService.writeList(UtilityKeys.fcmTokenHistory, savedTokenHistory);
+    }
+    logger.i('FCM token history on device (from oldest -> newest):');
+    for (var element in savedTokenHistory) {
+      logger.i('\t\t- "$element"');
     }
   }
 

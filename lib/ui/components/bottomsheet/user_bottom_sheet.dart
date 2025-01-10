@@ -12,7 +12,6 @@ import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fba;
@@ -65,7 +64,7 @@ class _CardBody extends ConsumerWidget {
             'An unexpected error occured while loading the User management. Please try again later.',
           ),
         ),
-      AsyncValue(hasValue: true, value: fba.User()) => const _Profile(key: Key('profile')),
+      AsyncValue(hasValue: true, value: fba.User(isAnonymous: false)) => const _Profile(key: Key('profile')),
       _ => const _Login(key: Key('Login')),
     };
 
@@ -526,10 +525,10 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   PaymentService get _paymentService => ref.read(paymentServiceProvider);
 
   @override
-  Stream<_Model> build() async* {
+  Future<_Model> build() async {
     logger.i('Rebuilding UserBottomSheetController');
-
-    yield* ref.watchAsSubject(firebaseUserProvider).map((user) => _Model(user: user));
+    var user = await ref.watch(firebaseUserProvider.future);
+    return _Model(user: user);
   }
 
   void onLinkedProviderChanged() {
@@ -554,12 +553,20 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   Future<void> signUp(String email, String password) async {
     clearErrorText();
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      var user = state.value?.user;
+      if (user?.isAnonymous == true) {
+        var credential = EmailAuthProvider.credential(email: email, password: password);
+        logger.i('Linking anonymous user to email');
+        await user!.linkWithCredential(credential);
+      } else if (user == null) {
+        logger.i('Creating new user with email');
+        await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      }
     } on FirebaseAuthException catch (e) {
-      logger.e('Error regisgering', e);
+      logger.e('AuthError while trying to Sign-Up', e);
       state = state.whenData((value) => value.copyWith(errorText: e.message));
     } catch (e) {
-      logger.e('Error regisgering', e);
+      logger.e('Unexpected error while trying to Sign-Up', e);
       state = state.whenData((value) =>
           value.copyWith(errorText: 'An unexpected error occured while registering. Please try again later.'));
     }

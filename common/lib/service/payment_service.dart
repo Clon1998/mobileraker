@@ -245,6 +245,8 @@ class PaymentService {
         var isLogin = previous?.valueOrNull == null && next.valueOrNull != null;
         var isLogout = previous?.valueOrNull != null && next.valueOrNull == null;
 
+        logger.i('[PaymentService] User changed. isLogin: $isLogin, isLogout: $isLogout');
+
         if (isLogin) {
           try {
             LogInResult logInResult = await Purchases.logIn(next.requireValue!.uid);
