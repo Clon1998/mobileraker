@@ -17,11 +17,19 @@ FirebaseAuth auth(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
-Stream<User?> firebaseUser(Ref ref) {
-  var firebaseAuth = ref.watch(authProvider);
+class FirebaseUser extends _$FirebaseUser {
+  @override
+  Stream<User?> build() {
+    var firebaseAuth = ref.watch(authProvider);
+    listenSelf((AsyncValue<User?>? previous, next) {
+      logger.i('Firebase Auth User changed from $previous to $next');
 
-  ref.listenSelf((previous, next) {
-    logger.i('Firebase Auth User changed from $previous to $next');
-  });
-  return firebaseAuth.authStateChanges();
+      if (next case AsyncData(value: null)) {
+        logger.i('Firebase Auth User is null, can safely log in as annonymous user');
+        firebaseAuth.signInAnonymously();
+      }
+    });
+
+    return firebaseAuth.userChanges();
+  }
 }
