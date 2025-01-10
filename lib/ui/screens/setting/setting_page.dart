@@ -984,12 +984,13 @@ class _AdPushNotificationsSetting extends HookConsumerWidget {
 
     final value = consentState.hasValue && consentState.value!.status == ConsentStatus.GRANTED;
 
-    final enabled = consentState.hasValue;
+    final enabled = consentState.hasValue && !consentState.hasError;
 
     return InputDecorator(
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         border: InputBorder.none,
         isCollapsed: true,
+        errorText: tr('pages.setting.notification.opt_out_marketing_error').only(consentState.hasError),
       ),
       child: ListTile(
         dense: true,

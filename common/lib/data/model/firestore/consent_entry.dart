@@ -26,7 +26,8 @@ class ConsentEntry with _$ConsentEntry {
     @TimestampConverter() required DateTime lastUpdate,
 
     /// The history is a list where the oldest entries are at the back.
-    /// The timestamp of an entry always states when the state in the entry was set!
+    /// The timestamp of an entry always states when the state in the entry was set
+    /// !
     @Default([]) List<ConsentEntryHistory> history,
   }) = _ConsentEntry;
 

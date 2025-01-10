@@ -5,10 +5,10 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:common/data/enums/consent_entry_type.dart';
 import 'package:common/data/enums/consent_status.dart';
 import 'package:common/data/model/firestore/consent_entry.dart';
+import 'package:common/data/repository/firebase/consent_repository.dart';
 import 'package:common/service/firebase/auth.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,13 +18,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/model/firestore/consent.dart';
 import '../data/model/firestore/consent_entry_history.dart';
-import 'firebase/firestore.dart';
 
 part 'consent_service.g.dart';
 
 @Riverpod(keepAlive: true)
 ConsentService consentService(Ref ref) {
-  final consentService = ConsentService(firestore: ref.watch(firestoreProvider));
+  final consentService = ConsentService(consentRepository: ref.watch(consentRepositoryProvider));
   ref.listen(firebaseUserProvider, consentService.onFirebaseUserChanged, fireImmediately: true);
   ref.onDispose(consentService.dispose);
 
@@ -43,15 +42,12 @@ Future<ConsentEntry?> consentEntry(Ref ref, ConsentEntryType type) {
 
 class ConsentService {
   ConsentService({
-    required FirebaseFirestore firestore,
-  }) : _consentCollection = firestore.collection('consents').withConverter(
-              fromFirestore: (snapshot, _) => Consent.fromJson(snapshot.data()!),
-              toFirestore: (model, _) => model?.toJson() ?? {},
-            );
+    required ConsentRepository consentRepository,
+  }) : _consentRepository = consentRepository;
 
-  CollectionReference<Consent?> _consentCollection;
+  final ConsentRepository _consentRepository;
 
-  StreamController<Consent> _consentStreamController = StreamController();
+  final StreamController<Consent> _consentStreamController = StreamController();
 
   Stream<Consent> get consentStream => _consentStreamController.stream;
 
@@ -93,7 +89,7 @@ class ConsentService {
       lastUpdate: DateTime.now(),
     );
     try {
-      await _consentCollection.doc(currentConsent.idHash).set(newConsent);
+      await _consentRepository.update(newConsent);
       logger.i('[ConsentService] Completed updating consent entry: $type to $newStatus');
       currentConsent = newConsent;
       return newConsent;
@@ -111,16 +107,14 @@ class ConsentService {
     logger.i('[ConsentService] Hashed fireaseUserId token:sha256($fireaseUserId)=$hashDigest');
     final hashId = hashDigest.hex();
 
-    Consent consent;
     try {
       logger.i('[ConsentService] Fetching consent data for hash: $hashId');
-      var documentSnapshot = await _consentCollection.doc(hashId).get();
-      if (documentSnapshot.exists) {
-        logger.i('[ConsentService] Consent data exists.');
-        consent = documentSnapshot.data()!;
-      } else {
+      var consent = await _consentRepository.read(id: hashId);
+      if (consent == null) {
         logger.i('[ConsentService] Consent data does not exist.');
         consent = await _createNewConsentDoc(hashId);
+      } else {
+        logger.i('[ConsentService] Consent data exists.');
       }
       currentConsent = consent;
     } catch (e, s) {
@@ -132,7 +126,7 @@ class ConsentService {
   Future<Consent> _createNewConsentDoc(String hashId) async {
     logger.i('[ConsentService] Creating new consent document for hash: $hashId');
     final consent = Consent.empty(hashId);
-    await _consentCollection.doc(hashId).set(consent);
+    _consentRepository.create(consent);
     logger.i('[ConsentService] New consent document created: $hashId');
     return consent;
   }

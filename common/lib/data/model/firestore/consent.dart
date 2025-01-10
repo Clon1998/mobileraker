@@ -21,7 +21,7 @@ class Consent with _$Consent {
     required String idHash,
     @TimestampConverter() required DateTime created,
     @TimestampConverter() required DateTime lastUpdate,
-    required Map<ConsentEntryType, ConsentEntry> entries,
+    @Default({}) @JsonKey(includeToJson: false, includeFromJson: false) Map<ConsentEntryType, ConsentEntry> entries,
   }) = _Consent;
 
   factory Consent.fromJson(Map<String, dynamic> json) => _$ConsentFromJson(json);

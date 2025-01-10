@@ -434,6 +434,7 @@ pages:
       enable_live_activity_helper: Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen
       opt_out_marketing: Marketing Benachrichtigungen
       opt_out_marketing_helper: Erhalten Sie aktuelle Informationen über Verkaufsaktionen und Sonderangebote
+      opt_out_marketing_error: Fehler beim Laden der Marketing-Einstellungen, bitte versuchen Sie es später erneut.
       use_progressbar_notification: Aktiviere Fortschrittsbalken Benachrichtigung
       use_progressbar_notification_helper: Aktiviert die Anzeige eines Fortschrittsbalkens zusätzlich zu den Standard-Fortschrittsmeldungen
     developer:
