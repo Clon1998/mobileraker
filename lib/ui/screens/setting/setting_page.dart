@@ -1,23 +1,26 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/enums/consent_entry_type.dart';
+import 'package:common/data/enums/consent_status.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
-import 'package:common/service/firebase/analytics.dart';
+import 'package:common/service/consent_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/theme/theme_pack.dart';
-import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -117,7 +120,6 @@ class _GeneralSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'confirmGCode',
@@ -134,7 +136,6 @@ class _GeneralSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'useTextInputForNum',
@@ -151,7 +152,6 @@ class _GeneralSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'startWithOverview',
@@ -168,7 +168,6 @@ class _GeneralSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'useLivePos',
@@ -185,7 +184,6 @@ class _GeneralSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderFilterChip(
           name: AppSettingKeys.etaSources.key,
@@ -219,7 +217,6 @@ class _GeneralSection extends ConsumerWidget {
 
             return null;
           },
-          // activeColor: themeData.colorScheme.primary,
         ),
       ],
     );
@@ -255,7 +252,6 @@ class _UiSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'alwaysShowBaby',
@@ -272,7 +268,6 @@ class _UiSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'sliders_grouping',
@@ -289,7 +284,6 @@ class _UiSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'lcFullCam',
@@ -306,7 +300,6 @@ class _UiSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         FormBuilderSwitch(
           name: 'fSensorDialog',
@@ -321,7 +314,6 @@ class _UiSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
       ],
     );
@@ -356,7 +348,6 @@ class _NotificationSection extends ConsumerWidget {
               border: InputBorder.none,
               isCollapsed: true,
             ),
-            activeColor: themeData.colorScheme.primary,
           ),
         if (Platform.isAndroid)
           FormBuilderSwitch(
@@ -370,11 +361,10 @@ class _NotificationSection extends ConsumerWidget {
               border: InputBorder.none,
               isCollapsed: true,
             ),
-            activeColor: themeData.colorScheme.primary,
           ),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
-        const _OptOutOfAdPush(),
+        const _AdPushNotificationsSetting(),
         const Divider(),
         RichText(
           text: TextSpan(
@@ -382,7 +372,7 @@ class _NotificationSection extends ConsumerWidget {
             text: tr('pages.setting.general.companion'),
             children: [
               TextSpan(
-                text: '\nOfficial GitHub ',
+                text: '\n${tr('pages.setting.general.companion_link')} ',
                 style: TextStyle(color: themeData.colorScheme.secondary),
                 children: const [
                   WidgetSpan(
@@ -421,7 +411,6 @@ class _DeveloperSection extends ConsumerWidget {
             border: InputBorder.none,
             isCollapsed: true,
           ),
-          activeColor: themeData.colorScheme.primary,
         ),
         TextButton(
           style: TextButton.styleFrom(
@@ -758,7 +747,6 @@ class _ToggleMediumUI extends ConsumerWidget {
         border: InputBorder.none,
         isCollapsed: true,
       ),
-      activeColor: Theme.of(context).colorScheme.primary,
     );
   }
 }
@@ -986,30 +974,43 @@ class _CompanionMissingWarning extends ConsumerWidget {
   }
 }
 
-class _OptOutOfAdPush extends ConsumerWidget {
-  const _OptOutOfAdPush({super.key});
+class _AdPushNotificationsSetting extends HookConsumerWidget {
+  const _AdPushNotificationsSetting({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FormBuilderSwitch(
-      name: 'adOptOut',
-      title: const Text('pages.setting.notification.opt_out_marketing').tr(),
-      subtitle: const Text('pages.setting.notification.opt_out_marketing_helper').tr(),
-      onChanged: (b) {
-        var val = b ?? true;
-        logger.i('User opted out of marketing notifications: ${!val}');
-        ref.read(analyticsProvider).updatedAdOptOut(!val);
-        ref.read(settingServiceProvider).writeBool(
-              AppSettingKeys.receiveMarketingNotifications,
-              val,
-            );
-      },
-      initialValue: ref.read(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications, true)),
-      decoration: const InputDecoration(
+    final consentService = ref.watch(consentServiceProvider);
+
+    var consentState = ref.watch(consentEntryProvider(ConsentEntryType.marketingNotifications));
+
+    final value = consentState.hasValue && consentState.value!.status == ConsentStatus.GRANTED;
+
+    final enabled = consentState.hasValue && !consentState.hasError;
+    logger.wtf('ConsentState: $consentState, Value: $value, Enabled: $enabled');
+
+    return InputDecorator(
+      decoration: InputDecoration(
         border: InputBorder.none,
         isCollapsed: true,
+        errorText: tr('pages.setting.notification.opt_out_marketing_error').only(consentState.hasError),
       ),
-      activeColor: Theme.of(context).colorScheme.primary,
+      child: ListTile(
+        dense: true,
+        isThreeLine: false,
+        enabled: enabled,
+        contentPadding: EdgeInsets.zero,
+        title: Text(ConsentEntryType.marketingNotifications.title).tr(),
+        subtitle: Text(ConsentEntryType.marketingNotifications.shortDescription).tr(),
+        trailing: AsyncSwitch(
+          value: value,
+          onChanged: (b) {
+            return consentService.updateConsentEntry(
+              ConsentEntryType.marketingNotifications,
+              b ? ConsentStatus.GRANTED : ConsentStatus.DENIED,
+            );
+          }.only(enabled),
+        ),
+      ),
     );
   }
 }

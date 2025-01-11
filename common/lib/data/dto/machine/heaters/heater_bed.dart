@@ -1,19 +1,20 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../util/json_util.dart';
-import '../sensor_mixin.dart';
+import '../temperature_sensor_mixin.dart';
 import 'heater_mixin.dart';
 
 part 'heater_bed.freezed.dart';
 part 'heater_bed.g.dart';
 
 @freezed
-class HeaterBed with _$HeaterBed, SensorMixin, HeaterMixin {
+class HeaterBed with _$HeaterBed, TemperatureSensorMixin, HeaterMixin {
   const HeaterBed._();
 
   const factory HeaterBed({
@@ -52,4 +53,7 @@ class HeaterBed with _$HeaterBed, SensorMixin, HeaterMixin {
 
   @override
   String get name => 'heater_bed';
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.heater_bed;
 }

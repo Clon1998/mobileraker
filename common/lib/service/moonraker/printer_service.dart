@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 import 'dart:async';
@@ -388,6 +388,7 @@ class PrinterService {
   }
 
   startPrintFile(GCodeFile file) {
+    logger.i('Starting print for file: ${file.pathForPrint}');
     _jRpcClient.sendJRpcMethod('printer.print.start', params: {'filename': file.pathForPrint}).ignore();
   }
 

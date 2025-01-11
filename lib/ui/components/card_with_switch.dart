@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -27,7 +27,7 @@ class CardWithSwitch extends HookWidget {
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceVariant;
+    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceContainer;
     var onBackgroundColor = (ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
         ? Colors.white.blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
         : Colors.black.blendAlpha(themeData.colorScheme.primary.brighten(20), 0));

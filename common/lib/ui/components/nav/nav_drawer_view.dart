@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -249,9 +249,8 @@ class _DrawerItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var selectedTileColor = (themeData.brightness == Brightness.light)
-        ? themeData.colorScheme.surfaceVariant
-        : themeData.colorScheme.primaryContainer.withOpacity(.25);
-
+        ? themeData.colorScheme.surfaceContainer
+        : themeData.colorScheme.primaryContainer.withValues(alpha: .25);
 
     final matcher = RegExp(routeMatcher);
 

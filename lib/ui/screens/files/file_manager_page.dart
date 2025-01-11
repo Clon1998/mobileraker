@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/enums/file_action_enum.dart';
@@ -41,6 +42,7 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/path_utils.dart';
 import 'package:common/util/time_util.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -146,17 +148,21 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.search),
           onPressed: controller.onClickSearch,
         ),
-        if (folder != null && !isRoot)
-          IconButton(
-            tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              final box = context.findRenderObject() as RenderBox?;
-              final pos = box!.localToGlobal(Offset.zero) & box.size;
+        if (!isRoot)
+          Consumer(builder: (context, ref, _) {
+            final actualFolder = ref.watch(remoteFileProvider(selMachine.uuid, filePath)).valueOrNull ?? folder;
 
-              controller.onClickFileAction(folder!, pos);
-            },
-          ),
+            return IconButton(
+              tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                final box = context.findRenderObject() as RenderBox?;
+                final pos = box!.localToGlobal(Offset.zero) & box.size;
+
+                controller.onClickFileAction(actualFolder!, pos);
+              }.unless(actualFolder == null),
+            );
+          }),
       ];
 
       final defaultBar = isRoot
@@ -1004,18 +1010,12 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
-  DialogService get _dialogService => ref.read(dialogServiceProvider);
-
   SettingService get _settingService => ref.read(settingServiceProvider);
-
-  FileService get _fileService => ref.read(fileServiceProvider(machineUUID));
 
   FileInteractionService get _fileInteractionService => ref.read(fileInteractionServiceProvider(machineUUID));
 
   // ignore: avoid-unsafe-collection-methods
   String get _root => filePath.split('/').first;
-
-  String get _relativeToRoot => filePath.split('/').skip(1).join('/');
 
   List<SortMode> get _availableSortModes => switch (_root) {
         'gcodes' => [
@@ -1036,16 +1036,19 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   CancelToken? _uploadToken;
 
+  FileActionResponse? _lastResponse;
+
   @override
   _Model build(String machineUUID, [String filePath = 'gcodes']) {
     ref.keepAliveFor();
     // Since this might be used with file actions!
     ref.keepAliveExternally(printerProvider(machineUUID));
-    ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification);
+    ref.listen(fileNotificationsProvider(machineUUID, filePath), _onFileNotification, fireImmediately: true);
+
     ref.listen(jrpcClientStateProvider(machineUUID), _onJrpcStateNotification);
-    ref.listenSelf(_onModelChanged);
     ref.onCancel(() => _downloadToken?.cancel());
     ref.onCancel(() => _uploadToken?.cancel());
+    listenSelf(_onModelChanged);
 
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
@@ -1180,13 +1183,13 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   Future<void> refreshApiResponse([bool forceLoad = false]) {
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] refreshing api response');
-    // ref.invalidate(fileApiResponseProvider(machineUUID, filePath));
+    // ref.invalidate(directoryInfoApiResponseProvider(machineUUID, filePath));
     if (forceLoad) {
       state = state.copyWith(folderContent: const AsyncLoading());
     }
 
     ref.invalidate(moonrakerFolderContentProvider);
-    return ref.refresh(fileApiResponseProvider(machineUUID, filePath).future);
+    return ref.refresh(directoryInfoApiResponseProvider(machineUUID, filePath).future);
   }
 
   void onClickJobQueueFab() {
@@ -1283,23 +1286,238 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
     final notification = next.valueOrNull;
     if (notification == null) return;
+    if (notification == _lastResponse) return;
+    _lastResponse = notification;
+
     logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
 
-    // Check if the notifications are only related to the current folder
+    final activeViewName = _goRouter.state?.name;
+    final activeFileUiExtra = _goRouter.state?.extra;
+    final activeFileUiPath = _goRouter.state?.uri.path.substring(7).let(Uri.decodeComponent) ?? filePath;
 
+    if (_goRouter.state?.uri.path.startsWith('/files/') != true) {
+      logger
+          .i('[ModernFileManagerController($machineUUID, $filePath)] Ignoring notification, not in file manager view');
+      return;
+    }
+
+    // Check if the notifications are only related to the current folder
     switch (notification.action) {
       case FileAction.delete_dir when notification.item.fullPath == filePath:
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was deleted, will move to parent');
-        _goRouter.pop();
-        ref.invalidateSelf();
+        // This controller code section handles UI navigation when folders are deleted from the file system.
+        // It manages two scenarios:
+        //
+        // 1. DIRECT DELETION: When the currently active folder is deleted
+        //    Example: Active path "gcodes/foo" is deleted
+        //    Action: Simply pops the current view to return to parent "gcodes/"
+        //
+        // 2. PARENT DELETION: When a parent folder of the active folder is deleted
+        //    Example: Active path is "gcodes/foo/bar/baz" and "gcodes/foo" is deleted
+        //    Action only taken by the parent controller, child (baz) does nothing:
+        //    - Pops all views from "baz" up to and including the deleted folder "foo"
+        //    - Returns to the closest surviving parent ("gcodes/")
+        //    - Ensures all affected path references are properly invalidated
+        //
+        // The controller ensures clean UI state by removing all views that reference
+        // now-nonexistent paths in the file system.
+
+        logger.i('''
+          [ModernFileManagerController($machineUUID, $filePath)]
+            Folder deletion detected:
+            - Deleted path: $filePath
+            - Currently active folder: $activeFileUiPath
+            - Will navigate to surviving parent folder
+        ''');
+
+        // Case 1: DIRECT DELETION - Handle deletion of currently active folder
+        if (activeFileUiPath == filePath) {
+          logger.i('''
+            [ModernFileManagerController($machineUUID, $filePath)]
+              Direct folder deletion:
+              - Closing view for deleted folder: $filePath
+              - Returning to parent folder
+          ''');
+
+          _goRouter.pop();
+          WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
+          return;
+        }
+
+        // Case 2: PARENT DELETION - Handle deletion of a parent folder
+        final activePathSegments = activeFileUiPath.split('/').toList();
+        final deletedPathSegments = filePath.split('/').toList();
+
+        // Calculate how many levels need to be popped
+        final sharedPathDepth = findCommonPathLength(activePathSegments, deletedPathSegments);
+        // We need to pop everything from current path down to parent of deleted folder
+        // +1 ensures we also pop the deleted folder's view itself
+        final viewsToClose = activePathSegments.length - sharedPathDepth + 1;
+
+        logger.i('''
+          [ModernFileManagerController($machineUUID, $filePath)]
+            Parent folder deletion detected:
+            - Views to close: $viewsToClose
+            - Will return to path: ${deletedPathSegments.sublist(0, sharedPathDepth - 1).join('/')}
+        ''');
+
+        // Pop views and invalidate references
+        for (var i = 0; i < viewsToClose; i++) {
+          final currentlyClosingPath = activePathSegments.sublist(0, activePathSegments.length - i).join('/');
+          final closingSegment = activePathSegments[activePathSegments.length - 1 - i];
+
+          logger.i(
+              '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $closingSegment, path: $currentlyClosingPath');
+          _goRouter.pop();
+
+          if (currentlyClosingPath == filePath) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
+          } else {
+            WidgetsBinding.instance.addPostFrameCallback(
+                (_) => ref.invalidate(_modernFileManagerControllerProvider(machineUUID, currentlyClosingPath)));
+          }
+        }
+
+        logger.i('''
+          [ModernFileManagerController($machineUUID, $filePath)]
+            Folder deletion handling completed:
+            - Total views closed: $viewsToClose
+            - Navigation stack updated
+        ''');
         break;
       case FileAction.move_dir when notification.sourceItem?.fullPath == filePath:
-        final folder = Folder.fromFileItem(notification.item);
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was moved to ${folder.absolutPath}');
-        // _goRouter.pushReplacement(notification.item.fullPath, extra: folder);
-        _goRouter.pushReplacementNamed(AppRoute.fileManager_explorer.name,
-            pathParameters: {'path': folder.absolutPath}, extra: folder);
-        ref.invalidateSelf();
+        // This controller code section manages UI navigation when folders are moved in the file system.
+        // It handles two primary scenarios:
+        //
+        // 1. DIRECT MOVE: When the active folder itself is moved
+        //    Example: Active path "gcodes/foo/bar" is moved to "gcodes/bar"
+        //    Action: Closes views for "bar" and "foo", then rebuilds with just the new "bar" location
+        //
+        // 2. PARENT MOVE: When a parent folder of the active folder is moved
+        //    Example: Active path is "gcodes/foo/bar" and "gcodes/foo" is moved to "gcodes/lol/foo"
+        //    Action:
+        //    - The active child controller ("bar") stays passive
+        //    - The parent controller ("foo") handles rebuilding:
+        //      a) Pops views back to common root ("gcodes/")
+        //      b) Rebuilds full path: "gcodes/lol/" → "gcodes/lol/foo" → "gcodes/lol/foo/bar"
+        //
+        // The reconstruction process ensures the UI stack accurately reflects the new file system structure
+        // while maintaining the user's current view context.
+
+        final movedFolder = Folder.fromFileItem(notification.item);
+        // The currently active path in the UI (represents the old location)
+        final currentUIPathSegments = activeFileUiPath.split('/').toList();
+        // The destination path where the folder was moved to
+        final destinationPathSegments = movedFolder.absolutPath.split('/').toList();
+
+        logger.i('''
+          [ModernFileManagerController($machineUUID, $filePath)] 
+            Folder move detected:
+            - From: $filePath
+            - To: ${movedFolder.absolutPath}
+            - Currently active folder: $activeFileUiPath
+        ''');
+
+        // Calculate how much of the path structure needs to change
+        final int sharedPathDepth = findCommonPathLength(currentUIPathSegments, destinationPathSegments);
+        final viewsToClose = currentUIPathSegments.length - sharedPathDepth;
+        final newPathSegmentsToAdd = destinationPathSegments.sublist(sharedPathDepth);
+
+        // Handle the PARENT MOVE scenario
+        if (activeFileUiPath != filePath) {
+          logger.i('''
+            [ModernFileManagerController($machineUUID, $filePath)]
+              Parent folder move detected:
+              - Active child path will be preserved
+              - Will reconstruct path to maintain child view at new location
+          ''');
+
+          // Calculate which parts of the active child path need to be preserved
+          final parentPathDepth = findCommonPathLength(currentUIPathSegments, filePath.split('/'));
+          // Preserve the child-specific path segments to reconstruct at the new location
+          final childPathSegments = currentUIPathSegments.sublist(parentPathDepth);
+          newPathSegmentsToAdd.addAll(childPathSegments);
+
+          logger.i('''
+            [ModernFileManagerController($machineUUID, $filePath)]
+              Path reconstruction details:
+              - Shared path depth: $sharedPathDepth
+              - Views to close: $viewsToClose
+              - Child segments to preserve: ${childPathSegments.join('/')}
+          ''');
+        }
+
+        // Close views back to the common root path
+        for (var i = 0; i < viewsToClose; i++) {
+          final segmentToClose = currentUIPathSegments[currentUIPathSegments.length - 1 - i];
+          final remainingPath = currentUIPathSegments.sublist(0, currentUIPathSegments.length - i).join('/');
+
+          logger.i(
+              '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $segmentToClose');
+          _goRouter.pop();
+
+          // Invalidate references only for affected paths
+          if (remainingPath == filePath) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
+          } else {
+            WidgetsBinding.instance.addPostFrameCallback(
+                (_) => ref.invalidate(_modernFileManagerControllerProvider(machineUUID, remainingPath)));
+          }
+        }
+
+        // Rebuild the path with new segments
+        String reconstructedPath = destinationPathSegments.sublist(0, sharedPathDepth).join('/');
+
+        // Push new views for each path segment
+        for (final pathSegment in newPathSegmentsToAdd) {
+          final isLast = pathSegment == newPathSegmentsToAdd.last;
+
+          switch (activeViewName) {
+            case String() when !isLast || activeViewName == AppRoute.fileManager_explorer.name:
+              reconstructedPath = '$reconstructedPath/$pathSegment';
+
+              logger.i(
+                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath');
+
+              _goRouter.pushNamed(
+                AppRoute.fileManager_explorer.name,
+                pathParameters: {'path': reconstructedPath},
+                // Only pass the folder object if we're at its exact path
+                extra: movedFolder.only(reconstructedPath == movedFolder.absolutPath),
+              );
+              break;
+            case String()
+                when activeViewName == AppRoute.fileManager_exlorer_gcodeDetail.name && activeFileUiExtra is GCodeFile:
+              logger.i(
+                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new GCodeDetails view for path: $reconstructedPath');
+
+              _goRouter.pushNamed(
+                AppRoute.fileManager_exlorer_gcodeDetail.name,
+                pathParameters: {'path': reconstructedPath},
+                extra: activeFileUiExtra.copyWith(
+                  parentPath: reconstructedPath,
+                ),
+              );
+              break;
+            case String() when activeFileUiExtra is GenericFile:
+              logger.i(
+                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new $activeViewName view for path: $reconstructedPath');
+
+              _goRouter.pushNamed(
+                activeViewName,
+                pathParameters: {'path': reconstructedPath},
+                extra: activeFileUiExtra.copyWith(parentPath: reconstructedPath),
+              );
+              break;
+            default:
+          }
+        }
+
+        logger.i('''
+          [ModernFileManagerController($machineUUID, $filePath)]
+            Path reconstruction completed:
+            - Final path: $reconstructedPath
+            - Total views modified: ${viewsToClose + newPathSegmentsToAdd.length}
+        ''');
       default:
         // Do Nothing!
         break;

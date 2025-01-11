@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -201,6 +201,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   devAnnouncementDismiss('devAnnouncementDismiss'),
   machineOrdering('machineOrdering'),
   lastLocale('lastLocale', 'en'),
+  fcmTokenHistory('fcmTokenHistory', <String>[]),
   ;
 
   @override

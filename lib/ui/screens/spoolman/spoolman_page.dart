@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -58,7 +58,6 @@ class SpoolmanPage extends HookWidget {
       bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),
       floatingActionButton: const _Fab(),
 
-      //ToDo: Add ConnectionStateView !!!!
       body: body,
       // body: _SpoolTab(),
     );
@@ -138,6 +137,7 @@ class _Body extends ConsumerWidget {
     }
 
     return MachineConnectionGuard(
+      skipKlipperReady: true,
       onConnected: (BuildContext context, String machineUUID) {
         return HookConsumer(builder: (context, ref, child) {
           // Ensure that the currency provider is kept alive as it is used in the spoolman page and its subpages

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -11,6 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/enums/consent_entry_type.dart';
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
@@ -52,6 +53,7 @@ import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../components/ask_consent_card.dart';
 import '../../components/filament_sensor_watcher.dart';
 import '../../components/machine_deletion_warning.dart';
 import '../../components/printer_calibration_watcher.dart';
@@ -67,6 +69,7 @@ const _staticWidgets = [
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),
+  AskConsentCard(key: Key('AskConsentCard'), type: ConsentEntryType.marketingNotifications),
 ];
 
 class CustomizableDashboardPage extends StatelessWidget {

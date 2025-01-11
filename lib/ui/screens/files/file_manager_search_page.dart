@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Patrick Schmidt.
+ * Copyright (c) 2024-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -102,7 +102,7 @@ class _SearchResults extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final apiData = ref.watch(fileApiResponseProvider(machineUUID, path));
+    // final apiData = ref.watch(directoryInfoApiResponseProvider(machineUUID, path));
 
     final model = ref.watch(_fileManagerSearchControllerProvider(machineUUID, path));
     final controller = ref.watch(_fileManagerSearchControllerProvider(machineUUID, path).notifier);
@@ -279,7 +279,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   Future<void> _fetchFiles(String path, [bool isRetry = false]) async {
     logger.i('[FileManagerSearchController] Fetching files from $path');
     try {
-      final provider = fileApiResponseProvider(machineUUID, path).future;
+      final provider = directoryInfoApiResponseProvider(machineUUID, path).future;
       //TODO: Should I really watch or read?
       final response = await (isRetry ? ref.refresh(provider) : ref.read(provider));
 

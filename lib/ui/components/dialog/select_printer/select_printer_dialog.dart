@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -55,6 +55,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
           ).tr(args: [beautifyName(activeName ?? tr('general.unknown'))]),
           Flexible(
             child: Material(
+              color: Colors.transparent,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: AsyncValueWidget<List<Machine>>(
@@ -65,7 +66,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
                     itemBuilder: (BuildContext context, int index) {
                       var machine = d[index];
                       return ListTile(
-                        tileColor: themeData.colorScheme.surfaceVariant.withOpacity(.5),
+                        tileColor: themeData.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
                         textColor: themeData.colorScheme.onSurfaceVariant,
                         title: Text(beautifyName(machine.name)),
                         subtitle: Text(machine.httpUri.toString()),

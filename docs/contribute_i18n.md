@@ -118,7 +118,8 @@ To edit an existing language file manually:
 ## Thanks to All the Contributors 🙏
 
 - 🇿🇦 Afrikaans, [@DMT07](https://github.com/DMT07)
-- 🇨🇳 Chinese Mainland, [@emo64](https://github.com/emo64), [@ptsa](https://github.com/ptsa)
+- 🇨🇳 Chinese
+  Mainland, [@emo64](https://github.com/emo64), [@ptsa](https://github.com/ptsa), [@zhengzhengju](https://github.com/zhengzhengju)
 - 🇹🇼 Chinese Taiwan, Kayzed
 - 🇳🇱 Dutch, [@JSMPI](https://github.com/JSMPI)
 - 🇬🇧 English, [@Clon1998](https://github.com/Clon1998)

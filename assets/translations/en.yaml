@@ -63,6 +63,10 @@ general:
   hide: Hide
   finish: Finish
   select: Select
+  folder: Folder
+  print: Print
+  allow: Allow
+  deny: Deny
 pages:
   dashboard:
     title: Dashboard
@@ -331,8 +335,6 @@ pages:
       one: Element
       other: Elements
     details:
-      preheat: Preheat
-      print: Print
       general_card:
         path: Path
         last_mod: Last Modified
@@ -368,6 +370,11 @@ pages:
         body: |-
           Extruder: {}°C
           Bed: {}°C
+      print_queue_snackbar:
+        title: Added to Print Queue
+        body:
+          1: The file was successfully added to the print queue.
+          other: The files were successfully added to the print queue.
       spoolman_warnings:
         insufficient_filament_title: Insufficient filament
         insufficient_filament_body: |-
@@ -396,8 +403,8 @@ pages:
       lcFullCam: Fullscreen Camera Orientation
       lcFullCam_hint: Switch camera to landscape in fullscreen mode
       language: Language
-      companion: "Want to receive remote notification?\nLearn how to setup Mobileraker's
-        Companion on its "
+      companion: "Want to receive remote notifications?\nLearn how to set up Mobileraker's Companion on the"
+      companion_link: Official GitHub page
       sliders_grouping: Group Slider Cards
       sliders_grouping_hint: Group all sliders into one card
       time_format: Time Format
@@ -445,6 +452,7 @@ pages:
         to the default progress notifications
       opt_out_marketing: Marketing Notifications
       opt_out_marketing_helper: Receive updates on sales and promotions
+      opt_out_marketing_error: Error loading marketing preferences, please try again later.
       use_progressbar_notification: Enable Progressbar Notification
       use_progressbar_notification_helper: Enables the usage of a progressbar notification
         in addition to the default text-based progress notifications
@@ -1455,6 +1463,16 @@ date_periods:
   day:
     one: Daily
     other: Days
+consent_cards:
+  marketing_notifications:
+    title: 'Stay Connected with Notifications'
+    description: "We'd like to send you notifications to keep you informed about important updates and relevant offers."
+    agreement: 'By accepting, you agree that we may:'
+    terms: |
+      • Store your device's FCM ID for notification purposes
+      • Send you marketing communications and promotional offers
+      • Process this data in accordance with our Privacy Policy
+    disclaimer: You can withdraw your consent at any time via the app settings. For more information about how we handle your data, please see our Privacy Policy.
 languages:
   languageCode:
     ab:

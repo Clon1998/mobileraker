@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -244,6 +244,8 @@ class PaymentService {
       (previous, next) async {
         var isLogin = previous?.valueOrNull == null && next.valueOrNull != null;
         var isLogout = previous?.valueOrNull != null && next.valueOrNull == null;
+
+        logger.i('[PaymentService] User changed. isLogin: $isLogin, isLogout: $isLogout');
 
         if (isLogin) {
           try {

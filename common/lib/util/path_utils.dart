@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
+
+import 'dart:math';
 
 ///
 /// Returns whether or not a [child] is within a [parent] and returns its level.
@@ -22,6 +24,20 @@ int isWithin(String parent, String child) {
     return childPathLen - parentPath.length;
   }
   return -1;
+}
+
+int findCommonPathLength(List<String> path1List, List<String> path2List) {
+  int maxLength = min(path1List.length, path2List.length);
+  int commonPathLen = 0;
+
+  for (int i = 0; i < maxLength; i++) {
+    if (path1List[i] == path2List[i]) {
+      commonPathLen++;
+    } else {
+      break;
+    }
+  }
+  return commonPathLen;
 }
 
 bool isFilePath(String path) => baseName(path).split('.').length > 1;

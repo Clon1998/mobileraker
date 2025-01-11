@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -115,7 +115,7 @@ class _ParamsDialog extends StatelessWidget {
             itemCount: paramNames.length,
             itemBuilder: (context, index) {
               var paramName = paramNames[index];
-              var paramDefault = macro.params[paramName];
+              var paramDefault = macro.params[paramName]?.defaultValue;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: FormBuilderTextField(

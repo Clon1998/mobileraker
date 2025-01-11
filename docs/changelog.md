@@ -1,6 +1,32 @@
 # Mobileraker - Changelog
 
-## [2.8.4] - 2025-01-xx
+## [2.8.5] - 2025-02-xx
+
+### Enhancements
+
+- **Target File Location Page**: The __Back__ and __Cancel__ buttons on the target file location page now function
+  correctly. Users can navigate back to the previous page or cancel the move/copy operation immediately, instead of
+  always moving up to the root folder.
+- **File Manager Navigation**: The file manager now automatically follows folder operations:
+  - When a folder is moved, the view automatically navigates to its new location
+  - When a folder is deleted, the view returns to the parent folder
+  - These behaviors work correctly for both directly affected folders and their nested children
+- **GCode Detail Page**: The GCode detail page now provides the same file management functionality as the normal file
+  manager page when a GCode file is selected.
+- **Spoolman Page Klipper Offline**: Users can now access the Spoolman page even if Klipper is offline. This allows
+  management of spools and filaments even when the Klipper part of the printer is unavailable (e.g., due to a relay
+  turning off all components except the host/Raspberry Pi).  [#462](https://github.com/Clon1998/mobileraker/issues/462)
+- **Webcam Access When Offline**: The webcam card is now displayed alongside the power panel card even if Klipper is
+  offline.
+  This allows users to still access the webcam even if the printer is
+  offline. [#221](https://github.com/Clon1998/mobileraker/issues/221)
+
+### Bug Fixes
+
+## [2.8.4] - 2025-01-04
+
+-**Macro Param Parsing**: Fixed an issue that prevented the app from parsing macro parameters
+correctly. [#448](https://github.com/Clon1998/mobileraker/issues/448)
 
 ### Enhancements
 
@@ -11,6 +37,9 @@
   option. [#432](https://github.com/Clon1998/mobileraker/issues/432)
 - **Button feedback**: Added haptic feedback to the move axis buttons on the move axis card. This feature
   provides users with tactile feedback when pressing the buttons, enhancing the overall user experience.
+- **OLED Theme**: Introduced a new OLED theme for users with OLED displays. The OLED theme features a dark background
+  with vibrant colors, optimized for OLED screens to reduce power consumption and improve readability in low-light
+  environments.
 
 ### Bug Fixes
 

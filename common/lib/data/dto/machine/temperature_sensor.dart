@@ -1,18 +1,19 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../util/json_util.dart';
-import 'sensor_mixin.dart';
+import 'temperature_sensor_mixin.dart';
 
 part 'temperature_sensor.freezed.dart';
 part 'temperature_sensor.g.dart';
 
 @freezed
-class TemperatureSensor with _$TemperatureSensor, SensorMixin {
+class TemperatureSensor with _$TemperatureSensor, TemperatureSensorMixin {
   const TemperatureSensor._();
 
   const factory TemperatureSensor({
@@ -45,4 +46,7 @@ class TemperatureSensor with _$TemperatureSensor, SensorMixin {
 
     return TemperatureSensor.fromJson(mergedJson);
   }
+
+  @override
+  ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.temperature_sensor;
 }

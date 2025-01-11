@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -51,7 +51,7 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
   @override
   Future<DashboardLayout> delete(String uuid) async {
     logger.i('[DashboardLayoutHiveRepository] Deleting dashboard layout with uuid $uuid');
-    var e = await read(uuid: uuid);
+    var e = await read(id: uuid);
     if (e == null) {
       throw MobilerakerException('DashboardLayout with uuid $uuid not found');
     }
@@ -59,11 +59,11 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
   }
 
   @override
-  Future<DashboardLayout?> read({String? uuid, int index = -1}) async {
-    logger.i('[DashboardLayoutHiveRepository] Reading dashboard layout with uuid $uuid or index $index');
-    assert(uuid != null || index >= 0, 'Either provide an uuid or an index >= 0');
-    if (uuid != null) {
-      return _box.get(uuid);
+  Future<DashboardLayout?> read({String? id, int index = -1}) async {
+    logger.i('[DashboardLayoutHiveRepository] Reading dashboard layout with uuid $id or index $index');
+    assert(id != null || index >= 0, 'Either provide an uuid or an index >= 0');
+    if (id != null) {
+      return _box.get(id);
     } else {
       return _box.getAt(index);
     }

@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2023-2025. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'dart:async';
 
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -207,8 +209,8 @@ class AsyncOutlinedButton extends HookConsumerWidget {
   }
 }
 
-class AsyncFilleddButton extends HookConsumerWidget {
-  const AsyncFilleddButton.icon({
+class AsyncFilledButton extends HookConsumerWidget {
+  const AsyncFilledButton.icon({
     super.key,
     required Icon this.icon,
     required Widget label,
@@ -216,7 +218,7 @@ class AsyncFilleddButton extends HookConsumerWidget {
     this.style,
   }) : child = label;
 
-  const AsyncFilleddButton({
+  const AsyncFilledButton({
     super.key,
     required this.child,
     required this.onPressed,
@@ -261,6 +263,55 @@ class AsyncFilleddButton extends HookConsumerWidget {
       onPressed: onPressedWrapped,
       style: style,
       child: animatedWidget,
+    );
+  }
+}
+
+class AsyncSwitch extends HookConsumerWidget {
+  const AsyncSwitch({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final FutureOr<void>? Function(bool)? onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final switchValue = useState(value);
+    // use sideffect to trigger switchValue update if value changes
+    useEffect(() {
+      switchValue.value = value;
+      return null;
+    }, [value]);
+
+    final animCtrler =
+        useAnimationController(duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1);
+    final actionRunning = useState(false);
+
+    if (actionRunning.value) {
+      animCtrler.repeat(reverse: true);
+    } else {
+      animCtrler.value = 1;
+    }
+    logger.wtf('AsyncSwitch: ${switchValue.value}, ${value}');
+
+    return ScaleTransition(
+      scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+      child: Switch(
+        value: switchValue.value,
+        onChanged: (b) {
+          FutureOr<void>? ftr = onChanged!(b);
+          if (ftr == null) return;
+          switchValue.value = b;
+          actionRunning.value = true;
+
+          Future.value(ftr).whenComplete(() {
+            if (context.mounted) actionRunning.value = false;
+          });
+        }.unless(onChanged == null || actionRunning.value),
+      ),
     );
   }
 }
