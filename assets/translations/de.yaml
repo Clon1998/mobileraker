@@ -394,7 +394,8 @@ pages:
       lcFullCam: Vollbild-Webcam im Querformat
       lcFullCam_hint: Vollbild-Webcam verwendet das Querformat
       language: Sprache
-      companion: "Möchten Sie Remote-Benachrichtigung erhalten?\n Dann erfahren Sie, wie Sie Mobileraker-Companion auf ihrem System instalieren auf seiner "
+      companion: "Möchten Sie Remote-Benachrichtigungen erhalten?\nErfahren Sie, wie Sie den Mobileraker-Companion auf Ihrem Drucker installieren können:"
+      companion_link: Offiziellen GitHub-Seite
       sliders_grouping: Gruppiere Schieberegler Karten
       sliders_grouping_hint: Gruppiere Schieberegler Karten in einer Karte
       time_format: Zeitformat

@@ -403,8 +403,8 @@ pages:
       lcFullCam: Fullscreen Camera Orientation
       lcFullCam_hint: Switch camera to landscape in fullscreen mode
       language: Language
-      companion: "Want to receive remote notification?\nLearn how to setup Mobileraker's
-        Companion on its "
+      companion: "Want to receive remote notifications?\nLearn how to set up Mobileraker's Companion on the"
+      companion_link: Official GitHub page
       sliders_grouping: Group Slider Cards
       sliders_grouping_hint: Group all sliders into one card
       time_format: Time Format

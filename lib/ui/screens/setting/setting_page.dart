@@ -372,7 +372,7 @@ class _NotificationSection extends ConsumerWidget {
             text: tr('pages.setting.general.companion'),
             children: [
               TextSpan(
-                text: '\nOfficial GitHub ',
+                text: '\n${tr('pages.setting.general.companion_link')} ',
                 style: TextStyle(color: themeData.colorScheme.secondary),
                 children: const [
                   WidgetSpan(
