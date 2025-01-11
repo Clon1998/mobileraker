@@ -391,7 +391,6 @@ pages:
       lcFullCam: 横向全屏显示摄像头
       lcFullCam_hint: 在全屏模式下切换摄像头到横屏模式
       language: 语言
-      companion: "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
       sliders_grouping: 编组滑杆模块
       sliders_grouping_hint: 将所有滑块分类为一个模块
       time_format: 时间格式
