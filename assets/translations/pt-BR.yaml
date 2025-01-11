@@ -139,7 +139,6 @@ pages:
       start_with_overview: Iniciar com a Visão Geral de @:pages.overview.title
       use_offset_pos: Mostrar Coordenadas com Offset
       language: Idioma
-      companion: "Você deseja receber notificações remotas?\nSaiba como instalar o Mobileraker Companion no seu sistema."
     notification:
       title: Notificação
       progress_helper: Intervalo para Notificações de Progresso de Impressão
