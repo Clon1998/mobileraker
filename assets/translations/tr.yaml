@@ -185,7 +185,6 @@ pages:
       use_offset_pos: Koordinatları ofset uygulanmış halde göster.
       lcFullCam: Yatay Görünümde Tam Ekran Web Kamerası
       language: Dil
-      companion: "Uzaktan bildirim almak ister misiniz?\n "
       sliders_grouping: Grup Kaydırma Kartları
     notification:
       title: Bildiri
