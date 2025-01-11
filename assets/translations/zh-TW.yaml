@@ -63,6 +63,10 @@ general:
   hide: 隱藏
   finish: 完成
   select: 選擇
+  folder: 資料夾
+  print: 列印
+  allow: 允許
+  deny: 拒絕
 pages:
   dashboard:
     title: 儀表板
@@ -359,6 +363,11 @@ pages:
         body: |-
           擠出機：{}°C
           床面：{}°C
+      print_queue_snackbar:
+        title: 加入至列印佇列
+        body:
+          1: 檔案已成功加入至列印佇列
+          other: 檔案已成功加入至列印佇列
       spoolman_warnings:
         insufficient_filament_title: 線材不足
         insufficient_filament_body: |-
@@ -1105,6 +1114,8 @@ dialogs:
           idle: 裝載線材至噴嘴中
           processing: 清理線材中...
           processed: 確認清理過的線材是否乾淨。如有需要，請重複操作。
+      tip_form:
+        title: 尖端成形
   heater_temperature:
     title: "{} 溫度 [°C]"
   confirm_print_cancelation:
@@ -1330,3 +1341,11 @@ date_periods:
   day:
     one: 每日
     other: 日
+languages:
+  countryCode:
+    TW:
+      name: 繁體(台灣)
+      nativeName: 繁體(台灣)
+    HK:
+      name: 繁體,香港
+      nativeName: 繁體, 香港
