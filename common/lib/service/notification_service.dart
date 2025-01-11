@@ -11,14 +11,20 @@ import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/enums/consent_entry_type.dart';
+import 'package:common/data/enums/consent_status.dart';
+import 'package:common/data/enums/region_timezone.dart';
+import 'package:common/data/model/firestore/consent_entry.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/model_event.dart';
+import 'package:common/service/consent_service.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -48,9 +54,27 @@ NotificationService notificationService(Ref ref) {
 @riverpod
 Future<String> fcmToken(Ref ref) async {
   // Need to use read on the notificationService to prevent a circular dependency, this is fine because the service is kept alive anyway.
-  var notificationService = ref.read(notificationServiceProvider);
+  final notificationService = ref.read(notificationServiceProvider);
   await notificationService.initialized;
-  return notificationService.requestFirebaseToken();
+
+  final token = await notificationService.requestFirebaseToken();
+  final settingsService = ref.read(settingServiceProvider);
+  try {
+    var savedTokenHistory = settingsService.readList(UtilityKeys.fcmTokenHistory, <String>[]);
+    if (!savedTokenHistory.contains(token)) {
+      logger.i('Adding token to history');
+      savedTokenHistory = [...savedTokenHistory, token];
+      settingsService.writeList(UtilityKeys.fcmTokenHistory, savedTokenHistory).ignore();
+    }
+    logger.i('FCM token history on device (from oldest -> newest):');
+    for (var element in savedTokenHistory) {
+      logger.i('\t\t- "$element"');
+    }
+  } catch (e, s) {
+    logger.w('Could not save FCM token to history', e, s);
+  }
+
+  return token;
 }
 
 class NotificationService {
@@ -103,8 +127,8 @@ class NotificationService {
       // await _liveActivityService.initialize();
       await _liveActivityServicev2.initialize();
 
-      _initializeFcmTokenListener();
       _initializeMachineRepoListener();
+      _setupFcmTopicNotifications();
 
       logger.i('Completed NotificationService init');
     } catch (e, s) {
@@ -189,11 +213,6 @@ class NotificationService {
   Future<void> _initializeNotificationListeners() {
     logger.i('Initializing notification listeners');
     return _notifyAPI.setListeners(onActionReceivedMethod: _onActionReceivedMethod);
-  }
-
-  void _initializeFcmTokenListener() {
-    logger.i('Initializing FCM token listener');
-    _ref.listen(fcmTokenProvider, _onFcmTokenUpdated, fireImmediately: true);
   }
 
   void _initializeMachineRepoListener() {
@@ -358,7 +377,6 @@ class NotificationService {
       return;
     }
     logger.i('Token from Native updated $token');
-    _setupFcmTopicNotifications();
   }
 
   Future<void> _onNativeTokenUpdatePortError(error) async {
@@ -423,18 +441,39 @@ class NotificationService {
 
   void _setupFcmTopicNotifications() {
     logger.i('Setting up FCM topic notifications');
+    // close all channels
+    // Legacy topic
+    _notifyFCM.unsubscribeToTopic(_marketingTopic).ignore();
+
     _fcmUpdateListeners[_marketingTopic]?.close();
 
-    _fcmUpdateListeners[_marketingTopic] =
-        _ref.listen(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications, true), (previous, next) {
-      if (next == true) {
-        logger.i('Subscribing to marketing topic');
-        _notifyFCM.subscribeToTopic(_marketingTopic).ignore();
-      } else {
-        logger.i('Unsubscribing from marketing topic');
-        _notifyFCM.unsubscribeToTopic(_marketingTopic).ignore();
-      }
-    }, fireImmediately: true);
+    final regionTimezone = DateTime.now().regionTimezone;
+    final topic = '$_marketingTopic.${regionTimezone.name}';
+
+    final sub = _ref.listen(
+      consentEntryProvider(ConsentEntryType.marketingNotifications),
+      (AsyncValue<ConsentEntry?>? previous, AsyncValue<ConsentEntry?> next) {
+        if (next.isLoading) return;
+        if (next.valueOrNull?.status == ConsentStatus.GRANTED) {
+          for (var value in RegionTimezone.values) {
+            if (value == regionTimezone) continue;
+            _notifyFCM.unsubscribeToTopic('$_marketingTopic.${value.name}').ignore();
+          }
+          logger.i('Subscribing to marketing topic: $topic');
+          _notifyFCM.subscribeToTopic(topic).ignore();
+        } else if (next.valueOrNull?.status == ConsentStatus.DENIED) {
+          logger.i('Unsubscribing from marketing topic');
+          for (var value in RegionTimezone.values) {
+            _notifyFCM.unsubscribeToTopic('$_marketingTopic.${value.name}').ignore();
+          }
+        } else {
+          logger.i('Consent is not determined yet... will do nothing');
+        }
+      },
+      fireImmediately: true,
+    );
+
+    _fcmUpdateListeners[_marketingTopic] = sub;
   }
 
   void _setupMachineFcmUpdater(Machine machine) {
@@ -475,23 +514,6 @@ class NotificationService {
       // Since I initited the provider before and all hidden machines dont have a machineProvider setup, also remove it again!
       keepAliveExternally.close();
       _ref.invalidate(mProvider);
-    }
-  }
-
-  void _onFcmTokenUpdated(AsyncValue<String>? prev, AsyncValue<String> next) {
-    if (prev?.valueOrNull == next.valueOrNull) return;
-    if (!next.hasValue) return;
-    final token = next.value!;
-
-    var savedTokenHistory = _settingsService.readList(UtilityKeys.fcmTokenHistory, <String>[]);
-    if (!savedTokenHistory.contains(token)) {
-      logger.i('Adding token to history');
-      savedTokenHistory = [...savedTokenHistory, token];
-      _settingsService.writeList(UtilityKeys.fcmTokenHistory, savedTokenHistory);
-    }
-    logger.i('FCM token history on device (from oldest -> newest):');
-    for (var element in savedTokenHistory) {
-      logger.i('\t\t- "$element"');
     }
   }
 
