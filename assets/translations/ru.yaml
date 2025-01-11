@@ -93,8 +93,6 @@ pages:
     title: Файлы
     search_files: Поиск файлов
     details:
-      preheat: Преднагрев
-      print: Печать
       general_card:
         path: Путь
         last_mod: Последнее изменение
@@ -133,7 +131,6 @@ pages:
       start_with_overview: Показать @:pages.overview.title по умолчанию
       use_offset_pos: Показать координаты с примененным смещением.
       language: Язык
-      companion: "Хотите получать удаленные уведомления?\nПрочтите как настроить Mobileraker's Companion "
     notification:
       title: Уведомления
       progress_helper: Интервал обновления для уведомления о ходе печати

@@ -100,8 +100,6 @@ pages:
     title: Fișiere
     search_files: Caută fișiere
     details:
-      preheat: Preîncălzire
-      print: Tipărire
       general_card:
         path: Cale
         last_mod: Ultima modificare
@@ -139,7 +137,6 @@ pages:
       start_with_overview: Arată @:pages.overview.title implicit
       use_offset_pos: Arată coordonate cu decalaj aplicat.
       language: Limbă
-      companion: "Vrei să primești notificări de la distanță?\nÎnvață cum să configurezi Mobileraker Companion "
     notification:
       title: Notificare
       progress_helper: Interval actualizare pentru notificările de progres

@@ -63,6 +63,10 @@ general:
   hide: Elrejtés
   finish: Kész
   select: Kiválaszt
+  folder: Mappa
+  print: Nyomtatás
+  allow: Engedélyez
+  deny: Megtagad
 pages:
   dashboard:
     title: Irányítópult
@@ -325,8 +329,6 @@ pages:
       one: Elem
       other: Elemek
     details:
-      preheat: Előmelegítés
-      print: Nyomtatás
       general_card:
         path: Útvonal
         last_mod: Utoljára módosítva
@@ -362,6 +364,11 @@ pages:
         body: |-
           Fúvóka: {}°C
           Ágy: {}°C
+      print_queue_snackbar:
+        title: Hozzáadva a nyomtatási sorhoz
+        body:
+          1: A fájl sikeresen hozzá lett adva a nyomtatási sorhoz.
+          other: A fájlok sikeresen hozzá lettek adva a nyomtatási sorhoz.
       spoolman_warnings:
         insufficient_filament_title: Elégtelen nyomtatószál
         insufficient_filament_body: |-
@@ -388,7 +395,6 @@ pages:
       lcFullCam: Teljes képernyős webkamera fekvő helyzetben
       lcFullCam_hint: A kamera tájképre váltása teljes képernyős módban
       language: Nyelv
-      companion: "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
       sliders_grouping: Csúszó kártyák csoportosítása
       sliders_grouping_hint: Minden csúszka egy kártyába csoportosítása
       time_format: Időformátum
@@ -431,6 +437,7 @@ pages:
       enable_live_activity_helper: Engedélyezi az élő tevékenységeket az alapértelmezett előrehaladási értesítések mellett
       opt_out_marketing: Marketing értesítések
       opt_out_marketing_helper: Értesítést küld az eladásokról és promóciókról
+      opt_out_marketing_error: Hiba a marketingbeállítások betöltésében, kérjük, próbáld újra később.
       use_progressbar_notification: Előrehaladási sáv értesítés engedélyezése
       use_progressbar_notification_helper: Engedélyezi az előrehaladási sáv értesítést az alapértelmezett szöveges előrehaladási értesítések mellett
     developer:
@@ -1346,6 +1353,16 @@ date_periods:
   day:
     one: Napi
     other: Napok
+consent_cards:
+  marketing_notifications:
+    title: 'Maradj kapcsolatban az értesítésekkel'
+    description: "Szeretnénk értesítéseket küldeni Neked, hogy tájékoztassunk a fontos frissítésekről és a releváns ajánlatokról."
+    agreement: 'Az elfogadással beleegyezel, hogy:'
+    terms: |
+      • az eszköz FCM azonosítójának tárolása értesítési célokra
+      • marketingközleményeket és promóciós ajánlatokat küldjünk Neked
+      • ezen adatok feldolgozása az Adatvédelmi szabályzatunkkal összhangban
+    disclaimer: A hozzájárulásod bármikor visszavonhatod az alkalmazás beállításain keresztül. További információkért arról, hogyan kezeljük az adataidat, kérjük, tekintsd meg Adatvédelmi szabályzatunkat.
 languages:
   languageCode:
     ab:

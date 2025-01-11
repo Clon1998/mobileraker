@@ -261,8 +261,6 @@ pages:
       one: Element
       other: Elementy
     details:
-      preheat: Podgrzanie
-      print: Drukuj
       general_card:
         path: Scieżka
         last_mod: Ostatnio modyfikowany

@@ -1351,7 +1351,7 @@ date_periods:
 consent_cards:
   marketing_notifications:
     title: 'Bleiben Sie informiert!'
-    description: 'Wir würden Ihnen gerne Benachrichtigungen senden, um Sie über wichtige Aktualisierungen und relevante Angebote auf dem Laufenden zu halten.'
+    description: "Wir würden Ihnen gerne Benachrichtigungen senden, um Sie über wichtige Aktualisierungen und relevante Angebote auf dem Laufenden zu halten."
     agreement: 'Mit der Einwilligung stimmen Sie zu, dass wir:'
     terms: |
       • die FCM-ID Ihres Geräts für Benachrichtigungszwecke speichern

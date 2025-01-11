@@ -127,8 +127,6 @@ pages:
     title: Lêers
     search_files: Deursoek lêers
     details:
-      preheat: Voorverhit
-      print: Druk
       general_card:
         path: Pad
         last_mod: Laas Verander
@@ -168,7 +166,6 @@ pages:
       use_offset_pos: Wys koördinate met afset ingesluit.
       lcFullCam: Volskerm-Webcam in Landskap
       language: Taal
-      companion: "Wil jy kennisgewings oor afstand ontvang?\nLeer hoe om Mobileraker se Hulpgenoot op te stel op "
     notification:
       title: Kennisgewing
       progress_helper: Opdateerinterval van die druktaakvorderingskennisgewing

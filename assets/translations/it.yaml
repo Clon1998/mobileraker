@@ -122,8 +122,6 @@ pages:
   files:
     search_files: Ricerca files
     details:
-      preheat: Preriscalda
-      print: Stampa
       general_card:
         path: Percorso
         last_mod: Ultima Modifica
@@ -163,7 +161,6 @@ pages:
       use_offset_pos: Mostra le coordinate con l'offset applicato.
       lcFullCam: Webcam a Schermo Intero in Orizzontale
       language: Lingua
-      companion: "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion"
     notification:
       title: Notifiche
       progress_helper: Scegli la percentuale di avanzamento di stampa da mostrare nella notifica

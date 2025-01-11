@@ -63,6 +63,8 @@ general:
   hide: 隐藏
   finish: 完成
   select: 选择
+  folder: 文件夹
+  print: 打印
 pages:
   dashboard:
     title: 仪表板
@@ -325,8 +327,6 @@ pages:
       one: 元素
       other: 元素
     details:
-      preheat: 预热
-      print: 打印
       general_card:
         path: 路径
         last_mod: 修改时间
@@ -362,6 +362,11 @@ pages:
         body: |-
           挤出头：{}°C
           床：{}°C
+      print_queue_snackbar:
+        title: 添加到打印队列
+        body:
+          1: 文件已成功添加到打印队列。
+          other: 文件已成功添加到打印队列。
       spoolman_warnings:
         insufficient_filament_title: 耗材不足
         insufficient_filament_body: |-
@@ -386,7 +391,6 @@ pages:
       lcFullCam: 横向全屏显示摄像头
       lcFullCam_hint: 在全屏模式下切换摄像头到横屏模式
       language: 语言
-      companion: "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
       sliders_grouping: 编组滑杆模块
       sliders_grouping_hint: 将所有滑块分类为一个模块
       time_format: 时间格式

@@ -116,8 +116,6 @@ pages:
       one: Element
       other: Elementen
     details:
-      preheat: Voorverwarmen
-      print: Printen
       general_card:
         path: Pad
         last_mod: Laatst aangepast
@@ -154,7 +152,6 @@ pages:
       use_offset_pos: Coördinaten met verschuivingen weergeven
       lcFullCam: Camera op volledig scherm in landschapmodus
       language: Taal
-      companion: "Wil je notificaties op afstand ontvangen?\nLeer hoe je Mobileraker's Companion moet instellen op "
     notification:
       title: Notificatie
       progress_helper: Tijd tussen voortgangsmeldingen

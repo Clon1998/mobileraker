@@ -181,8 +181,6 @@ pages:
     search_files: Chercher un fichier
     no_matches_file_pattern: Seules les lettres, chiffres, tiret (-), souligné (_) et point sont autorisés!
     details:
-      preheat: Préchauffer
-      print: Imprimer
       general_card:
         path: Chemin
         last_mod: Dernière modification
@@ -238,7 +236,6 @@ pages:
       use_offset_pos: Afficher les coordonnées avec le décalage appliqué
       lcFullCam: Orientation paysage lors de l'affichage de la webcam en plein écran
       language: Langue
-      companion: "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web."
       sliders_grouping: Présenter les réglages par curseur sous forme d'onglets
     notification:
       title: Notification
