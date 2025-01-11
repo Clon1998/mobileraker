@@ -392,7 +392,6 @@ pages:
       lcFullCam: 全螢幕攝影機畫面
       lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
-      companion: "想接收遠端通知嗎？\n了解如何在其設備上設定 Mobileraker 的Companion "
       sliders_grouping: 編組滑桿卡片
       sliders_grouping_hint: 編組所有滑桿在一張卡片中
       time_format: 時間格式
