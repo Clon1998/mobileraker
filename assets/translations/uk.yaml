@@ -139,7 +139,6 @@ pages:
       start_with_overview: Показати @:pages.overview.title за замовчуванням
       use_offset_pos: Показати координати з застосованим зміщенням.
       language: Мова
-      companion: "Хочете отримувати віддалені сповіщення?\nПрочитайте, як налаштувати Mobileraker's Companion "
     notification:
       title: Сповіщення
       progress_helper: Інтервал оновлення для сповіщення про хід друку
