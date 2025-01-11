@@ -395,7 +395,6 @@ pages:
       lcFullCam: Teljes képernyős webkamera fekvő helyzetben
       lcFullCam_hint: A kamera tájképre váltása teljes képernyős módban
       language: Nyelv
-      companion: "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
       sliders_grouping: Csúszó kártyák csoportosítása
       sliders_grouping_hint: Minden csúszka egy kártyába csoportosítása
       time_format: Időformátum
