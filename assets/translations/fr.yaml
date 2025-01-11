@@ -236,7 +236,6 @@ pages:
       use_offset_pos: Afficher les coordonnées avec le décalage appliqué
       lcFullCam: Orientation paysage lors de l'affichage de la webcam en plein écran
       language: Langue
-      companion: "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web."
       sliders_grouping: Présenter les réglages par curseur sous forme d'onglets
     notification:
       title: Notification
