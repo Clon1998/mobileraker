@@ -313,8 +313,8 @@ class PrinterService {
     gCode('SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}');
   }
 
-  outputPin(String pinName, double value) {
-    gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
+  Future<void> outputPin(String pinName, double value) async {
+    await gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
   }
 
   Future<void> filamentSensor(String sensorName, bool enable) async {
@@ -403,8 +403,8 @@ class PrinterService {
     }
   }
 
-  led(String ledName, Pixel pixel) {
-    gCode(
+  Future<void> led(String ledName, Pixel pixel) async {
+    await gCode(
         'SET_LED LED=$ledName RED=${pixel.red.toStringAsFixed(2)} GREEN=${pixel.green.toStringAsFixed(2)} BLUE=${pixel.blue.toStringAsFixed(2)} WHITE=${pixel.white.toStringAsFixed(2)}');
   }
 

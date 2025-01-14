@@ -247,6 +247,7 @@ class _Output extends ConsumerWidget {
     return CardWithButton(
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.onEditPin(pin) : null,
+      onLongTap: klippyCanReceiveCommands ? () => controller._onTogglePin(pin) : null,
       builder: (context) {
         var textTheme = Theme.of(context).textTheme;
         var beautifiedName = beautifyName(pin.name);
@@ -595,6 +596,17 @@ class _PinsCardController extends _$PinsCardController {
 
     if (result case DialogResponse(confirmed: true, data: num v)) {
       _printerService.outputPin(pin.name, v.toDouble());
+    }
+  }
+
+  void _onTogglePin(OutputPin pin) {
+    if (!state.hasValue) return;
+    ConfigOutput? configOutput = state.requireValue.pinConfig[pin.configName];
+
+    if (pin.value > 0) {
+      _printerService.outputPin(pin.name, 0).ignore();
+    } else {
+      _printerService.outputPin(pin.name, configOutput?.scale ?? 1).ignore();
     }
   }
 
