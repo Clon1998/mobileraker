@@ -376,6 +376,7 @@ class _Led extends ConsumerWidget {
     return CardWithButton(
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.onEditLed(led) : null,
+      onLongTap: klippyCanReceiveCommands ? () => controller._onToggleLed(led) : null,
       builder: (context) {
         var textTheme = Theme.of(context).textTheme;
         var beautifiedName = beautifyName(led.name);
@@ -652,13 +653,31 @@ class _PinsCardController extends _$PinsCardController {
       }
 
       Pixel pixel = Pixel.fromList([
-        selectedColor.red / 255,
-        selectedColor.green / 255,
-        selectedColor.blue / 255,
+        selectedColor.r / 255,
+        selectedColor.g / 255,
+        selectedColor.b / 255,
         white,
       ]);
 
       _printerService.led(led.name, pixel);
+    }
+  }
+
+  void _onToggleLed(Led led) {
+    if (!state.hasValue) return;
+
+    if (led is DumbLed) {
+      if (led.color.hasColor) {
+        _printerService.led(led.name, Pixel()).ignore();
+      } else {
+        _printerService.led(led.name, Pixel(red: 1, green: 1, blue: 1, white: 1)).ignore();
+      }
+    } else if (led is AddressableLed) {
+      if (led.pixels.any((e) => e.hasColor)) {
+        _printerService.led(led.name, Pixel()).ignore();
+      } else {
+        _printerService.led(led.name, Pixel.fromList([1, 1, 1, 1])).ignore();
+      }
     }
   }
 }
