@@ -279,8 +279,7 @@ class PrinterBuilder {
     if (num >= eList.length) {
       logger.w('Extruder $num is not yet initialized. Adding ${num - eList.length + 1} extruders');
       // Adding missing extruders up to the required number
-      eList.addAll(
-          List.generate(num - eList.length + 1, (i) => Extruder(num: eList.length + i, lastHistory: DateTime(1990))));
+      eList.addAll(List.generate(num - eList.length + 1, (i) => Extruder(num: eList.length + i)));
     }
 
     final Extruder current = eList[num];
@@ -321,7 +320,7 @@ class PrinterBuilder {
   }
 
   static PrinterBuilder _updateGenericHeater(String heater, Map<String, dynamic> json, PrinterBuilder builder) {
-    final genericHeater = builder.genericHeaters[heater] ?? GenericHeater(name: heater, lastHistory: DateTime(1990));
+    final genericHeater = builder.genericHeaters[heater] ?? GenericHeater(name: heater);
     return builder
       ..genericHeaters = {...builder.genericHeaters, heater: GenericHeater.partialUpdate(genericHeater, json)};
   }
@@ -348,8 +347,7 @@ class PrinterBuilder {
   }
 
   static PrinterBuilder _updateTemperatureSensor(String sensor, Map<String, dynamic> json, PrinterBuilder builder) {
-    final temperatureSensor =
-        builder.temperatureSensors[sensor] ?? TemperatureSensor(name: sensor, lastHistory: DateTime(1990));
+    final temperatureSensor = builder.temperatureSensors[sensor] ?? TemperatureSensor(name: sensor);
     return builder
       ..temperatureSensors = {
         ...builder.temperatureSensors,
@@ -366,7 +364,7 @@ class PrinterBuilder {
   }
 
   static PrinterBuilder _updateZThermalAdjust(Map<String, dynamic> json, PrinterBuilder builder) {
-    final zThermalAdjust = builder.zThermalAdjust ?? ZThermalAdjust(lastHistory: DateTime(1990));
+    final zThermalAdjust = builder.zThermalAdjust ?? ZThermalAdjust();
     return builder..zThermalAdjust = ZThermalAdjust.partialUpdate(zThermalAdjust, json);
   }
 

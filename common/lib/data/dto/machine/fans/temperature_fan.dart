@@ -5,7 +5,6 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../../util/json_util.dart';
 import '../../config/config_file_object_identifiers_enum.dart';
 import '../temperature_sensor_mixin.dart';
 import 'named_fan.dart';
@@ -32,28 +31,13 @@ class TemperatureFan extends NamedFan with _$TemperatureFan, TemperatureSensorMi
       @Default(0) double target,
       @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
       @JsonKey(name: 'targets') List<double>? targetHistory,
-      required DateTime lastHistory}) = _TemperatureFan;
+  }) = _TemperatureFan;
 
   factory TemperatureFan.fromJson(Map<String, dynamic> json, [String? name]) =>
       _$TemperatureFanFromJson(name != null ? {...json, 'name': name} : json);
 
-  factory TemperatureFan.partialUpdate(
-      TemperatureFan current, Map<String, dynamic> partialJson) {
-    var mergedJson = {...current.toJson(), ...partialJson};
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(current.lastHistory).inSeconds >= 1) {
-      mergedJson = {
-        ...mergedJson,
-        'temperatures':
-            updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
-        'targets': updateHistoryListInJson(mergedJson, 'targets', 'target'),
-        'lastHistory': now.toIso8601String()
-      };
-    }
-    return TemperatureFan.fromJson(mergedJson);
-  }
+  factory TemperatureFan.partialUpdate(TemperatureFan current, Map<String, dynamic> partialJson) =>
+      TemperatureFan.fromJson({...current.toJson(), ...partialJson});
 
   @override
   ConfigFileObjectIdentifiers get kind => ConfigFileObjectIdentifiers.temperature_fan;

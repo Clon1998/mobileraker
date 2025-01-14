@@ -22,7 +22,7 @@ abstract class NamedFan implements Fan {
     return switch (identifier) {
       ConfigFileObjectIdentifiers.heater_fan => HeaterFan(name: name),
       ConfigFileObjectIdentifiers.controller_fan => ControllerFan(name: name),
-      ConfigFileObjectIdentifiers.temperature_fan => TemperatureFan(name: name, lastHistory: DateTime(1990)),
+      ConfigFileObjectIdentifiers.temperature_fan => TemperatureFan(name: name),
       ConfigFileObjectIdentifiers.fan_generic => GenericFan(name: name),
       _ => throw UnsupportedError('Unknown fan type: $identifier, can not create fallback.'),
     };

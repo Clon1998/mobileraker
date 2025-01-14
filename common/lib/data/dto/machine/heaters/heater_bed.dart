@@ -24,31 +24,15 @@ class HeaterBed with _$HeaterBed, TemperatureSensorMixin, HeaterMixin {
     @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
     @JsonKey(name: 'targets') List<double>? targetHistory,
     @JsonKey(name: 'powers') List<double>? powerHistory,
-    required DateTime lastHistory,
   }) = _HeaterBed;
 
   factory HeaterBed.fromJson(Map<String, dynamic> json) =>
       _$HeaterBedFromJson(json);
 
   factory HeaterBed.partialUpdate(HeaterBed? current, Map<String, dynamic> partialJson) {
-    HeaterBed old = current ?? HeaterBed(lastHistory: DateTime(1990));
+    HeaterBed old = current ?? HeaterBed();
 
-    var mergedJson = {...old.toJson(), ...partialJson};
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(old.lastHistory).inSeconds >= 1) {
-      mergedJson = {
-        ...mergedJson,
-        'temperatures':
-        updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
-        'targets': updateHistoryListInJson(mergedJson, 'targets', 'target'),
-        'powers': updateHistoryListInJson(mergedJson, 'powers', 'power'),
-        'lastHistory': now.toIso8601String()
-      };
-    }
-
-    return HeaterBed.fromJson(mergedJson);
+    return HeaterBed.fromJson({...old.toJson(), ...partialJson});
   }
 
   @override
