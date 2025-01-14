@@ -172,6 +172,7 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
                     value: _value,
                     lowerLimit: widget.args.min,
                     upperLimit: widget.args.max ?? 100,
+                    segment: widget.args.segment,
                     decimalPlaces: widget.args.fraction,
                     onChanged: _onSliderChanged,
                   )
@@ -264,5 +265,6 @@ class NumberEditDialogArguments with _$NumberEditDialogArguments {
     num? max,
     required num current,
     @Default(0) int fraction,
+    @Default(0) num segment,
   }) = _NumberEditDialogArguments;
 }

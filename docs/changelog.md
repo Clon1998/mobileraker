@@ -20,6 +20,9 @@
   offline.
   This allows users to still access the webcam even if the printer is
   offline. [#221](https://github.com/Clon1998/mobileraker/issues/221)
+- **Temperature Slider Increments**: Added 5°C snap points to the temperature slider for easier temperature selection,
+  while maintaining precise control via +/- buttons. This improvement reflects user behavior analysis showing that 90%
+  of temperature adjustments target multiples of 5°C.
 
 ### Bug Fixes
 

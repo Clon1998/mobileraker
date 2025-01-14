@@ -524,6 +524,7 @@ class _Controller extends _$Controller {
         current: heater.target,
         min: 0,
         max: maxValue ?? 150,
+        segment: 5,
       ),
     ))
         .then((value) {
@@ -551,6 +552,7 @@ class _Controller extends _$Controller {
             current: temperatureFan.target.round(),
             min: (configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
             max: (configFan is ConfigTemperatureFan) ? configFan.maxTemp : 100,
+            segment: 5,
           ),
         ))
         .then((value) {
