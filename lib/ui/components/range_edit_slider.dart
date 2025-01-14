@@ -20,12 +20,14 @@ class RangeEditSlider extends HookWidget {
     this.lowerLimit = 0,
     this.upperLimit = 100,
     this.decimalPlaces = 0,
+    this.segment = 0,
   });
 
   final num value;
   final num lowerLimit;
   final num upperLimit;
   final int decimalPlaces;
+  final num segment;
   final void Function(num)? onChanged;
 
   @override
@@ -99,7 +101,7 @@ class RangeEditSlider extends HookWidget {
               height: 25,
               // width: 10,
               pointerAlignment: PointerAlignment.center,
-              onChanged: onChanged,
+              onChanged: _respectStepChanged.unless(onChanged == null),
             ),
           ],
           linearGaugeBoxDecoration: LinearGaugeBoxDecoration(
@@ -112,12 +114,22 @@ class RangeEditSlider extends HookWidget {
             showPrimaryRulers: false,
             showSecondaryRulers: false,
             showLabel: true,
-            labelOffset: 5,
+            labelOffset: 15,
             textStyle: themeData.textTheme.bodySmall,
           ),
         ),
       ],
     );
+  }
+
+  void _respectStepChanged(double newValue) {
+    if (segment > 0) {
+      // Adjust the value to the nearest step
+      final step = ((newValue - lowerLimit) / segment).round() * segment + lowerLimit;
+      onChanged!(step);
+    } else {
+      onChanged!(newValue);
+    }
   }
 }
 
