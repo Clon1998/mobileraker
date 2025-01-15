@@ -19,6 +19,7 @@ import 'package:common/exceptions/gcode_exception.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/list_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
@@ -532,21 +533,23 @@ class PrinterService {
     }
     // logger.i('Updating temperature store data');
 
+    int historyLength = Duration(minutes: 20).inSeconds;
+
     // update extruders
     final extruderList = List<Extruder>.unmodifiable(toWorkWith.extruders.map((extruder) {
       return extruder.copyWith(
         temperatureHistory: [
           ...?extruder.temperatureHistory,
           extruder.temperature,
-        ],
+        ].shrinkToFit(historyLength),
         targetHistory: [
           ...?extruder.targetHistory,
           extruder.target,
-        ],
+        ].shrinkToFit(historyLength),
         powerHistory: [
           ...?extruder.powerHistory,
           extruder.power,
-        ],
+        ].shrinkToFit(historyLength),
       );
     }));
 
@@ -554,15 +557,15 @@ class PrinterService {
       temperatureHistory: [
         ...?toWorkWith.heaterBed?.temperatureHistory,
         toWorkWith.heaterBed!.temperature,
-      ],
+      ].shrinkToFit(historyLength),
       targetHistory: [
         ...?toWorkWith.heaterBed?.targetHistory,
         toWorkWith.heaterBed!.target,
-      ],
+      ].shrinkToFit(historyLength),
       powerHistory: [
         ...?toWorkWith.heaterBed?.powerHistory,
         toWorkWith.heaterBed!.power,
-      ],
+      ].shrinkToFit(historyLength),
     );
 
     final genericHeaterMap = Map<String, GenericHeater>.unmodifiable(<String, GenericHeater>{
@@ -571,15 +574,15 @@ class PrinterService {
           temperatureHistory: [
             ...?heater.value.temperatureHistory,
             heater.value.temperature,
-          ],
+          ].shrinkToFit(historyLength),
           targetHistory: [
             ...?heater.value.targetHistory,
             heater.value.target,
-          ],
+          ].shrinkToFit(historyLength),
           powerHistory: [
             ...?heater.value.powerHistory,
             heater.value.power,
-          ],
+          ].shrinkToFit(historyLength),
         ),
     });
 
@@ -589,7 +592,7 @@ class PrinterService {
           temperatureHistory: [
             ...?sensor.value.temperatureHistory,
             sensor.value.temperature,
-          ],
+          ].shrinkToFit(historyLength),
         ),
     });
 
@@ -601,11 +604,11 @@ class PrinterService {
               temperatureHistory: [
                 ...?tempFan.temperatureHistory,
                 tempFan.temperature,
-              ],
+              ].shrinkToFit(historyLength),
               targetHistory: [
                 ...?tempFan.targetHistory,
                 tempFan.target,
-              ],
+              ].shrinkToFit(historyLength),
             ),
           _ => fan.value
         },
@@ -615,7 +618,7 @@ class PrinterService {
       temperatureHistory: [
         ...?toWorkWith.zThermalAdjust?.temperatureHistory,
         toWorkWith.zThermalAdjust!.temperature,
-      ],
+      ].shrinkToFit(historyLength),
     );
 
     current = toWorkWith.copyWith(
