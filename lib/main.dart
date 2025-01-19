@@ -74,7 +74,7 @@ class MyApp extends ConsumerWidget {
     return EasyLocalization(
       supportedLocales: const [
         Locale('af'),
-        Locale('ca'),
+        // Locale('ca'),
         Locale('de'),
         Locale('en'),
         Locale('fr'),
