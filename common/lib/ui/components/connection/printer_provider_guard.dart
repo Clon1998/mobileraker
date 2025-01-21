@@ -5,6 +5,7 @@
 
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,6 +29,8 @@ class PrinterProviderGuard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final (hasError, error) = ref.watch(printerProvider(machineUUID).select((it) => (it is AsyncError, it.error)));
+    // Just initialize the temperature store provider to have it available if needed
+    ref.read(temperatureStoreServiceProvider(machineUUID));
 
     logger.i('PrinterProviderGuard($machineUUID): hasError: $hasError, error: $error');
 
