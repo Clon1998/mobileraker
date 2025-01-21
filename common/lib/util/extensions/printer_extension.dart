@@ -89,8 +89,8 @@ extension CombinedSensorExtension on Printer {
 
     // Sort output by ordering, if ordering is not found it will be placed at the end
     output.sort((a, b) {
-      var aIndex = ordering.indexWhere((element) => element.name == a.name);
-      var bIndex = ordering.indexWhere((element) => element.name == b.name);
+      var aIndex = ordering.indexWhere((element) => element.name == a.name && element.kind == a.kind);
+      var bIndex = ordering.indexWhere((element) => element.name == b.name && element.kind == b.kind);
 
       if (aIndex == -1) aIndex = output.length;
       if (bIndex == -1) bIndex = output.length;
