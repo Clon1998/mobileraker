@@ -558,11 +558,13 @@ class _LanguageSelector extends ConsumerWidget {
 
   //Fallback
 
-  String countryCodeToEmoji(String languageCode) {
-    String? countryCode = languageToCountry[languageCode] ?? languageCode;
+  String countryCodeToEmoji(Locale locale) {
+    String countryCode = (languageToCountry[locale.languageCode] ?? locale.languageCode).toUpperCase();
 
-    // Convert the country code to uppercase
-    countryCode = countryCode.toUpperCase();
+    // Special case for TW
+    if (locale.countryCode == 'TW') {
+      countryCode = 'TW';
+    }
 
     // Ensure the country code is exactly two letters
     if (countryCode.length != 2) {
@@ -584,7 +586,7 @@ class _LanguageSelector extends ConsumerWidget {
       out += ' ($country)';
     }
 
-    return '${countryCodeToEmoji(locale.languageCode)} $out';
+    return '${countryCodeToEmoji(locale)} $out';
   }
 
   @override
