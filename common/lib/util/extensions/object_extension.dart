@@ -26,7 +26,7 @@ extension ScopeFunctions<R> on R {
   /// Calls the specified function [fun] with this value as its argument and returns its result.
   ///
   /// This can be used to pass the current object to a function and continue with its result.
-  @pragma("vm:prefer-inline")
+  @pragma('vm:prefer-inline')
   T let<T>(T Function(R it) fun) => fun(this);
 
   /// Calls the specified function [fun] with this value as its argument and returns this value unchanged.
