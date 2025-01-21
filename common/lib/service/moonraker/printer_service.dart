@@ -9,9 +9,6 @@ import 'dart:math';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
-import 'package:common/data/dto/machine/fans/named_fan.dart';
-import 'package:common/data/dto/machine/fans/temperature_fan.dart';
-import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
@@ -19,7 +16,6 @@ import 'package:common/exceptions/gcode_exception.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/list_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
@@ -29,12 +25,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
-import '../../data/dto/config/config_file_object_identifiers_enum.dart';
 import '../../data/dto/console/command.dart';
 import '../../data/dto/console/console_entry.dart';
-import '../../data/dto/machine/heaters/generic_heater.dart';
 import '../../data/dto/machine/printer_builder.dart';
-import '../../data/dto/machine/temperature_sensor.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
@@ -157,8 +150,6 @@ class PrinterService {
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
 
-  Timer? _temperatureStoreUpdateTimer;
-
   bool _queriedForSession = false;
 
   //TODO: Make this private and offer a riverpod provider
@@ -184,8 +175,6 @@ class PrinterService {
 
   Future<void> refreshPrinter() async {
     try {
-      _temperatureStoreUpdateTimer?.cancel();
-
       // await Future.delayed(Duration(seconds:15));
       // Remove Handerls to prevent updates
       _removeJrpcHandlers();
@@ -201,7 +190,6 @@ class PrinterService {
       _registerJrpcHandlers();
       _makeSubscribeRequest(printerObj.queryableObjects);
       current = printerObj;
-      _startTemperatureStoreUpdateTimer();
     } on JRpcTimeoutError catch (e, s) {
       logger.e('Timeout while refreshing printer $ownerUUID...', e);
       _printerStreamCtler.addError(
@@ -526,127 +514,6 @@ class PrinterService {
     }
   }
 
-  // TODO: This timer should be STOPPED on application backgrounding
-  // TODO: This timer code should add the timestamp!
-  void _startTemperatureStoreUpdateTimer() {
-    logger.i('Starting temperature store update timer');
-    // Just to make sure we don't have multiple timers running AT ALL!
-    _temperatureStoreUpdateTimer?.cancel();
-    _temperatureStoreUpdateTimer = Timer.periodic(const Duration(seconds: 1), _temperatureUpdateTimerCallback);
-  }
-
-  void _temperatureUpdateTimerCallback(Timer timer) {
-    if (disposed) {
-      timer.cancel();
-      return;
-    }
-
-    final toWorkWith = currentOrNull;
-    if (toWorkWith == null) {
-      // logger.i('Skipping temperature update timer since no data is available');
-      return;
-    }
-    // logger.i('Updating temperature store data');
-
-    int historyLength = Duration(minutes: 20).inSeconds;
-
-    // update extruders
-    final extruderList = List<Extruder>.unmodifiable(toWorkWith.extruders.map((extruder) {
-      return extruder.copyWith(
-        temperatureHistory: [
-          ...?extruder.temperatureHistory,
-          extruder.temperature,
-        ].shrinkToFit(historyLength),
-        targetHistory: [
-          ...?extruder.targetHistory,
-          extruder.target,
-        ].shrinkToFit(historyLength),
-        powerHistory: [
-          ...?extruder.powerHistory,
-          extruder.power,
-        ].shrinkToFit(historyLength),
-      );
-    }));
-
-    final bed = toWorkWith.heaterBed?.copyWith(
-      temperatureHistory: [
-        ...?toWorkWith.heaterBed?.temperatureHistory,
-        toWorkWith.heaterBed!.temperature,
-      ].shrinkToFit(historyLength),
-      targetHistory: [
-        ...?toWorkWith.heaterBed?.targetHistory,
-        toWorkWith.heaterBed!.target,
-      ].shrinkToFit(historyLength),
-      powerHistory: [
-        ...?toWorkWith.heaterBed?.powerHistory,
-        toWorkWith.heaterBed!.power,
-      ].shrinkToFit(historyLength),
-    );
-
-    final genericHeaterMap = Map<String, GenericHeater>.unmodifiable(<String, GenericHeater>{
-      for (var heater in toWorkWith.genericHeaters.entries)
-        heater.key: heater.value.copyWith(
-          temperatureHistory: [
-            ...?heater.value.temperatureHistory,
-            heater.value.temperature,
-          ].shrinkToFit(historyLength),
-          targetHistory: [
-            ...?heater.value.targetHistory,
-            heater.value.target,
-          ].shrinkToFit(historyLength),
-          powerHistory: [
-            ...?heater.value.powerHistory,
-            heater.value.power,
-          ].shrinkToFit(historyLength),
-        ),
-    });
-
-    final tempSensorMap = Map<String, TemperatureSensor>.unmodifiable(<String, TemperatureSensor>{
-      for (var sensor in toWorkWith.temperatureSensors.entries)
-        sensor.key: sensor.value.copyWith(
-          temperatureHistory: [
-            ...?sensor.value.temperatureHistory,
-            sensor.value.temperature,
-          ].shrinkToFit(historyLength),
-        ),
-    });
-
-    final fansMap = Map<(ConfigFileObjectIdentifiers, String),
-        NamedFan>.unmodifiable(<(ConfigFileObjectIdentifiers, String), NamedFan>{
-      for (var fan in toWorkWith.fans.entries)
-        fan.key: switch (fan.value) {
-          final TemperatureFan tempFan => tempFan.copyWith(
-              temperatureHistory: [
-                ...?tempFan.temperatureHistory,
-                tempFan.temperature,
-              ].shrinkToFit(historyLength),
-              targetHistory: [
-                ...?tempFan.targetHistory,
-                tempFan.target,
-              ].shrinkToFit(historyLength),
-            ),
-          _ => fan.value
-        },
-    });
-
-    final zThermal = toWorkWith.zThermalAdjust?.copyWith(
-      temperatureHistory: [
-        ...?toWorkWith.zThermalAdjust?.temperatureHistory,
-        toWorkWith.zThermalAdjust!.temperature,
-      ].shrinkToFit(historyLength),
-    );
-
-    current = toWorkWith.copyWith(
-      extruders: extruderList,
-      heaterBed: bed,
-      genericHeaters: genericHeaterMap,
-      temperatureSensors: tempSensorMap,
-      fans: fansMap,
-      zThermalAdjust: zThermal,
-    );
-    // logger.i('Updated temperature store data');
-  }
-
   Future<PrinterBuilder> _printerObjectsList() async {
     // printerStream.value = Printer();
     logger.i('>>>Querying printers object list');
@@ -784,8 +651,6 @@ class PrinterService {
 
   void dispose() {
     _removeJrpcHandlers();
-
-    _temperatureStoreUpdateTimer?.cancel();
     _printerStreamCtler.close();
     _gCodeResponseStreamController.close();
   }
