@@ -63,5 +63,8 @@ class SnackBarConfig {
 SnackBarService snackBarService(Ref ref) => throw UnimplementedError();
 
 abstract interface class SnackBarService {
-  show(SnackBarConfig config);
+  void show(SnackBarConfig config);
+
+  /// Only show the snackbar if the machine with the given UUID is currently selected
+  void showForMachine(String machineUUID, SnackBarConfig config);
 }
