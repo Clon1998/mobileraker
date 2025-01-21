@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/app_router.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,12 +18,19 @@ class SnackBarServiceImpl implements SnackBarService {
   final Ref ref;
 
   @override
-  show(SnackBarConfig config) {
+  void show(SnackBarConfig config) {
     var context = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
     if (context != null) {
       ScaffoldMessenger.of(context).showSnackBar(_constructSnackbar(context, config));
     }
+  }
+
+  @override
+  void showForMachine(String machineUUID, SnackBarConfig config) {
+    var activeMachine = ref.read(selectedMachineProvider).valueOrNull;
+    if (activeMachine?.uuid != machineUUID) return;
+    show(config);
   }
 
   SnackBar _constructSnackbar(BuildContext context, SnackBarConfig config) {

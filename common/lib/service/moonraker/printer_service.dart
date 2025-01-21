@@ -738,29 +738,33 @@ class PrinterService {
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
-    _snackBarService.show(SnackBarConfig.stacktraceDialog(
-      dialogService: _dialogService,
-      exception: e,
-      stack: s,
-      snackTitle: 'Refresh Printer Error',
-      snackMessage: 'Could not parse: $e',
-    ));
+    _snackBarService.showForMachine(
+        ownerUUID,
+        SnackBarConfig.stacktraceDialog(
+          dialogService: _dialogService,
+          exception: e,
+          stack: s,
+          snackTitle: 'Refresh Printer Error',
+          snackMessage: 'Could not parse: $e',
+        ));
   }
 
   void _showParsingExceptionSnackbar(Object e, StackTrace s, String key, Map<String, dynamic> json) {
-    _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        title: 'Refreshing Printer failed',
-        message: 'Parsing of $key failed:\n$e',
-        duration: const Duration(seconds: 30),
-        mainButtonTitle: 'Details',
-        closeOnMainButtonTapped: true,
-        onMainButtonTapped: () {
-          _dialogService.show(DialogRequest(
-              type: CommonDialogs.stacktrace,
-              title: 'Parsing "${key.titleCase()}" failed',
-              body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
-        }));
+    _snackBarService.showForMachine(
+        ownerUUID,
+        SnackBarConfig(
+            type: SnackbarType.error,
+            title: 'Refreshing Printer failed',
+            message: 'Parsing of $key failed:\n$e',
+            duration: const Duration(seconds: 30),
+            mainButtonTitle: 'Details',
+            closeOnMainButtonTapped: true,
+            onMainButtonTapped: () {
+              _dialogService.show(DialogRequest(
+                  type: CommonDialogs.stacktrace,
+                  title: 'Parsing "${key.titleCase()}" failed',
+                  body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
+            }));
   }
 
   void dispose() {
