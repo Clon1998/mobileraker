@@ -71,7 +71,7 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
   Future<void> addCurrentSSID() async {
     var wifiName = await ref.read(networkInfoServiceProvider).getWifiName();
     if (state.contains(wifiName)) {
-      await ref.read(snackBarServiceProvider).show(SnackBarConfig(
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
             type: SnackbarType.warning,
             title: '$wifiName already in List',
           ));
@@ -79,7 +79,7 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
     }
 
     if (wifiName?.isNotEmpty != true) {
-      await ref.read(snackBarServiceProvider).show(SnackBarConfig(
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
             type: SnackbarType.warning,
             title: tr(
               'pages.printer_edit.local_ssid.error_fetching_snackbar.title',
