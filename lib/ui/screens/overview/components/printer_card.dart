@@ -19,6 +19,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -353,6 +354,18 @@ class _PrinterCardController extends _$PrinterCardController {
       AppRoute.fullCam.name,
       extra: {'machine': machine, 'selectedCam': cam},
     );
+  }
+
+  @override
+  bool updateShouldNotify(AsyncValue<_Model> previous, AsyncValue<_Model> next) {
+    final wasLoading = previous.isLoading;
+    final isLoading = next.isLoading;
+
+    final loadingTransition = (wasLoading || isLoading) && wasLoading != isLoading;
+    final progressEpsilon =
+        previous.valueOrNull?.printProgress.closeTo(next.valueOrNull?.printProgress ?? 0, 0.01) != false;
+
+    return loadingTransition && progressEpsilon;
   }
 }
 
