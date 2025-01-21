@@ -63,7 +63,7 @@ void main() {
 
     test('levenshteinDistance returns correct distance', () {
       final result = 'Fab365_StarWars_Star-Destroyer_Bridge-A_PC-PBT GF_14m3s.gcode'.levenshteinDistance('FAB365');
-      expect(result, 0);
+      expect(result, 57);
     });
   });
 }
