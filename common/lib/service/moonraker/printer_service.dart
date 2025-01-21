@@ -694,7 +694,7 @@ class PrinterService {
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {
     final Map<String, List<String>?> queryObjects = {};
     for (String obj in queryableObjects) {
-      final (cIdentifier, _) = obj.toKlipperObjectIdentifierNEW();
+      final (cIdentifier, _) = obj.toKlipperObjectIdentifier();
       if (cIdentifier == null) continue;
       queryObjects[obj] = null;
     }

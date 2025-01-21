@@ -74,9 +74,9 @@ void main() {
   });
 
   test('config key matching', () {
-    expect('extruder'.toKlipperObjectIdentifierNEW(), (ConfigFileObjectIdentifiers.extruder, null));
-    expect('extruder1'.toKlipperObjectIdentifierNEW(), (ConfigFileObjectIdentifiers.extruder, null));
-    expect('extruder2'.toKlipperObjectIdentifierNEW(), (ConfigFileObjectIdentifiers.extruder, null));
+    expect('extruder'.toKlipperObjectIdentifier(), (ConfigFileObjectIdentifiers.extruder, null));
+    expect('extruder1'.toKlipperObjectIdentifier(), (ConfigFileObjectIdentifiers.extruder, null));
+    expect('extruder2'.toKlipperObjectIdentifier(), (ConfigFileObjectIdentifiers.extruder, null));
   });
 }
 

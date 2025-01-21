@@ -53,7 +53,7 @@ class ConfigFile {
 
   ConfigFile.parse(this.rawConfig) {
     for (String key in rawConfig.keys) {
-      var (cIdentifier, objectName) = key.toKlipperObjectIdentifierNEW();
+      var (cIdentifier, objectName) = key.toKlipperObjectIdentifier();
 
       Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
 

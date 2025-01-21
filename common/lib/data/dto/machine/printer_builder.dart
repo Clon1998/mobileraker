@@ -203,7 +203,7 @@ class PrinterBuilder {
 
   /// Partially updates the printer object with the given json. IT IS EXPECTED THAT THE BUILDER IS CREATED FROM THE DTO!
   PrinterBuilder partialUpdateField(String key, Map<String, dynamic> json) {
-    final (cIdentifier, objectName) = key.toKlipperObjectIdentifierNEW();
+    final (cIdentifier, objectName) = key.toKlipperObjectIdentifier();
 
     // The config identifier is not yet supported
     if (cIdentifier == null) return this;

@@ -15,7 +15,7 @@ extension MobilerakerString on String {
   /// E.g. 'temperature_sensor sensor_name'
   /// Note that it returns (ObjectIdentifier, ObjectName),
   /// The ObjectIdentifier is always lowercase and
-  (ConfigFileObjectIdentifiers?, String?) toKlipperObjectIdentifierNEW() {
+  (ConfigFileObjectIdentifiers?, String?) toKlipperObjectIdentifier() {
     final trimmed = trim();
     final parts = trimmed.split(RegExp(r'\s+'));
     final cIdentifier = ConfigFileObjectIdentifiers.tryParse(parts[0].toLowerCase());

@@ -14,45 +14,45 @@ void main() {
 
     // Tests for toKlipperObjectIdentifierNEW
     test('toKlipperObjectIdentifierNEW returns ConfigFileObjectIdentifiers and null when single word', () {
-      final result = 'Temperature_Sensor'.toKlipperObjectIdentifierNEW();
+      final result = 'Temperature_Sensor'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.temperature_sensor, null));
     });
 
     test('toKlipperObjectIdentifierNEW returns ConfigFileObjectIdentifiers and trimmed object name when multiple words',
         () {
-      final result = 'Temperature_Sensor sensor_name'.toKlipperObjectIdentifierNEW();
+      final result = 'Temperature_Sensor sensor_name'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.temperature_sensor, 'sensor_name'));
     });
 
     test('toKlipperObjectIdentifierNEW handles leading and trailing whitespaces', () {
-      final result = '  Temperature_Sensor sensor_name  '.toKlipperObjectIdentifierNEW();
+      final result = '  Temperature_Sensor sensor_name  '.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.temperature_sensor, 'sensor_name'));
     });
 
     test('toKlipperObjectIdentifierNEW handles multiple whitespaces between words', () {
-      final result = 'Temperature_Sensor    sensor_name'.toKlipperObjectIdentifierNEW();
+      final result = 'Temperature_Sensor    sensor_name'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.temperature_sensor, 'sensor_name'));
     });
 
     test('toKlipperObjectIdentifierNEW handles multiple sections with whitespaces', () {
-      final result = 'Temperature_Sensor sensor_name extra_part'.toKlipperObjectIdentifierNEW();
+      final result = 'Temperature_Sensor sensor_name extra_part'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.temperature_sensor, 'sensor_name extra_part'));
     });
 
     test('toKlipperObjectIdentifierNEW handles multiple sections with multiple whitespaces', () {
-      final result = 'Temperature_Sensor    sensor_name    extra_part'.toKlipperObjectIdentifierNEW();
+      final result = 'Temperature_Sensor    sensor_name    extra_part'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.temperature_sensor, 'sensor_name    extra_part'));
     });
 
     test('toKlipperObjectIdentifierNEW returns (null, null) when identifier is not recognized', () {
-      final result = 'Unknown_Identifier'.toKlipperObjectIdentifierNEW();
+      final result = 'Unknown_Identifier'.toKlipperObjectIdentifier();
       expect(result, (null, null));
     });
 
     test('toKlipperObjectIdentifierNEW handles identifiers that use regex', () {
-      var result = 'extruder1'.toKlipperObjectIdentifierNEW();
+      var result = 'extruder1'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.extruder, null));
-      result = 'extruder'.toKlipperObjectIdentifierNEW();
+      result = 'extruder'.toKlipperObjectIdentifier();
       expect(result, (ConfigFileObjectIdentifiers.extruder, null));
     });
 
