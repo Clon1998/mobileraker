@@ -20,9 +20,6 @@ class HeaterBed with _$HeaterBed, TemperatureSensorMixin, HeaterMixin {
     @Default(0) double temperature,
     @Default(0) double target,
     @Default(0) double power,
-    @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
-    @JsonKey(name: 'targets') List<double>? targetHistory,
-    @JsonKey(name: 'powers') List<double>? powerHistory,
   }) = _HeaterBed;
 
   factory HeaterBed.fromJson(Map<String, dynamic> json) =>

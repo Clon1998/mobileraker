@@ -18,8 +18,6 @@ void main() {
     expect(obj.temperature, equals(42.39));
     expect(obj.measuredMinTemp, equals(39.7));
     expect(obj.measuredMaxTemp, equals(60.69));
-    expect(obj.lastHistory, equals(NOW));
-    expect(obj.temperatureHistory, isNull);
   });
 
   group('TemperatureSensor partialUpdate', () {
@@ -36,8 +34,6 @@ void main() {
       expect(updatedObj.temperature, equals(224.5));
       expect(updatedObj.measuredMinTemp, equals(39.7));
       expect(updatedObj.measuredMaxTemp, equals(60.69));
-      expect(updatedObj.lastHistory, equals(NOW));
-      expect(updatedObj.temperatureHistory, isNull);
     });
 
     test('measured_min_temp', () {
@@ -53,8 +49,6 @@ void main() {
       expect(updatedObj.temperature, equals(42.39));
       expect(updatedObj.measuredMinTemp, equals(5.22));
       expect(updatedObj.measuredMaxTemp, equals(60.69));
-      expect(updatedObj.lastHistory, equals(NOW));
-      expect(updatedObj.temperatureHistory, isNull);
     });
 
     test('measured_max_temp', () {
@@ -70,26 +64,8 @@ void main() {
       expect(updatedObj.temperature, equals(42.39));
       expect(updatedObj.measuredMinTemp, equals(39.7));
       expect(updatedObj.measuredMaxTemp, equals(102.49));
-      expect(updatedObj.lastHistory, equals(NOW));
-      expect(updatedObj.temperatureHistory, isNull);
     });
 
-    test('temperatureHistory', () {
-      var old = temperatureSensorObject();
-
-      var parsedJson = {
-        'temperatures': [30, 30, 31, 31, 32.5, 44, 45, 45, 9],
-      };
-
-      var updatedObj = TemperatureSensor.partialUpdate(old, parsedJson);
-
-      expect(updatedObj, isNotNull);
-      expect(updatedObj.temperature, equals(42.39));
-      expect(updatedObj.measuredMinTemp, equals(39.7));
-      expect(updatedObj.measuredMaxTemp, equals(60.69));
-      expect(updatedObj.lastHistory, equals(NOW));
-      expect(updatedObj.temperatureHistory, orderedEquals([30, 30, 31, 31, 32.5, 44, 45, 45, 9]));
-    });
   });
 }
 
@@ -99,5 +75,5 @@ TemperatureSensor temperatureSensorObject() {
 
   var parsedJson = objectFromHttpApiResult(input, 'temperature_sensor raspberry_pi');
 
-  return TemperatureSensor.fromJson({...parsedJson, 'lastHistory': NOW.toIso8601String()}, 'raspberry_pi');
+  return TemperatureSensor.fromJson({...parsedJson}, 'raspberry_pi');
 }

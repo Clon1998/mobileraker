@@ -9,8 +9,4 @@ mixin HeaterMixin on TemperatureSensorMixin {
   double get target;
 
   double get power;
-
-  List<double>? get targetHistory;
-
-  List<double>? get powerHistory;
 }

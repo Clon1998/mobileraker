@@ -8,8 +8,6 @@ import '../config/config_file_object_identifiers_enum.dart';
 mixin TemperatureSensorMixin {
   double get temperature;
 
-  List<double>? get temperatureHistory;
-
   String get name;
 
   String get configName => name.toLowerCase();

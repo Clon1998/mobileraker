@@ -33,7 +33,6 @@ class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
     @Default(0) double measuredMaxTemp,
     @Default(0) double currentZAdjust,
     @Default(0) double zAdjustRefTemperature,
-    @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
   }) = _ZThermalAdjust;
 
   factory ZThermalAdjust.fromJson(Map<String, dynamic> json) => _$ZThermalAdjustFromJson(json);

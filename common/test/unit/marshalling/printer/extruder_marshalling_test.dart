@@ -22,10 +22,6 @@ void main() {
     expect(extruder.pressureAdvance, equals(0.055));
     expect(extruder.smoothTime, equals(0.04));
     expect(extruder.power, equals(0));
-    expect(extruder.lastHistory, equals(NOW));
-    expect(extruder.temperatureHistory, isNull);
-    expect(extruder.targetHistory, isNull);
-    expect(extruder.powerHistory, isNull);
   });
 
   test('Extruder partialUpdate', () {
@@ -44,34 +40,8 @@ void main() {
     expect(extruder.pressureAdvance, equals(0.055));
     expect(extruder.smoothTime, equals(0.99));
     expect(extruder.power, equals(1));
-    expect(extruder.lastHistory, equals(NOW));
-    expect(extruder.temperatureHistory, isNull);
-    expect(extruder.targetHistory, isNull);
-    expect(extruder.powerHistory, isNull);
   });
 
-  test('Extruder partialUpdate - temperature History', () {
-    var old = extruderObject();
-
-    var parsedJson = {
-      'powers': [0, 0, 0, 0, 0.5, 0.9, 1.0],
-      'temperatures': [30, 30, 31, 31, 32.5, 44, 45, 45, 9],
-      'targets': [0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9],
-    };
-
-    var extruder = Extruder.partialUpdate(old, parsedJson);
-
-    expect(extruder, isNotNull);
-    expect(extruder.temperature, equals(22.56));
-    expect(extruder.target, equals(0));
-    expect(extruder.pressureAdvance, equals(0.055));
-    expect(extruder.smoothTime, equals(0.04));
-    expect(extruder.power, equals(0));
-    expect(extruder.lastHistory, equals(NOW));
-    expect(extruder.temperatureHistory, orderedEquals([30, 30, 31, 31, 32.5, 44, 45, 45, 9]));
-    expect(extruder.targetHistory, orderedEquals([0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9]));
-    expect(extruder.powerHistory, orderedEquals([0, 0, 0, 0, 0.5, 0.9, 1.0]));
-  });
 
   test('config key matching', () {
     expect('extruder'.toKlipperObjectIdentifier(), (ConfigFileObjectIdentifiers.extruder, null));
@@ -86,5 +56,5 @@ Extruder extruderObject() {
 
   var parsedJson = objectFromHttpApiResult(input, 'extruder');
 
-  return Extruder.fromJson({...parsedJson, 'num': 0, 'lastHistory': NOW.toIso8601String()});
+  return Extruder.fromJson({...parsedJson, 'num': 0});
 }

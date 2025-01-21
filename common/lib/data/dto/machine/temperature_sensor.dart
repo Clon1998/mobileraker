@@ -20,7 +20,6 @@ class TemperatureSensor with _$TemperatureSensor, TemperatureSensorMixin {
     @Default(0.0) double temperature,
     @JsonKey(name: 'measured_min_temp') @Default(0.0) double measuredMinTemp,
     @JsonKey(name: 'measured_max_temp') @Default(0.0) double measuredMaxTemp,
-    @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
   }) = _TemperatureSensor;
 
   factory TemperatureSensor.fromJson(Map<String, dynamic> json, [String? name]) =>

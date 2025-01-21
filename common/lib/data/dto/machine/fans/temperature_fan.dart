@@ -29,8 +29,6 @@ class TemperatureFan extends NamedFan with _$TemperatureFan, TemperatureSensorMi
       double? rpm,
       @Default(0) double temperature,
       @Default(0) double target,
-      @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
-      @JsonKey(name: 'targets') List<double>? targetHistory,
   }) = _TemperatureFan;
 
   factory TemperatureFan.fromJson(Map<String, dynamic> json, [String? name]) =>

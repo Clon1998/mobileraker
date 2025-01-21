@@ -27,9 +27,6 @@ class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
     @JsonKey(name: 'pressure_advance') @Default(0) double pressureAdvance,
     @JsonKey(name: 'smooth_time') @Default(0) double smoothTime,
     @Default(0) double power,
-    @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
-    @JsonKey(name: 'targets') List<double>? targetHistory,
-    @JsonKey(name: 'powers') List<double>? powerHistory,
   }) = _Extruder;
 
   factory Extruder.fromJson(Map<String, dynamic> json) => _$ExtruderFromJson(json);

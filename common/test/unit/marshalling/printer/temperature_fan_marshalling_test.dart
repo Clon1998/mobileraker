@@ -19,7 +19,6 @@ void main() {
     expect(obj.rpm, equals(500));
     expect(obj.temperature, equals(11.1));
     expect(obj.target, equals(44.95));
-    expect(obj.lastHistory, equals(NOW));
   });
 
   test('TemperatureFan without RPM fromJson', () {
@@ -30,7 +29,6 @@ void main() {
     expect(obj.rpm, equals(null));
     expect(obj.temperature, equals(11.1));
     expect(obj.target, equals(44.95));
-    expect(obj.lastHistory, equals(NOW));
   });
 
   group('TemperatureFan partialUpdate', () {
@@ -46,7 +44,6 @@ void main() {
       expect(updatedObj.rpm, equals(500));
       expect(updatedObj.temperature, equals(11.1));
       expect(updatedObj.target, equals(44.95));
-      expect(updatedObj.lastHistory, equals(NOW));
     });
 
     test('rpm', () {
@@ -61,7 +58,6 @@ void main() {
       expect(updatedObj.rpm, equals(1099));
       expect(updatedObj.temperature, equals(11.1));
       expect(updatedObj.target, equals(44.95));
-      expect(updatedObj.lastHistory, equals(NOW));
     });
 
     test('temperature', () {
@@ -76,7 +72,6 @@ void main() {
       expect(updatedObj.rpm, equals(500));
       expect(updatedObj.temperature, equals(99));
       expect(updatedObj.target, equals(44.95));
-      expect(updatedObj.lastHistory, equals(NOW));
     });
 
     test('target', () {
@@ -91,7 +86,6 @@ void main() {
       expect(updatedObj.rpm, equals(500));
       expect(updatedObj.temperature, equals(11.1));
       expect(updatedObj.target, equals(85.22));
-      expect(updatedObj.lastHistory, equals(NOW));
     });
   });
 }
@@ -111,5 +105,5 @@ TemperatureFan temperatureFanObjectWithoutRpm() {
 
   var jsonRaw = objectFromHttpApiResult(input, 'fan');
 
-  return TemperatureFan.fromJson({...jsonRaw, 'lastHistory': NOW.toIso8601String()}, 'testFan');
+  return TemperatureFan.fromJson({...jsonRaw}, 'testFan');
 }

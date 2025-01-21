@@ -21,7 +21,6 @@ void main() {
     expect(obj.currentZAdjust, equals(1.23));
     expect(obj.zAdjustRefTemperature, equals(30.2));
     expect(obj.temperature, equals(24.22));
-    expect(obj.lastHistory, equals(NOW));
   });
 }
 
@@ -31,5 +30,5 @@ ZThermalAdjust zThermalAdjust() {
 
   var jsonRaw = objectFromHttpApiResult(input, 'z_thermal_adjust');
 
-  return ZThermalAdjust.fromJson({...jsonRaw, 'last_history': NOW.toIso8601String()});
+  return ZThermalAdjust.fromJson({...jsonRaw});
 }
