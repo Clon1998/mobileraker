@@ -66,6 +66,7 @@ class PrinterNotifier extends _$PrinterNotifier {
       // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
       if (previousFileName != nextFileName ||
           next.hasValue &&
+              !next.hasError &&
               (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
                   nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
         printerService.updateCurrentFile(nextFileName).ignore();
@@ -201,14 +202,28 @@ class PrinterService {
       _makeSubscribeRequest(printerObj.queryableObjects);
       current = printerObj;
       _startTemperatureStoreUpdateTimer();
+    } on JRpcTimeoutError catch (e, s) {
+      logger.e('Timeout while refreshing printer $ownerUUID...', e);
+      _printerStreamCtler.addError(
+          MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s), s);
+
+      //TODO only show snack if printer is active/selected!
+      _snackBarService.showForMachine(
+          ownerUUID,
+          SnackBarConfig.stacktraceDialog(
+            dialogService: _dialogService,
+            exception: e,
+            stack: s,
+            snackTitle: 'Refresh Printer Error',
+            snackMessage: 'Timeout while trying to refresh printer',
+          ));
     } on JRpcError catch (e, s) {
       logger.e('Unable to refresh Printer $ownerUUID...', e, s);
+
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(
           MobilerakerException('Could not fetch printer...', parentException: e, parentStack: s), s);
-      if (e is! JRpcTimeoutError) {
-        FirebaseCrashlytics.instance.recordError(e, s, reason: 'JRpcError thrown during printer refresh');
-      }
+      FirebaseCrashlytics.instance.recordError(e, s, reason: 'JRpcError thrown during printer refresh');
     } catch (e, s) {
       logger.e('Unexpected exception thrown during refresh $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
