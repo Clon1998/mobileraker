@@ -56,6 +56,8 @@ extension CombinedSensorExtension on Printer {
     return filterAndSortSensors(allTemperatureSensors, ordering);
   }
 
+  List<TemperatureFan> get temperatureFans => fans.values.whereType<TemperatureFan>().toList();
+
   /// Static method to filter and sort a list of sensors based on a given ordering.
   ///
   /// This method provides a standalone way to filter and sort sensors without a [Printer] instance.
