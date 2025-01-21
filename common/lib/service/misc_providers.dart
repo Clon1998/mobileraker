@@ -55,3 +55,9 @@ class AppLifecycle extends _$AppLifecycle {
     state = appLifecycleState;
   }
 }
+
+@riverpod
+// Just an helper provider to trigger a refetching of list providers because riverpod does not allow invalidation due to circular dependencies
+int signalingHelper(Ref ref, String type) {
+  return DateTime.now().millisecond;
+}
