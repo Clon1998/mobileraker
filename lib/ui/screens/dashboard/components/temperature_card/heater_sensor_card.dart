@@ -6,6 +6,7 @@
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/config/fan/config_temperature_fan.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
@@ -15,21 +16,21 @@ import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/machine/temperature_sensor_mixin.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
+import 'package:common/data/model/time_series_entry.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/printer_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -39,7 +40,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:stringr/stringr.dart';
 
 import '../../../../../service/ui/dialog_service_impl.dart';
 import '../../../../components/adaptive_horizontal_scroll.dart';
@@ -91,6 +91,14 @@ class HeaterSensorCard extends StatelessWidget {
 class _HeaterSensorCardPreview extends StatefulWidget {
   static const String _machineUUID = 'preview';
 
+  static final List<TemperatureSensorSeriesEntry> _extruderEntries = <double>[60, 100, 120, 150]
+      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
+      .toList();
+
+  static final List<TemperatureSensorSeriesEntry> _heaterBedEntries = <double>[100, 88, 70, 40, 44, 52, 60]
+      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
+      .toList();
+
   const _HeaterSensorCardPreview({super.key});
 
   @override
@@ -109,6 +117,12 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
           return _PreviewController();
         }),
         printerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(PrinterPreviewNotifier.new),
+        temperatureStoreProvider(
+                _HeaterSensorCardPreview._machineUUID, ConfigFileObjectIdentifiers.extruder, 'extruder', 300)
+            .overrideWith((_) => Stream.value(_HeaterSensorCardPreview._extruderEntries)),
+        temperatureStoreProvider(
+                _HeaterSensorCardPreview._machineUUID, ConfigFileObjectIdentifiers.heater_bed, 'heater_bed', 300)
+            .overrideWith((_) => Stream.value(_HeaterSensorCardPreview._heaterBedEntries)),
       ],
       child: const HeaterSensorCard(machineUUID: _HeaterSensorCardPreview._machineUUID),
     );
@@ -181,6 +195,7 @@ class _SensorMixinTile extends ConsumerWidget {
           heater: sensor,
         ),
       TemperatureSensor() => _TemperatureSensorTile(
+          machineUUID: machineUUID,
           temperatureSensor: sensor,
         ),
       TemperatureFan() => _TemperatureFanTile(
@@ -214,10 +229,6 @@ class _HeaterMixinTile extends HookConsumerWidget {
     var klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
-    var spots = heater.temperatureHistory
-            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
-        [];
-
     NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     ThemeData themeData = Theme.of(context);
     Color colorBg = themeData.colorScheme.surfaceContainer;
@@ -240,10 +251,11 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
     return GraphCardWithButton(
       backgroundColor: colorBg,
-      plotSpots: spots,
+      tempStoreProvider: temperatureStoreProvider(machineUUID, heater.kind, heater.name, 300),
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
       onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
+      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
       builder: (BuildContext context) {
         var innerTheme = Theme.of(context);
         return Tooltip(
@@ -294,20 +306,18 @@ class _HeaterMixinTile extends HookConsumerWidget {
 }
 
 class _TemperatureSensorTile extends HookConsumerWidget {
-  const _TemperatureSensorTile({super.key, required this.temperatureSensor});
+  const _TemperatureSensorTile({super.key, required this.temperatureSensor, required this.machineUUID});
 
+  final String machineUUID;
   final TemperatureSensor temperatureSensor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var spots = temperatureSensor.temperatureHistory
-            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
-        [];
     var beautifiedNamed = beautifyName(temperatureSensor.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
     return GraphCardWithButton(
-      plotSpots: spots,
+      tempStoreProvider: temperatureStoreProvider(machineUUID, temperatureSensor.kind, temperatureSensor.name, 300),
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       builder: (context) {
@@ -358,15 +368,12 @@ class _TemperatureFanTile extends HookConsumerWidget {
     var klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
-    var spots = temperatureFan.temperatureHistory
-            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
-        [];
     var beautifiedNamed = beautifyName(temperatureFan.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      plotSpots: spots,
+      tempStoreProvider: temperatureStoreProvider(machineUUID, temperatureFan.kind, temperatureFan.name, 300),
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
       builder: (context) {
@@ -424,15 +431,12 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var spots = zThermalAdjust.temperatureHistory
-            ?.let((it) => it.sublist(max(0, it.length - 300)).mapIndex((e, i) => FlSpot(i.toDouble(), e)).toList()) ??
-        [];
     var beautifiedNamed = beautifyName(zThermalAdjust.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      plotSpots: spots,
+      tempStoreProvider: temperatureStoreProvider(machineUUID, zThermalAdjust.kind, zThermalAdjust.name, 300),
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       builder: (context) {
@@ -582,14 +586,10 @@ class _PreviewController extends _Controller {
           temperature: 150,
           target: 200,
           num: 0,
-          lastHistory: DateTime.now(),
-          temperatureHistory: [60, 100, 120, 150],
         ),
         HeaterBed(
           temperature: 40,
           target: 60,
-          lastHistory: DateTime.now(),
-          temperatureHistory: [100, 88, 70, 40, 44, 52, 60],
         )
       ],
     ));

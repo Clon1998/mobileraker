@@ -3,9 +3,12 @@
  * All rights reserved.
  */
 
-import 'package:fl_chart/fl_chart.dart';
+import 'package:common/data/model/time_series_entry.dart';
+import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class GraphCardWithButton extends StatelessWidget {
   static const double radius = 15;
@@ -14,7 +17,7 @@ class GraphCardWithButton extends StatelessWidget {
     super.key,
     this.backgroundColor,
     this.graphColor,
-    required this.plotSpots,
+    required this.tempStoreProvider,
     required this.builder,
     required this.buttonChild,
     required this.onTap,
@@ -29,7 +32,7 @@ class GraphCardWithButton extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onTapGraph;
-  final List<FlSpot> plotSpots;
+  final TemperatureStoreProvider tempStoreProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +66,7 @@ class GraphCardWithButton extends StatelessWidget {
                     top: radius,
                     child: _Chart(
                       graphColor: gcColor,
-                      plotSpots: plotSpots,
+                      tempStoreProvider: tempStoreProvider,
                     ),
                   ),
                   Padding(
@@ -106,48 +109,41 @@ class GraphCardWithButton extends StatelessWidget {
   }
 }
 
-class _Chart extends StatelessWidget {
+class _Chart extends ConsumerWidget {
   const _Chart({
     super.key,
     required this.graphColor,
-    required this.plotSpots,
+    required this.tempStoreProvider,
   });
 
   final Color graphColor;
 
-  final List<FlSpot> plotSpots;
+  final TemperatureStoreProvider tempStoreProvider;
 
   @override
-  Widget build(BuildContext context) {
-    return LineChart(
-      LineChartData(
-        gridData: const FlGridData(show: false),
-        titlesData: const FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        minY: 0,
-        minX: 0,
-        maxX: plotSpots.length.toDouble(),
-        lineTouchData: const LineTouchData(enabled: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: plotSpots,
-            color: graphColor,
-            isCurved: true,
-            barWidth: 0,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              color: graphColor,
-              applyCutOffY: true,
-              cutOffY: 0,
-            ),
-          ),
-        ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    var list = ref.watch(tempStoreProvider).valueOrNull ?? [];
+
+    return SfCartesianChart(
+      primaryXAxis: DateTimeAxis(
+        isVisible: false,
       ),
-      duration: const Duration(milliseconds: 10),
-      // Optional
-      curve: Curves.easeInOutCubic, // Optional
+      primaryYAxis: NumericAxis(
+        isVisible: false,
+        minimum: 0,
+        rangePadding: ChartRangePadding.none,
+      ),
+      plotAreaBorderWidth: 0,
+      plotAreaBorderColor: Colors.transparent,
+      margin: const EdgeInsets.all(0),
+      series: [
+        AreaSeries(
+          color: graphColor,
+          dataSource: list,
+          xValueMapper: (point, _) => point.time,
+          yValueMapper: (point, _) => (point as TemperatureSensorSeriesEntry).temperature,
+        ),
+      ],
     );
   }
 }

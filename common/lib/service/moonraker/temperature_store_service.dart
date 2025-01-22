@@ -28,16 +28,24 @@ import '../../data/dto/machine/temperature_sensor_mixin.dart';
 part 'temperature_store_service.g.dart';
 
 @riverpod
-Stream<List<TimeSeriesEntry>> temperatureStore(
-    Ref ref, String machineUUID, ConfigFileObjectIdentifiers cIdentifier, String objectName) {
+Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
+    Ref ref, String machineUUID, ConfigFileObjectIdentifiers cIdentifier, String objectName,
+    [int? limit]) async* {
   ref.keepAliveFor();
 
-  final tempStore = ref.watch(temperatureStoreServiceProvider(machineUUID));
-  return tempStore.getStoreStream(cIdentifier, objectName);
+  if (limit != null) {
+    yield await ref.watch(temperatureStoreProvider(machineUUID, cIdentifier, objectName).selectAsync((store) {
+      int startIndex = max(0, store.length - limit - 1);
+      return store.sublist(startIndex);
+    }));
+  } else {
+    final tempStore = ref.watch(temperatureStoreServiceProvider(machineUUID));
+    yield* tempStore.getStoreStream(cIdentifier, objectName);
+  }
 }
 
 @riverpod
-Stream<Map<(ConfigFileObjectIdentifiers, String), List<TimeSeriesEntry>>> temperatureStores(
+Stream<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>> temperatureStores(
     Ref ref, String machineUUID) {
   ref.keepAliveFor();
 
@@ -92,34 +100,34 @@ class TemperatureStoreService {
 
   final JsonRpcClient _jsonRpcClient;
 
-  final Map<(ConfigFileObjectIdentifiers, String), QueueList<TimeSeriesEntry>> _temperatureData = {};
+  final Map<(ConfigFileObjectIdentifiers, String), QueueList<TemperatureSensorSeriesEntry>> _temperatureData = {};
 
-  final Map<(ConfigFileObjectIdentifiers, String), StreamController<List<TimeSeriesEntry>>>
+  final Map<(ConfigFileObjectIdentifiers, String), StreamController<List<TemperatureSensorSeriesEntry>>>
       _temperatureDataControllers = {};
 
   /// The master controller that will emit the whole store
-  final StreamController<Map<(ConfigFileObjectIdentifiers, String), List<TimeSeriesEntry>>> _allStoresController =
-      StreamController.broadcast();
+  final StreamController<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>>
+      _allStoresController = StreamController.broadcast();
 
   Timer? _temperatureStoreUpdateTimer;
 
   bool _disposed = false;
 
-  QueueList<TimeSeriesEntry> _getStore(ConfigFileObjectIdentifiers cIdentifier, String name) =>
-      _temperatureData.putIfAbsent((cIdentifier, name), () => QueueList<TimeSeriesEntry>(maxStoreSize));
+  QueueList<TemperatureSensorSeriesEntry> _getStore(ConfigFileObjectIdentifiers cIdentifier, String name) =>
+      _temperatureData.putIfAbsent((cIdentifier, name), () => QueueList<TemperatureSensorSeriesEntry>(maxStoreSize));
 
-  StreamController<List<TimeSeriesEntry>> _getStoreStreamController(
+  StreamController<List<TemperatureSensorSeriesEntry>> _getStoreStreamController(
           ConfigFileObjectIdentifiers cIdentifier, String name) =>
       _temperatureDataControllers
-          .putIfAbsent((cIdentifier, name), () => StreamController<List<TimeSeriesEntry>>.broadcast());
+          .putIfAbsent((cIdentifier, name), () => StreamController<List<TemperatureSensorSeriesEntry>>.broadcast());
 
-  Stream<List<TimeSeriesEntry>> getStoreStream(ConfigFileObjectIdentifiers cIdentifier, String name) =>
+  Stream<List<TemperatureSensorSeriesEntry>> getStoreStream(ConfigFileObjectIdentifiers cIdentifier, String name) =>
       _getStoreStreamController(cIdentifier, name).stream;
 
-  Stream<Map<(ConfigFileObjectIdentifiers, String), List<TimeSeriesEntry>>> get allStores =>
+  Stream<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>> get allStores =>
       _allStoresController.stream;
 
-  void _addPointToStream(ConfigFileObjectIdentifiers cIdentifier, String name, TimeSeriesEntry point) {
+  void _addPointToStream(ConfigFileObjectIdentifiers cIdentifier, String name, TemperatureSensorSeriesEntry point) {
     final storeForKey = _getStore(cIdentifier, name);
 
     if (storeForKey.length >= maxStoreSize && storeForKey.isNotEmpty) {
@@ -202,7 +210,7 @@ class TemperatureStoreService {
     }
   }
 
-  QueueList<TimeSeriesEntry> _parseServerStoreData(
+  QueueList<TemperatureSensorSeriesEntry> _parseServerStoreData(
       DateTime now, ConfigFileObjectIdentifiers cIdentifier, Map<String, dynamic> data) {
     final bool isHeater = {
       ConfigFileObjectIdentifiers.extruder,
@@ -228,14 +236,16 @@ class TemperatureStoreService {
     int? targetOffset = targetHistory?.length.let((it) => max(it - maxStoreSize, 0)) ?? 0;
     int? powerOffset = powerHistory?.length.let((it) => max(it - maxStoreSize, 0)) ?? 0;
 
-    final store = QueueList<TimeSeriesEntry>(maxStoreSize);
+    final store = QueueList<TemperatureSensorSeriesEntry>(maxStoreSize);
     for (int i = 0; i < historyLength; i++) {
       final time = now.subtract(Duration(seconds: historyLength - i));
 
       final temp = temperatureHistory.elementAtOrNull(tempOffset + i) ?? 0;
       final target = targetHistory?.elementAtOrNull(targetOffset + i) ?? 0;
       final power = powerHistory?.elementAtOrNull(powerOffset + i) ?? 0;
-      final point = isHeater ? TimeSeriesEntry.heater(time, temp, target, power) : TimeSeriesEntry.sensor(time, temp);
+      final point = isHeater
+          ? HeaterSeriesEntry(time: time, temperature: temp, target: target, power: power)
+          : TemperatureSensorSeriesEntry(time: time, temperature: temp);
       store.add(point);
     }
     return store;
@@ -269,8 +279,8 @@ class TemperatureStoreService {
       // logger.i('[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Updating store for sensor: $key');
       final newPoint = switch (sensor) {
         HeaterMixin(temperature: final temp, target: final target, power: final power) =>
-          TimeSeriesEntry.heater(now, temp, target, power),
-        TemperatureSensorMixin(temperature: final temp) => TimeSeriesEntry.sensor(now, temp),
+          HeaterSeriesEntry(time: now, temperature: temp, target: target, power: power),
+        TemperatureSensorMixin(temperature: final temp) => TemperatureSensorSeriesEntry(time: now, temperature: temp),
         _ => throw UnimplementedError('Unknown sensor type: $sensor'),
       };
 

@@ -95,7 +95,7 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void didDisposeProvider(ProviderBase<Object?> provider, ProviderContainer container) {
-    if (['toolheadInfoProvider'].contains(provider.name)) return;
+    if (['toolheadInfoProvider', 'temperatureStoreProvider'].contains(provider.name)) return;
 
     var familiy = provider.from?.toString() ?? '';
     logger.wtf('[RiverPodLogger]::DISPOSED: ${provider.toIdentityString()} $familiy');

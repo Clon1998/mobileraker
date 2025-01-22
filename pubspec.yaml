@@ -143,6 +143,7 @@ dependencies:
   dots_indicator: 2.1.2
   webview_flutter: ^4.4.0
   fl_chart: ^0.69.0
+  syncfusion_flutter_charts: ^28.1.41
   code_text_field: ^1.0.2
   mobile_scanner: ^6.0.2
   touchable:
