@@ -294,7 +294,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
                 duration: kThemeAnimationDuration,
                 child: Tooltip(
                   triggerMode: heater.temperature > _stillHotTemp ? TooltipTriggerMode.tap : TooltipTriggerMode.manual,
-                  message: '$name is still hot!',
+                  message: tr('pages.dashboard.general.temp_card.still_hot', args: [name]),
                   child: const Icon(Icons.do_not_touch_outlined),
                 ),
               ),

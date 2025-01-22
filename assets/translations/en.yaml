@@ -116,6 +116,7 @@ pages:
         sensors: Sensors
         heater_on: "{} °C target"
         btn_thermistor: Sensor
+        still_hot: "{} is still hot!"
       temp_preset_card:
         cooloff: Cooloff
         h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
