@@ -326,7 +326,7 @@ class _TemperatureSensorTile extends HookConsumerWidget {
         return Tooltip(
           message: beautifiedNamed,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AutoSizeText(
                 beautifiedNamed,
@@ -386,7 +386,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
             children: [
               Flexible(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AutoSizeText(
                       beautifiedNamed,
@@ -445,7 +445,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
         return Tooltip(
           message: beautifiedNamed,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AutoSizeText(
                 beautifiedNamed,
