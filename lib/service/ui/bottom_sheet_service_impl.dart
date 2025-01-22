@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/graph_settings_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/manage_services_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_visualizer_settings_sheet.dart';
@@ -42,7 +43,8 @@ enum SheetType implements BottomSheetIdentifierMixin {
   actions,
   selections,
   colorPicker,
-  confirm;
+  confirm,
+  graphSettings,
 }
 
 BottomSheetService bottomSheetServiceImpl(Ref ref) => BottomSheetServiceImpl(ref);
@@ -250,6 +252,20 @@ class BottomSheetServiceImpl implements BottomSheetService {
               key: state.pageKey,
               name: state.name,
               child: ColorPickerSheet(initialColor: state.extra as String?),
+            );
+          },
+        ),
+        GoRoute(
+          name: SheetType.graphSettings.name,
+          path: '/sheet/graph-settings',
+          pageBuilder: (context, state) {
+            // assert(state.extra is String?, 'Invalid extra data for String');
+
+            // SheetContentScaffold
+            return ScrollableNavigationSheetPage(
+              key: state.pageKey,
+              name: state.name,
+              child: GraphSettingsSheet(),
             );
           },
         ),

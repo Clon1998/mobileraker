@@ -31,6 +31,7 @@ import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/gcode_preview/gcode_preview_page.dart';
+import 'package:mobileraker/ui/screens/graph/graph_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
@@ -79,6 +80,7 @@ enum AppRoute implements RouteDefinitionMixin {
   supportDev,
   tool,
   beltTuner,
+  graph,
   fileManager_explorer,
   fileManager_exlorer_search,
   fileManager_exlorer_move,
@@ -142,6 +144,12 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           Map<String, dynamic> b = state.extra as Map<String, dynamic>;
           return FullCamPage(b['machine'], b['selectedCam']);
         },
+      ),
+      GoRoute(
+        path: '/graph',
+        name: AppRoute.graph.name,
+        builder: (context, state) => GraphPage(machineUUID: state.uri.queryParameters['machineUUID']!),
+        pageBuilder: GoTransitions.fullscreenDialog,
       ),
       GoRoute(
         path: '/printer',

@@ -321,6 +321,7 @@ class _TemperatureSensorTile extends HookConsumerWidget {
       tempStoreProvider: temperatureStoreProvider(machineUUID, temperatureSensor.kind, temperatureSensor.name, 300),
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
+      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
       builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
@@ -377,6 +378,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
       tempStoreProvider: temperatureStoreProvider(machineUUID, temperatureFan.kind, temperatureFan.name, 300),
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
+      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
       builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
@@ -440,6 +442,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
       tempStoreProvider: temperatureStoreProvider(machineUUID, zThermalAdjust.kind, zThermalAdjust.name, 300),
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
+      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
       builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
