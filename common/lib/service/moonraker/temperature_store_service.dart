@@ -5,6 +5,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
@@ -12,6 +13,7 @@ import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:common/data/model/time_series_entry.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/printer_extension.dart';
@@ -84,6 +86,14 @@ TemperatureStoreService temperatureStoreService(Ref ref, String machineUUID) {
     fireImmediately: true,
   );
 
+  ref.listen(appLifecycleProvider, (previous, next) {
+    if (next == AppLifecycleState.paused) {
+      tempStore.pauseTimer();
+    } else if (next == AppLifecycleState.resumed) {
+      tempStore.resumeTimer();
+    }
+  });
+
   //TODO: Maby add a pause via tha appLifecycleStateProvider
   return tempStore;
 }
@@ -112,6 +122,8 @@ class TemperatureStoreService {
   Timer? _temperatureStoreUpdateTimer;
 
   bool _disposed = false;
+
+  DateTime? _pausedAt;
 
   QueueList<TemperatureSensorSeriesEntry> _getStore(ConfigFileObjectIdentifiers cIdentifier, String name) =>
       _temperatureData.putIfAbsent((cIdentifier, name), () => QueueList<TemperatureSensorSeriesEntry>(maxStoreSize));
@@ -154,6 +166,30 @@ class TemperatureStoreService {
           e,
           s);
     }
+  }
+
+  void pauseTimer() {
+    _temperatureStoreUpdateTimer?.cancel();
+    _pausedAt = DateTime.now();
+    logger.i(
+        '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Pausing TemperatureStore update timer');
+  }
+
+  void resumeTimer() {
+    // We dont want to resume if we are not paused
+    if (_pausedAt == null) return;
+
+    if (DateTime.now().difference(_pausedAt!).inSeconds >= 60) {
+      logger.i(
+          '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Resuming TemperatureStore update timer by fetching new data');
+      initStores();
+    } else {
+      logger.i(
+          '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Resuming TemperatureStore update timer by starting timer');
+      _startSyncTimer();
+    }
+
+    _pausedAt = null;
   }
 
   Future<void> _fetchTemperatureStore() async {
