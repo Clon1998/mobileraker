@@ -10,6 +10,7 @@ import 'package:common/data/model/time_series_entry.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/temperature_store_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -19,6 +20,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../../service/ui/bottom_sheet_service_impl.dart';
 
 class GraphPage extends HookConsumerWidget {
   final String machineUUID;
@@ -326,7 +329,7 @@ extension _BarColor on ColorScheme {
 
     if (i < materialColors.length) {
       final color = materialColors[i];
-      return (color, color.withOpacity(0.2));
+      return (color, color.withValues(alpha: 0.2));
     }
 
     // Fallback method
@@ -340,111 +343,6 @@ extension _BarColor on ColorScheme {
             )
         .toColor();
 
-    return (color, color.withOpacity(0.2));
+    return (color, color.withValues(alpha: 0.2));
   }
 }
-
-/**
-    ref.listen(
-    temperatureStoresProvider(widget.machineUUID).requireValue(),
-    (_, allStores) {
-    if (activeIndex != null || allStores.isEmpty) {
-    // This makes sure we dont update while user is interacting with the chart to prevent flickering
-    return;
-    }
-
-    var aStoreEntry = allStores.entries.first;
-    // The up-2-date timestamp from the store
-    final latestTimestamp = aStoreEntry.value.lastOrNull?.time;
-
-    // aprox how many entries we need to add
-    final entriesToAdd = latestTimestamp?.difference(_last).inSeconds ?? 0;
-    logger.i('Entries to add: $entriesToAdd');
-
-    // We need to add them now
-    final totalStoreLen = aStoreEntry.value.length;
-    for (var entry in allStores.entries) {
-    final (kind, objectName) = entry.key;
-    final series = entry.value;
-    final key = '${kind.name} $objectName';
-
-    final dataSeries = _dataPoints[key];
-
-
-    final toAdd = series.sublist(totalStoreLen - entriesToAdd).where((e) => e.time.isAfter(_last));
-    if (toAdd.isEmpty || dataSeries == null) {
-    continue;
-    }
-
-    logger.i('Current DS.length ${dataSeries?.length} for $key');
-
-
-    bool removed = false;
-    if ((dataSeries.length+toAdd.length) > TemperatureStoreService.maxStoreSize) {
-    // Calc how many we need to remove to make space for the new ones
-    final toRemove = (dataSeries.length + toAdd.length) - TemperatureStoreService.maxStoreSize;
-    dataSeries.removeRange(0, toRemove);
-    logger.i('Removing $toRemove entries from $key');
-    removed = true;
-    }
-
-    final dsIndex = dataSeries.length;
-    dataSeries.addAll(toAdd);
-    logger.i('Adding dsIndex: $dsIndex, toAdd: ${toAdd.length} for $key');
-
-
-    _temperatureControllers[key]?.updateDataSource(
-    // addedDataIndexes: List.generate(toAdd.length, (index) => dsIndex + index).also((value) => logger.i('ADDEDINDEXES: $value')),
-    addedDataIndex: dsIndex-1,
-    removedDataIndex: removed? 0: -1,
-    // removedDataIndexes: List.generate(toAdd.length, (index) => index),
-    // removedDataIndex: removeFirst ? 0 : -1,
-    );
-    }
-
-    _last = latestTimestamp ?? _last;
-    },
-    );
- */
-
-// VERSION WHERE WE JUST ADD THE LATEST...
-
-/**
-    ref.listen(
-    temperatureStoresProvider(widget.machineUUID).requireValue(),
-    (_, allStores) {
-    if (activeIndex != null || allStores.isEmpty) {
-    // This makes sure we dont update while user is interacting with the chart to prevent flickering
-    return;
-    }
-
-    for (var entry in allStores.entries) {
-    final (kind, objectName) = entry.key;
-    final series = entry.value;
-    final key = '${kind.name} $objectName';
-
-    final dataSeries = _dataPoints[key];
-
-    final toAdd = series.lastOrNull;
-
-    if (dataSeries == null || toAdd == null) continue;
-
-
-    bool removed = false;
-    if (dataSeries.length > TemperatureStoreService.maxStoreSize) {
-    dataSeries.removeAt(0);
-    removed = true;
-    }
-    dataSeries.add(toAdd);
-
-    _temperatureControllers[key]?.updateDataSource(
-    // addedDataIndexes: List.generate(toAdd.length, (index) => dsIndex + index).also((value) => logger.i('ADDEDINDEXES: $value')),
-    addedDataIndex: dataSeries.length-1,
-    removedDataIndex: removed? 0: -1,
-    // removedDataIndexes: List.generate(toAdd.length, (index) => index),
-    // removedDataIndex: removeFirst ? 0 : -1,
-    );
-    }
-    },
-    );
- */

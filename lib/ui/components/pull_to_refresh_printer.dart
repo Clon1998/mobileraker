@@ -9,6 +9,7 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -81,6 +82,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
     ProviderSubscription<PrinterService>? printerServiceKeepAlive;
     ProviderSubscription<KlippyService>? klippyServiceKeepAlive;
+    ProviderSubscription<TemperatureStoreService>? temperatureStoreServiceKeepAlive;
     try {
       printerServiceKeepAlive = ref.keepAliveExternally(printerServiceProvider(selMachine.uuid));
       klippyServiceKeepAlive = ref.keepAliveExternally(klipperServiceProvider(selMachine.uuid));
@@ -93,6 +95,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
           'Klippy reported ready and connected, will try to refresh printer',
         );
         await printerServiceKeepAlive.read().refreshPrinter();
+        ref.invalidate(temperatureStoreServiceProvider(selMachine.uuid));
       }
       // throw MobilerakerException('Klippy is not ready to receive commands');
       refreshController.refreshCompleted();

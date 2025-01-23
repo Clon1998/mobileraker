@@ -10,7 +10,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 class GraphSettingsSheet extends ConsumerWidget {
-  const GraphSettingsSheet({super.key});
+  const GraphSettingsSheet({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

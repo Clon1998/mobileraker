@@ -265,7 +265,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
             return ScrollableNavigationSheetPage(
               key: state.pageKey,
               name: state.name,
-              child: GraphSettingsSheet(),
+              child: GraphSettingsSheet(machineUUID: state.extra as String),
             );
           },
         ),

@@ -63,10 +63,8 @@ TemperatureStoreService temperatureStoreService(Ref ref, String machineUUID) {
   final jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
   final tempStore = TemperatureStoreService(machineUUID, printerService, jsonRpcClient);
-
   ref.onDispose(tempStore.dispose);
 
-  //TODO: Maybe link this to the printer provider????
   ref.listen(
     jrpcClientStateProvider(machineUUID),
     (previous, next) {
@@ -75,9 +73,6 @@ TemperatureStoreService temperatureStoreService(Ref ref, String machineUUID) {
           tempStore.initStores();
           break;
         case ClientState.error || ClientState.disconnected when previous?.valueOrNull == ClientState.connected:
-          // TODO: Lets see if we want to do it like that but thats how we can "Reset it" if we dont want to do it with an external signal...
-          //ref.invalidate(signalingHelperProvider('temperatureStore-$machineUUID'));
-
           ref.invalidateSelf();
           break;
         default:
@@ -94,7 +89,6 @@ TemperatureStoreService temperatureStoreService(Ref ref, String machineUUID) {
     }
   });
 
-  //TODO: Maby add a pause via tha appLifecycleStateProvider
   return tempStore;
 }
 
