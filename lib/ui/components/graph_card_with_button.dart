@@ -138,6 +138,8 @@ class _Chart extends ConsumerWidget {
       margin: const EdgeInsets.all(0),
       series: [
         AreaSeries(
+          // Disables animation
+          animationDuration: 0,
           color: graphColor,
           dataSource: list,
           xValueMapper: (point, _) => point.time,
