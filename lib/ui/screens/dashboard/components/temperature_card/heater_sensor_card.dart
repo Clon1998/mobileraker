@@ -40,6 +40,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:stringr/stringr.dart';
 
 import '../../../../../service/ui/dialog_service_impl.dart';
 import '../../../../components/adaptive_horizontal_scroll.dart';
@@ -568,12 +569,12 @@ class _Controller extends _$Controller {
 }
 
 class _PreviewController extends _Controller {
-  static final List<TemperatureSensorSeriesEntry> _extruderEntries = <double>[60, 100, 120, 150]
-      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
+  static final List<TemperatureSensorSeriesEntry> _extruderEntries = <double>[300, 100, 120, 150]
+      .mapIndex((e, i) => HeaterSeriesEntry(time: DateTime(1990, 1, i), temperature: e, target: 0, power: 0))
       .toList();
 
-  static final List<TemperatureSensorSeriesEntry> _heaterBedEntries = <double>[100, 88, 70, 40, 44, 52, 60]
-      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
+  static final List<TemperatureSensorSeriesEntry> _heaterBedEntries = <double>[100, 88, 70, 40, 44, 52, 40]
+      .mapIndex((e, i) => HeaterSeriesEntry(time: DateTime(1990, 1, i), temperature: e, target: 0, power: 0))
       .toList();
 
   @override

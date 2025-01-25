@@ -4,7 +4,6 @@
  */
 
 import 'package:common/data/model/time_series_entry.dart';
-import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -32,7 +31,7 @@ class GraphCardWithButton extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onTapGraph;
-  final TemperatureStoreProvider tempStoreProvider;
+  final ProviderListenable<List<TemperatureSensorSeriesEntry>> tempStoreProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -118,16 +117,14 @@ class _Chart extends ConsumerWidget {
 
   final Color graphColor;
 
-  final TemperatureStoreProvider tempStoreProvider;
+  final ProviderListenable<List<TemperatureSensorSeriesEntry>> tempStoreProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var list = ref.watch(tempStoreProvider).valueOrNull ?? [];
+    var list = ref.watch(tempStoreProvider);
 
     return SfCartesianChart(
-      primaryXAxis: DateTimeAxis(
-        isVisible: false,
-      ),
+      primaryXAxis: DateTimeAxis(isVisible: false),
       primaryYAxis: NumericAxis(
         isVisible: false,
         minimum: 0,
