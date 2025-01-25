@@ -26,6 +26,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/printer_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -280,7 +281,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
                 opacity: heater.temperature > _stillHotTemp ? 1 : 0,
                 duration: kThemeAnimationDuration,
                 child: Tooltip(
-                  triggerMode: heater.temperature > _stillHotTemp ? TooltipTriggerMode.tap : TooltipTriggerMode.manual,
+                  triggerMode: TooltipTriggerMode.manual.only(heater.temperature < _stillHotTemp),
                   message: tr('pages.dashboard.general.temp_card.still_hot', args: [name]),
                   child: const Icon(Icons.do_not_touch_outlined),
                 ),
