@@ -91,14 +91,6 @@ class HeaterSensorCard extends StatelessWidget {
 class _HeaterSensorCardPreview extends StatefulWidget {
   static const String _machineUUID = 'preview';
 
-  static final List<TemperatureSensorSeriesEntry> _extruderEntries = <double>[60, 100, 120, 150]
-      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
-      .toList();
-
-  static final List<TemperatureSensorSeriesEntry> _heaterBedEntries = <double>[100, 88, 70, 40, 44, 52, 60]
-      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
-      .toList();
-
   const _HeaterSensorCardPreview({super.key});
 
   @override
@@ -117,12 +109,6 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
           return _PreviewController();
         }),
         printerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(PrinterPreviewNotifier.new),
-        temperatureStoreProvider(
-                _HeaterSensorCardPreview._machineUUID, ConfigFileObjectIdentifiers.extruder, 'extruder', 300)
-            .overrideWith((_) => Stream.value(_HeaterSensorCardPreview._extruderEntries)),
-        temperatureStoreProvider(
-                _HeaterSensorCardPreview._machineUUID, ConfigFileObjectIdentifiers.heater_bed, 'heater_bed', 300)
-            .overrideWith((_) => Stream.value(_HeaterSensorCardPreview._heaterBedEntries)),
       ],
       child: const HeaterSensorCard(machineUUID: _HeaterSensorCardPreview._machineUUID),
     );
@@ -251,7 +237,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
     return GraphCardWithButton(
       backgroundColor: colorBg,
-      tempStoreProvider: temperatureStoreProvider(machineUUID, heater.kind, heater.name, 300),
+      tempStoreProvider: _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(heater)),
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
       onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
@@ -318,7 +304,8 @@ class _TemperatureSensorTile extends HookConsumerWidget {
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
     return GraphCardWithButton(
-      tempStoreProvider: temperatureStoreProvider(machineUUID, temperatureSensor.kind, temperatureSensor.name, 300),
+      tempStoreProvider:
+          _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)),
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
@@ -375,7 +362,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      tempStoreProvider: temperatureStoreProvider(machineUUID, temperatureFan.kind, temperatureFan.name, 300),
+      tempStoreProvider: _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureFan)),
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
@@ -439,7 +426,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      tempStoreProvider: temperatureStoreProvider(machineUUID, zThermalAdjust.kind, zThermalAdjust.name, 300),
+      tempStoreProvider: _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(zThermalAdjust)),
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
@@ -483,8 +470,10 @@ class _Controller extends _$Controller {
     logger.i('Rebuilding HeaterSensorCard for machine $machineUUID');
     ref.keepAliveFor();
 
-    var printerProviderr = printerProvider(machineUUID);
-    var klipperProviderr = klipperProvider(machineUUID);
+    final printerProviderr = printerProvider(machineUUID);
+    final klipperProviderr = klipperProvider(machineUUID);
+
+    // temperatureStoreProvider(machineUUID, heater.kind, heater.name, 300)
 
     var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.tempOrdering));
     var klippyCanReceiveCommands = ref.watchAsSubject(
@@ -502,10 +491,13 @@ class _Controller extends _$Controller {
         // Use map here since this prevents to many operations if the original list (Stream) not changes!
         .map((sensors) => CombinedSensorExtension.filterAndSortSensors(sensors, ordering));
 
-    yield* Rx.combineLatest2(
+    final tempStores = ref.watchAsSubject(temperatureStoresProvider(machineUUID));
+
+    yield* Rx.combineLatest3(
       klippyCanReceiveCommands,
       senors,
-      (a, b) => _Model(klippyCanReceiveCommands: a, sensors: b),
+      tempStores,
+      (a, b, c) => _Model(klippyCanReceiveCommands: a, sensors: b, temperatureStores: c),
     );
   }
 
@@ -576,6 +568,14 @@ class _Controller extends _$Controller {
 }
 
 class _PreviewController extends _Controller {
+  static final List<TemperatureSensorSeriesEntry> _extruderEntries = <double>[60, 100, 120, 150]
+      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
+      .toList();
+
+  static final List<TemperatureSensorSeriesEntry> _heaterBedEntries = <double>[100, 88, 70, 40, 44, 52, 60]
+      .map((e) => HeaterSeriesEntry(time: DateTime.now(), temperature: e, target: 0, power: 0))
+      .toList();
+
   @override
   Stream<_Model> build(String machineUUID) {
     logger.i('Rebuilding (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
@@ -586,16 +586,13 @@ class _PreviewController extends _Controller {
     state = AsyncValue.data(_Model(
       klippyCanReceiveCommands: true,
       sensors: [
-        Extruder(
-          temperature: 150,
-          target: 200,
-          num: 0,
-        ),
-        HeaterBed(
-          temperature: 40,
-          target: 60,
-        )
+        Extruder(temperature: 150, target: 200, num: 0),
+        HeaterBed(temperature: 40, target: 60),
       ],
+      temperatureStores: {
+        (ConfigFileObjectIdentifiers.extruder, 'extruder'): _extruderEntries,
+        (ConfigFileObjectIdentifiers.heater_bed, 'heater_bed'): _heaterBedEntries,
+      },
     ));
 
     return const Stream.empty();
@@ -621,5 +618,14 @@ class _Model with _$Model {
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required List<TemperatureSensorMixin> sensors,
+    required Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>> temperatureStores,
   }) = __Model;
+
+  List<TemperatureSensorSeriesEntry> storeForSensor(TemperatureSensorMixin sensor) {
+    final limit = 300;
+    final store = this.temperatureStores[(sensor.kind, sensor.name)] ?? [];
+    int startIndex = max(0, store.length - limit - 1);
+
+    return store.sublist(startIndex);
+  }
 }
