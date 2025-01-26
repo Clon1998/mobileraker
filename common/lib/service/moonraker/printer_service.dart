@@ -309,6 +309,10 @@ class PrinterService {
     return gCode('BED_SCREWS_ADJUST');
   }
 
+  Future<bool> selectBeaconModel(String model) {
+    return gCode('BEACON_MODEL_SELECT NAME="$model"');
+  }
+
   Future<bool> saveConfig() {
     return gCode('SAVE_CONFIG');
   }

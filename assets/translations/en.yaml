@@ -148,6 +148,9 @@ pages:
         save_btn: Save Config
         more_btn: More
         homed: Homed Axes
+        beacon_models: Beacon Models
+        beacon_btn: Beacon
+        beacon_tooltip: Select beacon model
       baby_step_card:
         title: Micro-Step Z-Axis
         z_offset: Z-Offset

@@ -14,6 +14,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../config/config_file.dart';
 import '../files/gcode_file.dart';
+import 'beacon.dart';
 import 'bed_screw.dart';
 import 'display_status.dart';
 import 'exclude_object.dart';
@@ -57,6 +58,7 @@ class Printer with _$Printer {
     BedMesh? bedMesh,
     GCodeFile? currentFile,
     ZThermalAdjust? zThermalAdjust,
+    Beacon? beacon,
     @Default({}) Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<String, OutputPin> outputPins,

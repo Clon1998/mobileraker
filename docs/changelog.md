@@ -7,6 +7,8 @@
 - **Temperature History Graph Page**: It is now possible to open the temperature history graph page directly from the
   temperature card. Just click on the upper part of the temperature card to open the graph
   page. [#441](https://github.com/Clon1998/mobileraker/issues/441)
+- **Beacon Model Selection**: Added a new quick action to the __Move Axis__ card that allows users to select a beacon
+  model for the printer.
 - **Target File Location Page**: The __Back__ and __Cancel__ buttons on the target file location page now function
   correctly. Users can navigate back to the previous page or cancel the move/copy operation immediately, instead of
   always moving up to the root folder.

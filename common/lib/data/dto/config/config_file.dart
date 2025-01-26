@@ -44,6 +44,7 @@ class ConfigFile {
   Map<(ConfigFileObjectIdentifiers, String), ConfigLed> leds = {};
   Map<(ConfigFileObjectIdentifiers, String), ConfigFan> fans = {};
   Map<String, ConfigHeaterGeneric> genericHeaters = {};
+  List<String>? beaconModels;
 
   ConfigFile();
 
@@ -102,9 +103,17 @@ class ConfigFile {
         configBedScrews = ConfigBedScrews.fromJson(jsonChild);
       } else if (cIdentifier == ConfigFileObjectIdentifiers.screws_tilt_adjust) {
         configScrewsTiltAdjust = ConfigScrewsTiltAdjust.fromJson(jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.beacon) {
+        // Note we will match 'beacon model' to beacon because how I implemeted it. But I am to lazy to correctly do that lol
+        if (objectName?.startsWith('model') == true) {
+          // We know for sure its a model now!
+          beaconModels = [
+            ...?beaconModels,
+            objectName!.substring(5).trim(),
+          ];
+        }
       }
     }
-
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
     // TODO migrate to the entire key instead of just the objectName. The problem is LEDs, Fans of different types can have the same name!
   }
@@ -127,6 +136,8 @@ class ConfigFile {
   bool get hasProbe => rawConfig.containsKey('probe') || rawConfig.containsKey('bltouch');
 
   bool get hasVirtualZEndstop => steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
+
+  bool get hasBeacon => rawConfig.containsKey('beacon');
 
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
 

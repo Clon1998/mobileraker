@@ -37,6 +37,8 @@ enum ConfigFileObjectIdentifiers {
   toolhead(null),
   virtual_sdcard(null),
   z_thermal_adjust(null),
+  beacon(null),
+  beacon_model(null),
   ;
 
   /// IF it is possible to check a object with a == (null) or startsWith (true)

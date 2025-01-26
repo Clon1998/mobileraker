@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/beacon.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
@@ -36,6 +37,7 @@ import 'toolhead.dart';
 import 'virtual_sd_card.dart';
 
 final Map<ConfigFileObjectIdentifiers, Function?> _partialUpdateMethodMappings = {
+  ConfigFileObjectIdentifiers.beacon: PrinterBuilder._updateBeacon,
   ConfigFileObjectIdentifiers.bed_mesh: PrinterBuilder._updateBedMesh,
   ConfigFileObjectIdentifiers.bed_screws: PrinterBuilder._updateBedScrew,
   ConfigFileObjectIdentifiers.configfile: PrinterBuilder._updateConfigFile,
@@ -121,6 +123,7 @@ class PrinterBuilder {
         genericHeaters = printer.genericHeaters,
         filamentSensors = printer.filamentSensors,
         zThermalAdjust = printer.zThermalAdjust,
+        beacon = printer.beacon,
         currentFile = printer.currentFile;
 
   Toolhead? toolhead;
@@ -141,6 +144,7 @@ class PrinterBuilder {
   FirmwareRetraction? firmwareRetraction;
   BedMesh? bedMesh;
   ZThermalAdjust? zThermalAdjust;
+  Beacon? beacon;
   Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
@@ -197,6 +201,7 @@ class PrinterBuilder {
       genericHeaters: Map.unmodifiable(genericHeaters),
       filamentSensors: Map.unmodifiable(filamentSensors),
       zThermalAdjust: zThermalAdjust,
+      beacon: beacon,
     );
     return printer;
   }
@@ -226,6 +231,10 @@ class PrinterBuilder {
   ////////////////////////////////
   // CODE to update fields      //
   ////////////////////////////////
+
+  static PrinterBuilder _updateBeacon(Map<String, dynamic> json, PrinterBuilder builder) {
+    return builder..beacon = Beacon.partialUpdate(builder.beacon, json);
+  }
 
   static PrinterBuilder _updateBedMesh(Map<String, dynamic> json, PrinterBuilder builder) {
     return builder..bedMesh = BedMesh.partialUpdate(builder.bedMesh, json);

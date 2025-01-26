@@ -13,6 +13,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/single_value_selector.dart';
@@ -23,6 +24,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +41,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../../components/bottomsheet/selection_bottom_sheet.dart';
 import 'toolhead_info/toolhead_info_table_controller.dart';
 
 part 'control_xyz_card.freezed.dart';
@@ -506,6 +510,8 @@ class _StepSelectorWidget extends ConsumerWidget {
 class _ControlXYZCardController extends _$ControlXYZCardController {
   SettingService get _settingService => ref.read(settingServiceProvider);
 
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.moveStepIndex, machineUUID);
@@ -613,6 +619,36 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 
   Future<void> onBedScrewAdjust() => _printerService.bedScrewsAdjust();
 
+  Future<void> onSelectBeaconModel() async {
+    var printer = ref.read(printerProvider(machineUUID)).valueOrNull;
+    if (printer?.beacon == null) return;
+    final beaconModels = printer!.configFile.beaconModels ?? [];
+
+    final res = await _bottomSheetService.show(
+      BottomSheetConfig(
+        type: SheetType.selections,
+        isScrollControlled: true,
+        data: SelectionBottomSheetArgs<String>(
+          options: [
+            for (final beaconModel in beaconModels)
+              SelectionOption(
+                value: beaconModel,
+                horizontalTitleGap: 10,
+                selected: beaconModel == printer.beacon!.model,
+                label: beautifyName(beaconModel),
+              ),
+          ],
+          title: const Text('pages.dashboard.general.move_card.beacon_models').tr(),
+        ),
+      ),
+    );
+
+    if (!res.confirmed || res.data is! String) return;
+
+    await _printerService.selectBeaconModel(res.data as String);
+    logger.i('Selected beacon model: ${res.data}');
+  }
+
   List<_QuickAction> _quickActions(ConfigFile configFile) {
     return [
       _QuickAction(
@@ -677,6 +713,13 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
           description: 'pages.dashboard.general.move_card.zoff_tooltip'.tr(),
           icon: Icons.vertical_align_bottom,
           callback: onZEndstopCalibration,
+        ),
+      if (configFile.hasBeacon == true)
+        _QuickAction(
+          title: 'pages.dashboard.general.move_card.beacon_btn'.tr(),
+          description: 'pages.dashboard.general.move_card.beacon_tooltip'.tr(),
+          icon: Icons.map_outlined,
+          callback: onSelectBeaconModel,
         ),
       _QuickAction(
         title: 'pages.dashboard.general.move_card.save_btn'.tr(),
