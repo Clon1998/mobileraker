@@ -5,13 +5,13 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
-import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/data/model/time_series_entry.dart';
-import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/temperature_store_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/color_scheme_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -64,21 +64,33 @@ class _GraphPageState extends ConsumerState<_GraphPage> {
 // Data sources for live updates
   final Map<String, List<TimeSeriesEntry>> _dataPoints = {};
 
-  late TrackballBehavior _trackballBehavior;
-
   int? activeIndex;
 
   DateTime _last = DateTime(1990);
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final config = ref.read(printerProvider(widget.machineUUID).selectRequireValue((printer) => printer.configFile));
     final tempStores = ref.read(temperatureStoresProvider(widget.machineUUID).requireValue());
+
+    for (var key in tempStores.keys) {
+      final tempSettingKey = CompositeKey.keyWithStrings(UtilityKeys.graphSettings, [key.$1.name, key.$2]);
+      final targetSettingKey = CompositeKey.keyWithString(tempSettingKey, 'target');
+      ref.listen(
+        boolSettingProvider(tempSettingKey, true),
+        (prev, next) {
+          final ctrlKey = '${key.$1.name} ${key.$2}';
+          _temperatureControllers[ctrlKey]?.isVisible = next;
+        },
+      );
+      ref.listen(
+        boolSettingProvider(targetSettingKey, true),
+        (prev, next) {
+          final ctrlKey = '${key.$1.name} ${key.$2}';
+          _temperatureControllers['$ctrlKey-target']?.isVisible = next;
+        },
+      );
+    }
 
     ref.listen(
       temperatureStoresProvider(widget.machineUUID).requireValue(),
@@ -154,14 +166,16 @@ class _GraphPageState extends ConsumerState<_GraphPage> {
       appBar: AppBar(
         title: Text('GRAPHS-WIP'),
         actions: [
-          // IconButton(
-          //   onPressed: () {
-          //     ref
-          //         .read(bottomSheetServiceProvider)
-          //         .show(BottomSheetConfig(type: SheetType.graphSettings, isScrollControlled: true));
-          //   },
-          //   icon: Icon(Icons.legend_toggle),
-          // ),
+          IconButton(
+            onPressed: () {
+              ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
+                    type: SheetType.graphSettings,
+                    isScrollControlled: true,
+                    data: widget.machineUUID,
+                  ));
+            },
+            icon: Icon(Icons.legend_toggle),
+          ),
         ],
       ),
       body: SafeArea(
@@ -215,24 +229,13 @@ class _GraphPageState extends ConsumerState<_GraphPage> {
   List<CartesianSeries> createSensorSeries(Map<(ConfigFileObjectIdentifiers, String), List<TimeSeriesEntry>> stores) {
     logger.e("!!!!!!!!!! CREATING SENSOR SERIES !!!!!!!!!!");
 
-    List<ReordableElement> ordering =
-        ref.watch(machineSettingsProvider(widget.machineUUID).selectRequireValue((value) => value.tempOrdering));
-
     List<CartesianSeries> output = [];
     var firstOrNull = stores.entries.firstOrNull;
     if (firstOrNull?.value.lastOrNull != null) {
       _last = firstOrNull!.value.lastOrNull!.time;
     }
 
-    var sorted = stores.entries.sorted((a, b) {
-      var aIndex = ordering.indexWhere((element) => element.name == a.key.$2 && element.kind == a.key.$1);
-      var bIndex = ordering.indexWhere((element) => element.name == b.key.$2 && element.kind == b.key.$1);
-
-      if (aIndex == -1) aIndex = output.length;
-      if (bIndex == -1) bIndex = output.length;
-
-      return aIndex.compareTo(bIndex);
-    });
+    var sorted = stores.entries;
 
     final colorScheme = ColorScheme.of(context);
     var i = 0;
@@ -289,60 +292,11 @@ class _GraphPageState extends ConsumerState<_GraphPage> {
 
         output.add(barSeries);
       }
-
-      // var ls = LineSeries<TimeSeriesEntry, DateTime>(
-      //   animationDuration: 100,
-      //   name: '${objectName.capitalize} temperature',
-      //   // color: themeData.colorScheme.colorsForEntry(index).$1,
-      //   dataSource: ds,
-      //   xValueMapper: (point, _) => point.time,
-      //   yValueMapper: (point, _) => (point as TemperatureSensorSeriesEntry).temperature,
-      //   onRendererCreated: (ChartSeriesController controller) {
-      //     logger.i('Got controller for ${key}');
-      //
-      //     _temperatureControllers[key] = controller;
-      //   },
-      // );
-      //
-      // output.add(ls);
     }
     logger.w('GOT SENSOR OUTPUT: ${output.length}');
 
     return output;
 
     return [];
-  }
-}
-
-extension _BarColor on ColorScheme {
-  (Color barColor, Color belowColor) colorsForEntry(int i) {
-    final materialColors = [
-      Colors.blue,
-      Colors.green,
-      Colors.red,
-      Colors.purple,
-      Colors.orange,
-      Colors.teal,
-      Colors.lime,
-      Colors.indigo,
-    ];
-
-    if (i < materialColors.length) {
-      final color = materialColors[i];
-      return (color, color.withValues(alpha: 0.2));
-    }
-
-    // Fallback method
-    // Fallback method using HSL hue ring
-    final hue = (i * 37) % 360; // Use a prime number to distribute colors more evenly
-    final color = HSLColor.fromAHSL(
-            1.0,
-            hue.toDouble(),
-            0.7, // Consistent saturation
-            0.5 // Consistent lightness
-            )
-        .toColor();
-
-    return (color, color.withValues(alpha: 0.2));
   }
 }

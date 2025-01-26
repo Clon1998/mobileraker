@@ -202,6 +202,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   machineOrdering('machineOrdering'),
   lastLocale('lastLocale', 'en'),
   fcmTokenHistory('fcmTokenHistory', <String>[]),
+  graphSettings('graphSettings'),
   ;
 
   @override
@@ -242,6 +243,11 @@ class CompositeKey implements KeyValueStoreKey {
   String get key => _key;
 
   factory CompositeKey.keyWithString(KeyValueStoreKey key, String str, [Object? defaultValue]) {
+    return CompositeKey._('${key.key}_$str', defaultValue);
+  }
+
+  factory CompositeKey.keyWithStrings(KeyValueStoreKey key, List<String> strs, [Object? defaultValue]) {
+    final str = strs.join('_');
     return CompositeKey._('${key.key}_$str', defaultValue);
   }
 }

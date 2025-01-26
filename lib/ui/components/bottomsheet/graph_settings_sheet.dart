@@ -3,8 +3,13 @@
  * All rights reserved.
  */
 
-import 'package:easy_localization/easy_localization.dart';
+import 'package:common/service/moonraker/temperature_store_service.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/util/extensions/color_scheme_extension.dart';
+import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -29,52 +34,114 @@ class GraphSettingsSheet extends ConsumerWidget {
 
     return SheetContentScaffold(
       appBar: title,
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        shrinkWrap: true,
-        children: [
-          // SwitchListTile(
-          //   contentPadding: EdgeInsets.zero,
-          //   visualDensity: VisualDensity.compact,
-          //   value: ref.watch(boolSettingProvider(GCodeVisualizerSettingsKey.showCurrentLayer)),
-          //   title: Text('Show Current Layer'),
-          //   subtitle: Text('Show the current layer in the preview'),
-          //   onChanged: (value) =>
-          //       ref.read(settingServiceProvider).write(GCodeVisualizerSettingsKey.showCurrentLayer, value),
-          // ),
+      body: _OptionsList(machineUUID: machineUUID),
+    );
+  }
+}
 
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
-            value: true,
-            title: const Text('Extruder 1').tr(),
-            subtitle: const Text('Visible').tr(),
-            onChanged: (value) => null,
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
-            title: const Text('Extruder 1').tr(),
-            subtitle: Row(
+class _OptionsList extends ConsumerWidget {
+  const _OptionsList({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stores = ref.read(temperatureStoresProvider(machineUUID)).valueOrNull ?? {};
+
+    if (stores.isEmpty) {
+      return const ListTile(
+        title: Text('No temperature stores found'),
+      );
+    }
+
+    var entries = stores.entries.toList();
+
+    return ListView.builder(
+      itemCount: stores.length,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        final store = entries.elementAt(index);
+        final themeData = Theme.of(context);
+        final color = themeData.colorScheme.colorsForEntry(index);
+        return HookBuilder(
+          builder: (context) {
+            final tempSettingKey =
+                CompositeKey.keyWithStrings(UtilityKeys.graphSettings, [store.key.$1.name, store.key.$2]);
+
+            final targetSettingKey = CompositeKey.keyWithString(tempSettingKey, 'target');
+
+            return Row(
               children: [
-                Chip(label: Text('Temp'), backgroundColor: Colors.deepOrange),
-                Chip(label: Text('Target'), backgroundColor: Colors.purpleAccent),
-                Chip(label: Text('PWM'), backgroundColor: Colors.lime),
-              ],
-            ),
-          ),
+                Icon(Icons.circle, size: 10, color: color.$1),
+                Gap(8),
+                Text(
+                  beautifyName(store.key.$2),
+                  style: themeData.textTheme.bodyLarge,
+                  maxLines: 1,
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    spacing: 8,
+                    children: [
+                      Consumer(builder: (context, ref, _) {
+                        final settingService = ref.watch(settingServiceProvider);
+                        final active = ref.watch(boolSettingProvider(tempSettingKey, true));
 
-          const Divider(),
-          const Gap(8),
-          // SliderOrTextInput(
-          //   value: ref.watch(doubleSettingProvider(GCodeVisualizerSettingsKey.extrusionWidthMultiplier)),
-          //   prefixText: tr('components.gcode_preview_settings_sheet.extrusion_width_multiplier.prefix'),
-          //   onChange: (v) =>
-          //       ref.read(settingServiceProvider).write(GCodeVisualizerSettingsKey.extrusionWidthMultiplier, v),
-          //   submitOnChange: true,
-          // ),
-        ],
-      ),
+                        return FilterChip(
+                          avatar: AnimatedCrossFade(
+                            firstChild: Icon(FlutterIcons.chart_line_mco, color: color.$1),
+                            // firstChild: Icon(FlutterIcons.line_graph_ent, color: color.$1),
+                            secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
+                            crossFadeState: active ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                            duration: kThemeAnimationDuration,
+                            firstCurve: Curves.easeInOutCirc,
+                            secondCurve: Curves.easeInOutCirc,
+                          ),
+                          showCheckmark: false,
+                          selected: active,
+                          elevation: 2,
+                          label: Text('Temp'),
+                          selectedColor: color.$2,
+                          side: BorderSide(color: color.$1),
+                          // backgroundColor: color.$2,
+                          onSelected: (bool s) => settingService.writeBool(tempSettingKey, s),
+                        );
+                      }),
+                      Consumer(builder: (context, ref, _) {
+                        final settingService = ref.watch(settingServiceProvider);
+                        final active = ref.watch(boolSettingProvider(targetSettingKey, true));
+
+                        return FilterChip(
+                          avatar: AnimatedCrossFade(
+                            firstChild: Icon(FlutterIcons.chart_areaspline_variant_mco, color: color.$1),
+                            secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
+                            crossFadeState: active ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                            duration: kThemeAnimationDuration,
+                            firstCurve: Curves.easeInOutCirc,
+                            secondCurve: Curves.easeInOutCirc,
+                          ),
+                          showCheckmark: false,
+                          selected: active,
+                          elevation: 2,
+                          label: Text('Target'),
+                          selectedColor: color.$2,
+                          side: BorderSide(color: color.$2),
+                          // backgroundColor: color.$2,
+                          onSelected: (bool s) => settingService.writeBool(targetSettingKey, s),
+                        );
+                      }),
+
+                      // Chip(label: Text('PWM'), backgroundColor: Colors.lime),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
