@@ -13,6 +13,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +56,7 @@ class _GraphPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('GRAPHS-WIP'),
+        title: Text('pages.temp_chart.title').tr(),
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
@@ -83,6 +84,18 @@ class _GraphPage extends ConsumerWidget {
             ),
             tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
             // builder: (BuildContext context, TrackballDetails trackballDetails) {
+            //
+            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.currentPointIndices}');
+            //
+            //
+            //   for (LineSeriesRenderer sr in trackballDetails.groupingModeInfo?.visibleSeriesList ?? []) {
+            //     logger.w(sr.dataSource);
+            //   }
+            //
+            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.points}');
+            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesIndices}');
+            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesList}');
+            //
             //   return Container(
             //     width: 70,
             //     decoration:
@@ -100,8 +113,7 @@ class _GraphPage extends ConsumerWidget {
           onChartTouchInteractionUp: (ChartTouchInteractionArgs args) => controller.updateTooltip(false),
           primaryXAxis: DateTimeAxis(name: 'Time'),
           primaryYAxis: NumericAxis(
-            title: AxisTitle(text: 'Temperature [°C]'),
-            name: 'Temperature [°C]',
+            title: AxisTitle(text: tr('pages.temp_chart.chart_y_axis')),
             minimum: 0,
             maximum: maxTemp,
           ),

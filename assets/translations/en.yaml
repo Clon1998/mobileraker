@@ -914,6 +914,9 @@ pages:
       update_page_title: Edit Manufacturer
       helper:
         empty_weight: The weight of an empty spool from this manufacturer.
+  temp_chart:
+    title: Temperature Chart
+    chart_y_axis: Temperature [°C]
 components:
   app_version_display:
     version: 'Version:'

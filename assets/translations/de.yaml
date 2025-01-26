@@ -844,6 +844,9 @@ pages:
       update_page_title: Hersteller bearbeiten
       helper:
         empty_weight: Das Leergewicht einer Spule dieses Herstellers.
+  temp_chart:
+    title: Temperaturverlauf
+    chart_y_axis: Temperatur [°C]
 components:
   app_version_display:
     version: 'Version:'
