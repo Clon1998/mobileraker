@@ -11,17 +11,19 @@ import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/color_scheme_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
+
+part 'graph_page.g.dart';
 
 class GraphPage extends HookConsumerWidget {
   final String machineUUID;
@@ -37,143 +39,32 @@ class GraphPage extends HookConsumerWidget {
 
       return () => SystemChrome.setPreferredOrientations([]);
     });
-
-    final tempStores = ref.watch(temperatureStoresProvider(machineUUID).select((value) => value.hasValue));
-
-    if (!tempStores) {
-      return Center(child: CircularProgressIndicator());
-    }
-
     return _GraphPage(machineUUID: machineUUID);
   }
 }
 
-class _GraphPage extends StatefulHookConsumerWidget {
+class _GraphPage extends ConsumerWidget {
   const _GraphPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
-  ConsumerState<_GraphPage> createState() => _GraphPageState();
-}
-
-class _GraphPageState extends ConsumerState<_GraphPage> {
-// Controllers for each series
-  final Map<String, ChartSeriesController> _temperatureControllers = {};
-
-// Data sources for live updates
-  final Map<String, List<TimeSeriesEntry>> _dataPoints = {};
-
-  int? activeIndex;
-
-  DateTime _last = DateTime(1990);
-
-  @override
-  Widget build(BuildContext context) {
-    final config = ref.read(printerProvider(widget.machineUUID).selectRequireValue((printer) => printer.configFile));
-    final tempStores = ref.read(temperatureStoresProvider(widget.machineUUID).requireValue());
-
-    for (var key in tempStores.keys) {
-      final tempSettingKey = CompositeKey.keyWithStrings(UtilityKeys.graphSettings, [key.$1.name, key.$2]);
-      final targetSettingKey = CompositeKey.keyWithString(tempSettingKey, 'target');
-      ref.listen(
-        boolSettingProvider(tempSettingKey, true),
-        (prev, next) {
-          final ctrlKey = '${key.$1.name} ${key.$2}';
-          _temperatureControllers[ctrlKey]?.isVisible = next;
-        },
-      );
-      ref.listen(
-        boolSettingProvider(targetSettingKey, true),
-        (prev, next) {
-          final ctrlKey = '${key.$1.name} ${key.$2}';
-          _temperatureControllers['$ctrlKey-target']?.isVisible = next;
-        },
-      );
-    }
-
-    ref.listen(
-      temperatureStoresProvider(widget.machineUUID).requireValue(),
-      (_, allStores) {
-        if (activeIndex != null || allStores.isEmpty) {
-          // This makes sure we dont update while user is interacting with the chart to prevent flickering
-          return;
-        }
-
-        var aStoreEntry = allStores.entries.first;
-        // The up-2-date timestamp from the store
-        final latestTimestamp = aStoreEntry.value.lastOrNull?.time;
-
-        // aprox how many entries we need to add
-        final entriesToAdd = latestTimestamp?.difference(_last).inSeconds ?? 0;
-        if (entriesToAdd == 0) return;
-
-        // We need to add them now
-        for (var entry in allStores.entries) {
-          final (kind, objectName) = entry.key;
-          final series = entry.value;
-          final key = '${kind.name} $objectName';
-
-          final dataSeries = _dataPoints[key];
-
-          final toAdd = <TemperatureSensorSeriesEntry>[];
-
-          // We have an aprox, but since we check for after anyway we can just walk from the back
-          for (var i = series.length - 1; i >= 0; i--) {
-            final entry = series.elementAtOrNull(i);
-            if (entry?.time.isAfter(_last) != true) break;
-            toAdd.insert(0, entry!);
-          }
-          // final toAdd = series.sublist(totalStoreLen - entriesToAdd).where((e) => e.time.isAfter(_last));
-          if (toAdd.isEmpty || dataSeries == null) {
-            continue;
-          }
-
-          int removed = 0;
-          if ((dataSeries.length + toAdd.length) > TemperatureStoreService.maxStoreSize) {
-            // Calc how many we need to remove to make space for the new ones
-            final toRemove = (dataSeries.length + toAdd.length) - TemperatureStoreService.maxStoreSize;
-            dataSeries.removeRange(0, toRemove);
-            removed = toRemove;
-          }
-          int lenAfterRemoval = dataSeries.length;
-          dataSeries.addAll(toAdd);
-
-          // now at what indexed did we insert them?
-          // Well from the NOW new Len - the added length -1
-
-          _temperatureControllers[key]?.updateDataSource(
-            addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
-            removedDataIndexes: List.generate(removed, (index) => index),
-          );
-
-          // If we have a target we need to inform it about the update too!
-          _temperatureControllers['$key-target']?.updateDataSource(
-            addedDataIndexes:
-                // List.generate(toAdd.length, (index) => dataSeries.length - (index + addedOffset)).also((value) {
-                List.generate(toAdd.length, (index) => lenAfterRemoval + index),
-            removedDataIndexes: List.generate(removed, (index) => index),
-          );
-        }
-
-        _last = latestTimestamp ?? _last;
-      },
-    );
-
-    var maxTemp = config.extruders.values.map((e) => e.maxTemp).maxOrNull ?? 300;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_graphPageControllerProvider(machineUUID).notifier);
+    final (maxTemp, series) = ref.watch(_graphPageControllerProvider(machineUUID));
 
     return Scaffold(
       appBar: AppBar(
         title: Text('GRAPHS-WIP'),
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            SystemChrome.setPreferredOrientations([]).whenComplete(Navigator.of(context).pop);
+          },
+        ),
         actions: [
           IconButton(
-            onPressed: () {
-              ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
-                    type: SheetType.graphSettings,
-                    isScrollControlled: true,
-                    data: widget.machineUUID,
-                  ));
-            },
+            onPressed: controller.openFilterSheet,
             icon: Icon(Icons.legend_toggle),
           ),
         ],
@@ -205,14 +96,8 @@ class _GraphPageState extends ConsumerState<_GraphPage> {
             ),
             // tooltipSettings: InteractiveTooltip(enable: true),
           ),
-          onChartTouchInteractionDown: (ChartTouchInteractionArgs args) {
-            logger.i('Chart touch interaction down');
-            activeIndex = 0;
-          },
-          onChartTouchInteractionUp: (ChartTouchInteractionArgs args) {
-            logger.i('Chart touch interaction up');
-            activeIndex = null;
-          },
+          onChartTouchInteractionDown: (ChartTouchInteractionArgs args) => controller.updateTooltip(true),
+          onChartTouchInteractionUp: (ChartTouchInteractionArgs args) => controller.updateTooltip(false),
           primaryXAxis: DateTimeAxis(name: 'Time'),
           primaryYAxis: NumericAxis(
             title: AxisTitle(text: 'Temperature [°C]'),
@@ -220,83 +105,193 @@ class _GraphPageState extends ConsumerState<_GraphPage> {
             minimum: 0,
             maximum: maxTemp,
           ),
-          series: createSensorSeries(tempStores),
+          series: series,
         ),
       ),
     );
   }
+}
 
-  List<CartesianSeries> createSensorSeries(Map<(ConfigFileObjectIdentifiers, String), List<TimeSeriesEntry>> stores) {
-    logger.e("!!!!!!!!!! CREATING SENSOR SERIES !!!!!!!!!!");
+@riverpod
+class _GraphPageController extends _$GraphPageController {
+  final Map<String, ChartSeriesController> _seriesControllers = {};
+  final Map<String, List<TimeSeriesEntry>> _dataPoints = {};
 
+  bool _tooltipActive = false;
+
+  DateTime _last = DateTime(1990);
+
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
+  @override
+  (double maxTemperature, List<CartesianSeries> series) build(String machineUUID) {
+    // For now we DO not directly watch since this is somewhat trickery as we use UI controllers from SF charts
+    // To sync new data via ref.listen to the SFChart controllers!
+    final config = ref.read(printerProvider(machineUUID).selectRequireValue((printer) => printer.configFile));
+    final tempStores = ref.read(temperatureStoresProvider(machineUUID).requireValue());
+
+    ref.listen(
+      temperatureStoresProvider(machineUUID).requireValue(),
+      _syncStoreDataToChart,
+    );
+    Map<String, bool> initialSeriesVisibility = {};
+    for (var key in tempStores.keys) {
+      final tempSettingKey = CompositeKey.keyWithStrings(UtilityKeys.graphSettings, [key.$1.name, key.$2]);
+
+      initialSeriesVisibility[temperatureSeriesKey(key)] = ref.read(boolSettingProvider(tempSettingKey, true));
+      ref.listen(
+        boolSettingProvider(tempSettingKey, true),
+        (prev, next) => updateSeriesVisibility(key, next),
+      );
+
+      if (key.$1.isHeater) {
+        final targetSettingKey = CompositeKey.keyWithString(tempSettingKey, 'target');
+        initialSeriesVisibility[targetSeriesKey(key)] = ref.read(boolSettingProvider(targetSettingKey, true));
+        ref.listen(
+          boolSettingProvider(targetSettingKey, true),
+          (prev, next) => updateSeriesVisibility(key, next, true),
+        );
+      }
+    }
+
+    final maxTemp = config.extruders.values.map((e) => e.maxTemp).maxOrNull ?? 300;
+    return (maxTemp, _createSensorSeries(tempStores, initialSeriesVisibility));
+  }
+
+  void updateTooltip(bool active) {
+    _tooltipActive = active;
+  }
+
+  void updateSeriesVisibility((ConfigFileObjectIdentifiers, String) ctrlKey, bool value, [bool target = false]) {
+    final key = target ? targetSeriesKey(ctrlKey) : temperatureSeriesKey(ctrlKey);
+    _seriesControllers[key]?.isVisible = value;
+  }
+
+  void openFilterSheet() => _bottomSheetService.show(BottomSheetConfig(
+        type: SheetType.graphSettings,
+        isScrollControlled: true,
+        data: machineUUID,
+      ));
+
+  String temperatureSeriesKey((ConfigFileObjectIdentifiers, String) entry) => '${entry.$1.name} ${entry.$2}';
+
+  String targetSeriesKey((ConfigFileObjectIdentifiers, String) entry) => '${entry.$1.name} ${entry.$2}-target';
+
+  List<CartesianSeries> _createSensorSeries(TemperatureStore stores, Map<String, bool> initialSeriesVisibility) {
     List<CartesianSeries> output = [];
     var firstOrNull = stores.entries.firstOrNull;
     if (firstOrNull?.value.lastOrNull != null) {
       _last = firstOrNull!.value.lastOrNull!.time;
     }
 
-    var sorted = stores.entries;
-
-    final colorScheme = ColorScheme.of(context);
     var i = 0;
-    for (var sensor in sorted) {
-      final (kind, objectName) = sensor.key;
-      final timeSeries = sensor.value;
+    for (var store in stores.entries) {
+      final (kind, objectName) = store.key;
+      final tempKey = temperatureSeriesKey(store.key);
+      final series = store.value;
 
-      var colorsForEntry = colorScheme.colorsForEntry(i++);
+      // We copy the series from the store to our own map
+      final seriesPoints = series.toList();
+      _dataPoints[tempKey] = seriesPoints;
 
-      logger.i('Creating series for ${sensor.key}');
-
-      // final (sensorBarColor, sensorAreaColor) = colorScheme.colorsForEntry(idx++);
-
-      final key = '${kind.name} $objectName';
-      var ds = timeSeries.toList();
-      _dataPoints[key] = ds;
-
+      final seriesColor = indexToColor(i++);
       var ls = LineSeries<TimeSeriesEntry, DateTime>(
+        initialIsVisible: initialSeriesVisibility[tempKey] != false,
         animationDuration: 100,
-        color: colorsForEntry.$1,
+        color: seriesColor.$1,
         width: 1,
         name: '${objectName.capitalize} temperature',
         // color: themeData.colorScheme.colorsForEntry(index).$1,
-        dataSource: ds,
+        dataSource: seriesPoints,
         xValueMapper: (point, _) => point.time,
         yValueMapper: (point, _) => (point as TemperatureSensorSeriesEntry).temperature,
-        onRendererCreated: (ChartSeriesController controller) {
-          logger.i('Got controller for ${key}');
-
-          _temperatureControllers[key] = controller;
-        },
+        onRendererCreated: (ChartSeriesController controller) => _seriesControllers[tempKey] = controller,
       );
 
       output.add(ls);
 
-      bool isHeater = ds.firstOrNull is HeaterSeriesEntry;
-
-      if (isHeater) {
-        final barSeries = StepAreaSeries(
+      if (seriesPoints.firstOrNull is HeaterSeriesEntry) {
+        final targetKey = targetSeriesKey(store.key);
+        final as = StepAreaSeries(
+          initialIsVisible: initialSeriesVisibility[targetKey] != false,
           animationDuration: 100,
-
           dashArray: [5, 50],
-          color: colorsForEntry.$2,
-          name: '${objectName.capitalize} target',
+          color: seriesColor.$2,
           enableTrackball: false,
           // Prevents it from showing up in trackball!
-          dataSource: ds,
+          dataSource: seriesPoints,
           xValueMapper: (point, _) => point.time,
           yValueMapper: (point, _) => (point as HeaterSeriesEntry).target.let((it) => it.unless(it == 0)),
-          onRendererCreated: (ChartSeriesController controller) {
-            _temperatureControllers['$key-target'] = controller;
-          },
+          onRendererCreated: (ChartSeriesController controller) => _seriesControllers[targetKey] = controller,
         );
 
-        output.add(barSeries);
+        output.add(as);
       }
     }
-    logger.w('GOT SENSOR OUTPUT: ${output.length}');
 
     return output;
+  }
 
-    return [];
+  void _syncStoreDataToChart(TemperatureStore? _, TemperatureStore allStores) {
+    if (_tooltipActive || allStores.isEmpty) {
+      // This makes sure we dont update while user is interacting with the chart to prevent flickering
+      return;
+    }
+
+    var aStoreEntry = allStores.entries.first;
+    // The up-2-date timestamp from the store
+    final latestTimestamp = aStoreEntry.value.lastOrNull?.time;
+
+    // aprox how many entries we need to add
+    final entriesToAdd = latestTimestamp?.difference(_last).inSeconds ?? 0;
+    if (entriesToAdd == 0) return;
+
+    // We need to add them now
+    for (var entry in allStores.entries) {
+      final series = entry.value;
+      final tempKey = temperatureSeriesKey(entry.key);
+      final targetKey = targetSeriesKey(entry.key);
+
+      final dataSeries = _dataPoints[tempKey];
+
+      final toAdd = <TemperatureSensorSeriesEntry>[];
+
+      // We have an aprox, but since we check for after anyway we can just walk from the back
+      for (var i = series.length - 1; i >= 0; i--) {
+        final entry = series.elementAtOrNull(i);
+        if (entry?.time.isAfter(_last) != true) break;
+        toAdd.insert(0, entry!);
+      }
+      // final toAdd = series.sublist(totalStoreLen - entriesToAdd).where((e) => e.time.isAfter(_last));
+      if (toAdd.isEmpty || dataSeries == null) {
+        continue;
+      }
+
+      int removed = 0;
+      if ((dataSeries.length + toAdd.length) > TemperatureStoreService.maxStoreSize) {
+        // Calc how many we need to remove to make space for the new ones
+        final toRemove = (dataSeries.length + toAdd.length) - TemperatureStoreService.maxStoreSize;
+        dataSeries.removeRange(0, toRemove);
+        removed = toRemove;
+      }
+      int lenAfterRemoval = dataSeries.length;
+      dataSeries.addAll(toAdd);
+
+      // now at what indexed did we insert them?
+      // Well from the NOW new Len - the added length -1
+
+      _seriesControllers[tempKey]?.updateDataSource(
+        addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
+        removedDataIndexes: List.generate(removed, (index) => index),
+      );
+
+      // If we have a target we need to inform it about the update too!
+      _seriesControllers[targetKey]?.updateDataSource(
+        addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
+        removedDataIndexes: List.generate(removed, (index) => index),
+      );
+    }
+
+    _last = latestTimestamp ?? _last;
   }
 }

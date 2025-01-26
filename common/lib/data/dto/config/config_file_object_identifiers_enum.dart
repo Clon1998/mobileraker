@@ -44,6 +44,12 @@ enum ConfigFileObjectIdentifiers {
 
   const ConfigFileObjectIdentifiers(this.regex);
 
+  bool get isHeater => {
+        ConfigFileObjectIdentifiers.extruder,
+        ConfigFileObjectIdentifiers.heater_generic,
+        ConfigFileObjectIdentifiers.heater_bed
+      }.contains(this);
+
   static ConfigFileObjectIdentifiers? tryParse(String value) {
     for (final objectIdentifier in ConfigFileObjectIdentifiers.values) {
       if (objectIdentifier.regex != null) {

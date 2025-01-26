@@ -5,7 +5,6 @@
 
 import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/util/extensions/color_scheme_extension.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -63,7 +62,7 @@ class _OptionsList extends ConsumerWidget {
       itemBuilder: (context, index) {
         final store = entries.elementAt(index);
         final themeData = Theme.of(context);
-        final color = themeData.colorScheme.colorsForEntry(index);
+        final color = indexToColor(index);
         return HookBuilder(
           builder: (context) {
             final tempSettingKey =

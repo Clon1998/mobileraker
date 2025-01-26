@@ -32,6 +32,8 @@ import '../../data/model/moonraker_db/settings/reordable_element.dart';
 
 part 'temperature_store_service.g.dart';
 
+typedef TemperatureStore = Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>;
+
 @riverpod
 Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
     Ref ref, String machineUUID, ConfigFileObjectIdentifiers cIdentifier, String objectName,
@@ -50,8 +52,7 @@ Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
 }
 
 @riverpod
-Stream<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>> temperatureStores(
-    Ref ref, String machineUUID) async* {
+Stream<TemperatureStore> temperatureStores(Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
   final tempStore = ref.watch(temperatureStoreServiceProvider(machineUUID));
 
@@ -60,7 +61,7 @@ Stream<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEn
 
   // this will take care of ordering of elements!
   await for (var stores in tempStore.allStores) {
-    Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>> mapWithOrder = LinkedHashMap();
+    TemperatureStore mapWithOrder = LinkedHashMap();
     for (var entry in ordering) {
       final key = (entry.kind, entry.name);
       stores[key]?.let((it) => mapWithOrder[key] = it);
@@ -130,8 +131,7 @@ class TemperatureStoreService {
       _temperatureDataControllers = {};
 
   /// The master controller that will emit the whole store
-  final StreamController<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>>
-      _allStoresController = StreamController.broadcast();
+  final StreamController<TemperatureStore> _allStoresController = StreamController.broadcast();
 
   Timer? _temperatureStoreUpdateTimer;
 
@@ -150,8 +150,7 @@ class TemperatureStoreService {
   Stream<List<TemperatureSensorSeriesEntry>> getStoreStream(ConfigFileObjectIdentifiers cIdentifier, String name) =>
       _getStoreStreamController(cIdentifier, name).stream;
 
-  Stream<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>> get allStores =>
-      _allStoresController.stream;
+  Stream<TemperatureStore> get allStores => _allStoresController.stream;
 
   void _addPointToStream(ConfigFileObjectIdentifiers cIdentifier, String name, TemperatureSensorSeriesEntry point) {
     final storeForKey = _getStore(cIdentifier, name);
@@ -262,11 +261,7 @@ class TemperatureStoreService {
 
   QueueList<TemperatureSensorSeriesEntry> _parseServerStoreData(
       DateTime now, ConfigFileObjectIdentifiers cIdentifier, Map<String, dynamic> data) {
-    final bool isHeater = {
-      ConfigFileObjectIdentifiers.extruder,
-      ConfigFileObjectIdentifiers.heater_generic,
-      ConfigFileObjectIdentifiers.heater_bed,
-    }.contains(cIdentifier);
+    final bool isHeater = cIdentifier.isHeater;
 
     final temperatureHistory = (data['temperatures'] as List<dynamic>).map((e) => (e as num).toDouble()).toList();
     final List<double>? targetHistory =
