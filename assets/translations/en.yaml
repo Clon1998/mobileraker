@@ -1401,6 +1401,9 @@ bottom_sheets:
     no_selections:
       title: No results found
       subtitle: Try a different search term
+  temp_chart_settings:
+    title: Temperature Chart Settings
+
 klipper_state:
   ready: Ready
   shutdown: Shutdown

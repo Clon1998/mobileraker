@@ -1287,6 +1287,8 @@ bottom_sheets:
     no_selections:
       title: Keine Ergebnisse gefunden
       subtitle: Versuchen Sie einen anderen Suchbegriff
+  temp_chart_settings:
+    title: Temperaturverlauf Einstellungen
 klipper_state:
   ready: Bereit
   shutdown: Runtergefahren
