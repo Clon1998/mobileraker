@@ -4,6 +4,9 @@
 
 ### Enhancements
 
+- **Temperature History Graph Page**: It is now possible to open the temperature history graph page directly from the
+  temperature card. Just click on the upper part of the temperature card to open the graph
+  page. [#441](https://github.com/Clon1998/mobileraker/issues/441)
 - **Target File Location Page**: The __Back__ and __Cancel__ buttons on the target file location page now function
   correctly. Users can navigate back to the previous page or cancel the move/copy operation immediately, instead of
   always moving up to the root folder.
@@ -22,6 +25,7 @@
 - **Temperature Slider Increments**: Added 5°C snap points to the temperature slider for easier temperature selection,
   while maintaining precise control via +/- buttons. This improvement reflects user behavior analysis showing that 90%
   of temperature adjustments target multiples of 5°C.
+
 
 ### Bug Fixes
 
