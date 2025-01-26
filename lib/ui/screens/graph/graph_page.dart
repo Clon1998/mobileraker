@@ -238,12 +238,11 @@ class _GraphPageController extends _$GraphPageController {
       return;
     }
 
-    var aStoreEntry = allStores.entries.first;
-    // The up-2-date timestamp from the store
-    final latestTimestamp = aStoreEntry.value.lastOrNull?.time;
+    final latestTimestamp = allStores.entries.first.value.lastOrNull?.time;
+    if (latestTimestamp == null || latestTimestamp.isBefore(_last)) return;
 
     // aprox how many entries we need to add
-    final entriesToAdd = latestTimestamp?.difference(_last).inSeconds ?? 0;
+    final entriesToAdd = latestTimestamp.difference(_last).inSeconds ?? 0;
     if (entriesToAdd == 0) return;
 
     // We need to add them now
@@ -252,20 +251,16 @@ class _GraphPageController extends _$GraphPageController {
       final tempKey = temperatureSeriesKey(entry.key);
       final targetKey = targetSeriesKey(entry.key);
 
-      final dataSeries = _dataPoints[tempKey];
-
+      // Efficiently find new data points from the end
       final toAdd = <TemperatureSensorSeriesEntry>[];
-
-      // We have an aprox, but since we check for after anyway we can just walk from the back
       for (var i = series.length - 1; i >= 0; i--) {
-        final entry = series.elementAtOrNull(i);
-        if (entry?.time.isAfter(_last) != true) break;
-        toAdd.insert(0, entry!);
+        final point = series.elementAtOrNull(i);
+        if (point?.time.isAfter(_last) != true) break;
+        toAdd.insert(0, point!);
       }
-      // final toAdd = series.sublist(totalStoreLen - entriesToAdd).where((e) => e.time.isAfter(_last));
-      if (toAdd.isEmpty || dataSeries == null) {
-        continue;
-      }
+
+      final dataSeries = _dataPoints[tempKey];
+      if (toAdd.isEmpty || dataSeries == null) continue;
 
       int removed = 0;
       if ((dataSeries.length + toAdd.length) > TemperatureStoreService.maxStoreSize) {
@@ -277,21 +272,17 @@ class _GraphPageController extends _$GraphPageController {
       int lenAfterRemoval = dataSeries.length;
       dataSeries.addAll(toAdd);
 
-      // now at what indexed did we insert them?
-      // Well from the NOW new Len - the added length -1
-
       _seriesControllers[tempKey]?.updateDataSource(
         addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
         removedDataIndexes: List.generate(removed, (index) => index),
       );
 
-      // If we have a target we need to inform it about the update too!
       _seriesControllers[targetKey]?.updateDataSource(
         addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
         removedDataIndexes: List.generate(removed, (index) => index),
       );
     }
 
-    _last = latestTimestamp ?? _last;
+    _last = latestTimestamp;
   }
 }
