@@ -844,6 +844,9 @@ pages:
       update_page_title: Hersteller bearbeiten
       helper:
         empty_weight: Das Leergewicht einer Spule dieses Herstellers.
+  temp_chart:
+    title: Temperaturverlauf
+    chart_y_axis: Temperatur [°C]
 components:
   app_version_display:
     version: 'Version:'
@@ -1284,6 +1287,8 @@ bottom_sheets:
     no_selections:
       title: Keine Ergebnisse gefunden
       subtitle: Versuchen Sie einen anderen Suchbegriff
+  temp_chart_settings:
+    title: Temperaturverlauf Einstellungen
 klipper_state:
   ready: Bereit
   shutdown: Runtergefahren
