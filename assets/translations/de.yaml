@@ -147,6 +147,9 @@ pages:
         save_btn: Konfig speichern
         more_btn: Mehr
         homed: Genullte Achsen
+        beacon_models: Beacon Modelle
+        beacon_btn: Beacon
+        beacon_tooltip: Wähle Beacon Modell
       baby_step_card:
         title: Z-Achsen Versatz
         z_offset: Z-Versatz
