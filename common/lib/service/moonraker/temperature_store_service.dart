@@ -4,6 +4,7 @@
  */
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
@@ -13,6 +14,7 @@ import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:common/data/model/time_series_entry.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -26,6 +28,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/jrpc/rpc_response.dart';
 import '../../data/dto/machine/temperature_sensor_mixin.dart';
+import '../../data/model/moonraker_db/settings/reordable_element.dart';
 
 part 'temperature_store_service.g.dart';
 
@@ -48,11 +51,28 @@ Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
 
 @riverpod
 Stream<Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>>> temperatureStores(
-    Ref ref, String machineUUID) {
+    Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
-
   final tempStore = ref.watch(temperatureStoreServiceProvider(machineUUID));
-  return tempStore.allStores;
+
+  List<ReordableElement> ordering =
+      await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.tempOrdering));
+
+  // this will take care of ordering of elements!
+  await for (var stores in tempStore.allStores) {
+    Map<(ConfigFileObjectIdentifiers, String), List<TemperatureSensorSeriesEntry>> mapWithOrder = LinkedHashMap();
+    for (var entry in ordering) {
+      final key = (entry.kind, entry.name);
+      stores[key]?.let((it) => mapWithOrder[key] = it);
+    }
+
+    // Add all other elements that are not in the ordering
+    for (var entry in stores.entries) {
+      mapWithOrder.putIfAbsent(entry.key, () => entry.value);
+    }
+
+    yield mapWithOrder;
+  }
 }
 
 @riverpod
