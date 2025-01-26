@@ -250,9 +250,9 @@ class TemperatureStoreService {
 
     final temperatureHistory = (data['temperatures'] as List<dynamic>).map((e) => (e as num).toDouble()).toList();
     final List<double>? targetHistory =
-        (data['target'] as List<dynamic>?)?.only(isHeater)?.map((e) => (e as num).toDouble()).toList();
+        (data['targets'] as List<dynamic>?)?.only(isHeater)?.map((e) => (e as num).toDouble()).toList();
     final List<double>? powerHistory =
-        (data['power'] as List<dynamic>?)?.only(isHeater)?.map((e) => (e as num).toDouble()).toList();
+        (data['powers'] as List<dynamic>?)?.only(isHeater)?.map((e) => (e as num).toDouble()).toList();
 
     final int historyLength =
         min(maxStoreSize, max(temperatureHistory.length, max(targetHistory?.length ?? 0, powerHistory?.length ?? 0)));
