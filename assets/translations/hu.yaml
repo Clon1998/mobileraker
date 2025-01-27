@@ -147,6 +147,9 @@ pages:
         save_btn: Konfiguráció mentése
         more_btn: Több
         homed: Tengelyek kezdőponton
+        beacon_models: Jelzőfény modellek
+        beacon_btn: Jelzőfény
+        beacon_tooltip: Válaszd ki a jelzőfény modelljét
       baby_step_card:
         title: Mikrolépés Z tengely
         z_offset: Z-Eltolás
@@ -848,6 +851,9 @@ pages:
       update_page_title: Gyártó szerkesztése
       helper:
         empty_weight: A gyártó üres orsójának a súlya.
+  temp_chart:
+    title: Hőmérséklet diagram
+    chart_y_axis: Hőmérséklet [°C]
 components:
   app_version_display:
     version: 'Verzió:'
@@ -1291,6 +1297,8 @@ bottom_sheets:
     no_selections:
       title: Nem találtam eredményt
       subtitle: Próbálj meg egy másik kifejezésre keresni
+  temp_chart_settings:
+    title: Hőmérséklet diagram beállítások
 klipper_state:
   ready: Kész
   shutdown: Leállítás
