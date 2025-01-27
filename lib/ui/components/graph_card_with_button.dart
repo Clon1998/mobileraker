@@ -134,7 +134,7 @@ class _Chart extends ConsumerWidget {
       plotAreaBorderColor: Colors.transparent,
       margin: const EdgeInsets.all(0),
       series: [
-        SplineAreaSeries(
+        AreaSeries(
           // Disables animation
           animationDuration: 0,
           color: graphColor,
