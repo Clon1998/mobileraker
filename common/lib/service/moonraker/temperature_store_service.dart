@@ -331,7 +331,13 @@ class TemperatureStoreService {
 
       _addPointToStream(sensor.kind, sensor.name, newPoint);
     }
-    _allStoresController.add(Map.unmodifiable(_temperatureData));
+
+    // Ensure we have a unmofiable copy of the map and list(s)
+    _allStoresController.add(Map.unmodifiable({
+      for (MapEntry<(ConfigFileObjectIdentifiers, String), QueueList<TemperatureSensorSeriesEntry>> entry
+          in _temperatureData.entries)
+        entry.key: entry.value.toList(growable: false)
+    }));
 
     // var allKeys = _temperatureData.keys;
     // logger.i('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
