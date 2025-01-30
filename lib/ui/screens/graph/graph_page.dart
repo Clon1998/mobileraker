@@ -6,10 +6,13 @@
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/model/time_series_entry.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/temperature_store_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
@@ -51,9 +54,6 @@ class _GraphPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_graphPageControllerProvider(machineUUID).notifier);
-    final (maxTemp, series) = ref.watch(_graphPageControllerProvider(machineUUID));
-
     return Scaffold(
       appBar: AppBar(
         title: Text('pages.temp_chart.title').tr(),
@@ -70,55 +70,87 @@ class _GraphPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        minimum: EdgeInsets.only(top: 15, right: 44.0),
-        child: SfCartesianChart(
-          enableAxisAnimation: true,
-          trackballBehavior: TrackballBehavior(
+      body: _Body(machineUUID: machineUUID),
+    );
+  }
+}
+
+class _Body extends ConsumerWidget {
+  const _Body({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var isSupporter = ref.watch(isSupporterProvider);
+    if (!isSupporter && ref.watch(remoteConfigBoolProvider('graph_page_pay'))) {
+      return Center(
+        child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.graph_page').tr()),
+      );
+    }
+
+    return _Plot(machineUUID: machineUUID);
+  }
+}
+
+class _Plot extends ConsumerWidget {
+  const _Plot({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_graphPageControllerProvider(machineUUID).notifier);
+    final (maxTemp, series) = ref.watch(_graphPageControllerProvider(machineUUID));
+
+    return SafeArea(
+      minimum: EdgeInsets.only(top: 15, right: 44.0),
+      child: SfCartesianChart(
+        enableAxisAnimation: true,
+        trackballBehavior: TrackballBehavior(
+          enable: true,
+          shouldAlwaysShow: false,
+          activationMode: ActivationMode.singleTap,
+          markerSettings: TrackballMarkerSettings(
+            shape: DataMarkerType.circle,
+            markerVisibility: TrackballVisibilityMode.visible,
+          ),
+          tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
+          // builder: (BuildContext context, TrackballDetails trackballDetails) {
+          //
+          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.currentPointIndices}');
+          //
+          //
+          //   for (LineSeriesRenderer sr in trackballDetails.groupingModeInfo?.visibleSeriesList ?? []) {
+          //     logger.w(sr.dataSource);
+          //   }
+          //
+          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.points}');
+          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesIndices}');
+          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesList}');
+          //
+          //   return Container(
+          //     width: 70,
+          //     decoration:
+          //       const BoxDecoration(color: Color.fromRGBO(66, 244, 164, 1)),
+          //     child: Text('${trackballDetails.point?.cumulative}')
+          //   );
+          // },
+          tooltipSettings: InteractiveTooltip(
             enable: true,
-            shouldAlwaysShow: false,
-            activationMode: ActivationMode.singleTap,
-            markerSettings: TrackballMarkerSettings(
-              shape: DataMarkerType.circle,
-              markerVisibility: TrackballVisibilityMode.visible,
-            ),
-            tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
-            // builder: (BuildContext context, TrackballDetails trackballDetails) {
-            //
-            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.currentPointIndices}');
-            //
-            //
-            //   for (LineSeriesRenderer sr in trackballDetails.groupingModeInfo?.visibleSeriesList ?? []) {
-            //     logger.w(sr.dataSource);
-            //   }
-            //
-            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.points}');
-            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesIndices}');
-            //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesList}');
-            //
-            //   return Container(
-            //     width: 70,
-            //     decoration:
-            //       const BoxDecoration(color: Color.fromRGBO(66, 244, 164, 1)),
-            //     child: Text('${trackballDetails.point?.cumulative}')
-            //   );
-            // },
-            tooltipSettings: InteractiveTooltip(
-              enable: true,
-              format: 'series.name: point.y°C',
-            ),
-            // tooltipSettings: InteractiveTooltip(enable: true),
+            format: 'series.name: point.y°C',
           ),
-          onChartTouchInteractionDown: (ChartTouchInteractionArgs args) => controller.updateTooltip(true),
-          onChartTouchInteractionUp: (ChartTouchInteractionArgs args) => controller.updateTooltip(false),
-          primaryXAxis: DateTimeAxis(name: 'Time'),
-          primaryYAxis: NumericAxis(
-            title: AxisTitle(text: tr('pages.temp_chart.chart_y_axis')),
-            minimum: 0,
-            maximum: maxTemp,
-          ),
-          series: series,
+          // tooltipSettings: InteractiveTooltip(enable: true),
         ),
+        onChartTouchInteractionDown: (ChartTouchInteractionArgs args) => controller.updateTooltip(true),
+        onChartTouchInteractionUp: (ChartTouchInteractionArgs args) => controller.updateTooltip(false),
+        primaryXAxis: DateTimeAxis(name: 'Time'),
+        primaryYAxis: NumericAxis(
+          title: AxisTitle(text: tr('pages.temp_chart.chart_y_axis')),
+          minimum: 0,
+          maximum: maxTemp,
+        ),
+        series: series,
       ),
     );
   }

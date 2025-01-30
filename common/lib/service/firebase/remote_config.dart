@@ -164,6 +164,7 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'spoolman_page_pay': true,
         'developer_announcements': json.encode({'enabled': false, 'messages': []}),
         'clear_live_activity_on_done': false,
+        'graph_page_pay': true,
       });
       fetchAndActivate().then((value) {
         logger.i(
