@@ -4,7 +4,6 @@
  */
 
 import 'package:common/data/model/time_series_entry.dart';
-import 'package:common/util/logger.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -60,8 +59,6 @@ class GraphCardWithButton extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
-                  // Only way i found to expand the stack completly...
-                  Container(width: double.infinity),
                   Positioned.fill(
                       top: radius,
                       child: _Chart(
@@ -121,8 +118,6 @@ class _Chart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var list = ref.watch(tempStoreProvider);
-
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(isVisible: false),
       primaryYAxis: NumericAxis(

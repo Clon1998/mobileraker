@@ -147,17 +147,13 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ROHE model nutzung ist AA. Wenn eine der listen sich ändert wird alles neu gebaut! Lieber einzelne Selects darauf!
-    var provider = _controllerProvider(machineUUID);
-
-    var sensors = ref.watch(provider.selectRequireValue((value) => value.sensors.length));
-    logger.w('Rebuilding HeaterSensorCard');
+    final sensorCount = ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.sensors.length));
 
     return AdaptiveHorizontalScroll(
       snap: true,
       pageStorageKey: 'temps$machineUUID',
       children: [
-        for (var i = 0; i < 1; i++)
+        for (var i = 0; i < sensorCount; i++)
           _SensorMixinTile(
             machineUUID: machineUUID,
             sensorProvider: _controllerProvider(machineUUID).selectRequireValue((value) {
@@ -177,8 +173,7 @@ class _SensorMixinTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var sensor = ref.watch(sensorProvider);
-    // logger.i('Rebuilding SensorMixinTile ${sensor.name}');
+    final sensor = ref.watch(sensorProvider);
 
     return switch (sensor) {
       HeaterMixin() => _HeaterMixinTile(
@@ -217,12 +212,12 @@ class _HeaterMixinTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    final klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
-    final tempStore = ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(heater)));
+    final (klippyCanReceiveCommands, tempStore) = ref.watch(_controllerProvider(machineUUID)
+        .selectRequireValue((value) => (value.klippyCanReceiveCommands, value.storeForSensor(heater))));
 
-    NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
-    ThemeData themeData = Theme.of(context);
+    final NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
+    final ThemeData themeData = Theme.of(context);
+
     Color colorBg = themeData.colorScheme.surfaceContainer;
     if (heater.target > 0 && klippyCanReceiveCommands) {
       colorBg = Color.alphaBlend(
@@ -306,11 +301,11 @@ class _TemperatureSensorTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tempStore =
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)));
     final beautifiedNamed = beautifyName(temperatureSensor.name);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
-    final tempStore =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)));
 
     return GraphCardWithButton(
       tempStore: tempStore,
@@ -362,10 +357,8 @@ class _TemperatureFanTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    final klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
-    final tempStore =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureFan)));
+    final (klippyCanReceiveCommands, tempStore) = ref.watch(_controllerProvider(machineUUID)
+        .selectRequireValue((value) => (value.klippyCanReceiveCommands, value.storeForSensor(temperatureFan))));
     final beautifiedNamed = beautifyName(temperatureFan.name);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
@@ -511,7 +504,6 @@ class _Controller extends _$Controller {
       for (var e in entry.entries) {
         limited[e.key] = e.value.sublist(max(0, e.value.length - tempStoreLimit));
       }
-      //logger.e('-------- GOT NEW ${DateTime.now()} ---------');
       return limited;
     });
 
