@@ -4,6 +4,7 @@
  */
 
 import 'package:common/data/model/time_series_entry.dart';
+import 'package:common/util/logger.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -16,8 +17,8 @@ class GraphCardWithButton extends StatelessWidget {
     super.key,
     this.backgroundColor,
     this.graphColor,
-    required this.tempStoreProvider,
-    required this.builder,
+    required this.tempStore,
+    required this.topChild,
     required this.buttonChild,
     required this.onTap,
     this.onLongPress,
@@ -26,12 +27,12 @@ class GraphCardWithButton extends StatelessWidget {
 
   final Color? backgroundColor;
   final Color? graphColor;
-  final WidgetBuilder builder;
+  final Widget topChild;
   final Widget buttonChild;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onTapGraph;
-  final ProviderListenable<List<TemperatureSensorSeriesEntry>> tempStoreProvider;
+  final List<TemperatureSensorSeriesEntry> tempStore;
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +63,11 @@ class GraphCardWithButton extends StatelessWidget {
                   // Only way i found to expand the stack completly...
                   Container(width: double.infinity),
                   Positioned.fill(
-                    top: radius,
-                    child: _Chart(
-                      graphColor: gcColor,
-                      tempStoreProvider: tempStoreProvider,
-                    ),
-                  ),
+                      top: radius,
+                      child: _Chart(
+                        graphColor: gcColor,
+                        tempStore: tempStore,
+                      )),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
                     child: Theme(
@@ -78,7 +78,7 @@ class GraphCardWithButton extends StatelessWidget {
                         ),
                         iconTheme: themeData.iconTheme.copyWith(color: onBackgroundColor),
                       ),
-                      child: Builder(builder: builder),
+                      child: topChild,
                     ),
                   ),
                 ],
@@ -112,12 +112,12 @@ class _Chart extends ConsumerWidget {
   const _Chart({
     super.key,
     required this.graphColor,
-    required this.tempStoreProvider,
+    required this.tempStore,
   });
 
   final Color graphColor;
 
-  final ProviderListenable<List<TemperatureSensorSeriesEntry>> tempStoreProvider;
+  final List<TemperatureSensorSeriesEntry> tempStore;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,7 +138,7 @@ class _Chart extends ConsumerWidget {
           // Disables animation
           animationDuration: 0,
           color: graphColor,
-          dataSource: list,
+          dataSource: tempStore,
           xValueMapper: (point, _) => point.time,
           yValueMapper: (point, _) => (point as TemperatureSensorSeriesEntry).temperature,
         ),

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -156,10 +157,12 @@ class _CardBody extends ConsumerWidget {
       snap: true,
       pageStorageKey: 'temps$machineUUID',
       children: [
-        for (var i = 0; i < sensors; i++)
+        for (var i = 0; i < 1; i++)
           _SensorMixinTile(
             machineUUID: machineUUID,
-            sensorProvider: _controllerProvider(machineUUID).selectRequireValue((value) => value.sensors[i]),
+            sensorProvider: _controllerProvider(machineUUID).selectRequireValue((value) {
+              return value.sensors[i];
+            }),
           ),
       ],
     );
@@ -213,9 +216,10 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    var klippyCanReceiveCommands =
+    final controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    final klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
+    final tempStore = ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(heater)));
 
     NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     ThemeData themeData = Theme.of(context);
@@ -239,12 +243,12 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
     return GraphCardWithButton(
       backgroundColor: colorBg,
-      tempStoreProvider: _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(heater)),
+      tempStore: tempStore,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
       onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
-      builder: (BuildContext context) {
+      topChild: Builder(builder: (BuildContext context) {
         var innerTheme = Theme.of(context);
         return Tooltip(
           message: name,
@@ -289,7 +293,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
             ],
           ),
         );
-      },
+      }),
     );
   }
 }
@@ -302,16 +306,18 @@ class _TemperatureSensorTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var beautifiedNamed = beautifyName(temperatureSensor.name);
-    var numberFormat =
+    final beautifiedNamed = beautifyName(temperatureSensor.name);
+    final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+    final tempStore =
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)));
+
     return GraphCardWithButton(
-      tempStoreProvider:
-          _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)),
+      tempStore: tempStore,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
-      builder: (context) {
+      topChild: Builder(builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
           message: beautifiedNamed,
@@ -336,7 +342,7 @@ class _TemperatureSensorTile extends HookConsumerWidget {
             ],
           ),
         );
-      },
+      }),
     );
   }
 }
@@ -355,20 +361,21 @@ class _TemperatureFanTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    var klippyCanReceiveCommands =
+    final controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    final klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
-
-    var beautifiedNamed = beautifyName(temperatureFan.name);
-    var numberFormat =
+    final tempStore =
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureFan)));
+    final beautifiedNamed = beautifyName(temperatureFan.name);
+    final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      tempStoreProvider: _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureFan)),
+      tempStore: tempStore,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
-      builder: (context) {
+      topChild: Builder(builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
           message: beautifiedNamed,
@@ -404,7 +411,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
             ],
           ),
         );
-      },
+      }),
     );
   }
 }
@@ -423,46 +430,52 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var beautifiedNamed = beautifyName(zThermalAdjust.name);
-    var numberFormat =
+    final tempStore =
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(zThermalAdjust)));
+    final beautifiedNamed = beautifyName(zThermalAdjust.name);
+    final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return GraphCardWithButton(
-      tempStoreProvider: _controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(zThermalAdjust)),
+      tempStore: tempStore,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
-      builder: (context) {
-        final themeData = Theme.of(context);
-        return Tooltip(
-          message: beautifiedNamed,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AutoSizeText(
-                beautifiedNamed,
-                minFontSize: 8,
-                style: themeData.textTheme.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                '${numberFormat.format(zThermalAdjust.temperature)} °C',
-                style: themeData.textTheme.titleLarge,
-              ),
-              Text(
-                numberFormat.formatMillimeters(zThermalAdjust.currentZAdjust, useMicro: true),
-              ),
-            ],
-          ),
-        );
-      },
+      topChild: Builder(
+        builder: (context) {
+          final themeData = Theme.of(context);
+          return Tooltip(
+            message: beautifiedNamed,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AutoSizeText(
+                  beautifiedNamed,
+                  minFontSize: 8,
+                  style: themeData.textTheme.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '${numberFormat.format(zThermalAdjust.temperature)} °C',
+                  style: themeData.textTheme.titleLarge,
+                ),
+                Text(
+                  numberFormat.formatMillimeters(zThermalAdjust.currentZAdjust, useMicro: true),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
 @riverpod
 class _Controller extends _$Controller {
+  final int tempStoreLimit = 300;
+
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   DialogService get _dialogService => ref.read(dialogServiceProvider);
@@ -493,7 +506,14 @@ class _Controller extends _$Controller {
         // Use map here since this prevents to many operations if the original list (Stream) not changes!
         .map((sensors) => CombinedSensorExtension.filterAndSortSensors(sensors, ordering));
 
-    final tempStores = ref.watchAsSubject(temperatureStoresProvider(machineUUID));
+    final tempStores = ref.watchAsSubject(temperatureStoresProvider(machineUUID)).map((entry) {
+      TemperatureStore limited = LinkedHashMap();
+      for (var e in entry.entries) {
+        limited[e.key] = e.value.sublist(max(0, e.value.length - tempStoreLimit));
+      }
+      //logger.e('-------- GOT NEW ${DateTime.now()} ---------');
+      return limited;
+    });
 
     yield* Rx.combineLatest3(
       klippyCanReceiveCommands,
@@ -624,10 +644,8 @@ class _Model with _$Model {
   }) = __Model;
 
   List<TemperatureSensorSeriesEntry> storeForSensor(TemperatureSensorMixin sensor) {
-    final limit = 300;
     final store = this.temperatureStores[(sensor.kind, sensor.name)] ?? [];
-    int startIndex = max(0, store.length - limit - 1);
 
-    return store.sublist(startIndex);
+    return store;
   }
 }
