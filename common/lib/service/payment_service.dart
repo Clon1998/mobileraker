@@ -242,27 +242,30 @@ class PaymentService {
     _ref.listen(
       firebaseUserProvider,
       (previous, next) async {
-        var isLogin = previous?.valueOrNull == null && next.valueOrNull != null;
-        var isLogout = previous?.valueOrNull != null && next.valueOrNull == null;
+        var isLogin = previous?.valueOrNull == null && next.valueOrNull != null ||
+            previous?.valueOrNull?.isAnonymous == true && next.valueOrNull?.isAnonymous == false;
+        var isLogout = previous?.valueOrNull != null && next.valueOrNull == null ||
+            previous?.valueOrNull?.isAnonymous == false && next.valueOrNull?.isAnonymous == true;
 
         logger.i('[PaymentService] User changed. isLogin: $isLogin, isLogout: $isLogout');
 
         if (isLogin) {
           try {
             LogInResult logInResult = await Purchases.logIn(next.requireValue!.uid);
-            logger.i('Logged user into rCat: created: ${logInResult.created} - ${logInResult.customerInfo}}');
+            logger.i(
+                '[PaymentService] Logged user into rCat: created: ${logInResult.created} - ${logInResult.customerInfo}}');
           } on PlatformException catch (e) {
             var errorCode = PurchasesErrorHelper.getErrorCode(e);
 
-            logger.e('Error while trying to log in to Purchases: $errorCode');
+            logger.e('[PaymentService] Error while trying to log in to Purchases: $errorCode');
           }
         } else if (isLogout) {
           try {
             var customerInfo = await Purchases.logOut();
-            logger.i('Logged user out of rCat - new Anonym ID: ${customerInfo.originalAppUserId}');
+            logger.i('[PaymentService] Logged user out of rCat - new Anonym ID: ${customerInfo.originalAppUserId}');
           } on PlatformException catch (e) {
             var errorCode = PurchasesErrorHelper.getErrorCode(e);
-            logger.e('Error while logging out of rCat: $errorCode');
+            logger.e('[PaymentService] Error while logging out of rCat: $errorCode');
           }
         }
         _ref.invalidate(customerInfoProvider);
