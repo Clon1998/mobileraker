@@ -28,8 +28,10 @@
   while maintaining precise control via +/- buttons. This improvement reflects user behavior analysis showing that 90%
   of temperature adjustments target multiples of 5°C.
 
-
 ### Bug Fixes
+
+- **User Account**: Fixed an issue that prevented the app from correctly updating the supporter status after logging
+  into an account. Previously, an app restart was required to reflect the correct supporter status.
 
 ## [2.8.4] - 2025-01-04
 
