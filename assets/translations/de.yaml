@@ -890,6 +890,7 @@ components:
     custom_dashboard: Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar.
     full_file_management: Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar.
     gcode_preview: Die G-Code-Vorschau ist leider nur für Supporter verfügbar.
+    graph_page: Der Temperatur-Verlauf ist leider nur für Supporter verfügbar.
   machine_deletion_warning:
     title: Maschinelle Löschung
     subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt werden.
