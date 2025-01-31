@@ -54,6 +54,7 @@ class _GraphPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_graphPageControllerProvider(machineUUID).notifier);
     return Scaffold(
       appBar: AppBar(
         title: Text('pages.temp_chart.title').tr(),

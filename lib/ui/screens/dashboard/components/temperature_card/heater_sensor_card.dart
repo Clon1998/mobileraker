@@ -35,6 +35,7 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
@@ -218,31 +219,43 @@ class _HeaterMixinTile extends HookConsumerWidget {
     final NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     final ThemeData themeData = Theme.of(context);
 
-    Color colorBg = themeData.colorScheme.surfaceContainer;
-    if (heater.target > 0 && klippyCanReceiveCommands) {
-      colorBg = Color.alphaBlend(
-        const Color.fromRGBO(178, 24, 24, 1).withValues(
-          alpha: min(heater.temperature / heater.target, 1),
-        ),
-        colorBg,
-      );
-    } else if (heater.temperature > _stillHotTemp) {
-      colorBg = Color.alphaBlend(
-        const Color.fromRGBO(243, 106, 65, 1.0).withValues(
-          alpha: min(heater.temperature / _stillHotTemp - 1, 1),
-        ),
-        colorBg,
-      );
-    }
-    var name = beautifyName(heater.name);
+    final backgroundColor = useMemoized(
+      () {
+        Color colorBg = themeData.colorScheme.surfaceContainer;
+        if (heater.target > 0 && klippyCanReceiveCommands) {
+          colorBg = Color.alphaBlend(
+            const Color.fromRGBO(178, 24, 24, 1).withValues(
+              alpha: min(heater.temperature / heater.target, 1),
+            ),
+            colorBg,
+          );
+        } else if (heater.temperature > _stillHotTemp) {
+          colorBg = Color.alphaBlend(
+            const Color.fromRGBO(243, 106, 65, 1.0).withValues(
+              alpha: min(heater.temperature / _stillHotTemp - 1, 1),
+            ),
+            colorBg,
+          );
+        }
+        return colorBg;
+      },
+      [heater.target > 0 && klippyCanReceiveCommands, heater.temperature > _stillHotTemp],
+    );
+
+    final onTap = useCallback(() => controller.adjustHeater(heater));
+    final onLongPress = useCallback(() => controller.turnOffHeater(heater));
+    final onTapGraph = useCallback(
+        () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}).ignore());
+
+    final name = beautifyName(heater.name);
 
     return GraphCardWithButton(
-      backgroundColor: colorBg,
+      backgroundColor: backgroundColor,
       tempStore: tempStore,
       buttonChild: const Text('general.set').tr(),
-      onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(heater) : null,
-      onLongPress: klippyCanReceiveCommands ? () => controller.turnOffHeater(heater) : null,
-      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
+      onTap: onTap.only(klippyCanReceiveCommands),
+      onLongPress: onLongPress.only(klippyCanReceiveCommands),
+      onTapGraph: onTapGraph,
       topChild: Builder(builder: (BuildContext context) {
         var innerTheme = Theme.of(context);
         return Tooltip(
@@ -307,11 +320,14 @@ class _TemperatureSensorTile extends HookConsumerWidget {
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
+    final onTapGraph = useCallback(
+        () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}).ignore());
+
     return GraphCardWithButton(
       tempStore: tempStore,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
+      onTapGraph: onTapGraph,
       topChild: Builder(builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
@@ -362,12 +378,15 @@ class _TemperatureFanTile extends HookConsumerWidget {
     final beautifiedNamed = beautifyName(temperatureFan.name);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+    final onTap = useCallback(() => controller.editTemperatureFan(temperatureFan));
+    final onTapGraph = useCallback(
+        () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}).ignore());
 
     return GraphCardWithButton(
       tempStore: tempStore,
       buttonChild: const Text('general.set').tr(),
-      onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
-      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
+      onTap: onTap.only(klippyCanReceiveCommands),
+      onTapGraph: onTapGraph,
       topChild: Builder(builder: (context) {
         final themeData = Theme.of(context);
         return Tooltip(
@@ -429,11 +448,14 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
+    final onTapGraph = useCallback(
+        () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}).ignore());
+
     return GraphCardWithButton(
       tempStore: tempStore,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      onTapGraph: () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}),
+      onTapGraph: onTapGraph,
       topChild: Builder(
         builder: (context) {
           final themeData = Theme.of(context);

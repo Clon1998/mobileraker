@@ -6,7 +6,6 @@
 import 'package:common/data/model/time_series_entry.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class GraphCardWithButton extends StatelessWidget {
@@ -35,13 +34,12 @@ class GraphCardWithButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var themeData = Theme.of(context);
-    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceContainer;
-    var gcColor =
-        graphColor ?? ((Theme.of(context).brightness == Brightness.dark) ? bgColor.brighten(15) : bgColor.darken(15));
-    var onBackgroundColor = (ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
+    final themeData = Theme.of(context);
+    final bgColor = backgroundColor ?? themeData.colorScheme.surfaceContainer;
+    final gcColor = graphColor ?? (themeData.brightness == Brightness.dark ? bgColor.brighten(15) : bgColor.darken(15));
+    final onBackgroundColor = ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
         ? Colors.white.blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
-        : Colors.black.blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
+        : Colors.black.blendAlpha(themeData.colorScheme.primary.brighten(20), 0);
 
     return Padding(
       padding: CardTheme.of(context).margin ?? const EdgeInsets.all(4),
@@ -59,12 +57,8 @@ class GraphCardWithButton extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
-                  Positioned.fill(
-                      top: radius,
-                      child: _Chart(
-                        graphColor: gcColor,
-                        tempStore: tempStore,
-                      )),
+                  SizedBox(width: double.infinity),
+                  Positioned.fill(top: radius, child: _Chart(graphColor: gcColor, tempStore: tempStore)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
                     child: Theme(
@@ -92,7 +86,6 @@ class GraphCardWithButton extends StatelessWidget {
               ),
               foregroundColor: themeData.colorScheme.onPrimary,
               backgroundColor: themeData.colorScheme.primary,
-              // onPrimary: Theme.of(context).colorScheme.onSecondary,
               disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
             ),
             onPressed: onTap,
@@ -105,7 +98,7 @@ class GraphCardWithButton extends StatelessWidget {
   }
 }
 
-class _Chart extends ConsumerWidget {
+class _Chart extends StatefulWidget {
   const _Chart({
     super.key,
     required this.graphColor,
@@ -113,11 +106,87 @@ class _Chart extends ConsumerWidget {
   });
 
   final Color graphColor;
-
   final List<TemperatureSensorSeriesEntry> tempStore;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<_Chart> createState() => _ChartState();
+}
+
+class _ChartState extends State<_Chart> {
+  int maxStoreSize = 300;
+
+  late List<TemperatureSensorSeriesEntry> _tempStore;
+  ChartSeriesController? _chartSeriesController;
+  DateTime _last = DateTime(1990);
+
+  @override
+  void initState() {
+    super.initState();
+    _tempStore = widget.tempStore;
+    if (_tempStore.isNotEmpty) {
+      _last = _tempStore.last.time;
+    }
+  }
+
+  @override
+  void didUpdateWidget(_Chart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Efficiently update data without rebuilding the widget
+    if (!identical(widget.tempStore, oldWidget.tempStore)) {
+      if (_chartSeriesController == null) {
+        setState(() {
+          _tempStore = widget.tempStore;
+        });
+      } else {
+        _syncStoreDataToChart(widget.tempStore);
+      }
+    }
+  }
+
+  void _syncStoreDataToChart(List<TemperatureSensorSeriesEntry> newStore) {
+    if (newStore.isEmpty) return; // Avoid flickering when interacting
+
+    final latestTimestamp = newStore.last.time;
+    if (latestTimestamp.isBefore(_last)) return;
+
+    // Calculate how many new entries we need to add
+    final int entriesToAdd = latestTimestamp.difference(_last).inSeconds;
+    if (entriesToAdd == 0) return;
+
+    final toAdd = <TemperatureSensorSeriesEntry>[];
+
+    // Collect only new points
+    for (var i = newStore.length - 1; i >= 0; i--) {
+      final point = newStore[i];
+      if (!point.time.isAfter(_last)) break;
+      toAdd.insert(0, point);
+    }
+
+    if (toAdd.isEmpty) return;
+
+    int removed = 0;
+
+    // Ensure we do not exceed maxStoreSize
+    if ((_tempStore.length + toAdd.length) > maxStoreSize) {
+      final toRemove = (_tempStore.length + toAdd.length) - maxStoreSize;
+      _tempStore.removeRange(0, toRemove);
+      removed = toRemove;
+    }
+
+    int lenAfterRemoval = _tempStore.length;
+    _tempStore.addAll(toAdd);
+
+    _chartSeriesController?.updateDataSource(
+      addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
+      removedDataIndexes: List.generate(removed, (index) => index),
+    );
+
+    _last = latestTimestamp;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(isVisible: false),
       primaryYAxis: NumericAxis(
@@ -129,13 +198,13 @@ class _Chart extends ConsumerWidget {
       plotAreaBorderColor: Colors.transparent,
       margin: const EdgeInsets.all(0),
       series: [
-        AreaSeries(
-          // Disables animation
+        AreaSeries<TemperatureSensorSeriesEntry, DateTime>(
           animationDuration: 0,
-          color: graphColor,
-          dataSource: tempStore,
+          color: widget.graphColor,
+          dataSource: _tempStore,
           xValueMapper: (point, _) => point.time,
-          yValueMapper: (point, _) => (point as TemperatureSensorSeriesEntry).temperature,
+          yValueMapper: (point, _) => point.temperature,
+          onRendererCreated: (ChartSeriesController controller) => _chartSeriesController = controller,
         ),
       ],
     );
