@@ -894,6 +894,7 @@ components:
     custom_dashboard: Sajnáljuk, a műszerfal testreszabása csak a Támogatóknak érhető el.
     full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak a Támogatóknak érhető el.
     gcode_preview: Sajnáljuk, a G-Kód előnézet csak Támogatóknak érhető el.
+    graph_page: Sajnáljuk, a Hőmérséklet-előzmény oldal csak a Támogatók számára elérhető.
   machine_deletion_warning:
     title: Gépi törlés
     subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
