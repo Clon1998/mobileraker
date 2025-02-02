@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -24,6 +25,7 @@ WebcamService webcamService(Ref ref, String machineUUID) {
 
 @riverpod
 Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
+  ref.keepAliveFor();
   final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
   if (jrpcState != ClientState.connected) return;
 
