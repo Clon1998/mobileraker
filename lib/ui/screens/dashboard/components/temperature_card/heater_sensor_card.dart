@@ -242,8 +242,8 @@ class _HeaterMixinTile extends HookConsumerWidget {
       [heater.target > 0 && klippyCanReceiveCommands, heater.temperature > _stillHotTemp],
     );
 
-    final onTap = useCallback(() => controller.adjustHeater(heater));
-    final onLongPress = useCallback(() => controller.turnOffHeater(heater));
+    final onTap = useCallback(() => controller.adjustHeater(heater), [heater.configEntry, heater.target]);
+    final onLongPress = useCallback(() => controller.turnOffHeater(heater), [heater.configEntry]);
     final onTapGraph = useCallback(
         () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}).ignore());
 
@@ -378,7 +378,8 @@ class _TemperatureFanTile extends HookConsumerWidget {
     final beautifiedNamed = beautifyName(temperatureFan.name);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
-    final onTap = useCallback(() => controller.editTemperatureFan(temperatureFan));
+    final onTap = useCallback(
+        () => controller.editTemperatureFan(temperatureFan), [temperatureFan.configEntry, temperatureFan.target]);
     final onTapGraph = useCallback(
         () => context.pushNamed(AppRoute.graph.name, queryParameters: {'machineUUID': machineUUID}).ignore());
 
