@@ -656,7 +656,8 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       data: NumberEditDialogArguments(
         current: cur.activeExtruder!.target,
         min: 0,
-        max: cur.activeExtruderConfig!.maxTemp ?? 150,
+        max: cur.activeExtruderConfig!.maxTemp,
+        segment: 5,
       ),
     ))
         .then((value) {
