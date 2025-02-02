@@ -161,6 +161,11 @@ class TemperatureStoreService {
 
     storeForKey.add(point);
     final controller = _getStoreStreamController(cIdentifier, name);
+    if (controller.isClosed) {
+      logger.w(
+          '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Stream controller for $cIdentifier $name is closed. Cannot add point');
+      return;
+    }
     // Using .toList() to have a new copy that can not effect the original list
     controller.add(List.unmodifiable(storeForKey));
   }
@@ -303,6 +308,8 @@ class TemperatureStoreService {
   }
 
   void _updateStores() {
+    if (_disposed) return;
+
     var printer = _printerService.currentOrNull;
     if (printer == null) {
       logger.w(
