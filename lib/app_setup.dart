@@ -309,7 +309,7 @@ class Warmup extends _$Warmup {
     // Just make sure it is created!
     ref.read(firebaseUserProvider);
 
-    if (ref.read(remoteConfigBoolProvider('use_admob')) || kDebugMode) {
+    if (ref.read(remoteConfigBoolProvider('use_admobs')) || kDebugMode) {
       yield StartUpStep.admobs;
       await ref.read(adMobsProvider).initialize();
       logger.i('Completed AdMobs init');
