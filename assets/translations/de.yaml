@@ -448,6 +448,7 @@ pages:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
     imprint: Privatsphäre/Impressum
+    ad_preferences: Werbeeinstellungen
   printer_edit:
     title: Bearbeiten {}
     import_settings: Importeinstellungen
