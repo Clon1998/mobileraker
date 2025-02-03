@@ -23,6 +23,7 @@ import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/hive/temperature_preset.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/consent_service.dart';
+import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/firebase/analytics.dart';
 import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/firebase/remote_config.dart';
@@ -308,6 +309,14 @@ class Warmup extends _$Warmup {
     // Just make sure it is created!
     ref.read(firebaseUserProvider);
 
+    if (ref.read(remoteConfigBoolProvider('use_admob')) || kDebugMode) {
+      yield StartUpStep.admobs;
+      await ref.read(adMobsProvider).initialize();
+      logger.i('Completed AdMobs init');
+    } else {
+      logger.i('AdMobs are disabled');
+    }
+
     setupLicenseRegistry();
 
     // Prepare "Database"
@@ -345,6 +354,7 @@ enum StartUpStep {
   firebaseRemoteConfig('🌐'),
   firebaseAnalytics('📈'),
   firebaseAuthUi('🔑'),
+  admobs('📺'),
   hiveBoxes('📂'),
   easyLocalization('🌍'),
   paymentService('💸'),

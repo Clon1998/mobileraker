@@ -34,6 +34,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
+import 'package:mobileraker_pro/ads/ui/ad_preferences_text_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerWidget {
@@ -436,84 +437,87 @@ class _Footer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
 
-    return Column(
-      children: [
-        if (Platform.isIOS)
-          TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: Size.zero, // Set this
-              padding: EdgeInsets.zero,
-              textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
-            ),
-            child: const Text('EULA'),
-            onPressed: () async {
-              const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-              if (await canLaunchUrlString(url)) {
-                await launchUrlString(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                );
-              } else {
-                throw 'Could not launch $url';
-              }
-            },
-          ),
-        if (Platform.isAndroid)
-          TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: Size.zero, // Set this
-              padding: EdgeInsets.zero,
-              textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
-            ),
-            child: const Text('EULA'),
-            onPressed: () async {
-              const String url = 'https://mobileraker.com/eula.html';
-              if (await canLaunchUrlString(url)) {
-                await launchUrlString(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                );
-              } else {
-                throw 'Could not launch $url';
-              }
-            },
-          ),
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: Size.zero, // Set this
-            padding: EdgeInsets.zero,
-            textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
-          ),
-          child: Text(
-            MaterialLocalizations.of(context).viewLicensesButtonLabel,
-          ),
-          onPressed: () {
-            var version = ref.watch(versionInfoProvider).maybeWhen(
-                  orElse: () => 'unavailable',
-                  data: (d) => '${d.version}-${d.buildNumber}',
-                );
-
-            showLicensePage(
-              context: context,
-              applicationVersion: version,
-              applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-              applicationIcon: Center(
-                child: SvgPicture.asset(
-                  'assets/vector/mr_logo.svg',
-                  width: 80,
-                  height: 80,
+    return TextButtonTheme(
+      data: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: Size.zero, // Set this
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+          textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
+        ),
+      ),
+      child: Column(
+        children: [
+          OverflowBar(
+            alignment: MainAxisAlignment.spaceEvenly,
+            overflowAlignment: OverflowBarAlignment.center,
+            spacing: 4,
+            children: [
+              const AdPreferencesTextButton(),
+              if (Platform.isIOS)
+                TextButton(
+                  child: const Text('EULA'),
+                  onPressed: () async {
+                    const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+                    if (await canLaunchUrlString(url)) {
+                      await launchUrlString(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
                 ),
+              if (Platform.isAndroid)
+                TextButton(
+                  child: const Text('EULA'),
+                  onPressed: () async {
+                    const String url = 'https://mobileraker.com/eula.html';
+                    if (await canLaunchUrlString(url)) {
+                      await launchUrlString(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                ),
+              TextButton(
+                child: Text(
+                  MaterialLocalizations.of(context).viewLicensesButtonLabel,
+                ),
+                onPressed: () {
+                  var version = ref.watch(versionInfoProvider).maybeWhen(
+                        orElse: () => 'unavailable',
+                        data: (d) => '${d.version}-${d.buildNumber}',
+                      );
+
+                  showLicensePage(
+                    context: context,
+                    applicationVersion: version,
+                    applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
+                    applicationIcon: Center(
+                      child: SvgPicture.asset(
+                        'assets/vector/mr_logo.svg',
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-        Align(
-          alignment: Alignment.center,
-          child: AppVersionText(
-            prefix: tr('components.app_version_display.version'),
+            ],
           ),
-        ),
-      ],
+          Align(
+            alignment: Alignment.center,
+            child: AppVersionText(
+              prefix: tr('components.app_version_display.version'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

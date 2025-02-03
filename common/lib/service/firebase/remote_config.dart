@@ -165,6 +165,7 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'developer_announcements': json.encode({'enabled': false, 'messages': []}),
         'clear_live_activity_on_done': false,
         'graph_page_pay': true,
+        'use_admobs': false,
       });
       fetchAndActivate().then((value) {
         logger.i(

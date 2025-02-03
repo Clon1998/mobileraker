@@ -33,6 +33,7 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/ui/snackbar_service_impl.dart';
 import 'package:mobileraker/ui/components/responsive_builder.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
+import 'package:mobileraker_pro/ads/ui/ad_mobs_consent.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -157,7 +158,7 @@ class _WarmUp extends HookConsumerWidget {
             data: (step) {
               if (step == StartUpStep.complete) {
                 return KeepScreenOnTrigger(
-                  child: ResponsiveBuilder(childBuilder: (context) => const MyApp()),
+                  child: AdMobsConsent(child: ResponsiveBuilder(childBuilder: (context) => const MyApp())),
                 );
               }
               return const _LoadingSplashScreen();

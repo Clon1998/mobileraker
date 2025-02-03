@@ -32,6 +32,9 @@ dependencies:
   cloud_firestore: ^5.5.0
   firebase_auth: ^5.3.3
 
+  #ads
+  google_mobile_ads: ^5.1.0
+
   #purchases
   purchases_flutter: ^8.2.2
 

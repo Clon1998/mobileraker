@@ -26,11 +26,12 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-// import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker_pro/ads/ad_block_unit.dart';
+import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -53,17 +54,10 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
-        FilledButton(
-          onPressed: () {
-            context.push('/sheet/job-queue');
-          },
-          child: Text('QueueSheet'),
-        ),
-
         // GCodePreviewCard.preview(),
         GCodePreviewCard(machineUUID: selMachine.uuid),
         // const _StlPreview(),
-        // const _Consent(),
+        const _Consent(),
 
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
@@ -274,54 +268,79 @@ class CaseB extends _$CaseB {
     return v ?? -1;
   }
 }
-//
-// class _TestAd extends ConsumerWidget {
-//   const _TestAd({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
-//
-//     if (ad case AsyncData(value: AdWithView() && final banner)) {
-//       logger.i('Got ad: ${banner.responseInfo}');
-//       return SizedBox(
-//         height: AdSize.banner.height.toDouble(),
-//         width: AdSize.banner.width.toDouble(),
-//         child: AdWidget(ad: banner),
-//       );
-//     }
-//
-//     logger.i('No ad available');
-//     return const SizedBox.shrink();
-//   }
-// }
-//
-// class _Consent extends ConsumerWidget {
-//   const _Consent({super.key});
-//
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return ElevatedButton(onPressed: onPressed, child: const Text('Consent'));
-//   }
-//
-//   void onPressed() {
-//     final params = ConsentRequestParameters();
-//
-//     logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
-//     ConsentInformation.instance.requestConsentInfoUpdate(
-//       params,
-//       () async {
-//         logger.i('ConsentStatusSuccess');
-//         final status = await ConsentInformation.instance.getConsentStatus();
-//         logger.i('ConsentStatus: $status');
-//
-//         ConsentForm.showPrivacyOptionsForm((_) => null);
-//         // ConsentForm.loadConsentForm((_) => null, (_)=> null);
-//       },
-//       (FormError error) {
-//         logger.e('ConsentStatusError: $error');
-//         // Handle the error.
-//       },
-//     );
-//   }
-// }
+
+class _TestAd extends ConsumerWidget {
+  const _TestAd({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
+
+    if (ad case AsyncData(value: AdWithView() && final banner)) {
+      logger.i('Got ad: ${banner.responseInfo}');
+      return SizedBox(
+        height: AdSize.banner.height.toDouble(),
+        width: AdSize.banner.width.toDouble(),
+        child: AdWidget(ad: banner),
+      );
+    }
+
+    logger.i('No ad available');
+    return const SizedBox.shrink();
+  }
+}
+
+class _Consent extends ConsumerWidget {
+  const _Consent({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: const Text('Consent'),
+      onLongPress: onLong,
+    );
+  }
+
+  void onLong() {
+    logger.i('Resetting consent');
+    ConsentInformation.instance.reset();
+  }
+
+  void onPressed() {
+    final params = ConsentRequestParameters(consentDebugSettings: ConsentDebugSettings());
+
+    logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      params,
+      () async {
+        final canShowAd = await ConsentInformation.instance.canRequestAds();
+        logger.i('CanShowAd: $canShowAd');
+
+        logger.i('ConsentStatusSuccess');
+        final status = await ConsentInformation.instance.getConsentStatus();
+        logger.i('ConsentStatus: $status');
+
+        // ConsentForm.loadConsentForm((_) {
+        //   logger.i('ConsentForm success: $_');
+        // }, (FormError error) {
+        //   logger.e('ConsentFormError: ${error.message}');
+        // },);
+
+        if (await ConsentInformation.instance.isConsentFormAvailable()) {
+          await ConsentForm.loadAndShowConsentFormIfRequired((_) => logger.w('ConsentFormDismissed: ${_?.message}'));
+        }
+
+        // ConsentForm.showPrivacyOptionsForm((_) => null);
+
+        var privacyOptionsRequirementStatus = await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
+
+        logger.i('isPrivacyOptionsRequired-(PrivacyOptionsRequirementStatus): $privacyOptionsRequirementStatus');
+      },
+      (FormError error) {
+        logger.e('ConsentStatusError: $error');
+        // Handle the error.
+      },
+    );
+  }
+}

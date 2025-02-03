@@ -180,6 +180,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.1
   dart_code_metrics_presets: ^2.5.0
 
+  #ads
+  google_mobile_ads: ^5.3.1
 
 flutter_icons:
   android: true

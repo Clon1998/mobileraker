@@ -40,6 +40,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -47,6 +48,7 @@ import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
@@ -66,6 +68,13 @@ part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
 
 const _staticWidgets = [
+  AdBanner(
+    key: Key('AdMobAd'),
+    constraints: BoxConstraints(maxHeight: 60),
+    adSize: AdSize.fluid,
+    padding: EdgeInsets.symmetric(horizontal: 4),
+    // padding: EdgeInsets.zero,
+  ),
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),

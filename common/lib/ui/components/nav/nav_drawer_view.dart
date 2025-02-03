@@ -36,35 +36,40 @@ class NavigationDrawerWidget extends HookConsumerWidget {
 
     return Drawer(
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          _NavHeader(machineSelectionExt),
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              primary: false,
-              child: Material(
-                type: MaterialType.transparency,
-                child: Column(
-                  children: [
-                    _PrinterSelection(machineSelectionExt),
-                    for (var entry in model.entries)
-                      entry.isDivider
-                          ? const Divider()
-                          : _DrawerItem(
-                              text: entry.label,
-                              icon: entry.icon,
-                              routeName: entry.route,
-                              routeMatcher: entry.routeMatcherOrDefault,
-                            ),
-                  ],
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            _NavHeader(machineSelectionExt),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                primary: false,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    children: [
+                      _PrinterSelection(machineSelectionExt),
+                      for (var entry in model.entries)
+                        entry.isDivider
+                            ? const Divider()
+                            : _DrawerItem(
+                                text: entry.label,
+                                icon: entry.icon,
+                                routeName: entry.route,
+                                routeMatcher: entry.routeMatcherOrDefault,
+                              ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          SafeArea(
-            top: false,
-            child: Container(
+            // const AdBanner(
+            //   unit: AdBlockUnit.navDrawerBanner,
+            //   constraints: BoxConstraints(maxHeight: 50),
+            //   adSize: AdSize.fluid,
+            // ),
+            Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.only(bottom: 20, top: 10),
               child: RichText(
@@ -104,8 +109,8 @@ class NavigationDrawerWidget extends HookConsumerWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   } // Note always the first is the currently selected!
