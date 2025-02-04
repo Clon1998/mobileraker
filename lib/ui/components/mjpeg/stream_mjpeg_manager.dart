@@ -38,21 +38,23 @@ class StreamMjpegManager implements MjpegManager {
   @override
   Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;
 
-  StreamSubscription? _subscription;
+  CancelToken? _cancelToken;
 
   @override
   void stop() {
-    logger.i('StreamMjpegManager stopped stream');
-    _subscription?.cancel();
+    logger.i('[StreamMjpegManager] stopped stream');
+    _cancelToken?.cancel();
   }
 
   @override
   void start() async {
-    _subscription?.cancel(); // Ensure its clear to start a new stream!
-    logger.i('StreamMjpegManager started stream');
+    stop(); // Stop previous stream if it is running
+    logger.i('[StreamMjpegManager] started stream');
     try {
+      _cancelToken = CancelToken();
       var response = await _dio.getUri(
         _uri,
+        cancelToken: _cancelToken,
         options: Options(
           responseType: ResponseType.stream,
           receiveTimeout: _timeout,
@@ -61,9 +63,11 @@ class StreamMjpegManager implements MjpegManager {
       );
 
       ResponseBody responseBody = response.data;
-      _subscription = responseBody.stream.listen(_onData, onError: _onError, cancelOnError: true);
+      responseBody.stream.listen(_onData, onError: _onError, cancelOnError: true, onDone: () {
+        logger.i('[StreamMjpegManager] TCP stream is DONE');
+      });
     } on DioException catch (error, stack) {
-      logger.w('DioException while requesting MJPEG-Stream', error);
+      logger.w('[StreamMjpegManager] DioException while requesting MJPEG-Stream', error);
 
       if (!_mjpegStreamController.isClosed) {
         _mjpegStreamController.addError(error, stack);
@@ -71,13 +75,13 @@ class StreamMjpegManager implements MjpegManager {
     }
   }
 
-  _sendImage(Uint8List bytes) {
+  void _sendImage(Uint8List bytes) {
     if (bytes.isNotEmpty && !_mjpegStreamController.isClosed) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }
   }
 
-  _onData(List<int> byteChunk) {
+  void _onData(List<int> byteChunk) {
     if (_byteBuffer.isNotEmpty && _lastByte == _triggerPattern) {
       if (byteChunk.first == _eoi) {
         _byteBuffer.addByte(byteChunk.first);
@@ -106,19 +110,22 @@ class StreamMjpegManager implements MjpegManager {
     }
   }
 
-  _onError(error, stack) {
-    try {
-      if (!_mjpegStreamController.isClosed) {
-        _mjpegStreamController.addError(error, stack);
-      }
-    } catch (ex) {}
-    dispose();
+  void _onError(error, stack) {
+    if (error case DioException(type: DioExceptionType.cancel)) {
+      logger.i('[StreamMjpegManager] Stream was cancelled');
+      return;
+    }
+    logger.e('[StreamMjpegManager] Error while streaming MJPEG', error, stack);
+
+    if (!_mjpegStreamController.isClosed) {
+      _mjpegStreamController.addError(error, stack);
+    }
   }
 
   @override
   Future<void> dispose() async {
-    await _subscription?.cancel();
-    _subscription = null;
+    _cancelToken?.cancel();
+    _cancelToken = null;
     _mjpegStreamController.close();
 
     logger.i('StreamMjpegManager DISPOSED');

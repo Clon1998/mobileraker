@@ -284,6 +284,7 @@ class _MjpegController extends _$MjpegController {
             _manager.start();
             break;
 
+          case AppLifecycleState.inactive:
           case AppLifecycleState.paused:
             _manager.stop();
             break;

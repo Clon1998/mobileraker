@@ -32,6 +32,7 @@
 		CDD3CCE72BB57C0000DE9A0C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CDD3CCE22BB57AD700DE9A0C /* PrivacyInfo.xcprivacy */; };
 		CDF5F8F72B4858120007F060 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF5F8F62B4858120007F060 /* NotificationService.swift */; };
 		CDF5F8FB2B4858120007F060 /* MobilerakerNotificationExtention.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDF5F8F42B4858120007F060 /* MobilerakerNotificationExtention.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CDF7105D2D5221C600B7FD29 /* AppTrackingTransparency.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDF7105C2D5221C600B7FD29 /* AppTrackingTransparency.framework */; };
 		CDF967FC2AB5E2A900D7FF15 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF967FB2AB5E2A900D7FF15 /* Utils.swift */; };
 		EB8FF16108BE47D3DA3C53EC /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D6F2F48B767FDC75E23C818 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -123,6 +124,7 @@
 		CDF5F8F62B4858120007F060 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		CDF5F8F82B4858120007F060 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CDF5F9002B4861E40007F060 /* MobilerakerNotificationExtention.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilerakerNotificationExtention.entitlements; sourceTree = "<group>"; };
+		CDF7105C2D5221C600B7FD29 /* AppTrackingTransparency.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppTrackingTransparency.framework; path = System/Library/Frameworks/AppTrackingTransparency.framework; sourceTree = SDKROOT; };
 		CDF967FB2AB5E2A900D7FF15 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationServiceExtension/Pods-MobilerakerNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		FB914D1C27C43AD0005E5F80 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CDF7105D2D5221C600B7FD29 /* AppTrackingTransparency.framework in Frameworks */,
 				EB8FF16108BE47D3DA3C53EC /* Pods_Runner.framework in Frameworks */,
 				CD1B916429FFEE170062AE26 /* StoreKit.framework in Frameworks */,
 			);
@@ -266,6 +269,7 @@
 		D5C75935D8D0025F2486829C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CDF7105C2D5221C600B7FD29 /* AppTrackingTransparency.framework */,
 				CD1B916329FFEE170062AE26 /* StoreKit.framework */,
 				5D6F2F48B767FDC75E23C818 /* Pods_Runner.framework */,
 				644C962C21918C5A86B49C1B /* Pods_MobilerakerServiceExtension.framework */,
