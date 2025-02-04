@@ -450,6 +450,7 @@ pages:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
     imprint: Adatvédelem/Impresszum
+    ad_preferences: Hirdetési preferenciák
   printer_edit:
     title: Szerkesztés {}
     import_settings: Beállítások importálása
