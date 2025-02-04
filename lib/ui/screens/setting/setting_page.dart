@@ -34,6 +34,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
+import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/ads/ui/ad_preferences_text_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -448,68 +449,72 @@ class _Footer extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          OverflowBar(
-            alignment: MainAxisAlignment.spaceEvenly,
-            overflowAlignment: OverflowBarAlignment.center,
-            spacing: 4,
-            children: [
-              const AdPreferencesTextButton(),
-              if (Platform.isIOS)
-                TextButton(
-                  child: const Text('EULA'),
-                  onPressed: () async {
-                    const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-                    if (await canLaunchUrlString(url)) {
-                      await launchUrlString(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                ),
-              if (Platform.isAndroid)
-                TextButton(
-                  child: const Text('EULA'),
-                  onPressed: () async {
-                    const String url = 'https://mobileraker.com/eula.html';
-                    if (await canLaunchUrlString(url)) {
-                      await launchUrlString(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                ),
-              TextButton(
-                child: Text(
-                  MaterialLocalizations.of(context).viewLicensesButtonLabel,
-                ),
-                onPressed: () {
-                  var version = ref.watch(versionInfoProvider).maybeWhen(
-                        orElse: () => 'unavailable',
-                        data: (d) => '${d.version}-${d.buildNumber}',
-                      );
+          Consumer(builder: (context, ref, child) {
+            final isFormAvailable = ref.watch(isConsentFormAvailableProvider);
 
-                  showLicensePage(
-                    context: context,
-                    applicationVersion: version,
-                    applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-                    applicationIcon: Center(
-                      child: SvgPicture.asset(
-                        'assets/vector/mr_logo.svg',
-                        width: 80,
-                        height: 80,
+            return OverflowBar(
+              alignment: MainAxisAlignment.spaceEvenly,
+              overflowAlignment: OverflowBarAlignment.center,
+              spacing: 4,
+              children: [
+                if (isFormAvailable.valueOrNull == true) const AdPreferencesTextButton(),
+                if (Platform.isIOS)
+                  TextButton(
+                    child: const Text('EULA'),
+                    onPressed: () async {
+                      const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                  ),
+                if (Platform.isAndroid)
+                  TextButton(
+                    child: const Text('EULA'),
+                    onPressed: () async {
+                      const String url = 'https://mobileraker.com/eula.html';
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                  ),
+                TextButton(
+                  child: Text(
+                    MaterialLocalizations.of(context).viewLicensesButtonLabel,
+                  ),
+                  onPressed: () {
+                    var version = ref.watch(versionInfoProvider).maybeWhen(
+                          orElse: () => 'unavailable',
+                          data: (d) => '${d.version}-${d.buildNumber}',
+                        );
+
+                    showLicensePage(
+                      context: context,
+                      applicationVersion: version,
+                      applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
+                      applicationIcon: Center(
+                        child: SvgPicture.asset(
+                          'assets/vector/mr_logo.svg',
+                          width: 80,
+                          height: 80,
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
+                    );
+                  },
+                ),
+              ],
+            );
+          }),
           Align(
             alignment: Alignment.center,
             child: AppVersionText(
