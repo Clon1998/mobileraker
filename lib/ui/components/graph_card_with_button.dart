@@ -163,6 +163,15 @@ class _ChartState extends State<_Chart> {
       toAdd.insert(0, point);
     }
 
+    // This is nessesary due to a bug in the lib that complaints if more than 50% of the data is removed...
+    if (toAdd.length > maxStoreSize / 2) {
+      _tempStore.clear();
+      _tempStore.addAll(newStore);
+      _chartSeriesController?.updateDataSource();
+      _last = latestTimestamp;
+      return;
+    }
+
     if (toAdd.isEmpty) return;
 
     int removed = 0;
@@ -179,7 +188,8 @@ class _ChartState extends State<_Chart> {
 
     _chartSeriesController?.updateDataSource(
       addedDataIndexes: List.generate(toAdd.length, (index) => lenAfterRemoval + index),
-      removedDataIndexes: List.generate(removed, (index) => index),
+      // We need to remove "From the back" because the lib does some bad shit..
+      removedDataIndexes: List.generate(removed, (index) => removed - (1 + index)),
     );
 
     _last = latestTimestamp;
@@ -208,5 +218,11 @@ class _ChartState extends State<_Chart> {
         ),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _tempStore.clear();
+    super.dispose();
   }
 }
