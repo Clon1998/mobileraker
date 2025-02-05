@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
@@ -14,7 +13,6 @@ import 'package:flutter/widgets.dart';
 import 'mjpeg_config.dart';
 import 'mjpeg_manager.dart';
 
-/// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
 class AdaptiveMjpegManager implements MjpegManager {
   AdaptiveMjpegManager(this._dio, MjpegConfig config)
       : _uri = config.snapshotUri ??
@@ -25,53 +23,49 @@ class AdaptiveMjpegManager implements MjpegManager {
         targetFps = config.targetFps;
 
   final Duration _timeout;
-
   final int targetFps;
-
   final Dio _dio;
-
   final Uri _uri;
-
   final StreamController<MemoryImage> _mjpegStreamController = StreamController();
 
-  bool active = false;
-
-  DateTime lastRefresh = DateTime.now();
-
+  bool _isActive = false;
+  bool _isRequestInProgress = false;
   Timer? _timer;
-
-  final int _retryCount = 0;
+  DateTime _lastRefresh = DateTime.now();
 
   @override
   Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;
 
-  int get frameTimeInMillis {
-    return 1000 ~/ targetFps;
-  }
+  int get frameTimeInMicros => 1000000 ~/ targetFps;
 
   @override
   void start() {
-    active = true;
-    logger.i('AdaptiveMjpegManager started - targFps: $targetFps - ${_uri.obfuscate()}');
-    if (_timer?.isActive ?? false) return;
-    _timer = Timer(const Duration(milliseconds: 0), _timerCallback);
+    if (_isActive) {
+      logger.w('[AdaptiveMjpegManager] Already started, ignoring start request');
+      return;
+    }
+    logger.i('[AdaptiveMjpegManager] Starting');
+    _isActive = true;
+    _scheduleNextFrame(Duration.zero);
   }
 
-  @override
-  void stop() {
-    logger.i('AdaptiveMjpegManager Stopped MJPEG');
-    active = false;
+  void _scheduleNextFrame(Duration delay) {
+    if (!_isActive) return;
+
     _timer?.cancel();
+    _timer = Timer(delay, _fetchNextFrame);
   }
 
-  _timerCallback() async {
-    // logger.i('TimerTask ${DateTime.now()}');
+  Future<void> _fetchNextFrame() async {
+    if (!_isActive || _isRequestInProgress) return;
+    _isRequestInProgress = true;
     try {
-      var response = await _dio.getUri(
+      final fetchStartTime = DateTime.now();
+      final response = await _dio.getUri(
         _uri.replace(
           queryParameters: {
             ..._uri.queryParameters,
-            'cacheBust': lastRefresh.millisecondsSinceEpoch.toString(),
+            'cacheBust': fetchStartTime.millisecondsSinceEpoch.toString(),
           },
         ),
         options: Options(
@@ -81,40 +75,43 @@ class AdaptiveMjpegManager implements MjpegManager {
         ),
       );
 
-      _sendImage(response.data);
-      _restartTimer();
+      if (!_isActive || _mjpegStreamController.isClosed) return;
+
+      if (response.data is Uint8List && response.data.isNotEmpty) {
+        _mjpegStreamController.add(MemoryImage(response.data));
+      }
+
+      // Calculate timing for next frame
+      final now = DateTime.now();
+      final timeSinceLastFrame = now.difference(_lastRefresh);
+      final targetDelay = Duration(microseconds: frameTimeInMicros) - timeSinceLastFrame;
+
+      // Schedule next frame, ensuring we don't go faster than target FPS
+      _scheduleNextFrame(Duration(microseconds: max(0, targetDelay.inMicroseconds)));
+      _lastRefresh = now;
     } on DioException catch (error, stack) {
       logger.w('DioException while requesting MJPEG-Snapshot', error);
-      // we ignore those errors in case play/pause is triggers
-      if (!_mjpegStreamController.isClosed) {
+
+      if (!_mjpegStreamController.isClosed && _isActive) {
         _mjpegStreamController.addError(error, stack);
       }
-    }
-  }
-
-  _restartTimer([DateTime? stamp]) {
-    stamp ??= DateTime.now();
-    if (!active) return;
-    int diff = stamp.difference(lastRefresh).inMilliseconds;
-    int calcTimeoutMillis = frameTimeInMillis - diff;
-    // logger.i('Diff: $diff\n     CalcTi: $calcTimeoutMillis');
-    _timer = Timer(
-      Duration(milliseconds: max(0, calcTimeoutMillis)),
-      _timerCallback,
-    );
-    lastRefresh = stamp;
-  }
-
-  _sendImage(Uint8List bytes) {
-    if (bytes.isNotEmpty && !_mjpegStreamController.isClosed && active) {
-      _mjpegStreamController.add(MemoryImage(bytes));
+    } finally {
+      _isRequestInProgress = false;
     }
   }
 
   @override
+  void stop() {
+    logger.i('[AdaptiveMjpegManager] Stopping');
+    _isActive = false;
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
   Future<void> dispose() async {
+    logger.i('[AdaptiveMjpegManager] Disposing');
     stop();
-    _mjpegStreamController.close();
-    logger.i('_AdaptiveStreamManager DISPOSED');
+    await _mjpegStreamController.close();
   }
 }
