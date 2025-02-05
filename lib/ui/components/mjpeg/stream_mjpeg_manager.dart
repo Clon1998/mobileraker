@@ -40,6 +40,8 @@ class StreamMjpegManager implements MjpegManager {
 
   CancelToken? _cancelToken;
 
+  bool _connected = false;
+
   @override
   void stop() {
     logger.i('[StreamMjpegManager] stopped stream');
@@ -48,7 +50,15 @@ class StreamMjpegManager implements MjpegManager {
 
   @override
   void start() async {
-    stop(); // Stop previous stream if it is running
+    if (_connected) {
+      // We are already connected, no need to start again
+      logger.i('[StreamMjpegManager] already connected, no need to start again');
+      return;
+    }
+
+    // Stop the old stream if for whatever reason it is still running
+    _cancelToken?.cancel();
+    _connected = true;
     logger.i('[StreamMjpegManager] started stream');
     try {
       _cancelToken = CancelToken();
@@ -63,8 +73,10 @@ class StreamMjpegManager implements MjpegManager {
       );
 
       ResponseBody responseBody = response.data;
-      responseBody.stream.listen(_onData, onError: _onError, cancelOnError: true, onDone: () {
-        logger.i('[StreamMjpegManager] TCP stream is DONE');
+      var stream = responseBody.stream;
+      stream.listen(_onData, onError: _onError, cancelOnError: true, onDone: () {
+        logger.i('[StreamMjpegManager] Stream closed');
+        _connected = false;
       });
     } on DioException catch (error, stack) {
       logger.w('[StreamMjpegManager] DioException while requesting MJPEG-Stream', error);
@@ -72,6 +84,7 @@ class StreamMjpegManager implements MjpegManager {
       if (!_mjpegStreamController.isClosed) {
         _mjpegStreamController.addError(error, stack);
       }
+      _connected = false;
     }
   }
 
@@ -111,6 +124,7 @@ class StreamMjpegManager implements MjpegManager {
   }
 
   void _onError(error, stack) {
+    _connected = false;
     if (error case DioException(type: DioExceptionType.cancel)) {
       logger.i('[StreamMjpegManager] Stream was cancelled');
       return;
