@@ -19,6 +19,7 @@ class PerksDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
+    var useAdmobs = ref.watch(remoteConfigBoolProvider('use_admobs'));
 
     return MobilerakerDialog(
       dismissText: MaterialLocalizations.of(context).closeButtonLabel,
@@ -41,6 +42,16 @@ class PerksDialog extends ConsumerWidget {
             child: ListView(
               shrinkWrap: true,
               children: [
+                if (useAdmobs)
+                  ListTile(
+                    title: const Text(
+                      'dialogs.supporter_perks.ad_free_perk.title',
+                    ).tr(),
+                    subtitle: const Text(
+                      'dialogs.supporter_perks.ad_free_perk.subtitle',
+                    ).tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
                 ListTile(
                   title: const Text(
                     'dialogs.supporter_perks.custom_dashboard_perk.title',

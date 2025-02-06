@@ -1050,6 +1050,9 @@ dialogs:
     full_file_management_perk:
       title: Vollständige Dateiverwaltung
       subtitle: Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien und mehr!
+    ad_free_perk:
+      title: Werbefrei
+      subtitle: Genießen Sie Mobileraker ohne Werbung!
   bed_screw_adjust:
     title: Bed Screw Adjust
     xy_plane: 'Drucker X/Y-Ebene:'
