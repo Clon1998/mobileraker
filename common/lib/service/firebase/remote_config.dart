@@ -166,6 +166,7 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'clear_live_activity_on_done': false,
         'graph_page_pay': true,
         'use_admobs': false,
+        'files_page_add_density': 12,
       });
       fetchAndActivate().then((value) {
         logger.i(

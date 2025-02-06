@@ -40,7 +40,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -68,13 +67,7 @@ part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
 
 const _staticWidgets = [
-  AdBanner(
-    key: Key('AdMobAd'),
-    constraints: BoxConstraints(maxHeight: 60),
-    adSize: AdSize.fluid,
-    padding: EdgeInsets.symmetric(horizontal: 4),
-    // padding: EdgeInsets.zero,
-  ),
+  InlineAdaptiveAdBanner(constraints: BoxConstraints(maxHeight: 80)),
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),

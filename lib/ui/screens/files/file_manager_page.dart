@@ -22,6 +22,7 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -60,6 +61,8 @@ import 'package:mobileraker/service/ui/file_interaction_service.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
+import 'package:mobileraker_pro/ads/ad_block_unit.dart';
+import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -797,6 +800,10 @@ class _FileListState extends ConsumerState<_FileListData> {
     final sortConfiguration = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
         .select((data) => data.sortConfiguration));
 
+    final adEvery = ref.watch(remoteConfigIntProvider('files_page_add_density'));
+
+    int adCount = adEvery == 0 ? 0 : widget.folderContent.totalItems ~/ adEvery;
+
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
     return SmartRefresher(
@@ -869,9 +876,27 @@ class _FileListState extends ConsumerState<_FileListData> {
                   indent: 18,
                   endIndent: 18,
                 ),
-                itemCount: widget.folderContent.totalItems,
+                itemCount: widget.folderContent.totalItems + adCount,
                 itemBuilder: (context, index) {
-                  final file = widget.folderContent.unwrapped[index];
+                  // Check if this position should show an ad (every 10th position)
+                  if (adEvery > 0 && index > 0 && index % adEvery == 0) {
+                    // Calculate which ad to show (0-based index for ads)
+                    final adIndex = (index ~/ adEvery) - 1;
+                    return LayoutBuilder(
+                      key: Key('file_list_ad:$adIndex:${widget.filePath}'),
+                      builder: (context, constraints) {
+                        return InlineAdaptiveAdBanner(
+                          unit: AdBlockUnit.navDrawerBanner,
+                          constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                        );
+                      },
+                    );
+                  }
+
+                  // Calculate the actual index in your data, accounting for the ad positions
+                  final adjustedIndex = index - (index ~/ 10);
+
+                  final file = widget.folderContent.unwrapped[adjustedIndex];
                   return _FileItem(
                     key: ValueKey(file),
                     machineUUID: widget.machineUUID,
