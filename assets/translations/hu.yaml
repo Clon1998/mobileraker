@@ -1054,6 +1054,9 @@ dialogs:
     full_file_management_perk:
       title: Teljes fájlkezelés
       subtitle: Old fel a Mobileraker teljes fájlkezelési képességeit!
+    ad_free_perk:
+      title: Reklámmentes élmény
+      subtitle: Élvezd a Mobileraker-t reklámok nélkül!
   bed_screw_adjust:
     title: Ágycsavar beállítása
     xy_plane: 'Nyomtató X/Y sík:'
