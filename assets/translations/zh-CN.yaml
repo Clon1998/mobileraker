@@ -115,6 +115,7 @@ pages:
         sensors: 传感器
         heater_on: "{}°C目标"
         btn_thermistor: 传感器
+        still_hot: "{} 还很热！"
       temp_preset_card:
         cooloff: 冷却
         h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
@@ -844,6 +845,8 @@ pages:
       update_page_title: 编辑制造商
       helper:
         empty_weight: 此制造商空料盘的重量。
+  temp_chart:
+    chart_y_axis: 温度 [°C]
 components:
   app_version_display:
     version: '版本：'
@@ -882,6 +885,7 @@ components:
     custom_dashboard: 抱歉！自定义控制面板仅对支持者可用。
     full_file_management: 抱歉！完整的文件管理(下载，上传…) 功能仅对支持者可用。
     gcode_preview: 抱歉！GCode预览功能仅对支持者可用。
+    graph_page: 抱歉，Temperature-History 页面仅供支持者使用。
   machine_deletion_warning:
     title: 机器删除
     subtitle: 看起来你不是支持者。只有支持者可以拥有超过 {} 台机器。  {} 天后将移除多余的机器。
