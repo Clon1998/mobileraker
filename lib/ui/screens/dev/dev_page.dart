@@ -10,6 +10,7 @@
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
@@ -302,7 +303,13 @@ class _Consent extends ConsumerWidget {
     return ElevatedButton(
       onPressed: onPressed,
       child: const Text('Consent'),
-      onLongPress: onLong,
+      onLongPress: () {
+        var read = ref.read(consentServiceProvider);
+
+        read.resetUser();
+
+        onLong();
+      },
     );
   }
 

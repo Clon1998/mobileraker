@@ -101,6 +101,24 @@ class ConsentService {
     }
   }
 
+  /// Resets the user. Primarly for testing purposes.
+  Future<Consent> resetUser() async {
+    logger.i('[ConsentService] Resetting user consent data');
+
+    try {
+      var idHash = currentConsent.idHash;
+      await _consentRepository.delete(idHash);
+      logger.i('[ConsentService] Completed resetting user consent data');
+
+      return _createNewConsentDoc(idHash);
+    } catch (e, s) {
+      logger.e('[ConsentService] Error updating consent entry', e, s);
+      //TODO: Decide if I want to do this?
+      _consentStreamController.addError(e, s);
+      rethrow;
+    }
+  }
+
   Future<void> _updateConsentDataIfNecessary(String fireaseUserId) async {
     logger.i('[ConsentService] Updating consent data for user: $fireaseUserId');
     final hashDigest = sha256.string(fireaseUserId);

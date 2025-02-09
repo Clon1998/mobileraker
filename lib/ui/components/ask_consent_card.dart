@@ -8,9 +8,11 @@ import 'package:common/data/enums/consent_status.dart';
 import 'package:common/data/model/firestore/consent_entry.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AskConsentCard extends ConsumerWidget {
@@ -37,7 +39,7 @@ class AskConsentCard extends ConsumerWidget {
   }
 }
 
-class _ConsentCard extends StatelessWidget {
+class _ConsentCard extends HookWidget {
   final VoidCallback? onAccept;
   final VoidCallback? onDecline;
 
@@ -49,6 +51,8 @@ class _ConsentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var submitted = useState(false);
+
     final themeData = Theme.of(context);
     final textStyle = themeData.useMaterial3
         ? themeData.textTheme.bodyMedium
@@ -111,11 +115,17 @@ class _ConsentCard extends StatelessWidget {
                     alignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: onDecline,
+                        onPressed: () {
+                          submitted.value = true;
+                          onDecline?.call();
+                        }.unless(submitted.value || onDecline == null),
                         child: Text('general.deny').tr(),
                       ),
                       FilledButton.tonal(
-                        onPressed: onAccept,
+                        onPressed: () {
+                          submitted.value = true;
+                          onAccept?.call();
+                        }.unless(submitted.value || onAccept == null),
                         child: Text('general.allow').tr(),
                       ),
                     ],
