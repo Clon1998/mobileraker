@@ -65,6 +65,8 @@ general:
   select: 选择
   folder: 文件夹
   print: 打印
+  allow: 允许
+  deny: 拒绝
 pages:
   dashboard:
     title: 仪表板
@@ -113,6 +115,7 @@ pages:
         sensors: 传感器
         heater_on: "{}°C目标"
         btn_thermistor: 传感器
+        still_hot: "{} 还很热！"
       temp_preset_card:
         cooloff: 冷却
         h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
@@ -391,6 +394,8 @@ pages:
       lcFullCam: 横向全屏显示摄像头
       lcFullCam_hint: 在全屏模式下切换摄像头到横屏模式
       language: 语言
+      companion: "想要接收远程通知吗？\n学习如何在移动设备上设置"
+      companion_link: GitHub 官方页面
       sliders_grouping: 编组滑杆模块
       sliders_grouping_hint: 将所有滑块分类为一个模块
       time_format: 时间格式
@@ -433,6 +438,7 @@ pages:
       enable_live_activity_helper: 除默认进度通知外，启用活动的使用
       opt_out_marketing: 营销通知
       opt_out_marketing_helper: 接收关于销售和促销的更新
+      opt_out_marketing_error: 加载营销偏好设置时出错，请稍后重试。
       use_progressbar_notification: 开启进度条通知
       use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
     developer:
@@ -839,6 +845,8 @@ pages:
       update_page_title: 编辑制造商
       helper:
         empty_weight: 此制造商空料盘的重量。
+  temp_chart:
+    chart_y_axis: 温度 [°C]
 components:
   app_version_display:
     version: '版本：'
@@ -877,6 +885,7 @@ components:
     custom_dashboard: 抱歉！自定义控制面板仅对支持者可用。
     full_file_management: 抱歉！完整的文件管理(下载，上传…) 功能仅对支持者可用。
     gcode_preview: 抱歉！GCode预览功能仅对支持者可用。
+    graph_page: 抱歉，Temperature-History 页面仅供支持者使用。
   machine_deletion_warning:
     title: 机器删除
     subtitle: 看起来你不是支持者。只有支持者可以拥有超过 {} 台机器。  {} 天后将移除多余的机器。
@@ -1343,6 +1352,16 @@ date_periods:
   day:
     one: 每日
     other: 日
+consent_cards:
+  marketing_notifications:
+    title: '保持与通知的连接'
+    description: "我们想要向您发送通知以随时通知您重要的更新和相关的资讯。"
+    agreement: '接受后，您同意我们可以：'
+    terms: |
+      • 为通知目的存储您设备的 FCM ID
+      • 向您发送营销通信和促销优惠
+      • 根据我们的隐私政策处理此数据
+    disclaimer: 您可以随时通过应用设置撤回您的同意。 关于我们如何处理您的数据的更多信息，请参阅我们的隐私政策。
 languages:
   countryCode:
     TW:

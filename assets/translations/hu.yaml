@@ -115,6 +115,7 @@ pages:
         sensors: Érzékelők
         heater_on: "{} °C cél"
         btn_thermistor: Szenzor
+        still_hot: "{} még mindig forró!"
       temp_preset_card:
         cooloff: Hűtés Ki
         h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
@@ -146,6 +147,9 @@ pages:
         save_btn: Konfiguráció mentése
         more_btn: Több
         homed: Tengelyek kezdőponton
+        beacon_models: Jelzőfény modellek
+        beacon_btn: Jelzőfény
+        beacon_tooltip: Válaszd ki a jelzőfény modelljét
       baby_step_card:
         title: Mikrolépés Z tengely
         z_offset: Z-Eltolás
@@ -395,6 +399,8 @@ pages:
       lcFullCam: Teljes képernyős webkamera fekvő helyzetben
       lcFullCam_hint: A kamera tájképre váltása teljes képernyős módban
       language: Nyelv
+      companion: "Szeretnél távoli értesítéseket kapni?\nIsmerd meg a Mobileraker's Companion beállításának módját a"
+      companion_link: Hivatalos GitHub oldal
       sliders_grouping: Csúszó kártyák csoportosítása
       sliders_grouping_hint: Minden csúszka egy kártyába csoportosítása
       time_format: Időformátum
@@ -444,6 +450,7 @@ pages:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
     imprint: Adatvédelem/Impresszum
+    ad_preferences: Hirdetési preferenciák
   printer_edit:
     title: Szerkesztés {}
     import_settings: Beállítások importálása
@@ -845,6 +852,9 @@ pages:
       update_page_title: Gyártó szerkesztése
       helper:
         empty_weight: A gyártó üres orsójának a súlya.
+  temp_chart:
+    title: Hőmérséklet diagram
+    chart_y_axis: Hőmérséklet [°C]
 components:
   app_version_display:
     version: 'Verzió:'
@@ -885,6 +895,7 @@ components:
     custom_dashboard: Sajnáljuk, a műszerfal testreszabása csak a Támogatóknak érhető el.
     full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak a Támogatóknak érhető el.
     gcode_preview: Sajnáljuk, a G-Kód előnézet csak Támogatóknak érhető el.
+    graph_page: Sajnáljuk, a Hőmérséklet-előzmény oldal csak a Támogatók számára elérhető.
   machine_deletion_warning:
     title: Gépi törlés
     subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
@@ -1043,6 +1054,9 @@ dialogs:
     full_file_management_perk:
       title: Teljes fájlkezelés
       subtitle: Old fel a Mobileraker teljes fájlkezelési képességeit!
+    ad_free_perk:
+      title: Reklámmentes élmény
+      subtitle: Élvezd a Mobileraker-t reklámok nélkül!
   bed_screw_adjust:
     title: Ágycsavar beállítása
     xy_plane: 'Nyomtató X/Y sík:'
@@ -1288,6 +1302,8 @@ bottom_sheets:
     no_selections:
       title: Nem találtam eredményt
       subtitle: Próbálj meg egy másik kifejezésre keresni
+  temp_chart_settings:
+    title: Hőmérséklet diagram beállítások
 klipper_state:
   ready: Kész
   shutdown: Leállítás

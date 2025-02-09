@@ -63,6 +63,10 @@ general:
   hide: Ukryj
   finish: Zakończ
   select: Wybierz
+  folder: Folder
+  print: Drukuj
+  allow: Zezwól
+  deny: Zabroń
 pages:
   dashboard:
     title: Panel
@@ -300,6 +304,8 @@ pages:
       use_offset_pos: Pozycja Offsetu
       language: Język
       time_format: Format czasu
+      system_theme: Motyw UI
+      system_theme_mode: Jasność motywu
       eta_sources: Obliczanie zakończenia
       keep_screen_on: Utrzymuj ekran w stanie czuwania
       keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
@@ -364,6 +370,7 @@ pages:
   printer_add:
     steps:
       mode: Tryb
+      input: Wejście
       done: Zrobione
     title: Dodaj nową drukarkę
     initial_name: Moja drukarka
@@ -375,6 +382,7 @@ pages:
       button: Przetestuj połączenie
     confirmed:
       title: Drukarka {} dodana!
+      to_dashboard: Do panelu
   console:
     title: Konsola
     card_title: GCode Konsola
@@ -384,6 +392,12 @@ pages:
   overview:
     title: Podsumowanie
     add_machine: Dodaj maszyę
+  faq:
+    title: FAQ
+  changelog:
+    title: Dziennik zmian
+  paywall:
+    promo_title: Promocja
   tool:
     title: Narzędzia
   beltTuner:
