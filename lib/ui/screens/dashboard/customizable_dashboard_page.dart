@@ -47,6 +47,7 @@ import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
@@ -67,7 +68,7 @@ part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
 
 const _staticWidgets = [
-  InlineAdaptiveAdBanner(constraints: BoxConstraints(maxHeight: 80)),
+  InlineAdaptiveAdBanner(unit: AdBlockUnit.homeBanner, constraints: BoxConstraints(maxHeight: 80)),
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),

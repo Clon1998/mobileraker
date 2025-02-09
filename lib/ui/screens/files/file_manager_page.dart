@@ -882,12 +882,14 @@ class _FileListState extends ConsumerState<_FileListData> {
                   if (adEvery > 0 && index > 0 && index % adEvery == 0) {
                     // Calculate which ad to show (0-based index for ads)
                     final adIndex = (index ~/ adEvery) - 1;
+
                     return LayoutBuilder(
                       key: Key('file_list_ad:$adIndex:${widget.filePath}'),
                       builder: (context, constraints) {
                         return InlineAdaptiveAdBanner(
-                          unit: AdBlockUnit.navDrawerBanner,
+                          unit: AdBlockUnit.fileManagerPage,
                           constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                          animated: false,
                         );
                       },
                     );
