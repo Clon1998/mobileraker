@@ -1,5 +1,6 @@
 ---
 general:
+  pause: Пауза
   resume: Продолжить
   connected: Подключено
   'off': 'Выкл'
@@ -15,13 +16,63 @@ general:
   shutdown: Выключение
   firmware: Прошивка
   fetching: Получение
+  loading: Загрузка
   unknown: Неизвестно
   disabled: Выключено
   confirm: Подтвердить
+  cancel: Отменить
+  close: Закрыть
+  edit: Редактировать
+  preview: Предпросмотр
+  retry: Повторить
+  supported: Поддерживается
+  unsupported: Не поддерживается
+  details: Подробности
+  google_play: Google Play
+  ios_store: App Store
+  active: Активный
+  canceled: Отмененный
+  monthly: Ежемесячно
+  restore: Восстановить
+  accept: Принять
+  abort: Отменить
+  offset: Смещение
+  valid: Верно
+  invalid: Неверно
+  free: Свободно
+  one_time: Один раз
+  delete: Удалить
+  clear: Очистить
+  unlink: Отвязать
+  save: Сохранить
+  apply: Применить
+  completed: Завершено
+  activate: Активировать
+  stop: Остановить
+  start: Начать
+  repeat: Повторить
+  load_more: Загрузить еще
+  archived: В архиве
+  leave: Выйти
+  export: Экспорт
+  import: Импорт
+  current: Текущее
+  load: Загрузить
+  unload: Выгрузить
+  discard: Отклонить
+  hide: Спрятать
+  finish: Конец
+  select: Выбрать
+  folder: Папка
+  print: Печать
+  allow: Разрешить
+  deny: Запретить
 pages:
   dashboard:
     title: Панель
     ems_btn: Аварийное выключение
+    ems_confirmation:
+      title: Подтвердить аварийную остановку
     server_status:
       unavailable: Нет доступных серверов
       available: Состояние сервера {} и Klippy {}
