@@ -274,14 +274,9 @@ pages:
   paywall:
     manage_view:
       title: Dankie vir jou ondersteuning!
-      list_title: 'Verander ondersteunersvlak :'
-      store_btn: Kanselleer Intekening van {}
+      cancel_btn: Kanselleer Intekening
     subscribe_view:
       title: Word 'n Mobileraker ondersteuner!
-      info: |-
-        Mobileraker poog om 'n blitsige en betroubare mobiele UI vir Klipper te bied, aangespoor in die gees van RapRap, dat oopbron harde-en-sagtewre 'n positiewe bydrae kan lewer.
-        Aangesien Mobileraker deur 'n enkele persoon ontwikkel en gratis beskikbaar gestel word, is dit afhanklik van bydraes en onderstuening uit die gemeenskap om ontwikkeling-en-beryfskostes te dek.
-      list_title: 'Kies Ondersteunersvlak:'
     supporter_tier_list:
       error_title: Probleem met die laai van ondersteunersvlakke!
       error_body: Jammer, daar was 'n onvoorsiene fout. Ondersteunersvlakke kon nie gelaai word nie. Probeer weer later!
@@ -360,19 +355,6 @@ dialogs:
     title: Kies Masjien
     active_machine: 'Aktiewe Masjien: {}'
     hint: Tik om 'n masjien aktief te maak.
-  supporter_perks:
-    title: Ondersteunersvoordele
-    body: 'Deur Mobileraker te ondersteun, verseker jy dat die toep gratis aan die gemeenskap gebied kan word. Daarbenewens ontvang ondersteuners ook die volgende lys voordele:'
-    hint: 'Wenk: Perke is tans volgens toestel. Hierdie mag in die toekoms verander.'
-    theme_perk:
-      title: Ondersteunerstema
-      subtitle: Eksklusiewe tema deur die gebruik van Material 3
-    contact_perk:
-      title: Kontak Ontwikkelaar
-      subtitle: Dis maklik om die ontwikkelaar te kontak!
-    notification_perk:
-      title: Fotokennisgewings
-      subtitle: Statuskennisgewing sluit 'n Webcamfoto in
   bed_screw_adjust:
     title: Bedskroef-aanpassing
     xy_plane: 'Drukker X/Y-vlak:'
