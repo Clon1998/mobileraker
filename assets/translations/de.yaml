@@ -673,11 +673,94 @@ pages:
   changelog:
     title: Changelog
   paywall:
+    benefits:
+      title: Unterstützer Vorteile
+      subtitle: Schalte exklusive Features frei, indem du ein Mobileraker Unterstützer wirst!
+      become_supporter: Werde ein Unterstützer
+      discover_all: Entdecken Sie alle Unterstützer-Funktionen
+      theme_perk:
+        title: Unterstützer-Theme
+        subtitle: Exklusives Material 3 Design
+        detail: Erleben Sie mit unserem Design Material 3 einen Premium-Look mit dynamischer Farbanpassung und verbesserten visuellen Elementen.
+      contact_perk:
+        title: Entwickler-Kontakt
+        subtitle: Einfacher Kontakt zum Entwickler!
+        detail: Erhalten Sie direkten Zugriff auf Support und Feature-Anforderungen, damit Ihr Feedback die Zukunft des Mobilerakers prägt.
+      notification_perk:
+        title: Snapshot-Benachrichtigungen
+        subtitle: Statusbenachrichtigung mit Webcam-Snapshot
+        detail: Bleiben Sie auf dem Laufenden mit umfangreichen Druckstatusbenachrichtigungen mit Live-Webcam-Schnappschüssen, mit denen Sie Ihre Drucke von überall aus überwachen können.
+      webrtc_perk:
+        title: WebRtc Unterstützung
+        subtitle: Erlaubt die Verwendung von WebRtc Webcams!
+        detail: Erleben Sie qualitativ hochwertiges Videostreaming mit niedriger Latenzzeit für Ihre Drucke mit WebRTC-Unterstützung, die Ihnen die beste Sicht auf Ihren Drucker bietet.
+      job_queue_perk:
+        title: Job-Warteschlange
+        subtitle: Verwalten Sie die Job-Warteschlange von Moonraker von Mobileraker aus!
+        detail: Optimieren Sie Ihren Arbeitsablauf, indem Sie Ihre Druckwarteschlange direkt in Mobileraker verwalten und organisieren - perfekt für die Produktionsplanung.
+      unlimited_printers_perk:
+        title: Unbegrenzte Anzahl von Druckern
+        subtitle: Steuern Sie so viele Drucker wie Sie wollen mit Mobileraker!
+        detail: Skalieren Sie Ihren Druckbetrieb ohne Grenzen - perfekt für die Verwaltung mehrerer Drucker in Ihrem Heimlabor oder in einer Print-Farm.
+        short: Skalieren Sie Ihre Operation
+      printer_theme_perk:
+        title: Druckerbasierte Designs
+        subtitle: Wählen Sie für jeden Drucker ein anderes Design!
+        detail: Personalisieren Sie Ihre Erfahrung, indem Sie jedem Drucker ein eigenes Thema zuweisen, so dass Sie die verschiedenen Geräte auf einen Blick unterscheiden können.
+      custom_dashboard_perk:
+        title: Anpassbares Dashboards
+        subtitle: Passen Sie Ihr Dashboard an Ihre Bedürfnisse an!
+        detail: Gestalten Sie Ihren idealen Arbeitsablauf, indem Sie die Widgets und Steuerelemente genau so anordnen, wie Sie es wünschen, und so die wichtigsten Informationen direkt zur Hand haben.
+        short: Ihr perfekter Workflow
+      full_file_management_perk:
+        title: Vollständige Dateiverwaltung
+        subtitle: Uneingeschränkte Dateiverwaltung. Hochladen, Herunterladen von Dateien und mehr!
+        detail: 'Verwalten Sie Ihre Druckdateien genau nach Ihren Vorstellungen: Sortieren, speichern und organisieren Sie Ihre Druckbibliothek mühelos mit unseren leistungsstarken Funktionen.'
+      ad_free_perk:
+        title: Anzeigenfreies Erlebnis
+        subtitle: Genießen Sie Mobileraker ohne Werbung!
+        detail: Konzentrieren Sie sich voll und ganz auf Ihren Druck mit einer übersichtlichen, ablenkungsfreien Oberfläche, die Ihre Inhalte in den Mittelpunkt stellt.
+        short: Voller Fokus
+      spoolman_perk:
+        title: Spoolman-UI
+        subtitle: Verwalten Sie Ihre Filamentspulen mit Spoolman
+        detail: 'Verfolgen Sie Ihren Filamentverbrauch in Echtzeit dank Spoolman-Integration: Von Materialkosten bis zur Restmenge haben Sie jede Spule im Blick - für eine smarte Bestandsverwaltung.'
+      advanced_perk:
+        title: Erweiterte Einstellungen
+        short: Vollständige Funktionen
+    tipping:
+      title: Spendiere mir einen Kaffee
+      subtitle: "Sie möchten Ihre Unterstützung zeigen? Mit einer kleinen Spende können Sie die zukünftige Entwicklung fördern:"
+      subtitle_supporter: "Unterstützen Sie die Weiterentwicklung - runden Sie Ihr Abonnement mit einer kleinen Spende auf:"
+      disclaimer: Spenden-Pakete sind nicht erstattungsfähig und bieten keine zusätzlichen Funktionen.
+      other_btn: Andere Menge
+      divider: Oder zeigen Sie Ihre Wertschätzung
+    sup_lifetime_warning:
+      title: Abonnement-Hinweis
+      subtitle: |-
+        Wir haben festgestellt, dass Sie sowohl einen lebenslangen Zugang als auch ein aktives Abonnement haben.
+        Der lebenslange Zugang umfasst bereits alle Features. Sie können aber auch Ihr Abonnement behalten, um die laufende Entwicklung zu fördern.
+
+        Bitte beachten Sie, dass der Lifetime-Zugang bestehende Abonnements nicht automatisch kündigt - Sie müssen dies manuell tun, falls Sie es wünschen.
+
+        In jedem Fall sind wir Ihnen für Ihre Unterstützung dankbar!
+    sup_origin_warning:
+      title: Externes Plattform-Abonnement
+      subtitle: "Sie sind Unterstützer, aber Ihr Unterstützerstatus wurde auf einer anderen Plattform erworben! \n\nSie können weiterhin alle Premium-Funktionen nutzen, aber Sie können Ihr Abonnement hier nicht verwalten!"
+    header:
+      rating: "{} auf {}"
+      open_core: Open Core
+      amnt_users: "{} Benutzer"
+      active_dev: Aktiver Dev
     manage_view:
       title: Vielen Dank für die Unterstützung!
+      subtitle: Du trägst dazu bei, Mobileraker für alle besser zu machen und genießt gleichzeitig Premiumfunktionen und ein werbefreies Erlebnis. Danke, dass du Teil unserer Maker-Community bist!
+      offering_title: Ändere deine Unterstützer-Stufe
       cancel_btn: Abonnement kündigen
     subscribe_view:
       title: Werden Sie ein Mobileraker-Unterstützer!
+      subtitle: Mobileraker bietet ein schnelles und verlässliche mobile Ul für Klipper, inspiriert von der Maker-Community. Während grundlegende Funktionen kostenlos bleiben, sind Premiumfunktionen und ein werbefreies Erlebnis nur für Unterstützer verfügbar.
+      offering_title: Wählen Sie Ihre Unterstützer-Stufe
     supporter_tier_list:
       error_title: Fehler beim Laden von Supporter Tiers!
       error_body: Entschuldigung, ein unerwarteter Fehler ist aufgetreten. Die Supporter-Tiers konnten nicht geladen werden. Bitte versuchen Sie es später erneut!
@@ -693,6 +776,7 @@ pages:
     intro_phase: "{} zu {} Rabatt"
     iap_offer: "{} auf den ursprünglichen Preis"
     trial_disclaimer: Bis zum Ende des kostenlosen Testzeitraums werden Ihnen keine Kosten in Rechnung gestellt, und Sie können während des Zeitraums jederzeit kündigen.
+    subscription_disclaimer: Abonnement verlängert sich automatisch. Sie können jederzeit kündigen.
     restore_sign_in: Wiederherstellen / Anmelden
   video_player:
     downloading_for_sharing: Lade das Video zum Teilen herunter… ({})
@@ -1329,3 +1413,24 @@ consent_cards:
       • Ihnen Marketingmitteilungen und Werbeangebote zu senden
       • diese Daten in Übereinstimmung mit unserer Datenschutzrichtlinie verarbeiten
     disclaimer: Sie können Ihre Zustimmung jederzeit über die App-Einstellungen widerrufen. Weitere Informationen darüber, wie wir mit Ihren Daten umgehen, finden Sie in unserer Datenschutzerklärung.
+products:
+  most_popular: Beliebt
+  lifetime:
+    title: Lebenslanger Unterstützer
+    subtitle: Einmalige Spende
+  annual:
+    title: Jährlicher Unterstützer
+    subtitle: Zahle weniger mit unserem Jahresplan
+  sixMonth:
+    title: 6-Monate Unterstützer
+  threeMonth:
+    title: 3-Monats-Unterstützer
+  monthly:
+    title: Monatlicher Unterstützer
+    subtitle: Unterstütze uns jeden Monat
+  weekly:
+    title: Wöchentlicher Unterstützer
+  tip:
+    coffee: "Kaffee"
+    snack: "Snack"
+    lunch: "Mittagessen"
