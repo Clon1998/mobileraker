@@ -397,14 +397,8 @@ pages:
   paywall:
     manage_view:
       title: Desteğin için teşekkürler!
-      list_title: 'Destekçi Seviyesini Değiştir:'
-      store_btn: '{} Bölgesinde Aboneliği İptal Et'
-      sub_warning: Ömür boyu destekçi kademesini satın almanın diğer aktif abonelikleri otomatik olarak iptal etmediğini lütfen unutmayın.
     subscribe_view:
       title: Mobileraker Destekçisi Olun!
-      info: |-
-        Mobileraker, Klipper için RepRap ruhuyla hareket eden, açık kaynaklı yazılım ve donanımın olumlu bir etki yaratabileceği hızlı ve güvenilir bir mobil kullanıcı arayüzü sağlamayı hedefliyor.
-      list_title: 'Destekçi Seviyesini Seçin:'
     supporter_tier_list:
       error_title: Destekçi Seviyeleri yüklenirken hata oluştu!
       error_body: Üzgünüz, beklenmedik bir hata oluştu.
@@ -414,12 +408,8 @@ pages:
         Posta: {}
     title: Dev'i destekleyin!
     calling_store: İstek işleniyor...
-    promo_title: Promosyon
     free_phase: İlk {} ücretsiz
-    intro_phase: '{} indirimde {} keyfini çıkarın'
     iap_offer: "Orijinal fiyattan {} indirim"
-    tip_developer: Geliştirici'ye bahşiş yap
-    trial_disclaimer: Ücretsiz deneme süresinin sonuna kadar sizden ücret alınmayacaktır ve deneme süresi boyunca istediğiniz zaman iptal edebilirsiniz.
   video_player:
     downloading_for_sharing: Video paylaşım için indiriliyor... ({})
 components:
@@ -510,31 +500,6 @@ dialogs:
     title: Makineyi Seçin
     active_machine: 'Etkin Makine: {}'
     hint: Etkin olarak ayarlamak için bir makineye dokunun.
-  supporter_perks:
-    title: Destekçi Avantajları
-    body: Mobileraker'ı destekleyerek uygulamanın topluluk için ücretsiz kalmasını sağlarsınız.
-    hint: 'İpucu: Şu an itibariyle ayrıcalıklar cihaza dayalıdır. '
-    theme_perk:
-      title: Destekçi Teması
-      subtitle: Material 3'ü kullanan özel tema
-    contact_perk:
-      title: Geliştirici İletişimi
-      subtitle: Geliştiriciyle kolay iletişim!
-    notification_perk:
-      title: Anlık Görüntü Bildirimleri
-      subtitle: Durum bildirimi Web Kamerası Anlık Görüntüsünü içerir
-    webrtc_perk:
-      title: WebRtc Desteği
-      subtitle: WebRtc web kameralarının kullanımına izin verir!
-    job_queue_perk:
-      title: İş Kuyruğu
-      subtitle: Moonraker'ın İş kuyruğunu Mobileraker içinden yönetin!
-    unlimited_printers_perk:
-      title: Sınırsız Yazıcı
-      subtitle: Mobileraker'ı kullanarak istediğiniz kadar yazıcıyı kontrol edin!
-    printer_theme_perk:
-      title: Yazıcı tabanlı Temalar
-      subtitle: Her yazıcı için farklı bir tema seçin!
   bed_screw_adjust:
     title: Yatak Vidası Ayarı
     xy_plane: 'Yazıcı X/Y Düzlemi:'
