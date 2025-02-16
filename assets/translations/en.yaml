@@ -718,26 +718,98 @@ pages:
   changelog:
     title: Changelog
   paywall:
+    benefits:
+      title: Supporter Features
+      subtitle: Unlock exclusive features by becoming a Mobileraker Supporter!
+      become_supporter: Become a Supporter
+      discover_all: Discover all supporter features
+      theme_perk:
+        title: Supporter Theme
+        subtitle: Exclusive theme using Material 3
+        detail: Experience a premium look with our Material 3 designed theme, featuring dynamic color adaptation and enhanced visual elements.
+      contact_perk:
+        title: Developer Contact
+        subtitle: Easy contact to the developer!
+        detail: Get direct access to priority support and feature requests, ensuring your feedback helps shape Mobileraker's future.
+      notification_perk:
+        title: Snapshot Notifications
+        subtitle: Status notification include Webcam Snapshot
+        detail: Stay informed with rich print status notifications featuring live webcam snapshots, letting you monitor your prints from anywhere.
+      webrtc_perk:
+        title: WebRtc Support
+        subtitle: Allows the usage of WebRtc webcams!
+        detail: Experience high-quality, low-latency video streaming of your prints with WebRTC support, offering the clearest view of your printer.
+      job_queue_perk:
+        title: Job Queue
+        subtitle: Manage Moonraker's job queue from within Mobileraker!
+        detail: Streamline your workflow by managing and organizing your print queue directly in Mobileraker, perfect for batch printing and production planning.
+      unlimited_printers_perk:
+        title: Unlimited Printers
+        subtitle: Control as many printers as you want using Mobileraker!
+        detail: Scale your printing operation without limits - perfect for managing multiple printers in your home lab or print farm setup.
+        short: Scale your operation
+      printer_theme_perk:
+        title: Printer based Themes
+        subtitle: Select a different theme for each printer!
+        detail: Personalize your experience by assigning unique themes to each printer, making it easier to distinguish between different machines at a glance.
+      custom_dashboard_perk:
+        title: Custom Dashboard
+        subtitle: Customize the dashboard to your liking!
+        detail: Create your ideal workflow by arranging widgets and controls exactly how you want them, putting the most important information at your fingertips.
+        short: Your perfect workflow
+      full_file_management_perk:
+        title: Full File Management
+        subtitle: Unlock the full file management capabilities of Mobileraker!
+        detail: Take complete control of your printing files with advanced management features, including organizing, uploading, and maintaining your print library.
+      ad_free_perk:
+        title: Ad-Free Experience
+        subtitle: Enjoy Mobileraker without any ads!
+        detail: Focus entirely on your printing with a clean, distraction-free interface that puts your content front and center.
+        short: Full focus
+      spoolman_perk:
+        title: Spoolman-UI
+        subtitle: Manage your filament spools with Spoolman
+        detail: Keep perfect track of your filament inventory with integrated Spoolman support - monitor usage, costs, and remaining amounts for each spool while printing, making material management effortless.
+      advanced_perk:
+        title: Advanced Controls
+        short: Full capabilities
+    tipping:
+      title: Buy me a coffee
+      subtitle: "Want to show extra appreciation? Support future development with a quick gift:"
+      subtitle_supporter: "Want to support ongoing development? Consider adding a tip to your subscription."
+      disclaimer: Tip packages are non-refundable and do not grant any additional features.
+      other_btn: Other Amount
+      divider: Or show your appreciation
+
+    sup_lifetime_warning:
+      title: Subscription Notice
+      subtitle: |-
+        We noticed you have both lifetime access and an active subscription.
+        While lifetime access includes all features, you can keep your subscription to support ongoing development.
+        
+        Please note that lifetime access doesn't automatically cancel existing subscriptions - you'll need to do this manually if you choose to.
+        
+        We appreciate your support either way!
+    sup_origin_warning:
+      title: External Platform Subscription
+      subtitle: You are a supporter, but your supporter status was bought on a different platform! You can still use all premium features, but you can not manage your subscription here!
+
+    header:
+      rating: "{} on {}"
+      open_core: Open Core
+      amnt_users: "{} users"
+      active_dev: Active Dev
+
     manage_view:
       title: Thanks for your Support!
-
-      list_title: 'Change Supporter Tier:'
-      store_btn: Cancel Subscription in {}
-      sub_warning: Please take note that purchasing the lifetime supporter tier does
-        not automatically cancel any other active subscription. You will need to cancel
-        any active subscriptions manually. However, you have the option to continue
-        supporting the development of Mobileraker on a recurring basis even after
-        purchasing the lifetime supporter tier.
+      subtitle: You're helping to make Mobileraker better for everyone while enjoying premium features and an ad-free experience. Thank you for being part of our maker community!
+      offering_title: Change your Supporter Tier
+      cancel_btn: Cancel Subscription
     subscribe_view:
       title: Become a Mobileraker Supporter!
-      info: |-
-        Mobileraker aims to provide a fast and reliable mobile UI for Klipper, driven by the spirit of RepRap, that open-source software and hardware can make a positive impact.
-        As Mobileraker is developed by a single developer and offered for free, it relies on community funding to cover both operational and development costs.
-      list_title: 'Choose Supporter Tier:'
-      subscription_info: If you opt into a subscription, you can cancel it at any
-        time. The subscription will be automatically renewed unless you cancel it
-        before the end of the current period. To cancel, go to the {} and cancel the
-        subscription from there.
+      subtitle: Mobileraker provides a fast and reliable mobile Ul for Klipper, inspired by the maker community. While essential features remain free, premium features and an ad-free experience are available to supporters.
+      offering_title: Choose your Supporter Tier
+
     supporter_tier_list:
       error_title: Error while loading Supporter Tiers!
       error_body: Sorry, an unexpected error occurred. Could not load the SupporterTiers.
@@ -748,14 +820,14 @@ pages:
         Mail: {}
         Discord: {}
     title: Support the Dev!
+
     calling_store: Processing request…
-    promo_title: Promotion
+    promo_title: Special Offer
     free_phase: First {} free
-    intro_phase: Enjoy {} at {} off
+    intro_phase: "{} with {} saving"
     iap_offer: "{} off original price"
-    tip_developer: Tip Developer
-    trial_disclaimer: You won't be charged until the end of the free trial, and you
-      can cancel anytime during it.
+    trial_disclaimer: Start your free trial now. You won't be charged until it ends, and you can cancel at any time with no obligation.
+    subscription_disclaimer: Subscription renews automatically. You can cancel at any time.
     restore_sign_in: Restore / Sign in
   video_player:
     downloading_for_sharing: Downloading video for sharing… ({})
@@ -1028,7 +1100,6 @@ components:
       subtitle: Display non-printing movement
   select_color_sheet:
     title: Select Color
-
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?
@@ -1097,42 +1168,6 @@ dialogs:
     title: Select Machine
     active_machine: 'Active Machine: {}'
     hint: Tap on a machine to set it as active.
-  supporter_perks:
-    learn_more: Learn about Supporter Perks
-    title: Supporter Perks
-    body: By supporting Mobileraker, you ensure the app can stay free for the community.
-      Additionally supporters gain the following list of perks.
-    hint: 'Hint: As of now, perks are device based. This might change in the future.'
-    theme_perk:
-      title: Supporter Theme
-      subtitle: Exclusive theme using Material 3
-    contact_perk:
-      title: Developer Contact
-      subtitle: Easy contact to the developer!
-    notification_perk:
-      title: Snapshot Notifications
-      subtitle: Status notification include Webcam Snapshot
-    webrtc_perk:
-      title: WebRtc Support
-      subtitle: Allows the usage of WebRtc webcams!
-    job_queue_perk:
-      title: Job Queue
-      subtitle: Manage Moonraker's job queue from within Mobileraker!
-    unlimited_printers_perk:
-      title: Unlimited Printers
-      subtitle: Control as many printers as you want using Mobileraker!
-    printer_theme_perk:
-      title: Printer based Themes
-      subtitle: Select a different theme for each printer!
-    custom_dashboard_perk:
-      title: Custom Dashboard
-      subtitle: Customize the dashboard to your liking!
-    full_file_management_perk:
-      title: Full File Management
-      subtitle: Unlock the full file management capabilities of Mobileraker!
-    ad_free_perk:
-      title: Ad-Free Experience
-      subtitle: Enjoy Mobileraker without any ads!
   bed_screw_adjust:
     title: Bed Screw Adjust
     xy_plane: 'Printer X/Y Plane:'
@@ -1488,6 +1523,27 @@ consent_cards:
       • Send you marketing communications and promotional offers
       • Process this data in accordance with our Privacy Policy
     disclaimer: You can withdraw your consent at any time via the app settings. For more information about how we handle your data, please see our Privacy Policy.
+products:
+  most_popular: Most Popular
+  lifetime:
+    title: Lifetime Supporter
+    subtitle: One-time contribution
+  annual:
+    title: Yearly Supporter
+    subtitle: Pay less with our annual plan
+  sixMonth:
+    title: 6-Month Supporter
+  threeMonth:
+    title: 3-Month Supporter
+  monthly:
+    title: Monthly Supporter
+    subtitle: Support us every month
+  weekly:
+    title: Weekly Supporter
+  tip:
+    coffee: "Coffee"
+    snack: "Snack"
+    lunch: "Lunch"
 languages:
   languageCode:
     ab:
