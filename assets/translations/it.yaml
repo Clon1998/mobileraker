@@ -303,15 +303,9 @@ pages:
   paywall:
     manage_view:
       title: Grazie per il tuo Supporto!
-      list_title: 'Cambia livello di Sostenitore:'
-      store_btn: Annulla Abbonamento in {}
-      sub_warning: Tieni presente che l'acquisto del livello di sostenitore a vita non annulla automaticamente nessun altro abbonamento attivo. Dovrai annullare manualmente eventuali abbonamenti attivi. Tuttavia, hai la possibilità di continuare a supportare lo sviluppo di Mobileraker su base ricorrente anche dopo aver acquistato il livello di supporto a vita.
+      cancel_btn: Annulla Abbonamento
     subscribe_view:
       title: Diventa un Sostenitore di Mobileraker!
-      info: |-
-        Mobileraker mira a fornire un'interfaccia utente mobile veloce e affidabile per Klipper, guidata dallo spirito di RepRap, che software e hardware open source possono avere un impatto positivo.
-        Poiché Mobileraker è sviluppato da un singolo sviluppatore e offerto gratuitamente, si basa su finanziamenti comunitari per coprire i costi operativi e di sviluppo.
-      list_title: 'Scegli il livello di Sostenitore:'
     supporter_tier_list:
       error_title: Errore durante il caricamento dei livelli di Sostenitore!
       error_body: Spiacenti, si è verificato un errore imprevisto. Impossibile caricare SupporterTiers. Si prega di riprovare più tardi!
@@ -321,9 +315,8 @@ pages:
     calling_store: Elaborazione richiesta...
     promo_title: Promozione
     free_phase: Primo {} gratis
-    intro_phase: Godi {} con {} di sconto
+    intro_phase: "Godi {} con {} di sconto"
     iap_offer: "{} di sconto sul prezzo originale"
-    tip_developer: Suggerimento Sviluppatore
 components:
   app_version_display:
     version: 'Versione:'
@@ -406,22 +399,6 @@ dialogs:
     title: Seleziona Stampante
     active_machine: 'Stampanti attive: {}'
     hint: Tocca una stampante per impostarla come attiva.
-  supporter_perks:
-    title: Vantaggi del Sostenitore
-    body: Supportando Mobileraker, ti assicuri che l'app possa rimanere gratuita per la community. Inoltre, i sostenitori ottengono il seguente elenco di vantaggi.
-    hint: 'Suggerimento: a partire da ora, i vantaggi sono basati sul dispositivo. Questo potrebbe cambiare in futuro.'
-    theme_perk:
-      title: Tema Sostenitore
-      subtitle: Tema esclusivo utilizzando Material 3
-    contact_perk:
-      title: Contatto Sviluppatore
-      subtitle: Facile contatto con lo Sviluppatore!
-    notification_perk:
-      title: Notifiche con Snapshot
-      subtitle: La notifica di stato include l'istantanea della Webcam
-    webrtc_perk:
-      title: Supporto WebRtc
-      subtitle: Consente l'utilizzo delle webcam WebRtc!
   bed_screw_adjust:
     xy_plane: 'Piano X/Y della Stampante:'
     active_screw_title: 'Vite attiva:'
