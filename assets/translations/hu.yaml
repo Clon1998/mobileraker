@@ -677,16 +677,8 @@ pages:
   paywall:
     manage_view:
       title: Köszönet a támogatásodért!
-      list_title: 'Támogatói szint módosítása:'
-      store_btn: Előfizetés lemondása itt {}
-      sub_warning: Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem mond le automatikusan más aktív előfizetést. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is.
     subscribe_view:
       title: Legyél Mobileraker támogató!
-      info: |-
-        A Mobileraker célja, hogy gyors és megbízható mobil felhasználói felületet adjon a Klipper számára, amelyet a RepRap szellemisége vezérel, és a nyílt forráskódú szoftverek és hardverek pozitív hatást gyakorolhatnak.
-        Mivel a Mobileraker-t egyetlen fejlesztő fejleszti és ingyenesen kínálja, közösségi finanszírozásra támaszkodik mind a működési, mind a fejlesztési költségek fedezésére.
-      list_title: 'Válassz támogatói szintet:'
-      subscription_info: Ha előfizetést kötsz, azt bármikor lemondhatod. Az előfizetés automatikusan megújul, hacsak nem mondod le a jelenlegi időszak vége előtt. A lemondáshoz lépj a {} oldalra, és onnan mondd le az előfizetést.
     supporter_tier_list:
       error_title: Hiba a támogatói szintek betöltésekor!
       error_body: Sajnálom, váratlan hiba történt. Nem sikerült betölteni a támogatói szintet. Kérlek, próbáld újra később!
@@ -699,9 +691,8 @@ pages:
     calling_store: Kérés feldolgozása…
     promo_title: Promóció
     free_phase: Első {} ingyenes
-    intro_phase: Élvezd {} kedvezményes {} áron
+    intro_phase: "Élvezd {} kedvezményes {} áron"
     iap_offer: "{} eredeti árból"
-    tip_developer: Borravaló a fejlesztőnek
     trial_disclaimer: Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést.
     restore_sign_in: Visszaállítás / Bejelentkezés
   video_player:
@@ -1022,41 +1013,6 @@ dialogs:
     title: Válassz gépet
     active_machine: 'Aktív gép: {}'
     hint: Érintsd meg a gépet az aktívként való beállításhoz.
-  supporter_perks:
-    learn_more: Tudjon meg többet a támogatói kedvezményekről
-    title: Támogatói jutalmak
-    body: A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.
-    hint: 'Tipp: Jelenleg a jutalmak eszközalapúak. Ez változhat a jövőben.'
-    theme_perk:
-      title: Támogatói téma
-      subtitle: Exkluzív téma a Material 3 használatával
-    contact_perk:
-      title: Fejlesztői kapcsolattartás
-      subtitle: Könnyű kapcsolatfelvétel a fejlesztővel!
-    notification_perk:
-      title: Pillanatkép értesítések
-      subtitle: Az állapotértesítések közé tartozik a Webcam pillanatkép
-    webrtc_perk:
-      title: WebRtc támogatás
-      subtitle: Lehetővé teszi a WebRtc webkamerák használatát!
-    job_queue_perk:
-      title: Várólista
-      subtitle: Kezeld a Moonraker várólistát a Mobilerakerből!
-    unlimited_printers_perk:
-      title: Korlátlan nyomtatók
-      subtitle: Vezérelj annyi nyomtatót, amennyit csak akarsz a Mobileraker segítségével!
-    printer_theme_perk:
-      title: Nyomtató alapú témák
-      subtitle: Válassz különböző témát minden nyomtatóhoz!
-    custom_dashboard_perk:
-      title: Egyedi műszerfal
-      subtitle: Testreszabhatod a műszerfalat a saját ízlésed szerint!
-    full_file_management_perk:
-      title: Teljes fájlkezelés
-      subtitle: Old fel a Mobileraker teljes fájlkezelési képességeit!
-    ad_free_perk:
-      title: Reklámmentes élmény
-      subtitle: Élvezd a Mobileraker-t reklámok nélkül!
   bed_screw_adjust:
     title: Ágycsavar beállítása
     xy_plane: 'Nyomtató X/Y sík:'
