@@ -676,7 +676,7 @@ pages:
     manage_view:
       title: Vielen Dank für die Unterstützung!
       list_title: 'Ändere die Supporter-Stufe:'
-      store_btn: Abonnement via {} kündigen
+      cancel_btn: Abonnement kündigen
       sub_warning: Bitte beachten Sie, dass der Kauf der lebenslangen Supporter-Stufe nicht automatisch alle anderen aktiven Abonnements kündigt. Bitte kündigen Sie alle aktiven Abonnements manuell. Allerdings haben Sie die Möglichkeit, die Entwicklung von Mobileraker auf regelmäßiger Basis weiter zu unterstützen, auch wenn Sie die lebenslange Mitgliedschaft erworben haben.
     subscribe_view:
       title: Werden Sie ein Mobileraker-Unterstützer!
@@ -697,7 +697,7 @@ pages:
     calling_store: Anfrage wird bearbeitet…
     promo_title: Werbung
     free_phase: Erste {} kostenlos
-    intro_phase: Genießen Sie {} zu {} Rabatt
+    intro_phase: "{} zu {} Rabatt"
     iap_offer: "{} auf den ursprünglichen Preis"
     tip_developer: Entwickler Trinkgeld
     trial_disclaimer: Bis zum Ende des kostenlosen Testzeitraums werden Ihnen keine Kosten in Rechnung gestellt, und Sie können während des Zeitraums jederzeit kündigen.

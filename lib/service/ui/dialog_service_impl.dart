@@ -26,7 +26,6 @@ import 'package:mobileraker/ui/components/dialog/led_rgbw/led_rgbw_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/logger_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/macro_params/macro_params_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_dialog.dart';
-import 'package:mobileraker/ui/components/dialog/perks_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/screws_tilt_adjust/screws_tilt_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/select_printer/select_printer_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
@@ -51,7 +50,6 @@ enum DialogType implements DialogIdentifierMixin {
   ledRGBW,
   logging,
   webcamPreview,
-  perks,
   manualOffset,
   bedScrewAdjust,
   tipping,
@@ -97,7 +95,6 @@ class DialogServiceImpl implements DialogService {
     DialogType.logging: (r, c) => LoggerDialog(request: r, completer: c),
     DialogType.webcamPreview: (r, c) => WebcamPreviewDialog(request: r, completer: c),
     CommonDialogs.activeMachine: (r, c) => SelectPrinterDialog(request: r, completer: c),
-    DialogType.perks: (r, c) => PerksDialog(request: r, completer: c),
     DialogType.manualOffset: (r, c) => ManualOffsetDialog(request: r, completer: c),
     DialogType.bedScrewAdjust: (r, c) => BedScrewAdjustDialog(request: r, completer: c),
     DialogType.tipping: (r, c) => TippingDialog(request: r, completer: c),

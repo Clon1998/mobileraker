@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2025. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: avoid-unnecessary-reassignment
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
@@ -27,6 +29,8 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:gap/gap.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
@@ -36,7 +40,11 @@ import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../paywall/components/supporter_benefits.dart';
+import '../paywall/components/supporter_offerings.dart';
 
 part 'dev_page.g.dart';
 
@@ -114,6 +122,58 @@ class DevPage extends HookConsumerWidget {
       ],
     );
 
+    final themeData = Theme.of(context);
+
+    body = ListView(
+      padding: const EdgeInsets.all(8),
+      children: [
+        FeatureSectionHeader(),
+        SupporterBenefits(),
+        // Gap(16),
+        // SupporterTestimonials(),
+        Gap(16),
+        SupporterOfferings(
+          packets: [
+            normalMonthly(),
+            anualDummy(),
+          ],
+        ),
+        Gap(8),
+        Row(
+          spacing: 8,
+          children: <Widget>[
+            Expanded(child: Divider(thickness: 1)),
+            Text("Or show your appreciation", style: themeData.textTheme.bodySmall),
+            Expanded(child: Divider(thickness: 1)),
+          ],
+        ),
+        Gap(8),
+        // TippingCard([]),
+        Gap(16),
+        PaywallFooter(),
+      ],
+    );
+
+    // body = CustomScrollView(
+    //   slivers: [
+    //     SliverAppBar(
+    //       expandedHeight: 210,
+    //       floating: false,
+    //       flexibleSpace: FlexibleSpaceBar(
+    //         collapseMode: CollapseMode.parallax,
+    //         background: SvgPicture.asset(
+    //           alignment: Alignment.topCenter,
+    //           'assets/vector/mr_logo.svg',
+    //         ),
+    //       ),
+    //     ),
+    //
+    //     SliverFillRemaining(
+    //       child: Text('12312312312312312312312'),
+    //     )
+    //   ],
+    // );
+
     if (context.isLargerThanCompact) {
       body = NavigationRailView(page: body);
     }
@@ -125,6 +185,89 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: body,
     );
+  }
+
+  Package anualDummy() {
+    final poC = PresentedOfferingContext('default_v2', null, null);
+
+    // Create the Period object for billing
+
+    final defaultPricing = PricingPhase(
+        Period(PeriodUnit.year, 1, 'P1Y'), RecurrenceMode.infiniteRecurring, 0, Price('€21.99', 21990000, 'EUR'), null);
+    final freePhase = PricingPhase(Period(PeriodUnit.day, 7, 'P7D'), RecurrenceMode.nonRecurring, 1,
+        Price('€0', 0, 'EUR'), OfferPaymentMode.freeTrial);
+    final discountedPhase = PricingPhase(Period(PeriodUnit.month, 1, 'P1M'), RecurrenceMode.finiteRecurring, 3,
+        Price('€0.50', 500000, 'EUR'), OfferPaymentMode.discountedRecurringPayment);
+
+// Create the PricingPhase object
+
+// Create the main SubscriptionOption object
+    final subscriptionOption = SubscriptionOption(
+      '2199-1y',
+      'mobileraker_supporter_v2:2199-1y',
+      'mobileraker_supporter_v2',
+      [freePhase, discountedPhase, defaultPricing],
+      [],
+      false,
+      Period(PeriodUnit.year, 1, 'P1Y'),
+      false,
+      defaultPricing,
+      freePhase,
+      discountedPhase,
+      poC,
+      null,
+    );
+
+    var storeProduct = StoreProduct(
+      'STORE_ID',
+      'Yes a description givne by the store API',
+      'The title ANUAL',
+      21.99,
+      '€21.99',
+      '€',
+      productCategory: ProductCategory.subscription,
+      defaultOption: subscriptionOption,
+    );
+    return Package(r'$rc_annual', PackageType.annual, storeProduct, poC);
+  }
+
+  Package normalMonthly() {
+    final poC = PresentedOfferingContext('default_v2', null, null);
+
+    // Create the Period object for billing
+
+    final defaultPricing = PricingPhase(
+        Period(PeriodUnit.month, 1, 'P1M'), RecurrenceMode.infiniteRecurring, 0, Price('€1.99', 1990000, 'EUR'), null);
+// Create the PricingPhase object
+
+// Create the main SubscriptionOption object
+    final subscriptionOption = SubscriptionOption(
+      '200-1m',
+      'mobileraker_supporter_v2:2199-1m',
+      'mobileraker_supporter_v2',
+      [defaultPricing],
+      [],
+      false,
+      Period(PeriodUnit.month, 1, 'P1M'),
+      false,
+      defaultPricing,
+      null,
+      null,
+      poC,
+      null,
+    );
+
+    var storeProduct = StoreProduct(
+      'STORE_ID',
+      'Yes a description givne by the store API',
+      'The title ANUAL',
+      1.99,
+      '€1.99',
+      '€',
+      productCategory: ProductCategory.subscription,
+      defaultOption: subscriptionOption,
+    );
+    return Package(r'$rc_monthly', PackageType.monthly, storeProduct, poC);
   }
 
   stateActivity() async {
@@ -352,6 +495,142 @@ class _Consent extends ConsumerWidget {
         logger.e('ConsentStatusError: $error');
         // Handle the error.
       },
+    );
+  }
+}
+
+class FeatureSectionHeader extends StatelessWidget {
+  const FeatureSectionHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Supporter Count Badge
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Headline
+              Text(
+                "Become a Mobileraker Supporter!",
+                style: themeData.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Gap(4),
+              // Description
+
+              Text(
+                "Mobileraker provides a fast and reliable mobile Ul for Klipper, inspired by the maker community. While essential features remain free, premium features and an ad-free experience are available to supporters.",
+                style: themeData.textTheme.bodySmall,
+              ),
+              // Text(
+              //   "Help keep Mobileraker free for everyone while unlocking premium features for yourself",
+              //   style: themeData.textTheme.bodySmall,
+              // ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.star, color: Colors.yellow[700], size: 20),
+              const SizedBox(width: 6),
+              const Text(
+                "4.8/5 on App Store",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+            ],
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(FlutterIcons.github_alt_faw5d, size: 15, color: themeData.textTheme.bodySmall?.color),
+                  Gap(4),
+                  Text("Open Core", style: themeData.textTheme.bodySmall),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.group_outlined, size: 15, color: themeData.textTheme.bodySmall?.color),
+                  Gap(4),
+                  Text("20k+ users", style: themeData.textTheme.bodySmall),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(FlutterIcons.console_line_mco, size: 15, color: themeData.textTheme.bodySmall?.color),
+                  Gap(4),
+                  Text(
+                    "Active Dev",
+                    style: themeData.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Ratings & User Count Badge
+      ],
+    );
+  }
+}
+
+class PaywallFooter extends StatelessWidget {
+  const PaywallFooter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 4,
+      children: [
+        Text('Join the growing community of Mobileraker supporters', style: Theme.of(context).textTheme.bodySmall),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            TextButton(
+              onPressed: () {},
+              child: Text('Restore Purchase'),
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.bodySmall,
+                iconSize: 10,
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              child: Text('Cancel Subscription'),
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.bodySmall,
+                iconSize: 10,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

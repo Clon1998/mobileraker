@@ -678,7 +678,6 @@ pages:
     manage_view:
       title: Köszönet a támogatásodért!
       list_title: 'Támogatói szint módosítása:'
-      store_btn: Előfizetés lemondása itt {}
       sub_warning: Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem mond le automatikusan más aktív előfizetést. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is.
     subscribe_view:
       title: Legyél Mobileraker támogató!

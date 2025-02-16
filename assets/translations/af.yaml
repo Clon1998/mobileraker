@@ -275,7 +275,7 @@ pages:
     manage_view:
       title: Dankie vir jou ondersteuning!
       list_title: 'Verander ondersteunersvlak :'
-      store_btn: Kanselleer Intekening van {}
+      cancel_btn: Kanselleer Intekening
     subscribe_view:
       title: Word 'n Mobileraker ondersteuner!
       info: |-

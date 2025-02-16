@@ -4,6 +4,7 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -76,5 +77,22 @@ extension MobilerakerCustomerInfo on CustomerInfo {
 
     return entitlements.active.values.firstWhereOrNull(
         (e) => e.productIdentifier == productIdentifier || e.productIdentifier == '${productIdentifier}_promo');
+  }
+}
+
+extension MobilerakerRCatPackage on Package {
+  String get localizedTitle {
+    final key = 'products.${packageType.name}.title';
+    var translated = tr(key);
+    // We cant use trExist  because we have EN als fallback...
+    return translated != key ? translated : storeProduct.title;
+  }
+
+  String? get localizedSubtitle {
+    logger.wtf('Checking for subtitle: ${packageType.name}');
+    final key = 'products.${packageType.name}.subtitle';
+    var translated = tr(key);
+
+    return translated != key ? translated : null;
   }
 }

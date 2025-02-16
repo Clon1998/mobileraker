@@ -35,6 +35,7 @@ import 'package:mobileraker/ui/screens/graph/graph_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
+import 'package:mobileraker/ui/screens/paywall/perks/supporter_benefits_page.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
 import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
@@ -78,6 +79,7 @@ enum AppRoute implements RouteDefinitionMixin {
   faq,
   changelog,
   supportDev,
+  supportDev_benefits,
   tool,
   beltTuner,
   graph,
@@ -283,6 +285,14 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/paywall',
         name: AppRoute.supportDev.name,
         builder: (context, state) => const PaywallPage(),
+        routes: [
+          GoRoute(
+            path: 'benefits',
+            name: AppRoute.supportDev_benefits.name,
+            pageBuilder: GoTransitions.fullscreenDialog,
+            builder: (context, state) => const SupporterBenefitsPage(),
+          ),
+        ],
       ),
       GoRoute(
         path: '/dev',

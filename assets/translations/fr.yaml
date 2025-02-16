@@ -458,7 +458,7 @@ pages:
     manage_view:
       title: Merci pour votre soutien !
       list_title: 'hanger le niveau du supporteur :'
-      store_btn: Annuler l'abonnement dans {}
+      cancel_btn: Annuler l'abonnement
       sub_warning: Veuillez noter que l'achat d'un niveau de soutien à vie n'annule pas automatiquement les autres abonnements actifs. Vous devrez annuler manuellement tous les abonnements actifs. Cependant, vous avez la possibilité de continuer à soutenir le développement de Mobileraker sur une base récurrente même après avoir acheté le niveau de soutien à vie.
     subscribe_view:
       title: Devenez un supporter de Mobileraker !

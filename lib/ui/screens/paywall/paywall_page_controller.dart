@@ -53,14 +53,14 @@ class PaywallPageController extends _$PaywallPageController {
         [];
 
     // Due to the lack of ability to buy things multiple times, I need to put this into a seperate offer group
-    final List<Package> tipPackets = offerings.getOffering('tip')?.availablePackages ?? [];
+    final Offering? tipsOffering = offerings.getOffering('tip');
 
     // Due to lack of support in the stores to offer IAP discouts I created a new offer group that is used to detect offers for IAP
     final List<Package> iapOffers = offerings.getOffering('iap_promos')?.availablePackages ?? [];
 
     return PaywallPageState(
       paywallOfferings: packetsToOffer,
-      tipPackages: tipPackets,
+      tipsOffering: tipsOffering,
       iapPromos: iapOffers,
     );
   }
@@ -140,10 +140,6 @@ class PaywallPageController extends _$PaywallPageController {
     }
   }
 
-  openPerksInfo() {
-    ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.perks));
-  }
-
   openDevContact() {
     var discord = tr('pages.paywall.contact_dialog.via_discord', args: []);
 
@@ -162,9 +158,11 @@ class PaywallPageState with _$PaywallPageState {
   const factory PaywallPageState({
     @Default(false) bool makingPurchase,
     @Default([]) List<Package> paywallOfferings,
-    @Default([]) List<Package> tipPackages,
     @Default([]) List<Package> iapPromos,
+    Offering? tipsOffering,
   }) = _PaywallPageState;
 
-  bool get tipAvailable => tipPackages.isNotEmpty;
+  List<Package> get tipPackages => tipsOffering?.availablePackages ?? [];
+
+  bool get tipAvailable => tipPackages.length >= 3;
 }

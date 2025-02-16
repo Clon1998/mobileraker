@@ -236,7 +236,7 @@ pages:
     manage_view:
       title: Bedankt voor je ondersteuning!
       list_title: 'Verander ondersteuningsrang:'
-      store_btn: Annuleer abbonnement over {}
+      cancel_btn: Annuleer abbonnement
     subscribe_view:
       title: Ondersteun Mobileraker!
       info: |-

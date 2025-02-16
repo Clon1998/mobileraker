@@ -304,7 +304,7 @@ pages:
     manage_view:
       title: Grazie per il tuo Supporto!
       list_title: 'Cambia livello di Sostenitore:'
-      store_btn: Annulla Abbonamento in {}
+      cancel_btn: Annulla Abbonamento
       sub_warning: Tieni presente che l'acquisto del livello di sostenitore a vita non annulla automaticamente nessun altro abbonamento attivo. Dovrai annullare manualmente eventuali abbonamenti attivi. Tuttavia, hai la possibilità di continuare a supportare lo sviluppo di Mobileraker su base ricorrente anche dopo aver acquistato il livello di supporto a vita.
     subscribe_view:
       title: Diventa un Sostenitore di Mobileraker!

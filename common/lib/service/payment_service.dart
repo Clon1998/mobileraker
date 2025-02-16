@@ -81,6 +81,41 @@ FutureOr<bool> isSupporterAsync(Ref ref) async {
   return customerInfo.entitlements.active.containsKey('Supporter') == true;
 }
 
+/// Returns the platform, if any, where the user bought the supporter package
+@Riverpod(keepAlive: true)
+bool? supportBoughtOnThisPlatform(Ref ref) {
+  var customerInfo = ref.watch(customerInfoProvider).valueOrNull;
+
+  if (customerInfo?.entitlements.active.containsKey('Supporter') != true) return null;
+
+  return customerInfo!.entitlements.active['Supporter']!.store ==
+      (Platform.isAndroid
+          ? Store.playStore
+          : Platform.isMacOS
+              ? Store.macAppStore
+              : Store.appStore);
+}
+
+@Riverpod(keepAlive: true)
+bool hasSubscriptionAndLifetime(Ref ref) {
+  CustomerInfo? customerInfo = ref.watch(customerInfoProvider).valueOrNull;
+
+  if (customerInfo == null) return false;
+
+  final ent = customerInfo.entitlements.active['Supporter'];
+  final subEnt = customerInfo.entitlements.active['supporter_subscription'];
+
+  customerInfo.entitlements.active.forEach((_, action) {
+    logger.w('Action: ${action}');
+  });
+
+  logger.w('Ent: $ent');
+  logger.w('SubEnt: $subEnt');
+
+  if (subEnt == null || ent == null) return false;
+  return subEnt.isActive && ent.isActive && subEnt.productIdentifier != ent.productIdentifier;
+}
+
 @Riverpod(keepAlive: true)
 PaymentService paymentService(Ref ref) {
   return PaymentService(ref);

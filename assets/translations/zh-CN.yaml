@@ -671,7 +671,7 @@ pages:
     manage_view:
       title: 感谢您的支持！
       list_title: '更改支持者级别：'
-      store_btn: 取消订阅 {}
+      cancel_btn: 取消订阅
       sub_warning: "请注意，购买终身支持者等级并不会自动取消任何其他活动订阅。 您需要手动取消任何活动订阅。 然而，即使在购买终身支持者等级之后，你也可以选择继续经常性地支持mobileraker的发展。\n"
     subscribe_view:
       title: 成为Mobileraker的支持者！
