@@ -664,16 +664,9 @@ pages:
   paywall:
     manage_view:
       title: 感謝您的支持！
-      list_title: '更改支持者等級：'
       cancel_btn: 取消訂閱
-      sub_warning: 請注意，購買終身支持者等級並不會自動取消任何其他啟用的訂閱。您需要手動取消任何現有的訂閱。然而，即使在購買終身支持者等級後，您仍然可以選擇繼續以定期方式支持Mobileraker的開發。
     subscribe_view:
       title: 成為Mobileraker支持者！
-      info: |-
-        Mobileraker 的目標是提供一個快速且可靠的 Klipper 行動裝置介面，並秉持 RepRap 精神，推動開源軟體與硬體對社會產生積極影響。
-        由於 Mobileraker 由單一開發者開發並免費提供，因此依賴社群資金來支付運營和開發成本。
-      list_title: '選擇支持者等級：'
-      subscription_info: 如果您選擇訂閱，您可以隨時取消訂閱。訂閱將在目前期間結束前自動續訂，除非您提前取消。要取消訂閱，請前往 {} 並從那裡取消訂閱。
     supporter_tier_list:
       error_title: 載入支持者等級時發生錯誤！
       error_body: 抱歉，發生了意外錯誤。無法載入支持者等級。請稍後再試！
@@ -685,9 +678,8 @@ pages:
     title: 支持開發者！
     calling_store: 處理請求中...
     promo_title: 促銷方案
-    intro_phase: 享受 {} {} 的折扣
+    intro_phase: "享受 {} {} 的折扣"
     iap_offer: "原價的 {} 折扣"
-    tip_developer: 打賞開發者
     trial_disclaimer: 在免費試用結束之前，您不會被收費，並且您可以隨時取消訂閱。
     restore_sign_in: 恢復/登入
   video_player:
@@ -1004,37 +996,6 @@ dialogs:
     title: 選擇機器
     active_machine: '使用中的機器：{}'
     hint: 點擊一台機器將其設為啟用。
-  supporter_perks:
-    title: 支持者福利
-    body: 通過支持 Mobileraker，您幫助確保該應用能夠免費供社群使用。此外，支持者還可以獲得以下福利。
-    hint: '提示：目前，福利是基於裝置的。未來可能會有所變更。'
-    theme_perk:
-      title: 支持者主題
-      subtitle: 獨家主題，使用 Material 3 設計風格
-    contact_perk:
-      title: 開發者聯繫
-      subtitle: 輕鬆聯繫開發者！
-    notification_perk:
-      title: 快照通知
-      subtitle: 狀態通知包含攝影機快照
-    webrtc_perk:
-      title: 支援WebRtc
-      subtitle: 允許使用 WebRtc 攝影機！
-    job_queue_perk:
-      title: 工作佇列
-      subtitle: 在 Mobileraker 中管理 Moonraker 的工作佇列！
-    unlimited_printers_perk:
-      title: 無限制的列印機數量
-      subtitle: 使用 Mobileraker 控制您想要的任意數量的 3D列印機！
-    printer_theme_perk:
-      title: 列印機基本主題
-      subtitle: 為每台列印機選擇不同的主題！
-    custom_dashboard_perk:
-      title: 自訂儀表板
-      subtitle: 自訂儀表板以符合您的需求！
-    full_file_management_perk:
-      title: 完整檔案管理
-      subtitle: 解鎖 Mobileraker 的完整檔案管理功能！
   bed_screw_adjust:
     title: 床台螺絲調整
     xy_plane: '列印機X/Y平面：'

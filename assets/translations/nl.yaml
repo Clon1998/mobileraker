@@ -235,14 +235,9 @@ pages:
   paywall:
     manage_view:
       title: Bedankt voor je ondersteuning!
-      list_title: 'Verander ondersteuningsrang:'
       cancel_btn: Annuleer abbonnement
     subscribe_view:
       title: Ondersteun Mobileraker!
-      info: |-
-        Mobileraker streeft ernaar een snelle en betrouwbare mobiele interface voor Klipper te verzorgen, gedreven door de geest van RepRap, dat open-source software en hardware een positieve impact kan maken.
-        Aangezien Mobileraker door een enkele ontwikkelaar wordt ontwikkeld en gratis aangeboden wordt, is het afhankelijk van financiering van de gemeenschap voor operationele- en ontwikkelingskosten.
-      list_title: 'Kies een ondersteuningsrang:'
     supporter_tier_list:
       error_title: Fout tijdens het laden van de ondersteuningsrangen!
       error_body: Sorry, er is een onverwachte fout opgetreden. Kon de ondersteuningsrangen niet laden. Probeer het later opnieuw!
@@ -318,19 +313,6 @@ dialogs:
     title: Selecteer Machine
     active_machine: 'Actieve Machine: {}'
     hint: Druk op een machine om hem te activeren.
-  supporter_perks:
-    title: Voordelen voor ondersteuners
-    body: Door het ondersteunen van Mobileraker, zorg je ervoor dat het gratis kan blijven voor de gemeenschap. Ook krijg je de volgende voordelen.
-    hint: 'Hint: Op dit moment zijn de voordelen per apparaat. Dit verandert mogelijk in de toekomst.'
-    theme_perk:
-      title: Ondersteuner Thema
-      subtitle: Exclusief thema met Materiaal 3
-    contact_perk:
-      title: Contact met ontwikkelaar
-      subtitle: Makkelijk contact met de ontwikkelaar!
-    notification_perk:
-      title: Snapshotmeldingen
-      subtitle: Statusmeldingen bevatten een snapshot van de camera.
   bed_screw_adjust:
     title: Bedschroeven afstellen
     xy_plane: 'Printer X/Y Vlak:'

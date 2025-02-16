@@ -670,16 +670,9 @@ pages:
   paywall:
     manage_view:
       title: 感谢您的支持！
-      list_title: '更改支持者级别：'
       cancel_btn: 取消订阅
-      sub_warning: "请注意，购买终身支持者等级并不会自动取消任何其他活动订阅。 您需要手动取消任何活动订阅。 然而，即使在购买终身支持者等级之后，你也可以选择继续经常性地支持mobileraker的发展。\n"
     subscribe_view:
       title: 成为Mobileraker的支持者！
-      info: |-
-        Mobileraker旨在为Klipper提供快速可靠的移动用户界面，这得益于RepRap的精神，即开源软件和硬件可以产生积极影响。
-        由于Mobileraker由一家开发商开发并免费提供，它依靠社区资金来支付运营和开发成本。
-      list_title: '选择支持者等级:'
-      subscription_info: 如果您选择订阅，可以随时取消订阅。 订阅将自动续订，除非您在本期结束之前取消订阅。 若要取消订阅，请到 {} 并取消订阅。
     supporter_tier_list:
       error_title: 加载支持者等级时出错!
       error_body: 很抱歉，发生了意外错误。无法加载支持者等级。请稍后重试！
@@ -694,7 +687,6 @@ pages:
     free_phase: 第一个免费的 {}
     intro_phase: "享受 {} {} 的折扣\n"
     iap_offer: "原价的 {} 折扣\n"
-    tip_developer: "打赏开发者\n"
     trial_disclaimer: "在免费试用结束之前，您将不会被收费，并且您可以随时取消。\n"
     restore_sign_in: 恢复/登录
   video_player:
@@ -1012,38 +1004,6 @@ dialogs:
     title: 选择机器
     active_machine: '激活的机器: {}'
     hint: 点击机器以将其设置为激活状态。
-  supporter_perks:
-    learn_more: 了解支持者增益效果
-    title: 支持者福利
-    body: 通过支持Mobileaker，您可以确保该应用程序对社区免费。此外，支持者还可以获得以下福利。
-    hint: '提示：到目前为止，福利是基于设备的。这种情况将来可能会改变。'
-    theme_perk:
-      title: 支持者主题
-      subtitle: 使用Material 3的独家主题
-    contact_perk:
-      title: 开发人员联系人
-      subtitle: 轻松联系开发人员！
-    notification_perk:
-      title: 快照通知
-      subtitle: 状态通知包括网络摄像头快照
-    webrtc_perk:
-      title: 支持 WebRtc
-      subtitle: 允许使用 WebRtc 网络摄像头！
-    job_queue_perk:
-      title: 任务队列
-      subtitle: 从Moberaker中管理Moonraker的任务队列！
-    unlimited_printers_perk:
-      title: 无限制打印机数量
-      subtitle: 使用Mobileraker控制任意数量的3D打印机
-    printer_theme_perk:
-      title: 基于打印机的主题
-      subtitle: 为每个打印机选择不同的主题！
-    custom_dashboard_perk:
-      title: 自定义控制面板
-      subtitle: 根据您的喜欢自定义控制面板！
-    full_file_management_perk:
-      title: 完整的文件管理
-      subtitle: 解锁Mobileraker的完整文件管理功能！
   bed_screw_adjust:
     title: 热床螺丝调整
     xy_plane: '打印机X/Y平面:'

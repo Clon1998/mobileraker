@@ -1,5 +1,6 @@
 ---
 general:
+  pause: Пауза
   resume: Продолжить
   connected: Подключено
   'off': 'Выкл'
@@ -15,13 +16,65 @@ general:
   shutdown: Выключение
   firmware: Прошивка
   fetching: Получение
+  loading: Загрузка
   unknown: Неизвестно
   disabled: Выключено
   confirm: Подтвердить
+  cancel: Отменить
+  close: Закрыть
+  edit: Редактировать
+  preview: Предпросмотр
+  retry: Повторить
+  supported: Поддерживается
+  unsupported: Не поддерживается
+  details: Подробности
+  google_play: Google Play
+  ios_store: App Store
+  active: Активный
+  canceled: Отмененный
+  monthly: Ежемесячно
+  restore: Восстановить
+  accept: Принять
+  abort: Отменить
+  offset: Смещение
+  valid: Верно
+  invalid: Неверно
+  free: Свободно
+  one_time: Один раз
+  delete: Удалить
+  clear: Очистить
+  unlink: Отвязать
+  save: Сохранить
+  apply: Применить
+  completed: Завершено
+  activate: Активировать
+  stop: Остановить
+  start: Начать
+  repeat: Повторить
+  load_more: Загрузить еще
+  archived: В архиве
+  leave: Выйти
+  export: Экспорт
+  import: Импорт
+  current: Текущее
+  load: Загрузить
+  unload: Выгрузить
+  discard: Отклонить
+  hide: Спрятать
+  finish: Конец
+  select: Выбрать
+  folder: Папка
+  print: Печать
+  allow: Разрешить
+  deny: Запретить
 pages:
   dashboard:
     title: Панель
     ems_btn: Аварийное выключение
+    ems_confirmation:
+      title: Подтвердить аварийную остановку
+      body: Вы собираетесь отправить команду для аварийной остановки принтера. Это незамедлительно остановит все моторы и нагреватели.
+      confirm: СТОП!
     server_status:
       unavailable: Нет доступных серверов
       available: Состояние сервера {} и Klippy {}
@@ -29,17 +82,30 @@ pages:
     general:
       print_card:
         reset: Сброс
+        reprint: Перепечатать
         printing_for: 'Печать: {}'
         speed: Скорость
         layer: Слой
+        eta: Примерное время
         current_object: Текущий объект
         elapsed: Прошло
         flow: Поток
         filament: Филамент
         filament_tooltip: Использовано {} % Филамента, т.е {} m из {} m прогнозированного.
+        eta_tooltip: |-
+          Оставшееся время:
+          В среднем: {avg}
+          Слайсер: {slicer}
+          Файл: {file}
+          Филамент: {filament}
+        remaining: Осталось
+        print_time: Время печати
       cam_card:
         webcam: Веб-камера
         fullscreen: Полноэкранный
+        error_connecting: |-
+          Ошибка подключения к {}.
+          Пожалуйста, проверьте настройки подключения и убедитесь что веб-камера подключена.
       temp_card:
         title: Управление Температурой
         presets_btn: Предустановки
@@ -49,8 +115,11 @@ pages:
         sensors: Датчики
         heater_on: "{} °C установленная"
         btn_thermistor: Датчик
+        still_hot: "{} все еще горячий!"
       temp_preset_card:
         cooloff: Охлаждение
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Движение Осей
         home_xy_tooltip: Парковка осей X и Y
@@ -60,8 +129,19 @@ pages:
         mesh_tooltip: Запуск калибровки Med-Mesh
         mesh_btn: Сетка
         m84_tooltip: Отключить моторы
+        m84_btn: M84
         step_size: Размер шага
         ztilt_tooltip: Запуск Z-Tilt калибровки
+        poff_tooltip: Запустить калибровку оффсета датчика Z
+        poff_btn: Калибровка датчика Z
+        zoff_tooltip: Запустить калибровку концевика датчика Z
+        zoff_btn: Калибровка концевика Z
+        save_tooltip: Сохранить результат калибровки
+        save_btn: Сохранить конфигурацию
+        more_btn: Больше
+      baby_step_card:
+        title: Микро-шаг по Z
+        z_offset: Z-оффсет
       restart_klipper: Перезагрузка Klipper
     control:
       fan_card:
@@ -69,6 +149,8 @@ pages:
           zero: Вентилятор
           one: Вентилятор
           other: Вентиляторы
+        part_fan: Кулер детали
+        static_fan_btn: Кулер
       extrude_card:
         title: Экструдер
         extrude: Выдавить
@@ -82,6 +164,7 @@ pages:
       multipl_card:
         title: Множители
         flow: Поток
+        press_adv: Pressure Advance
         smooth_time: Время сглаживания
       limit_card:
         title: Лимиты
@@ -89,9 +172,132 @@ pages:
         accel: Ускорение
         sq_corn_vel: Угловая Скорость
         accel_to_decel: Ускорение до замедления
+      fw_retraction_card:
+        title: Настройки ретракта
+        retract_length: Длина ретракта
+        retract_speed: Скорость ретракта
+        extra_unretract_length: Дополнительная длина деретракта
+        unretract_speed: Скорость деретракта
+      bed_mesh_card:
+        title: Карта стола
+        profiles: Профили
+        range_tooltip: Расстояние между наивысшей и низкой точками
+      gcode_preview_card:
+        title: Предпросмотр GCode
+        follow: Следить за процессом
+        kinematic_not_supported: В настоящее время приложение не поддерживает рендеринг GCode для кинематической системы этого принтера.
+        start_preview:
+          btn: Начать предпросмотр
+          hint: Приложение загрузит активный файл печати и попытается отрендерить его.
+  customizing_dashboard:
+    title: Настроить панель
+    cancel_confirm:
+      title: Отменить изменения?
+      body: |-
+        Вы уверены, что хотите покинуть режим изменения шаблона?
+        Все изменения будут потеряны. Чтобы сохранить изменения, нажмите кнопку сохранения.
+    add_card: Добавить карточку
+    remove_page: Удалить страницу
+    saved_snack:
+      title: Шаблон сохранен!
+      body: Ваши изменения сохранены.
+    cant_remove_snack:
+      title: Нельзя удалить страницу!
+      body: Вам нужно как минимум 2 страницы, чтобы удалить одну.
+    confirm_removal:
+      title: Удалить страницу?
+      body: Вы уверены, что хотите удалить эту страницу? 
+    editing_card:
+      title: Режим редактирования
+      body: Теперь вы можете изменять порядок, добавлять и удалять карточки и страницы. Все карты показывают данные предпросмотра.
+    error_save_snack:
+      title: Ошибка сохранения шаблона!
+      body: Произошла ошибка при попытке сохранить шаблон.
+    error_no_components:
+      title: Пустой шаблон!
+      body: Вы не добавили ни одного виджета. Добавьте хотя бы один виджет, чтобы сохранить шаблон.
   files:
     title: Файлы
+    empty_folder:
+      title: Эта папка пуста
+      subtitle: Файлы не найдены
+    sort_by:
+      sort_by: Сортировать по
+      name: Название
+      last_modified: Последнее изменение
+      last_printed: Последняя печать
+      file_size: Размер
+      estimated_time: Расчетное время печати
+    file_actions:
+      download: Загрузить
+      delete: Удалить
+      copy: Копировать
+      move: Переместить
+      rename: Переименовать
+      create_file: Создать файл
+      create_folder: Создать папку
+      upload: Загрузить файл
+      upload_bulk: Загрузить файлы
+      zip_file: Создать архив
+    gcode_file_actions:
+      submit: Отправить задание для печати
+      preheat: Преднагрев
+      enqueue: Добавить в очередь для печати
+      preview: Предпросмотр
+    file_operation:
+      download_canceled:
+        title: Загрузка отменена
+        body: Загрузка была отменена.
+      download_failed:
+        title: Не удалось загрузить
+        body: Произошла ошибка при попытке загрузить файл. Пожалуйста, повторите попытку позже.
+      upload_canceled:
+        title: Отправка отменена
+        body: Отправка была отменена.
+      upload_success:
+        title: Успешная отправка
+        body: Файл был успешно отправлен.
+      upload_failed:
+        title: Отправка не удалась
+        body: Произошла ошибка при попытке отправить файл. Пожалуйста, повторите попытку позже.
+        reasons:
+          type_mismatch:
+            title: Тип файла не совпадает
+            body: Только '{}' файлы разрешены.
+      zipping_success:
+        title: Архивирование завершено
+        body: Архив был успешно создан.
+      zipping_failed:
+        title: Архивирование не удалось
+        body: Произошла ошибка при попытке создать архив. Пожалуйста, повторите попытку позже.
+      copy_created:
+        title: Копия создана
+        body: Копия была успешно создана по '{}'.
+      move_success:
+        title: Перемещение успешно
+        body: Файл(ы) успешно перемещены в '{}'.
+      move_failed:
+        title: Перемещение не удалось
+        body: Произошла ошибка при попытке переместить файл(ы). Пожалуйста, повторите попытку позже.
     search_files: Поиск файлов
+    search:
+      clear_search: Очистить поиск
+      waiting: Ожидание поиска!
+      no_results:
+        title: Файлы не найдены
+        subtitle: Попробуйте другой поисковый запрос
+    cancel_fab:
+      upload: Отменить отправку
+      download: Отменить загрузку
+    move_here: Переместить сюда
+    copy_here: Копировать сюда
+    no_matches_file_pattern: Доступны только буквы, цифры, подчеркивания, тире и точки!
+    gcode_tab: G-коды
+    config_tab: Конфигурации
+    timelapse_tab: Таймлапсы
+    element:
+      one: Элемент
+      other: Элементы
     details:
       general_card:
         path: Путь
@@ -99,6 +305,7 @@ pages:
         last_printed: Последняя печать
         no_data: Нет информации
       meta_card:
+        title: Метаданные G-кода
         filament: Филамент
         filament_type: Тип филамента
         filament_name: Имя филамента
