@@ -457,16 +457,9 @@ pages:
   paywall:
     manage_view:
       title: Merci pour votre soutien !
-      list_title: 'hanger le niveau du supporteur :'
-      store_btn: Annuler l'abonnement dans {}
-      sub_warning: Veuillez noter que l'achat d'un niveau de soutien à vie n'annule pas automatiquement les autres abonnements actifs. Vous devrez annuler manuellement tous les abonnements actifs. Cependant, vous avez la possibilité de continuer à soutenir le développement de Mobileraker sur une base récurrente même après avoir acheté le niveau de soutien à vie.
+      cancel_btn: Annuler l'abonnement
     subscribe_view:
       title: Devenez un supporter de Mobileraker !
-      info: |-
-        Mobileraker vise à fournir une interface mobile rapide et fiable pour Klipper, en s'inspirant de l'esprit de RepRap, selon lequel les logiciels et le matériel open-source peuvent avoir un impact positif.
-        Mobileraker est développé par un seul développeur et offert gratuitement, il dépend du financement de la communauté pour couvrir les coûts opérationnels et de développement.
-      list_title: 'Choisissez le niveau de soutien :'
-      subscription_info: Si vous optez pour un abonnement, vous pouvez le résilier à tout moment. L'abonnement sera automatiquement renouvelé si vous ne le résiliez pas avant la fin de la période en cours. Pour résilier l'abonnement, rendez-vous sur la page {} et annulez l'abonnement à partir de là.
     supporter_tier_list:
       error_title: Erreur lors du chargement de Supporter Tiers !
       error_body: Désolé, une erreur inattendue s'est produite. Impossible de charger le SupporterTiers. Veuillez réessayer plus tard !
@@ -479,9 +472,8 @@ pages:
     calling_store: Traitement de la demande...
     promo_title: Promotion
     free_phase: Premier {} gratuit
-    intro_phase: Profitez de {} à {} de réduction
+    intro_phase: "Profitez de {} à {} de réduction"
     iap_offer: "{} sur le prix d'origine"
-    tip_developer: Conseil du développeur
     trial_disclaimer: Vous ne serez pas facturé avant la fin de la période d'essai gratuite et vous pouvez annuler à tout moment pendant cette période.
     restore_sign_in: Restauration / Connexion
   video_player:
@@ -594,31 +586,6 @@ dialogs:
     title: Sélectionner une machine
     active_machine: 'Machine active : {}'
     hint: Tapez sur une machine pour la rendre active.
-  supporter_perks:
-    title: Avantages pour les supporters
-    body: En soutenant Mobileraker, vous vous assurez que l'application reste gratuite pour la communauté. En outre, les supporters bénéficient des avantages suivants.
-    hint: 'Conseil : pour l''instant, les avantages sont liés à l''appareil. Cela pourrait changer à l''avenir.'
-    theme_perk:
-      title: Thème des supporters
-      subtitle: Thème exclusif utilisant Material 3
-    contact_perk:
-      title: Contacter le développeur
-      subtitle: Contact facile avec le développeur !
-    notification_perk:
-      title: Notifications avec copie d'écran
-      subtitle: Les notifications d'état incluent l'instantané de la webcam
-    webrtc_perk:
-      title: Support WebRtc
-      subtitle: Permet l'utilisation des webcams WebRtc !
-    job_queue_perk:
-      title: File d'attente
-      subtitle: Gérez la file d'attente de Moonraker depuis Mobileraker !
-    unlimited_printers_perk:
-      title: mprimantes illimitées
-      subtitle: Contrôlez autant d'imprimantes que vous le souhaitez avec Mobileraker !
-    printer_theme_perk:
-      title: Thèmes basés sur l'imprimante
-      subtitle: Choisissez un thème différent pour chaque imprimante !
   bed_screw_adjust:
     title: Ajustement des vis du plateau
     xy_plane: 'Plan X/Y de l''imprimante :'
