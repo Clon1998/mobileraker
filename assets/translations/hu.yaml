@@ -675,6 +675,9 @@ pages:
   changelog:
     title: Változási napló
   paywall:
+    benefits:
+      subtitle: Nyiss fel exkluzív funkciókat, ha Mobileraker Támogató leszel!
+      become_supporter: Legyél támogató
     manage_view:
       title: Köszönet a támogatásodért!
     subscribe_view:
