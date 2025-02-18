@@ -676,8 +676,22 @@ pages:
     title: Változási napló
   paywall:
     benefits:
+      title: Támogatói funkciók
       subtitle: Nyiss fel exkluzív funkciókat, ha Mobileraker Támogató leszel!
       become_supporter: Legyél támogató
+      discover_all: Fedezd fel az összes támogatói funkciót
+      theme_perk:
+        title: Támogatói téma
+        subtitle: Exkluzív téma Material 3 használatával
+        detail: Tapasztald meg a prémium megjelenést a Material 3 tervezésű témánkkal, amely dinamikus színadaptációval és továbbfejlesztett vizuális elemekkel rendelkezik.
+      contact_perk:
+        title: Fejlesztői kapcsolatfelvétel
+        subtitle: Könnyű kapcsolatfelvétel a fejlesztővel!
+        detail: Közvetlen hozzáférést kaphatsz a kiemelt támogatáshoz és a funkciókérésekhez, így biztosítva, hogy visszajelzéseid hozzájárulnak a Mobileraker jövőjének alakításához.
+      notification_perk:
+        title: Pillanatkép értesítések
+        subtitle: Az állapotértesítés tartalmazza a Webkamera pillanatképet
+        detail: Maradj naprakész az élő webkamera felvételeivel ellátott, gazdag nyomtatási státusz-értesítésekkel, amelyek segítségével bárhonnan nyomon követheted a nyomtatásokat.
     manage_view:
       title: Köszönet a támogatásodért!
     subscribe_view:
