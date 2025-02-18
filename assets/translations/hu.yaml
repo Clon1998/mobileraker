@@ -692,10 +692,77 @@ pages:
         title: Pillanatkép értesítések
         subtitle: Az állapotértesítés tartalmazza a Webkamera pillanatképet
         detail: Maradj naprakész az élő webkamera felvételeivel ellátott, gazdag nyomtatási státusz-értesítésekkel, amelyek segítségével bárhonnan nyomon követheted a nyomtatásokat.
+      webrtc_perk:
+        title: WebRtc támogatás
+        subtitle: Lehetővé teszi a WebRtc webkamerák használatát!
+        detail: A WebRTC-támogatással kiváló minőségű, alacsony késleltetésű videostreaminget élvezhetdz a nyomatokról, így a nyomtató a legtisztább képet nyújtja.
+      job_queue_perk:
+        title: Folyamat várólista
+        subtitle: Kezeld a Moonraker folyamatsorát a Mobilerakerből!
+        detail: Egyszerűsítsd a munkafolyamatokat a nyomtatási várólista közvetlen Mobilerakerben történő kezelésével és szervezésével, amely tökéletes a kötegelt nyomtatáshoz és a gyártástervezéshez.
+      unlimited_printers_perk:
+        title: Korlátlan számú nyomtatók
+        subtitle: Vezérelj annyi nyomtatót, amennyit csak akarsz a Mobileraker segítségével!
+        detail: Korlátok nélkül méretezheted nyomtatási műveleteid - tökéletes több nyomtató kezelésére otthoni laboratóriumodban vagy nyomtatófarmon.
+        short: Méretezd a műveletet
+      printer_theme_perk:
+        title: Nyomtató alapú témák
+        subtitle: Válassz minden nyomtatóhoz más témát!
+        detail: Egyedi témák hozzárendelésével minden nyomtatóhoz személyre szabhatod az élményt, így könnyebben megkülönböztetheted a különböző gépeket egy pillantással.
+      custom_dashboard_perk:
+        title: Egyéni műszerfal
+        subtitle: Testreszabhatod a műszerfalat a saját ízlésed szerint!
+        detail: Ideális munkafolyamatot hozhatsz létre azáltal, hogy a widgeteket és vezérlőelemeket pontosan úgy rendezed el, ahogyan szeretnéd, így a legfontosabb információk mindig kéznél vannak.
+        short: A tökéletes munkafolyamatod
+      full_file_management_perk:
+        title: Teljeskörű fájlkezelés
+        subtitle: Nyisd meg a Mobileraker teljes fájlkezelési képességeit!
+        detail: A fejlett kezelési funkciókkal, többek között a nyomtatási könyvtár rendszerezésével, feltöltésével és karbantartásával teljes körűen kezelheted nyomtatási fájljaid.
+      ad_free_perk:
+        title: Reklámmentes élmény
+        subtitle: Élvezd a Mobileraker-t reklámok nélkül!
+        detail: Koncentrálj teljes mértékben a nyomtatásra egy tiszta, zavaró tényezők nélküli felülettel, amely a tartalmat helyezi a középpontba.
+        short: Teljes fókusz
+      spoolman_perk:
+        title: Orsómester-UI
+        subtitle: Kezeld a nyomtatószál orsóit az Orsómester segítségével
+        detail: Az integrált Orsómester támogatással tökéletesen nyomon követheted a szálkészletet - nyomtatás közben figyelemmel kísérheted az egyes orsók felhasználását, költségeit és maradék mennyiségét, így az anyagkezelés könnyedén megoldható.
+      advanced_perk:
+        title: Speciális vezérlők
+        short: Teljeskörű képességek
+    tipping:
+      title: Vegyél nekem egy kávét
+      subtitle: "Szeretnéd kifejezni extra megbecsülésed? Támogasd a jövőbeli fejlesztéseket egy gyors ajándékkal:"
+      subtitle_supporter: "Szeretnéd támogatni a folyamatos fejlődést? Fontold meg, hogy egy borravalóval egészíted ki előfizetésed:"
+      disclaimer: A borravaló csomagok nem visszatéríthetők, és nem biztosítanak további funkciókat.
+      other_btn: Egyéb összeg
+      divider: Vagy mutasd ki a megbecsülésed
+    sup_lifetime_warning:
+      title: Előfizetési értesítés
+      subtitle: |-
+        Észrevettük, hogy Te élethosszig tartó hozzáféréssel és aktív előfizetéssel is rendelkezel.
+        Míg az élethosszig tartó hozzáférés minden funkciót tartalmaz, az előfizetést megtarthatod, hogy támogasd a folyamatos fejlesztést.
+
+        Kérjük, vedd figyelembe, hogy az élethosszig tartó hozzáférés nem törli automatikusan a meglévő előfizetéseket - ezt manuálisan kell megtenned, ha úgy döntesz.
+
+        Mindkét esetben nagyra értékeljük a támogatásodat!
+    sup_origin_warning:
+      title: Külső platform előfizetés
+      subtitle: "Te támogató vagy, de a támogatói státuszod egy másik platformon vásároltad meg! \n\nTovábbra is használhatod az összes prémium funkciót, de itt nem tudod kezelni az előfizetésedet!"
+    header:
+      rating: "{} a {}"
+      open_core: Nyitott mag
+      amnt_users: "{} felhasználók"
+      active_dev: Aktív fejlesztés
     manage_view:
       title: Köszönet a támogatásodért!
+      subtitle: Segítesz abban, hogy a Mobileraker mindenki számára jobb legyen, miközben prémium funkciókat és reklámmentes élményt élvezhetsz. Köszönjük, hogy tagja vagy a készítő közösségünknek!
+      offering_title: Változtasd meg a támogatói szinted
+      cancel_btn: Előfizetés lemondása
     subscribe_view:
       title: Legyél Mobileraker támogató!
+      subtitle: A Mobileraker egy gyors és megbízható mobil Ul-t biztosít a Klipper számára, amelyet a maker közösség inspirált. Míg az alapvető funkciók továbbra is ingyenesek maradnak, a támogatók számára prémium funkciók és reklámmentes élmény áll rendelkezésre.
+      offering_title: Válaszd ki a Támogatói szinted
     supporter_tier_list:
       error_title: Hiba a támogatói szintek betöltésekor!
       error_body: Sajnálom, váratlan hiba történt. Nem sikerült betölteni a támogatói szintet. Kérlek, próbáld újra később!
@@ -711,6 +778,7 @@ pages:
     intro_phase: "Élvezd {} kedvezményes {} áron"
     iap_offer: "{} eredeti árból"
     trial_disclaimer: Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést.
+    subscription_disclaimer: Az előfizetés automatikusan megújul. Bármikor lemondhatod.
     restore_sign_in: Visszaállítás / Bejelentkezés
   video_player:
     downloading_for_sharing: Videó letöltése megosztáshoz… ({})
@@ -1352,6 +1420,27 @@ consent_cards:
       • marketingközleményeket és promóciós ajánlatokat küldjünk Neked
       • ezen adatok feldolgozása az Adatvédelmi szabályzatunkkal összhangban
     disclaimer: A hozzájárulásod bármikor visszavonhatod az alkalmazás beállításain keresztül. További információkért arról, hogyan kezeljük az adataidat, kérjük, tekintsd meg Adatvédelmi szabályzatunkat.
+products:
+  most_popular: Legnépszerűbb
+  lifetime:
+    title: Életre szóló támogató
+    subtitle: Egyszeri hozzájárulás
+  annual:
+    title: Éves támogató
+    subtitle: Fizess kevesebbet éves csomagunkkal
+  sixMonth:
+    title: 6 havi támogató
+  threeMonth:
+    title: 3 havi támogató
+  monthly:
+    title: Havi támogató
+    subtitle: Támogass minket minden hónapban
+  weekly:
+    title: Heti támogató
+  tip:
+    coffee: "Kávé"
+    snack: "Snack"
+    lunch: "Ebéd"
 languages:
   languageCode:
     ab:
