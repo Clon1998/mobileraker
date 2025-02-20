@@ -114,6 +114,7 @@ pages:
         sensors: 感測器
         heater_on: "目標 {} °C"
         btn_thermistor: 感測器
+        still_hot: "{} 仍然很燙！"
       temp_preset_card:
         cooloff: 關閉冷卻
         h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
@@ -392,6 +393,7 @@ pages:
       lcFullCam: 全螢幕攝影機畫面
       lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
+      companion_link: 官方GitHub頁面
       sliders_grouping: 編組滑桿卡片
       sliders_grouping_hint: 編組所有滑桿在一張卡片中
       time_format: 時間格式
@@ -435,12 +437,14 @@ pages:
       enable_live_activity_helper: 啟用即時活動，並且除了預設的進度通知外，還能使用即時活動功能。
       opt_out_marketing: 行銷通知
       opt_out_marketing_helper: 接收有關銷售和促銷活動的更新
+      opt_out_marketing_error: 載入行銷偏好選項時發生錯誤，請稍後再試。
       use_progressbar_notification: 啟用進度條通知
       use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
     developer:
       title: 開發者
       crashlytics: 啟用 Crashlytics 報告
     imprint: 隱私權政策 / 法律聲明
+    ad_preferences: 廣告偏好選項
   printer_edit:
     title: 編輯 {}
     import_settings: 匯入設定
@@ -662,6 +666,16 @@ pages:
   changelog:
     title: 變更紀錄
   paywall:
+    benefits:
+      subtitle: 成為 Mobileraker 支持者，解鎖獨家功能！
+      become_supporter: 成為支持者
+      unlimited_printers_perk:
+        title: 無限數量的列印機
+        detail: 無限擴展您的列印作業－完美適用於管理家用實驗室或列印農場中的多台印表機。
+      custom_dashboard_perk:
+        title: 自訂儀表板
+      spoolman_perk:
+        subtitle: 使用Spoolman管理您的線捲
     manage_view:
       title: 感謝您的支持！
       cancel_btn: 取消訂閱
@@ -830,6 +844,9 @@ pages:
       update_page_title: 編輯製造商
       helper:
         empty_weight: 此製造商空線盤的重量。
+  temp_chart:
+    title: 溫度圖表
+    chart_y_axis: 溫度[°C]
 components:
   app_version_display:
     version: '版本：'
@@ -1044,10 +1061,10 @@ dialogs:
     controls:
       heat_up: 加熱
       change_temp: 變更溫度
-      purge: 清除
+      purge: 清理
       repeat_load: 重複裝載
       repeat_unload: 重複退料操作
-      repeat_purge: 重複清除
+      repeat_purge: 重複清理
     steps:
       set_temps:
         title: 線材溫度
