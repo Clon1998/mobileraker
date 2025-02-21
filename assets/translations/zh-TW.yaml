@@ -444,7 +444,6 @@ pages:
       title: 開發者
       crashlytics: 啟用 Crashlytics 報告
     imprint: 隱私權政策 / 法律聲明
-    ad_preferences: 廣告偏好選項
   printer_edit:
     title: 編輯 {}
     import_settings: 匯入設定
