@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2023-2024. Patrick Schmidt.
+  ~ Copyright (c) 2023-2025. Patrick Schmidt.
   ~ All rights reserved.
   -->
 
@@ -75,6 +75,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data android:name="google_analytics_default_allow_analytics_storage" android:value="true"/>
+        <meta-data android:name="google_analytics_default_allow_ad_storage" android:value="true"/>
+        <meta-data android:name="google_analytics_default_allow_ad_user_data" android:value="eu_consent_policy"/>
+        <meta-data android:name="google_analytics_default_allow_ad_personalization_signals"
+                   android:value="eu_consent_policy"/>
         <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
             <intent-filter android:label="flutter_web_auth">
                 <action android:name="android.intent.action.VIEW" />

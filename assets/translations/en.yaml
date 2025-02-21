@@ -464,7 +464,7 @@ pages:
       title: Developer
       crashlytics: Enable Crashlytics reporting
     imprint: Privacy/Impressum
-    ad_preferences: Ad Preferences
+    ump_dialog: Privacy & Consent Settings
   printer_edit:
     title: Edit {}
     import_settings: Import Settings

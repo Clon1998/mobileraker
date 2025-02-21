@@ -39,6 +39,7 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
 import 'service/ui/dialog_service_impl.dart';
+import 'ui/components/analytics_consent.dart';
 import 'ui/theme/theme_setup.dart';
 
 Future<void> main() async {
@@ -158,7 +159,11 @@ class _WarmUp extends HookConsumerWidget {
             data: (step) {
               if (step == StartUpStep.complete) {
                 return KeepScreenOnTrigger(
-                  child: AdMobsConsent(child: ResponsiveBuilder(childBuilder: (context) => const MyApp())),
+                  child: AdMobsConsent(
+                    child: AnalyticsConsent(
+                      child: ResponsiveBuilder(childBuilder: (context) => const MyApp()),
+                    ),
+                  ),
                 );
               }
               return const _LoadingSplashScreen();

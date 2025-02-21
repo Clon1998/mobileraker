@@ -25,6 +25,7 @@ environment:
 dependency_overrides:
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
   collection: 1.19.0 # Required because dio_smart_retry is in conflict with the flutter sdk otherwise
+  rxdart: ^0.28.0
 
 dependencies:
   flutter:
@@ -75,6 +76,7 @@ dependencies:
   hashlib_codecs: ^2.2.0
   hashlib: ^1.21.0
   pem: ^2.0.4
+  iabtcf_consent_info: ^3.4.0
 
   #persistent
   hive_ce_flutter: ^2.1.0

@@ -16,7 +16,6 @@ import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
-import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -33,18 +32,14 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:iabtcf_consent_info/iabtcf_consent_info.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
-import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
-import 'package:mobileraker_pro/gcode_preview/ui/gcode_preview_card.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../paywall/components/supporter_benefits.dart';
-import '../paywall/components/supporter_offerings.dart';
 
 part 'dev_page.g.dart';
 
@@ -60,17 +55,12 @@ class DevPage extends HookConsumerWidget {
     logger.i('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
 
-    var systemInfo = ref.watch(klippySystemInfoProvider(selMachine!.uuid));
-
     Widget body = ListView(
       children: [
         // GCodePreviewCard.preview(),
-        GCodePreviewCard(machineUUID: selMachine.uuid),
         // const _StlPreview(),
-        AdBanner(
-          unit: AdBlockUnit.fileManagerPage,
-        ),
         const _Consent(),
+        _IabTCTSTATUS(),
 
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
@@ -122,57 +112,6 @@ class DevPage extends HookConsumerWidget {
       ],
     );
 
-    final themeData = Theme.of(context);
-
-    body = ListView(
-      padding: const EdgeInsets.all(8),
-      children: [
-        FeatureSectionHeader(),
-        SupporterBenefits(),
-        // Gap(16),
-        // SupporterTestimonials(),
-        Gap(16),
-        SupporterOfferings(
-          packets: [
-            normalMonthly(),
-            anualDummy(),
-          ],
-        ),
-        Gap(8),
-        Row(
-          spacing: 8,
-          children: <Widget>[
-            Expanded(child: Divider(thickness: 1)),
-            Text("Or show your appreciation", style: themeData.textTheme.bodySmall),
-            Expanded(child: Divider(thickness: 1)),
-          ],
-        ),
-        Gap(8),
-        // TippingCard([]),
-        Gap(16),
-        PaywallFooter(),
-      ],
-    );
-
-    // body = CustomScrollView(
-    //   slivers: [
-    //     SliverAppBar(
-    //       expandedHeight: 210,
-    //       floating: false,
-    //       flexibleSpace: FlexibleSpaceBar(
-    //         collapseMode: CollapseMode.parallax,
-    //         background: SvgPicture.asset(
-    //           alignment: Alignment.topCenter,
-    //           'assets/vector/mr_logo.svg',
-    //         ),
-    //       ),
-    //     ),
-    //
-    //     SliverFillRemaining(
-    //       child: Text('12312312312312312312312'),
-    //     )
-    //   ],
-    // );
 
     if (context.isLargerThanCompact) {
       body = NavigationRailView(page: body);
@@ -435,6 +374,33 @@ class _TestAd extends ConsumerWidget {
 
     logger.i('No ad available');
     return const SizedBox.shrink();
+  }
+}
+
+class _IabTCTSTATUS extends ConsumerWidget {
+  const _IabTCTSTATUS({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ElevatedButton(onPressed: onPressed, child: Text('IAB TCT STATUS'));
+  }
+
+  void onPressed() async {
+    logger.i('Trying to get IATCFT status');
+    ConsentInfo? currentConsentInfo = (await IabtcfConsentInfo.instance.currentConsentInfo()) as ConsentInfo?;
+    logger.i('Got IABTCT status: $currentConsentInfo');
+
+    logger.i('PurposeConsents:');
+    currentConsentInfo?.purposeConsents.forEach((v) => logger.i('\t\t- ${v}'));
+
+    logger.i('PurposeLegitimateInterests:');
+    currentConsentInfo?.purposeLegitimateInterests.forEach((v) => logger.i('\t\t- ${v}'));
+
+    logger.i('publisherConsents:');
+    currentConsentInfo?.publisherConsents.forEach((v) => logger.i('\t\t- ${v}'));
+
+    logger.i('publisherLegitimateInterests:');
+    currentConsentInfo?.publisherLegitimateInterests.forEach((v) => logger.i('\t\t- ${v}'));
   }
 }
 

@@ -36,7 +36,7 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
-import 'package:mobileraker_pro/ads/ui/ad_preferences_text_button.dart';
+import 'package:mobileraker_pro/ads/ui/data_and_privacy_text_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerWidget {
@@ -459,7 +459,7 @@ class _Footer extends ConsumerWidget {
               overflowAlignment: OverflowBarAlignment.center,
               spacing: 4,
               children: [
-                if (isFormAvailable.valueOrNull == true && adMobsenabled) const AdPreferencesTextButton(),
+                if (isFormAvailable.valueOrNull == true && adMobsenabled) const DataAndPrivacyTextButton(),
                 if (Platform.isIOS)
                   TextButton(
                     child: const Text('EULA'),
