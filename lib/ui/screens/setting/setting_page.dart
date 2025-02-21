@@ -9,7 +9,6 @@ import 'package:common/data/enums/consent_entry_type.dart';
 import 'package:common/data/enums/consent_status.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/service/consent_service.dart';
-import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -452,14 +451,13 @@ class _Footer extends ConsumerWidget {
         children: [
           Consumer(builder: (context, ref, child) {
             final isFormAvailable = ref.watch(isConsentFormAvailableProvider);
-            final adMobsenabled = ref.watch(remoteConfigBoolProvider('use_admobs')) || kDebugMode;
 
             return OverflowBar(
               alignment: MainAxisAlignment.spaceEvenly,
               overflowAlignment: OverflowBarAlignment.center,
               spacing: 4,
               children: [
-                if (isFormAvailable.valueOrNull == true && adMobsenabled) const DataAndPrivacyTextButton(),
+                if (isFormAvailable.valueOrNull == true) const DataAndPrivacyTextButton(),
                 if (Platform.isIOS)
                   TextButton(
                     child: const Text('EULA'),
