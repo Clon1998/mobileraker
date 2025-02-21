@@ -448,7 +448,7 @@ pages:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
     imprint: Privatsphäre/Impressum
-    ad_preferences: Werbeeinstellungen
+    ump_dialog: Datenschutz & Einwilligung
   printer_edit:
     title: Bearbeiten {}
     import_settings: Importeinstellungen
