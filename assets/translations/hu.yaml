@@ -450,6 +450,7 @@ pages:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
     imprint: Adatvédelem/Impresszum
+    ump_dialog: Adatvédelmi és hozzájárulási beállítások
   printer_edit:
     title: Szerkesztés {}
     import_settings: Beállítások importálása
@@ -732,6 +733,7 @@ pages:
     tipping:
       title: Vegyél nekem egy kávét
       subtitle: "Szeretnéd kifejezni extra megbecsülésed? Támogasd a jövőbeli fejlesztéseket egy gyors ajándékkal:"
+      subtitle_supporter: "Szeretnéd támogatni a folyamatos fejlődést? Fontold meg, hogy borravalóval egészíted ki előfizetésed."
       disclaimer: A borravaló csomagok nem visszatéríthetők, és nem biztosítanak további funkciókat.
       other_btn: Egyéb összeg
       divider: Vagy mutasd ki a megbecsülésed
@@ -746,6 +748,7 @@ pages:
         Mindkét esetben nagyra értékeljük a támogatásodat!
     sup_origin_warning:
       title: Külső platform előfizetés
+      subtitle: Támogató vagy, de a támogatói státuszod egy másik platformon vásároltad meg! Továbbra is használhatod az összes prémium funkciót, de itt nem tudod kezelni az előfizetésedet!
     header:
       rating: "{} a {}"
       open_core: Nyitott mag
