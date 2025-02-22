@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.8.6] - 2025-02-22
+
+### Bug Fixes
+
+- **Missing Translation**: Added the missing translation for the __Job Queue__ button(s) at multiple locations within
+  the app.
+
 ## [2.8.5] - 2025-02-17
 
 ### Enhancements
