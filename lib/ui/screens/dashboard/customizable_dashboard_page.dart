@@ -433,7 +433,7 @@ class _PrintingFAB extends ConsumerWidget {
             ),
             backgroundColor: themeData.colorScheme.primary,
             foregroundColor: themeData.colorScheme.onPrimary,
-            label: tr('dialogs.supporter_perks.job_queue_perk.title'),
+            label: tr('pages.paywall.benefits.job_queue_perk.title'),
             onTap: () => ref
                 .read(bottomSheetServiceProvider)
                 .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),

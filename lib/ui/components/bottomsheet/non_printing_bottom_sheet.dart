@@ -101,7 +101,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                   .read(bottomSheetServiceProvider)
                   .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
               child: AutoSizeText(
-                tr('dialogs.supporter_perks.job_queue_perk.title'),
+                tr('pages.paywall.benefits.job_queue_perk.title'),
                 maxLines: 1,
               ),
             ),

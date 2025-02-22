@@ -31,7 +31,7 @@ class JobQueueFab extends ConsumerWidget {
         ? const SizedBox.shrink(key: Key('job_queue_fab_empty'))
         : FloatingActionButton(
             key: const Key('job_queue_fab'),
-            tooltip: tr('dialogs.supporter_perks.job_queue_perk.title'),
+            tooltip: tr('pages.paywall.benefits.job_queue_perk.title'),
             onPressed: onPressed,
             mini: mini,
             child: badges.Badge(
