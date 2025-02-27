@@ -132,7 +132,8 @@ class BedMeshPlot extends StatelessWidget {
 }
 
 class _ZScatterSpot extends ScatterSpot {
-  _ZScatterSpot(super.x, super.y, this.z, {super.dotPainter, super.show});
+  _ZScatterSpot(super.x, super.y, this.z,
+      {super.renderPriority, super.dotPainter, super.show, super.xError, super.yError});
 
   final double z;
 
@@ -142,14 +143,20 @@ class _ZScatterSpot extends ScatterSpot {
     double? y,
     double? z,
     bool? show,
+    int? renderPriority,
     FlDotPainter? dotPainter,
+    FlErrorRange? xError,
+    FlErrorRange? yError,
   }) {
     return _ZScatterSpot(
       x ?? this.x,
       y ?? this.y,
       z ?? this.z,
       show: show ?? this.show,
+      renderPriority: renderPriority ?? this.renderPriority,
       dotPainter: dotPainter ?? this.dotPainter,
+      xError: xError ?? this.xError,
+      yError: yError ?? this.yError,
     );
   }
 

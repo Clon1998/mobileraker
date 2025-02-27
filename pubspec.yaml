@@ -24,8 +24,8 @@ environment:
 
 dependency_overrides:
   web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
-  collection: 1.19.0 # Required because dio_smart_retry is in conflict with the flutter sdk otherwise
   rxdart: ^0.28.0
+  intl: ^0.19.0 # Required because awesome notifcations is in conflict with form builder
 
 dependencies:
   flutter:
@@ -50,7 +50,7 @@ dependencies:
 
   #architecture
   freezed_annotation: ^2.4.1
-  flutter_hooks: ^0.20.1
+  flutter_hooks: ^0.21.2
   hooks_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   json_annotation: ^4.7.0
@@ -67,7 +67,7 @@ dependencies:
   url_launcher: ^6.1.6
   logger: ^1.3.0
   permission_handler: ^11.0.0
-  collection: ^1.18.0
+  collection: ^1.19.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
   flutter_audio_capture: ^1.1.8
@@ -90,9 +90,9 @@ dependencies:
   google_fonts: ^6.2.0 # 6.2.0 preventing the app from building
 
   #notification
-  awesome_notifications_core: ^0.10.0
-  awesome_notifications: ^0.10.0
-  awesome_notifications_fcm: ^0.10.0
+  awesome_notifications_core: ^0.10.1
+  awesome_notifications: ^0.10.1
+  awesome_notifications_fcm: ^0.10.1
   live_activities: ^2.3.0
   #        ref: feature/multi-state-req
 
@@ -144,7 +144,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   dots_indicator: 2.1.2
   webview_flutter: ^4.4.0
-  fl_chart: ^0.69.0
+  fl_chart: ^0.70.2
   syncfusion_flutter_charts: ^28.1.41
   code_text_field: ^1.0.2
   mobile_scanner: ^6.0.2
@@ -155,13 +155,13 @@ dependencies:
   #  touchable: ^1.0.2
   flutter_markdown: ^0.7.3+1
   flutter_svg: ^2.0.5
-  loader_overlay: ^4.0.0
+  loader_overlay: ^5.0.0
   appinio_video_player:
     git:
       url: https://github.com/JahnChoi/appinio_flutter_packages
       path: packages/appinio_video_player
       ref: feature/switch-cached-video-player-dep
-  file_picker: 8.1.4
+  file_picker: 9.0.2
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
 
