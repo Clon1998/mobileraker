@@ -17,13 +17,15 @@
 		CD1B916429FFEE170062AE26 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD1B916329FFEE170062AE26 /* StoreKit.framework */; };
 		CD1E1FD82ACF654400A311C3 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */; };
 		CD54F7E42C0CD9D000BC3025 /* PrintStatusIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicatorView.swift */; };
+		CD7011492D723A71004E0F5C /* StandardPrintLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7011482D723A68004E0F5C /* StandardPrintLockScreenView.swift */; };
+		CD70114D2D723F20004E0F5C /* SmallPrintLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD70114C2D723F20004E0F5C /* SmallPrintLockScreenView.swift */; };
 		CDCC27F52AAB9A0800116FFF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */; };
 		CDCC27F72AAB9A0800116FFF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */; };
 		CDCC28002AAB9A0A00116FFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CDCC27FF2AAB9A0A00116FFF /* Assets.xcassets */; };
 		CDCC28042AAB9A0A00116FFF /* MobilrakerLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDCC280C2AAB9F2400116FFF /* PrintingLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCC280A2AAB9E0100116FFF /* PrintingLiveActivity.swift */; };
 		CDCC280F2AABA70000116FFF /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCC280E2AABA70000116FFF /* CircularProgressView.swift */; };
-		CDD1F6C22C4E6568006666EC /* OperationLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1F6C12C4E6568006666EC /* OperationLockScreenView.swift */; };
+		CDD1F6C22C4E6568006666EC /* PrintLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1F6C12C4E6568006666EC /* PrintLockScreenView.swift */; };
 		CDD1F6C42C4EC13C006666EC /* PrintJobEtaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1F6C32C4EC13C006666EC /* PrintJobEtaView.swift */; };
 		CDD1F6C62C4EC26D006666EC /* DateDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1F6C52C4EC26D006666EC /* DateDisplayView.swift */; };
 		CDD1F6C82C4EC413006666EC /* DateTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1F6C72C4EC413006666EC /* DateTimerView.swift */; };
@@ -107,6 +109,8 @@
 		CD1B916329FFEE170062AE26 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
 		CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintStatusIndicatorView.swift; sourceTree = "<group>"; };
+		CD7011482D723A68004E0F5C /* StandardPrintLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardPrintLockScreenView.swift; sourceTree = "<group>"; };
+		CD70114C2D723F20004E0F5C /* SmallPrintLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallPrintLockScreenView.swift; sourceTree = "<group>"; };
 		CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilrakerLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -115,7 +119,7 @@
 		CDCC28092AAB9B4000116FFF /* MobilrakerLiveActivityExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilrakerLiveActivityExtension.entitlements; sourceTree = "<group>"; };
 		CDCC280A2AAB9E0100116FFF /* PrintingLiveActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrintingLiveActivity.swift; sourceTree = "<group>"; };
 		CDCC280E2AABA70000116FFF /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
-		CDD1F6C12C4E6568006666EC /* OperationLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationLockScreenView.swift; sourceTree = "<group>"; };
+		CDD1F6C12C4E6568006666EC /* PrintLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintLockScreenView.swift; sourceTree = "<group>"; };
 		CDD1F6C32C4EC13C006666EC /* PrintJobEtaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintJobEtaView.swift; sourceTree = "<group>"; };
 		CDD1F6C52C4EC26D006666EC /* DateDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateDisplayView.swift; sourceTree = "<group>"; };
 		CDD1F6C72C4EC413006666EC /* DateTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimerView.swift; sourceTree = "<group>"; };
@@ -246,12 +250,14 @@
 		CDCC280D2AABA6EB00116FFF /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				CD7011482D723A68004E0F5C /* StandardPrintLockScreenView.swift */,
 				CDCC280E2AABA70000116FFF /* CircularProgressView.swift */,
-				CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicatorView.swift */,
-				CDD1F6C12C4E6568006666EC /* OperationLockScreenView.swift */,
-				CDD1F6C32C4EC13C006666EC /* PrintJobEtaView.swift */,
 				CDD1F6C52C4EC26D006666EC /* DateDisplayView.swift */,
 				CDD1F6C72C4EC413006666EC /* DateTimerView.swift */,
+				CDD1F6C32C4EC13C006666EC /* PrintJobEtaView.swift */,
+				CDD1F6C12C4E6568006666EC /* PrintLockScreenView.swift */,
+				CD70114C2D723F20004E0F5C /* SmallPrintLockScreenView.swift */,
+				CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicatorView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -543,9 +549,11 @@
 			files = (
 				CDF967FC2AB5E2A900D7FF15 /* Utils.swift in Sources */,
 				CDD1F6C62C4EC26D006666EC /* DateDisplayView.swift in Sources */,
+				CD70114D2D723F20004E0F5C /* SmallPrintLockScreenView.swift in Sources */,
 				CDCC280F2AABA70000116FFF /* CircularProgressView.swift in Sources */,
 				CDD1F6C42C4EC13C006666EC /* PrintJobEtaView.swift in Sources */,
-				CDD1F6C22C4E6568006666EC /* OperationLockScreenView.swift in Sources */,
+				CD7011492D723A71004E0F5C /* StandardPrintLockScreenView.swift in Sources */,
+				CDD1F6C22C4E6568006666EC /* PrintLockScreenView.swift in Sources */,
 				CDD1F6C82C4EC413006666EC /* DateTimerView.swift in Sources */,
 				CDCC280C2AAB9F2400116FFF /* PrintingLiveActivity.swift in Sources */,
 				CD54F7E42C0CD9D000BC3025 /* PrintStatusIndicatorView.swift in Sources */,
@@ -637,7 +645,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -664,7 +672,7 @@
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Mobileraker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -726,7 +734,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -775,7 +783,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -804,7 +812,7 @@
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Mobileraker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -838,7 +846,7 @@
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Mobileraker;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -886,11 +894,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilrakerLiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Debug;
 		};
@@ -926,9 +937,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilrakerLiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Release;
 		};
@@ -964,9 +978,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilrakerLiveActivity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
 			};
 			name = Profile;
 		};
@@ -993,7 +1010,7 @@
 				INFOPLIST_FILE = MobilerakerNotificationExtention/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationExtention;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1038,7 +1055,7 @@
 				INFOPLIST_FILE = MobilerakerNotificationExtention/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationExtention;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1080,7 +1097,7 @@
 				INFOPLIST_FILE = MobilerakerNotificationExtention/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationExtention;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

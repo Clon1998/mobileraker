@@ -1,23 +1,20 @@
 //
-//  OperationLockScreenView.swift
-//  MobilrakerLiveActivityExtension
+//  StandardPrintLockScreenView.swift
+//  Runner
 //
-//  Created by Patrick Schmidt on 22.07.24.
+//  Created by Patrick Schmidt on 28.02.25.
 //
-
 
 import SwiftUI
 import WidgetKit
 import Foundation
 
-
-struct OperationLockScreenView: View {
+struct StandardPrintLockScreenView: View {
     let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
     
     var body: some View {
         let labelColor = Color(UIColor.label.dark)
         let secondaryLabel = Color(UIColor.secondaryLabel.dark)
-        
         
         VStack(alignment: .leading, spacing: 8.0) {
             if (activityContext.printerState == "printing") {
@@ -68,10 +65,5 @@ struct OperationLockScreenView: View {
             .foregroundStyle(secondaryLabel)
             .fontWeight(.light)
         }
-    }
-    
-    @ViewBuilder
-    private func createStatusImage(systemName: String) -> some View {
-        Text("nope")
     }
 }

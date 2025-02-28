@@ -41,6 +41,3 @@ struct DateDisplayView: View {
 
 }
 
-#Preview {
-    DateDisplayView(date: Date.now)
-}

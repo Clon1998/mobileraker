@@ -8,6 +8,8 @@
 import ActivityKit
 import WidgetKit
 import SwiftUI
+import Foundation
+
 
 @main
 struct MobilrakerLiveActivityBundle: WidgetBundle {
@@ -36,14 +38,11 @@ let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
 
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
-        ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
-        let backgroundColor = Color.black.opacity(0.55)
-        let labelColor = Color(UIColor.label.dark)
-        
-         OperationLockScreenView(activityContext: context)
+        let liveAc = ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
+            PrintLockScreenView(activityContext: context)
             .padding(14)
-            .activityBackgroundTint(backgroundColor)
-            .activitySystemActionForegroundColor(labelColor)
+            .activityBackgroundTint(Color.black.opacity(0.55))
+            .activitySystemActionForegroundColor(Color(UIColor.label.dark))
         } dynamicIsland: { context in
             return DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
@@ -104,6 +103,13 @@ struct PrintingLiveActivity: Widget {
             }
             .keylineTint(colorWithRGBA(context.printerColorDark))
         }
+        
+        if #available(iOS 18.0, *) {
+            //TODO: The liveAc primary OperationLockScreenView needs to have multiple options
+            return liveAc.supplementalActivityFamilies([.small])
+        }
+        
+        return liveAc
     }
 }
 
@@ -111,4 +117,97 @@ extension LiveActivitiesAppAttributes {
     func prefixedKey(key: String) -> String {
         return "\(id)_\(key)"
     }
+    
+    static var previewAttributes: LiveActivitiesAppAttributes {
+        let attributes = LiveActivitiesAppAttributes()
+        
+        // Setup mock data in UserDefaults
+        let defaults = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
+        defaults.set("Prusa MK3S+", forKey: attributes.prefixedKey(key: "machine_name"))
+        defaults.set("Printing", forKey: attributes.prefixedKey(key: "printing_label"))
+        defaults.set("Complete", forKey: attributes.prefixedKey(key: "complete_label"))
+        defaults.set("Paused", forKey: attributes.prefixedKey(key: "paused_label"))
+        defaults.set("Error", forKey: attributes.prefixedKey(key: "error_label"))
+        defaults.set("Time Remaining", forKey: attributes.prefixedKey(key: "remaining_label"))
+        defaults.set("ETA", forKey: attributes.prefixedKey(key: "eta_label"))
+        defaults.set("Time Elapsed", forKey: attributes.prefixedKey(key: "elapsed_label"))
+        defaults.set(0xFF0FF0FF, forKey: attributes.prefixedKey(key: "primary_color_light"))
+        defaults.set(0xFFFF0000, forKey: attributes.prefixedKey(key: "primary_color_dark"))
+        defaults.set(Int(Date().timeIntervalSince1970), forKey: attributes.prefixedKey(key: "printStartTime"))
+        
+        return attributes
+    }
+}
+
+extension LiveActivitiesAppAttributes.ContentState {
+    static var printingShortEta: Self {
+        .init(
+            progress: 0.45,
+            eta: Int(Date().addingTimeInterval(3600).timeIntervalSince1970),
+            printState: "printing",
+            file: "benchy.gcode"
+        )
+    }
+    
+    static var printingLongEta: Self {
+        .init(
+            progress: 0.45,
+            eta: Int(Date().addingTimeInterval(3600*2).timeIntervalSince1970),
+            printState: "printing",
+            file: "benchy.gcode"
+        )
+    }
+    
+    static var printingNextDayEta: Self {
+        .init(
+            progress: 0.45,
+            eta: Int(Date().addingTimeInterval(3600*24).timeIntervalSince1970),
+            printState: "printing",
+            file: "benchy.gcode"
+        )
+    }
+    
+    static var paused: Self {
+        .init(
+            progress: 0.45,
+            eta: Int(Date().addingTimeInterval(3600).timeIntervalSince1970),
+            printState: "paused",
+            file: "benchy.gcode"
+        )
+    }
+    
+    static var error: Self {
+        .init(
+            progress: 0.45,
+            eta: Int(Date().addingTimeInterval(3600).timeIntervalSince1970),
+            printState: "error",
+            file: "benchy.gcode"
+        )
+    }
+    
+    static var complete: Self {
+        .init(
+            progress: 1,
+            eta: 2,
+            printState: "complete",
+            file: "benchy.gcode"
+        )
+    }
+}
+
+
+@available(iOS 18.0, *)
+#Preview(
+    "Content",
+    as: .content,
+    using: LiveActivitiesAppAttributes.previewAttributes
+) {
+    PrintingLiveActivity()
+} contentStates: {
+    LiveActivitiesAppAttributes.ContentState.printingShortEta
+    LiveActivitiesAppAttributes.ContentState.printingLongEta
+    LiveActivitiesAppAttributes.ContentState.printingNextDayEta
+    LiveActivitiesAppAttributes.ContentState.paused
+    LiveActivitiesAppAttributes.ContentState.error
+    LiveActivitiesAppAttributes.ContentState.complete
 }

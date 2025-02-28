@@ -36,12 +36,3 @@ struct CircularProgressView: View {
         }
     }
 }
-
-struct CircularProgressView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack{
-            CircularProgressView(progress: 0.5)
-        }
-        
-    }
-}

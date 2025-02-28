@@ -11,10 +11,12 @@ import WidgetKit
 /// Either shows an ETA (Timestamp) or a Remaining  (Timer) time
 struct PrintJobEtaView: View {
     let etaDate: Date?
+    
+    var delta: Int = 3
 
     var body: some View {
         if let eta = etaDate {
-            if shouldShowAsTimer(eta) {
+            if shouldShowAsTimer(eta, delta: delta) {
                 DateTimerView(date: eta)
             } else {
                 DateDisplayView(date: eta)
