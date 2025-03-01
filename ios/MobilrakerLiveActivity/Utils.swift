@@ -76,7 +76,7 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
     }
     
     var printProgress: Double {
-       return printerState == "complete" ?  1 : self.state.progress ?? sharedDefault.double(forKey: self.attributes.prefixedKey(key: "progress"))
+        return printerState == "complete" ?  1 : self.state.progress ?? sharedDefault.double(forKey: self.attributes.prefixedKey(key: "progress"))
     }
     
     var etaInterval: Int {
@@ -85,11 +85,11 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
     
     var etaDate: Date? {
         let interval = self.etaInterval
-
+        
         if (interval > 0) {
             return Date(timeIntervalSince1970: TimeInterval(interval))
         }
-
+        
         return nil
     }
     
@@ -101,7 +101,7 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
     var printerColor: Int {
         return sharedDefault.integer(forKey: self.attributes.prefixedKey(key:"primary_color_light"))
     }
-   
+    
     var printerColorDark: Int {
         return sharedDefault.integer(forKey: self.attributes.prefixedKey(key:"primary_color_dark"))
     }
@@ -118,10 +118,16 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
         sharedDefault.string(forKey: self.attributes.prefixedKey(key:"\(self.printerState)_label"))!
     }
     
+    var printStateColor: Color {
+        self.printerState == "complete" ? .green :
+        self.printerState == "error" ? .red :
+        self.printerState == "paused" ? .yellow: Color.primary
+    }
+    
     var remainingLabel: String {
         return sharedDefault.string(forKey: self.attributes.prefixedKey(key: "remaining_label"))!
     }
-
+    
     var etaLabel: String {
         return sharedDefault.string(forKey: self.attributes.prefixedKey(key: "eta_label"))!
     }

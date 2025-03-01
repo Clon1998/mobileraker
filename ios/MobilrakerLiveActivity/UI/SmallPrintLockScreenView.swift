@@ -16,59 +16,66 @@ struct SmallPrintLockScreenView: View {
     var body: some View {
         let secondaryLabel = Color(UIColor.secondaryLabel.dark)
         
-        VStack(alignment: .leading, spacing: 8) {
-            // Top: Filename with status indicator
-            HStack(spacing: 6) {
-                // Status indicator circle (printing state)
-                if activityContext.printerState == "complete" {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+        ZStack(alignment: .trailing) {
+            Image("mr_logo")
+                .resizable()
+                .scaledToFill()
+                .offset(x: 70)
+                .opacity(0.3)
+                
+                
+            VStack(alignment: .leading, spacing: 8) {
+                // Top: Filename with status indicator
+                HStack(spacing: 6) {
+                    
+                    if activityContext.printerState != "printing" {
+                        Image(systemName: {
+                            switch activityContext.printerState {
+                            case "complete": return "checkmark.circle.fill"
+                            case "paused": return "pause.circle.fill"
+                            case "error": return "exclamationmark.triangle.fill"
+                            default: return "printer.fill" // Default icon for any other non-printing state
+                            }
+                        }())
                         .font(.title3)
-                } else if activityContext.printerState == "paused" {
-                    Image(systemName: "pause.circle.fill")
-                        .foregroundStyle(.primary)
-                        .font(.title3)
-                } else if activityContext.printerState == "error" {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.red)
-                        .font(.title3)
+                        .foregroundStyle(activityContext.printStateColor)
+                    }
+                    
+                    
+                    // Filename text
+                    Text(activityContext.printerName)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .font(.caption2)
+                        .foregroundStyle(secondaryLabel)
+                        .fontWeight(.regular)
                 }
                 
-                // Filename text
-                Text(activityContext.printerName)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .font(.caption)
-                    .foregroundStyle(secondaryLabel)
-                    .fontWeight(.regular)
-            }
-            
-            // Middle: Time display for printing state
-            if activityContext.printerState == "printing", let eta = activityContext.etaDate {
-                HStack {
-                    Image(systemName: "clock")
-                        .font(.headline)
-                    
-                    PrintJobEtaView(etaDate: eta, delta: 1)
+                // Middle: Time display for printing state
+                if activityContext.printerState == "printing" {
+                    HStack {
+                        Image(systemName: "clock")
+                            .font(.headline)
+                        
+                        PrintJobEtaView(etaDate: activityContext.etaDate, delta: 1)
+                            .font(.title3)
+                            .monospacedDigit()
+                        
+                    }
+                } else {
+                    // Status text for non-printing states
+                    Text(activityContext.printerStateLabel)
                         .font(.title3)
-                        .monospacedDigit()
-                    
+                        .foregroundStyle(activityContext.printStateColor)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-            } else if activityContext.printerState != "printing" {
-                // Status text for non-printing states
-                Text(activityContext.printerStateLabel)
-                    .font(.title3)
-                    .foregroundStyle(activityContext.printerState == "complete" ? .green :
-                                        activityContext.printerState == "error" ? .red : Color.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Bottom: Progress bar and percentage
+                if activityContext.printerState == "printing" {
+                    ProgressView(value: activityContext.printProgress)
+                        .tint(colorWithRGBA(activityContext.printerColor))
+                }
             }
-            
-            // Bottom: Progress bar and percentage
-            if activityContext.printerState == "printing" {
-                ProgressView(value: activityContext.printProgress)
-                    .tint(colorWithRGBA(activityContext.printerColor))
-            }
-        }
-        
+        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }

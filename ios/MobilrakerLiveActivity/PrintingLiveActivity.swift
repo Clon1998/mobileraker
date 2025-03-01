@@ -140,6 +140,16 @@ extension LiveActivitiesAppAttributes {
 }
 
 extension LiveActivitiesAppAttributes.ContentState {
+    
+    static var missingEta: Self {
+        .init(
+            progress: 0.00,
+            eta: nil,
+            printState: "printing",
+            file: "benchy.gcode"
+        )
+    }
+    
     static var printingShortEta: Self {
         .init(
             progress: 0.45,
@@ -204,6 +214,7 @@ extension LiveActivitiesAppAttributes.ContentState {
 ) {
     PrintingLiveActivity()
 } contentStates: {
+    LiveActivitiesAppAttributes.ContentState.missingEta
     LiveActivitiesAppAttributes.ContentState.printingShortEta
     LiveActivitiesAppAttributes.ContentState.printingLongEta
     LiveActivitiesAppAttributes.ContentState.printingNextDayEta

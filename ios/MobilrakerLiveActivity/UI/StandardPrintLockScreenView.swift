@@ -46,13 +46,13 @@ struct StandardPrintLockScreenView: View {
                     .minimumScaleFactor(0.8)
             }
             ProgressView(value: activityContext.printProgress)
-                .tint(colorWithRGBA(activityContext.printerColor))
+                .tint(activityContext.printerState == "printing" ? colorWithRGBA(activityContext.printerColor) : activityContext.printStateColor)
             HStack{
                 Text(activityContext.printerName)
                 Spacer()
                 if (activityContext.printerState != "printing") {
                     Text(activityContext.printerStateLabel)
-                        .foregroundStyle(activityContext.printerState == "complete" ? .green : activityContext.printerState == "error" ? .red : secondaryLabel)
+                        .foregroundStyle(activityContext.printStateColor)
                         .fontWeight(.bold)
                 } else if let eta = activityContext.etaDate, shouldShowAsTimer(eta) {
                     DateDisplayView(date: eta)
