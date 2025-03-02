@@ -5,7 +5,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:common/data/enums/consent_entry_type.dart';
-import 'package:common/data/repository/CRUDRepository.dart';
+import 'package:common/data/repository/crud_repository.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
