@@ -5,6 +5,6 @@
 
 import 'package:common/data/model/hive/dashboard_layout.dart';
 
-import 'CRUDRepository.dart';
+import 'crud_repository.dart';
 
 abstract class DashboardLayoutRepository implements CRUDRepository<DashboardLayout, String> {}
