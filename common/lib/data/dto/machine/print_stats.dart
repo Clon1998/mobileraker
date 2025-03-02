@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/layer_info.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../converters/integer_converter.dart';
 import 'print_state_enum.dart';
 
 part 'print_stats.freezed.dart';
@@ -15,19 +15,15 @@ part 'print_stats.g.dart';
 class PrintStats with _$PrintStats {
   const PrintStats._();
 
+  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory PrintStats({
     @Default(PrintState.error) PrintState state,
-    @JsonKey(name: 'total_duration') @Default(0) double totalDuration,
-    @JsonKey(name: 'print_duration') @Default(0) double printDuration,
-    @JsonKey(name: 'filament_used') @Default(0) double filamentUsed,
+    @Default(0) double totalDuration,
+    @Default(0) double printDuration,
+    @Default(0) double filamentUsed,
     @Default('') String message,
     @Default('') String filename,
-    @IntegerConverter()
-    @JsonKey(name: 'current_layer', readValue: _flattenInfoObject)
-    int? currentLayer,
-    @IntegerConverter()
-    @JsonKey(name: 'total_layer', readValue: _flattenInfoObject)
-    int? totalLayer,
+    @JsonKey(name: 'info') @Default(LayerInfo()) LayerInfo layerInfo,
   }) = _PrintStats;
 
   factory PrintStats.fromJson(Map<String, dynamic> json) => _$PrintStatsFromJson(json);
@@ -39,9 +35,8 @@ class PrintStats with _$PrintStats {
   }
 
   String get stateName => state.displayName;
-}
 
-/// Helper to avoid having to create a boilerplate Info class that only holds the current and total layer.
-Object? _flattenInfoObject(Map<dynamic, dynamic> json, String field) {
-  return json['info']?[field];
+  int? get totalLayer => layerInfo.totalLayer;
+
+  int? get currentLayer => layerInfo.currentLayer;
 }

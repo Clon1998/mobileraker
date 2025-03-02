@@ -1,5 +1,9 @@
 # Mobileraker - Changelog
 
+## [2.8.7] - 2025-03-xx
+
+- **Layer Info**: Fixed an issue where the layer info was not displayed correctly for some klipper/slicer combinations.
+
 ## [2.8.6] - 2025-02-22
 
 ### Bug Fixes

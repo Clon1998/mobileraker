@@ -20,8 +20,9 @@ void main() {
     expect(obj.filamentUsed, equals(123.4));
     expect(obj.message, equals(''));
     expect(obj.filename, equals(''));
-    expect(obj.currentLayer, isNull);
-    expect(obj.totalLayer, isNull);
+    expect(obj.layerInfo, isNotNull);
+    expect(obj.layerInfo?.currentLayer, isNull);
+    expect(obj.layerInfo?.totalLayer, isNull);
   });
 
   group('PrintStats partialUpdate', () {
@@ -39,8 +40,9 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo, isNotNull);
+      expect(updatedObj.layerInfo?.currentLayer, isNull);
+      expect(updatedObj.layerInfo?.totalLayer, isNull);
     });
 
     test('total_duration', () {
@@ -57,8 +59,9 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo, isNotNull);
+      expect(updatedObj.layerInfo?.currentLayer, isNull);
+      expect(updatedObj.layerInfo?.totalLayer, isNull);
     });
 
     test('print_duration', () {
@@ -75,8 +78,9 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo, isNotNull);
+      expect(updatedObj.layerInfo?.currentLayer, isNull);
+      expect(updatedObj.layerInfo?.totalLayer, isNull);
     });
 
     test('filament_used', () {
@@ -93,8 +97,9 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123123.5));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo, isNotNull);
+      expect(updatedObj.layerInfo?.currentLayer, isNull);
+      expect(updatedObj.layerInfo?.totalLayer, isNull);
     });
 
     test('message', () {
@@ -111,8 +116,9 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals('Abababab'));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo, isNotNull);
+      expect(updatedObj.layerInfo?.currentLayer, isNull);
+      expect(updatedObj.layerInfo?.totalLayer, isNull);
     });
 
     test('filename', () {
@@ -129,8 +135,9 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals('abc/root.gcode'));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo, isNotNull);
+      expect(updatedObj.layerInfo?.currentLayer, isNull);
+      expect(updatedObj.layerInfo?.totalLayer, isNull);
     });
 
     test('currentLayer', () {
@@ -149,8 +156,7 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, equals(22));
-      expect(updatedObj.totalLayer, isNull);
+      expect(updatedObj.layerInfo?.currentLayer, equals(22));
     });
 
     test('totalLayer', () {
@@ -169,8 +175,7 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
-      expect(updatedObj.currentLayer, isNull);
-      expect(updatedObj.totalLayer, equals(22));
+      expect(updatedObj.layerInfo?.totalLayer, equals(22));
     });
 
     test('Full update', () {
@@ -189,8 +194,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(12.4));
       expect(updatedObj.message, equals('Done'));
       expect(updatedObj.filename, equals('ff'));
-      expect(updatedObj.currentLayer, equals(1));
-      expect(updatedObj.totalLayer, equals(55));
+      expect(updatedObj.layerInfo?.currentLayer, equals(1));
+      expect(updatedObj.layerInfo?.totalLayer, equals(55));
     });
   });
 }
