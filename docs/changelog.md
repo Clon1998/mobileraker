@@ -2,6 +2,12 @@
 
 ## [2.8.7] - 2025-03-05
 
+### Enhancements
+
+- **Live Activity - Watch (IOS)**: Added a custom live activity for watchOS that replaces the broken smart stack variant
+  which apple automatically generates. This new live activity is more reliable and provides a better user
+  experience. [#480](https://github.com/Clon1998/mobileraker/issues/480)
+
 ### Bug Fixes
 
 - **Layer Info**: Fixed an issue where the layer info was not displayed correctly for some klipper/slicer combinations.
