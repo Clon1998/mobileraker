@@ -310,8 +310,9 @@ class Warmup extends _$Warmup {
     ref.read(firebaseUserProvider);
 
     yield StartUpStep.admobs;
-    await ref.read(adMobsProvider).initialize();
-    logger.i('Completed AdMobs init');
+    ref.read(adMobsProvider).initialize().whenComplete(() {
+      logger.i('Completed AdMobs init');
+    });
 
     setupLicenseRegistry();
 

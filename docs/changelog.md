@@ -2,7 +2,10 @@
 
 ## [2.8.7] - 2025-03-xx
 
+### Bug Fixes
+
 - **Layer Info**: Fixed an issue where the layer info was not displayed correctly for some klipper/slicer combinations.
+- **App Start**: Fixed an issue that in some cases made the app startup very slow.
 
 ## [2.8.6] - 2025-02-22
 
