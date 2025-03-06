@@ -5,6 +5,7 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
@@ -75,7 +76,6 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     var scroll = CustomScrollView(
       key: PageStorageKey<String>(widget.tab.uuid),
-      physics: const RangeMaintainingScrollPhysics(),
       slivers: <Widget>[
         if (widget.isEditing)
           SliverPadding(
@@ -178,6 +178,8 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     // Only offer pull to refresh when not editing
     return PullToRefreshPrinter(
+      physics: RangeMaintainingScrollPhysics(
+          parent: Platform.isIOS ? const BouncingScrollPhysics() : const ClampingScrollPhysics()),
       enablePullDown: !widget.isEditing,
       child: scroll,
     );

@@ -5,6 +5,7 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
@@ -178,7 +179,8 @@ class DashboardMediumLayout extends HookConsumerWidget {
     return PullToRefreshPrinter(
       enablePullDown: !isEditing,
       scrollController: sc, //Maybe that is the reason why autoscroll is broken?
-      physics: const RangeMaintainingScrollPhysics(),
+      physics: RangeMaintainingScrollPhysics(
+          parent: Platform.isIOS ? const BouncingScrollPhysics() : const ClampingScrollPhysics()),
       child: SingleChildScrollView(
         // primary: true,
         // controller: sc,
