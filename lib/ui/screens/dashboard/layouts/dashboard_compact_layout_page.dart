@@ -10,6 +10,7 @@ import 'dart:ui';
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/pull_to_refresh_printer.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -20,7 +21,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/editing_dashboard_card.dart';
 
 import '../../../components/dashboard_card.dart';
-import '../../../components/pull_to_refresh_printer.dart';
 
 class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
   const DashboardCompactLayoutPage({

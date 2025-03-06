@@ -17,6 +17,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../service/app_router.dart';
 import '../../../service/machine_service.dart';
+import '../pull_to_refresh_printer.dart';
 import '../responsive_limit.dart';
 
 /// A widget that guards the provided child widget with a Klippy provider.
@@ -83,60 +84,62 @@ class _StateError extends ConsumerWidget {
     var themeData = Theme.of(context);
     return ResponsiveLimit(
       child: Center(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(FlutterIcons.disconnect_ant),
-                      title: Text('Klippy: @:${data.klippyState.name}').tr(),
-                    ),
-                    Text(
-                      data.statusMessage,
-                      style: TextStyle(color: themeData.colorScheme.error),
-                      textAlign: TextAlign.center,
-                    ),
-                    ElevatedButtonTheme(
-                      data: ElevatedButtonThemeData(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: themeData.colorScheme.error,
-                          foregroundColor: themeData.colorScheme.onError,
-                        ),
+        child: PullToRefreshPrinter(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(FlutterIcons.disconnect_ant),
+                        title: Text('Klippy: @:${data.klippyState.name}').tr(),
                       ),
-                      child: Row(
-                        mainAxisAlignment:
-                            data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
-                            },
-                            child: const Text(
-                              'pages.dashboard.general.restart_klipper',
-                            ).tr(),
+                      Text(
+                        data.statusMessage,
+                        style: TextStyle(color: themeData.colorScheme.error),
+                        textAlign: TextAlign.center,
+                      ),
+                      ElevatedButtonTheme(
+                        data: ElevatedButtonThemeData(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: themeData.colorScheme.error,
+                            foregroundColor: themeData.colorScheme.onError,
                           ),
-                          if (data.klippyConnected)
+                        ),
+                        child: Row(
+                          mainAxisAlignment:
+                              data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                          children: [
                             ElevatedButton(
                               onPressed: () {
-                                ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
+                                ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
                               },
                               child: const Text(
-                                'pages.dashboard.general.restart_mcu',
+                                'pages.dashboard.general.restart_klipper',
                               ).tr(),
                             ),
-                        ],
+                            if (data.klippyConnected)
+                              ElevatedButton(
+                                onPressed: () {
+                                  ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
+                                },
+                                child: const Text(
+                                  'pages.dashboard.general.restart_mcu',
+                                ).tr(),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (onErrorChildren != null) ...onErrorChildren!,
-          ],
+              if (onErrorChildren != null) ...onErrorChildren!,
+            ],
+          ),
         ),
       ),
     );

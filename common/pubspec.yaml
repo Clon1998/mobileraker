@@ -78,6 +78,7 @@ dependencies:
     git: https://github.com/jibiel/flutter-icons.git
   flutter_svg: ^2.0.15
   progress_indicators: ^1.0.0
+  pull_to_refresh_flutter3: ^2.0.1
 
   #misc
   logger: ^1.4.0

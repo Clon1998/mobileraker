@@ -10,6 +10,7 @@ import 'dart:ui';
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/pull_to_refresh_printer.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/logger.dart';
@@ -19,7 +20,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../components/dashboard_card.dart';
-import '../../../components/pull_to_refresh_printer.dart';
 import '../../../components/reordable_multi_col_row.dart';
 import '../components/editing_dashboard_card.dart';
 

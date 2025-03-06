@@ -46,7 +46,10 @@ class ConsolePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget body = MachineConnectionGuard(onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID));
+    Widget body = MachineConnectionGuard(
+      onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID),
+      skipKlipperReady: true,
+    );
     if (context.isLargerThanCompact) {
       body = NavigationRailView(page: body);
     }
@@ -432,7 +435,6 @@ class _GCodeSuggestions extends HookConsumerWidget {
 
     return sortedSuggestions;
   }
-
 }
 
 class _Console extends ConsumerWidget {
