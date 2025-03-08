@@ -211,6 +211,9 @@ pages:
     title: Spersonalizuj panel
     cancel_confirm:
       title: Odrzucić zmiany?
+      body: |-
+        Czy na pewno chcesz opuścić tryb edycji układu?
+        Wszystkie zmiany zostaną utracone. Aby zapisać zmiany, naciśnij przycisk Zapisz.
     add_card: Dodaj kartę
     remove_page: Usuń stronę
     saved_snack:
@@ -230,6 +233,7 @@ pages:
       body: Wystąpił błąd podczas próby zapisania układu.
     error_no_components:
       title: Pusty układ!
+      body: Nie dodano żadnych widżetów. Dodaj co najmniej jeden widżet, aby zapisać układ.
   files:
     title: Pliki
     empty_folder:
@@ -403,6 +407,7 @@ pages:
       timeout_label: Upłynął czas oczekiwania
       theme: Motyw UI
       theme_helper: Motyw UI dla drukarki
+      theme_unavailable: Motyw interfejsu dla drukarki, dostępny tylko dla wspierających
     ssl:
       title: SSL - Ustawienia
     motion_system:
@@ -439,8 +444,14 @@ pages:
       body:
         oe: Potwierdź odłączenie drukarki {} od OctoEverywhere.
         other: Potwierdź usunięcie połączenia zdalnego z drukarką {}.
+    remote_interface_exists:
+      title: Znaleziono połączenie zdalne
+    remote_interface_removed:
+      title: Połączenie zdalne usunięte!
     remote_interface_added:
       title:
+        oe: Połączony z OctoEverywhere.
+        obico: Połączony z Obico.
         other: Dodano połączenie zdalne.
     wifi_access_warning:
       title: Informacje Wi-Fi niedostępne
@@ -450,6 +461,10 @@ pages:
         title_add: Dodaj nazwę WiFi do listy
         title_edit: Edytuj nazwę WiFi
         label: Nazwa WiFi (SSID)
+    temp_ordering:
+      title: Kolejność czujników temperatury
+      helper: Zmień kolejność czujników temperatury w panelu.
+      no_sensors: Nie znaleziono czujników temperatury!
     fan_ordering:
       title: Kolejność wentylatorów
       helper: Zmień kolejność wentylatorów w panelu.
@@ -505,9 +520,35 @@ pages:
       contact_perk:
         title: Kontakt z deweloperem
         subtitle: Łatwy kontakt z deweloperem!
+        detail: Uzyskaj bezpośredni dostęp do priorytetowego wsparcia i zgłaszania funkcji, pomagając kształtować przyszłość Mobilerakera.
+      webrtc_perk:
+        title: Wsparcie WebRtc
+        subtitle: Pozwala na używanie kamer internetowych WebRtc!
+        detail: Doświadcz wysokiej jakości strumieniowania wideo o niskich opóźnieniach z pomocą WebRTC, oferując najbardziej przejrzysty widok Twojej drukarki.
+      job_queue_perk:
+        title: Kolejka zadań
+        subtitle: Zarządzaj kolejką zadań Moonrakera z Mobilerakera!
+      unlimited_printers_perk:
+        title: Nieograniczona liczba drukarek
+        subtitle: Kontroluj tyle drukarek, ile chcesz, korzystając z Mobilerakera!
+      printer_theme_perk:
+        title: Motywy zależne od drukarki
+        subtitle: Wybierz inny motyw dla każdej drukarki!
+        detail: Spersonalizuj swoje doświadczenie, przypisując unikalne motywy do każdej drukarki, aby łatwiej odróżniać je na pierwszy rzut oka.
+      ad_free_perk:
+        title: Doświadczenie bez reklam
+        subtitle: Ciesz się Mobilerakerem bez reklam!
+        detail: Skup się całkowicie na druku dzięki czystemu, wolnemu od rozproszeń interfejsowi, który stawia Twoje treści na pierwszym planie.
+        short: Pełna koncentracja
       spoolman_perk:
         title: Spoolman-UI
         subtitle: Zarządzaj swoimi szpulami filamentu za pomocą Spoolman
+        detail: Zachowaj doskonałą kontrolę nad zapasami filamentu dzięki zintegrowanemu wsparciu Spoolman – śledź zużycie, koszty i pozostałe ilości dla każdej szpuli podczas druku, co sprawia, że zarządzanie materiałami staje się proste.
+    tipping:
+      title: Kup mi kawę
+      subtitle: "Chcesz okazać dodatkowe uznanie? Wesprzyj przyszły rozwój szybkim prezentem:"
+    manage_view:
+      cancel_btn: Anuluj subskrypcję
     subscribe_view:
       offering_title: Wybierz poziom wsparcia
     contact_dialog:
@@ -516,14 +557,20 @@ pages:
         Poczta: {}
         Discord: {}
     title: Wesprzyj dewelopera!
+    calling_store: Przetwarzanie żądania…
     promo_title: Oferta specjalna
     trial_disclaimer: Do końca bezpłatnego okresu próbnego nie zostaniesz obciążony żadną opłatą i możesz anulować subskrypcję w dowolnym momencie w trakcie tego okresu.
+    subscription_disclaimer: Subskrypcja odnawia się automatycznie. Możesz ją anulować w dowolnym momencie.
+    restore_sign_in: Przywróć / Zaloguj się
   tool:
     title: Narzędzia
   beltTuner:
     title: Tuning paska
     beltType: 'Wybierz rodzaj paska:'
   spoolman:
+    title: Spoolman
+    not_available: "Spoolman nie jest dostępny dla tej drukarki. \nUpewnij się, że Spoolman jest zainstalowany i włączony na Twojej drukarce."
+    learn_more: Aby dowiedzieć się więcej o Spoolman i jak go zainstalować, odwiedź projekt
     learn_more_link: Strona GitHub.
     no_spools: Nie znaleziono szpul!
     no_filaments: Nie znaleziono filamentów!
@@ -579,7 +626,16 @@ pages:
       color: Kolor
     property_sections:
       basic: Podstawowe informacje
+    vendor_details:
+      page_title: Producent {}
+      info_card: Informacje o producencie
+      filaments_card: Filamenty od producenta
+      spools_card: Szpule od producenta
+    filament_details:
+      info_card: Informacje o filamencie
     spool_details:
+      page_title: Szpula {}
+      info_card: Informacje o szpuli
       set_active: Ustaw jako aktywną szpulę
       archived_warning:
         title: Szpula jest zarchiwizowana
@@ -606,11 +662,19 @@ components:
     printer_settings: Ustawienia drukarki
     manage_printers: Zarządzaj drukarkami
     fetching_printers: "…………"
+    footer: |-
+      Stworzone z ❤️ przez Patricka Schmidt
+      Sprawdź projekty
   connection_watcher:
     reconnect: Połącz ponownie
+    trying_connect: Próba połączenia…
+    trying_connect_remote: Próba połączenia za pomocą klienta zdalnego…
+    more_details: Więcej szczegółów
   supporter_add:
     title: Lubisz Mobileraker?
   supporter_only_feature:
+    dialog_title: Funkcjonalność dostępna tylko dla wspierających
+    button: Zostań wspierającym Mobilerakera
     spoolman_page: Przepraszamy, strona Spoolman jest dostępna tylko dla wspierających.
   gcode_preview:
     layer:
@@ -705,13 +769,28 @@ bottom_sheets:
       title: Jesteś pewien?
       hint:
         long_press: 'Podpowiedź: Aby pominąć, przytrzymaj dłużej przycisk, który otworzył to potwierdzenie.'
+  dashboard_cards:
+    title: Dodaj kartę
+    subtitle: Wybierz kartę, aby dodać ją do panelu
   dashboard_layout:
+    title: Układ panelu głównego
+    subtitle: 'Aktualny układ:'
+    available_layouts:
+      label: 'Dostępne układy:'
+      empty: Brak dostępnych układów
+      add_empty: Dodaj pusty układ
     layout_preview:
       not_saved: Nie zapisano
     rename_layout:
+      title: Zmień nazwę układu
       label: Nazwa układu
     delete_layout:
       title: Usuń układ
+      body: |-
+        Czy na pewno chcesz usunąć układ {}?
+        Wszystkie maszyny korzystające z tego układu powrócą do układu domyślnego.
+    import_snackbar:
+      title: Układ zaimportowany!
   selections:
     no_selections:
       title: Nie znaleziono wyników.
