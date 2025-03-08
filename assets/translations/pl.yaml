@@ -78,6 +78,7 @@ pages:
     server_status:
       unavailable: Serwer niedostępny
       available: Status serwera {} oraz Klippy {}
+    fetching_printer: "@:general.pobieranie drukarki…"
     general:
       print_card:
         reset: Reset
@@ -90,6 +91,7 @@ pages:
         elapsed: Upłynęło
         flow: Flow
         filament: Filament
+        filament_tooltip: Użyto {} % filamentu, czyli {} m z przewidywanych {} m.
         eta_tooltip: |-
           Pozostały czas:
           Średni:
@@ -101,6 +103,9 @@ pages:
       cam_card:
         webcam: Kamera
         fullscreen: Pełny ekran
+        error_connecting: |-
+          Błąd połączenia z {}.
+          Sprawdź ustawienia połączenia i upewnij się, że kamera internetowa jest online.
       temp_card:
         title: Kontrola temperatury
         presets_btn: Nastawy
@@ -110,6 +115,9 @@ pages:
         sensors: Sensory
         heater_on: "{} °C cel"
         btn_thermistor: Sensor
+        still_hot: "{} jest nadal gorący!"
+      temp_preset_card:
+        cooloff: Studzenie
       move_card:
         title: Przesuń oś
         home_xy_tooltip: Pozycja startowa X i Y
@@ -130,8 +138,11 @@ pages:
         save_tooltip: Zapisz rezultat kalibracji
         save_btn: Zapisz konfigurację
         more_btn: Więcej
+        beacon_btn: Beacon
+        beacon_tooltip: Wybierz model Beacon
       baby_step_card:
         title: Mikro Kalibracja Osi Z
+        z_offset: Przesunięcie Z
       restart_klipper: Zrestartuj Klippera
     control:
       fan_card:
@@ -152,9 +163,12 @@ pages:
         show_all_tooltip: Pokaż wszystkie makra
       pin_card:
         title_misc: Różne
+        pin_btn: Przypnij
         filament_sensor:
           detected: Wykryto
           not_detected: Pusty
+      power_card:
+        pin_btn: Przypnij
       multipl_card:
         title: Mnożnik
         flow: Przepływ
@@ -164,9 +178,13 @@ pages:
         title: Limity
         velocity: Prędkość
         accel: Akceleracja
+        sq_corn_vel: Prędkość na rogu kwadratu
       fw_retraction_card:
+        title: Retrakcja z Firmware
         retract_length: Długość retrakcji
         retract_speed: Prędkość retrakcji
+        extra_unretract_length: Dodatkowa ilość dla powrotu
+        unretract_speed: Prędkość powrotu retrakcji
       bed_mesh_card:
         title: Siatka stołu
         profiles: Profile
@@ -254,20 +272,26 @@ pages:
             body: Dozwolone są tylko pliki '{}'.
       copy_created:
         title: Kopia utworzona
+        body: Kopia została pomyślnie utworzona w '{}'.
       move_success:
         title: Ruch zakończony sukcesem
+        body: Plik(i) pomyślnie przeniesione do '{}'.
       move_failed:
         title: Ruch nieudany
+        body: Wystąpił błąd podczas próby przeniesienia pliku(ów). Spróbuj ponownie później.
     search_files: Szukaj w katalogu
     search:
       clear_search: Wyczyść wyszukiwanie
       no_results:
         title: Nie znaleziono plików
+        subtitle: Spróbuj użyć innego zapytania
     cancel_fab:
       upload: Anuluj wysyłanie
       download: Anuluj pobieranie
     move_here: Przenieś tutaj
     copy_here: Kopiuj tutaj
+    no_matches_file_pattern: Tylko litery, cyfry, podkreślenia (_), myślniki (-) i kropki są dozwolone!
+    config_tab: Konfiguracje
     element:
       one: Element
       other: Elementy
@@ -289,6 +313,7 @@ pages:
         layer_higher: Wysokość warstwy
         first_layer: Pierwsza warstwa
         others: Inne
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperatury"
       stat_card:
         title: Statystyki
       preheat_dialog:
@@ -300,8 +325,16 @@ pages:
         body: |-
           Ekstruder: {}°C
           Stół: {}°C
+      print_queue_snackbar:
+        title: Dodano do kolejki wydruku
+        body:
+          1: Plik został pomyślnie dodany do kolejki wydruku.
+          other: Pliki zostały pomyślnie dodane do kolejki wydruku.
       spoolman_warnings:
         insufficient_filament_title: Niewystarczająca ilość filamentu
+        insufficient_filament_body: |-
+          Aktywna szpula ma tylko {} pozostałego filamentu, co nie wystarcza do tego pliku.
+          Dotknij, aby zmienić aktywną szpulę.
         material_mismatch_title: Niedopasowanie materiałów
   setting:
     title: Ustawienia aplikacji
@@ -318,14 +351,22 @@ pages:
       keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
     notification:
       title: Powiadomienia
+      no_permission_title: Brak uprawnień do powiadomień!
+      no_permission_desc: |-
+        Nie można wyświetlić powiadomień.
+        Poproś o zgodę poprzez kliknięcie!
       no_firebase_title: Nie mogę wyświetlić powiadomień
+      use_progressbar_notification: Włącz powiadomienie z paskiem postępu
     developer:
+      title: Deweloper
       crashlytics: Włącz raportowanie Crashlytics
   printer_edit:
     title: Edytuj {}
     import_settings: Importuj ustawienia
     remove_printer: Usuń drukarkę
+    no_values_found: Nie znaleziono wartości!
     reset_notification_registry: Wyczyść rejestr urządzeń powiadamiających
+    configure_remote_connection: Konfiguracja połączenia zdalnego
     store_error:
       title: Zapisywanie nieudane!
       message: |-
@@ -345,10 +386,14 @@ pages:
     ssl:
       title: SSL - Ustawienia
     motion_system:
+      invert_x: Odwróć sterowanie X
       invert_x_short: Odwróć X
+      invert_y: Odwróć sterowanie Y
       invert_y_short: Odwróć Y
+      invert_z: Odwróć sterowanie Z
       invert_z_short: Odwróć Z
     extruders:
+      feedrate: Prędkość ekstruzji
       feedrate_short: Prędkość
       filament:
         loading_distance: Odległość dyszy ekstrudera
@@ -366,6 +411,14 @@ pages:
     presets:
       no_presets: Nie dodano ustawień wstępnych!
       new_preset: Nowe ustawienie wstępne
+    confirm_remote_interface_removal:
+      title:
+        other: Usunąć połączenie?
+      body:
+        oe: Potwierdź odłączenie drukarki {} od OctoEverywhere.
+        other: Potwierdź usunięcie połączenia zdalnego z drukarką {}.
+    wifi_access_warning:
+      title: Informacje Wi-Fi niedostępne
     local_ssid:
       no_ssids: Nie dodano nazwy sieci WiFi!
       dialog:
@@ -386,6 +439,8 @@ pages:
     advanced_form:
       section_security: Bezpieczeństwo
     test_connection:
+      continue: Kontynuuj
+      continue_anyway: Kontynuuj mimo to
       button: Przetestuj połączenie
     confirmed:
       title: Drukarka {} dodana!
@@ -398,22 +453,47 @@ pages:
       hint: Wprowadź polecenie konsoli
   overview:
     title: Podsumowanie
+    no_entries: Nie znaleziono maszyn
     add_machine: Dodaj maszyę
   faq:
     title: FAQ
   changelog:
     title: Dziennik zmian
   paywall:
+    benefits:
+      discover_all: Odkryj wszystkie funkcje wspierającego
+      spoolman_perk:
+        title: Spoolman-UI
+        subtitle: Zarządzaj swoimi szpulami filamentu za pomocą Spoolman
+    subscribe_view:
+      offering_title: Wybierz poziom wsparcia
+    contact_dialog:
+      title: Kontakt do dewelopera
+      body: |-
+        Poczta: {}
+        Discord: {}
+    promo_title: Oferta specjalna
     trial_disclaimer: Do końca bezpłatnego okresu próbnego nie zostaniesz obciążony żadną opłatą i możesz anulować subskrypcję w dowolnym momencie w trakcie tego okresu.
   tool:
     title: Narzędzia
   beltTuner:
     title: Tuning paska
+    beltType: 'Wybierz rodzaj paska:'
   spoolman:
     learn_more_link: Strona GitHub.
+    no_spools: Nie znaleziono szpul!
+    no_filaments: Nie znaleziono filamentów!
+    no_vendors: Nie znaleziono producentów!
+    error_loading_spools: Błąd podczas ładowania szpul
+    error_loading_filaments: Błąd podczas ładowania filamentów
     spoolman_actions:
       deactivate: Dezaktywacja
       clone: Klonuj
+      archive: Archiwizuj
+      unarchive: Przywróć z archiwum
+      share_qr: Udostępnij kod QR
+      add_spool: Dodaj szpulę
+      add_filament: Dodaj filament
     update:
       success:
         title: "{} zaktualizowano!"
@@ -427,19 +507,53 @@ pages:
         title: Usunąć {}?
       success:
         title: "{} usunięto!"
+    spool:
+      other: Szpule
+    filament:
+      one: Filament
+      other: Filamenty
+    vendor:
+      one: Producent
+      other: Producenci
     properties:
+      id: ID
+      name: Nazwa
+      registered: Zarejestrowano
       comment: Komentarz
+      material: Materiał
       price: Cena
+      density: Gęstość
+      diameter: Średnica
       weight: Waga
+      spool_weight: Waga szpuli
+      article_number: Numer artykułu
       first_used: Pierwsze użycie
       last_used: Ostanie użycie
+      remaining_weight: Pozostała waga
+      used_weight: Użyta waga
       location: Lokalizacja
       color: Kolor
     property_sections:
       basic: Podstawowe informacje
+    spool_details:
+      set_active: Ustaw jako aktywną szpulę
+      archived_warning:
+        title: Szpula jest zarchiwizowana
+        body: Ta szpula jest zarchiwizowana i nie może być użyta do nowych wydruków.
+      alternative_spool:
+        same_filament: Alternatywne szpule (ten sam filament)
+        same_material: Alternatywne szpule (ten sam materiał)
+    spool_form:
+      create_page_title: Utwórz szpulę
+      update_page_title: Edytuj szpulę
     filament_form:
       create_page_title: Utwórz filament
       update_page_title: Edytuj filament
+    vendor_form:
+      create_page_title: Utwórz producenta
+      update_page_title: Edytuj producenta
+      helper:
+        empty_weight: Waga pustej szpuli od tego producenta.
 components:
   app_version_display:
     version: 'Wersja:'
@@ -452,6 +566,8 @@ components:
     reconnect: Połącz ponownie
   supporter_add:
     title: Lubisz Mobileraker?
+  supporter_only_feature:
+    spoolman_page: Przepraszamy, strona Spoolman jest dostępna tylko dla wspierających.
   gcode_preview:
     layer:
       one: Warstwa
@@ -490,6 +606,13 @@ dialogs:
       Zamierzasz anulować zadanie drukowania.
 
       Potwierdź swoją akcję.
+  adjust_spool_filament:
+    subtitle: Tutaj możesz bezpośrednio dodać lub usunąć filament ze szpuli. Dodatnia wartość spowoduje odjęcie filamentu, ujemna wartość spowoduje jego dodanie.
+    input_label: Wpisz ilość
+    submit_label: Dostosuj
+    tooltip:
+      weight: Przełącz na tryb wagi
+      length: Przełącz na tryb długości
 bottom_sheets:
   manage_macros_in_grp:
     title: Dodaj makro
@@ -521,7 +644,12 @@ bottom_sheets:
     no_mesh: Brak siatki stołu
   select_spool:
     header:
+      spools: Szpule
       qr: Kod QR
+    no_spools: Nie znaleziono żadnych szpul. Proszę dodać szpule do Spoolman
+    error: 'Wystąpił błąd podczas próby załadowania szpul: {}'
+    qr_loading: Ładowanie skanera QR…
+    qr_error: 'Błąd podczas ładowania skanera QR: {}'
     scan_again: Skanuj ponownie
   non_printing:
     manage_service:
