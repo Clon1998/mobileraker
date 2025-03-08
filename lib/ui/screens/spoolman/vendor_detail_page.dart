@@ -18,6 +18,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
@@ -190,7 +191,7 @@ class _VendorFilaments extends HookConsumerWidget {
     var model = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
-    var filter = {'vendor.id': model.id};
+    var filter = SpoolmanFilter({'vendor.id': model.id});
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -243,7 +244,7 @@ class _VendorSpools extends HookConsumerWidget {
     var model = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
-    final filters = {'filament.vendor.id': model.id};
+    final filters = SpoolmanFilter({'filament.vendor.id': model.id});
 
     return Card(
       child: Column(

@@ -29,6 +29,7 @@ import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
@@ -91,7 +92,7 @@ class _SpoolDetailPage extends ConsumerWidget {
               )
             : null,
       ),
-      filters: {'filament.id': spool.filament.id},
+      filters: SpoolmanFilter({'filament.id': spool.filament.id}),
     );
     final sameMaterialSpoolList = _SpoolList(
       key: Key('sameMat-${spool.id}'),
@@ -108,7 +109,7 @@ class _SpoolDetailPage extends ConsumerWidget {
               )
             : null,
       ),
-      filters: {'filament.material': spool.filament.material},
+      filters: SpoolmanFilter({'filament.material': spool.filament.material}),
     );
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
@@ -374,13 +375,12 @@ class _SpoolList extends ConsumerWidget {
 
   final String machineUUID;
   final Widget Function(BuildContext context, int? total) titleBuilder;
-  final Map<String, dynamic>? filters;
+  final SpoolmanFilter filters;
 
   static const _initial = 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // useAutomaticKeepAlive();
     final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
 
     final totalItems = ref.watch(spoolListProvider(machineUUID, pageSize: _initial, page: 0, filters: filters)
