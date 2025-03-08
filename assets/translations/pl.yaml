@@ -118,6 +118,8 @@ pages:
         still_hot: "{} jest nadal gorący!"
       temp_preset_card:
         cooloff: Studzenie
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Przesuń oś
         home_xy_tooltip: Pozycja startowa X i Y
@@ -144,6 +146,7 @@ pages:
         title: Mikro Kalibracja Osi Z
         z_offset: Przesunięcie Z
       restart_klipper: Zrestartuj Klippera
+      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -214,13 +217,16 @@ pages:
       body: Twoje zmiany zostały zapisane.
     cant_remove_snack:
       title: Nie mogę usunąć strony!
+      body: Potrzebujesz co najmniej 2 stron, aby móc usunąć jedną.
     confirm_removal:
       title: Usunąć stronę?
+      body: Czy na pewno chcesz usunąć tę stronę?
     editing_card:
       title: Tryb edycji
       body: Możesz teraz zmienić kolejność, dodać i usunąć karty i strony. Wszystkie karty pokazują dane poglądowe.
     error_save_snack:
       title: Błąd w zapisie układu!
+      body: Wystąpił błąd podczas próby zapisania układu.
     error_no_components:
       title: Pusty układ!
   files:
@@ -342,21 +348,31 @@ pages:
       title: Ogólne
       ems_confirm: Potwierdź zatrzymanie awaryjne
       use_offset_pos: Pozycja Offsetu
+      lcFullCam: Orientacja kamery na pełnym ekranie
+      lcFullCam_hint: Przełącz kamerę na tryb poziomy w trybie pełnoekranowym
       language: Język
+      companion_link: Oficjalna strona GitHub
       time_format: Format czasu
       system_theme: Motyw UI
       system_theme_mode: Jasność motywu
+      filament_sensor_dialog: Pokazuj alerty czujnika filamentu
       eta_sources: Obliczanie zakończenia
       keep_screen_on: Utrzymuj ekran w stanie czuwania
       keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
     notification:
       title: Powiadomienia
+      progress_label: Powiadomienie o postępie drukowania
+      state_label: Powiadomienie o stanie druku
       no_permission_title: Brak uprawnień do powiadomień!
       no_permission_desc: |-
         Nie można wyświetlić powiadomień.
         Poproś o zgodę poprzez kliknięcie!
       no_firebase_title: Nie mogę wyświetlić powiadomień
+      opt_out_marketing: Powiadomienia marketingowe
+      opt_out_marketing_helper: Otrzymuj aktualizacje dotyczące wyprzedaży i promocji
+      opt_out_marketing_error: Błąd podczas ładowania preferencji marketingowych, spróbuj ponownie później.
       use_progressbar_notification: Włącz powiadomienie z paskiem postępu
+      use_progressbar_notification_helper: Włącza użycie powiadomień z paskiem postępu zamiast domyślnych powiadomień tekstowych
     developer:
       title: Deweloper
       crashlytics: Włącz raportowanie Crashlytics
@@ -379,6 +395,7 @@ pages:
     general:
       displayname: Wyświetlana nazwa
       printer_addr: Drukarka - adres
+      moonraker_api_key: Moonraker - klucz API
       full_url: '!Wysokość warstwy'
       timeout_label: Upłynął czas oczekiwania
       theme: Motyw UI
@@ -431,6 +448,7 @@ pages:
     steps:
       mode: Tryb
       input: Wejście
+      test: Test
       done: Zrobione
     title: Dodaj nową drukarkę
     initial_name: Moja drukarka
@@ -472,6 +490,7 @@ pages:
       body: |-
         Poczta: {}
         Discord: {}
+    title: Wesprzyj dewelopera!
     promo_title: Oferta specjalna
     trial_disclaimer: Do końca bezpłatnego okresu próbnego nie zostaniesz obciążony żadną opłatą i możesz anulować subskrypcję w dowolnym momencie w trakcie tego okresu.
   tool:
@@ -581,6 +600,8 @@ components:
   select_color_sheet:
     title: Wybierz kolor
 dialogs:
+  rate_my_app:
+    message: Jeśli podoba Ci się Mobileraker i chcesz wesprzeć rozwój, proszę rozważ ocenę Mobilerakera!
   create_folder:
     title: Utwórz folder
   macro_settings:
