@@ -140,6 +140,7 @@ pages:
         save_tooltip: Zapisz rezultat kalibracji
         save_btn: Zapisz konfigurację
         more_btn: Więcej
+        beacon_models: Modele Beacon
         beacon_btn: Beacon
         beacon_tooltip: Wybierz model Beacon
       baby_step_card:
@@ -357,11 +358,13 @@ pages:
       system_theme_mode: Jasność motywu
       filament_sensor_dialog: Pokazuj alerty czujnika filamentu
       eta_sources: Obliczanie zakończenia
+      medium_ui: Tablet UI
       keep_screen_on: Utrzymuj ekran w stanie czuwania
       keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
     notification:
       title: Powiadomienia
       progress_label: Powiadomienie o postępie drukowania
+      progress_helper: Interwał aktualizacji dla powiadomień o postępach drukowania
       state_label: Powiadomienie o stanie druku
       no_permission_title: Brak uprawnień do powiadomień!
       no_permission_desc: |-
@@ -418,6 +421,8 @@ pages:
       target_fps: Decelowa ilość FPS
       new_cam: Nowa kamera
       no_webcams: Nie dodano kamer!
+      stream_url: Adres URL strumienia
+      snapshot_url: Adres URL migawki
       default_url: Domyślny URL
       flip_vertical: Odwróć w pionie
       flip_horizontal: Odwróć w poziomie
@@ -434,6 +439,9 @@ pages:
       body:
         oe: Potwierdź odłączenie drukarki {} od OctoEverywhere.
         other: Potwierdź usunięcie połączenia zdalnego z drukarką {}.
+    remote_interface_added:
+      title:
+        other: Dodano połączenie zdalne.
     wifi_access_warning:
       title: Informacje Wi-Fi niedostępne
     local_ssid:
@@ -443,6 +451,8 @@ pages:
         title_edit: Edytuj nazwę WiFi
         label: Nazwa WiFi (SSID)
     fan_ordering:
+      title: Kolejność wentylatorów
+      helper: Zmień kolejność wentylatorów w panelu.
       no_fans: Brak wentylatorów!
   printer_add:
     steps:
@@ -453,10 +463,16 @@ pages:
     title: Dodaj nową drukarkę
     initial_name: Moja drukarka
     select_mode:
+      title: 'Wybierz tryb wprowadzania danych:'
       advanced: Zaawansowane
+    simple_form:
+      hint_title: Wskazówka - Tryb uproszczony
     advanced_form:
+      hint_title: Wskazówka - Tryb zaawansowany
       section_security: Bezpieczeństwo
     test_connection:
+      section_connection: Dane połączenia
+      section_test: Testy połączenia
       continue: Kontynuuj
       continue_anyway: Kontynuuj mimo to
       button: Przetestuj połączenie
@@ -479,7 +495,16 @@ pages:
     title: Dziennik zmian
   paywall:
     benefits:
+      title: Funkcje wspierającego
+      become_supporter: Zostań wspierającym
       discover_all: Odkryj wszystkie funkcje wspierającego
+      theme_perk:
+        title: Motyw wspierającego
+        subtitle: Ekskluzywny motyw z użyciem Material 3
+        detail: Doświadcz wyglądu premium z naszym motywem Material 3, z dynamicznym dostosowaniem kolorów i ulepszonymi elementami wizualnymi.
+      contact_perk:
+        title: Kontakt z deweloperem
+        subtitle: Łatwy kontakt z deweloperem!
       spoolman_perk:
         title: Spoolman-UI
         subtitle: Zarządzaj swoimi szpulami filamentu za pomocą Spoolman
