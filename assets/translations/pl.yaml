@@ -171,17 +171,22 @@ pages:
         title: Siatka stołu
         profiles: Profile
       spoolman_card:
+        title: Spoolman
         no_spool: |-
           Nie wybrano szpuli.
           Zużycie filamentu nie będzie śledzone.
+        select_spool: Wybierz szpulę
         used: 'Użyty: {}'
+        provider_error_title: Błąd podczas pobierania danych z Spoolman
       gcode_preview_card:
         title: GCode Podgląd
         follow: Śledź postęp
         kinematic_not_supported: Obecnie aplikacja nie obsługuje renderowania kodu GCode dla układu kinematycznego tej drukarki.
         start_preview:
           btn: Włącz podgląd
+          hint: Aplikacja pobierze aktywny plik wydruku i spróbuje go wyrenderować.
   customizing_dashboard:
+    title: Spersonalizuj panel
     cancel_confirm:
       title: Odrzucić zmiany?
     add_card: Dodaj kartę
@@ -195,6 +200,7 @@ pages:
       title: Usunąć stronę?
     editing_card:
       title: Tryb edycji
+      body: Możesz teraz zmienić kolejność, dodać i usunąć karty i strony. Wszystkie karty pokazują dane poglądowe.
     error_save_snack:
       title: Błąd w zapisie układu!
     error_no_components:
@@ -223,6 +229,7 @@ pages:
       upload_bulk: Wyślij pliki
       zip_file: Utwórz archiwum
     gcode_file_actions:
+      submit: Prześlij zadanie wydruku
       preheat: Podgrzej
       enqueue: Dodaj do kolejki wydruku
       preview: Podgląd
@@ -396,6 +403,8 @@ pages:
     title: FAQ
   changelog:
     title: Dziennik zmian
+  paywall:
+    trial_disclaimer: Do końca bezpłatnego okresu próbnego nie zostaniesz obciążony żadną opłatą i możesz anulować subskrypcję w dowolnym momencie w trakcie tego okresu.
   tool:
     title: Narzędzia
   beltTuner:
@@ -557,6 +566,7 @@ notifications:
     status:
       name: Aktualizacje statusu wydruku - {}
       desc: Powiadomienia dotyczące statusu drukowania.
+      title: Stan wydruku {} zmieniony!
       body_printing: 'Drukowanie pliku: "{}"'
       body_paused: 'Wstrzymano drukowanie pliku: "{}"'
       body_complete: 'Zakończono druk: "{}"'
