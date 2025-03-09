@@ -888,6 +888,7 @@ pages:
       additional: További információ
       physical: Fizikai tulajdonságok
       print_settings: Nyomtatás beállításai
+      extra_fields: Extra mezők
     vendor_details:
       page_title: Gyártó {}
       info_card: Gyártói információ
