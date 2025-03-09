@@ -18,8 +18,10 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
@@ -166,12 +168,14 @@ class _VendorInfo extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
               property: vendor.comment ?? '–',
             ),
           ),
+          ExtraFieldsView(machineUUID: machineUUID, type: SpoolmanEntityType.vendor, extra: vendor.extra),
+          SizedBox(height: 8),
         ],
       ),
     );

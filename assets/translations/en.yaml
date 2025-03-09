@@ -944,6 +944,7 @@ pages:
       additional: Additional Information
       physical: Physical Properties
       print_settings: Print Settings
+      extra_fields: Extra Fields
     vendor_details:
       page_title: Manufacturer {}
       info_card: Manufacturer Info
