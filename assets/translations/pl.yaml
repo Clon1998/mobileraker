@@ -411,12 +411,17 @@ pages:
     ssl:
       title: SSL - Ustawienia
     motion_system:
+      title: System ruchu
       invert_x: Odwróć sterowanie X
       invert_x_short: Odwróć X
       invert_y: Odwróć sterowanie Y
       invert_y_short: Odwróć Y
       invert_z: Odwróć sterowanie Z
       invert_z_short: Odwróć Z
+      speed_xy: Prędkość osi X/Y
+      speed_xy_short: Prędkość X/Y
+      speed_z: Prędkość osi Z
+      speed_z_short: Prędkość Z
     extruders:
       feedrate: Prędkość ekstruzji
       feedrate_short: Prędkość
@@ -535,6 +540,11 @@ pages:
         title: Motywy zależne od drukarki
         subtitle: Wybierz inny motyw dla każdej drukarki!
         detail: Spersonalizuj swoje doświadczenie, przypisując unikalne motywy do każdej drukarki, aby łatwiej odróżniać je na pierwszy rzut oka.
+      custom_dashboard_perk:
+        short: Twój idealny workflow
+      full_file_management_perk:
+        title: Pełne zarządzanie plikami
+        subtitle: Odblokuj wszystkie funkcje zarządzania plikami Mobilerakera!
       ad_free_perk:
         title: Doświadczenie bez reklam
         subtitle: Ciesz się Mobilerakerem bez reklam!
@@ -548,6 +558,7 @@ pages:
       title: Kup mi kawę
       subtitle: "Chcesz okazać dodatkowe uznanie? Wesprzyj przyszły rozwój szybkim prezentem:"
     manage_view:
+      title: Dziękujemy za Twoje wsparcie!
       cancel_btn: Anuluj subskrypcję
     subscribe_view:
       offering_title: Wybierz poziom wsparcia
@@ -599,6 +610,7 @@ pages:
       success:
         title: "{} usunięto!"
     spool:
+      one: Szpula
       other: Szpule
     filament:
       one: Filament
@@ -622,10 +634,14 @@ pages:
       last_used: Ostanie użycie
       remaining_weight: Pozostała waga
       used_weight: Użyta waga
+      remaining_length: Pozostała długość
+      used_length: Użyta długość
       location: Lokalizacja
+      lot_number: Numer partii (LOT)
       color: Kolor
     property_sections:
       basic: Podstawowe informacje
+      additional: Dodatkowe informacje
     vendor_details:
       page_title: Producent {}
       info_card: Informacje o producencie
@@ -646,6 +662,8 @@ pages:
     spool_form:
       create_page_title: Utwórz szpulę
       update_page_title: Edytuj szpulę
+      helper:
+        location: Miejsce, w którym przechowujesz szpulę
     filament_form:
       create_page_title: Utwórz filament
       update_page_title: Edytuj filament
