@@ -884,6 +884,7 @@ pages:
       additional: Zusätzliche Informationen
       physical: Physische Eigenschaften
       print_settings: Druckeinstellungen
+      extra_fields: Extra Felder
     vendor_details:
       page_title: Anbieter {}
       info_card: Anbieter Details
