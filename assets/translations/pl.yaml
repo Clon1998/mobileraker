@@ -708,13 +708,58 @@ components:
     title: Wybierz kolor
 dialogs:
   rate_my_app:
+    title: Oceń Mobileraker?
     message: Jeśli podoba Ci się Mobileraker i chcesz wesprzeć rozwój, proszę rozważ ocenę Mobilerakera!
+  import_setting:
+    select_source: Wybierz źródło
   create_folder:
     title: Utwórz folder
+    label: Nazwa folderu
+  delete_folder:
+    title: Jesteś pewien?
+    description: |-
+      Wszystkie pliki zawarte w folderze również zostaną usunięte!
+
+      Potwierdź usunięcie folderu '/{}'.
+  rename_folder:
+    title: Zmień nazwę folderu
+    label: Nazwa folderu
+  copy_folder:
+    title: Kopiuj folder
+    label: Nazwa folderu
+  delete_file:
+    description: Potwierdź usunięcie pliku '{}'.
+  rename_file:
+    title: Zmień nazwę pliku
+    label: Nazwa pliku
+  copy_file:
+    title: Kopiuj plik
+    label: Nazwa pliku
+  create_file:
+    title: Utwórz plik
+    label: Nazwa pliku
+  create_archive:
+    title: Utwórz archiwum
+    label: Nazwa archiwum
+  delete_files:
+    description: Potwierdź usunięcie {} plików.
+  exclude_object:
+    title: Wyklucz obiekt z wydruku
+    label: Obiekt do wykluczenia
+    confirm_tile_title: Jesteś pewien?
+    confirm_tile_subtitle: Tej operacji nie da się cofnąć!
+    exclude: Wyklucz
+  select_machine:
+    title: Wybierz maszynę
+    active_machine: 'Aktywna maszyna: {}'
+    hint: Dotknij maszyny, aby ustawić ją jako aktywną.
   macro_settings:
     visible: Widoczny
   filament_switch:
     steps:
+      set_temps:
+        title: Temperatura filamentu
+        subtitle: Wybierz temperaturę docelową
       move:
         title:
           load: Ładuj filament
@@ -742,10 +787,34 @@ dialogs:
       weight: Przełącz na tryb wagi
       length: Przełącz na tryb długości
 bottom_sheets:
+  job_queue_sheet:
+    start_queue: Uruchom kolejkę
+    pause_queue: Wstrzymaj kolejkę
+    remove_all: Wyczyść kolejkę
+    remove_all_confirm: Ta operacja spowoduje usunięcie wszystkich zadań z kolejki.
+  add_remote_con:
+    octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: Połącz OctoEverywhere
+      unlink: Odłącz OctoEverywhere
+    obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: Połącz Obico
+      unlink: Odłącz Obico
+      self_hosted:
+        title: Samodzielnie hostowany
+        url_label: Własny adres URL
   manage_macros_in_grp:
     title: Dodaj makro
   signIn:
     forgot_password: Zapomniałeś hasła?
+    forgot_password_success: Wysłano e-mail dotyczący resetowania hasła!
+    hint:
+      sign_in: Nie masz jeszcze konta?
+      sign_up: Posiadasz już konto?
+      reset_password: Podaj swój adres e-mail, aby otrzymać link do resetowania hasła.
     action:
       sign_in: Zaloguj
       sign_up: Wyloguj
@@ -873,3 +942,20 @@ date_periods:
   day:
     one: Codziennie
     other: Dni
+products:
+  most_popular: Najbardziej popularne
+  lifetime:
+    title: Dożywotnie wsparcie
+    subtitle: Jednorazowa wpłata
+  annual:
+    title: Coroczny wspierający
+    subtitle: Zapłać mniej za pomocą naszego rocznego planu
+  monthly:
+    title: Comiesięczny wspierający
+    subtitle: Wspieraj nas co miesiąc
+  weekly:
+    title: Cotygodniowy wspierający
+  tip:
+    coffee: "Kawa"
+    snack: "Przekąska"
+    lunch: "Lunch"
