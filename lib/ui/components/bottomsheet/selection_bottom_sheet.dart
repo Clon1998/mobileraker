@@ -155,7 +155,7 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize {
-    return Size.fromHeight(kToolbarHeight + (arguments.showSearch ? 56 : 0));
+    return Size.fromHeight(kToolbarHeight + (arguments.showSearch ? 62 : 0));
   }
 }
 

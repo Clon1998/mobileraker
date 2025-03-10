@@ -24,10 +24,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_extra_field.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_filament.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_form.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -335,7 +338,15 @@ class _FilamentFormPage extends HookConsumerWidget {
                   decoration: InputDecoration(labelText: 'pages.spoolman.properties.comment'.tr()),
                   textInputAction: TextInputAction.newline,
                 ),
-              ]),
+                  // Extra Fields Section
+                  ExtraFieldsFormSection(
+                    machineUUID: machineUUID,
+                    type: SpoolmanEntityType.filament,
+                    extraValues: sourceFilament?.extra,
+                    header: SectionHeader(title: tr('pages.spoolman.property_sections.extra_fields')),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -435,7 +446,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     );
   }
 
-  void onFormSubmitted(Map<String, dynamic>? formData) {
+  Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
     logger.i('[FilamentFormPageController($machineUUID)] onFormSubmitted');
     if (formData == null || state.selectedVendor == null) {
       logger.w('[FilamentFormPageController($machineUUID)] onFormSubmitted: formData or selectedVendor is null');
@@ -443,14 +454,15 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     }
 
     state = state.copyWith(isSaving: true);
+    final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.filament).future);
 
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
-        _create(formData, state.selectedVendor!);
+        _create(formData, state.selectedVendor!, extraFields);
         break;
       case _FormMode.update:
-        _update(formData, state.selectedVendor!);
+        _update(formData, state.selectedVendor!, extraFields);
         break;
     }
   }
@@ -477,8 +489,8 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     state = state.copyWith(selectedVendor: res.data as GetVendor);
   }
 
-  Future<void> _create(Map<String, dynamic> formData, GetVendor vendor) async {
-    final dto = _createDtoFromForm(formData, vendor);
+  Future<void> _create(Map<String, dynamic> formData, GetVendor vendor, List<GetExtraField> extraFields) async {
+    final dto = _createDtoFromForm(formData, vendor, extraFields);
     logger.i('[FilamentFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = tr('pages.spoolman.filament.one');
     try {
@@ -501,8 +513,8 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     }
   }
 
-  Future<void> _update(Map<String, dynamic> formData, GetVendor vendor) async {
-    final dto = _updateDtoFromForm(formData, vendor, state.source!);
+  Future<void> _update(Map<String, dynamic> formData, GetVendor vendor, List<GetExtraField> extraFields) async {
+    final dto = _updateDtoFromForm(formData, vendor, state.source!, extraFields);
     logger.i('[FilamentFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.filament.one');
 
@@ -537,7 +549,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     }
   }
 
-  CreateFilament _createDtoFromForm(Map<String, dynamic> formData, GetVendor vendor) {
+  CreateFilament _createDtoFromForm(Map<String, dynamic> formData, GetVendor vendor, List<GetExtraField> extraFields) {
     return CreateFilament(
       name: formData[_FilamentFormFormComponent.name.name],
       vendor: vendor,
@@ -552,10 +564,14 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       settingsBedTemp: formData[_FilamentFormFormComponent.bedTemp.name],
       colorHex: (formData[_FilamentFormFormComponent.colorHex.name] as Color?)?.hexCode,
       comment: formData[_FilamentFormFormComponent.comment.name],
+      extra: {
+        for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
+      },
     );
   }
 
-  UpdateFilament? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor vendor, GetFilament source) {
+  UpdateFilament? _updateDtoFromForm(
+      Map<String, dynamic> formData, GetVendor vendor, GetFilament source, List<GetExtraField> extraFields) {
     final name = formData[_FilamentFormFormComponent.name.name];
     final material = formData[_FilamentFormFormComponent.material.name];
     final price = formData[_FilamentFormFormComponent.price.name];
@@ -569,7 +585,13 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     final bedTemp = formData[_FilamentFormFormComponent.bedTemp.name];
     final colorHex = (formData[_FilamentFormFormComponent.colorHex.name] as Color?)?.hexCode;
 
+    // Extra field values:
+    final extra = <String, String>{
+      for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
+    };
+
     // If no changes were made, return null
+    final extraIsSame = DeepCollectionEquality().equals(extra, source.extra);
     if (vendor.id == source.vendor?.id &&
         name == source.name &&
         material == source.material &&
@@ -582,7 +604,8 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
         comment == source.comment &&
         extruderTemp == source.settingsExtruderTemp &&
         bedTemp == source.settingsBedTemp &&
-        colorHex == source.colorHex) return null;
+        colorHex == source.colorHex &&
+        extraIsSame) return null;
 
     return UpdateFilament(
       id: source.id,
@@ -599,6 +622,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       settingsExtruderTemp: source.settingsExtruderTemp == extruderTemp ? null : extruderTemp,
       settingsBedTemp: source.settingsBedTemp == bedTemp ? null : bedTemp,
       colorHex: source.colorHex == colorHex ? null : colorHex,
+      extra: extraIsSame ? null : extra,
     );
   }
 }

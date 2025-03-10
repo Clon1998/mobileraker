@@ -1488,6 +1488,7 @@ form_validators:
   simple_url: 'Input only allows URL components: Hostname and Port'
   disallow_mdns: mDNS (.local) addresses are not supported
   file_name_in_use: File name already in use
+  min_before_max: Minimum value must be less or equal to the maximum value
 date:
   year:
     one: Year

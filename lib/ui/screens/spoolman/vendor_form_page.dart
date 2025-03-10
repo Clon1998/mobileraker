@@ -18,9 +18,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_extra_field.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_vendor.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_form.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../printers/components/section_header.dart';
@@ -136,6 +139,13 @@ class _VendorFormPage extends HookConsumerWidget {
                     decoration: InputDecoration(labelText: 'pages.spoolman.properties.comment'.tr()),
                     textInputAction: TextInputAction.newline,
                   ),
+                  // Extra Fields Section
+                  ExtraFieldsFormSection(
+                    machineUUID: machineUUID,
+                    type: SpoolmanEntityType.vendor,
+                    extraValues: sourceVendor?.extra,
+                    header: SectionHeader(title: tr('pages.spoolman.property_sections.extra_fields')),
+                  ),
                 ],
               ),
             ),
@@ -221,21 +231,23 @@ class _VendorFormPageController extends _$VendorFormPageController {
       logger.w('[VendorFormPageController($machineUUID)] Form data is null');
       return;
     }
-
     state = state.copyWith(isSaving: true);
+
+    final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.vendor).future);
+
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
-        _create(formData);
+        _create(formData, extraFields);
         break;
       case _FormMode.update:
-        _update(formData);
+        _update(formData, extraFields);
         break;
     }
   }
 
-  Future<void> _create(Map<String, dynamic> formData) async {
-    final dto = _createDtoFromForm(formData);
+  Future<void> _create(Map<String, dynamic> formData, List<GetExtraField> extraFields) async {
+    final dto = _createDtoFromForm(formData, extraFields);
     logger.i('[VendorFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = tr('pages.spoolman.vendor.one');
     try {
@@ -258,8 +270,8 @@ class _VendorFormPageController extends _$VendorFormPageController {
     }
   }
 
-  Future<void> _update(Map<String, dynamic> formData) async {
-    final dto = _updateDtoFromForm(formData, state.source!);
+  Future<void> _update(Map<String, dynamic> formData, List<GetExtraField> extraFields) async {
+    final dto = _updateDtoFromForm(formData, state.source!, extraFields);
     logger.i('[VendorFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.vendor.one');
 
@@ -294,26 +306,38 @@ class _VendorFormPageController extends _$VendorFormPageController {
     }
   }
 
-  CreateVendor _createDtoFromForm(Map<String, dynamic> formData) {
+  CreateVendor _createDtoFromForm(Map<String, dynamic> formData, List<GetExtraField> extraFields) {
     return CreateVendor(
       name: formData[_VendorFormFormComponent.name.name],
       spoolWeight: formData[_VendorFormFormComponent.spoolWeight.name],
       externalId: formData[_VendorFormFormComponent.externalId.name],
       comment: formData[_VendorFormFormComponent.comment.name],
+      extra: {
+        for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
+      },
     );
   }
 
-  UpdateVendor? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor source) {
+  UpdateVendor? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor source, List<GetExtraField> extraFields) {
     final name = formData[_VendorFormFormComponent.name.name];
     final spoolWeight = formData[_VendorFormFormComponent.spoolWeight.name];
     final externalId = formData[_VendorFormFormComponent.externalId.name];
     final comment = formData[_VendorFormFormComponent.comment.name];
 
+    // Extra field values:
+    final extra = <String, String>{
+      for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
+    };
+
     // If no changes were made, return null
+    final extraIsSame = DeepCollectionEquality().equals(extra, source.extra);
     if (name == source.name &&
         spoolWeight == source.spoolWeight &&
         externalId == source.externalId &&
-        comment == source.comment) return null;
+        comment == source.comment &&
+        extraIsSame) {
+      return null;
+    }
 
     return UpdateVendor(
       id: source.id,
@@ -321,6 +345,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       spoolWeight: source.spoolWeight == spoolWeight ? null : spoolWeight,
       comment: source.comment == comment ? null : comment,
       externalId: source.externalId == externalId ? null : externalId,
+      extra: extraIsSame ? null : extra,
     );
   }
 }

@@ -16,11 +16,13 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:form_builder_extra_fields/form_builder_extra_fields.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
@@ -28,10 +30,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/selection_bottom_sheet.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_extra_field.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_spool.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_form.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -113,6 +118,8 @@ class _SpoolFormPage extends HookConsumerWidget {
     final (sourceSpool, selectedFilament, mode) = ref.watch(_SpoolFormPageControllerProvider(machineUUID)
         .select((model) => (model.source, model.selectedFilament, model.mode)));
 
+    final allLocationsFuture = useMemoized(() => ref.read(spoolmanServiceProvider(machineUUID)).allLocations());
+
     useEffect(
       () {
         _formKey.currentState?.fields[_SpoolFormFormComponent.filament.name]
@@ -132,6 +139,8 @@ class _SpoolFormPage extends HookConsumerWidget {
     final locationFocusNode = useFocusNode();
     final lotFocusNode = useFocusNode();
     final commentFocusNode = useFocusNode();
+
+    final locationHelper = useValueNotifier<String?>(null);
 
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
@@ -187,7 +196,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) =>
                         focusNext(_SpoolFormFormComponent.price.name, priceFocusNode, initialWeightFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.initialWeight.name,
@@ -206,7 +215,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) => focusNext(
                         _SpoolFormFormComponent.initialWeight.name, initialWeightFocusNode, emptyWeightFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.emptyWeight.name,
@@ -226,7 +235,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) =>
                         focusNext(_SpoolFormFormComponent.emptyWeight.name, emptyWeightFocusNode, usedFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.used.name,
@@ -245,7 +254,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) =>
                         focusNext(_SpoolFormFormComponent.used.name, usedFocusNode, locationFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
 
                   // Usage Details
@@ -279,21 +288,68 @@ class _SpoolFormPage extends HookConsumerWidget {
 
                   // Meta Information
                   SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
-                  FormBuilderTextField(
+                  FormBuilderTypeAhead<String>(
                     name: _SpoolFormFormComponent.location.name,
                     initialValue: sourceSpool?.location,
                     focusNode: locationFocusNode,
-                    keyboardType: TextInputType.text,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
                       labelText: 'pages.spoolman.properties.location'.tr(),
                       helperText: 'pages.spoolman.spool_form.helper.location'.tr(),
                       helperMaxLines: 100,
                     ),
-                    onSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode),
-                    textInputAction: TextInputAction.next,
+                    itemBuilder: (BuildContext c, String value) {
+                      return ListTile(title: Text(value));
+                    },
+                    onSaved: (value) {
+                      final lastInput = locationHelper.value;
+                      logger.i('onSaved called $value - $lastInput');
+                      if (lastInput?.isNotEmpty == true && value != lastInput) {
+                        _formKey.currentState?.setInternalFieldValue(_SpoolFormFormComponent.location.name, lastInput);
+                      }
+                    },
+                    suggestionsCallback: (String searchTerm) async {
+                      searchTerm = searchTerm.trim();
+                      locationHelper.value = searchTerm;
+                      final searchTokens = searchTerm.split(RegExp(r'[\W,]+'));
+
+                      final allLocations = await allLocationsFuture;
+
+                      final searchResult = {...allLocations, searchTerm}
+                          .where((e) => e.trim().isNotEmpty)
+                          .map(
+                            (loc) => (loc, loc.searchScore(searchTerm, searchTokens)),
+                          )
+                          .where((element) => element.$2 > 150 && element.$1.isNotEmpty)
+                          .sorted((a, b) => b.$2.compareTo(a.$2))
+                          .map((e) => e.$1);
+
+                      return searchResult.toList();
+                    },
+                    onSelected: (_) {
+                      focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode);
+                    },
+                    hideOnEmpty: true,
+                    onChanged: (value) {
+                      logger.i('onChanged called $value');
+                    },
                   ),
+
+                  // FormBuilderTextField(
+                  //   name: _SpoolFormFormComponent.location.name,
+                  //   initialValue: sourceSpool?.location,
+                  //   focusNode: locationFocusNode,
+                  //   keyboardType: TextInputType.text,
+                  //   autovalidateMode: AutovalidateMode.onUserInteraction,
+                  //   decoration: InputDecoration(
+                  //     labelText: 'pages.spoolman.properties.location'.tr(),
+                  //     helperText: 'pages.spoolman.spool_form.helper.location'.tr(),
+                  //     helperMaxLines: 100,
+                  //   ),
+                  //   onSubmitted: (txt) =>
+                  //       focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode),
+                  //   textInputAction: TextInputAction.next,
+                  // ),
                   FormBuilderTextField(
                     name: _SpoolFormFormComponent.lot.name,
                     initialValue: sourceSpool?.lotNr,
@@ -319,6 +375,13 @@ class _SpoolFormPage extends HookConsumerWidget {
                       labelText: 'pages.spoolman.properties.comment'.tr(),
                     ),
                     textInputAction: TextInputAction.newline,
+                  ),
+                  // Extra Fields Section
+                  ExtraFieldsFormSection(
+                    machineUUID: machineUUID,
+                    type: SpoolmanEntityType.spool,
+                    extraValues: sourceSpool?.extra,
+                    header: SectionHeader(title: tr('pages.spoolman.property_sections.extra_fields')),
                   ),
                 ],
               ),
@@ -421,22 +484,23 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     );
   }
 
-  void onFormSubmitted(Map<String, dynamic>? formData, [int qty = 1]) {
+  Future<void> onFormSubmitted(Map<String, dynamic>? formData, [int qty = 1]) async {
     logger.i('[SpoolFormPageController($machineUUID)] Form submitted');
     if (formData == null || state.selectedFilament == null) {
       logger.w('[SpoolFormPageController($machineUUID)] Form data is null');
       return;
     }
-
     state = state.copyWith(isSaving: true);
+
+    final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.spool).future);
 
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
-        _create(formData, state.selectedFilament!, qty);
+        _create(formData, state.selectedFilament!, extraFields, qty);
         break;
       case _FormMode.update:
-        _update(formData, state.selectedFilament!);
+        _update(formData, state.selectedFilament!, extraFields);
         break;
     }
   }
@@ -478,8 +542,9 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     state = state.copyWith(selectedFilament: resFila);
   }
 
-  Future<void> _create(Map<String, dynamic> formData, GetFilament filament, int qty) async {
-    final dto = _createDtoFromForm(formData, filament);
+  Future<void> _create(
+      Map<String, dynamic> formData, GetFilament filament, List<GetExtraField> extraFields, int qty) async {
+    final dto = _createDtoFromForm(formData, filament, extraFields);
     logger.i('[SpoolFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = plural('pages.spoolman.spool', qty);
     try {
@@ -502,8 +567,8 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
   }
 
-  Future<void> _update(Map<String, dynamic> formData, GetFilament filament) async {
-    final dto = _updateDtoFromForm(formData, filament, state.source!);
+  Future<void> _update(Map<String, dynamic> formData, GetFilament filament, List<GetExtraField> extraFields) async {
+    final dto = _updateDtoFromForm(formData, filament, state.source!, extraFields);
     logger.i('[SpoolFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.spool.one');
     if (dto == null) {
@@ -537,23 +602,26 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
   }
 
-  CreateSpool _createDtoFromForm(Map<String, dynamic> formData, GetFilament filament) {
+  CreateSpool _createDtoFromForm(Map<String, dynamic> formData, GetFilament filament, List<GetExtraField> extraFields) {
     return CreateSpool(
       firstUsed: formData[_SpoolFormFormComponent.firstUsed.name],
       lastUsed: formData[_SpoolFormFormComponent.lastUsed.name],
       filament: filament,
       price: formData[_SpoolFormFormComponent.price.name],
       initialWeight: formData[_SpoolFormFormComponent.initialWeight.name],
-      spoolWeight:
-          formData[_SpoolFormFormComponent.emptyWeight.name] ?? filament.spoolWeight ?? filament.vendor?.spoolWeight,
+      spoolWeight: formData[_SpoolFormFormComponent.emptyWeight.name],
       usedWeight: formData[_SpoolFormFormComponent.used.name],
       location: formData[_SpoolFormFormComponent.location.name],
       lotNr: formData[_SpoolFormFormComponent.lot.name],
       comment: formData[_SpoolFormFormComponent.comment.name],
+      extra: {
+        for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
+      },
     );
   }
 
-  UpdateSpool? _updateDtoFromForm(Map<String, dynamic> formData, GetFilament filament, GetSpool source) {
+  UpdateSpool? _updateDtoFromForm(
+      Map<String, dynamic> formData, GetFilament filament, GetSpool source, List<GetExtraField> extraFields) {
     final firstUsed = formData[_SpoolFormFormComponent.firstUsed.name];
     final lastUsed = formData[_SpoolFormFormComponent.lastUsed.name];
     final initialWeight = formData[_SpoolFormFormComponent.initialWeight.name];
@@ -568,7 +636,13 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     final usedWeightChanged =
         usedWeight != null && usedWeight != source.usedWeight && !usedWeight.closeTo(source.usedWeight, 0.01);
 
+    // Extra field values:
+    final extra = <String, String>{
+      for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
+    };
+
     // If no changes were made, return null
+    final extraIsSame = DeepCollectionEquality().equals(extra, source.extra);
     if (filament.id == source.filament.id &&
         firstUsed == source.firstUsed &&
         lastUsed == source.lastUsed &&
@@ -578,7 +652,8 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
         !usedWeightChanged &&
         location == source.location &&
         lotNr == source.lotNr &&
-        comment == source.comment) return null;
+        comment == source.comment &&
+        extraIsSame) return null;
 
     return UpdateSpool(
       id: source.id,
@@ -592,6 +667,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       location: source.location == location ? null : location,
       lotNr: source.lotNr == lotNr ? null : lotNr,
       comment: source.comment == comment ? null : comment,
+      extra: extraIsSame ? null : extra,
     );
   }
 }
