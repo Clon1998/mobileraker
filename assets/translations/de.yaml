@@ -878,6 +878,7 @@ pages:
       location: Standort
       lot_number: Chargennummer
       color: Farbe
+      initial_weight: Anfangsgewicht
     property_sections:
       basic: Grundlegende Informationen
       usage: Details zur Nutzung
