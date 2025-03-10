@@ -283,6 +283,16 @@ class _SpoolInfo extends ConsumerWidget {
         property: spool.lastUsed?.let(dateFormatGeneral.format) ?? '–',
       ),
       PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.initial_weight'),
+        property: spool.initialWeight?.let(numberFormatDouble.formatGrams) ?? '–',
+      ),
+      PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.spool_weight'),
+        property: (spool.spoolWeight ?? spool.filament.spoolWeight ?? spool.filament.vendor?.spoolWeight)
+                ?.let(numberFormatDouble.formatGrams) ??
+            '–',
+      ),
+      PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.remaining_weight'),
         property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),

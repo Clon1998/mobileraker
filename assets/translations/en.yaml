@@ -938,6 +938,7 @@ pages:
       location: Location
       lot_number: Lot Number
       color: Color
+      initial_weight: Initial Weight
     property_sections:
       basic: Basic Information
       usage: Usage Details
