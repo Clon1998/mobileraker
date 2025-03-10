@@ -142,202 +142,206 @@ class _FilamentFormPage extends HookConsumerWidget {
           child: ResponsiveLimit(
             child: FormBuilder(
               key: _formKey,
-              child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16.0), children: [
-                // Basic Information
-                SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.name.name,
-                  initialValue: sourceFilament?.name,
-                  focusNode: nameFocusNode,
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.properties.name'.tr()),
-                  onSubmitted: (txt) => focusNext(_FilamentFormFormComponent.name.name, nameFocusNode, vendorFocusNode),
-                  textInputAction: TextInputAction.next,
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.vendor.name,
-                  initialValue: selectedVendor?.name,
-                  focusNode: vendorFocusNode,
-                  readOnly: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.vendor.one'.tr()),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.vendor.name, vendorFocusNode, materialFocusNode),
-                  onTap: controller.onTapVendorSelection,
-                  textInputAction: TextInputAction.next,
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.material.name,
-                  initialValue: sourceFilament?.material,
-                  focusNode: materialFocusNode,
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.properties.material'.tr()),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.material.name, materialFocusNode, colorHexFocusNode),
-                  textInputAction: TextInputAction.next,
-                ),
-                FormBuilderColorPickerField(
-                  name: _FilamentFormFormComponent.colorHex.name,
-                  initialValue: sourceFilament?.colorHex?.let((e) => e.toColor),
-                  focusNode: colorHexFocusNode,
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.properties.color'.tr()),
-                  onFieldSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.colorHex.name, colorHexFocusNode, priceFocusNode),
-                  textInputAction: TextInputAction.next,
-                  colorPreviewBuilder: (color) => LayoutBuilder(
-                    key: ObjectKey(color),
-                    builder: (context, constraints) {
-                      return SpoolWidget(
-                        color: color?.hexCode,
-                        height: constraints.minHeight,
-                      );
-                    },
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                children: [
+                  // Basic Information
+                  SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.name.name,
+                    initialValue: sourceFilament?.name,
+                    focusNode: nameFocusNode,
+                    keyboardType: TextInputType.text,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.name'.tr()),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.name.name, nameFocusNode, vendorFocusNode),
+                    textInputAction: TextInputAction.next,
                   ),
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.price.name,
-                  initialValue: sourceFilament?.price?.let(numFormatInputs.format),
-                  valueTransformer: (text) => text?.let(double.tryParse),
-                  focusNode: priceFocusNode,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'pages.spoolman.properties.price'.tr(),
-                    suffixText: ref.watch(spoolmanCurrencyProvider(machineUUID)),
-                    helperText: tr('pages.spoolman.filament_form.helper.price'),
-                    helperMaxLines: 100,
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.vendor.name,
+                    initialValue: selectedVendor?.name,
+                    focusNode: vendorFocusNode,
+                    readOnly: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(labelText: 'pages.spoolman.vendor.one'.tr()),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.vendor.name, vendorFocusNode, materialFocusNode),
+                    onTap: controller.onTapVendorSelection,
+                    textInputAction: TextInputAction.next,
                   ),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.price.name, priceFocusNode, diameterFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
-                ),
-                //Physical Properties
-                SectionHeader(title: tr('pages.spoolman.property_sections.physical')),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.diameter.name,
-                  valueTransformer: (text) => text?.let(double.tryParse),
-                  initialValue: sourceFilament?.diameter.let(numFormatInputs.format) ?? '1.75',
-                  focusNode: diameterFocusNode,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.properties.diameter'.tr(), suffixText: '[mm]'),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.diameter.name, diameterFocusNode, densityFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required(), FormBuilderValidators.numeric()]),
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.density.name,
-                  initialValue: sourceFilament?.density.let(numFormatInputs.format),
-                  valueTransformer: (text) => text?.let(double.tryParse),
-                  focusNode: densityFocusNode,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration:
-                      InputDecoration(labelText: 'pages.spoolman.properties.density'.tr(), suffixText: '[g/cm³]'),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.density.name, densityFocusNode, weightFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required(), FormBuilderValidators.numeric()]),
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.weight.name,
-                  initialValue: sourceFilament?.weight?.let(numFormatInputs.format),
-                  valueTransformer: (text) => text?.let(double.tryParse),
-                  focusNode: weightFocusNode,
-                  keyboardType: TextInputType.number,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'pages.spoolman.properties.weight'.tr(),
-                    suffixText: '[g]',
-                    helperText: tr('pages.spoolman.filament_form.helper.initial_weight'),
-                    helperMaxLines: 100,
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.material.name,
+                    initialValue: sourceFilament?.material,
+                    focusNode: materialFocusNode,
+                    keyboardType: TextInputType.text,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.material'.tr()),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.material.name, materialFocusNode, colorHexFocusNode),
+                    textInputAction: TextInputAction.next,
                   ),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.weight.name, weightFocusNode, spoolWeightFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.spoolWeight.name,
-                  initialValue: sourceFilament?.spoolWeight?.let(numFormatInputs.format),
-                  valueTransformer: (text) => text?.let(double.tryParse),
-                  focusNode: spoolWeightFocusNode,
-                  keyboardType: TextInputType.number,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'pages.spoolman.properties.spool_weight'.tr(),
-                    suffixText: '[g]',
-                    helperText: tr('pages.spoolman.filament_form.helper.empty_weight'),
-                    helperMaxLines: 100,
+                  FormBuilderColorPickerField(
+                    name: _FilamentFormFormComponent.colorHex.name,
+                    initialValue: sourceFilament?.colorHex?.let((e) => e.toColor),
+                    focusNode: colorHexFocusNode,
+                    keyboardType: TextInputType.text,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.color'.tr()),
+                    onFieldSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.colorHex.name, colorHexFocusNode, priceFocusNode),
+                    textInputAction: TextInputAction.next,
+                    colorPreviewBuilder: (color) => LayoutBuilder(
+                      key: ObjectKey(color),
+                      builder: (context, constraints) {
+                        return SpoolWidget(
+                          color: color?.hexCode,
+                          height: constraints.minHeight,
+                        );
+                      },
+                    ),
                   ),
-                  onSubmitted: (txt) => focusNext(
-                      _FilamentFormFormComponent.spoolWeight.name, spoolWeightFocusNode, extruderTempFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
-                ),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.price.name,
+                    initialValue: sourceFilament?.price?.let(numFormatInputs.format),
+                    valueTransformer: (text) => text?.let(double.tryParse),
+                    focusNode: priceFocusNode,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'pages.spoolman.properties.price'.tr(),
+                      suffixText: ref.watch(spoolmanCurrencyProvider(machineUUID)),
+                      helperText: tr('pages.spoolman.filament_form.helper.price'),
+                      helperMaxLines: 100,
+                    ),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.price.name, priceFocusNode, diameterFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                  ),
+                  //Physical Properties
+                  SectionHeader(title: tr('pages.spoolman.property_sections.physical')),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.diameter.name,
+                    valueTransformer: (text) => text?.let(double.tryParse),
+                    initialValue: sourceFilament?.diameter.let(numFormatInputs.format) ?? '1.75',
+                    focusNode: diameterFocusNode,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration:
+                        InputDecoration(labelText: 'pages.spoolman.properties.diameter'.tr(), suffixText: '[mm]'),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.diameter.name, diameterFocusNode, densityFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose(
+                        [FormBuilderValidators.required(), FormBuilderValidators.numeric()]),
+                  ),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.density.name,
+                    initialValue: sourceFilament?.density.let(numFormatInputs.format),
+                    valueTransformer: (text) => text?.let(double.tryParse),
+                    focusNode: densityFocusNode,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration:
+                        InputDecoration(labelText: 'pages.spoolman.properties.density'.tr(), suffixText: '[g/cm³]'),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.density.name, densityFocusNode, weightFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose(
+                        [FormBuilderValidators.required(), FormBuilderValidators.numeric()]),
+                  ),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.weight.name,
+                    initialValue: sourceFilament?.weight?.let(numFormatInputs.format),
+                    valueTransformer: (text) => text?.let(double.tryParse),
+                    focusNode: weightFocusNode,
+                    keyboardType: TextInputType.number,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'pages.spoolman.properties.weight'.tr(),
+                      suffixText: '[g]',
+                      helperText: tr('pages.spoolman.filament_form.helper.initial_weight'),
+                      helperMaxLines: 100,
+                    ),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.weight.name, weightFocusNode, spoolWeightFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                  ),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.spoolWeight.name,
+                    initialValue: sourceFilament?.spoolWeight?.let(numFormatInputs.format),
+                    valueTransformer: (text) => text?.let(double.tryParse),
+                    focusNode: spoolWeightFocusNode,
+                    keyboardType: TextInputType.number,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'pages.spoolman.properties.spool_weight'.tr(),
+                      suffixText: '[g]',
+                      helperText: tr('pages.spoolman.filament_form.helper.empty_weight'),
+                      helperMaxLines: 100,
+                    ),
+                    onSubmitted: (txt) => focusNext(
+                        _FilamentFormFormComponent.spoolWeight.name, spoolWeightFocusNode, extruderTempFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                  ),
 
-                // Temperature Settings
-                SectionHeader(title: tr('pages.spoolman.property_sections.print_settings')),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.extruderTemp.name,
-                  initialValue: sourceFilament?.settingsExtruderTemp?.let(numFormatInputs.format),
-                  valueTransformer: (text) => text?.let(int.tryParse),
-                  focusNode: extruderTempFocusNode,
-                  keyboardType: TextInputType.number,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration:
-                      InputDecoration(labelText: 'pages.printer_edit.presets.hotend_temp'.tr(), suffixText: '[°C]'),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.extruderTemp.name, extruderTempFocusNode, bedTempFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose([FormBuilderValidators.integer()]),
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.bedTemp.name,
-                  initialValue: sourceFilament?.settingsBedTemp?.let(numFormatInputs.format),
-                  valueTransformer: (text) => text?.let(int.tryParse),
-                  focusNode: bedTempFocusNode,
-                  keyboardType: TextInputType.number,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration:
-                      InputDecoration(labelText: 'pages.printer_edit.presets.bed_temp'.tr(), suffixText: '[°C]'),
-                  onSubmitted: (txt) =>
-                      focusNext(_FilamentFormFormComponent.bedTemp.name, bedTempFocusNode, articleNumberFocusNode),
-                  textInputAction: TextInputAction.next,
-                  validator: FormBuilderValidators.compose([FormBuilderValidators.integer()]),
-                ),
+                  // Temperature Settings
+                  SectionHeader(title: tr('pages.spoolman.property_sections.print_settings')),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.extruderTemp.name,
+                    initialValue: sourceFilament?.settingsExtruderTemp?.let(numFormatInputs.format),
+                    valueTransformer: (text) => text?.let(int.tryParse),
+                    focusNode: extruderTempFocusNode,
+                    keyboardType: TextInputType.number,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration:
+                        InputDecoration(labelText: 'pages.printer_edit.presets.hotend_temp'.tr(), suffixText: '[°C]'),
+                    onSubmitted: (txt) => focusNext(
+                        _FilamentFormFormComponent.extruderTemp.name, extruderTempFocusNode, bedTempFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.integer()]),
+                  ),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.bedTemp.name,
+                    initialValue: sourceFilament?.settingsBedTemp?.let(numFormatInputs.format),
+                    valueTransformer: (text) => text?.let(int.tryParse),
+                    focusNode: bedTempFocusNode,
+                    keyboardType: TextInputType.number,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration:
+                        InputDecoration(labelText: 'pages.printer_edit.presets.bed_temp'.tr(), suffixText: '[°C]'),
+                    onSubmitted: (txt) =>
+                        focusNext(_FilamentFormFormComponent.bedTemp.name, bedTempFocusNode, articleNumberFocusNode),
+                    textInputAction: TextInputAction.next,
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.integer()]),
+                  ),
 
-                // Cost and Additional Information
-                SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.articleNumber.name,
-                  initialValue: sourceFilament?.articleNumber,
-                  focusNode: articleNumberFocusNode,
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.properties.article_number'.tr()),
-                  onSubmitted: (txt) => focusNext(
-                      _FilamentFormFormComponent.articleNumber.name, articleNumberFocusNode, commentFocusNode),
-                  textInputAction: TextInputAction.next,
-                ),
-                FormBuilderTextField(
-                  name: _FilamentFormFormComponent.comment.name,
-                  initialValue: sourceFilament?.comment,
-                  maxLines: null,
-                  focusNode: commentFocusNode,
-                  keyboardType: TextInputType.multiline,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: 'pages.spoolman.properties.comment'.tr()),
-                  textInputAction: TextInputAction.newline,
-                ),
+                  // Cost and Additional Information
+                  SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.articleNumber.name,
+                    initialValue: sourceFilament?.articleNumber,
+                    focusNode: articleNumberFocusNode,
+                    keyboardType: TextInputType.text,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.article_number'.tr()),
+                    onSubmitted: (txt) => focusNext(
+                        _FilamentFormFormComponent.articleNumber.name, articleNumberFocusNode, commentFocusNode),
+                    textInputAction: TextInputAction.next,
+                  ),
+                  FormBuilderTextField(
+                    name: _FilamentFormFormComponent.comment.name,
+                    initialValue: sourceFilament?.comment,
+                    maxLines: null,
+                    focusNode: commentFocusNode,
+                    keyboardType: TextInputType.multiline,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.comment'.tr()),
+                    textInputAction: TextInputAction.newline,
+                  ),
                   // Extra Fields Section
                   ExtraFieldsFormSection(
                     machineUUID: machineUUID,
@@ -558,7 +562,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       density: formData[_FilamentFormFormComponent.density.name],
       diameter: formData[_FilamentFormFormComponent.diameter.name],
       weight: formData[_FilamentFormFormComponent.weight.name],
-      spoolWeight: formData[_FilamentFormFormComponent.spoolWeight.name],
+      spoolWeight: formData[_FilamentFormFormComponent.spoolWeight.name] ?? vendor.spoolWeight,
       articleNumber: formData[_FilamentFormFormComponent.articleNumber.name],
       settingsExtruderTemp: formData[_FilamentFormFormComponent.extruderTemp.name],
       settingsBedTemp: formData[_FilamentFormFormComponent.bedTemp.name],

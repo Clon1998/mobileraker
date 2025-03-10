@@ -607,9 +607,10 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       firstUsed: formData[_SpoolFormFormComponent.firstUsed.name],
       lastUsed: formData[_SpoolFormFormComponent.lastUsed.name],
       filament: filament,
-      price: formData[_SpoolFormFormComponent.price.name],
-      initialWeight: formData[_SpoolFormFormComponent.initialWeight.name],
-      spoolWeight: formData[_SpoolFormFormComponent.emptyWeight.name],
+      price: formData[_SpoolFormFormComponent.price.name] ?? filament.price,
+      initialWeight: formData[_SpoolFormFormComponent.initialWeight.name] ?? filament.weight,
+      spoolWeight:
+          formData[_SpoolFormFormComponent.emptyWeight.name] ?? filament.spoolWeight ?? filament.vendor?.spoolWeight,
       usedWeight: formData[_SpoolFormFormComponent.used.name],
       location: formData[_SpoolFormFormComponent.location.name],
       lotNr: formData[_SpoolFormFormComponent.lot.name],
