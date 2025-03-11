@@ -33,7 +33,7 @@ class _KeepScreenOnTriggerState extends ConsumerState<KeepScreenOnTrigger> {
           KeepScreenOn.turnOn();
         } else {
           logger.i('User requested to NOT keep screen on at all times');
-          KeepScreenOn.turnOn();
+          KeepScreenOn.turnOff();
         }
       },
       fireImmediately: true,
