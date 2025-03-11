@@ -20,6 +20,7 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -37,6 +38,7 @@ import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -67,13 +69,16 @@ class SpoolDetailPage extends StatelessWidget {
   }
 }
 
-class _SpoolDetailPage extends ConsumerWidget {
+class _SpoolDetailPage extends HookConsumerWidget {
   const _SpoolDetailPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
     final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
     final themeData = Theme.of(context);
 
@@ -125,32 +130,53 @@ class _SpoolDetailPage extends ConsumerWidget {
         child: const Icon(Icons.more_vert),
       ),
       body: SafeArea(
-        child: ListView(
-          children: [
-            WarningCard(
-              show: spool.archived,
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              leadingIcon: const Icon(Icons.archive),
-              // leadingIcon: Icon(Icons.layers_clear),
-              title: const Text('pages.spoolman.spool_details.archived_warning.title').tr(),
-              subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
+        child: SmartRefresher(
+          controller: refreshController,
+          onRefresh: () async {
+            final spool = ref.read(_spoolProvider);
+
+            try {
+              await ref.refresh(spoolProvider(machineUUID, spool.id).future);
+              refreshController.refreshCompleted();
+            } catch (e) {
+              refreshController.refreshFailed();
+            }
+          },
+          header: ClassicHeader(
+            textStyle: TextStyle(color: themeData.colorScheme.onSurface),
+            completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
+            releaseIcon: Icon(
+              Icons.refresh,
+              color: themeData.colorScheme.onSurface,
             ),
-            _SpoolInfo(machineUUID: machineUUID),
-            if (context.isCompact) ...[
-              sameFilamentSpoolList,
-              sameMaterialSpoolList,
-            ],
-            if (context.isLargerThanCompact)
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Flexible(child: sameMaterialSpoolList),
-                    Flexible(child: sameFilamentSpoolList),
-                  ],
-                ),
+          ),
+          child: ListView(
+            children: [
+              WarningCard(
+                show: spool.archived,
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                leadingIcon: const Icon(Icons.archive),
+                // leadingIcon: Icon(Icons.layers_clear),
+                title: const Text('pages.spoolman.spool_details.archived_warning.title').tr(),
+                subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
               ),
-          ],
+              _SpoolInfo(machineUUID: machineUUID),
+              if (context.isCompact) ...[
+                sameFilamentSpoolList,
+                sameMaterialSpoolList,
+              ],
+              if (context.isLargerThanCompact)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(child: sameMaterialSpoolList),
+                      Flexible(child: sameFilamentSpoolList),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
       // body: _SpoolTab(),

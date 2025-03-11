@@ -25,6 +25,7 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -55,40 +56,65 @@ class VendorDetailPage extends StatelessWidget {
   }
 }
 
-class _VendorDetailPage extends ConsumerWidget {
+class _VendorDetailPage extends HookConsumerWidget {
   const _VendorDetailPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
     final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
+
+    final themeData = Theme.of(context);
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: ListView(
-        addAutomaticKeepAlives: true,
-        children: [
-          _VendorInfo(machineUUID: machineUUID),
-          if (context.isCompact) ...[
-            _VendorFilaments(machineUUID: machineUUID),
-            _VendorSpools(machineUUID: machineUUID),
-          ],
-          if (context.isLargerThanCompact)
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
-                  Flexible(child: _VendorSpools(machineUUID: machineUUID)),
-                ],
-              ),
+      body: SmartRefresher(
+          controller: refreshController,
+          onRefresh: () async {
+            final vendor = ref.read(_vendorProvider);
+
+            try {
+              await ref.refresh(vendorProvider(machineUUID, vendor.id).future);
+              refreshController.refreshCompleted();
+            } catch (e) {
+              refreshController.refreshFailed();
+            }
+          },
+          header: ClassicHeader(
+            textStyle: TextStyle(color: themeData.colorScheme.onSurface),
+            completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
+            releaseIcon: Icon(
+              Icons.refresh,
+              color: themeData.colorScheme.onSurface,
             ),
-        ],
-      ),
+          ),
+          child: ListView(
+            addAutomaticKeepAlives: true,
+            children: [
+              _VendorInfo(machineUUID: machineUUID),
+              if (context.isCompact) ...[
+                _VendorFilaments(machineUUID: machineUUID),
+                _VendorSpools(machineUUID: machineUUID),
+              ],
+              if (context.isLargerThanCompact)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
+                      Flexible(child: _VendorSpools(machineUUID: machineUUID)),
+                    ],
+                  ),
+                ),
+            ],
+          )),
       // body: _SpoolTab(),
     );
   }

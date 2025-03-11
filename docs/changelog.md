@@ -1,6 +1,13 @@
 # Mobileraker - Changelog
 
+## [2.8.8] - 2025-03-xx
+
 ## [2.8.7] - 2025-03-05
+
+### Bug Fixes
+
+- **Keep Screen Awake**: Fixed an issue where the "Keep Screen Awake" setting was not working correctly causing the
+  screen to always stay on.
 
 ### Enhancements
 

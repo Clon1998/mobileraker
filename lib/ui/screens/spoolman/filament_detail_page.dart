@@ -26,6 +26,7 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -56,13 +57,17 @@ class FilamentDetailPage extends StatelessWidget {
   }
 }
 
-class _FilamentDetailPage extends ConsumerWidget {
+class _FilamentDetailPage extends HookConsumerWidget {
   const _FilamentDetailPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
+    final themeData = Theme.of(context);
     final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
@@ -70,12 +75,33 @@ class _FilamentDetailPage extends ConsumerWidget {
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: ListView(
-        children: [
-          _FilamentInfo(machineUUID: machineUUID),
-          // const _VendorInfo(),
-          _FilamentSpools(machineUUID: machineUUID),
-        ],
+      body: SmartRefresher(
+        controller: refreshController,
+        onRefresh: () async {
+          final filament = ref.read(_filamentProvider);
+
+          try {
+            await ref.refresh(filamentProvider(machineUUID, filament.id).future);
+            refreshController.refreshCompleted();
+          } catch (e) {
+            refreshController.refreshFailed();
+          }
+        },
+        header: ClassicHeader(
+          textStyle: TextStyle(color: themeData.colorScheme.onSurface),
+          completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
+          releaseIcon: Icon(
+            Icons.refresh,
+            color: themeData.colorScheme.onSurface,
+          ),
+        ),
+        child: ListView(
+          children: [
+            _FilamentInfo(machineUUID: machineUUID),
+            // const _VendorInfo(),
+            _FilamentSpools(machineUUID: machineUUID),
+          ],
+        ),
       ),
       // body: _SpoolTab(),
     );
