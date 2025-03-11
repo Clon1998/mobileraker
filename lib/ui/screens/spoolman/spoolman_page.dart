@@ -31,6 +31,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -142,6 +143,11 @@ class _Body extends ConsumerWidget {
         return HookConsumer(builder: (context, ref, child) {
           // Ensure that the currency provider is kept alive as it is used in the spoolman page and its subpages
           ref.keepAliveExternally(spoolmanCurrencyProvider(machineUUID));
+          // Also ensure that the extra fields are available and kept alive for the spoolman page and its subpages
+          ref.keepAliveExternally(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.spool));
+          ref.keepAliveExternally(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.filament));
+          ref.keepAliveExternally(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.vendor));
+
           final hasSpoolman =
               ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value!;
           final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
