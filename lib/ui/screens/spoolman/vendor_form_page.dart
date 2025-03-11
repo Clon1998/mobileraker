@@ -123,7 +123,7 @@ class _VendorFormPage extends HookConsumerWidget {
                       helperText: tr('pages.spoolman.vendor_form.helper.empty_weight'),
                       helperMaxLines: 100,
                     ),
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                     onSubmitted: (txt) =>
                         focusNext(_VendorFormFormComponent.spoolWeight.name, spoolWeightFocusNode, commentFocusNode),
                     textInputAction: TextInputAction.next,

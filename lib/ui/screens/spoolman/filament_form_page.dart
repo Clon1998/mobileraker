@@ -217,7 +217,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) =>
                         focusNext(_FilamentFormFormComponent.price.name, priceFocusNode, diameterFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
                   //Physical Properties
                   SectionHeader(title: tr('pages.spoolman.property_sections.physical')),
@@ -267,7 +267,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) =>
                         focusNext(_FilamentFormFormComponent.weight.name, weightFocusNode, spoolWeightFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
                   FormBuilderTextField(
                     name: _FilamentFormFormComponent.spoolWeight.name,
@@ -285,7 +285,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) => focusNext(
                         _FilamentFormFormComponent.spoolWeight.name, spoolWeightFocusNode, extruderTempFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                   ),
 
                   // Temperature Settings
@@ -302,7 +302,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) => focusNext(
                         _FilamentFormFormComponent.extruderTemp.name, extruderTempFocusNode, bedTempFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.integer()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.integer(checkNullOrEmpty: false)]),
                   ),
                   FormBuilderTextField(
                     name: _FilamentFormFormComponent.bedTemp.name,
@@ -316,7 +316,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                     onSubmitted: (txt) =>
                         focusNext(_FilamentFormFormComponent.bedTemp.name, bedTempFocusNode, articleNumberFocusNode),
                     textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.integer()]),
+                    validator: FormBuilderValidators.compose([FormBuilderValidators.integer(checkNullOrEmpty: false)]),
                   ),
 
                   // Cost and Additional Information
