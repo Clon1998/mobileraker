@@ -882,6 +882,7 @@ pages:
       location: Helyszín
       lot_number: Tételszám
       color: Szín
+      initial_weight: Kezdeti súly
     property_sections:
       basic: Alapvető információ
       usage: Használat részletei
@@ -1385,6 +1386,7 @@ form_validators:
   simple_url: 'A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port'
   disallow_mdns: Az MDNs (.local) címek nem támogatottak.
   file_name_in_use: Fájlnév már használatban van
+  min_before_max: A minimális értéknek kisebbnek vagy egyenlőnek kell lennie a maximális értékkel
 date:
   year:
     one: Év
