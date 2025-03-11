@@ -493,6 +493,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     state = state.copyWith(isSaving: true);
 
     final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.spool).future);
+    logger.i('[SpoolFormPageController($machineUUID)] Received Extra fields for form submissions: $extraFields');
 
     switch (state.mode) {
       case _FormMode.create:

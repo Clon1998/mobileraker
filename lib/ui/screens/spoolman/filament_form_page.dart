@@ -459,6 +459,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 
     state = state.copyWith(isSaving: true);
     final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.filament).future);
+    logger.i('[FilamentFormPageController($machineUUID)] Received Extra fields for form submissions: $extraFields');
 
     switch (state.mode) {
       case _FormMode.create:

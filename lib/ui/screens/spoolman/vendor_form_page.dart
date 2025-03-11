@@ -235,6 +235,8 @@ class _VendorFormPageController extends _$VendorFormPageController {
 
     final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.vendor).future);
 
+    logger.i('[VendorFormPageController($machineUUID)] Received Extra fields for form submissions: $extraFields');
+
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
