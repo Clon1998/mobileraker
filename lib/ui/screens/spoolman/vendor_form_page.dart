@@ -233,7 +233,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
     }
     state = state.copyWith(isSaving: true);
 
-    final extraFields = await ref.read(extraFieldsProvider(machineUUID, SpoolmanEntityType.vendor).future);
+    final extraFields = await ref.read(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.vendor).future);
 
     logger.i('[VendorFormPageController($machineUUID)] Received Extra fields for form submissions: $extraFields');
 
