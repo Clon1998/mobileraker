@@ -30,7 +30,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/selection_bottom_sheet.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
-import 'package:mobileraker_pro/spoolman/dto/get_extra_field.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
@@ -115,8 +114,8 @@ class _SpoolFormPage extends HookConsumerWidget {
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
 
     final controller = ref.watch(_SpoolFormPageControllerProvider(machineUUID).notifier);
-    final (sourceSpool, selectedFilament, mode) = ref.watch(_SpoolFormPageControllerProvider(machineUUID)
-        .select((model) => (model.source, model.selectedFilament, model.mode)));
+    final (sourceSpool, selectedFilament, mode, saving) = ref.watch(_SpoolFormPageControllerProvider(machineUUID)
+        .select((model) => (model.source, model.selectedFilament, model.mode, model.isSaving)));
 
     final allLocationsFuture = useMemoized(() => ref.read(spoolmanServiceProvider(machineUUID)).allLocations());
 
@@ -149,241 +148,250 @@ class _SpoolFormPage extends HookConsumerWidget {
         child: SafeArea(
           child: ResponsiveLimit(
             child: FormBuilder(
+              enabled: !saving,
               key: _formKey,
-              child: ListView(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                children: [
-                  // Basic Spool Information
-                  SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
-                  FormBuilderTextField(
-                    name: _SpoolFormFormComponent.filament.name,
-                    initialValue: selectedFilament?.displayNameWithDetails(numFormatDecimal),
-                    readOnly: true,
-                    focusNode: filamentFocusNode,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.filament.one'.tr(),
-                      suffixIcon: LayoutBuilder(
-                        key: ObjectKey(selectedFilament),
-                        builder: (context, constraints) {
-                          return SpoolWidget(
-                            color: selectedFilament?.colorHex,
-                            height: constraints.minHeight,
-                          );
-                        },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Basic Spool Information
+                    SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
+                    FormBuilderTextField(
+                      name: _SpoolFormFormComponent.filament.name,
+                      initialValue: selectedFilament?.displayNameWithDetails(numFormatDecimal),
+                      readOnly: true,
+                      focusNode: filamentFocusNode,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.filament.one'.tr(),
+                        suffixIcon: LayoutBuilder(
+                          key: ObjectKey(selectedFilament),
+                          builder: (context, constraints) {
+                            return SpoolWidget(
+                              color: selectedFilament?.colorHex,
+                              height: constraints.minHeight,
+                            );
+                          },
+                        ),
                       ),
+                      validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+                      onSubmitted: (txt) =>
+                          focusNext(_SpoolFormFormComponent.filament.name, filamentFocusNode, priceFocusNode),
+                      onTap: controller.onTapFilamentSelection,
+                      textInputAction: TextInputAction.next,
                     ),
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
-                    onSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.filament.name, filamentFocusNode, priceFocusNode),
-                    onTap: controller.onTapFilamentSelection,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  FormBuilderTextField(
-                    name: _SpoolFormFormComponent.price.name,
-                    initialValue: sourceSpool?.price?.let(numFormatInputs.format),
-                    valueTransformer: (text) => text?.let(double.tryParse),
-                    focusNode: priceFocusNode,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.price'.tr(),
-                      helperText: 'pages.spoolman.spool_form.helper.price'.tr(),
-                      helperMaxLines: 100,
-                      hintText: (selectedFilament?.price)?.let(numFormatInputs.format),
-                      suffixText: ref.watch(spoolmanCurrencyProvider(machineUUID)),
+                    FormBuilderTextField(
+                      name: _SpoolFormFormComponent.price.name,
+                      initialValue: sourceSpool?.price?.let(numFormatInputs.format),
+                      valueTransformer: (text) => text?.let(double.tryParse),
+                      focusNode: priceFocusNode,
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.price'.tr(),
+                        helperText: 'pages.spoolman.spool_form.helper.price'.tr(),
+                        helperMaxLines: 100,
+                        hintText: (selectedFilament?.price)?.let(numFormatInputs.format),
+                        suffixText: ref.watch(spoolmanCurrencyProvider(machineUUID)),
+                      ),
+                      onSubmitted: (txt) =>
+                          focusNext(_SpoolFormFormComponent.price.name, priceFocusNode, initialWeightFocusNode),
+                      textInputAction: TextInputAction.next,
+                      validator:
+                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                     ),
-                    onSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.price.name, priceFocusNode, initialWeightFocusNode),
-                    textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
-                  ),
-                  FormBuilderTextField(
-                    name: _SpoolFormFormComponent.initialWeight.name,
-                    initialValue: sourceSpool?.initialWeight?.let(numFormatInputs.format),
-                    valueTransformer: (text) => text?.let(double.tryParse),
-                    focusNode: initialWeightFocusNode,
-                    keyboardType: TextInputType.number,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.weight'.tr(),
-                      helperText: 'pages.spoolman.spool_form.helper.initial_weight'.tr(),
-                      helperMaxLines: 100,
-                      hintText: (selectedFilament?.weight)?.let((it) => it.toString()),
-                      suffixText: '[g]',
+                    FormBuilderTextField(
+                      name: _SpoolFormFormComponent.initialWeight.name,
+                      initialValue: sourceSpool?.initialWeight?.let(numFormatInputs.format),
+                      valueTransformer: (text) => text?.let(double.tryParse),
+                      focusNode: initialWeightFocusNode,
+                      keyboardType: TextInputType.number,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.weight'.tr(),
+                        helperText: 'pages.spoolman.spool_form.helper.initial_weight'.tr(),
+                        helperMaxLines: 100,
+                        hintText: (selectedFilament?.weight)?.let((it) => it.toString()),
+                        suffixText: '[g]',
+                      ),
+                      onSubmitted: (txt) => focusNext(
+                          _SpoolFormFormComponent.initialWeight.name, initialWeightFocusNode, emptyWeightFocusNode),
+                      textInputAction: TextInputAction.next,
+                      validator:
+                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                     ),
-                    onSubmitted: (txt) => focusNext(
-                        _SpoolFormFormComponent.initialWeight.name, initialWeightFocusNode, emptyWeightFocusNode),
-                    textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
-                  ),
-                  FormBuilderTextField(
-                    name: _SpoolFormFormComponent.emptyWeight.name,
-                    initialValue: sourceSpool?.spoolWeight?.let(numFormatInputs.format),
-                    valueTransformer: (text) => text?.let(double.tryParse),
-                    focusNode: emptyWeightFocusNode,
-                    keyboardType: TextInputType.number,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.spool_weight'.tr(),
-                      helperText: 'pages.spoolman.spool_form.helper.empty_weight'.tr(),
-                      helperMaxLines: 100,
-                      hintText: (selectedFilament?.spoolWeight ?? selectedFilament?.vendor?.spoolWeight)
-                          ?.let((it) => it.toString()),
-                      suffixText: '[g]',
+                    FormBuilderTextField(
+                      name: _SpoolFormFormComponent.emptyWeight.name,
+                      initialValue: sourceSpool?.spoolWeight?.let(numFormatInputs.format),
+                      valueTransformer: (text) => text?.let(double.tryParse),
+                      focusNode: emptyWeightFocusNode,
+                      keyboardType: TextInputType.number,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.spool_weight'.tr(),
+                        helperText: 'pages.spoolman.spool_form.helper.empty_weight'.tr(),
+                        helperMaxLines: 100,
+                        hintText: (selectedFilament?.spoolWeight ?? selectedFilament?.vendor?.spoolWeight)
+                            ?.let((it) => it.toString()),
+                        suffixText: '[g]',
+                      ),
+                      onSubmitted: (txt) =>
+                          focusNext(_SpoolFormFormComponent.emptyWeight.name, emptyWeightFocusNode, usedFocusNode),
+                      textInputAction: TextInputAction.next,
+                      validator:
+                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                     ),
-                    onSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.emptyWeight.name, emptyWeightFocusNode, usedFocusNode),
-                    textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
-                  ),
-                  FormBuilderTextField(
-                    name: _SpoolFormFormComponent.used.name,
-                    initialValue: sourceSpool?.usedWeight.let(numFormatInputs.format).only(mode == _FormMode.update),
-                    valueTransformer: (text) => text?.let(double.tryParse),
-                    focusNode: usedFocusNode,
-                    keyboardType: TextInputType.number,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.used_weight'.tr(),
-                      helperText: 'pages.spoolman.spool_form.helper.used_weight'.tr(),
-                      helperMaxLines: 100,
-                      hintText: '0.0',
-                      suffixText: '[g]',
+                    FormBuilderTextField(
+                      name: _SpoolFormFormComponent.used.name,
+                      initialValue: sourceSpool?.usedWeight.let(numFormatInputs.format).only(mode == _FormMode.update),
+                      valueTransformer: (text) => text?.let(double.tryParse),
+                      focusNode: usedFocusNode,
+                      keyboardType: TextInputType.number,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.used_weight'.tr(),
+                        helperText: 'pages.spoolman.spool_form.helper.used_weight'.tr(),
+                        helperMaxLines: 100,
+                        hintText: '0.0',
+                        suffixText: '[g]',
+                      ),
+                      onSubmitted: (txt) =>
+                          focusNext(_SpoolFormFormComponent.used.name, usedFocusNode, locationFocusNode),
+                      textInputAction: TextInputAction.next,
+                      validator:
+                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
                     ),
-                    onSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.used.name, usedFocusNode, locationFocusNode),
-                    textInputAction: TextInputAction.next,
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
-                  ),
 
-                  // Usage Details
-                  SectionHeader(title: tr('pages.spoolman.property_sections.usage')),
-                  FormBuilderDateTimePicker(
-                    name: _SpoolFormFormComponent.firstUsed.name,
-                    initialValue: sourceSpool?.firstUsed,
-                    focusNode: firstUsedFocusNode,
-                    keyboardType: TextInputType.datetime,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.first_used'.tr(),
+                    // Usage Details
+                    SectionHeader(title: tr('pages.spoolman.property_sections.usage')),
+                    FormBuilderDateTimePicker(
+                      name: _SpoolFormFormComponent.firstUsed.name,
+                      initialValue: sourceSpool?.firstUsed,
+                      focusNode: firstUsedFocusNode,
+                      keyboardType: TextInputType.datetime,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.first_used'.tr(),
+                      ),
+                      onFieldSubmitted: (txt) =>
+                          focusNext(_SpoolFormFormComponent.firstUsed.name, firstUsedFocusNode, lastUsedFocusNode),
+                      textInputAction: TextInputAction.next,
                     ),
-                    onFieldSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.firstUsed.name, firstUsedFocusNode, lastUsedFocusNode),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  FormBuilderDateTimePicker(
-                    name: _SpoolFormFormComponent.lastUsed.name,
-                    initialValue: sourceSpool?.lastUsed,
-                    focusNode: lastUsedFocusNode,
-                    keyboardType: TextInputType.datetime,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.last_used'.tr(),
+                    FormBuilderDateTimePicker(
+                      name: _SpoolFormFormComponent.lastUsed.name,
+                      initialValue: sourceSpool?.lastUsed,
+                      focusNode: lastUsedFocusNode,
+                      keyboardType: TextInputType.datetime,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.last_used'.tr(),
+                      ),
+                      onFieldSubmitted: (txt) =>
+                          focusNext(_SpoolFormFormComponent.lastUsed.name, lastUsedFocusNode, filamentFocusNode),
+                      textInputAction: TextInputAction.next,
                     ),
-                    onFieldSubmitted: (txt) =>
-                        focusNext(_SpoolFormFormComponent.lastUsed.name, lastUsedFocusNode, filamentFocusNode),
-                    textInputAction: TextInputAction.next,
-                  ),
 
-                  // Meta Information
-                  SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
-                  FormBuilderTypeAhead<String>(
-                    name: _SpoolFormFormComponent.location.name,
-                    initialValue: sourceSpool?.location,
-                    focusNode: locationFocusNode,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.location'.tr(),
-                      helperText: 'pages.spoolman.spool_form.helper.location'.tr(),
-                      helperMaxLines: 100,
+                    // Meta Information
+                    SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
+                    FormBuilderTypeAhead<String>(
+                      name: _SpoolFormFormComponent.location.name,
+                      initialValue: sourceSpool?.location,
+                      focusNode: locationFocusNode,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.location'.tr(),
+                        helperText: 'pages.spoolman.spool_form.helper.location'.tr(),
+                        helperMaxLines: 100,
+                      ),
+                      itemBuilder: (BuildContext c, String value) {
+                        return ListTile(title: Text(value));
+                      },
+                      onSaved: (value) {
+                        final lastInput = locationHelper.value;
+                        logger.i('onSaved called $value - $lastInput');
+                        if (lastInput?.isNotEmpty == true && value != lastInput) {
+                          _formKey.currentState
+                              ?.setInternalFieldValue(_SpoolFormFormComponent.location.name, lastInput);
+                        }
+                      },
+                      suggestionsCallback: (String searchTerm) async {
+                        searchTerm = searchTerm.trim();
+                        locationHelper.value = searchTerm;
+                        final searchTokens = searchTerm.split(RegExp(r'[\W,]+'));
+
+                        final allLocations = await allLocationsFuture;
+
+                        final searchResult = {...allLocations, searchTerm}
+                            .where((e) => e.trim().isNotEmpty)
+                            .map(
+                              (loc) => (loc, loc.searchScore(searchTerm, searchTokens)),
+                            )
+                            .where((element) => element.$2 > 150 && element.$1.isNotEmpty)
+                            .sorted((a, b) => b.$2.compareTo(a.$2))
+                            .map((e) => e.$1);
+
+                        return searchResult.toList();
+                      },
+                      onSelected: (_) {
+                        focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode);
+                      },
+                      hideOnEmpty: true,
+                      onChanged: (value) {
+                        logger.i('onChanged called $value');
+                      },
                     ),
-                    itemBuilder: (BuildContext c, String value) {
-                      return ListTile(title: Text(value));
-                    },
-                    onSaved: (value) {
-                      final lastInput = locationHelper.value;
-                      logger.i('onSaved called $value - $lastInput');
-                      if (lastInput?.isNotEmpty == true && value != lastInput) {
-                        _formKey.currentState?.setInternalFieldValue(_SpoolFormFormComponent.location.name, lastInput);
-                      }
-                    },
-                    suggestionsCallback: (String searchTerm) async {
-                      searchTerm = searchTerm.trim();
-                      locationHelper.value = searchTerm;
-                      final searchTokens = searchTerm.split(RegExp(r'[\W,]+'));
 
-                      final allLocations = await allLocationsFuture;
-
-                      final searchResult = {...allLocations, searchTerm}
-                          .where((e) => e.trim().isNotEmpty)
-                          .map(
-                            (loc) => (loc, loc.searchScore(searchTerm, searchTokens)),
-                          )
-                          .where((element) => element.$2 > 150 && element.$1.isNotEmpty)
-                          .sorted((a, b) => b.$2.compareTo(a.$2))
-                          .map((e) => e.$1);
-
-                      return searchResult.toList();
-                    },
-                    onSelected: (_) {
-                      focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode);
-                    },
-                    hideOnEmpty: true,
-                    onChanged: (value) {
-                      logger.i('onChanged called $value');
-                    },
-                  ),
-
-                  // FormBuilderTextField(
-                  //   name: _SpoolFormFormComponent.location.name,
-                  //   initialValue: sourceSpool?.location,
-                  //   focusNode: locationFocusNode,
-                  //   keyboardType: TextInputType.text,
-                  //   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  //   decoration: InputDecoration(
-                  //     labelText: 'pages.spoolman.properties.location'.tr(),
-                  //     helperText: 'pages.spoolman.spool_form.helper.location'.tr(),
-                  //     helperMaxLines: 100,
-                  //   ),
-                  //   onSubmitted: (txt) =>
-                  //       focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode),
-                  //   textInputAction: TextInputAction.next,
-                  // ),
-                  FormBuilderTextField(
-                    name: _SpoolFormFormComponent.lot.name,
-                    initialValue: sourceSpool?.lotNr,
-                    focusNode: lotFocusNode,
-                    keyboardType: TextInputType.text,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.lot_number'.tr(),
-                      helperText: 'pages.spoolman.spool_form.helper.lot_number'.tr(),
-                      helperMaxLines: 100,
+                    // FormBuilderTextField(
+                    //   name: _SpoolFormFormComponent.location.name,
+                    //   initialValue: sourceSpool?.location,
+                    //   focusNode: locationFocusNode,
+                    //   keyboardType: TextInputType.text,
+                    //   autovalidateMode: AutovalidateMode.onUserInteraction,
+                    //   decoration: InputDecoration(
+                    //     labelText: 'pages.spoolman.properties.location'.tr(),
+                    //     helperText: 'pages.spoolman.spool_form.helper.location'.tr(),
+                    //     helperMaxLines: 100,
+                    //   ),
+                    //   onSubmitted: (txt) =>
+                    //       focusNext(_SpoolFormFormComponent.location.name, locationFocusNode, lotFocusNode),
+                    //   textInputAction: TextInputAction.next,
+                    // ),
+                    FormBuilderTextField(
+                      name: _SpoolFormFormComponent.lot.name,
+                      initialValue: sourceSpool?.lotNr,
+                      focusNode: lotFocusNode,
+                      keyboardType: TextInputType.text,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.lot_number'.tr(),
+                        helperText: 'pages.spoolman.spool_form.helper.lot_number'.tr(),
+                        helperMaxLines: 100,
+                      ),
+                      onSubmitted: (txt) => focusNext(_SpoolFormFormComponent.lot.name, lotFocusNode, commentFocusNode),
+                      textInputAction: TextInputAction.next,
                     ),
-                    onSubmitted: (txt) => focusNext(_SpoolFormFormComponent.lot.name, lotFocusNode, commentFocusNode),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  FormBuilderTextField(
-                    maxLines: null,
-                    name: _SpoolFormFormComponent.comment.name,
-                    initialValue: sourceSpool?.comment,
-                    focusNode: commentFocusNode,
-                    keyboardType: TextInputType.multiline,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.comment'.tr(),
+                    FormBuilderTextField(
+                      maxLines: null,
+                      name: _SpoolFormFormComponent.comment.name,
+                      initialValue: sourceSpool?.comment,
+                      focusNode: commentFocusNode,
+                      keyboardType: TextInputType.multiline,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.comment'.tr(),
+                      ),
+                      textInputAction: TextInputAction.newline,
                     ),
-                    textInputAction: TextInputAction.newline,
-                  ),
-                  // Extra Fields Section
-                  ExtraFieldsFormSection(
-                    machineUUID: machineUUID,
-                    type: SpoolmanEntityType.spool,
-                    extraValues: sourceSpool?.extra,
-                    header: SectionHeader(title: tr('pages.spoolman.property_sections.extra_fields')),
-                  ),
-                ],
+                    // Extra Fields Section
+                    ExtraFieldsFormSection(
+                      machineUUID: machineUUID,
+                      type: SpoolmanEntityType.spool,
+                      extraValues: sourceSpool?.extra,
+                      header: SectionHeader(title: tr('pages.spoolman.property_sections.extra_fields')),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -492,16 +500,13 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
     state = state.copyWith(isSaving: true);
 
-    final extraFields = await ref.read(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.spool).future);
-    logger.i('[SpoolFormPageController($machineUUID)] Received Extra fields for form submissions: $extraFields');
-
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
-        _create(formData, state.selectedFilament!, extraFields, qty);
+        _create(formData, state.selectedFilament!, qty);
         break;
       case _FormMode.update:
-        _update(formData, state.selectedFilament!, extraFields);
+        _update(formData, state.selectedFilament!);
         break;
     }
   }
@@ -543,9 +548,8 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     state = state.copyWith(selectedFilament: resFila);
   }
 
-  Future<void> _create(
-      Map<String, dynamic> formData, GetFilament filament, List<GetExtraField> extraFields, int qty) async {
-    final dto = _createDtoFromForm(formData, filament, extraFields);
+  Future<void> _create(Map<String, dynamic> formData, GetFilament filament, int qty) async {
+    final dto = _createDtoFromForm(formData, filament);
     logger.i('[SpoolFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = plural('pages.spoolman.spool', qty);
     try {
@@ -568,8 +572,8 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
   }
 
-  Future<void> _update(Map<String, dynamic> formData, GetFilament filament, List<GetExtraField> extraFields) async {
-    final dto = _updateDtoFromForm(formData, filament, state.source!, extraFields);
+  Future<void> _update(Map<String, dynamic> formData, GetFilament filament) async {
+    final dto = _updateDtoFromForm(formData, filament, state.source!);
     logger.i('[SpoolFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.spool.one');
     if (dto == null) {
@@ -603,7 +607,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     }
   }
 
-  CreateSpool _createDtoFromForm(Map<String, dynamic> formData, GetFilament filament, List<GetExtraField> extraFields) {
+  CreateSpool _createDtoFromForm(Map<String, dynamic> formData, GetFilament filament) {
     return CreateSpool(
       firstUsed: formData[_SpoolFormFormComponent.firstUsed.name],
       lastUsed: formData[_SpoolFormFormComponent.lastUsed.name],
@@ -616,14 +620,13 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       location: formData[_SpoolFormFormComponent.location.name],
       lotNr: formData[_SpoolFormFormComponent.lot.name],
       comment: formData[_SpoolFormFormComponent.comment.name],
-      extra: {
-        for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
-      },
+      extra: formData.extractExtraFields(),
     );
   }
 
-  UpdateSpool? _updateDtoFromForm(
-      Map<String, dynamic> formData, GetFilament filament, GetSpool source, List<GetExtraField> extraFields) {
+  UpdateSpool? _updateDtoFromForm(Map<String, dynamic> formData,
+      GetFilament filament,
+      GetSpool source,) {
     final firstUsed = formData[_SpoolFormFormComponent.firstUsed.name];
     final lastUsed = formData[_SpoolFormFormComponent.lastUsed.name];
     final initialWeight = formData[_SpoolFormFormComponent.initialWeight.name];
@@ -639,12 +642,10 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
         usedWeight != null && usedWeight != source.usedWeight && !usedWeight.closeTo(source.usedWeight, 0.01);
 
     // Extra field values:
-    final extra = <String, String>{
-      for (var field in extraFields) field.key: formData['extra_${field.key}'] ?? '""',
-    };
+    final extras = formData.extractExtraFields();
 
     // If no changes were made, return null
-    final extraIsSame = DeepCollectionEquality().equals(extra, source.extra);
+    final extraIsSame = DeepCollectionEquality().equals(extras, source.extra);
     if (filament.id == source.filament.id &&
         firstUsed == source.firstUsed &&
         lastUsed == source.lastUsed &&
@@ -655,7 +656,9 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
         location == source.location &&
         lotNr == source.lotNr &&
         comment == source.comment &&
-        extraIsSame) return null;
+        extraIsSame) {
+      return null;
+    }
 
     return UpdateSpool(
       id: source.id,
@@ -669,7 +672,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       location: source.location == location ? null : location,
       lotNr: source.lotNr == lotNr ? null : lotNr,
       comment: source.comment == comment ? null : comment,
-      extra: extraIsSame ? null : extra,
+      extra: extraIsSame ? null : extras,
     );
   }
 }

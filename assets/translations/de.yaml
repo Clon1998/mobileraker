@@ -832,8 +832,8 @@ pages:
         title: '{} konnte nicht aktualisiert werden!'
         message: Unerwarteter Fehler, bitte versuchen Sie es später noch einmal.
       no_changes:
-        title: Keine Änderungen an {} vorgenommen!
-        message: Es wurden keine Änderungen vorgenommen.
+        title: Keine Änderungen vorgenommen!
+        message: Es wurden keine Änderungen an {} vorgenommen.
     delete:
       confirm:
         title: '{} löschen?'
