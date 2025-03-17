@@ -68,7 +68,12 @@ part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
 
 const _staticWidgets = [
-  InlineAdaptiveAdBanner(unit: AdBlockUnit.homeBanner, constraints: BoxConstraints(maxHeight: 80)),
+  InlineAdaptiveAdBanner(
+    unit: AdBlockUnit.homeBanner,
+    constraints: BoxConstraints(maxHeight: 80),
+    animated: false,
+    placeholder: true,
+  ),
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),
