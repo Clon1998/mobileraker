@@ -1102,6 +1102,10 @@ components:
       subtitle: Display non-printing movement
   select_color_sheet:
     title: Select Color
+  ad_banner:
+    failed:
+      title: Ad not available
+      subtitle: Ads support ongoing development
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?
