@@ -294,6 +294,10 @@ class _MjpegController extends _$MjpegController {
       fireImmediately: true,
     );
 
+    // This part ensures the camera is started/stopped when the provider is not used anymore!
+    ref.onCancel(_manager.stop);
+    ref.onResume(_manager.start);
+
     ref.keepAliveFor();
     yield* manager.jpegStream.doOnData(_frameReceived).map((event) => _Model(fps: _fps, image: event));
   }
