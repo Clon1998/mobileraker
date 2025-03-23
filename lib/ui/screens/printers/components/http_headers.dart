@@ -26,7 +26,7 @@ class HeadersController extends _$HeadersController {
 
     if (dialogResponse?.confirmed == true) {
       var data = dialogResponse!.data as MapEntry<String, String>;
-      logger.i('Got httpHeader response from dialog: $data');
+      talker.info('Got httpHeader response from dialog: $data');
       if (data.key.isNotEmpty) {
         state = {...state, data.key: data.value};
       }
@@ -42,7 +42,7 @@ class HeadersController extends _$HeadersController {
 
     if (dialogResponse?.confirmed == true) {
       var data = dialogResponse!.data as MapEntry<String, String>;
-      logger.i('Got httpHeader response from dialog: $data');
+      talker.info('Got httpHeader response from dialog: $data');
       if (data.key != header) deleteHttpHeader(header);
       if (data.key.isNotEmpty) {
         state = {...state, data.key: data.value};

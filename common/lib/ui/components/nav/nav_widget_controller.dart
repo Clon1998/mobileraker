@@ -104,31 +104,31 @@ class NavWidgetController extends _$NavWidgetController {
 
   navigateTo(String route, {dynamic arguments}) {
     if (_goRouter.canPop()) _goRouter.pop();
-    logger.i('Navigating to $route');
+    talker.info('Navigating to $route');
     _goRouter.go(route, extra: arguments);
   }
 
   pushingTo(String route, {dynamic arguments}) async {
     if (_goRouter.canPop()) _goRouter.pop();
 
-    logger.i('Pushing route to $route');
+    talker.info('Pushing route to $route');
     await _goRouter.push(route, extra: arguments);
   }
 
   replace(String route, {dynamic arguments}) async {
     // if (_goRouter.canPop()) _goRouter.pop();
-    logger.i('Replacing route to $route');
+    talker.info('Replacing route to $route');
 
     _goRouter.replace(route, extra: arguments);
   }
 
   void disable() {
-    logger.i('Disabling NavWidget');
+    talker.info('Disabling NavWidget');
     state = state.copyWith(enabled: false);
   }
 
   void enable() {
-    logger.i('Enabling NavWidget');
+    talker.info('Enabling NavWidget');
     state = state.copyWith(enabled: true);
   }
 }

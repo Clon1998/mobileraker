@@ -110,7 +110,7 @@ class _ScrewsTiltResult extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.e('${model.screwsTiltAdjust.results}');
+    talker.error('${model.screwsTiltAdjust.results}');
     var numberFormatZ = NumberFormat('0.0###', context.locale.toStringWithSeparator());
     var numberFormatXY = NumberFormat('0.#', context.locale.toStringWithSeparator());
     var themeData = Theme.of(context);

@@ -73,27 +73,40 @@ class LiveActivityServiceV2 {
     _initialized = true; // Move this line here to prevent race conditions
     try {
       if (!Platform.isIOS) {
-        logger.i('LiveActivityService is only available on iOS. Skipping initialization.');
+        talker.info('LiveActivityService is only available on iOS. Skipping initialization.');
         return;
       }
-      logger.i('Starting LiveActivityService init');
+      talker.info('Starting LiveActivityService init');
       await _init();
-      logger.i('Completed LiveActivityService init');
+      talker.info('Completed LiveActivityService init');
     } catch (e, s) {
       FirebaseCrashlytics.instance
           .recordError(e, s, reason: 'Error while setting up the LiveActivityService', fatal: true);
-      logger.w('Unexpected error while initializing LiveActivityService.', e, s);
+      talker.warning('Unexpected error while initializing LiveActivityService.', e, s);
     }
   }
 
   Future<void> _init() async {
     try {
-      logger.i('Connecting with Platform live_activity');
+      talker.info('Connecting with Platform live_activity');
       await _liveActivityAPI.init(appGroupId: 'group.mobileraker.liveactivity');
 
       final all = await _liveActivityAPI.getAllActivitiesIds();
-      logger.i('Found ${all.length} active activities. Ending all of them.');
+      talker.info('Found ${all.length} active activities. Ending all of them.');
       await _liveActivityAPI.endAllActivities();
+
+      var allowsPushStart = await _liveActivityAPI.allowsPushStart();
+
+      talker.info('LiveActivityService allows push start: $allowsPushStart');
+
+      final sub = _liveActivityAPI.pushToStartTokenUpdateStream.listen((event) {
+        talker.info('Received push to start token update token $event');
+      });
+
+      var pushStartToken = await _liveActivityAPI.getPushToStartToken();
+      talker.info('LiveActivityService push to start token: $pushStartToken');
+
+      _subscriptions.add(sub);
 
       _setupLiveActivityListener();
       _setupPrinterDataListeners();
@@ -101,7 +114,7 @@ class LiveActivityServiceV2 {
     } catch (e, s) {
       if (e is PlatformException) {
         if (e.code == 'WRONG_IOS_VERSION') {
-          logger.w('Failed to initialize LiveActivityService. The current iOS version is not supported.');
+          talker.warning('Failed to initialize LiveActivityService. The current iOS version is not supported.');
           return;
         }
       }
@@ -111,44 +124,44 @@ class LiveActivityServiceV2 {
 
   /// Responsible for syncing the push token (APNs token) from the platform to this service and the machine service.
   void _setupLiveActivityListener() {
-    logger.i('Setting up LiveActivity listener');
+    talker.info('Setting up LiveActivity listener');
     final s = _liveActivityAPI.activityUpdateStream.listen((event) async {
       switch (event) {
         case ActiveActivityUpdate():
-          logger.i('Received activity push token update for ${event.activityId} with token ${event.activityToken}');
+          talker.info('Received activity push token update for ${event.activityId} with token ${event.activityToken}');
           final entry = _machineActivityMapping.entries
               .firstWhereOrNull((element) => element.value.activityId == event.activityId);
 
           if (entry == null) {
-            logger.w('Received push token update for unknown activity ${event.activityId}');
+            talker.warning('Received push token update for unknown activity ${event.activityId}');
             return;
           }
           if (entry.value.pushToken == event.activityToken) {
-            logger.i('Push token for activity ${event.activityId} is already up to date');
+            talker.info('Push token for activity ${event.activityId} is already up to date');
             return;
           }
 
-          logger.i('LiveActivity update is for machine ${entry.key}');
+          talker.info('LiveActivity update is for machine ${entry.key}');
           // Track in this service
           _machineActivityMapping[entry.key] = entry.value.copyWith(pushToken: event.activityToken);
 
           // We also need to sync that token to the machine to be able to send push notifications/updates
           _machineService.updateApplePushNotificationToken(entry.key, event.activityToken).ignore();
-          logger.i('Updated push token for activity ${event.activityId} to ${event.activityToken}');
+          talker.info('Updated push token for activity ${event.activityId} to ${event.activityToken}');
           break;
         case EndedActivityUpdate():
-          logger.i('Received activity ended update for ${event.activityId}');
+          talker.info('Received activity ended update for ${event.activityId}');
           final entry = _machineActivityMapping.entries
               .firstWhereOrNull((element) => element.value.activityId == event.activityId);
           if (entry == null) {
-            logger.w('Received ended activity update for unknown activity ${event.activityId}');
+            talker.warning('Received ended activity update for unknown activity ${event.activityId}');
             return;
           }
           _machineService.updateApplePushNotificationToken(entry.key, null).ignore();
           _machineActivityMapping.remove(entry.key);
           break;
         default:
-          logger.w('Received unknown activity update: $event');
+          talker.warning('Received unknown activity update: $event');
       }
     });
     _subscriptions.add(s);
@@ -156,7 +169,7 @@ class LiveActivityServiceV2 {
 
   /// Setups the listeners for the printer data for all machines.
   void _setupPrinterDataListeners() {
-    logger.i('Setting up printerData listeners');
+    talker.info('Setting up printerData listeners');
     ref.listen(
       allMachinesProvider,
       (_, next) => next.whenData((machines) {
@@ -176,7 +189,7 @@ class LiveActivityServiceV2 {
           );
         }
 
-        logger.i(
+        talker.info(
             'Added ${listenersToOpen.length} new printerData listeners and removed ${listenersToClose.length} printer listeners in the LiveActivityService');
       }),
       fireImmediately: true,
@@ -185,7 +198,7 @@ class LiveActivityServiceV2 {
 
   /// Do a check if we need to refresh the live activities for all machines when the app is resumed.
   void _registerAppLifecycleHandler() {
-    logger.i('Registering AppLifecycle handler');
+    talker.info('Registering AppLifecycle handler');
     ref.listen(
       appLifecycleProvider,
       (_, next) async {
@@ -198,7 +211,7 @@ class LiveActivityServiceV2 {
 
   /// Refreshes the live activities for all machines.
   Future<void> _refreshActivities() async {
-    logger.i('Refreshing live activities');
+    talker.info('Refreshing live activities');
     try {
       final toWaitFor = <Future>[];
       final allMachs = await ref.read(allMachinesProvider.future);
@@ -211,7 +224,7 @@ class LiveActivityServiceV2 {
       }
       await Future.wait(toWaitFor);
     } finally {
-      logger.i('Finished refreshing live activities');
+      talker.info('Finished refreshing live activities');
     }
   }
 
@@ -253,7 +266,7 @@ class LiveActivityServiceV2 {
       final createLiveActivity = isPrinting && !_machineActivityMapping.containsKey(machineUUID);
       final clearLiveActivity = !isPrinting && _machineActivityMapping.containsKey(machineUUID);
 
-      // logger.i('Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange, Clear: $clearLiveActivity, Create: $createLiveActivity, Delta: $deltaWindow');
+      // talker.info('Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange, Clear: $clearLiveActivity, Create: $createLiveActivity, Delta: $deltaWindow');
       if (!hasDataReady ||
           !createLiveActivity &&
               !clearLiveActivity &&
@@ -261,7 +274,7 @@ class LiveActivityServiceV2 {
               !hasStateChange &&
               !hasFileChange &&
               !hasEtaChange) return;
-      // logger.i('Passed the refresh check for machine $machineUUID (Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange, Clear: $clearLiveActivity, Create: $createLiveActivity)');
+      // talker.info('Passed the refresh check for machine $machineUUID (Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange, Clear: $clearLiveActivity, Create: $createLiveActivity)');
       final activityChanged = await _refreshLiveActivityForMachine(machineUUID, printer);
 
       // Save the notification data if the activity was changed
@@ -296,7 +309,7 @@ class LiveActivityServiceV2 {
         tries++;
       }
       if (tries >= 5) {
-        logger.w('Could not acquire lock for machine $machineUUID. Skipping activity refresh.');
+        talker.warning('Could not acquire lock for machine $machineUUID. Skipping activity refresh.');
         return false;
       }
 
@@ -308,7 +321,7 @@ class LiveActivityServiceV2 {
       final machine = await ref.read(machineProvider(machineUUID).future);
       if (machine == null) return false;
 
-      // logger.i('Refreshing live activity for machine ${machine.logNameExtended}');
+      // talker.info('Refreshing live activity for machine ${machine.logNameExtended}');
       final themePack = ref.read(themeServiceProvider).activeTheme.themePack;
       final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
       Map<String, dynamic> data = {
@@ -339,7 +352,7 @@ class LiveActivityServiceV2 {
       } else {
         // Only remove the activity if the app is not in the resumed state -> This is to prevent the activity from being removed when the app is in the background and usefull for the user to see
         if (ref.read(appLifecycleProvider) != AppLifecycleState.resumed) {
-          logger.i('App is not in resumed state. Skipping activity removal for machine $machineUUID');
+          talker.info('App is not in resumed state. Skipping activity removal for machine $machineUUID');
           return false;
         }
         final activity = _machineActivityMapping.remove(machineUUID);
@@ -364,7 +377,7 @@ class LiveActivityServiceV2 {
     // Get platform info about the current active activities
     final activeCount = await _liveActivityAPI.getAllActivitiesIds().then((value) => value.length);
     if (activeCount >= 5) {
-      logger.w('Cannot create new LiveActivity for $machineUUID. Too many activities are already active.');
+      talker.warning('Cannot create new LiveActivity for $machineUUID. Too many activities are already active.');
       return null;
     }
 
@@ -373,16 +386,16 @@ class LiveActivityServiceV2 {
         await _liveActivityAPI.createOrUpdateActivity(machineUUID, activityData, removeWhenAppIsKilled: true);
     if (activityId case String()) {
       _machineActivityMapping[machineUUID] = _ActivityEntry(activityId);
-      logger.i('Created new LiveActivity for $machineUUID} with id: $activityId');
+      talker.info('Created new LiveActivity for $machineUUID} with id: $activityId');
       return activityId;
     }
 
-    logger.i('Updated LiveActivity for $machineUUID');
+    talker.info('Updated LiveActivity for $machineUUID');
     return activityId;
   }
 
   void dispose() {
-    logger.e('The LiveActivityService was disposed! THIS SHOULD NEVER HAPPEN! CHECK THE DISPOSING!!!');
+    talker.error('The LiveActivityService was disposed! THIS SHOULD NEVER HAPPEN! CHECK THE DISPOSING!!!');
     for (var element in _subscriptions) {
       element.cancel();
     }

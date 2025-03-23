@@ -49,7 +49,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
       [optionsSnapshot.connectionState],
     );
 
-    logger.w('SelectionBottomSheet: ${optionsSnapshot}');
+    talker.warning('SelectionBottomSheet: ${optionsSnapshot}');
 
     return SheetContentScaffold(
       resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
@@ -237,8 +237,8 @@ class _FilteredResults<T> extends StatelessWidget {
     final searchTokens = term.split(RegExp(r'[\W,]+'));
 
     return options
-        .map((e) =>
-            (e, e.label.searchScore(term, searchTokens)).also((it) => logger.w('Score: ${it.$2} for ${it.$1.label}')))
+        .map((e) => (e, e.label.searchScore(term, searchTokens))
+            .also((it) => talker.warning('Score: ${it.$2} for ${it.$1.label}')))
         .where((e) => e.$2 > 150)
         .sortedBy<num>((e) => e.$2)
         .map((e) => e.$1)

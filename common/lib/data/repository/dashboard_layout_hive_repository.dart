@@ -26,19 +26,19 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
 
   @override
   Future<List<DashboardLayout>> all() async {
-    logger.i('[DashboardLayoutHiveRepository] Fetching all dashboard layouts');
+    talker.info('[DashboardLayoutHiveRepository] Fetching all dashboard layouts');
     return _box.values.toList(growable: false);
   }
 
   @override
   Future<int> count() async {
-    logger.i('[DashboardLayoutHiveRepository] Counting all dashboard layouts');
+    talker.info('[DashboardLayoutHiveRepository] Counting all dashboard layouts');
     return _box.length;
   }
 
   @override
   Future<void> create(DashboardLayout entity) async {
-    logger.i('[DashboardLayoutHiveRepository] Creating dashboard layout with uuid ${entity.uuid}');
+    talker.info('[DashboardLayoutHiveRepository] Creating dashboard layout with uuid ${entity.uuid}');
     if (_box.containsKey(entity.uuid)) {
       throw MobilerakerException('DashboardLayout with uuid ${entity.uuid} already exists! Please use update instead.');
     }
@@ -50,7 +50,7 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
 
   @override
   Future<DashboardLayout> delete(String uuid) async {
-    logger.i('[DashboardLayoutHiveRepository] Deleting dashboard layout with uuid $uuid');
+    talker.info('[DashboardLayoutHiveRepository] Deleting dashboard layout with uuid $uuid');
     var e = await read(id: uuid);
     if (e == null) {
       throw MobilerakerException('DashboardLayout with uuid $uuid not found');
@@ -60,7 +60,7 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
 
   @override
   Future<DashboardLayout?> read({String? id, int index = -1}) async {
-    logger.i('[DashboardLayoutHiveRepository] Reading dashboard layout with uuid $id or index $index');
+    talker.info('[DashboardLayoutHiveRepository] Reading dashboard layout with uuid $id or index $index');
     assert(id != null || index >= 0, 'Either provide an uuid or an index >= 0');
     if (id != null) {
       return _box.get(id);
@@ -71,7 +71,7 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
 
   @override
   Future<void> update(DashboardLayout entity) async {
-    logger.i('[DashboardLayoutHiveRepository] Updating dashboard layout with uuid ${entity.uuid}');
+    talker.info('[DashboardLayoutHiveRepository] Updating dashboard layout with uuid ${entity.uuid}');
     if (!_box.containsKey(entity.uuid)) {
       throw MobilerakerException('DashboardLayout with uuid ${entity.uuid} does not exist! Please use create instead.');
     }

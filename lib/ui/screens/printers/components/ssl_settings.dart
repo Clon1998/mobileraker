@@ -131,7 +131,7 @@ class SslSettingsController extends _$SslSettingsController {
       );
     } else {
       // User canceled the picker
-      logger.i('User canceled certificate picker');
+      talker.info('User canceled certificate picker');
     }
   }
 

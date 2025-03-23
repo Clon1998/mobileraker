@@ -45,7 +45,7 @@ class FirmwareRetractionCard extends HookConsumerWidget {
     useAutomaticKeepAlive();
     var hadFwRetract = ref.read(boolSettingProvider(_hadFwRetract));
 
-    logger.i('Rebuilding FirmwareRetractionCard for $machineUUID');
+    talker.info('Rebuilding FirmwareRetractionCard for $machineUUID');
 
     return AsyncGuard(
       animate: true,
@@ -105,7 +105,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding FirmwareRetractionSlidersOrTexts for $machineUUID');
+    talker.info('Rebuilding FirmwareRetractionSlidersOrTexts for $machineUUID');
 
     return AsyncGuard(
       debugLabel: 'FirmwareRetractionSlidersOrTexts-$machineUUID',
@@ -154,7 +154,7 @@ class _CardBody extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Building FirmwareRetractionBody for $machineUUID');
+    talker.info('Building FirmwareRetractionBody for $machineUUID');
     var inputLocked = useState(true);
     var controller = ref.watch(_firmwareRetractionCardControllerProvider(machineUUID).notifier);
 

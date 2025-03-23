@@ -148,9 +148,9 @@ class DialogServiceImpl implements DialogService {
   Future<DialogResponse?> show(DialogRequest request) async {
     BuildContext? ctx = _ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
-    logger.i('Show Dialog request for ${request.type}');
+    talker.info('Show Dialog request for ${request.type}');
     if (_currentDialogRequest != null) {
-      logger.e('New dialog was requested but old one is still open?');
+      talker.error('New dialog was requested but old one is still open?');
       throw const MobilerakerException('A dialog is already shown!');
     }
     _currentDialogRequest = request;

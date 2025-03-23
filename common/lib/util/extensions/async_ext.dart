@@ -24,7 +24,7 @@ extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<I
       /// If the previous value existed, we apply the selector function to transform the data, preventing issues with
       /// empty/new error/loading AsyncValue instances that lack values and might lead to unexpected behavior.
       if (debugLog) {
-        logger.i('Select received $value');
+        talker.info('Select received $value');
       }
 
       /// This switch statement is used to handle different states of the original `AsyncValue` object.
@@ -44,7 +44,7 @@ extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<I
       };
 
       if (debugLog) {
-        logger.i('Select returned $res');
+        talker.info('Select returned $res');
       }
 
       return res;

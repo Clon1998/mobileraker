@@ -57,7 +57,7 @@ class SelectedMachineService {
   }
 
   selectMachine(Machine? machine, [bool force = false]) async {
-    logger.i('Selecting machine ${machine?.name}');
+    talker.info('Selecting machine ${machine?.name}');
     if (machine == null) {
       // This case sets no printer as active!
       await _boxUuid.delete('selectedPrinter');
@@ -65,7 +65,7 @@ class SelectedMachineService {
         _selectedMachineCtrler.add(null);
         _selected = null;
       }
-      logger.i('Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}');
+      talker.info('Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}');
       return;
     }
 

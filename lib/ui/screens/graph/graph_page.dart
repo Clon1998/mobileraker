@@ -119,16 +119,16 @@ class _Plot extends ConsumerWidget {
           tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
           // builder: (BuildContext context, TrackballDetails trackballDetails) {
           //
-          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.currentPointIndices}');
+          //   talker.warning('TrackballDetails: ${trackballDetails.groupingModeInfo?.currentPointIndices}');
           //
           //
           //   for (LineSeriesRenderer sr in trackballDetails.groupingModeInfo?.visibleSeriesList ?? []) {
-          //     logger.w(sr.dataSource);
+          //     talker.warning(sr.dataSource);
           //   }
           //
-          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.points}');
-          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesIndices}');
-          //   logger.w('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesList}');
+          //   talker.warning('TrackballDetails: ${trackballDetails.groupingModeInfo?.points}');
+          //   talker.warning('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesIndices}');
+          //   talker.warning('TrackballDetails: ${trackballDetails.groupingModeInfo?.visibleSeriesList}');
           //
           //   return Container(
           //     width: 70,

@@ -378,7 +378,7 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
     ));
 
     if (!res.confirmed) return;
-    logger.i('[FilamentDetailPage] Selected action: ${res.data}');
+    talker.info('[FilamentDetailPage] Selected action: ${res.data}');
 
     // Wait for the bottom sheet to close
     await Future.delayed(kThemeAnimationDuration);

@@ -55,7 +55,7 @@ class _OverviewBody extends HookConsumerWidget {
           skipLoadingOnReload: true,
           data: (d) => _Data(machines: d),
           error: (e, s) {
-            logger.e('Error in OverView', e, StackTrace.current);
+            talker.error('Error in OverView', e, StackTrace.current);
             throw e;
           },
           loading: () => Center(
@@ -136,7 +136,7 @@ class _OverviewPageController extends _$OverviewPageController {
     }
 
     // .reordered(oldIndex, newIndex);
-    logger.i('Reordering $oldIndex -> $newIndex');
+    talker.info('Reordering $oldIndex -> $newIndex');
     state = state.whenData((old) {
       final n = [...old];
       return n..insert(newIndex, n.removeAt(oldIndex));

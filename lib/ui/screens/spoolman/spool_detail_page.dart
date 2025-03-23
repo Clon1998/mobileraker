@@ -513,7 +513,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     ));
 
     if (!res.confirmed) return;
-    logger.i('[SpoolDetailPage] Action: ${res.data}');
+    talker.info('[SpoolDetailPage] Action: ${res.data}');
 
     // Wait for the bottom sheet to close
     await Future.delayed(kThemeAnimationDuration);
@@ -553,7 +553,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
       final spool = state.spool;
       final qrData = 'web+spoolman:s-${spool.id}';
 
-      logger.i('Generating QR Code for spool ${spool.id} with data: $qrData');
+      talker.info('Generating QR Code for spool ${spool.id} with data: $qrData');
 
       final qrCode = QrCode.fromData(
         data: qrData,
@@ -576,7 +576,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         sharePositionOrigin: origin,
       );
     } catch (e, s) {
-      logger.e('Error while generating and sharing QR Code', e, s);
+      talker.error('Error while generating and sharing QR Code', e, s);
       snackBarServiceRef.show(SnackBarConfig.stacktraceDialog(
         dialogService: dialogServiceRef,
         snackTitle: 'Unexpected Error',
@@ -597,11 +597,11 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     try {
       switch (res?.data) {
         case (num() && final amount, 'mm'):
-          logger.i('Consuming $amount mm of filament');
+          talker.info('Consuming $amount mm of filament');
           await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, length: amount.toDouble());
           break;
         case (num() && final amount, 'g'):
-          logger.i('Consuming $amount g of filament');
+          talker.info('Consuming $amount g of filament');
           await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, weight: amount.toDouble());
           break;
       }
@@ -614,7 +614,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         message: tr('pages.spoolman.update.success.message', args: [tr('pages.spoolman.spool.one')]),
       ));
     } catch (e, s) {
-      logger.e('Error while adjusting filament on spool', e, s);
+      talker.error('Error while adjusting filament on spool', e, s);
       snackBarServiceRef.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [tr('pages.spoolman.spool.one')]),

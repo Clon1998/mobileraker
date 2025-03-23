@@ -52,7 +52,7 @@ class DevPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('REBUILIDNG DEV PAGE!');
+    talker.info('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
 
     Widget body = ListView(
@@ -211,11 +211,11 @@ class DevPage extends HookConsumerWidget {
 
   stateActivity() async {
     final liveActivitiesPlugin = LiveActivities();
-    logger.i('#1');
+    talker.info('#1');
     await liveActivitiesPlugin.init(appGroupId: 'group.mobileraker.liveactivity');
-    logger.i('#2');
+    talker.info('#2');
     var activityState = await liveActivitiesPlugin.getActivityState('123123');
-    logger.i('Got state message: $activityState');
+    talker.info('Got state message: $activityState');
   }
 
   v2Activity(WidgetRef ref) async {
@@ -256,10 +256,10 @@ class DevPage extends HookConsumerWidget {
       data,
       removeWhenAppIsKilled: true,
     );
-    logger.i('Created activity with id: $activityId');
+    talker.info('Created activity with id: $activityId');
     _bla = activityId;
     var pushToken = await liveActivities.getPushToken(activityId!);
-    logger.i('LiveActivity PushToken: $pushToken');
+    talker.info('LiveActivity PushToken: $pushToken');
   }
 
   updateLiveActivity(WidgetRef ref) async {
@@ -299,8 +299,8 @@ class DevPage extends HookConsumerWidget {
       customID,
       data,
     );
-    logger.i('UPDATED activity with customID: $customID');
-    // logger.i('UPDATED activity with id: $_bla -> $activityId');
+    talker.info('UPDATED activity with customID: $customID');
+    // talker.info('UPDATED activity with id: $_bla -> $activityId');
   }
 
 //   var test = 44.4;
@@ -312,8 +312,8 @@ class DevPage extends HookConsumerWidget {
 //     await setupIsolateLogger();
 //     return isolateDownloadFile(port: port, targetUri: dowloadUri, downloadPath: tmpFile.path);
 //   }, onMessage: (message) {
-//     logger.i('Got new message from port: $message');
-//   }).then((value) => logger.i('Execute done: ${value}'));
+//     talker.info('Got new message from port: $message');
+//   }).then((value) => talker.info('Execute done: ${value}'));
 // }
 }
 
@@ -333,7 +333,7 @@ void dummyDownload() async {
     uri,
     file.path,
     onReceiveProgress: (received, total) {
-      logger.i('Received: $received, Total: $total');
+      talker.info('Received: $received, Total: $total');
     },
   );
   print('Download is done: ${response.statusCode}');
@@ -341,7 +341,7 @@ void dummyDownload() async {
 
 @riverpod
 Stream<(int, int)> caseA(CaseARef ref) {
-  logger.i('Creating caseA stream');
+  talker.info('Creating caseA stream');
   return Stream.periodic(const Duration(seconds: 1), (x) => (x, x * 2));
 }
 
@@ -349,7 +349,7 @@ Stream<(int, int)> caseA(CaseARef ref) {
 class CaseB extends _$CaseB {
   @override
   int build() {
-    logger.i('Building caseB');
+    talker.info('Building caseB');
     var v = ref.watch(caseAProvider.select((d) => d.valueOrNull?.$1));
 
     return v ?? -1;
@@ -364,7 +364,7 @@ class _TestAd extends ConsumerWidget {
     var ad = ref.watch(bannerAdProvider(AdSize.banner, AdBlockUnit.homeBanner));
 
     if (ad case AsyncData(value: AdWithView() && final banner)) {
-      logger.i('Got ad: ${banner.responseInfo}');
+      talker.info('Got ad: ${banner.responseInfo}');
       return SizedBox(
         height: AdSize.banner.height.toDouble(),
         width: AdSize.banner.width.toDouble(),
@@ -372,7 +372,7 @@ class _TestAd extends ConsumerWidget {
       );
     }
 
-    logger.i('No ad available');
+    talker.info('No ad available');
     return const SizedBox.shrink();
   }
 }
@@ -386,21 +386,21 @@ class _IabTCTSTATUS extends ConsumerWidget {
   }
 
   void onPressed() async {
-    logger.i('Trying to get IATCFT status');
+    talker.info('Trying to get IATCFT status');
     ConsentInfo? currentConsentInfo = (await IabtcfConsentInfo.instance.currentConsentInfo()) as ConsentInfo?;
-    logger.i('Got IABTCT status: $currentConsentInfo');
+    talker.info('Got IABTCT status: $currentConsentInfo');
 
-    logger.i('PurposeConsents:');
-    currentConsentInfo?.purposeConsents.forEach((v) => logger.i('\t\t- ${v}'));
+    talker.info('PurposeConsents:');
+    currentConsentInfo?.purposeConsents.forEach((v) => talker.info('\t\t- ${v}'));
 
-    logger.i('PurposeLegitimateInterests:');
-    currentConsentInfo?.purposeLegitimateInterests.forEach((v) => logger.i('\t\t- ${v}'));
+    talker.info('PurposeLegitimateInterests:');
+    currentConsentInfo?.purposeLegitimateInterests.forEach((v) => talker.info('\t\t- ${v}'));
 
-    logger.i('publisherConsents:');
-    currentConsentInfo?.publisherConsents.forEach((v) => logger.i('\t\t- ${v}'));
+    talker.info('publisherConsents:');
+    currentConsentInfo?.publisherConsents.forEach((v) => talker.info('\t\t- ${v}'));
 
-    logger.i('publisherLegitimateInterests:');
-    currentConsentInfo?.publisherLegitimateInterests.forEach((v) => logger.i('\t\t- ${v}'));
+    talker.info('publisherLegitimateInterests:');
+    currentConsentInfo?.publisherLegitimateInterests.forEach((v) => talker.info('\t\t- ${v}'));
   }
 }
 
@@ -423,42 +423,43 @@ class _Consent extends ConsumerWidget {
   }
 
   void onLong() {
-    logger.i('Resetting consent');
+    talker.info('Resetting consent');
     ConsentInformation.instance.reset();
   }
 
   void onPressed() {
     final params = ConsentRequestParameters(consentDebugSettings: ConsentDebugSettings());
 
-    logger.i('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
+    talker.info('ConsentFormAvailable: ${ConsentInformation.instance.isConsentFormAvailable()}');
     ConsentInformation.instance.requestConsentInfoUpdate(
       params,
       () async {
         final canShowAd = await ConsentInformation.instance.canRequestAds();
-        logger.i('CanShowAd: $canShowAd');
+        talker.info('CanShowAd: $canShowAd');
 
-        logger.i('ConsentStatusSuccess');
+        talker.info('ConsentStatusSuccess');
         final status = await ConsentInformation.instance.getConsentStatus();
-        logger.i('ConsentStatus: $status');
+        talker.info('ConsentStatus: $status');
 
         // ConsentForm.loadConsentForm((_) {
-        //   logger.i('ConsentForm success: $_');
+        //   talker.info('ConsentForm success: $_');
         // }, (FormError error) {
-        //   logger.e('ConsentFormError: ${error.message}');
+        //   talker.error('ConsentFormError: ${error.message}');
         // },);
 
         if (await ConsentInformation.instance.isConsentFormAvailable()) {
-          await ConsentForm.loadAndShowConsentFormIfRequired((_) => logger.w('ConsentFormDismissed: ${_?.message}'));
+          await ConsentForm.loadAndShowConsentFormIfRequired(
+              (_) => talker.warning('ConsentFormDismissed: ${_?.message}'));
         }
 
         // ConsentForm.showPrivacyOptionsForm((_) => null);
 
         var privacyOptionsRequirementStatus = await ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
 
-        logger.i('isPrivacyOptionsRequired-(PrivacyOptionsRequirementStatus): $privacyOptionsRequirementStatus');
+        talker.info('isPrivacyOptionsRequired-(PrivacyOptionsRequirementStatus): $privacyOptionsRequirementStatus');
       },
       (FormError error) {
-        logger.e('ConsentStatusError: $error');
+        talker.error('ConsentStatusError: $error');
         // Handle the error.
       },
     );

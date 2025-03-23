@@ -231,9 +231,9 @@ class _VendorFormPageController extends _$VendorFormPageController {
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
-    logger.i('[VendorFormPageController($machineUUID)] Form submitted');
+    talker.info('[VendorFormPageController($machineUUID)] Form submitted');
     if (formData == null) {
-      logger.w('[VendorFormPageController($machineUUID)] Form data is null');
+      talker.warning('[VendorFormPageController($machineUUID)] Form data is null');
       return;
     }
     state = state.copyWith(isSaving: true);
@@ -251,7 +251,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
 
   Future<void> _create(Map<String, dynamic> formData) async {
     final dto = _createDtoFromForm(formData);
-    logger.i('[VendorFormPageController($machineUUID)] Create DTO: $dto');
+    talker.info('[VendorFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = tr('pages.spoolman.vendor.one');
     try {
       final res = await _spoolmanService.createVendor(dto);
@@ -262,7 +262,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       ));
       _goRouter.pop(res);
     } catch (e, s) {
-      logger.e('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.create.error.title', args: [entityName]),
@@ -275,7 +275,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
 
   Future<void> _update(Map<String, dynamic> formData) async {
     final dto = _updateDtoFromForm(formData, state.source!);
-    logger.i('[VendorFormPageController($machineUUID)] Update DTO: $dto');
+    talker.info('[VendorFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.vendor.one');
 
     if (dto == null) {
@@ -297,7 +297,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       ));
       _goRouter.pop(updated);
     } catch (e, s) {
-      logger.e('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [entityName]),

@@ -25,13 +25,13 @@ FirebaseRemoteConfig remoteConfigInstance(Ref ref) {
 Stream<RemoteConfigUpdate> _remoteConfigUpdateStream(Ref ref) async* {
   final instance = ref.watch(remoteConfigInstanceProvider);
   await for (final update in instance.onConfigUpdated) {
-    logger.i('[Remote-Config] Received update for keys: ${update.updatedKeys.join(', ')}');
+    talker.info('[Remote-Config] Received update for keys: ${update.updatedKeys.join(', ')}');
     try {
       await instance.activate();
-      logger.i('[Remote-Config] Activated new config');
+      talker.info('[Remote-Config] Activated new config');
       yield RemoteConfigUpdate(update.updatedKeys);
     } catch (e) {
-      logger.e('[Remote-Config] Error while trying to activate new config', e);
+      talker.error('[Remote-Config] Error while trying to activate new config', e);
       FirebaseCrashlytics.instance.recordError(
         e,
         StackTrace.current,
@@ -48,7 +48,7 @@ int remoteConfigInt(Ref ref, String key) {
   ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
     if (next case AsyncData(isLoading: false, :final value)) {
       if (value.updatedKeys.contains(key)) {
-        logger.i('Received update for $key, invalidating to update the value.');
+        talker.info('Received update for $key, invalidating to update the value.');
         ref.invalidateSelf();
       }
     }
@@ -64,7 +64,7 @@ String remoteConfigString(Ref ref, String key) {
   ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
     if (next case AsyncData(isLoading: false, :final value)) {
       if (value.updatedKeys.contains(key)) {
-        logger.i('Received update for $key, invalidating to update the value.');
+        talker.info('Received update for $key, invalidating to update the value.');
         ref.invalidateSelf();
       }
     }
@@ -80,7 +80,7 @@ bool remoteConfigBool(Ref ref, String key) {
   ref.listen(_remoteConfigUpdateStreamProvider, (prev, next) {
     if (next case AsyncData(isLoading: false, :final value)) {
       if (value.updatedKeys.contains(key)) {
-        logger.i('Received update for $key, invalidating to update the value.');
+        talker.info('Received update for $key, invalidating to update the value.');
         ref.invalidateSelf();
       }
     }
@@ -128,7 +128,7 @@ DeveloperAnnouncement developerAnnouncement(Ref ref) {
       json.decode(data),
     );
   } catch (e, s) {
-    logger.e('Error while trying to parse developer announcements', e);
+    talker.error('Error while trying to parse developer announcements', e);
     FirebaseCrashlytics.instance.recordError(
       e,
       s,
@@ -169,12 +169,12 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'files_page_add_density': 12,
       });
       fetchAndActivate().then((value) {
-        logger.i(
+        talker.info(
             'FirebaseRemote values are fetched and activated! The last fetch was ${value ? 'successful' : 'not successful'} and on $lastFetchTime');
       }).ignore();
-      logger.i('Completed FirebaseRemote init');
+      talker.info('Completed FirebaseRemote init');
     } catch (e, s) {
-      logger.w('Error while trying to setup Firebase Remote Config', e);
+      talker.warning('Error while trying to setup Firebase Remote Config', e);
       FirebaseCrashlytics.instance.recordError(
         e,
         s,

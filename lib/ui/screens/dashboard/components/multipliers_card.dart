@@ -129,7 +129,7 @@ class _Body extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Building MultipliersBody for $machineUUID');
+    talker.info('Building MultipliersBody for $machineUUID');
 
     var inputLocked = useState(true);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);

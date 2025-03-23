@@ -120,7 +120,7 @@ class PrinterEditController extends _$PrinterEditController {
             message: 'pages.printer_edit.store_error.message'.tr(),
             duration: const Duration(seconds: 10),
           ));
-      logger.w('Could not save printer, formBuilder reported invalid state!');
+      talker.warning('Could not save printer, formBuilder reported invalid state!');
       return;
     }
 
@@ -131,7 +131,7 @@ class PrinterEditController extends _$PrinterEditController {
       Map<String, dynamic> storedValues = Map.unmodifiable(formBuilderState.value);
 
       if (isConnected) {
-        logger.i('Can store remoteSettings, machine is connected!');
+        talker.info('Can store remoteSettings, machine is connected!');
 
         await _saveWebcamInfos(storedValues);
         await _saveMachineRemoteSettings(storedValues);
@@ -139,7 +139,7 @@ class PrinterEditController extends _$PrinterEditController {
       await _saveMachine(storedValues);
     } catch (e, s) {
       state = false;
-      logger.e('Error while trying to save printer data', e, s);
+      talker.error('Error while trying to save printer data', e, s);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
             type: SnackbarType.error,
             title: tr('pages.printer_edit.store_error.title'),
@@ -310,7 +310,7 @@ class PrinterEditController extends _$PrinterEditController {
         await _machineService.updateMachineFcmSettings(_machine, fcmToken);
       }
     } catch (e) {
-      logger.w(
+      talker.warning(
         'Error while resetting FCM cache on machine ${_machine.name}',
         e,
       );
@@ -321,7 +321,7 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> requestLocationPermission() async {
     var status = await Permission.location.status;
     if (status.isGranted) return;
-    logger.i('Location permission is not granted ($status), requesting it now');
+    talker.info('Location permission is not granted ($status), requesting it now');
     if (status == PermissionStatus.denied) {
       status = await Permission.location.request();
     }
@@ -433,7 +433,7 @@ class PrinterEditController extends _$PrinterEditController {
           ),
         ));
 
-    logger.i('Received from Bottom sheet $show');
+    talker.info('Received from Bottom sheet $show');
     if (!show.confirmed) return;
     state = true;
 
@@ -442,7 +442,7 @@ class PrinterEditController extends _$PrinterEditController {
     //TODO: RI presnet, user adds OE, no error message? (Wtf why?)
 
     if (show.data == null) {
-      logger.i(
+      talker.info(
         'BottomSheet result indicates the removal of all remote connecions!',
       );
 
@@ -494,13 +494,13 @@ class PrinterEditController extends _$PrinterEditController {
     var octoEverywhere = ref.read(_octoEverywhereProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
 
-    logger.wtf(
+    talker.info(
       'tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface',
     );
-    logger.wtf(
+    talker.info(
       'tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere',
     );
-    logger.wtf(
+    talker.info(
       'tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel, obicoEnabled:$_obicoEnabled',
     );
 

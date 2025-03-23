@@ -128,9 +128,9 @@ setupBoxes() async {
 
   await openBoxes();
   Hive.box<Machine>('printers').values.forEach((element) {
-    logger.i('Machine in box is ${element.logName}#${element.hashCode}');
+    talker.info('Machine in box is ${element.logName}#${element.hashCode}');
   });
-  logger.i('Completed Hive init');
+  talker.info('Completed Hive init');
 }
 
 Future<Uint8List> _hiveKey() async {
@@ -165,7 +165,7 @@ Future<Uint8List?> _readStorage(FlutterSecureStorage storage) async {
     String? value = await storage.read(key: _hiveKeyName);
     return value?.let(base64Decode);
   } catch (e) {
-    logger.e('Error while reading $_hiveKeyName from storage', e);
+    talker.error('Error while reading $_hiveKeyName from storage', e);
     return null;
   }
 }
@@ -182,8 +182,8 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
     ]);
   } catch (e, s) {
     if (e is TypeError) {
-      logger.e('An TypeError occurred while trying to open Boxes...', e);
-      logger.e('Will reset all stored data to resolve this issue!');
+      talker.error('An TypeError occurred while trying to open Boxes...', e);
+      talker.error('Will reset all stored data to resolve this issue!');
       throw MobilerakerStartupException(
         'An unexpected TypeError occurred while parsing the stored app data. Please report this error to the developer. To resolve this issue clear the app storage or reinstall the app.',
         parentException: e,
@@ -191,9 +191,9 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
         canResetStorage: true,
       );
     } else if (e is FileSystemException) {
-      logger.e('An FileSystemException(${e.runtimeType}) occured while trying to open Boxes (tryNo#$tryNo)...', e);
+      talker.error('An FileSystemException(${e.runtimeType}) occured while trying to open Boxes (tryNo#$tryNo)...', e);
       if (tryNo < 4) {
-        logger.e('Will retry to open boxes in 5 seconds');
+        talker.error('Will retry to open boxes in 5 seconds');
         await Future.delayed(Duration(milliseconds: 400 * tryNo));
         return await openBoxes(tryNo + 1);
       }
@@ -204,13 +204,13 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
         canResetStorage: true,
       );
     }
-    logger.e('An unexpected error occurred while trying to open Boxes...', e);
+    talker.error('An unexpected error occurred while trying to open Boxes...', e);
     rethrow;
   }
 }
 
 Future<void> deleteBoxes() {
-  logger.i('Deleting all boxes');
+  talker.info('Deleting all boxes');
   return Future.wait([
     Hive.deleteBoxFromDisk('printers'),
     Hive.deleteBoxFromDisk('uuidbox'),
@@ -237,32 +237,32 @@ setupLicenseRegistry() {
 
 /// Ensure all services are setup/available/connected if they are also read just once!
 initializeAvailableMachines(Ref ref) async {
-  logger.i('Started initializeAvailableMachines');
+  talker.info('Started initializeAvailableMachines');
   List<Machine> machines = await ref.read(allMachinesProvider.future);
-  logger.i('Received all machines');
+  talker.info('Received all machines');
 
   await Future.wait(
     machines.map((e) => ref.read(machineProvider(e.uuid).future)),
   );
-  logger.i('initialized all machineProviders');
+  talker.info('initialized all machineProviders');
   // for (var machine in machines) {
-  //   logger.i('Init for ${machine.name}(${machine.uuid})');
+  //   talker.info('Init for ${machine.name}(${machine.uuid})');
   //   container.read(klipperServiceProvider(machine.uuid));
   //   container.read(printerServiceProvider(machine.uuid));
   // }
 
-  logger.i('Completed initializeAvailableMachines');
+  talker.info('Completed initializeAvailableMachines');
 }
 
 @riverpod
 class Warmup extends _$Warmup {
   @override
   Stream<StartUpStep> build() async* {
-    logger.i('*****************************');
-    logger.i('Mobileraker is warming up...');
+    talker.info('*****************************');
+    talker.info('Mobileraker is warming up...');
 
-    logger.i('Mobileraker Version: ${await ref.read(versionInfoProvider.future)}');
-    logger.i('*****************************');
+    talker.info('Mobileraker Version: ${await ref.read(versionInfoProvider.future)}');
+    talker.info('*****************************');
 
     // Firebase stuff
     yield StartUpStep.firebaseCore;
@@ -271,10 +271,10 @@ class Warmup extends _$Warmup {
     // only start listening after Firebase is initialized
     listenSelf((previous, next) {
       if (next.hasValue) {
-        logger.i('Warmup provider changed from ${previous?.valueOrNull} to ${next?.valueOrNull}');
+        talker.info('Warmup provider changed from ${previous?.valueOrNull} to ${next?.valueOrNull}');
       } else if (next.hasError) {
         var error = next.asError!;
-        logger.e('Received a warmup error', error.error, error.stackTrace);
+        talker.error('Received a warmup error', error.error, error.stackTrace);
         FirebaseCrashlytics.instance.recordError(
           error.error,
           error.stackTrace,
@@ -295,7 +295,8 @@ class Warmup extends _$Warmup {
 
     FlutterError.onError = (FlutterErrorDetails details) {
       if (!kDebugMode)
-        logger.e('FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
+        talker.error(
+            'FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
       FirebaseCrashlytics.instance.recordFlutterError(details).ignore();
     };
     PlatformDispatcher.instance.onError = (error, stack) {
@@ -311,7 +312,7 @@ class Warmup extends _$Warmup {
 
     yield StartUpStep.admobs;
     ref.read(adMobsProvider).initialize().whenComplete(() {
-      logger.i('Completed AdMobs init');
+      talker.info('Completed AdMobs init');
     });
 
     setupLicenseRegistry();
@@ -330,7 +331,7 @@ class Warmup extends _$Warmup {
     // await for the initial rout provider to be ready and setup!
     yield StartUpStep.goRouter;
     await ref.read(initialRouteProvider.future);
-    logger.i('Completed initialRoute init');
+    talker.info('Completed initialRoute init');
     // Wait for the machines to be ready
     yield StartUpStep.initMachines;
     await initializeAvailableMachines(ref);

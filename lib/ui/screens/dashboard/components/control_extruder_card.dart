@@ -492,7 +492,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     ref.keepAliveFor();
     // await Future.delayed(Duration(seconds: 5));
 
-    logger.i('Building ControlExtruderCardController for $machineUUID');
+    talker.info('Building ControlExtruderCardController for $machineUUID');
 
     // The active extruder (Set via klipper/moonraker) is watched and based on it, the streams are constructed
     var activeExtruder =

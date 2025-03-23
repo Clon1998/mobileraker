@@ -44,7 +44,7 @@ class StreamMjpegManager implements MjpegManager {
 
   @override
   void stop() {
-    logger.i('[StreamMjpegManager] stopped stream');
+    talker.info('[StreamMjpegManager] stopped stream');
     _cancelToken?.cancel();
   }
 
@@ -52,14 +52,14 @@ class StreamMjpegManager implements MjpegManager {
   void start() async {
     if (_connected) {
       // We are already connected, no need to start again
-      logger.i('[StreamMjpegManager] already connected, no need to start again');
+      talker.info('[StreamMjpegManager] already connected, no need to start again');
       return;
     }
 
     // Stop the old stream if for whatever reason it is still running
     _cancelToken?.cancel();
     _connected = true;
-    logger.i('[StreamMjpegManager] started stream');
+    talker.info('[StreamMjpegManager] started stream');
     try {
       _cancelToken = CancelToken();
       var response = await _dio.getUri(
@@ -75,11 +75,11 @@ class StreamMjpegManager implements MjpegManager {
       ResponseBody responseBody = response.data;
       var stream = responseBody.stream;
       stream.listen(_onData, onError: _onError, cancelOnError: true, onDone: () {
-        logger.i('[StreamMjpegManager] Stream closed');
+        talker.info('[StreamMjpegManager] Stream closed');
         _connected = false;
       });
     } on DioException catch (error, stack) {
-      logger.w('[StreamMjpegManager] DioException while requesting MJPEG-Stream', error);
+      talker.warning('[StreamMjpegManager] DioException while requesting MJPEG-Stream', error);
 
       if (!_mjpegStreamController.isClosed) {
         _mjpegStreamController.addError(error, stack);
@@ -126,10 +126,10 @@ class StreamMjpegManager implements MjpegManager {
   void _onError(error, stack) {
     _connected = false;
     if (error case DioException(type: DioExceptionType.cancel)) {
-      logger.i('[StreamMjpegManager] Stream was cancelled');
+      talker.info('[StreamMjpegManager] Stream was cancelled');
       return;
     }
-    logger.e('[StreamMjpegManager] Error while streaming MJPEG', error, stack);
+    talker.error('[StreamMjpegManager] Error while streaming MJPEG', error, stack);
 
     if (!_mjpegStreamController.isClosed) {
       _mjpegStreamController.addError(error, stack);
@@ -142,6 +142,6 @@ class StreamMjpegManager implements MjpegManager {
     _cancelToken = null;
     _mjpegStreamController.close();
 
-    logger.i('StreamMjpegManager DISPOSED');
+    talker.info('StreamMjpegManager DISPOSED');
   }
 }

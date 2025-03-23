@@ -230,7 +230,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
 
   void _autoScroll(Offset position) {
     if (widget.scrollController == null) return;
-    // logger.i('AutoScroll: $position, sc: $scrollController');
+    // talker.info('AutoScroll: $position, sc: $scrollController');
 
     final screenHeight = MediaQuery.sizeOf(context).height;
     const topThreshold = 100.0;
@@ -240,18 +240,18 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
       if (_scrolling) return;
       double distance = topThreshold - position.dy;
       double speed = (distance / topThreshold) * 20; // Adjust the multiplier as needed
-      // logger.i('AutoScroll: Scrolling up!!! speed: $speed');
+      // talker.info('AutoScroll: Scrolling up!!! speed: $speed');
       _scrolling = true;
       _scroll(-5.5, 1.008); // Linear acceleration
     } else if (position.dy > bottomThreshold) {
       if (_scrolling) return;
       double distance = bottomThreshold - position.dy;
       double speed = (distance / bottomThreshold) * 20; // Adjust the multiplier as needed
-      // logger.i('AutoScroll: Scrolling down!!! speed: $speed dist $distance');
+      // talker.info('AutoScroll: Scrolling down!!! speed: $speed dist $distance');
       _scrolling = true;
       _scroll(5.5, 1.008); // Linear acceleration
     } else if (_scrolling) {
-      // logger.i('AutoScroll: Stopped Scrolling!!!');
+      // talker.info('AutoScroll: Stopped Scrolling!!!');
       _scrolling = false;
     }
   }
@@ -266,7 +266,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
 
     speed = speed * accel;
     double offset = scrollController.offset + speed;
-    // logger.i('AutoScroll: Scrolling!!! to $offset with speed: $speed accel: $accel');
+    // talker.info('AutoScroll: Scrolling!!! to $offset with speed: $speed accel: $accel');
     await scrollController.animateTo(
       offset.clamp(0.0, scrollController.position.maxScrollExtent),
       duration: Duration(milliseconds: 15),
@@ -310,7 +310,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
 
     // Starts dragging toWrap.
     void onDragStarted() {
-      logger.i('On Drag Started: $currentPos ${toWrap.key}');
+      talker.info('On Drag Started: $currentPos ${toWrap.key}');
       setState(() {
         _draggingWidget = draggedItem;
         _dragStartIndex = currentPos;
@@ -325,7 +325,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
 
     // Places the value from startIndex one space before the element at endIndex.
     void _reorder((int, int) startIndex, (int, int) endIndex) {
-      logger.i('_reorder: $startIndex -> $endIndex');
+      talker.info('_reorder: $startIndex -> $endIndex');
 //      debugPrint('startIndex:$startIndex endIndex:$endIndex');
       if (startIndex != endIndex) {
         widget.onReorder(startIndex, endIndex);
@@ -436,7 +436,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
               // We need to check if we are in the same col as the last drop position (_currentIndex)
               if (currentPos.$1 == _currentIndex.$1) {
                 // We are in the same col
-                logger.i('In the same col as the last drop position');
+                talker.info('In the same col as the last drop position');
 
                 // Now we need to determine if we need to shift or not (Handles all indexes below _dragStartIndex)
                 if (currentPos.$2 == _currentIndex.$2) {
@@ -452,7 +452,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
                 }
               } else {
                 // We are in a different col
-                logger.i('In a different col from the last drop position');
+                talker.info('In a different col from the last drop position');
                 if (currentPos.$2 == _currentIndex.$2) {
                   // Handles the "Skip over" or scroll from top onto the widget
                   newPos = (currentPos.$1, currentPos.$2 + 1);
@@ -466,7 +466,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
             }
             _prevIndex = _currentIndex;
             _currentIndex = newPos;
-            logger.i(
+            talker.info(
                 'Will accept: $willAccept for ${toWrap.key} at $currentPos. _start: $_dragStartIndex, _prevIndex: $_prevIndex, _currentIndex: $_currentIndex');
             // _requestAnimationToNextIndex(isAcceptingNewTarget: true);
           });
@@ -496,7 +496,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with R
         // No need to build a space for the next widget as it is not the next widget
         return _buildContainerForMainAxis(children: [dragTarget]);
       }
-      logger.i(
+      talker.info(
           'Building space for ${toWrap.key} at $currentPos. _start: $_dragStartIndex, _prevIndex: $_prevIndex, _currentIndex: $_currentIndex, isLastInCol: $isLastInCol, currentIndexOverscroll: $currentIndexOverscroll, prevIndexOverscroll: $prevIndexOverscroll');
 
       Widget preview = _AnimPreview(

@@ -50,7 +50,7 @@ class _ToolheadData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding ToolheadInfoTable');
+    talker.info('Rebuilding ToolheadInfoTable');
 
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 

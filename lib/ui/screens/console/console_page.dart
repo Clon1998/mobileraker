@@ -537,7 +537,7 @@ class _ConsoleProviderError extends ConsumerWidget {
         ),
         action: TextButton.icon(
           onPressed: () {
-            logger.i('Retrying console provider');
+            talker.info('Retrying console provider');
             ref.invalidate(_consoleListControllerProvider);
           },
           icon: const Icon(Icons.restart_alt_outlined),
@@ -587,7 +587,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
     final themeData = Theme.of(context);
     final dateFormatService = ref.read(dateFormatServiceProvider);
 
-    logger.e('Rebuilding console list. Count: $count');
+    talker.error('Rebuilding console list. Count: $count');
 
     return SmartRefresher(
       header: ClassicHeader(

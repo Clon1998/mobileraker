@@ -90,7 +90,7 @@ class DashboardCardsBottomSheet extends HookWidget {
   }
 
   void onSelect(BuildContext context, DashboardComponentType type) {
-    logger.i('Selected $type');
+    talker.info('Selected $type');
     context.pop(BottomSheetResult.confirmed(type));
   }
 }

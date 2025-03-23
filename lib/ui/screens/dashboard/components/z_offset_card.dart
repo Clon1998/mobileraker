@@ -48,7 +48,7 @@ class ZOffsetCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding ZOffsetCard');
+    talker.info('Rebuilding ZOffsetCard');
 
     return AsyncGuard(
       animate: true,
@@ -290,7 +290,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
 class _ZOffsetCardPreviewController extends _ZOffsetCardController {
   @override
   Stream<_Model> build(String machineUUID) {
-    logger.i('Using Preview Controller for ZOffsetCard');
+    talker.info('Using Preview Controller for ZOffsetCard');
     state = const AsyncValue.data(_Model(
       showCard: true,
       klippyCanReceiveCommands: true,

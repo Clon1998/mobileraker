@@ -130,7 +130,7 @@ class _Body extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Building LimitsSlidersOrTextsBody for $machineUUID');
+    talker.info('Building LimitsSlidersOrTextsBody for $machineUUID');
 
     var inputLocked = useState(true);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);

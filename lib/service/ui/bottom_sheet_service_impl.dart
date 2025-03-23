@@ -278,7 +278,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
   Future<BottomSheetResult> show(BottomSheetConfig config) async {
     final goRouter = ref.read(goRouterProvider);
 
-    // logger.i('Showing bottom sheet: ${config.type} with scrollControlled: ${config.isScrollControlled}');
+    // talker.info('Showing bottom sheet: ${config.type} with scrollControlled: ${config.isScrollControlled}');
 
     final result = await goRouter.pushNamed<BottomSheetResult>(config.type.name, extra: config.data);
 

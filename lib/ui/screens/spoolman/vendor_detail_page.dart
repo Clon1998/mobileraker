@@ -360,7 +360,7 @@ class _VendorDetailPageController extends _$VendorDetailPageController
     ));
 
     if (!res.confirmed) return;
-    logger.i('[VendorDetailPage] Action: ${res.data}');
+    talker.info('[VendorDetailPage] Action: ${res.data}');
 
     // Wait for the bottom sheet to close
     await Future.delayed(kThemeAnimationDuration);

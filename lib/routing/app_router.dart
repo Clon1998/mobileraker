@@ -52,6 +52,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
@@ -78,6 +79,7 @@ enum AppRoute implements RouteDefinitionMixin {
   dev,
   faq,
   changelog,
+  talker_logscreen,
   supportDev,
   supportDev_benefits,
   tool,
@@ -298,6 +300,14 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/dev',
         name: AppRoute.dev.name,
         builder: (context, state) => DevPage(),
+      ),
+      GoRoute(
+        path: '/talker',
+        name: AppRoute.talker_logscreen.name,
+        builder: (context, state) => TalkerScreen(
+          talker: talker,
+          appBarTitle: 'App-Logs',
+        ),
       ),
       GoRoute(
         path: '/tool',

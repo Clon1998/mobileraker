@@ -114,7 +114,7 @@ class _FilamentFormPage extends HookConsumerWidget {
     useEffect(
       () {
         _formKey.currentState?.fields[_FilamentFormFormComponent.vendor.name]?.didChange(selectedVendor?.name);
-        logger.i('Vendor selection cahnge received from controller: ${selectedVendor?.name}');
+        talker.info('Vendor selection cahnge received from controller: ${selectedVendor?.name}');
       },
       [selectedVendor],
     );
@@ -443,7 +443,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     final vendors = ref.watch(vendorListProvider(machineUUID).selectAs((d) => d.items));
 
     ref.listenSelf((prev, next) {
-      logger.i('[FilamentFormPageController($machineUUID)] State changed: $next');
+      talker.info('[FilamentFormPageController($machineUUID)] State changed: $next');
     });
 
     final initialVendor = ref.watch(_initialVendorProvider);
@@ -459,9 +459,9 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
-    logger.i('[FilamentFormPageController($machineUUID)] onFormSubmitted');
+    talker.info('[FilamentFormPageController($machineUUID)] onFormSubmitted');
     if (formData == null || state.selectedVendor == null) {
-      logger.w('[FilamentFormPageController($machineUUID)] onFormSubmitted: formData or selectedVendor is null');
+      talker.warning('[FilamentFormPageController($machineUUID)] onFormSubmitted: formData or selectedVendor is null');
       return;
     }
 
@@ -502,7 +502,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 
   Future<void> _create(Map<String, dynamic> formData, GetVendor vendor) async {
     final dto = _createDtoFromForm(formData, vendor);
-    logger.i('[FilamentFormPageController($machineUUID)] Create DTO: $dto');
+    talker.info('[FilamentFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = tr('pages.spoolman.filament.one');
     try {
       final res = await _spoolmanService.createFilament(dto);
@@ -513,7 +513,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       ));
       _goRouter.pop(res);
     } catch (e, s) {
-      logger.e('[FilamentFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[FilamentFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.create.error.title', args: [entityName]),
@@ -526,7 +526,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
 
   Future<void> _update(Map<String, dynamic> formData, GetVendor vendor) async {
     final dto = _updateDtoFromForm(formData, vendor, state.source!);
-    logger.i('[FilamentFormPageController($machineUUID)] Update DTO: $dto');
+    talker.info('[FilamentFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.filament.one');
 
     if (dto == null) {
@@ -548,7 +548,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       ));
       _goRouter.pop(updated);
     } catch (e, s) {
-      logger.e('[FilamentFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[FilamentFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [entityName]),

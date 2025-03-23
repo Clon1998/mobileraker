@@ -26,7 +26,7 @@ class ResponsiveBuilder extends ConsumerWidget {
       const Breakpoint(start: 601, end: 840, name: MEDIUM),
       const Breakpoint(start: 841, end: 1200, name: EXPANDED),
     ];
-    logger.i('Using breakpoints!!!: $breakpoints');
+    talker.info('Using breakpoints!!!: $breakpoints');
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 800),
       child: ResponsiveBreakpoints(

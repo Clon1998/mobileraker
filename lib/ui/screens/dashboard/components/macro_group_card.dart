@@ -52,7 +52,7 @@ class MacroGroupCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Building MacroGroupCard for $machineUUID');
+    talker.info('Building MacroGroupCard for $machineUUID');
     return AsyncGuard(
       animate: true,
       debugLabel: 'MacroGroupCard-$machineUUID',
@@ -196,7 +196,6 @@ class _SelectedGroup extends HookConsumerWidget {
     useEffect(() {
       final newVal = showAllAvailable.value || showAll.value;
       if (hadShowAll == newVal) return;
-      logger.wtf('Setting showAllAvailable to $showAllAvailable || $showAll - LALALA');
       ref.read(settingServiceProvider).writeBool(hadMoreMacrosSettingKey, newVal);
     }, [group.uuid, showAllAvailable.value]);
 
@@ -295,7 +294,7 @@ class _ChipsWrapState extends State<_ChipsWrap> {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('Building _ChipsWrap - showAll: ${widget.showAll}');
+    talker.info('Building _ChipsWrap - showAll: ${widget.showAll}');
     return ExtendedWrap(
       alignment: WrapAlignment.center,
       spacing: 5,

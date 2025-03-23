@@ -78,7 +78,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
     // late ProviderSubscription sub;
     ClientType clientType = ref.read(jrpcClientTypeProvider(selMachine.uuid));
 
-    logger.i('Refreshing $clientType was PULL to REFRESH');
+    talker.info('Refreshing $clientType was PULL to REFRESH');
 
     ProviderSubscription<PrinterService>? printerServiceKeepAlive;
     ProviderSubscription<KlippyService>? klippyServiceKeepAlive;
@@ -91,7 +91,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
       var read = ref.read(klipperProvider(selMachine.uuid));
       if (read
           case AsyncData(hasError: false, hasValue: true, value: KlipperInstance(klippyCanReceiveCommands: true))) {
-        logger.i(
+        talker.info(
           'Klippy reported ready and connected, will try to refresh printer',
         );
         await printerServiceKeepAlive.read().refreshPrinter();
@@ -100,7 +100,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
       // throw MobilerakerException('Klippy is not ready to receive commands');
       refreshController.refreshCompleted();
     } catch (e, s) {
-      logger.w('Error while trying to refresh printer', e);
+      talker.warning('Error while trying to refresh printer', e);
       refreshController.refreshFailed();
       snackBarService.show(SnackBarConfig.stacktraceDialog(
         dialogService: dialogService,

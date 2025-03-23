@@ -498,7 +498,7 @@ class _Controller extends _$Controller {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    logger.i('Rebuilding HeaterSensorCard for machine $machineUUID');
+    talker.info('Rebuilding HeaterSensorCard for machine $machineUUID');
     ref.keepAliveFor();
 
     final printerProviderr = printerProvider(machineUUID);
@@ -615,9 +615,9 @@ class _PreviewController extends _Controller {
 
   @override
   Stream<_Model> build(String machineUUID) {
-    logger.i('Rebuilding (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
+    talker.info('Rebuilding (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
     ref.onDispose(() {
-      logger.i('Disposing (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
+      talker.info('Disposing (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
     });
     ref.keepAliveFor();
     state = AsyncValue.data(_Model(

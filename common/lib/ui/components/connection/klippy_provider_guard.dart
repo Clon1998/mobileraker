@@ -44,7 +44,7 @@ class KlippyProviderGuard extends HookConsumerWidget {
     var fetchedOnce = useRef(false);
 
     var klippy = ref.watch(klipperProvider(machineUUID));
-    // logger.w('Models(hasErr: ${klippy.hasError}): $klippy');
+    // talker.warning('Models(hasErr: ${klippy.hasError}): $klippy');
 
     var wasFetched = fetchedOnce.value;
     if (klippy case AsyncData(value: KlipperInstance(klippyState: KlipperState.ready))) {
@@ -199,7 +199,7 @@ class _ProviderError extends ConsumerWidget {
           body: Text(message),
           action: TextButton.icon(
             onPressed: () {
-              logger.i('Invalidating klipper service provider, to retry klippy fetching');
+              talker.info('Invalidating klipper service provider, to retry klippy fetching');
               ref.invalidate(klipperServiceProvider(machineUUID));
             },
             icon: const Icon(Icons.restart_alt_outlined),

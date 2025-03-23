@@ -68,7 +68,7 @@ class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
 class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
   @override
   Widget build(BuildContext context) {
-    logger.i('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
+    talker.info('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
 
     final components = widget.tab.components;
 
@@ -132,7 +132,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
               widget.onReorder!(widget.tab, oldIndex, newIndex);
             },
             proxyDecorator: (child, index, animation) {
-              logger.i('Proxy Decorator: $index, $animation, $child#${identityHashCode(child)}');
+              talker.info('Proxy Decorator: $index, $animation, $child#${identityHashCode(child)}');
               return AnimatedBuilder(
                 animation: animation,
                 builder: (BuildContext ctx, Widget? c) {
@@ -210,12 +210,12 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
   }
 
   void _onReorderStart(int index) {
-    logger.i('Reorder Start: $index');
+    talker.info('Reorder Start: $index');
     // _selectedIndex = index;
   }
 
   void _onReorderEnd(int newIndex) {
-    logger.i('Reorder End: $newIndex');
+    talker.info('Reorder End: $newIndex');
     // _selectedIndex = null;
   }
 }

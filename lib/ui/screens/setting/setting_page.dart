@@ -11,7 +11,6 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
@@ -21,7 +20,6 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -30,13 +28,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/ads/ui/data_and_privacy_text_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+import '../../../routing/app_router.dart';
 
 class SettingPage extends ConsumerWidget {
   const SettingPage({super.key});
@@ -422,8 +422,7 @@ class _DeveloperSection extends ConsumerWidget {
           ),
           child: const Text('Debug-Logs'),
           onPressed: () {
-            var dialogService = ref.read(dialogServiceProvider);
-            dialogService.show(DialogRequest(type: DialogType.logging));
+            context.pushNamed(AppRoute.talker_logscreen.name);
           },
         ),
       ],
@@ -997,7 +996,7 @@ class _AdPushNotificationsSetting extends HookConsumerWidget {
     final value = consentState.hasValue && consentState.value!.status == ConsentStatus.GRANTED;
 
     final enabled = consentState.hasValue && !consentState.hasError;
-    logger.wtf('ConsentState: $consentState, Value: $value, Enabled: $enabled');
+    // logger.wtf('ConsentState: $consentState, Value: $value, Enabled: $enabled');
 
     return InputDecorator(
       decoration: InputDecoration(

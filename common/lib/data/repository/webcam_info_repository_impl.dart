@@ -20,11 +20,11 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   @override
   Future<List<WebcamInfo>> fetchAll() async {
     try {
-      logger.i('Trying to fetch all webcams from moonraker.');
+      talker.info('Trying to fetch all webcams from moonraker.');
       RpcResponse response = await _rpcClient.sendJRpcMethod('server.webcams.list');
       var webcams = response.result['webcams'] as List<dynamic>?;
       if (webcams == null) return [];
-      logger.i('Received ${webcams.length} webcams from moonraker.');
+      talker.info('Received ${webcams.length} webcams from moonraker.');
       return webcams.map((e) => WebcamInfo.fromJson(e as Map<String, dynamic>)).toList();
     } on JRpcError catch (e) {
       throw MobilerakerException('Unable to fetch all webcams', parentException: e);
@@ -34,7 +34,7 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   @override
   Future<void> addOrUpdate(WebcamInfo webcamInfo) async {
     try {
-      logger.i('Trying to update or add webcam with uuid:"${webcamInfo.uuid}".');
+      talker.info('Trying to update or add webcam with uuid:"${webcamInfo.uuid}".');
       if (webcamInfo.uuid.isNotEmpty && webcamInfo.name != webcamInfo.uuid) {
         await remove(webcamInfo.uuid);
       }
@@ -49,7 +49,7 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   @override
   Future<WebcamInfo> remove(String uuid) async {
     try {
-      logger.i('Trying to delete webcam with uuid:"$uuid".');
+      talker.info('Trying to delete webcam with uuid:"$uuid".');
       RpcResponse rpcResponse =
           await _rpcClient.sendJRpcMethod('server.webcams.delete_item', params: {'name': uuid});
 
@@ -62,10 +62,10 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   @override
   Future<WebcamInfo> get(String uuid) async {
     try {
-      logger.i('Trying to fetch webcam with uuid:"$uuid" from moonraker.');
+      talker.info('Trying to fetch webcam with uuid:"$uuid" from moonraker.');
       var response =
           await _rpcClient.sendJRpcMethod('server.webcams.get_item', params: {'name': uuid});
-      logger.i('Received webcam with uuid:"$uuid" from moonraker');
+      talker.info('Received webcam with uuid:"$uuid" from moonraker');
       return WebcamInfo.fromJson(response.result['webcam']!);
     } on JRpcError catch (e) {
       throw MobilerakerException('Unable to fetch webcam with uuid:$uuid', parentException: e);

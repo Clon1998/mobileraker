@@ -39,7 +39,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (debugLabel != null) {
-      logger.i(
+      talker.info(
           'Rebuilding AsyncValueWidget: $debugLabel with ${value.isLoading ? '(isRefresh: ${value.isRefreshing}, isReload: ${value.isReloading}, initialLoading: ${!value.isRefreshing && !value.isReloading}) ' : ''}$value');
     }
 
@@ -53,7 +53,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
         if (error != null) {
           return error!(e, s);
         }
-        logger.e('Error in Widget', e, s);
+        talker.error('Error in Widget', e, s);
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

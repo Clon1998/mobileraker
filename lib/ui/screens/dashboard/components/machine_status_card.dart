@@ -48,7 +48,7 @@ class MachineStatusCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding MachineStatusCard for $machineUUID');
+    talker.info('Rebuilding MachineStatusCard for $machineUUID');
 
     return AsyncGuard(
       animate: true,
@@ -66,7 +66,7 @@ class MachineStatusCard extends HookConsumerWidget {
             Consumer(builder: (ctx, iref, _) {
               var (model, isCC) = iref.watch(_machineStatusCardControllerProvider(machineUUID)
                   .selectRequireValue((data) => (data.showToolheadTable, data.isCompleteOrCancelled)));
-              // logger.i('Rebuilding ToolheadInfoTable for $machineUUID');
+              // talker.info('Rebuilding ToolheadInfoTable for $machineUUID');
               return AnimatedSizeAndFade(
                 sizeDuration: kThemeAnimationDuration,
                 fadeDuration: kThemeAnimationDuration,

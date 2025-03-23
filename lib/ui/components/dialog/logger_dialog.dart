@@ -19,7 +19,7 @@ class LoggerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var logData = memoryOutput.buffer.map((element) => element.lines).join('\n');
+    // var logData = memoryOutput.buffer.map((element) => element.lines).join('\n');
     return MobilerakerDialog(
       footer: OverflowBar(
         spacing: 4,
@@ -59,7 +59,7 @@ class LoggerDialog extends StatelessWidget {
             'Debug-Logs',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          Expanded(child: SingleChildScrollView(child: Text(logData))),
+          Expanded(child: SingleChildScrollView(child: Text("TODO!!!"))),
         ],
       ),
     );

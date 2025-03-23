@@ -81,7 +81,7 @@ dependencies:
   pull_to_refresh_flutter3: ^2.0.1
 
   #misc
-  logger: ^1.4.0
+  talker_flutter: ^4.7.1
   rxdart: ^0.28.0
   stringr: ^1.0.0
   collection: ^1.19.0

@@ -57,7 +57,7 @@ class ConsentService {
 
   set currentConsent(Consent nI) {
     if (_consentStreamController.isClosed) {
-      logger.w('Tried to set a currentConsent value on a disposed service? ${identityHashCode(this)}', null,
+      talker.warning('Tried to set a currentConsent value on a disposed service? ${identityHashCode(this)}', null,
           StackTrace.current);
       return;
     }
@@ -72,7 +72,7 @@ class ConsentService {
   }
 
   Future<Consent> updateConsentEntry(ConsentEntryType type, ConsentStatus newStatus) async {
-    logger.i('[ConsentService] Updating consent entry: $type to $newStatus');
+    talker.info('[ConsentService] Updating consent entry: $type to $newStatus');
     final entry = currentConsent.entries[type]!;
     final newConsent = currentConsent.copyWith(
       entries: {
@@ -90,11 +90,11 @@ class ConsentService {
     );
     try {
       await _consentRepository.update(newConsent);
-      logger.i('[ConsentService] Completed updating consent entry: $type to $newStatus');
+      talker.info('[ConsentService] Completed updating consent entry: $type to $newStatus');
       currentConsent = newConsent;
       return newConsent;
     } catch (e, s) {
-      logger.e('[ConsentService] Error updating consent entry', e, s);
+      talker.error('[ConsentService] Error updating consent entry', e, s);
       //TODO: Decide if I want to do this?
       _consentStreamController.addError(e, s);
       rethrow;
@@ -103,16 +103,16 @@ class ConsentService {
 
   /// Resets the user. Primarly for testing purposes.
   Future<Consent> resetUser() async {
-    logger.i('[ConsentService] Resetting user consent data');
+    talker.info('[ConsentService] Resetting user consent data');
 
     try {
       var idHash = currentConsent.idHash;
       await _consentRepository.delete(idHash);
-      logger.i('[ConsentService] Completed resetting user consent data');
+      talker.info('[ConsentService] Completed resetting user consent data');
 
       return _createNewConsentDoc(idHash);
     } catch (e, s) {
-      logger.e('[ConsentService] Error updating consent entry', e, s);
+      talker.error('[ConsentService] Error updating consent entry', e, s);
       //TODO: Decide if I want to do this?
       _consentStreamController.addError(e, s);
       rethrow;
@@ -120,32 +120,32 @@ class ConsentService {
   }
 
   Future<void> _updateConsentDataIfNecessary(String fireaseUserId) async {
-    logger.i('[ConsentService] Updating consent data for user: $fireaseUserId');
+    talker.info('[ConsentService] Updating consent data for user: $fireaseUserId');
     final hashDigest = sha256.string(fireaseUserId);
-    logger.i('[ConsentService] Hashed fireaseUserId token:sha256($fireaseUserId)=$hashDigest');
+    talker.info('[ConsentService] Hashed fireaseUserId token:sha256($fireaseUserId)=$hashDigest');
     final hashId = hashDigest.hex();
 
     try {
-      logger.i('[ConsentService] Fetching consent data for hash: $hashId');
+      talker.info('[ConsentService] Fetching consent data for hash: $hashId');
       var consent = await _consentRepository.read(id: hashId);
       if (consent == null) {
-        logger.i('[ConsentService] Consent data does not exist.');
+        talker.info('[ConsentService] Consent data does not exist.');
         consent = await _createNewConsentDoc(hashId);
       } else {
-        logger.i('[ConsentService] Consent data exists: $consent');
+        talker.info('[ConsentService] Consent data exists: $consent');
       }
       currentConsent = consent;
     } catch (e, s) {
-      logger.e('[ConsentService] Error fetching consent data for hash: $hashId', e, s);
+      talker.error('[ConsentService] Error fetching consent data for hash: $hashId', e, s);
       _consentStreamController.addError(e, s);
     }
   }
 
   Future<Consent> _createNewConsentDoc(String hashId) async {
-    logger.i('[ConsentService] Creating new consent document for hash: $hashId');
+    talker.info('[ConsentService] Creating new consent document for hash: $hashId');
     final consent = Consent.empty(hashId);
     _consentRepository.create(consent);
-    logger.i('[ConsentService] New consent document created: $hashId');
+    talker.info('[ConsentService] New consent document created: $hashId');
     return consent;
   }
 

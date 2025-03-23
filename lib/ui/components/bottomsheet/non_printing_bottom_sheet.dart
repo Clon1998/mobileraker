@@ -158,7 +158,7 @@ class _NonPrintingBottomSheetController extends _$NonPrintingBottomSheetControll
         klippyService.restartMCUs();
         break;
       default:
-        logger.e('Unknown type: $type');
+        talker.error('Unknown type: $type');
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => router.pop());
   }

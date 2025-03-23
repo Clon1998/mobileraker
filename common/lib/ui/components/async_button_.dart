@@ -295,8 +295,6 @@ class AsyncSwitch extends HookConsumerWidget {
     } else {
       animCtrler.value = 1;
     }
-    logger.wtf('AsyncSwitch: ${switchValue.value}, ${value}');
-
     return ScaleTransition(
       scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
       child: Switch(

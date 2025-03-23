@@ -260,7 +260,7 @@ class FileService {
   final Duration _apiRequestTimeout;
 
   Future<List<FileRoot>> fetchRoots() async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Fetching roots');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Fetching roots');
 
     try {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.roots', timeout: _apiRequestTimeout);
@@ -271,13 +271,13 @@ class FileService {
         return FileRoot.fromJson(element);
       });
     } on JRpcError catch (e) {
-      logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Error while fetching roots', e);
+      talker.warning('[FileService($_machineUUID, ${_jRpcClient.uri})] Error while fetching roots', e);
       throw FileFetchException('Jrpc error while trying to fetch roots.', parent: e);
     }
   }
 
   Future<FolderContentWrapper> fetchDirectoryInfo(String path, [bool extended = false]) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Fetching for `$path` [extended:$extended]');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Fetching for `$path` [extended:$extended]');
 
     try {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
@@ -310,7 +310,7 @@ class FileService {
 
   /// The FilePath is relativ to the `gcodes` root
   Future<GCodeFile> getGCodeMetadata(String filePath) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filePath`');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Getting meta for file: `$filePath`');
 
     final parentPathParts = filePath.split('/')
       ..insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
@@ -324,7 +324,7 @@ class FileService {
       return GCodeFile.fromMetaData(fileName, parentPath, blockingResp.result);
     } on JRpcError catch (e) {
       if (e.message.contains('Metadata not available for')) {
-        logger.w('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filePath');
+        talker.warning('[FileService($_machineUUID, ${_jRpcClient.uri})] Metadata not available for $filePath');
         return GCodeFile(name: fileName, parentPath: parentPath, modified: -1, size: -1);
       }
 
@@ -333,7 +333,7 @@ class FileService {
   }
 
   Future<FileActionResponse> createDir(String filePath) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Creating Folder "$filePath"');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Creating Folder "$filePath"');
 
     try {
       final rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory',
@@ -345,7 +345,7 @@ class FileService {
   }
 
   Future<FileActionResponse> deleteFile(String filePath) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Deleting File "$filePath"');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Deleting File "$filePath"');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.delete_file',
@@ -357,7 +357,7 @@ class FileService {
   }
 
   Future<FileActionResponse> deleteDirForced(String filePath) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Deleting Folder-Forced "$filePath"');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Deleting Folder-Forced "$filePath"');
     try {
       RpcResponse rpcResponse =
           await _jRpcClient.sendJRpcMethod('server.files.delete_directory', params: {'path': filePath, 'force': true});
@@ -368,7 +368,7 @@ class FileService {
   }
 
   Future<FileActionResponse> moveFile(String origin, String destination) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Moving file from $origin to $destination');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Moving file from $origin to $destination');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.move',
@@ -380,7 +380,7 @@ class FileService {
   }
 
   Future<FileActionResponse> copyFile(String origin, String destination) async {
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Copying file from $origin to $destination');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Copying file from $origin to $destination');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.copy',
@@ -395,7 +395,7 @@ class FileService {
     assert(origins.isNotEmpty, 'At least one origin needs to be provided');
     assert(destination == null || destination.endsWith('.zip'), 'Destination needs to end with .zip if provided');
 
-    logger.i(
+    talker.info(
         '[FileService($_machineUUID, ${_jRpcClient.uri})] Creating zip(compression=$compress) file at $destination from $origins');
 
     try {
@@ -415,11 +415,11 @@ class FileService {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
 
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $filePath to ${file.path}');
     if (!overWriteLocal &&
         await file.exists() &&
         DateTime.now().difference(await file.lastModified()) < const Duration(minutes: 60)) {
-      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
+      talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
       yield FileDownloadComplete(file);
       return;
     }
@@ -437,7 +437,7 @@ class FileService {
           total = expectedFileSize;
         }
         if (total <= 0) {
-          // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+          // talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
           // Debounce the keep alive to not spam the stream
           if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
             debounceKeepAlive = Completer();
@@ -448,18 +448,18 @@ class FileService {
           }
           return;
         }
-        // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
+        // talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
         updateProgress.add(FileOperationProgress((received / total).clamp(0.0, 1.0)));
       },
     ).then((response) {
-      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" completed');
+      talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" completed');
       updateProgress.add(FileDownloadComplete(file));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
-        logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" was canceled');
+        talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Download of "$filePath" was canceled');
         updateProgress.add(FileOperationCanceled());
       } else {
-        logger.e(
+        talker.error(
             '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while downloading file "$filePath" caught in catchError',
             e);
         updateProgress.addError(e, s);
@@ -467,7 +467,7 @@ class FileService {
     }).whenComplete(updateProgress.close);
 
     yield* updateProgress.stream;
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File download completed');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] File download completed');
   }
 
   Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent, [CancelToken? cancelToken]) async* {
@@ -478,7 +478,7 @@ class FileService {
 
     final StreamController<FileOperation> updateStream = StreamController();
 
-    logger.i(
+    talker.info(
         '[FileService($_machineUUID, ${_jRpcClient.uri})] Starting upload of ${uploadContent.filename ?? 'unknown'} to $filePath');
 
     Completer<bool>? debounceKeepAlive;
@@ -491,7 +491,7 @@ class FileService {
       cancelToken: cancelToken,
       onSendProgress: (sent, total) {
         if (total <= 0) {
-          // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
+          // talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Download is alive... no total, ${debounceKeepAlive?.isCompleted}');
           // Debounce the keep alive to not spam the stream
           if (debounceKeepAlive == null || debounceKeepAlive?.isCompleted == true) {
             debounceKeepAlive = Completer();
@@ -502,22 +502,22 @@ class FileService {
           }
           return;
         }
-        // logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
+        // talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Progress for $filePath: ${received / total * 100}');
         updateStream.add(FileOperationProgress(sent / total));
       },
     ).then((response) {
       final res = FileActionResponse.fromJson(response.data);
-      logger.i(
+      talker.info(
           '[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of ${uploadContent.filename ?? 'unknown'} to $filePath completed');
-      logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Response: $res');
+      talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Response: $res');
 
       updateStream.add(FileUploadComplete(res.item.fullPath));
     }).catchError((e, s) {
       if (e case DioException(type: DioExceptionType.cancel)) {
-        logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of "$filePath" was canceled');
+        talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Upload of "$filePath" was canceled');
         updateStream.add(FileOperationCanceled());
       } else {
-        logger.e(
+        talker.error(
             '[FileService($_machineUUID, ${_jRpcClient.uri})] Error while uploading file "$filePath" caught in catchError',
             e);
         updateStream.addError(e, s);
@@ -525,7 +525,7 @@ class FileService {
     }).whenComplete(updateStream.close);
 
     yield* updateStream.stream;
-    logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File upload completed');
+    talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] File upload completed');
   }
 
   _onFileListChanged(AsyncValue<Map<String, dynamic>>? previous, AsyncValue<Map<String, dynamic>> next) {
@@ -592,15 +592,15 @@ class FileService {
 //   bool overWriteLocal = false,
 // }) async {
 //   var dio = Dio(dioBaseOptions);
-//   logger.i(
+//   talker.info(
 //       'Created new dio instance for download with options: ${dioBaseOptions.connectTimeout}, ${dioBaseOptions.receiveTimeout}, ${dioBaseOptions.sendTimeout}');
 //   try {
 //     var file = File(savePath);
 //     if (!overWriteLocal && await file.exists()) {
-//       logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
+//       talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] File already exists, skipping download');
 //       return FileDownloadComplete(file, token: );
 //     }
-//     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $urlPath to $savePath');
+//     talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Starting download of $urlPath to $savePath');
 //     var progress = FileDownloadProgress(0);
 //     port.send(progress);
 //     await file.create(recursive: true);
@@ -614,15 +614,15 @@ class FileService {
 //       },
 //     );
 //
-//     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Download complete');
+//     talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Download complete');
 //     return FileDownloadComplete(file);
 //   } on DioException {
 //     rethrow;
 //   } catch (e) {
-//     logger.e('[FileService($_machineUUID, ${_jRpcClient.uri})] Error inside of isolate', e);
+//     talker.error('[FileService($_machineUUID, ${_jRpcClient.uri})] Error inside of isolate', e);
 //     throw MobilerakerException('Error while downloading file', parentException: e);
 //   } finally {
-//     logger.i('[FileService($_machineUUID, ${_jRpcClient.uri})] Closing dio instance');
+//     talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] Closing dio instance');
 //     dio.close();
 //   }
 // }

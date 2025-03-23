@@ -80,7 +80,7 @@ class ThemeService {
     var settingIndex = _settingService.readInt(AppSettingKeys.themePack);
     int themeIndex = settingIndex.clamp(0, themePacks.length - 1);
 
-    logger.i('Theme selected: $settingIndex, available theme len: ${themePacks.length}');
+    talker.info('Theme selected: $settingIndex, available theme len: ${themePacks.length}');
     var modeIndex = _settingService.readInt(AppSettingKeys.themeMode).clamp(0, 2);
     var mode = ThemeMode.values[modeIndex];
     activeTheme = ThemeModel(themePacks[themeIndex], mode);

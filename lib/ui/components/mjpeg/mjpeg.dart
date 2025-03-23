@@ -304,7 +304,7 @@ class _MjpegController extends _$MjpegController {
 
   onRetryPressed() {
     state = const AsyncValue.loading();
-    logger.i('Retrying Mjpeg Connection');
+    talker.info('Retrying Mjpeg Connection');
     _manager.start();
   }
 

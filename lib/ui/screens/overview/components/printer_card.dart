@@ -71,7 +71,7 @@ class _Body extends ConsumerWidget {
     final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
     final themeData = Theme.of(context);
 
-    // logger.i('Rebuilding _Body for ${machine.logName}');
+    // talker.info('Rebuilding _Body for ${machine.logName}');
 
     return InkWell(
       onTap: controller.onTapTile,
@@ -139,7 +139,7 @@ class _Trailing extends HookConsumerWidget {
     final triedReconnect = useState(false);
     final model = ref.watch(_printerCardControllerProvider(machine));
 
-    logger.i('Rebuilding _Trailing for ${machine.logName} $model');
+    talker.info('Rebuilding _Trailing for ${machine.logName} $model');
 
     final themeData = Theme.of(context);
     return switch (model) {
@@ -227,12 +227,12 @@ class _Cam extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // logger.i('Rebuilding _Cam for ${machine.logName}');
+    // talker.info('Rebuilding _Cam for ${machine.logName}');
     final model = ref.watch(_printerCardControllerProvider(machine)).valueOrNull;
     final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
     if (model == null || model.previewCam == null) return const SizedBox.shrink();
 
-    logger.w('Rebuilding _Cam for ${machine.logName} with ${model}');
+    talker.warning('Rebuilding _Cam for ${machine.logName} with ${model}');
 
     return Align(
       alignment: Alignment.bottomCenter,

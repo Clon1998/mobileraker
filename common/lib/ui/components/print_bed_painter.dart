@@ -73,8 +73,8 @@ abstract class PrintBedPainter extends CustomPainter {
     final scaleX = canvasWidth / bedWidth;
     final scaleY = canvasHeight / bedHeight;
 
-    // logger.w('BED: $bedWidth x $bedHeight, CANVAS: $canvasWidth x $canvasHeight, SCALE: $scaleX x $scaleY');
-    // logger.w('Offset: X:$bedXOffset Y:$bedYOffset');
+    // talker.warning('BED: $bedWidth x $bedHeight, CANVAS: $canvasWidth x $canvasHeight, SCALE: $scaleX x $scaleY');
+    // talker.warning('Offset: X:$bedXOffset Y:$bedYOffset');
 
     // Calculate the scale factor for the logo
     final double logoSize = min(canvasWidth, canvasHeight);

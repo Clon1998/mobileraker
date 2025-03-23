@@ -69,7 +69,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
         scrollController: sc,
         reorderAnimationDuration: const Duration(milliseconds: 200),
         onReorder: (oldIndex, newIndex) {
-          logger.i('On Reorder: $oldIndex -> $newIndex');
+          talker.info('On Reorder: $oldIndex -> $newIndex');
           if (onReorder != null) {
             onReorder!(tabs[oldIndex.$1], tabs[newIndex.$1], oldIndex.$2, newIndex.$2);
           }
@@ -217,13 +217,13 @@ class DashboardMediumLayout extends HookConsumerWidget {
     //       ]
     //     ],
     //     onReorder: (oldColumnIndex, oldItemIndex, newColumnIndex, newItemIndex) {
-    //       logger.i('On Reorder: $oldColumnIndex, $oldItemIndex, $newColumnIndex, $newItemIndex');
+    //       talker.info('On Reorder: $oldColumnIndex, $oldItemIndex, $newColumnIndex, $newItemIndex');
     //     });
     //
     // // return ReorderableBuilder(
     //   children: comb,
     //   onReorder: (updated) {
-    //     logger.i('On Reorder: updated');
+    //     talker.info('On Reorder: updated');
     //   },
     //   builder: (ele) {
     //     return GridView(

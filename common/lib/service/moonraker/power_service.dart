@@ -62,7 +62,7 @@ class PowerService {
 
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-device-list
   Future<List<PowerDevice>> getDeviceList() async {
-    logger.i('[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Fetching [power] devices!');
+    talker.info('[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Fetching [power] devices!');
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
     List<Map<String, dynamic>> devices = rpcResponse.result['devices'].cast<Map<String, dynamic>>();
     return List.generate(devices.length, (index) => PowerDevice.fromJson(devices[index]), growable: false);
@@ -73,13 +73,13 @@ class PowerService {
     try {
       RpcResponse rpcResponse = await _jRpcClient
           .sendJRpcMethod('machine.device_power.post_device', params: {'device': deviceName, 'action': state.name});
-      logger.i(
+      talker.info(
           '[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Setting [power] device "$deviceName" -> $state!');
 
       Map<String, dynamic> result = rpcResponse.result;
       return PowerState.tryFromJson(result[deviceName]) ?? PowerState.off;
     } on JRpcError catch (e, s) {
-      logger.e(
+      talker.error(
           '[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Error while trying to set state of [power] device with name "$deviceName"!',
           e,
           s);
@@ -92,13 +92,13 @@ class PowerService {
     try {
       RpcResponse rpcResponse =
           await _jRpcClient.sendJRpcMethod('machine.device_power.get_device', params: {'device': deviceName});
-      logger.i(
+      talker.info(
           '[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Fetching [power] device state of "$deviceName" !');
 
       Map<String, dynamic> result = rpcResponse.result;
       return PowerState.tryFromJson(result[deviceName]) ?? PowerState.off;
     } on JRpcError catch (e, s) {
-      logger.e(
+      talker.error(
           '[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Error while trying to fetch state of [power] device with name "$deviceName"!',
           e,
           s);
@@ -111,7 +111,7 @@ class PowerService {
       var devices = await getDeviceList();
       _current = devices;
     } on JRpcError catch (e, s) {
-      logger.e(
+      talker.error(
           '[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Error while trying to fetch [power] devices!',
           e);
       if (!_devicesStreamCtler.isClosed) {
@@ -131,8 +131,8 @@ class PowerService {
       return parsed.firstWhere((p) => p.name == e.name, orElse: () => e);
     }).toList(growable: false);
 
-    logger
-        .v('[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Updated powerDevices to: $result');
+    talker.verbose(
+        '[PowerService ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Updated powerDevices to: $result');
     _current = result;
   }
 

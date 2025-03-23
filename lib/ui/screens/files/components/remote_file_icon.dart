@@ -109,8 +109,8 @@ class RemoteFileIcon extends ConsumerWidget {
       httpHeaders: headers,
       placeholder: (context, url) => const Icon(Icons.image),
       errorWidget: (context, url, error) {
-        logger.w(url);
-        logger.e(error);
+        talker.warning(url);
+        talker.error(error);
         return const Icon(Icons.error);
       },
     );

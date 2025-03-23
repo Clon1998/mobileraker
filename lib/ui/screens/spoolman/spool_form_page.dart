@@ -123,7 +123,7 @@ class _SpoolFormPage extends HookConsumerWidget {
       () {
         _formKey.currentState?.fields[_SpoolFormFormComponent.filament.name]
             ?.didChange(selectedFilament?.displayNameWithDetails(numFormatDecimal));
-        logger.i('Filament selection change received from controller: ${selectedFilament?.name}');
+        talker.info('Filament selection change received from controller: ${selectedFilament?.name}');
       },
       [selectedFilament],
     );
@@ -309,7 +309,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                       },
                       onSaved: (value) {
                         final lastInput = locationHelper.value;
-                        logger.i('onSaved called $value - $lastInput');
+                        talker.info('onSaved called $value - $lastInput');
                         if (lastInput?.isNotEmpty == true && value != lastInput) {
                           _formKey.currentState
                               ?.setInternalFieldValue(_SpoolFormFormComponent.location.name, lastInput);
@@ -338,7 +338,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                       },
                       hideOnEmpty: true,
                       onChanged: (value) {
-                        logger.i('onChanged called $value');
+                        talker.info('onChanged called $value');
                       },
                     ),
 
@@ -475,7 +475,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
   _Model build(String machineUUID) {
     ref.keepAliveExternally(spoolmanServiceProvider(machineUUID));
     ref.listenSelf((prev, next) {
-      logger.i('[SpoolFormPageController($machineUUID)] State changed: $next');
+      talker.info('[SpoolFormPageController($machineUUID)] State changed: $next');
     });
 
     final filaments = ref.watch(filamentListProvider(machineUUID).selectAs((d) => d.items));
@@ -493,9 +493,9 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData, [int qty = 1]) async {
-    logger.i('[SpoolFormPageController($machineUUID)] Form submitted');
+    talker.info('[SpoolFormPageController($machineUUID)] Form submitted');
     if (formData == null || state.selectedFilament == null) {
-      logger.w('[SpoolFormPageController($machineUUID)] Form data is null');
+      talker.warning('[SpoolFormPageController($machineUUID)] Form data is null');
       return;
     }
     state = state.copyWith(isSaving: true);
@@ -550,7 +550,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
 
   Future<void> _create(Map<String, dynamic> formData, GetFilament filament, int qty) async {
     final dto = _createDtoFromForm(formData, filament);
-    logger.i('[SpoolFormPageController($machineUUID)] Create DTO: $dto');
+    talker.info('[SpoolFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = plural('pages.spoolman.spool', qty);
     try {
       final res = await Future.wait(List.generate(qty, (_) => _spoolmanService.createSpool(dto)));
@@ -561,7 +561,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       ));
       _goRouter.pop(res);
     } catch (e, s) {
-      logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.create.error.title', args: [entityName]),
@@ -574,7 +574,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
 
   Future<void> _update(Map<String, dynamic> formData, GetFilament filament) async {
     final dto = _updateDtoFromForm(formData, filament, state.source!);
-    logger.i('[SpoolFormPageController($machineUUID)] Update DTO: $dto');
+    talker.info('[SpoolFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.spool.one');
     if (dto == null) {
       _snackBarService.show(SnackBarConfig(
@@ -595,7 +595,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       ));
       _goRouter.pop(updated);
     } catch (e, s) {
-      logger.e('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[SpoolFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [entityName]),

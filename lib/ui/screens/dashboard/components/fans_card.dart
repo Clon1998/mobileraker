@@ -57,7 +57,7 @@ class FansCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding fans card for $machineUUID');
+    talker.info('Rebuilding fans card for $machineUUID');
 
     return AsyncGuard(
       animate: true,
@@ -132,7 +132,7 @@ class _CardTitle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var model = ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.fans.length));
 
-    // logger.i('Rebuilding fans card title');
+    // talker.info('Rebuilding fans card title');
 
     return ListTile(
       leading: const Icon(FlutterIcons.fan_mco),
@@ -148,7 +148,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // logger.i('Rebuilding fans card body');
+    // talker.info('Rebuilding fans card body');
 
     var fansCount = ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.fans.length));
 
@@ -176,7 +176,7 @@ class _Fan extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var fan = ref.watch(fanProvider);
 
-    // logger.i('Rebuilding fan card for $fan');
+    // talker.info('Rebuilding fan card for $fan');
 
     if (fan == null) {
       return const SizedBox.shrink();
@@ -292,7 +292,7 @@ class _FansCardController extends _$FansCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    logger.i('Rebuilding fansCardController for $machineUUID');
+    talker.info('Rebuilding fansCardController for $machineUUID');
 
     // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
     // This means that if the value is the same, the widget will not rebuild.
@@ -417,7 +417,7 @@ class _FansCardController extends _$FansCardController {
 class _FansCardPreviewController extends _FansCardController {
   @override
   Stream<_Model> build(String machineUUID) {
-    logger.i('Rebuilding fansCardController for $machineUUID');
+    talker.info('Rebuilding fansCardController for $machineUUID');
 
     state = const AsyncValue.data(_Model(
       klippyCanReceiveCommands: true,
