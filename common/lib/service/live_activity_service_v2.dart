@@ -99,14 +99,14 @@ class LiveActivityServiceV2 {
 
       talker.info('LiveActivityService allows push start: $allowsPushStart');
 
-      final sub = _liveActivityAPI.pushToStartTokenUpdateStream.listen((event) {
-        talker.info('Received push to start token update token $event');
-      });
+      // final sub = _liveActivityAPI.pushToStartTokenUpdateStream.listen((event) {
+      //   talker.info('Received push to start token update token $event');
+      // });
 
-      var pushStartToken = await _liveActivityAPI.getPushToStartToken();
-      talker.info('LiveActivityService push to start token: $pushStartToken');
+      // var pushStartToken = await _liveActivityAPI.getPushToStartToken();
+      // talker.info('LiveActivityService push to start token: $pushStartToken');
 
-      _subscriptions.add(sub);
+      // _subscriptions.add(sub);
 
       _setupLiveActivityListener();
       _setupPrinterDataListeners();
