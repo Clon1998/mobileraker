@@ -95,9 +95,9 @@ class LiveActivityServiceV2 {
       talker.info('Found ${all.length} active activities. Ending all of them.');
       await _liveActivityAPI.endAllActivities();
 
-      var allowsPushStart = await _liveActivityAPI.allowsPushStart();
+      // var allowsPushStart = await _liveActivityAPI.allowsPushStart();
 
-      talker.info('LiveActivityService allows push start: $allowsPushStart');
+      // talker.info('LiveActivityService allows push start: $allowsPushStart');
 
       // final sub = _liveActivityAPI.pushToStartTokenUpdateStream.listen((event) {
       //   talker.info('Received push to start token update token $event');
