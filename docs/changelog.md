@@ -2,6 +2,11 @@
 
 ## [2.8.8] - 2025-03-xx
 
+### Enhancements
+
+- **Logging-Framework**: Replaced the logging framework with a new one that is more reliable and provides better
+  performance. This change will allow us to better track and fix issues in the future.
+
 ## [2.8.7] - 2025-03-05
 
 ### Bug Fixes
