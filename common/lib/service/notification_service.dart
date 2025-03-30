@@ -60,7 +60,7 @@ Future<String> fcmToken(Ref ref) async {
   final token = await notificationService.requestFirebaseToken();
   final settingsService = ref.read(settingServiceProvider);
   try {
-    var savedTokenHistory = settingsService.readList(UtilityKeys.fcmTokenHistory, <String>[]);
+    var savedTokenHistory = settingsService.readList<String>(UtilityKeys.fcmTokenHistory, fallback: []);
     if (!savedTokenHistory.contains(token)) {
       talker.info('Adding token to history');
       savedTokenHistory = [...savedTokenHistory, token];

@@ -37,8 +37,7 @@ class APNsRepositoryImpl extends APNsRepository {
 
   @override
   Future<void> write(String machineId, APNs apns) async {
-    apns.lastModified = DateTime.now();
-
-    await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId.apns', apns);
+    await _databaseService.addDatabaseItem(
+        'mobileraker', 'fcm.$machineId.apns', apns.copyWith(lastModified: DateTime.now()));
   }
 }

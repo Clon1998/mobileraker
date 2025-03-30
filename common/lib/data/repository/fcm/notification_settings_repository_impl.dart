@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../network/moonraker_database_client.dart';
+import '../../enums/eta_data_source.dart';
 import '../../model/moonraker_db/fcm/notification_settings.dart';
 import '../fcm/notification_settings_repository.dart';
 
@@ -33,10 +34,9 @@ class NotificationSettingsRepositoryImpl extends NotificationSettingsRepository 
 
   @override
   Future<void> update(String machineId, NotificationSettings notificationSettings) async {
-    notificationSettings.lastModified = DateTime.now();
 
     await _databaseService.addDatabaseItem(
-        'mobileraker', 'fcm.$machineId.settings', notificationSettings);
+        'mobileraker', 'fcm.$machineId.settings', notificationSettings.copyWith(lastModified: DateTime.now()));
   }
 
   @override
@@ -66,7 +66,7 @@ class NotificationSettingsRepositoryImpl extends NotificationSettingsRepository 
   }
 
   @override
-  Future<void> updateEtaSourcesSettings(String machineId, List<String> sources) async {
+  Future<void> updateEtaSourcesSettings(String machineId, List<ETADataSource> sources) async {
     await _databaseService.addDatabaseItem(
         'mobileraker', 'fcm.$machineId.settings.lastModified', DateTime.now().toIso8601String());
 

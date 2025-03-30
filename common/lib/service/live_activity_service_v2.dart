@@ -8,6 +8,7 @@ import 'dart:io' show Platform;
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
@@ -241,7 +242,9 @@ class LiveActivityServiceV2 {
       final notification =
           await _notificationsRepository.getByMachineUuid(machineUUID) ?? Notification(machineUuid: machineUUID);
 
-      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
+      final etaSources = _settingsService
+          .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
+          .toSet();
 
       // Data that needs to be present to be shown!
       final hasDataReady = printer.currentFile?.name != null;
@@ -323,7 +326,9 @@ class LiveActivityServiceV2 {
 
       // talker.info('Refreshing live activity for machine ${machine.logNameExtended}');
       final themePack = ref.read(themeServiceProvider).activeTheme.themePack;
-      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
+      final etaSources = _settingsService
+          .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
+          .toSet();
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
         'state': printer.print.state.name,

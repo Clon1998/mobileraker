@@ -11,6 +11,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/model_event.dart';
@@ -203,7 +204,9 @@ class LiveActivityService {
       // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
       if (!hasProgressChange && !hasStateChange && !hasFileChange && !clearLiveActivity) return;
       talker.info('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
-      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
+      final etaSources = _settingsService
+          .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
+          .toSet();
 
       await _notificationsRepository.save(
         Notification(machineUuid: machineUUID)
@@ -257,7 +260,9 @@ class LiveActivityService {
     _updateLiveActivityLocks[machineUUID] = Completer();
     try {
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
-      final etaSources = _settingsService.readList<String>(AppSettingKeys.etaSources).toSet();
+      final etaSources = _settingsService
+          .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
+          .toSet();
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
         'state': printer.print.state.name,

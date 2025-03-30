@@ -5,9 +5,12 @@
 
 import 'dart:async';
 
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../data/dto/machine/print_state_enum.dart';
 
 part 'setting_service.g.dart';
 
@@ -57,23 +60,24 @@ double doubleSetting(Ref ref, KeyValueStoreKey key, [double fallback = 0.0]) {
 }
 
 @riverpod
-Type objectSetting<Type>(Ref ref, KeyValueStoreKey key, Type fallback) {
-  // This is a nice way to listen to changes in the settings box.
-  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
-  var box = Hive.box('settingsbox');
-  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
-  ref.onDispose(sub.cancel);
-  return ref.watch(settingServiceProvider).read(key, fallback);
-}
-
-@riverpod
 List<String> stringListSetting(Ref ref, KeyValueStoreKey key, [List<String>? fallback]) {
   // This is a nice way to listen to changes in the settings box.
   // However, we might want to move this logic to the Service (Well it would just move the responsibility)
   var box = Hive.box('settingsbox');
   var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
   ref.onDispose(sub.cancel);
-  return ref.watch(settingServiceProvider).readList(key, fallback);
+  return ref.watch(settingServiceProvider).readList(key, fallback: fallback);
+}
+
+@riverpod
+List<dynamic> listSetting(Ref ref, KeyValueStoreKey key,
+    [List<dynamic>? fallback, dynamic Function(Object?)? elementDecoder]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readList(key, fallback: fallback, elementDecoder: elementDecoder);
 }
 
 /// Actually this class turned more into a KeyValue store than just storing app setings
@@ -125,12 +129,15 @@ class SettingService {
     return _boxSettings.get(key.key) ?? key.defaultValue ?? fallback;
   }
 
-  Future<void> writeList<T>(KeyValueStoreKey key, List<T> val) {
-    return _boxSettings.put(key.key, val);
+  Future<void> writeList<T>(KeyValueStoreKey key, List<T> val, [Object? Function(T)? elementEncoder]) {
+    return _boxSettings.put(key.key, elementEncoder != null ? val.map(elementEncoder).toList() : val);
   }
 
-  List<T> readList<T>(KeyValueStoreKey key, [List<T>? fallback]) {
-    return (_boxSettings.get(key.key) as List<dynamic>?)?.cast<T>() ?? key.defaultValue as List<T>? ?? fallback ?? [];
+  List<T> readList<T>(KeyValueStoreKey key, {List<T>? fallback, T Function(Object?)? elementDecoder}) {
+    final readList = _boxSettings.get(key.key) as List<Object?>?;
+    final output = elementDecoder != null ? readList?.map(elementDecoder).toList() : readList?.cast<T>();
+
+    return output ?? key.defaultValue as List<T>? ?? fallback ?? [];
   }
 
   Future<void> writeMap<K, T>(KeyValueStoreKey key, Map<K, T> map) {
@@ -161,7 +168,8 @@ enum AppSettingKeys implements KeyValueStoreKey {
   themeMode('selectedThemeMode'),
   themePack('selectedThemePack'),
   progressNotificationMode('selProgNotMode'),
-  statesTriggeringNotification('activeStateNotMode'),
+  statesTriggeringNotification('printStateNotifications',
+      [PrintState.standby, PrintState.printing, PrintState.paused, PrintState.complete, PrintState.error]),
   fullscreenCamOrientation('lcFullCam'),
   timeFormat('tMode'),
   useLiveActivity('useLiveActivity'),
@@ -170,7 +178,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   receiveMarketingNotifications('receiveMarketingNotifications'),
   confirmMacroExecution('confirmMacroExecution'),
   useProgressbarNotifications('useProgressNotifications'),
-  etaSources('etaCalS', ['slicer', 'filament']),
+  etaSources('etaCalS', [ETADataSource.slicer, ETADataSource.filament]),
   useMediumUI('useMediumUI', true),
   keepScreenOn('keepScreenOn', false),
   ;

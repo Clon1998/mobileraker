@@ -4,12 +4,12 @@
  */
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/notification_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -103,18 +103,14 @@ class NotificationStateSettingController extends AutoDisposeNotifier<Set<PrintSt
   Set<PrintState> build() {
     return ref
         .watch(settingServiceProvider)
-        .read(
-          AppSettingKeys.statesTriggeringNotification,
-          'standby,printing,paused,complete,error',
-        )
-        .split(',')
-        .map((e) => EnumToString.fromString(PrintState.values, e) ?? PrintState.error)
+        .readList<PrintState>(AppSettingKeys.statesTriggeringNotification, elementDecoder: PrintState.fromJson)
         .toSet();
   }
 
   void onStatesChanged(Set<PrintState> printStates) async {
-    var str = printStates.map((e) => e.name).join(',');
-    ref.read(settingServiceProvider).write(AppSettingKeys.statesTriggeringNotification, str);
+    ref
+        .read(settingServiceProvider)
+        .writeList(AppSettingKeys.statesTriggeringNotification, printStates.toList(), (e) => e.toJson());
     state = printStates;
 
     // Now also propagate it to all connected machines!
@@ -159,7 +155,7 @@ class SettingPageController extends _$SettingPageController {
     }
   }
 
-  Future<void> onEtaSourcesChanged(List<String>? sources) async {
+  Future<void> onEtaSourcesChanged(List<ETADataSource>? sources) async {
     if (sources == null) {
       return;
     }
@@ -167,7 +163,7 @@ class SettingPageController extends _$SettingPageController {
       return; // We don't want to save an empty list
     }
 
-    _settingService.writeList(AppSettingKeys.etaSources, sources);
+    _settingService.writeList(AppSettingKeys.etaSources, sources, (e) => e.toJson());
 
     // Now also propagate it to all connected machines!
 

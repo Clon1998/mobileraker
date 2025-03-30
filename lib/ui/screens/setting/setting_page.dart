@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/consent_entry_type.dart';
 import 'package:common/data/enums/consent_status.dart';
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/misc_providers.dart';
@@ -28,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
@@ -187,37 +189,32 @@ class _GeneralSection extends ConsumerWidget {
             isCollapsed: true,
           ),
         ),
-        FormBuilderFilterChip(
+        FormBuilderFilterChip<ETADataSource>(
           name: AppSettingKeys.etaSources.key,
           onChanged: controller.onEtaSourcesChanged,
-          initialValue: ref.read(
-            stringListSettingProvider(AppSettingKeys.etaSources),
-          ),
+          initialValue: ref
+              .read(
+                listSettingProvider(
+                  AppSettingKeys.etaSources,
+                  AppSettingKeys.etaSources.defaultValue as List<ETADataSource>,
+                  ETADataSource.fromJson,
+                ),
+              )
+              .cast<ETADataSource>(),
           decoration: InputDecoration(
             labelText: tr('pages.setting.general.eta_sources'),
             helperText: tr('pages.setting.general.eta_sources_hint'),
           ),
           alignment: WrapAlignment.spaceEvenly,
-          options: const [
-            FormBuilderChipOption(
-              value: 'slicer',
-              child: Text('Slicer'),
-            ),
-            FormBuilderChipOption(
-              value: 'file',
-              child: Text('GCode'),
-            ),
-            FormBuilderChipOption(
-              value: 'filament',
-              child: Text('Filament'),
-            ),
+          options: [
+            for (var e in ETADataSource.values)
+              FormBuilderChipOption(
+                value: e,
+                child: Text('eta_data_source.${e.name}').tr(),
+              ),
           ],
           validator: (list) {
-            if (list == null || list.isEmpty) {
-              return 'Min 1';
-            }
-
-            return null;
+            return FormBuilderValidators.minLength(1).call(list);
           },
         ),
       ],

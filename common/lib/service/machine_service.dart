@@ -10,6 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/model_event.dart';
@@ -392,12 +393,12 @@ class MachineService {
           ? ProgressNotificationMode.TWENTY_FIVE
           : ProgressNotificationMode.values[progressModeInt];
 
-      var states = _settingService
-          .read(AppSettingKeys.statesTriggeringNotification, 'standby,printing,paused,complete,error')
-          .split(',')
+      final states = _settingService
+          .readList<PrintState>(AppSettingKeys.statesTriggeringNotification, elementDecoder: PrintState.fromJson)
           .toSet();
-
-      final etaSources = _settingService.readList<String>(AppSettingKeys.etaSources).toSet();
+      final etaSources = _settingService
+          .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
+          .toSet();
 
       String? version;
       try {
@@ -412,13 +413,14 @@ class MachineService {
       final timeFormat = ref.read(boolSettingProvider(AppSettingKeys.timeFormat)) ? '12h' : '24h';
 
       if (fcmSettings == null) {
-        fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version);
-        fcmSettings.settings =
-            NotificationSettings(progress: progressMode.value, states: states, etaSources: etaSources);
+        var settings = NotificationSettings(progress: progressMode.value, states: states, etaSources: etaSources);
+        fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version, settings);
         talker.info(
             '${machine.logTagExtended} Did not find DeviceFcmSettings in MoonrakerDB, trying to add it: $fcmSettings');
         await fcmRepo.update(machine.uuid, fcmSettings);
         talker.info('${machine.logTagExtended} Successfully added DeviceFcmSettings');
+
+        //TODO: IS this per field comparison required? Can we not just compare the whole object? -> APNs must be ignored
       } else if (fcmSettings.machineName != machine.name ||
           fcmSettings.fcmToken != deviceFcmToken ||
           fcmSettings.settings.progress != progressMode.value ||
@@ -427,16 +429,24 @@ class MachineService {
           fcmSettings.version != version ||
           fcmSettings.language != language ||
           fcmSettings.timeFormat != timeFormat) {
-        fcmSettings.version = version;
-        fcmSettings.language = language;
-        fcmSettings.timeFormat = timeFormat;
-        fcmSettings.machineName = machine.name;
-        fcmSettings.fcmToken = deviceFcmToken;
-        fcmSettings.settings =
-            fcmSettings.settings.copyWith(progress: progressMode.value, states: states, etaSources: etaSources);
+        final updatedNotiSettings = fcmSettings.settings.copyWith(
+          progress: progressMode.value,
+          states: states,
+          etaSources: etaSources,
+        );
+        final updatedFcmSettings = fcmSettings.copyWith(
+          version: version,
+          language: language,
+          timeFormat: timeFormat,
+          machineName: machine.name,
+          fcmToken: deviceFcmToken,
+          settings: updatedNotiSettings,
+        );
+
         talker.info('${machine.logTagExtended} Trying to update DeviceFcmSettings');
-        await fcmRepo.update(machine.uuid, fcmSettings);
+        await fcmRepo.update(machine.uuid, updatedFcmSettings);
         talker.info('${machine.logTagExtended} Successfully updated DeviceFcmSettings');
+        fcmSettings = updatedFcmSettings;
       } else {
         talker.info('${machine.logTagExtended} DeviceFcmSettings is in sync!');
       }
@@ -451,7 +461,7 @@ class MachineService {
     ProgressNotificationMode? mode,
     Set<PrintState>? printStates,
     bool? progressbar,
-    List<String>? etaSources,
+    List<ETADataSource>? etaSources,
   }) async {
     var keepAliveExternally = ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
     try {
@@ -755,7 +765,7 @@ class MachineService {
     final machine = allMachines[oldIndex];
 
     talker.info('Reordering machine ${machine.logName} from $oldIndex to $newIndex');
-    final readList = [..._settingService.readList(UtilityKeys.machineOrdering, <String>[])];
+    final readList = [..._settingService.readList<String>(UtilityKeys.machineOrdering, fallback: [])];
 
     // add all missing machines to the list
     for (var m in allMachines) {

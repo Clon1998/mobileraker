@@ -47,9 +47,8 @@ class DeviceFcmSettingsRepositoryImpl extends DeviceFcmSettingsRepository {
 
   @override
   Future<void> update(String machineId, DeviceFcmSettings fcmSettings) async {
-    fcmSettings.lastModified = DateTime.now();
-
-    await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId', fcmSettings);
+    await _databaseService.addDatabaseItem(
+        'mobileraker', 'fcm.$machineId', fcmSettings.copyWith(lastModified: DateTime.now()));
   }
 
   @override

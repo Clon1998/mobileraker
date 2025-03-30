@@ -34,7 +34,7 @@ class Notification extends HiveObject {
 
   PrintState? get printState => _printState?.let(PrintState.tryFromJson);
 
-  set printState(PrintState? value) => _printState = value?.toJsonEnum();
+  set printState(PrintState? value) => _printState = value?.toJson();
 
   @override
   bool operator ==(Object other) =>
