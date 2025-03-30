@@ -1371,6 +1371,10 @@ theme_mode:
   light: Világos
   dark: Sötét
   system: Rendszer
+eta_data_source:
+  file: G-Kód
+  slicer: Szeletelő
+  filament: Nyomtatószál
 notifications:
   channel_printer_grp: Nyomtató {}
   channels:
