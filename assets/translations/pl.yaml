@@ -375,6 +375,7 @@ pages:
         Nie można wyświetlić powiadomień.
         Poproś o zgodę poprzez kliknięcie!
       no_firebase_title: Nie mogę wyświetlić powiadomień
+      ios_notifications_title: Dostarczanie powiadomień iOS
       opt_out_marketing: Powiadomienia marketingowe
       opt_out_marketing_helper: Otrzymuj aktualizacje dotyczące wyprzedaży i promocji
       opt_out_marketing_error: Błąd podczas ładowania preferencji marketingowych, spróbuj ponownie później.
@@ -487,6 +488,7 @@ pages:
       advanced: Zaawansowane
     simple_form:
       hint_title: Wskazówka - Tryb uproszczony
+      url_hint: IP lub nazwa hosta drukarki
     advanced_form:
       hint_title: Wskazówka - Tryb zaawansowany
       section_security: Bezpieczeństwo
@@ -505,6 +507,8 @@ pages:
     no_suggestions: Nie znaleziono sugestii!
     command_input:
       hint: Wprowadź polecenie konsoli
+    provider_error:
+      title: Błąd podczas pobierania danych konsoli
   overview:
     title: Podsumowanie
     no_entries: Nie znaleziono maszyn
@@ -541,6 +545,8 @@ pages:
         subtitle: Wybierz inny motyw dla każdej drukarki!
         detail: Spersonalizuj swoje doświadczenie, przypisując unikalne motywy do każdej drukarki, aby łatwiej odróżniać je na pierwszy rzut oka.
       custom_dashboard_perk:
+        title: Własny panel
+        subtitle: Dostosuj panel do swoich potrzeb!
         short: Twój idealny workflow
       full_file_management_perk:
         title: Pełne zarządzanie plikami
@@ -554,13 +560,23 @@ pages:
         title: Spoolman-UI
         subtitle: Zarządzaj swoimi szpulami filamentu za pomocą Spoolman
         detail: Zachowaj doskonałą kontrolę nad zapasami filamentu dzięki zintegrowanemu wsparciu Spoolman – śledź zużycie, koszty i pozostałe ilości dla każdej szpuli podczas druku, co sprawia, że zarządzanie materiałami staje się proste.
+      advanced_perk:
+        short: Pełne możliwości
     tipping:
       title: Kup mi kawę
       subtitle: "Chcesz okazać dodatkowe uznanie? Wesprzyj przyszły rozwój szybkim prezentem:"
+    header:
+      rating: "{} na {}"
+      open_core: Open Core
+      active_dev: Aktywnie rozwijany
     manage_view:
       title: Dziękujemy za Twoje wsparcie!
+      subtitle: Pomagasz sprawić, że Mobileraker staje się lepszy dla wszystkich, jednocześnie ciesząc się funkcjami premium i doświadczeniem bez reklam. Dziękujemy, że jesteś częścią naszej społeczności makerów!
+      offering_title: Zmień poziom wsparcia
       cancel_btn: Anuluj subskrypcję
     subscribe_view:
+      title: Zostań wspierającym Mobilerakera!
+      subtitle: Mobileraker zapewnia szybki i niezawodny interfejs mobilny dla Klippera, inspirowany społecznością makerów. Podstawowe funkcje pozostają darmowe, natomiast wspierający użytkownicy otrzymują dostęp do funkcji premium oraz korzystania bez reklam.
       offering_title: Wybierz poziom wsparcia
     contact_dialog:
       title: Kontakt do dewelopera
