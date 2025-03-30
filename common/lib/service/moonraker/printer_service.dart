@@ -30,6 +30,7 @@ import '../../data/dto/console/console_entry.dart';
 import '../../data/dto/machine/printer_builder.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
+import '../misc_providers.dart';
 import '../selected_machine_service.dart';
 import '../ui/dialog_service_interface.dart';
 import '../ui/snackbar_service_interface.dart';
@@ -75,6 +76,8 @@ class PrinterNotifier extends _$PrinterNotifier {
             ));
       }
     });
+
+    ref.watch(signalingHelperProvider('printer-$machineUUID'));
     return printerService.printerStream;
   }
 }
@@ -109,7 +112,7 @@ Stream<Printer> printerSelected(Ref ref) async* {
 }
 
 class PrinterService {
-  PrinterService(Ref ref, this.ownerUUID)
+  PrinterService(this.ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
         _fileService = ref.watch(fileServiceProvider(ownerUUID)),
         _snackBarService = ref.watch(snackBarServiceProvider),
@@ -132,6 +135,8 @@ class PrinterService {
     }, fireImmediately: true);
   }
 
+  final Ref ref;
+
   final String ownerUUID;
 
   final SnackBarService _snackBarService;
@@ -142,7 +147,7 @@ class PrinterService {
 
   final FileService _fileService;
 
-  final StreamController<Printer> _printerStreamCtler = StreamController();
+  final StreamController<Printer> _printerStreamCtler = StreamController.broadcast();
 
   bool get disposed => _printerStreamCtler.isClosed;
 
@@ -178,6 +183,8 @@ class PrinterService {
       // await Future.delayed(Duration(seconds:15));
       // Remove Handerls to prevent updates
       _removeJrpcHandlers();
+      ref.invalidate(signalingHelperProvider('printer-$ownerUUID'));
+
       talker.info('Refreshing printer for uuid: $ownerUUID');
       PrinterBuilder printerBuilder = await _printerObjectsList();
       await _printerObjectsQuery(printerBuilder);

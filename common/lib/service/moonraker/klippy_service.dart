@@ -32,6 +32,7 @@ KlippyService klipperService(Ref ref, String machineUUID) {
 
 @riverpod
 Stream<KlipperInstance> klipper(Ref ref, String machineUUID) {
+  ref.watch(signalingHelperProvider('klipper-$machineUUID'));
   return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
 }
 
@@ -83,7 +84,7 @@ class KlippyService {
 
   final JsonRpcClient _jRpcClient;
 
-  final StreamController<KlipperInstance> _klipperStreamCtler = StreamController();
+  final StreamController<KlipperInstance> _klipperStreamCtler = StreamController.broadcast();
 
   Stream<KlipperInstance> get klipperStream => _klipperStreamCtler.stream;
 
@@ -136,6 +137,7 @@ class KlippyService {
 
   Future<void> refreshKlippy() async {
     try {
+      ref.invalidate(signalingHelperProvider('klipper-$ownerUUID'));
       await _identifyConnection();
       var klippyReady = await _fetchServerInfo();
       talker.info('KlippyReady: $klippyReady');
