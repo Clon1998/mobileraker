@@ -413,7 +413,8 @@ class MachineService {
       final timeFormat = ref.read(boolSettingProvider(AppSettingKeys.timeFormat)) ? '12h' : '24h';
 
       if (fcmSettings == null) {
-        var settings = NotificationSettings(progress: progressMode.value, states: states, etaSources: etaSources);
+        var settings = NotificationSettings.fallback()
+            .copyWith(progress: progressMode.value, states: states, etaSources: etaSources);
         fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version, settings);
         talker.info(
             '${machine.logTagExtended} Did not find DeviceFcmSettings in MoonrakerDB, trying to add it: $fcmSettings');
