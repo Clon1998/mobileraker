@@ -1364,6 +1364,10 @@ theme_mode:
   light: Hell
   dark: Dunkel
   system: System
+eta_data_source:
+  file: GCode
+  slicer: Slicer
+  filament: Filament
 notifications:
   channel_printer_grp: Drucker {}
   channels:
