@@ -26,6 +26,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -164,9 +165,12 @@ class NotificationService {
     talker.info('Added stream-listener for ${machine.logName}');
   }
 
-  void onMachineRemoved(String uuid) {
-    _notifyAPI.removeChannel('$uuid-statusUpdates');
-    _notifyAPI.removeChannel('$uuid-progressUpdates');
+  void onMachineRemoved(Machine machine) {
+    final uuid = machine.uuid;
+    for (NotificationChannel channel in _channelsForMachine(machine)) {
+      channel.channelKey?.let(_notifyAPI.removeChannel);
+    }
+
     _fcmUpdateListeners.remove(uuid)?.close();
     talker.info('Removed notifications channels and stream-listener for UUID=$uuid');
   }
@@ -227,7 +231,7 @@ class NotificationService {
         case ModelEventUpdate<Machine> event:
           break;
         case ModelEventDelete<Machine> event:
-          onMachineRemoved(event.key);
+          onMachineRemoved(event.data);
           break;
       }
     });
