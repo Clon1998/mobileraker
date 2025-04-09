@@ -495,7 +495,7 @@ class _BottomNavigationBar extends ConsumerWidget {
             if (model.isEditing && model.layout.tabs.length < 5) FlutterIcons.plus_ant,
           ],
           activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
-          inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor,
+          inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor?.withAlpha(125),
           gapLocation: GapLocation.end,
           backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ?? colorScheme.primary,
           notchSmoothness: NotchSmoothness.softEdge,
