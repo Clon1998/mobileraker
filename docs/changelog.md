@@ -7,6 +7,10 @@
 - **Logging-Framework**: Replaced the logging framework with a new one that is more reliable and provides better
   performance. This change will allow us to better track and fix issues in the future.
 
+- **Temperature Graph Legend**: It is now possible to exclude en entire sensor by tapping on its name instead of having
+  to tap on each of them
+  individually. This change will make it easier to read the graph and understand the data.
+
 ## [2.8.7] - 2025-03-05
 
 ### Bug Fixes
