@@ -22,7 +22,9 @@ class ConfigStepper with _$ConfigStepper {
     required String dirPin,
     String? enablePin,
     @IntegerConverter() required int rotationDistance,
-    @IntegerConverter() required int microsteps,
+    @IntegerConverter()
+    int?
+        microsteps, // In default klipper that is required. In favor of https://github.com/jbatonnet/Rinkhals/issues/133 , https://github.com/Clon1998/mobileraker/issues/505 I will make it optional!
     @IntegerConverter() @Default(200) int fullStepsPerRotation,
     @Default([]) @JsonKey(fromJson: _unpackGearRatio) List<int> gearRatio,
     String? endstopPin,
