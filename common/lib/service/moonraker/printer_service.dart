@@ -188,7 +188,6 @@ class PrinterService {
       talker.info('Refreshing printer for uuid: $ownerUUID');
       PrinterBuilder printerBuilder = await _printerObjectsList();
       await _printerObjectsQuery(printerBuilder);
-      await _temperatureStore(printerBuilder);
       // It can happen that the service disposed. Make sure to not proceed.
       if (disposed) return;
       // I need this temp variable since in some edge cases the updateSettings otherwise throws?
@@ -503,26 +502,6 @@ class PrinterService {
 
   Future<void> clearBedMeshProfile() async {
     await gCode('BED_MESH_CLEAR');
-  }
-
-  Future<void> _temperatureStore(PrinterBuilder printer) async {
-    if (disposed) return;
-    talker.info('Fetching cached temperature store data');
-
-    try {
-      RpcResponse blockingResponse = await _jRpcClient.sendJRpcMethod('server.temperature_store');
-
-      Map<String, dynamic> raw = blockingResponse.result;
-      List<String> sensors =
-          raw.keys.toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan <NAME>
-      talker.info('Received cached temperature store for $sensors');
-
-      raw.forEach((key, value) {
-        _parseObjectType(key, raw, printer);
-      });
-    } on JRpcError catch (e) {
-      talker.error('Error while fetching cached temperature store: $e');
-    }
   }
 
   Future<PrinterBuilder> _printerObjectsList() async {
