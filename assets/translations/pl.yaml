@@ -387,6 +387,8 @@ pages:
       system_theme: Motyw UI
       system_theme_mode: Jasność motywu
       filament_sensor_dialog: Pokazuj alerty czujnika filamentu
+      confirm_gcode: Potwierdź wykonanie makra
+      confirm_gcode_hint: Zawsze wyświetlaj okno potwierdzenia przed wykonaniem makra GCode na pulpicie
       eta_sources: Obliczanie zakończenia
       medium_ui: Tablet UI
       keep_screen_on: Utrzymuj ekran w stanie czuwania
@@ -719,6 +721,7 @@ pages:
       clone: Klonuj
       archive: Archiwizuj
       unarchive: Przywróć z archiwum
+      adjust: Dostosuj szpulę filamentu
       share_qr: Udostępnij kod QR
       add_spool: Dodaj szpulę
       add_filament: Dodaj filament
@@ -765,9 +768,11 @@ pages:
       location: Lokalizacja
       lot_number: Numer partii (LOT)
       color: Kolor
+      initial_weight: Waga początkowa
     property_sections:
       basic: Podstawowe informacje
       additional: Dodatkowe informacje
+      extra_fields: Pola dodatkowe
     vendor_details:
       page_title: Producent {}
       info_card: Informacje o producencie
@@ -775,6 +780,7 @@ pages:
       spools_card: Szpule od producenta
     filament_details:
       info_card: Informacje o filamencie
+      spools_card: Szpule filamentu
     spool_details:
       page_title: Szpula {}
       info_card: Informacje o szpuli
@@ -790,6 +796,7 @@ pages:
       update_page_title: Edytuj szpulę
       helper:
         location: Miejsce, w którym przechowujesz szpulę
+        lot_number: Numer partii producenta. Może być używany do zapewnienia spójnego koloru wydruku przy użyciu wielu szpul filamentu.
     filament_form:
       create_page_title: Utwórz filament
       update_page_title: Edytuj filament
@@ -798,6 +805,9 @@ pages:
       update_page_title: Edytuj producenta
       helper:
         empty_weight: Waga pustej szpuli od tego producenta.
+  temp_chart:
+    title: Wykres temperatury
+    chart_y_axis: Temperatura [°C]
 components:
   app_version_display:
     version: 'Wersja:'
@@ -920,6 +930,8 @@ dialogs:
       set_temps:
         title: Temperatura filamentu
         subtitle: Wybierz temperaturę docelową
+      heat_up:
+        subtitle: Grzanie do temperatury docelowej
       move:
         title:
           load: Ładuj filament
@@ -936,6 +948,8 @@ dialogs:
       tip_form:
         title: Formowanie końcówki
         subtitle: Formowanie końcówki filamentu
+  heater_temperature:
+    title: "{} Temperatura [°C]"
   confirm_print_cancelation:
     title: Anulować drukowanie?
     body: |-
@@ -943,6 +957,7 @@ dialogs:
 
       Potwierdź swoją akcję.
   adjust_spool_filament:
+    title: Dostosuj szpulę filamentu
     subtitle: Tutaj możesz bezpośrednio dodać lub usunąć filament ze szpuli. Dodatnia wartość spowoduje odjęcie filamentu, ujemna wartość spowoduje jego dodanie.
     input_label: Wpisz ilość
     submit_label: Dostosuj
@@ -1064,6 +1079,8 @@ bottom_sheets:
   selections:
     no_selections:
       title: Nie znaleziono wyników.
+  temp_chart_settings:
+    title: Ustawienia wykresu temperatury
 klipper_state:
   ready: Gotowy
   shutdown: Zamknięcie
