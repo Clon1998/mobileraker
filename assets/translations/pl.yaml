@@ -378,19 +378,29 @@ pages:
     general:
       title: Ogólne
       ems_confirm: Potwierdź zatrzymanie awaryjne
+      ems_confirm_hint: Wyświetlaj okno potwierdzenia przed wysłaniem polecenia zatrzymania awaryjnego
+      always_baby: Tryb karty Z-Offset
+      always_baby_hint: Zawsze wyświetlaj kartę Z-Offset na pulpicie
+      start_with_overview: Ustaw @:pages.overview.title jako stronę startową
       use_offset_pos: Pozycja Offsetu
       lcFullCam: Orientacja kamery na pełnym ekranie
       lcFullCam_hint: Przełącz kamerę na tryb poziomy w trybie pełnoekranowym
       language: Język
+      companion: "Czy chcesz otrzymywać zdalne powiadomienia?\nDowiedz się, jak skonfigurować dodatek Mobileraker Companion na"
       companion_link: Oficjalna strona GitHub
+      sliders_grouping: Grupuj karty z suwakami
+      sliders_grouping_hint: Zgrupuj wszystkie suwaki w jedną kartę
       time_format: Format czasu
       system_theme: Motyw UI
       system_theme_mode: Jasność motywu
       filament_sensor_dialog: Pokazuj alerty czujnika filamentu
+      filament_sensor_dialog_hint: Wyświetlaj okno dialogowe przy wyzwoleniu czujnika filamentu
       confirm_gcode: Potwierdź wykonanie makra
       confirm_gcode_hint: Zawsze wyświetlaj okno potwierdzenia przed wykonaniem makra GCode na pulpicie
       eta_sources: Obliczanie zakończenia
+      eta_sources_hint: Wybierz źródło, które ma być używane do obliczania ETA
       medium_ui: Tablet UI
+      medium_ui_hint: Używaj interfejsu tabletowego na większych ekranach lub w trybie poziomym
       keep_screen_on: Utrzymuj ekran w stanie czuwania
       keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
     notification:
@@ -398,6 +408,7 @@ pages:
       progress_label: Powiadomienie o postępie drukowania
       progress_helper: Interwał aktualizacji dla powiadomień o postępach drukowania
       state_label: Powiadomienie o stanie druku
+      state_helper: Wybierz stany, które wyzwalają powiadomienia podczas trwających wydruków
       no_permission_title: Brak uprawnień do powiadomień!
       no_permission_desc: |-
         Nie można wyświetlić powiadomień.
@@ -494,6 +505,10 @@ pages:
       deleted_grp: Usunięto grupę {}
       macros: Makra
       default_name: Nowa grupa makr
+      macros_to_default:
+        one: Przeniesiono jedno makro do grupy domyślnej!
+        two: Przeniesiono dwa makra do grupy domyślnej!
+        other: Przeniesiono {} makr do grupy domyślnej!
     presets:
       no_presets: Nie dodano ustawień wstępnych!
       new_preset: Nowe ustawienie wstępne
@@ -554,6 +569,7 @@ pages:
     select_mode:
       title: 'Wybierz tryb wprowadzania danych:'
       body: Jeśli dopiero zaczynasz, najlepiej trzymać się trybu prostego. Jeśli jednak jesteś doświadczony i potrzebujesz używać niestandardowych nagłówków, certyfikatów itp., tryb ekspercki jest dla Ciebie. Pamiętaj, że wybrany tryb nie wpłynie na samą aplikację, ale określi, w jaki sposób dane wejściowe są weryfikowane i wyświetlane oraz jakie opcje są dostępne podczas dodawania drukarki.
+      simple: Prosty
       advanced: Zaawansowane
     simple_form:
       hint_title: Wskazówka - Tryb uproszczony
@@ -704,8 +720,13 @@ pages:
     title: Tuning paska
     description: Zapewnienie odpowiedniego napięcia pasków jest kluczowe dla optymalnej pracy drukarek 3D. Nieprawidłowe napięcie, zbyt mocne lub zbyt luźne, może prowadzić do problemów mechanicznych, przedwczesnego zużycia i obniżenia jakości wydruku. Podane wartości służą jako punkty odniesienia; zaleca się jednak zapoznanie się z zaleceniami producenta, aby uzyskać konkretne wytyczne dostosowane do modelu Twojej drukarki. Regulacje należy dokonywać w oparciu zarówno o te zalecane wartości, jak i indywidualne wymagania i warunki drukarki.
     beltType: 'Wybierz rodzaj paska:'
+    target: 'Cel: {} Hz na odcinku {} mm'
     permissionWarning:
       title: Wymagane uprawnienia dostępu do mikrofonu
+      subtitle: |-
+        Stroik pasków używa mikrofonu telefonu do analizy częstotliwości pasków.
+
+        Dotknij, aby udzielić uprawnienia.
   spoolman:
     title: Spoolman
     not_available: "Spoolman nie jest dostępny dla tej drukarki. \nUpewnij się, że Spoolman jest zainstalowany i włączony na Twojej drukarce."
@@ -922,6 +943,8 @@ dialogs:
     amount_label: Kwota wsparcia
     tip: Wsparcie
   macro_settings:
+    show_for_states: Stany drukowania
+    show_for_states_hint: Wybierz stany, w których makro ma być wyświetlane
     visible: Widoczny
   screws_tilt_adjust:
     hint: To okno dialogowe pomaga w regulacji śrub stołu. Dla każdej śruby wyświetlane są wymagane regulacje jako zegar w formacie GG:MM. Na przykład 01:15 oznacza pełny obrót plus ćwierć obrotu w kierunku wskazanym przez ikonę.
@@ -992,6 +1015,7 @@ bottom_sheets:
         url_label: Własny adres URL
   manage_macros_in_grp:
     title: Dodaj makro
+    hint: Wybierz makra do grupy {}
   signIn:
     forgot_password: Zapomniałeś hasła?
     forgot_password_success: Wysłano e-mail dotyczący resetowania hasła!
@@ -1019,6 +1043,7 @@ bottom_sheets:
     restore_success: Zakupy zostały pomyślnie przywrócone!
     delete_account: Usuń konto.
     email_verification:
+      description: Zweryfikuj swój adres e-mail, aby zapewnić sobie stały dostęp do swojego konta.
       send: Wyślij weryfikację
     delete_account_dialog:
       title: Usunąć konto?
@@ -1100,6 +1125,10 @@ theme_mode:
   light: Jasny
   dark: Ciemny
   system: System
+eta_data_source:
+  file: GCode
+  slicer: Slicer
+  filament: Filament
 notifications:
   channel_printer_grp: Drukarka {}
   channels:
