@@ -406,9 +406,7 @@ pages:
     notification:
       title: Powiadomienia
       progress_label: Powiadomienie o postępie drukowania
-      progress_helper: Interwał aktualizacji dla powiadomień o postępach drukowania
       state_label: Powiadomienie o stanie druku
-      state_helper: Wybierz stany, które wyzwalają powiadomienia podczas trwających wydruków
       no_permission_title: Brak uprawnień do powiadomień!
       no_permission_desc: |-
         Nie można wyświetlić powiadomień.
@@ -425,7 +423,6 @@ pages:
       opt_out_marketing_helper: Otrzymuj aktualizacje dotyczące wyprzedaży i promocji
       opt_out_marketing_error: Błąd podczas ładowania preferencji marketingowych, spróbuj ponownie później.
       use_progressbar_notification: Włącz powiadomienie z paskiem postępu
-      use_progressbar_notification_helper: Włącza użycie powiadomień z paskiem postępu zamiast domyślnych powiadomień tekstowych
     developer:
       title: Deweloper
       crashlytics: Włącz raportowanie Crashlytics
