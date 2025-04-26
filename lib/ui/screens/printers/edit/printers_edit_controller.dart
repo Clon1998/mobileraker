@@ -20,7 +20,6 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
-import 'package:common/service/notification_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -713,14 +712,14 @@ WebcamInfo _applyWebcamFieldsToWebcam(
   Map<String, dynamic> storedValues,
   WebcamInfo cam,
 ) {
-  var name = storedValues['${cam.uuid}-camName'];
-  String? streamUrl = storedValues['${cam.uuid}-streamUrl'];
-  String? snapshotUrl = storedValues['${cam.uuid}-snapshotUrl'];
-  var fH = storedValues['${cam.uuid}-camFH'];
-  var fV = storedValues['${cam.uuid}-camFV'];
-  var service = storedValues['${cam.uuid}-service'];
-  var rotation = storedValues['${cam.uuid}-rotate'];
-  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive) ? storedValues['${cam.uuid}-tFps'] : null;
+  var name = storedValues['${cam.uid}-camName'];
+  String? streamUrl = storedValues['${cam.uid}-streamUrl'];
+  String? snapshotUrl = storedValues['${cam.uid}-snapshotUrl'];
+  var fH = storedValues['${cam.uid}-camFH'];
+  var fV = storedValues['${cam.uid}-camFV'];
+  var service = storedValues['${cam.uid}-service'];
+  var rotation = storedValues['${cam.uid}-rotate'];
+  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive) ? storedValues['${cam.uid}-tFps'] : null;
 
   return cam.copyWith(
     name: name ?? cam.name,

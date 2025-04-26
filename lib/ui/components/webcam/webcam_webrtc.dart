@@ -76,7 +76,7 @@ class WebcamWebRtc extends ConsumerWidget {
     }
 
     return WebRtc(
-      key: ValueKey(webcamInfo.uuid + machine.uuid),
+      key: ValueKey(webcamInfo.uid + machine.uuid),
       camUri: webRtcUri,
       dio: dio,
       service: webcamInfo.service,

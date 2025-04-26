@@ -88,7 +88,7 @@ class WebcamMjpeg extends ConsumerWidget {
     }
 
     return Mjpeg(
-      key: ValueKey(webcamInfo.uuid + machine.uuid),
+      key: ValueKey(webcamInfo.uid + machine.uuid),
       dio: dio,
       imageBuilder: imageBuilder,
       config: configBuilder.build(),

@@ -34,15 +34,13 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   @override
   Future<void> addOrUpdate(WebcamInfo webcamInfo) async {
     try {
-      talker.info('Trying to update or add webcam with uuid:"${webcamInfo.uuid}".');
-      if (webcamInfo.uuid.isNotEmpty && webcamInfo.name != webcamInfo.uuid) {
-        await remove(webcamInfo.uuid);
-      }
+      talker.info('Trying to update or add webcam ${webcamInfo.name} with uuid:"${webcamInfo.uid}".');
+
+      talker.warning('I AM JSON : --- ${webcamInfo.toJson()}');
 
       await _rpcClient.sendJRpcMethod('server.webcams.post_item', params: webcamInfo.toJson());
     } on JRpcError catch (e) {
-      throw MobilerakerException('Unable to add or update webcam with uuid:${webcamInfo.uuid}',
-          parentException: e);
+      throw MobilerakerException('Unable to add or update webcam with uuid:${webcamInfo.uid}', parentException: e);
     }
   }
 
@@ -50,8 +48,7 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   Future<WebcamInfo> remove(String uuid) async {
     try {
       talker.info('Trying to delete webcam with uuid:"$uuid".');
-      RpcResponse rpcResponse =
-          await _rpcClient.sendJRpcMethod('server.webcams.delete_item', params: {'name': uuid});
+      RpcResponse rpcResponse = await _rpcClient.sendJRpcMethod('server.webcams.delete_item', params: {'uid': uuid});
 
       return WebcamInfo.fromJson(rpcResponse.result['webcam']);
     } on JRpcError catch (e) {
@@ -63,8 +60,7 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   Future<WebcamInfo> get(String uuid) async {
     try {
       talker.info('Trying to fetch webcam with uuid:"$uuid" from moonraker.');
-      var response =
-          await _rpcClient.sendJRpcMethod('server.webcams.get_item', params: {'name': uuid});
+      var response = await _rpcClient.sendJRpcMethod('server.webcams.get_item', params: {'uid': uuid});
       talker.info('Received webcam with uuid:"$uuid" from moonraker');
       return WebcamInfo.fromJson(response.result['webcam']!);
     } on JRpcError catch (e) {

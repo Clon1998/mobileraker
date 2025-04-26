@@ -95,7 +95,7 @@ class WebcamInfo with _$WebcamInfo {
     fieldRename: FieldRename.snake,
   )
   const factory WebcamInfo({
-    @JsonKey(includeToJson: false, readValue: _uuidReader) required String uuid,
+    @JsonKey(readValue: _uuidReader) required String uid,
     required String name,
     @JsonKey(unknownEnumValue: WebcamServiceType.unknown) required WebcamServiceType service,
     required Uri streamUrl,
@@ -116,7 +116,7 @@ class WebcamInfo with _$WebcamInfo {
 
   factory WebcamInfo.mjpegDefault() {
     return WebcamInfo(
-        uuid: '',
+        uid: '',
         name: 'Default',
         service: WebcamServiceType.mjpegStreamer,
         streamUrl: defaultStreamUri,

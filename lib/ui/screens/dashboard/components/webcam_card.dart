@@ -344,7 +344,7 @@ class _WebcamCardPreviewController extends _WebcamCardController {
   Future<_Model> build(String machineUUID) {
     final model = _Model(machine: Machine(name: 'Preview Machine', httpUri: Uri()), selected: 0, allCams: [
       WebcamInfo(
-        uuid: 'preview',
+        uid: 'preview',
         name: 'Preview Cam',
         service: WebcamServiceType.preview,
         streamUrl: Uri(),

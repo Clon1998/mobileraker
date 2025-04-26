@@ -98,7 +98,7 @@ class WebcamService {
       await _webcamInfoRepository.addOrUpdate(cam);
     } catch (e) {
       talker.error('Error while saving cam', e);
-      throw MobilerakerException('Unable to add/update webcam info for ${cam.uuid}', parentException: e);
+      throw MobilerakerException('Unable to add/update webcam info for ${cam.uid}', parentException: e);
     }
   }
 
@@ -114,9 +114,9 @@ class WebcamService {
   Future<WebcamInfo> deleteWebcamInfo(WebcamInfo cam) async {
     talker.info('DELETE Webcam "${cam.name}" request...');
     try {
-      return await _webcamInfoRepository.remove(cam.uuid);
+      return await _webcamInfoRepository.remove(cam.uid);
     } catch (e) {
-      throw MobilerakerException('Unable to delete webcam info for ${cam.uuid}', parentException: e);
+      throw MobilerakerException('Unable to delete webcam info for ${cam.uid}', parentException: e);
     }
   }
 }
