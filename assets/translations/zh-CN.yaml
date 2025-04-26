@@ -415,9 +415,7 @@ pages:
     notification:
       title: 消息通知
       progress_label: 打印进度通知
-      progress_helper: 打印进度通知的更新间隔
       state_label: 打印状态通知
-      state_helper: 选择在活动打印任务期间触发通知的状态
       no_permission_title: 没有通知权限！
       no_permission_desc: |-
         无权限的情况下无法显示通知。
@@ -435,12 +433,10 @@ pages:
         似乎没有安装配套软件，因此以下计算机无法发送通知：｛｝
         点击了解更多信息！
       enable_live_activity: 启用实时活动
-      enable_live_activity_helper: 除默认进度通知外，启用活动的使用
       opt_out_marketing: 营销通知
       opt_out_marketing_helper: 接收关于销售和促销的更新
       opt_out_marketing_error: 加载营销偏好设置时出错，请稍后重试。
       use_progressbar_notification: 开启进度条通知
-      use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
     developer:
       title: 开发者
       crashlytics: 启用崩溃报告
