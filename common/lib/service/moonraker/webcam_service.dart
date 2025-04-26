@@ -114,7 +114,7 @@ class WebcamService {
   Future<WebcamInfo> deleteWebcamInfo(WebcamInfo cam) async {
     talker.info('DELETE Webcam "${cam.name}" request...');
     try {
-      return await _webcamInfoRepository.remove(cam.uid);
+      return await _webcamInfoRepository.remove(cam.uid ?? cam.name);
     } catch (e) {
       throw MobilerakerException('Unable to delete webcam info for ${cam.uid}', parentException: e);
     }
