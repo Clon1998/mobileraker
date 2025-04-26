@@ -4,12 +4,21 @@
 
 ### Enhancements
 
-- **Logging-Framework**: Replaced the logging framework with a new one that is more reliable and provides better
-  performance. This change will allow us to better track and fix issues in the future.
+- **Integrated Notification Management**: You can now configure all companion notification settings directly within the
+  app! Navigate to Settings → Notifications to manage both global defaults and printer-specific notification
+  preferences. This eliminates the need to manually edit the `mobileraker.conf` file on your printer, making
+  notification setup more user-friendly while ensuring consistency across all your devices. Customize notification
+  thresholds, print states that trigger alerts, and even configure printer-specific overrides—all from one convenient
+  interface.
 
 - **Temperature Graph Legend**: It is now possible to exclude en entire sensor by tapping on its name instead of having
   to tap on each of them
   individually. This change will make it easier to read the graph and understand the data.
+
+### Code Improvements
+
+- **Logging-Framework**: Replaced the logging framework with a new one that is more reliable and provides better
+  performance. This change will allow us to better track and fix issues in the future.
 
 - **Webcam API**: Migrated from using the webcam's name to its UID for the API. This change will improve the
   reliability of the webcam API.
