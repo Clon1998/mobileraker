@@ -11,6 +11,9 @@
   to tap on each of them
   individually. This change will make it easier to read the graph and understand the data.
 
+- **Webcam API**: Migrated from using the webcam's name to its UID for the API. This change will improve the
+  reliability of the webcam API.
+
 ## [2.8.7] - 2025-03-05
 
 ### Bug Fixes
