@@ -167,7 +167,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   applyOffsetsToPostion('use_offset_pos'),
   themeMode('selectedThemeMode'),
   themePack('selectedThemePack'),
-  progressNotificationMode('selProgNotMode'),
+  progressNotificationMode('selProgNotMode', -1),
   statesTriggeringNotification('printStateNotifications',
       [PrintState.standby, PrintState.printing, PrintState.paused, PrintState.complete, PrintState.error]),
   fullscreenCamOrientation('lcFullCam'),

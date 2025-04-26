@@ -23,7 +23,6 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -105,7 +104,8 @@ class NotificationService {
   final ReceivePort _nativeTokenUpdatePort = ReceivePort();
 
   StreamSubscription<ModelEvent<Machine>>? _machineRepoUpdateListener;
-  final Map<String, ProviderSubscription> _fcmUpdateListeners = {};
+
+  ProviderSubscription? _marketingSubscription;
 
   final Completer<bool> _initialized = Completer<bool>();
 
@@ -123,7 +123,7 @@ class NotificationService {
       // ToDo: Add listener to token update to clear fcm.cfg!
       // ToDo: Implement local notification handling again!
       _initializeLocalMessageHandling(allMachines);
-      _initializeRemoteMessaging(licenseKeys, allMachines, hiddenMachines).ignore();
+      _initializeRemoteMessaging(licenseKeys, hiddenMachines).ignore();
 
       // await _liveActivityService.initialize();
       await _liveActivityServicev2.initialize();
@@ -160,7 +160,6 @@ class NotificationService {
     // for (var channels in channelsOfmachines) {
     //   _notifyAPI.setChannel(channels);
     // }
-    _setupMachineFcmUpdater(machine);
     _registerLocalMessageHandlingForMachine(machine);
     talker.info('Added stream-listener for ${machine.logName}');
   }
@@ -171,7 +170,6 @@ class NotificationService {
       channel.channelKey?.let(_notifyAPI.removeChannel);
     }
 
-    _fcmUpdateListeners.remove(uuid)?.close();
     talker.info('Removed notifications channels and stream-listener for UUID=$uuid');
   }
 
@@ -270,8 +268,7 @@ class NotificationService {
     talker.info('Successfully initialized AwesomeNotifications and created channels and groups!');
   }
 
-  Future<void> _initializeRemoteMessaging(
-      List<String> licenseKeys, List<Machine> allMachines, List<Machine> hiddenMachines) async {
+  Future<void> _initializeRemoteMessaging(List<String> licenseKeys, List<Machine> hiddenMachines) async {
     talker.info('Initializing remote messaging');
     hiddenMachines.forEach(_wipeFCMOnPrinterOnceConnected);
     if (await isFirebaseAvailable()) {
@@ -282,7 +279,6 @@ class NotificationService {
         onNativeTokenHandle: _awesomeNotificationNativeTokenHandler,
         licenseKeys: licenseKeys,
       );
-      allMachines.forEach(_setupMachineFcmUpdater);
     }
   }
 
@@ -325,7 +321,7 @@ class NotificationService {
     talker.info('Received payload from notification port: $payload');
 
     if (payload?.containsKey('printerId') == true) {
-      var machine = await _machineService.fetch(payload!['printerId']!);
+      var machine = await _machineService.fetchMachine(payload!['printerId']!);
       if (machine != null) {
         await _ref.read(selectedMachineServiceProvider).selectMachine(machine);
         talker.info(
@@ -450,7 +446,7 @@ class NotificationService {
     // Legacy topic
     _notifyFCM.unsubscribeToTopic(_marketingTopic).ignore();
 
-    _fcmUpdateListeners[_marketingTopic]?.close();
+    _marketingSubscription?.close();
 
     final regionTimezone = DateTime.now().regionTimezone;
     final topic = '$_marketingTopic.${regionTimezone.name}';
@@ -478,28 +474,9 @@ class NotificationService {
       fireImmediately: true,
     );
 
-    _fcmUpdateListeners[_marketingTopic] = sub;
+    _marketingSubscription = sub;
   }
 
-  void _setupMachineFcmUpdater(Machine machine) {
-    talker.info('Setting up FCM updater for ${machine.logNameExtended}');
-
-    var subscription =
-        _ref.listen(klipperProvider(machine.uuid).selectAs((data) => data.klippyState), (previous, next) async {
-      if (next.valueOrFullNull == KlipperState.ready) {
-        var fcmToken = await _notifyFCM.requestFirebaseAppToken();
-        try {
-          talker.info('Updating FCM settings on ${machine.logNameExtended}');
-          await _machineService.updateMachineFcmSettings(machine, fcmToken);
-        } catch (e, s) {
-          talker.warning('Could not updateMachineFcmSettings on ${machine.logNameExtended}', e, s);
-        }
-      }
-    });
-
-    _fcmUpdateListeners.remove(machine.uuid)?.close();
-    _fcmUpdateListeners[machine.uuid] = subscription;
-  }
 
   Future<void> _wipeFCMOnPrinterOnceConnected(Machine machine) async {
     talker.info('Wiping FCM data on ${machine.logNameExtended}');

@@ -12,6 +12,7 @@
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
@@ -54,6 +55,12 @@ class DevPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
+
+    if (selMachine == null) {
+      return const Center(child: Text('No machine selected'));
+    }
+
+    final jrpc = ref.watch(jrpcClientSelectedProvider);
 
     Widget body = ListView(
       children: [
@@ -109,6 +116,17 @@ class DevPage extends HookConsumerWidget {
         //   value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
         //   data: (data) => getMeshChart(data),
         // ),
+
+        ElevatedButton(
+            onPressed: () {
+              jrpc.addMethodListener(bla, 'notify_status_update');
+            },
+            child: Text('Add JRPC-Listener')),
+        ElevatedButton(
+            onPressed: () {
+              jrpc.removeMethodListener(bla, 'notify_status_update');
+            },
+            child: Text('Remove JRPC-Listener')),
       ],
     );
 
@@ -124,6 +142,10 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: body,
     );
+  }
+
+  void bla(ff) {
+    talker.info('Got JRPC on: $ff');
   }
 
   Package anualDummy() {

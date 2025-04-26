@@ -16,6 +16,7 @@ import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/device_fcm_settings_service.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
@@ -75,7 +76,7 @@ Future<MachineSettings> machineRemoteSettings(Ref ref) {
   WebcamListController
 ])
 class PrinterEditController extends _$PrinterEditController {
-  MachineService get _machineService => ref.read(machineServiceProvider);
+  DeviceFcmSettingsService get _deviceFcmService => ref.read(deviceFcmSettingsServiceProvider);
 
   SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
@@ -304,9 +305,8 @@ class PrinterEditController extends _$PrinterEditController {
     try {
       if (dialogResponse?.confirmed ?? false) {
         state = true;
-        _machineService.resetFcmTokens(_machine);
-        var fcmToken = await ref.read(fcmTokenProvider.future);
-        await _machineService.updateMachineFcmSettings(_machine, fcmToken);
+        await _deviceFcmService.clearAllDeviceFcm(_machine);
+        await _deviceFcmService.syncDeviceFcmToMachine(_machine);
       }
     } catch (e) {
       talker.warning(

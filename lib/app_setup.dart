@@ -30,6 +30,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/notification_service.dart';
+import 'package:common/service/device_fcm_settings_sync_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -339,6 +340,9 @@ class Warmup extends _$Warmup {
     yield StartUpStep.notificationService;
     await ref.read(notificationServiceProvider).initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
 
+    yield StartUpStep.initMachineSync;
+    ref.read(deviceFcmSettingsSyncServiceProvider).initialize();
+
     yield StartUpStep.consentService;
     ref.read(consentServiceProvider);
 
@@ -359,6 +363,7 @@ enum StartUpStep {
   goRouter('🗺'),
   initMachines('⚙️'),
   notificationService('📢'),
+  initMachineSync('🔄'),
   consentService('⚖️'),
   complete('🌟');
 

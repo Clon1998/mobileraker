@@ -4,23 +4,16 @@
  */
 import 'dart:io';
 
-import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/data/enums/consent_entry_type.dart';
-import 'package:common/data/enums/consent_status.dart';
 import 'package:common/data/enums/eta_data_source.dart';
-import 'package:common/data/model/hive/progress_notification_mode.dart';
-import 'package:common/service/consent_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/theme_service.dart';
-import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -33,12 +26,14 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
+import 'package:mobileraker/ui/screens/setting/components/notification_permission_warning.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/ads/ui/data_and_privacy_text_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../routing/app_router.dart';
+import 'components/section_header.dart';
 
 class SettingPage extends ConsumerWidget {
   const SettingPage({super.key});
@@ -105,7 +100,7 @@ class _GeneralSection extends ConsumerWidget {
 
     return Column(
       children: [
-        _SectionHeader(title: 'pages.setting.general.title'.tr()),
+        SectionHeader(title: 'pages.setting.general.title'.tr()),
         const _LanguageSelector(),
         const _TimeFormatSelector(),
         FormBuilderSwitch(
@@ -232,7 +227,7 @@ class _UiSection extends ConsumerWidget {
 
     return Column(
       children: [
-        const _SectionHeader(title: 'UI'),
+        const SectionHeader(title: 'UI'),
         const _ThemeSelector(),
         const _ThemeModeSelector(),
         if (context.canBecomeLargerThanCompact) const _ToggleMediumUI(),
@@ -329,41 +324,16 @@ class _NotificationSection extends ConsumerWidget {
 
     return Column(
       children: [
-        _SectionHeader(title: 'pages.setting.notification.title'.tr()),
-        const _CompanionMissingWarning(),
-        const _NotificationPermissionWarning(),
-        const _NotificationFirebaseWarning(),
-        if (Platform.isIOS)
-          FormBuilderSwitch(
-            name: 'liveActivity',
-            title: const Text('pages.setting.notification.enable_live_activity').tr(),
-            subtitle: const Text('pages.setting.notification.enable_live_activity_helper').tr(),
-            onChanged: (b) => settingService.writeBool(
-              AppSettingKeys.useLiveActivity,
-              b ?? false,
-            ),
-            initialValue: ref.read(boolSettingProvider(AppSettingKeys.useLiveActivity, true)),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              isCollapsed: true,
-            ),
-          ),
-        if (Platform.isAndroid)
-          FormBuilderSwitch(
-            name: 'progressbarNoti',
-            title: const Text('pages.setting.notification.use_progressbar_notification').tr(),
-            subtitle: const Text('pages.setting.notification.use_progressbar_notification_helper').tr(),
-            onChanged: (b) =>
-                ref.read(notificationProgressSettingControllerProvider.notifier).onProgressbarChanged(b ?? false),
-            initialValue: ref.read(boolSettingProvider(AppSettingKeys.useProgressbarNotifications, true)),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              isCollapsed: true,
-            ),
-          ),
-        const _ProgressNotificationSettingField(),
-        const _StateNotificationSettingField(),
-        const _AdPushNotificationsSetting(),
+        SectionHeader(title: 'pages.setting.notification.title'.tr()),
+        const NotificationPermissionWarning(),
+        ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          title: Text('pages.setting.notification.global').tr(),
+          subtitle: Text('pages.setting.notification.global_helper').tr(),
+          trailing: Icon(Icons.keyboard_arrow_right),
+          onTap: () => context.goNamed(AppRoute.settings_notification.name),
+        ),
         const Divider(),
         RichText(
           text: TextSpan(
@@ -399,7 +369,7 @@ class _DeveloperSection extends ConsumerWidget {
     var themeData = Theme.of(context);
     return Column(
       children: [
-        _SectionHeader(title: tr('pages.setting.developer.title')),
+        SectionHeader(title: tr('pages.setting.developer.title')),
         FormBuilderSwitch(
           name: 'crashalytics',
           title: const Text('pages.setting.developer.crashlytics').tr(),
@@ -523,26 +493,7 @@ class _Footer extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
 
-  const _SectionHeader({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
-          fontSize: 12.0,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
 
 const Map<String, String> languageToCountry = {
   'af': 'ZA',
@@ -758,266 +709,5 @@ class _ToggleMediumUI extends ConsumerWidget {
   }
 }
 
-class _ProgressNotificationSettingField extends ConsumerWidget {
-  const _ProgressNotificationSettingField({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var progressSettings = ref.watch(notificationProgressSettingControllerProvider);
 
-    return FormBuilderDropdown<ProgressNotificationMode>(
-      initialValue: progressSettings,
-      name: 'progressNotifyMode',
-      items: ProgressNotificationMode.values
-          .map((mode) => DropdownMenuItem(
-                value: mode,
-                child: Text(mode.progressNotificationModeStr()),
-              ))
-          .toList(),
-      onChanged: (v) => ref
-          .read(notificationProgressSettingControllerProvider.notifier)
-          .onProgressChanged(v ?? ProgressNotificationMode.TWENTY_FIVE),
-      decoration: InputDecoration(
-        labelStyle: Theme.of(context).textTheme.labelLarge,
-        labelText: 'pages.setting.notification.progress_label'.tr(),
-        helperText: 'pages.setting.notification.progress_helper'.tr(),
-      ),
-    );
-  }
-}
-
-class _StateNotificationSettingField extends ConsumerWidget {
-  const _StateNotificationSettingField({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var stateSettings = ref.watch(notificationStateSettingControllerProvider);
-
-    var themeData = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: FormBuilderField<Set<PrintState>>(
-        name: 'notificationStates',
-        initialValue: stateSettings,
-        onChanged: (values) {
-          if (values == null) return;
-          ref.read(notificationStateSettingControllerProvider.notifier).onStatesChanged(values);
-        },
-        builder: (FormFieldState<Set<PrintState>> field) {
-          Set<PrintState> value = field.value ?? {};
-
-          return InputDecorator(
-            decoration: InputDecoration(
-              labelText: 'pages.setting.notification.state_label'.tr(),
-              labelStyle: themeData.textTheme.labelLarge,
-              helperText: 'pages.setting.notification.state_helper'.tr(),
-            ),
-            child: Wrap(
-              alignment: WrapAlignment.spaceEvenly,
-              children: PrintState.values.map((e) {
-                var selected = value.contains(e);
-                return FilterChip(
-                  avatar: AnimatedCrossFade(
-                    firstChild: Icon(Icons.circle_notifications, color: themeData.colorScheme.primary),
-                    secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
-                    crossFadeState: selected ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                    duration: kThemeAnimationDuration,
-                    firstCurve: Curves.easeInOutCirc,
-                    secondCurve: Curves.easeInOutCirc,
-                  ),
-                  showCheckmark: false,
-                  selected: selected,
-                  elevation: 2,
-                  label: Text(e.displayName),
-                  onSelected: (bool s) {
-                    if (s) {
-                      field.didChange({...value, e});
-                    } else {
-                      var set = value.toSet();
-                      set.remove(e);
-                      field.didChange(set);
-                    }
-                  },
-                );
-              }).toList(growable: false),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _NotificationPermissionWarning extends ConsumerWidget {
-  const _NotificationPermissionWarning({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
-    return Material(
-      type: MaterialType.transparency,
-      child: AnimatedSwitcher(
-        transitionBuilder: (child, anim) => SizeTransition(
-          sizeFactor: anim,
-          child: FadeTransition(opacity: anim, child: child),
-        ),
-        duration: kThemeAnimationDuration,
-        child: (ref.watch(notificationPermissionControllerProvider))
-            ? const SizedBox.shrink()
-            : Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: ListTile(
-                  tileColor: themeData.colorScheme.errorContainer,
-                  textColor: themeData.colorScheme.onErrorContainer,
-                  iconColor: themeData.colorScheme.onErrorContainer,
-                  onTap: ref.watch(notificationPermissionControllerProvider.notifier).requestPermission,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                  ),
-                  leading: const Icon(
-                    Icons.notifications_off_outlined,
-                    size: 40,
-                  ),
-                  title: const Text(
-                    'pages.setting.notification.no_permission_title',
-                  ).tr(),
-                  subtitle: const Text(
-                    'pages.setting.notification.no_permission_desc',
-                  ).tr(),
-                ),
-              ),
-      ),
-    );
-  }
-}
-
-class _NotificationFirebaseWarning extends ConsumerWidget {
-  const _NotificationFirebaseWarning({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
-
-    return Material(
-      type: MaterialType.transparency,
-      child: AnimatedSwitcher(
-        transitionBuilder: (child, anim) => SizeTransition(
-          sizeFactor: anim,
-          child: FadeTransition(opacity: anim, child: child),
-        ),
-        duration: kThemeAnimationDuration,
-        child: (ref.watch(notificationFirebaseAvailableProvider))
-            ? const SizedBox.shrink()
-            : Padding(
-                key: UniqueKey(),
-                padding: const EdgeInsets.only(top: 16),
-                child: ListTile(
-                  tileColor: themeData.colorScheme.errorContainer,
-                  textColor: themeData.colorScheme.onErrorContainer,
-                  iconColor: themeData.colorScheme.onErrorContainer,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                  ),
-                  leading: const Icon(
-                    FlutterIcons.notifications_paused_mdi,
-                    size: 40,
-                  ),
-                  title: const Text(
-                    'pages.setting.notification.no_firebase_title',
-                  ).tr(),
-                  subtitle: const Text('pages.setting.notification.no_firebase_desc').tr(),
-                ),
-              ),
-      ),
-    );
-  }
-}
-
-class _CompanionMissingWarning extends ConsumerWidget {
-  const _CompanionMissingWarning({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var machinesWithoutCompanion = ref.watch(machinesWithoutCompanionProvider);
-
-    var machineNames = (machinesWithoutCompanion.valueOrFullNull ?? []).map((e) => e.name);
-
-    var themeData = Theme.of(context);
-    return Material(
-      type: MaterialType.transparency,
-      child: AnimatedSwitcher(
-        transitionBuilder: (child, anim) => SizeTransition(
-          sizeFactor: anim,
-          child: FadeTransition(opacity: anim, child: child),
-        ),
-        duration: kThemeAnimationDuration,
-        child: (machineNames.isEmpty)
-            ? const SizedBox.shrink()
-            : Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: ListTile(
-                  onTap: ref.read(settingPageControllerProvider.notifier).openCompanion,
-                  tileColor: themeData.colorScheme.errorContainer,
-                  textColor: themeData.colorScheme.onErrorContainer,
-                  iconColor: themeData.colorScheme.onErrorContainer,
-                  // onTap: ref
-                  //     .watch(notificationPermissionControllerProvider.notifier)
-                  //     .requestPermission,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                  ),
-                  leading: const Icon(FlutterIcons.uninstall_ent, size: 40),
-                  title: const Text(
-                    'pages.setting.notification.missing_companion_title',
-                  ).tr(),
-                  subtitle: const Text(
-                    'pages.setting.notification.missing_companion_body',
-                  ).tr(args: [machineNames.join(', ')]),
-                ),
-              ),
-      ),
-    );
-  }
-}
-
-class _AdPushNotificationsSetting extends HookConsumerWidget {
-  const _AdPushNotificationsSetting({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final consentService = ref.watch(consentServiceProvider);
-
-    var consentState = ref.watch(consentEntryProvider(ConsentEntryType.marketingNotifications));
-
-    final value = consentState.hasValue && consentState.value!.status == ConsentStatus.GRANTED;
-
-    final enabled = consentState.hasValue && !consentState.hasError;
-    // logger.wtf('ConsentState: $consentState, Value: $value, Enabled: $enabled');
-
-    return InputDecorator(
-      decoration: InputDecoration(
-        border: InputBorder.none,
-        isCollapsed: true,
-        errorText: tr('pages.setting.notification.opt_out_marketing_error').only(consentState.hasError),
-      ),
-      child: ListTile(
-        dense: true,
-        isThreeLine: false,
-        enabled: enabled,
-        contentPadding: EdgeInsets.zero,
-        title: Text(ConsentEntryType.marketingNotifications.title).tr(),
-        subtitle: Text(ConsentEntryType.marketingNotifications.shortDescription).tr(),
-        trailing: AsyncSwitch(
-          value: value,
-          onChanged: (b) {
-            return consentService.updateConsentEntry(
-              ConsentEntryType.marketingNotifications,
-              b ? ConsentStatus.GRANTED : ConsentStatus.DENIED,
-            );
-          }.only(enabled),
-        ),
-      ),
-    );
-  }
-}

@@ -7,12 +7,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/dto/server/klipper.dart';
-import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/model_event.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
@@ -20,7 +17,6 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -28,20 +24,15 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
 import '../data/dto/machine/gcode_macro.dart';
-import '../data/model/moonraker_db/fcm/device_fcm_settings.dart';
-import '../data/model/moonraker_db/fcm/notification_settings.dart';
 import '../data/model/moonraker_db/settings/gcode_macro.dart';
 import '../data/model/moonraker_db/settings/machine_settings.dart';
 import '../data/model/moonraker_db/settings/macro_group.dart';
-import '../data/repository/fcm/device_fcm_settings_repository.dart';
 import '../data/repository/fcm/device_fcm_settings_repository_impl.dart';
-import '../data/repository/fcm/notification_settings_repository_impl.dart';
 import '../data/repository/machine_hive_repository.dart';
 import '../data/repository/machine_settings_moonraker_repository.dart';
 import '../data/repository/machine_settings_repository.dart';
@@ -49,7 +40,6 @@ import '../network/jrpc_client_provider.dart';
 import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
 import 'firebase/remote_config.dart';
-import 'misc_providers.dart';
 import 'moonraker/klippy_service.dart';
 import 'moonraker/printer_service.dart';
 import 'octoeverywhere/app_connection_service.dart';
@@ -88,8 +78,7 @@ class AllMachines extends _$AllMachines {
     talker.info('Received fetchAll');
 
     var settingService = ref.watch(settingServiceProvider);
-    // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
-    var machines = await ref.read(machineServiceProvider).fetchAll();
+    var machines = await ref.watch(machineRepositoryProvider).fetchAll();
     final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
 
     talker.info('Received ordering $ordering');
@@ -144,11 +133,28 @@ class HiddenMachines extends _$HiddenMachines {
 
     var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
     // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
-    var actualStoredMachines = await ref.read(machineServiceProvider).fetchAll();
+    var actualStoredMachines = await ref.read(machineServiceProvider).fetchAllMachines();
     var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));
 
     return hiddenMachines.toList(growable: false);
   }
+}
+
+@riverpod
+Future<List<Machine>> machinesWithoutCompanion(Ref ref) async {
+  final machineService = ref.watch(machineServiceProvider);
+  final allMachines = await ref.watch(allMachinesProvider.future);
+
+  List<Machine> noCompanion = [];
+  for (var machine in allMachines) {
+    try {
+      var meta = await machineService.fetchCompanionMetaData(machine);
+      if (meta == null) noCompanion.add(machine);
+    } catch (e) {
+      talker.warning('Error while trying to fetch CompanionMeta for machine ${machine.logName}', e);
+    }
+  }
+  return noCompanion;
 }
 
 @riverpod
@@ -227,37 +233,6 @@ class MachineService {
     return;
   }
 
-  Future<MachineSettings> fetchSettings({Machine? machine, String? machineUUID}) async {
-    assert(machine != null || machineUUID != null, 'Either machine or machineUUID must be provided!');
-    // await _tryMigrateSettings(machine);
-    MachineSettings? machineSettings;
-    try {
-      machineSettings = await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get();
-    } on JRpcError catch (e) {
-      talker.error('Error while fetching settings for ${machine?.logName ?? machineUUID}', e);
-      // check if error message is like 'Key 'settingss' in namespace 'mobileraker' not found'
-      if (e.message !=
-          'Key \'${MachineSettingsRepository.key}\' in namespace \'${MachineSettingsRepository.namespace}\' not found') {
-        rethrow;
-      }
-    }
-
-    if (machineSettings == null) {
-      talker.info(
-          'No settings found for ${machine?.logName ?? machineUUID}, falling back to default and writing it to database!');
-      machineSettings = MachineSettings.fallback();
-      ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).update(machineSettings);
-    } else {
-      talker.info('Fetched settings for ${machine?.logName ?? machineUUID}: $machineSettings');
-    }
-
-    return machineSettings;
-  }
-
-  Future<void> updateSettings(Machine machine, MachineSettings machineSettings) {
-    return ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
-  }
-
   Future<Machine> addMachine(Machine machine) async {
     talker.info('Trying to inser machine ${machine.logName}');
     await _machineRepo.insert(machine);
@@ -333,174 +308,47 @@ class MachineService {
     talker.info('Removed machine ${machine.uuid}');
   }
 
-  Future<Machine?> fetch(String uuid) {
+  Future<Machine?> fetchMachine(String uuid) {
     return _machineRepo.get(uuid: uuid);
   }
 
-  Future<List<Machine>> fetchAll() {
+  Future<List<Machine>> fetchAllMachines() {
     return _machineRepo.fetchAll();
   }
 
-  Future<int> count() {
+  Future<int> countMachines() {
     return _machineRepo.count();
   }
 
-  Future<void> updateMachineFcmSettings(Machine machine, String deviceFcmToken) async {
-    /*
-
-    "key": "fcm",
-    "value": {
-        "<machineId>": {
-            "fcmToken":"<FCM-TOKEN>",
-            "machineName": "V2.1111",
-            "language": "en",
-            "version": "0.9.9-android", // or -ios
-            "settings": {
-              "progressConfig": 0.25,
-              "stateConfig": ["error","printing","paused"]
-            },
-            "apns:{
-              "liveActivity": "........"
-            }
-        }
-    }
-
-     */
-    // Use this as a workaround to keep the repo active until method is done!
-    var providerSubscription = ref.keepAliveExternally(deviceFcmSettingsRepositoryProvider(machine.uuid));
+  Future<MachineSettings> fetchSettings({Machine? machine, String? machineUUID}) async {
+    assert(machine != null || machineUUID != null, 'Either machine or machineUUID must be provided!');
+    // await _tryMigrateSettings(machine);
+    MachineSettings? machineSettings;
     try {
-      talker.info('${machine.logTagExtended} Trying to update DeviceFcmSettings');
-      DeviceFcmSettingsRepository fcmRepo = ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid));
-
-      // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
-      var allDeviceSettings = await fcmRepo.all();
-      var allMachineUUIDs = (await fetchAll()).map((e) => e.uuid);
-      // Filter all entries out that dont have the same FCMTOKEN
-      // AND Remove all entries where a machine exist for
-      allDeviceSettings.removeWhere((key, value) => value.fcmToken != deviceFcmToken || allMachineUUIDs.contains(key));
-
-      // Clear all of the DeviceFcmSettings that are left
-      for (String uuid in allDeviceSettings.keys) {
-        talker.warning(
-            '${machine.logTagExtended} Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore');
-        fcmRepo.delete(uuid);
+      machineSettings = await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get();
+    } on JRpcError catch (e) {
+      talker.error('Error while fetching settings for ${machine?.logName ?? machineUUID}', e);
+      // check if error message is like 'Key 'settingss' in namespace 'mobileraker' not found'
+      if (e.message !=
+          'Key \'${MachineSettingsRepository.key}\' in namespace \'${MachineSettingsRepository.namespace}\' not found') {
+        rethrow;
       }
-
-      DeviceFcmSettings? fcmSettings = await fcmRepo.get(machine.uuid);
-
-      int progressModeInt = _settingService.readInt(AppSettingKeys.progressNotificationMode, -1);
-      var progressMode = (progressModeInt < 0)
-          ? ProgressNotificationMode.TWENTY_FIVE
-          : ProgressNotificationMode.values[progressModeInt];
-
-      final states = _settingService
-          .readList<PrintState>(AppSettingKeys.statesTriggeringNotification, elementDecoder: PrintState.fromJson)
-          .toSet();
-      final etaSources = _settingService
-          .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
-          .toSet();
-
-      String? version;
-      try {
-        var packageInfo = await ref.watch(versionInfoProvider.future);
-
-        version = '${packageInfo.version}-${Platform.operatingSystem}';
-      } catch (e) {
-        talker.warning('Was unable to fetch version info', e);
-      }
-
-      final language = ref.read(activeLocaleProvider).toString();
-      final timeFormat = ref.read(boolSettingProvider(AppSettingKeys.timeFormat)) ? '12h' : '24h';
-
-      if (fcmSettings == null) {
-        var settings = NotificationSettings.fallback()
-            .copyWith(progress: progressMode.value, states: states, etaSources: etaSources);
-        fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version, settings);
-        talker.info(
-            '${machine.logTagExtended} Did not find DeviceFcmSettings in MoonrakerDB, trying to add it: $fcmSettings');
-        await fcmRepo.update(machine.uuid, fcmSettings);
-        talker.info('${machine.logTagExtended} Successfully added DeviceFcmSettings');
-
-        //TODO: IS this per field comparison required? Can we not just compare the whole object? -> APNs must be ignored
-      } else if (fcmSettings.machineName != machine.name ||
-          fcmSettings.fcmToken != deviceFcmToken ||
-          fcmSettings.settings.progress != progressMode.value ||
-          !setEquals(fcmSettings.settings.states, states) ||
-          !setEquals(fcmSettings.settings.etaSources, etaSources) ||
-          fcmSettings.version != version ||
-          fcmSettings.language != language ||
-          fcmSettings.timeFormat != timeFormat) {
-        final updatedNotiSettings = fcmSettings.settings.copyWith(
-          progress: progressMode.value,
-          states: states,
-          etaSources: etaSources,
-        );
-        final updatedFcmSettings = fcmSettings.copyWith(
-          version: version,
-          language: language,
-          timeFormat: timeFormat,
-          machineName: machine.name,
-          fcmToken: deviceFcmToken,
-          settings: updatedNotiSettings,
-        );
-
-        talker.info('${machine.logTagExtended} Trying to update DeviceFcmSettings');
-        await fcmRepo.update(machine.uuid, updatedFcmSettings);
-        talker.info('${machine.logTagExtended} Successfully updated DeviceFcmSettings');
-        fcmSettings = updatedFcmSettings;
-      } else {
-        talker.info('${machine.logTagExtended} DeviceFcmSettings is in sync!');
-      }
-      talker.info('${machine.logTagExtended} Latest DeviceFcmSettings is: $fcmSettings');
-    } finally {
-      providerSubscription.close();
     }
+
+    if (machineSettings == null) {
+      talker.info(
+          'No settings found for ${machine?.logName ?? machineUUID}, falling back to default and writing it to database!');
+      machineSettings = MachineSettings.fallback();
+      ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).update(machineSettings);
+    } else {
+      talker.info('Fetched settings for ${machine?.logName ?? machineUUID}: $machineSettings');
+    }
+
+    return machineSettings;
   }
 
-  Future<void> updateMachineFcmNotificationConfig({
-    required Machine machine,
-    ProgressNotificationMode? mode,
-    Set<PrintState>? printStates,
-    bool? progressbar,
-    List<ETADataSource>? etaSources,
-  }) async {
-    var keepAliveExternally = ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
-    try {
-      var notificationSettingsRepository = keepAliveExternally.read();
-
-      talker.info('Updating FCM Config for machine ${machine.logName}');
-
-      var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
-          (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
-      if (connectionResult != ClientState.connected) {
-        talker.warning(
-            '${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
-        return;
-      }
-
-      List<Future> updateReq = [];
-      if (mode != null) {
-        var future = notificationSettingsRepository.updateProgressSettings(machine.uuid, mode.value);
-        updateReq.add(future);
-      }
-      if (printStates != null) {
-        var future = notificationSettingsRepository.updateStateSettings(machine.uuid, printStates);
-        updateReq.add(future);
-      }
-      if (progressbar != null) {
-        var future = notificationSettingsRepository.updateAndroidProgressbarSettings(machine.uuid, progressbar);
-        updateReq.add(future);
-      }
-      if (etaSources != null) {
-        var future = notificationSettingsRepository.updateEtaSourcesSettings(machine.uuid, etaSources);
-        updateReq.add(future);
-      }
-
-      if (updateReq.isNotEmpty) await Future.wait(updateReq);
-      talker.info('${machine.logTagExtended} Propagated new notification settings');
-    } finally {
-      keepAliveExternally.close();
-    }
+  Future<void> updateSettings(Machine machine, MachineSettings machineSettings) {
+    return ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
   }
 
   Future<void> updateMachineFcmLiveActivity({
@@ -572,15 +420,6 @@ class MachineService {
     }
   }
 
-  /// Removes all stored fcm tokens+configs from the machines moonraker database
-  Future<void> resetFcmTokens(Machine machine) async {
-    try {
-      await ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid)).deleteAll();
-    } catch (e) {
-      talker.warning('Was unable to reset/deletaAll FCM settings from machine', e);
-    }
-  }
-
   Future<CompanionMetaData?> fetchCompanionMetaData(Machine machine) async {
     var machineUUID = machine.uuid;
 
@@ -602,19 +441,6 @@ class MachineService {
     return CompanionMetaData.fromJson(databaseItem);
   }
 
-  Future<List<Machine>> fetchMachinesWithoutCompanion() async {
-    List<Machine> allMachines = await fetchAll();
-    List<Machine> noCompanion = [];
-    for (var machine in allMachines) {
-      try {
-        var meta = await fetchCompanionMetaData(machine);
-        if (meta == null) noCompanion.add(machine);
-      } catch (e) {
-        talker.warning('Error while trying to fetch CompanionMeta for machine ${machine.logName}', e);
-      }
-    }
-    return noCompanion;
-  }
 
   /// Fetches the settings for a machine and adjusts the default macros.
   ///

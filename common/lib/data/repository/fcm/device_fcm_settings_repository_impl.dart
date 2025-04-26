@@ -8,6 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../network/moonraker_database_client.dart';
+import '../../../service/misc_providers.dart';
 import '../../model/moonraker_db/fcm/device_fcm_settings.dart';
 import '../fcm/device_fcm_settings_repository.dart';
 
@@ -15,12 +16,22 @@ part 'device_fcm_settings_repository_impl.g.dart';
 
 @riverpod
 DeviceFcmSettingsRepository deviceFcmSettingsRepository(Ref ref, String machineUUID) {
-  return DeviceFcmSettingsRepositoryImpl(ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
+  return DeviceFcmSettingsRepositoryImpl(ref, ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
+}
+
+@riverpod
+Future<DeviceFcmSettings?> deviceFcmSettings(Ref ref, String machineUUID) async {
+  final repo = ref.watch(deviceFcmSettingsRepositoryProvider(machineUUID));
+
+  ref.watch(signalingHelperProvider('deviceFcm$machineUUID'));
+
+  return (await repo.get(machineUUID));
 }
 
 class DeviceFcmSettingsRepositoryImpl extends DeviceFcmSettingsRepository {
-  DeviceFcmSettingsRepositoryImpl(this._databaseService);
+  DeviceFcmSettingsRepositoryImpl(this.ref, this._databaseService);
 
+  final Ref ref;
   final MoonrakerDatabaseClient _databaseService;
 
   @override
@@ -49,6 +60,7 @@ class DeviceFcmSettingsRepositoryImpl extends DeviceFcmSettingsRepository {
   Future<void> update(String machineId, DeviceFcmSettings fcmSettings) async {
     await _databaseService.addDatabaseItem(
         'mobileraker', 'fcm.$machineId', fcmSettings.copyWith(lastModified: DateTime.now()));
+    ref.invalidate(signalingHelperProvider('deviceFcm$machineId'));
   }
 
   @override

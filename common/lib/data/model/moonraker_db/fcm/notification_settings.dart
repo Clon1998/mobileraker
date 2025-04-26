@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../dto/machine/print_state_enum.dart';
@@ -26,6 +27,7 @@ part 'notification_settings.g.dart';
 class NotificationSettings with _$NotificationSettings {
   const NotificationSettings._();
 
+  @JsonSerializable(explicitToJson: true)
   const factory NotificationSettings({
     DateTime? created,
     DateTime? lastModified,
@@ -46,14 +48,60 @@ class NotificationSettings with _$NotificationSettings {
     @Default({}) Set<String> excludeFilamentSensors,
   }) = _NotificationSettings;
 
-  factory NotificationSettings.fallback() => NotificationSettings(
-        created: DateTime.now(),
-        lastModified: DateTime.now(),
-        progress: 0.25,
-        states: {PrintState.error, PrintState.printing, PrintState.paused},
-        androidProgressbar: true,
-        etaSources: {ETADataSource.filament, ETADataSource.slicer},
-      );
+  factory NotificationSettings.fallback() {
+    final now = DateTime.now();
+    return NotificationSettings(
+      created: now,
+      lastModified: now,
+      progress: ProgressNotificationMode.TWENTY_FIVE.value,
+      states: {PrintState.error, PrintState.printing, PrintState.paused},
+      androidProgressbar: true,
+      etaSources: {ETADataSource.filament, ETADataSource.slicer},
+    );
+  }
 
   factory NotificationSettings.fromJson(Map<String, dynamic> json) => _$NotificationSettingsFromJson(json);
+
+  Map<String, dynamic> delta(NotificationSettings other) {
+    // Delta ignores:
+    // - created
+    // - lastModified
+    // - inheritGlobalSettings
+    // - snapshotWebcam
+    // - excludeFilamentSensors
+
+    final Map<String, dynamic> delta = {};
+
+    if (progress != other.progress) {
+      delta['progress'] = other.progress;
+    }
+
+    if (!DeepCollectionEquality.unordered().equals(states, other.states)) {
+      delta['states'] = other.states;
+    }
+
+    if (!DeepCollectionEquality.unordered().equals(etaSources, other.etaSources)) {
+      delta['etaSources'] = other.etaSources;
+    }
+
+    if (androidProgressbar != other.androidProgressbar) {
+      delta['androidProgressbar'] = other.androidProgressbar;
+    }
+
+    return delta;
+  }
+
+  NotificationSettings applyDelta(Map<String, dynamic> delta) {
+    if (delta.isEmpty) {
+      return this;
+    }
+
+    return copyWith(
+      lastModified: DateTime.now(),
+      progress: delta['progress'] ?? progress,
+      states: (delta['states'] as Set<PrintState>?) ?? states,
+      etaSources: (delta['etaSources'] as Set<ETADataSource>?) ?? etaSources,
+      androidProgressbar: delta['androidProgressbar'] ?? androidProgressbar,
+    );
+  }
 }

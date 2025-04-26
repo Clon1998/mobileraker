@@ -419,9 +419,9 @@ pages:
     notification:
       title: Benachrichtigung
       progress_label: Druckfortschritt Benachrichtigungen
-      progress_helper: Intervall für Druckfortschritt Benachrichtigungen
+      progress_helper: Intervall für Druckfortschritt Benachrichtigungen.
       state_label: Druck-Zustand Benachrichtigung
-      state_helper: Wähle Zustände aus, die während eines aktiven Druckvorgangs Benachrichtigungen auslösen
+      state_helper: Wähle Zustände aus, die während eines aktiven Druckvorgangs Benachrichtigungen auslösen.
       no_permission_title: Keine Benachrichtigungserlaubnis!
       no_permission_desc: |-
         Kann keine Benachrichtigungen anzeigen.
@@ -438,12 +438,40 @@ pages:
       missing_companion_body: |-
         Es scheint, dass der Companion nicht installiert ist und daher die folgenden Maschinen keine Benachrichtigungen senden können: {}
       enable_live_activity: Aktiviere Live Activity
-      enable_live_activity_helper: Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen
+      enable_live_activity_helper: Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen.
       opt_out_marketing: Marketing Benachrichtigungen
-      opt_out_marketing_helper: Erhalten Sie aktuelle Informationen über Verkaufsaktionen und Sonderangebote
+      opt_out_marketing_helper: Erhalten Sie aktuelle Informationen über Verkaufsaktionen und Sonderangebote.
       opt_out_marketing_error: Fehler beim Laden der Marketing-Einstellungen, bitte versuchen Sie es später erneut.
       use_progressbar_notification: Aktiviere Fortschrittsbalken Benachrichtigung
-      use_progressbar_notification_helper: Aktiviert die Anzeige eines Fortschrittsbalkens zusätzlich zu den Standard-Fortschrittsmeldungen
+      use_progressbar_notification_helper: Aktiviert die Anzeige eines Fortschrittsbalkens zusätzlich zu den Standard-Fortschrittsmeldungen.
+      snapshot_webcam_label: Webcam-Snapshot
+      snapshot_webcam_helper: Wähle die Webcam, welche für Benachrichtigungs-Schnappschüsse genutzt wird.
+      snapshot_webcam_type_unsupported: Webcam-Typ nicht unterstützt
+      snapshot_webcam_disabled: Webcam-Schnappschüsse deaktivieren
+      ignore_filament_sensors_label: Filamentsensoren ignorieren
+      ignore_filament_sensors_helper: Wählen Sie Filamentsensoren aus, die bei Aktivierung keine Benachrichtigungen auslösen sollen. Nützlich für Sensoren in MMU-Konfigurationen.
+      ignore_filament_sensors_empty: Keine Sensoren gefunden
+      global: Benachrichtigungsverhalten
+      global_helper: Benachrichtigungsverhalten für Ihr Gerät und Ihre Maschinen konfigurieren.
+      custom_settings_title: Benutzerdefiniertes Benachrichtigungsverhalten
+      custom_settings_helper: Überschreibe die globalen Einstellungen mit benutzerdefinierten Konfigurationen für diesen speziellen Drucker.
+      enable_custom_settings: Benutzerdefinierte Einstellungen aktivieren
+      enable_custom_settings_helper: Anstatt die globalen Einstellungen zu übernehmen, verwende die hier angegebenen.
+      hardware_settings_title: Hardware-Benachrichtigungsverhalten
+      hardware_settings_helper: Konfiguriere hardwarespezifisches Benachrichtigungsverhalten.
+      machine_notification_title: "{} - Benachrichtigungsverhalten"
+      notification_settings_title: Benachrichtigungsverhalten
+      general_settings_title: Allgemeines Benachrichtigungsverhalten
+      general_settings_helper: Konfiguriere App-weite Benachrichtigungsberechtigungen und allgemeine Benachrichtigungspräferenzen.
+      global_settings_title: Globales Benachrichtigungsverhalten
+      global_settings_helper: Konfiguriere, welche Benachrichtigungen du von allen verbundenen Druckern erhältst.
+      device_specific_title: Gerätespezifisches Benachrichtigungsverhalten
+      device_specific_helper: Konfiguriere das Benachrichtigungsverhalten für einzelne Drucker.
+      error_loading_printers_title: Fehler beim Laden der Drucker
+      error_loading_printers_body: Ein unerwarteter Fehler ist beim Laden der Drucker aufgetreten. Bitte versuche es später erneut.
+      no_devices_found: Keine Geräte gefunden
+      configure_btn: Konfigurieren
+      not_connected_btn: Nicht verbunden
     developer:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
@@ -970,6 +998,7 @@ components:
     full_file_management: Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar.
     gcode_preview: Die G-Code-Vorschau ist leider nur für Supporter verfügbar.
     graph_page: Der Temperatur-Verlauf ist leider nur für Supporter verfügbar.
+    snapshot_webcam: Benachrichtigungen mit Webcam-Snapshot sind leider nur für Supporter verfügbar.
   machine_deletion_warning:
     title: Maschinelle Löschung
     subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt werden.
@@ -1353,6 +1382,11 @@ klipper_state:
   unauthorized: Unberechtigt
   initializing: Initialisierung
   not_connected: Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen Sie, ob Klipper auf Ihrem System läuft.
+client_state:
+  connected: Verbunden
+  disconnected: Getrennt
+  connecting: Verbinde
+  error: Fehler
 print_state:
   standby: Standby
   printing: Drucken

@@ -17,7 +17,7 @@ dependencies:
 
   #network
   web_socket_channel: ^3.0.1
-  dio: ^5.3.3
+  dio: ^5.8.0+1
   dio_smart_retry: ^7.0.1
   flutter_web_auth: ^0.6.0
   http: ^1.2.1
