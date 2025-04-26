@@ -420,9 +420,7 @@ pages:
     notification:
       title: Értesítés
       progress_label: Nyomtatás-előrehaladási értesítés
-      progress_helper: Frissítési időköz a nyomtatási folyamatról szóló értesítéshez
       state_label: Nyomtatás-állapot értesítés
-      state_helper: Az aktív nyomtatási értesítéseket kiváltó állapotok kiválasztása
       no_permission_title: Nincs értesítési engedély!
       no_permission_desc: |-
         Az értesítések nem jeleníthetők meg.
@@ -440,12 +438,10 @@ pages:
         Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}
         Koppints további információért!
       enable_live_activity: Élő tevékenység engedélyezése
-      enable_live_activity_helper: Engedélyezi az élő tevékenységeket az alapértelmezett előrehaladási értesítések mellett
       opt_out_marketing: Marketing értesítések
       opt_out_marketing_helper: Értesítést küld az eladásokról és promóciókról
       opt_out_marketing_error: Hiba a marketingbeállítások betöltésében, kérjük, próbáld újra később.
       use_progressbar_notification: Előrehaladási sáv értesítés engedélyezése
-      use_progressbar_notification_helper: Engedélyezi az előrehaladási sáv értesítést az alapértelmezett szöveges előrehaladási értesítések mellett
     developer:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
