@@ -172,7 +172,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
       [PrintState.standby, PrintState.printing, PrintState.paused, PrintState.complete, PrintState.error]),
   fullscreenCamOrientation('lcFullCam'),
   timeFormat('tMode'),
-  useLiveActivity('useLiveActivity'),
+  useLiveActivity('useLiveActivity', true),
   groupSliders('groupSliders'),
   filamentSensorDialog('filamentSensorDialog'),
   receiveMarketingNotifications('receiveMarketingNotifications'),

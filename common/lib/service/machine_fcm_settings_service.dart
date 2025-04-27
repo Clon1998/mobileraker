@@ -5,6 +5,7 @@
 
 import 'package:common/data/repository/fcm/device_fcm_settings_repository_impl.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -143,6 +144,7 @@ class MachineFcmSettingsService {
     Set<PrintState>? states,
     String? snapshotWebcam,
     Set<String>? excludeFilamentSensors,
+    bool removeSnapshotWebcam = false,
   }) async {
     // Get the current settings
     currentSettings ??= await repository.get(machineUUID);
@@ -162,7 +164,7 @@ class MachineFcmSettingsService {
         androidProgressbar: androidProgressbar ?? currentSettings.settings.androidProgressbar,
         progress: progress ?? currentSettings.settings.progress,
         states: states ?? currentSettings.settings.states,
-        snapshotWebcam: snapshotWebcam ?? currentSettings.settings.snapshotWebcam,
+        snapshotWebcam: snapshotWebcam ?? currentSettings.settings.snapshotWebcam?.unless(removeSnapshotWebcam),
         excludeFilamentSensors: excludeFilamentSensors ?? currentSettings.settings.excludeFilamentSensors,
       ),
     );

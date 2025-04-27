@@ -38,7 +38,6 @@ import '../components/progress_notification_interval_setting.dart';
 import '../components/section_header.dart';
 
 part 'machine_notification_settings_page.freezed.dart';
-
 part 'machine_notification_settings_page.g.dart';
 
 class MachineNotificationSettingsPage extends ConsumerWidget {
@@ -236,10 +235,12 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
 
   void onSnapshotWebcamChanged(WebcamInfo? webcam) {
     if (webcam?.uid == state.requireValue.deviceFcmSettings.settings.snapshotWebcam) return;
+    talker.info('Snapshot webcam changed to ${webcam?.uid}');
     _machineFcmSettingsService
         .updateNotificationSettings(
           currentSettings: state.requireValue.deviceFcmSettings,
           snapshotWebcam: webcam?.uid,
+          removeSnapshotWebcam: webcam == null,
         )
         .ignore();
   }
