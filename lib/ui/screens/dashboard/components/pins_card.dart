@@ -357,9 +357,13 @@ class _Led extends ConsumerWidget {
       return Icon(Icons.circle, size: _iconSize, color: c);
     }
 
+    //TODO: this is broken for the light theme...
     return ShaderMask(
-      shaderCallback: (bounds) => SweepGradient(colors: colors).createShader(bounds),
-      child: const Icon(Icons.circle, size: _iconSize),
+      blendMode: BlendMode.modulate,
+      shaderCallback: (bounds) {
+        return SweepGradient(colors: colors).createShader(bounds);
+      },
+      child: const Icon(Icons.circle, size: _iconSize, color: Colors.white),
     );
   }
 
@@ -665,9 +669,9 @@ class _PinsCardController extends _$PinsCardController {
       }
 
       Pixel pixel = Pixel.fromList([
-        selectedColor.r / 255,
-        selectedColor.g / 255,
-        selectedColor.b / 255,
+        selectedColor.r,
+        selectedColor.g,
+        selectedColor.b,
         white,
       ]);
 
