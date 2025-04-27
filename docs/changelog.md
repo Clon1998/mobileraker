@@ -15,6 +15,10 @@
   to tap on each of them
   individually. This change will make it easier to read the graph and understand the data.
 
+### Bug Fixes
+
+- **Led-Control**: Fixed a bug that prevented the app from updating the LED color.
+
 ### Code Improvements
 
 - **Logging-Framework**: Replaced the logging framework with a new one that is more reliable and provides better
