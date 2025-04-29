@@ -55,7 +55,7 @@ class MachineNotificationSettingsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text('pages.setting.notification.machine_notification_title'.tr(args: [machine.name]))),
-      body: body,
+      body: SafeArea(child: body),
     );
   }
 }

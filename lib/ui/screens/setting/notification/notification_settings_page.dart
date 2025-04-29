@@ -11,7 +11,6 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/repository/fcm/device_fcm_settings_repository_impl.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/service/device_fcm_settings_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -19,14 +18,11 @@ import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../routing/app_router.dart';
 import '../components/ad_push_notifications_setting.dart';
@@ -50,7 +46,7 @@ class NotificationSettingsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('pages.setting.notification.notification_settings_title').tr()),
-      body: body,
+      body: SafeArea(child: body),
     );
   }
 }
@@ -219,6 +215,9 @@ class _DeviceSpecificSection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 8,
               children: [
+                for (var machine in machines) _DeviceSetting(machine: machine),
+                for (var machine in machines) _DeviceSetting(machine: machine),
+                for (var machine in machines) _DeviceSetting(machine: machine),
                 for (var machine in machines) _DeviceSetting(machine: machine),
               ],
             ),
