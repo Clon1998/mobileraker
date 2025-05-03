@@ -420,7 +420,9 @@ pages:
     notification:
       title: Értesítés
       progress_label: Nyomtatás-előrehaladási értesítés
+      progress_helper: Frissítési időköz a nyomtatás előrehaladásáról szóló értesítéshez.
       state_label: Nyomtatás-állapot értesítés
+      state_helper: Válaszd ki azokat az állapotokat, amelyek az aktív nyomtatási feladatok során értesítést váltanak ki.
       no_permission_title: Nincs értesítési engedély!
       no_permission_desc: |-
         Az értesítések nem jeleníthetők meg.
@@ -438,6 +440,7 @@ pages:
         Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}
         Koppints további információért!
       enable_live_activity: Élő tevékenység engedélyezése
+      enable_live_activity_helper: Engedélyezi az élő tevékenység használatát az alapértelmezett előrehaladási értesítések mellett.
       opt_out_marketing: Marketing értesítések
       opt_out_marketing_helper: Értesítést küld az eladásokról és promóciókról
       opt_out_marketing_error: Hiba a marketingbeállítások betöltésében, kérjük, próbáld újra később.
