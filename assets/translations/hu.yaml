@@ -445,6 +445,35 @@ pages:
       opt_out_marketing_helper: Értesítést küld az eladásokról és promóciókról
       opt_out_marketing_error: Hiba a marketingbeállítások betöltésében, kérjük, próbáld újra később.
       use_progressbar_notification: Előrehaladási sáv értesítés engedélyezése
+      use_progressbar_notification_helper: Az alapértelmezett szöveges előrehaladási értesítések mellett engedélyezi a haladássáv értesítés használatát.
+      snapshot_webcam_label: Webkamera pillanatkép
+      snapshot_webcam_helper: Válaszd ki a webkamerát az értesítési pillanatképekhez.
+      snapshot_webcam_type_unsupported: Nem támogatott webkamera típus!
+      snapshot_webcam_disabled: Ne tartalmazzon webkamerás felvételeket
+      ignore_filament_sensors_label: Szálérzékelők kizárása
+      ignore_filament_sensors_helper: Válaszd ki azokat a szálérzékelőket, amelyek aktiválásakor nem kérsz értesítéseket. Hasznos az MMU beállításokban lévő érzékelők esetében.
+      ignore_filament_sensors_empty: Nem találtam érzékelőket
+      global: Értesítési beállítások
+      global_helper: Állítsd be a készülék és a gépek értesítési viselkedését.
+      custom_settings_title: Egyéni értesítési beállítások
+      custom_settings_helper: A globális beállítások felülírása az adott gépre vonatkozó egyéni konfigurációkkal.
+      enable_custom_settings: Egyéni beállítások aktiválása
+      enable_custom_settings_helper: Ahelyett, hogy a globális beállításokat örökölné, használja az itt megadottakat.
+      hardware_settings_title: Hardveres értesítési beállítások
+      hardware_settings_helper: Hardver-specifikus értesítési viselkedés konfigurálása.
+      machine_notification_title: "{} - Értesítés - Beállítások"
+      notification_settings_title: Értesítés - Beállítások
+      general_settings_title: Általános értesítési beállítások
+      general_settings_helper: Alkalmazásszintű értesítési engedélyek és általános értesítési beállítások konfigurálása.
+      global_settings_title: Globális értesítési beállítások
+      global_settings_helper: Beállíthatod, hogy milyen értesítéseket kapj az összes csatlakoztatott géptől.
+      device_specific_title: Eszközspecifikus értesítési beállítások
+      device_specific_helper: Az egyes gépek értesítési beállításainak megtekintése és konfigurálása.
+      error_loading_printers_title: Nyomtatók betöltési hibája
+      error_loading_printers_body: Váratlan hiba történt a nyomtatók betöltése közben. Kérjük, próbáld újra később.
+      no_devices_found: Nem találtam eszközt
+      configure_btn: Konfigurálás
+      not_connected_btn: Nem csatlakozik
     developer:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
@@ -973,6 +1002,7 @@ components:
     full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak a Támogatóknak érhető el.
     gcode_preview: Sajnáljuk, a G-Kód előnézet csak Támogatóknak érhető el.
     graph_page: Sajnáljuk, a Hőmérséklet-előzmény oldal csak a Támogatók számára elérhető.
+    snapshot_webcam: Sajnáljuk, az értesítések pillanatfelvételei csak a Támogatók számára érhetőek el.
   machine_deletion_warning:
     title: Gépi törlés
     subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
@@ -1359,6 +1389,11 @@ klipper_state:
   unauthorized: Jogosulatlan
   initializing: Inicializálás
   not_connected: Moonraker nem tud kapcsolódni a Klipper-hez. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden.
+client_state:
+  connected: Csatlakoztatva
+  disconnected: Leválasztva
+  connecting: Csatlakozás
+  error: Hiba
 print_state:
   standby: Készenlét
   printing: Nyomtatás
