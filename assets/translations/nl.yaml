@@ -154,7 +154,6 @@ pages:
       language: Taal
     notification:
       title: Notificatie
-      progress_helper: Tijd tussen voortgangsmeldingen
       no_permission_title: Geen toestemming voor meldingen!
       no_permission_desc: |-
         Meldingen weergeven niet mogelijk.

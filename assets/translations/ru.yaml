@@ -340,7 +340,6 @@ pages:
       language: Язык
     notification:
       title: Уведомления
-      progress_helper: Интервал обновления для уведомления о ходе печати
       no_permission_title: Нет разрешения на уведомления!
       no_permission_desc: |-
         Не возможно отобразить уведомления.

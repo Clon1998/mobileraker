@@ -188,7 +188,6 @@ pages:
       sliders_grouping: Grup Kaydırma Kartları
     notification:
       title: Bildiri
-      progress_helper: Yazdırma ilerleme bildirimi için güncelleme aralığı
       no_permission_title: Bildirim İzni Yok!
       no_permission_desc: |-
         Bildirimler görüntülenemiyor.

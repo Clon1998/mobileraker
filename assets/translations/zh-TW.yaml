@@ -413,9 +413,7 @@ pages:
     notification:
       title: 通知
       progress_label: 列印進度通知
-      progress_helper: 列印進度通知的更新間隔
       state_label: 列印狀態通知
-      state_helper: 選擇在進行中的列印工作中觸發通知的狀態
       no_permission_title: 沒有通知權限！
       no_permission_desc: |-
         無法顯示通知。
@@ -434,12 +432,10 @@ pages:
 
         點擊了解更多！
       enable_live_activity: 啟用即時活動
-      enable_live_activity_helper: 啟用即時活動，並且除了預設的進度通知外，還能使用即時活動功能。
       opt_out_marketing: 行銷通知
       opt_out_marketing_helper: 接收有關銷售和促銷活動的更新
       opt_out_marketing_error: 載入行銷偏好選項時發生錯誤，請稍後再試。
       use_progressbar_notification: 啟用進度條通知
-      use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
     developer:
       title: 開發者
       crashlytics: 啟用 Crashlytics 報告

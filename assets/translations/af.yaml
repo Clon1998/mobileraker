@@ -168,7 +168,6 @@ pages:
       language: Taal
     notification:
       title: Kennisgewing
-      progress_helper: Opdateerinterval van die druktaakvorderingskennisgewing
       no_permission_title: Geen Magtiging vir Kennisgewings nie!
       no_permission_desc: |-
         Kan nie kennisgewings vertoon nie.
