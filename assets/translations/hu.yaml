@@ -2,6 +2,7 @@
 general:
   pause: Szünet
   resume: Folytatás
+  connect: Csatlakozás
   connected: Csatlakozva
   'off': 'Ki'
   'on': 'Be'
@@ -67,6 +68,7 @@ general:
   print: Nyomtatás
   allow: Engedélyez
   deny: Megtagad
+  settings: Beállítások
 pages:
   dashboard:
     title: Irányítópult
@@ -1067,6 +1069,15 @@ components:
     failed:
       title: Hirdetés nem elérhető
       subtitle: A hirdetések támogatják a folyamatos fejlődést
+  machine_card:
+    last_activity:
+      zero: "Utolsó tevékenység: Ma"
+      one: "Utolsó tevékenység: Tegnap"
+      other: "Utolsó tevékenység: {} nappal ezelőtt"
+    waiting_for_job: Várakozás a következő munkára
+    last_job: "Utolsó munka: {}"
+    last_seen: Utoljára látott
+    new_print: Új munka
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
