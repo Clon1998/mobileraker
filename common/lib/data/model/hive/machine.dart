@@ -61,6 +61,8 @@ class Machine extends HiveObject {
   String? pinnedCertificateDERBase64; // Base64 encoded DER certificate
   @HiveField(27)
   String? dashboardLayout;
+  @HiveField(28)
+  DateTime? lastSeen;
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 

@@ -119,18 +119,19 @@ class PrinterService {
         _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
 
-    ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyState), (previous, next) {
+    ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyConnected), (previous, next) {
       talker.info(
-          '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new klippyState: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}');
-      switch (next.valueOrFullNull) {
-        case KlipperState.ready:
-          if (!_queriedForSession) {
-            _queriedForSession = true;
-            refreshPrinter();
-          }
-          break;
-        default:
-          _queriedForSession = false;
+          '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new Klippy.IsConnected: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}');
+
+      // IS Klippy connected?
+      //TODO: Investigage/Simplify. We have the prev state so do we really need the _queriedForSession?
+      if (next.valueOrFullNull == true) {
+        if (!_queriedForSession) {
+          _queriedForSession = true;
+          refreshPrinter();
+        }
+      } else {
+        _queriedForSession = false;
       }
     }, fireImmediately: true);
   }

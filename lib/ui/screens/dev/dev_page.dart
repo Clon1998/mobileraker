@@ -17,6 +17,7 @@ import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
+import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -66,6 +67,13 @@ class DevPage extends HookConsumerWidget {
       children: [
         // GCodePreviewCard.preview(),
         // const _StlPreview(),
+        ElevatedButton(
+            onPressed: () {
+              ref.watch(fileServiceSelectedProvider).getGCodeMetadata('noti/v_2_small_test_noti.gcode').then((v) {
+                talker.info('Receivef meta: $v');
+              });
+            },
+            child: Text('GcodeMetaRequest')),
         const _Consent(),
         _IabTCTSTATUS(),
 
@@ -129,7 +137,6 @@ class DevPage extends HookConsumerWidget {
             child: Text('Remove JRPC-Listener')),
       ],
     );
-
 
     if (context.isLargerThanCompact) {
       body = NavigationRailView(page: body);

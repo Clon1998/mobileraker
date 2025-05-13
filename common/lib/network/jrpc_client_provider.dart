@@ -55,7 +55,6 @@ JsonRpcClient _jsonRpcClient(Ref ref, String machineUUID, ClientType type) {
 @riverpod
 Stream<ClientState> _jsonRpcState(Ref ref, String machineUUID, ClientType type) {
   JsonRpcClient activeClient = ref.watch(_jsonRpcClientProvider(machineUUID, type));
-
   return activeClient.stateStream;
 }
 

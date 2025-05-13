@@ -139,12 +139,18 @@ class KlippyService {
     try {
       ref.invalidate(signalingHelperProvider('klipper-$ownerUUID'));
       await _identifyConnection();
-      var klippyReady = await _fetchServerInfo();
-      talker.info('KlippyReady: $klippyReady');
+      var klippyConnected = await _fetchServerInfo();
+      talker.info('KlippyReady: $klippyConnected');
       // We can only fetch the printer info if klippy reported ready (So klippy domain is connected to moonraker)
-      if (klippyReady) {
+      if (klippyConnected) {
         await _fetchPrinterInfo();
+      } else {
+        // Trigger a retry every x seconds
+        // This is done to update the klippy state!
       }
+      //TODO also check the klippy state and trigger a retry until it is ready! -> https://github.com/mainsail-crew/mainsail/blob/39a9fe9cbaa605026b127fdea7ae3cbe369de865/src/store/server/actions.ts#L193
+      // This is done to update the klippy state!
+      // For this, just calling fetchServerInfo is enough. Howver, I need to rewrite the code to ensure it is able to use the "state" field of printer.info for the klippyState in KlipperInstance!
     } on JRpcError catch (e, s) {
       talker.warning('Jrpc Error while refreshing KlippyObject: ${e.message}');
 
@@ -182,7 +188,7 @@ class KlippyService {
     talker.info('>>>rpcResponse Printer.Info');
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('printer.info');
     talker.info('<<<Received Printer.Info');
-    talker.verbose('PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
+    talker.info('PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
 
     // Printer info is the second request and should therfore update the KlipperInstance
     _current = KlipperInstance.partialUpdate(_current, rpcResponse.result);

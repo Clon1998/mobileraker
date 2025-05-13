@@ -38,7 +38,7 @@ class MachineStateIndicator extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           message: 'pages.dashboard.server_status'.tr(
             args: [
-              serverState.name.tr(),
+              serverState.displayName.tr(),
               klippyData?.klippyConnected ?? false
                   ? tr('general.connected').toLowerCase()
                   : tr('klipper_state.disconnected').toLowerCase(),

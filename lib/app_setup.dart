@@ -27,6 +27,7 @@ import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/firebase/analytics.dart';
 import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/service/machine_last_seen_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/notification_service.dart';
@@ -34,6 +35,7 @@ import 'package:common/service/device_fcm_settings_sync_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -246,11 +248,12 @@ initializeAvailableMachines(Ref ref) async {
     machines.map((e) => ref.read(machineProvider(e.uuid).future)),
   );
   talker.info('initialized all machineProviders');
-  // for (var machine in machines) {
+
   //   talker.info('Init for ${machine.name}(${machine.uuid})');
   //   container.read(klipperServiceProvider(machine.uuid));
   //   container.read(printerServiceProvider(machine.uuid));
-  // }
+
+  //
 
   talker.info('Completed initializeAvailableMachines');
 }

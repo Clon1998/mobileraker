@@ -2,6 +2,7 @@
 general:
   pause: Pause
   resume: Resume
+  connect: Connect
   connected: Connected
   'off': 'Off'
   'on': 'On'
@@ -67,6 +68,7 @@ general:
   print: Print
   allow: Allow
   deny: Deny
+  settings: Settings
 pages:
   dashboard:
     title: Dashboard
@@ -1135,6 +1137,26 @@ components:
     failed:
       title: Ad not available
       subtitle: Ads support ongoing development
+  machine_card:
+    last_activity:
+      zero: "Last activity: Today"
+      one: "Last activity: Yesterday"
+      other: "Last activity: {} days ago"
+    waiting_for_job: Waiting for next job
+    last_job: "Last Job: {}"
+    last_seen: Last seen
+    new_print: New Job
+    client_state:
+      disconnected: Machine is disconnected
+    klippy_state:
+      initializing: Klipper is initializing…
+      startup: Klipper is starting…
+      disconnected: Klipper is disconnected
+      shutdown: Klipper-Shutdown
+      error: Klipper-Error
+      unauthorized: Access Denied
+
+
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?
@@ -1298,6 +1320,12 @@ dialogs:
     title: Cancel Print?
     body: |-
       You are about to cancel the print job.
+
+      Confirm your action.
+  confirm_print_pause:
+    title: Pause Print?
+    body: |-
+      You are about to pause the print job.
 
       Confirm your action.
   adjust_spool_filament:
@@ -1544,6 +1572,10 @@ date:
   day:
     one: Day
     other: Days
+  reference:
+    today: Today
+    yesterday: Yesterday
+    tomorrow: Tomorrow
 date_periods:
   year:
     one: Yearly

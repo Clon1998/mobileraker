@@ -17,6 +17,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/mjpeg/mjpeg_manager.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -83,6 +84,7 @@ class Mjpeg extends ConsumerWidget {
           ),
           const SizedBox(height: 15),
           FadingText(tr('components.connection_watcher.trying_connect')),
+          Gap(8),
         ],
       ),
       childOnData: Builder(builder: (ctx) {
@@ -169,6 +171,7 @@ class _ErrorWidget extends StatelessWidget {
           style: themeData.textTheme.bodySmall,
           textAlign: TextAlign.justify,
         ),
+        Gap(8),
       ],
     );
   }

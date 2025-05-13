@@ -39,4 +39,9 @@ class PrintStats with _$PrintStats {
   int? get totalLayer => layerInfo.totalLayer;
 
   int? get currentLayer => layerInfo.currentLayer;
+
+  DateTime? get startTime {
+    if (state == PrintState.standby) return null;
+    return DateTime.now().subtract(Duration(seconds: totalDuration.toInt()));
+  }
 }

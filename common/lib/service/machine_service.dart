@@ -15,6 +15,7 @@ import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_last_seen_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
@@ -440,7 +441,6 @@ class MachineService {
 
     return CompanionMetaData.fromJson(databaseItem);
   }
-
 
   /// Fetches the settings for a machine and adjusts the default macros.
   ///

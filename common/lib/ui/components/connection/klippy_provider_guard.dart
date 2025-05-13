@@ -95,7 +95,7 @@ class _StateError extends ConsumerWidget {
                     children: [
                       ListTile(
                         leading: const Icon(FlutterIcons.disconnect_ant),
-                        title: Text('Klippy: @:${data.klippyState.name}').tr(),
+                        title: Text('Klippy: @:${data.klippyState.displayName}').tr(),
                       ),
                       Text(
                         data.statusMessage,

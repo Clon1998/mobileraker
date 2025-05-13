@@ -19,9 +19,9 @@ enum KlipperState {
   unauthorized('klipper_state.unauthorized'),
   initializing('klipper_state.initializing');
 
-  const KlipperState(this.name, [this.color = Colors.orange]);
+  const KlipperState(this.displayName, [this.color = Colors.orange]);
 
-  final String name;
+  final String displayName;
   final Color color;
 }
 
