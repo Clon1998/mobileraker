@@ -14,7 +14,6 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
-import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/history_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -289,14 +288,14 @@ class _KlippyErrorShutdownUnAuth extends ConsumerWidget {
 
     switch (klippy.klippyState) {
       case KlipperState.shutdown:
-        onColor = themeData.extension<CustomColors>()?.onWarning;
-        bgColor = themeData.extension<CustomColors>()?.warning;
+        onColor = themeData.extension<CustomColors>()?.warning?.darken(28);
+        bgColor = themeData.extension<CustomColors>()?.warning?.lighten(49);
         icon = Icons.power_off_outlined;
         break;
 
       case KlipperState.unauthorized:
-        onColor = themeData.colorScheme.onTertiary;
-        bgColor = themeData.colorScheme.tertiary;
+        onColor = themeData.colorScheme.onTertiaryContainer;
+        bgColor = themeData.colorScheme.tertiaryContainer;
         icon = Icons.lock_outline;
         break;
       case KlipperState.error:
@@ -412,7 +411,7 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
                       children: [
                         Icon(FlutterIcons.file_outline_mco, size: 14),
                         Gap(4),
-                        Text(job!),
+                        Flexible(child: Text(job!)),
                       ],
                     ),
                   ],
@@ -496,7 +495,7 @@ class _JobPrintingPausedBody extends ConsumerWidget {
                       children: [
                         Icon(FlutterIcons.file_outline_mco, size: 14),
                         Gap(4),
-                        Text(job!),
+                        Flexible(child: Text(job!)),
                       ],
                     ),
                   ],
@@ -613,7 +612,7 @@ class _JobErrorBody extends ConsumerWidget {
                       children: [
                         Icon(FlutterIcons.file_outline_mco, size: 14),
                         Gap(4),
-                        Text(job!),
+                        Flexible(child: Text(job!)),
                       ],
                     ),
                   ],
@@ -1353,11 +1352,17 @@ class _PrinterCardController extends _$PrinterCardController {
     _klippyService.emergencyStop();
   }
 
-  void restartKlippy() => _klippyService.restartKlipper();
+  void restartKlippy() {
+    talker.info('Restarting Klipper for ${this.machine.logName}');
+    _klippyService.restartKlipper().ignore();
+  }
 
-  void restartMcus() => _klippyService.restartMCUs();
+  void restartMcus() {
+    talker.info('Restarting MCUs for ${this.machine.logName}');
+    _klippyService.restartMCUs();
+  }
 
-  void connectJrpcClient() => _jrpcClient.openChannel();
+  void connectJrpcClient() => _jrpcClient.openChannel().ignore();
 
   @override
   bool updateShouldNotify(AsyncValue<_Model> previous, AsyncValue<_Model> next) {
