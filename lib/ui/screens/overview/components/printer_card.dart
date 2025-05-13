@@ -288,8 +288,8 @@ class _KlippyErrorShutdownUnAuth extends ConsumerWidget {
 
     switch (klippy.klippyState) {
       case KlipperState.shutdown:
-        onColor = themeData.extension<CustomColors>()?.warning?.darken(28);
-        bgColor = themeData.extension<CustomColors>()?.warning?.lighten(49);
+        onColor = themeData.extension<CustomColors>()?.warning?.darken(33);
+        bgColor = themeData.extension<CustomColors>()?.warning?.lighten(50);
         icon = Icons.power_off_outlined;
         break;
 
