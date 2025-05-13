@@ -1063,6 +1063,24 @@ components:
     failed:
       title: Fehler beim Laden der Anzeige!
       subtitle: Anzeigen unterstützen die laufende Entwicklung
+  machine_card:
+    last_activity:
+      zero: "Letzte Aktivität: Heute"
+      one: "Letzte Aktivität: Gestern"
+      other: "Letzte Aktivität: vor {} Tagen"
+    waiting_for_job: Bereit für Auftrag
+    last_job: "Letzter Auftrag: {}"
+    last_seen: Zuletzt gesehen
+    new_print: Neuer Auftrag
+    client_state:
+      disconnected: Keine Verbindung zur Maschine
+    klippy_state:
+      initializing: Klipper initialisiert…
+      startup: Klipper startet…
+      disconnected: Klipper ist getrennt
+      shutdown: Klipper-Abgeschaltet
+      error: Klipper-Error
+      unauthorized: Autorisierung fehlgeschlagen
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
@@ -1217,9 +1235,13 @@ dialogs:
   heater_temperature:
     title: "{} Temperatur [°C]"
   confirm_print_cancelation:
-    title: Druck abbrechen
+    title: Druck abbrechen?
     body: |-
       Sind Sie sicher, dass Sie den Druck abbrechen möchten?
+  confirm_print_pause:
+    title: Druck pausieren?
+    body: |-
+      Sind Sie sicher, dass Sie den Druck pausieren möchten?
   adjust_spool_filament:
     title: Verbrauchtes Filament anpassen
     subtitle: Filament von der Spule hinzufügen oder entfernen. Ein positiver Wert verbraucht Filament, ein negativer Wert fügt es hinzu.
@@ -1385,8 +1407,8 @@ klipper_state:
 client_state:
   connected: Verbunden
   disconnected: Getrennt
-  connecting: Verbinde
-  error: Fehler
+  connecting: Verbinden
+  error: Verbindungsfehler
 print_state:
   standby: Standby
   printing: Drucken
@@ -1435,6 +1457,10 @@ date:
   day:
     one: Tag
     other: Tage
+  reference:
+    today: Heute
+    yesterday: Gestern
+    tomorrow: Morgen
 date_periods:
   year:
     one: Jährlich
