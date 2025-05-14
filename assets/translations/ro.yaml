@@ -139,7 +139,6 @@ pages:
       language: Limbă
     notification:
       title: Notificare
-      progress_helper: Interval actualizare pentru notificările de progres
       no_permission_title: Nu există permisiuni pentru notificări!
       no_permission_desc: |-
         Nu pot afișa notificări.
