@@ -1078,6 +1078,15 @@ components:
     last_job: "Utolsó munka: {}"
     last_seen: Utoljára látott
     new_print: Új munka
+    client_state:
+      disconnected: A gép le van választva
+    klippy_state:
+      initializing: Klipper inicializálás…
+      startup: Klipper indul…
+      disconnected: Klipper le van választva
+      shutdown: Klipper-leállt
+      error: Klipper-hiba
+      unauthorized: Hozzáférés megtagadva
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
@@ -1235,6 +1244,12 @@ dialogs:
     title: Nyomtatás leállítása?
     body: |-
       A nyomtatási feladat törlésére készülsz.
+
+      Erősítsd meg a műveletet.
+  confirm_print_pause:
+    title: Nyomtatás szünetelése?
+    body: |-
+      A nyomtatási feladat szüneteltetése előtt állsz.
 
       Erősítsd meg a műveletet.
   adjust_spool_filament:
@@ -1453,6 +1468,10 @@ date:
   day:
     one: Nap
     other: Napok
+  reference:
+    today: Ma
+    yesterday: Tegnap
+    tomorrow: Holnap
 date_periods:
   year:
     one: Éves
