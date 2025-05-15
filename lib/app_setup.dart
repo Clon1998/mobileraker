@@ -251,8 +251,6 @@ initializeAvailableMachines(Ref ref) async {
   //   container.read(klipperServiceProvider(machine.uuid));
   //   container.read(printerServiceProvider(machine.uuid));
 
-  //
-
   talker.info('Completed initializeAvailableMachines');
 }
 

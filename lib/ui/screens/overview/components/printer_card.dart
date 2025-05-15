@@ -14,6 +14,7 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
+import 'package:common/service/machine_last_seen_service.dart';
 import 'package:common/service/moonraker/history_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -170,7 +171,7 @@ class _Body extends ConsumerWidget {
       (d) => d.jrpcClientState,
     ));
 
-    final lastSeen = machine.lastSeen?.let(dateFormat) ?? tr('general.unknown');
+    final lastSeen = ref.watch(machineLastSeenProvider(machine.uuid))?.let(dateFormat) ?? tr('general.unknown');
     return switch (clientState) {
       ClientState.connected => _ClientConnectedBody(machine: machine),
       ClientState.disconnected => _ClientDisconnectedBody(machine: machine), // -> Actions
@@ -650,7 +651,7 @@ class _ClientDisconnectedBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('Rebuilding _ClientDisconnectedBody');
     final dateFormat = ref.watch(dateFormatServiceProvider).formatRelativeHm();
-    final lastSeen = machine.lastSeen?.let(dateFormat) ?? tr('general.unknown');
+    final lastSeen = ref.watch(machineLastSeenProvider(machine.uuid))?.let(dateFormat) ?? tr('general.unknown');
 
     final themeData = Theme.of(context);
     return Column(
@@ -679,7 +680,7 @@ class _ClientErrorBody extends ConsumerWidget {
     final dateFormat = ref.watch(dateFormatServiceProvider).formatRelativeHm();
     final errorMessage = ref.watch(_printerCardControllerProvider(machine).selectRequireValue((d) => d.jrpcError));
 
-    final lastSeen = machine.lastSeen?.let(dateFormat) ?? tr('general.unknown');
+    final lastSeen = ref.watch(machineLastSeenProvider(machine.uuid))?.let(dateFormat) ?? tr('general.unknown');
     final themeData = Theme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,

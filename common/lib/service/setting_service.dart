@@ -211,6 +211,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   lastLocale('lastLocale', 'en'),
   fcmTokenHistory('fcmTokenHistory', <String>[]),
   graphSettings('graphSettings'),
+  machineLastSeen('machineLastSeen'),
   ;
 
   @override

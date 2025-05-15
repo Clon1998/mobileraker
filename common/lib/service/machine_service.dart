@@ -15,6 +15,7 @@ import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_last_seen_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
@@ -87,6 +88,11 @@ class AllMachines extends _$AllMachines {
       final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
       return aOrder.compareTo(bOrder);
     });
+
+    // This makes sure that we have the last seen time for all machines and that if a machine is removed, the respective service is also destoryed!
+    for (var machine in machines) {
+      ref.watch(machineLastSeenServiceProvider(machine.uuid)).trackLastSeen();
+    }
 
     var isSupporter = ref.watch(isSupporterProvider);
     talker.info('Received isSupporter $isSupporter');
