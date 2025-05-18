@@ -479,6 +479,8 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
 
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
+  _Model? _lastUpdate;
+
   @override
   FutureOr<_Model> build(Machine machine) async {
     final etaSourceSettings = ref
@@ -522,20 +524,52 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
 
   @override
   bool updateShouldNotify(AsyncValue<_Model> previous, AsyncValue<_Model> next) {
-    final wasLoading = previous.isLoading;
-    final isLoading = next.isLoading;
+    // For doubles we use epsilon comparison to avoid updating to often even if the value is jsut changed very slightly
+    final progressIsEpsilonEqual = _lastUpdate?.progress.closeTo(next.valueOrNull?.progress ?? 0, 0.01) == true;
+    final durationIsEpsilonEqual = _lastUpdate?.totalDuration?.closeTo(next.valueOrNull?.totalDuration ?? 0, 1) == true;
 
-    final loadingTransition = (wasLoading || isLoading) && wasLoading != isLoading;
-    final progressEpsilon = previous.valueOrNull?.progress?.closeTo(next.valueOrNull?.progress ?? 0, 0.01) != false;
+    // For the eta we check if the difference is less than 2s to evaluate if the eta is the same
+    final etaIsEpsilonEqual = _lastUpdate?.eta == next.valueOrNull?.eta ||
+        _lastUpdate?.eta != null &&
+            next.valueOrNull?.eta != null &&
+            _lastUpdate!.eta!.difference(next.value!.eta!).abs().inSeconds < 2;
 
-    return loadingTransition && progressEpsilon ||
-        previous.valueOrNull?.printState != next.valueOrNull?.printState ||
-        previous.valueOrNull?.job != next.valueOrNull?.job ||
-        previous.valueOrNull?.remaining != next.valueOrNull?.remaining ||
-        previous.valueOrNull?.eta != next.valueOrNull?.eta ||
-        previous.valueOrNull?.totalDuration != next.valueOrNull?.totalDuration ||
-        previous.valueOrNull?.message != next.valueOrNull?.message ||
-        previous.valueOrNull?.lastJob != next.valueOrNull?.lastJob;
+    // For remaining we also have 2 seconds epsilon
+    final remainingIsEpsilonEqual = _lastUpdate?.remaining == next.valueOrNull?.remaining ||
+        _lastUpdate?.remaining != null &&
+            next.valueOrNull?.remaining != null &&
+            (_lastUpdate!.remaining! - next.value!.remaining!).abs() < 2;
+
+    var shouldN = !progressIsEpsilonEqual ||
+        _lastUpdate?.printState != next.valueOrNull?.printState ||
+        _lastUpdate?.job != next.valueOrNull?.job ||
+        !etaIsEpsilonEqual ||
+        !durationIsEpsilonEqual ||
+        !remainingIsEpsilonEqual ||
+        _lastUpdate?.message != next.valueOrNull?.message ||
+        _lastUpdate?.lastJob != next.valueOrNull?.lastJob;
+
+    if (shouldN) {
+      // talker.info('UpdateShouldNotify: $shouldN');
+      // talker.info('progress: ${_lastUpdate?.progress} vs ${next.value?.progress} Trig: ${!progressIsEpsilonEqual}');
+      // talker.info(
+      //     'printState: ${_lastUpdate?.printState} vs ${next.value?.printState} Trig: ${_lastUpdate?.printState != next.valueOrNull?.printState}');
+      // talker.info(
+      //     'TotalDur: ${_lastUpdate?.totalDuration} vs ${next.value?.totalDuration} Trig: ${!durationIsEpsilonEqual}');
+      // talker.info(
+      //     'Remaining: ${_lastUpdate?.remaining} vs ${next.value?.remaining} Trig: ${!remainingIsEpsilonEqual}');
+      // talker.info(
+      //     'eta: ${_lastUpdate?.eta} vs ${next.value?.eta} Trig: ${!etaIsEpsilonEqual}');
+      // talker.info(
+      //     'job: ${_lastUpdate?.job} vs ${next.value?.job} Trig: ${_lastUpdate?.job != next.valueOrNull?.job}');
+      // talker.info(
+      //     'message: ${_lastUpdate?.message} vs ${next.value?.message} Trig: ${_lastUpdate?.message != next.valueOrNull?.message}');
+      // talker.info(
+      //     'lastJob: ${_lastUpdate?.lastJob} vs ${next.value?.lastJob} Trig: ${_lastUpdate?.lastJob != next.valueOrNull?.lastJob}');
+      _lastUpdate = next.value;
+    }
+
+    return shouldN;
   }
 
   void openMachineDashboard() {
