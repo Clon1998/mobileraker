@@ -330,7 +330,7 @@ class _JobErrorBody extends ConsumerWidget {
             ),
           ],
         ),
-        if (message != null)
+        if (message != null) ...[
           Card(
             color: themeData.colorScheme.errorContainer,
             margin: EdgeInsets.zero,
@@ -343,6 +343,8 @@ class _JobErrorBody extends ConsumerWidget {
               ),
             ),
           ),
+          Gap(8),
+        ],
         _ActionsWidget(machine: machine),
       ],
     );

@@ -157,7 +157,7 @@ class _KlippyErrorShutdownUnauthorized extends StatelessWidget {
       children: [
         Gap(8),
         Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
-        Gap(4),
+        Gap(8),
         Card(
           color: bgColor,
           shape: _border(context, onColor),
@@ -190,6 +190,7 @@ class _KlippyErrorShutdownUnauthorized extends StatelessWidget {
             ),
           ),
         ),
+        Gap(8),
         _Actions(machine: machine, klippy: klippy),
       ],
     );
