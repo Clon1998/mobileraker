@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -15,6 +16,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/model/moonraker_db/webcam_info.dart';
 import '../../data/repository/webcam_info_repository.dart';
 import '../../network/jrpc_client_provider.dart';
+import '../payment_service.dart';
+import '../setting_service.dart';
 
 part 'webcam_service.g.dart';
 
@@ -40,6 +43,29 @@ Future<List<WebcamInfo>> allSupportedWebcamInfos(Ref ref, String machineUUID) as
   return (await ref.watch(allWebcamInfosProvider(machineUUID).future))
       .where((element) => element.service.supported)
       .toList(growable: false);
+}
+
+@riverpod
+Future<WebcamInfo?> activeWebcamInfoForMachine(Ref ref, String machineUUID) async {
+  final isSupporter = ref.watch(isSupporterProvider);
+
+  final cams = await ref.watch(allSupportedWebcamInfosProvider(machineUUID).future);
+  if (cams.isEmpty) {
+    return null;
+  }
+
+  final webcamIndexKey = CompositeKey.keyWithString(UtilityKeys.webcamIndex, machineUUID);
+  final selIndex = ref.watch(intSettingProvider(webcamIndexKey)).clamp(0, cams.length - 1);
+
+  WebcamInfo? previewCam = cams.elementAtOrNull(selIndex);
+
+  // If there is no preview cam or the preview cam is not for supporters or the user is a supporter
+  if (previewCam == null || previewCam.service.forSupporters == false || isSupporter) {
+    return previewCam;
+  }
+
+  // If the user is not a supporter and the cam he selected is for supporters only just select the first cam that is not for supporters
+  return cams.firstWhereOrNull((element) => element.service.forSupporters == false);
 }
 
 /// The WebcamService handles all things related to the webcam API of moonraker.
