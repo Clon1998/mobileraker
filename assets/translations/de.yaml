@@ -2,6 +2,7 @@
 general:
   pause: Pausieren
   resume: Fortsetzen
+  connect: Verbinden
   connected: Verbunden
   'off': 'Aus'
   'on': 'An'
@@ -67,6 +68,7 @@ general:
   print: Drucken
   allow: Erlauben
   deny: Verweigern
+  settings: Einstellungen
 pages:
   dashboard:
     title: Dashboard
