@@ -39,7 +39,7 @@ class PrintStateChip extends HookWidget {
     return Chip(
       avatar: avatar,
       label: Text(printState.displayName),
-      labelPadding: EdgeInsets.only(right: 4, left: avatar == null ? 4 : 0),
+      labelPadding: EdgeInsets.only(right: 4, left: 4),
       visualDensity: VisualDensity.compact,
     );
   }
