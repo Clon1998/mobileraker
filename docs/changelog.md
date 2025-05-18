@@ -15,6 +15,10 @@
   to tap on each of them
   individually. This change will make it easier to read the graph and understand the data.
 
+- **Printer Overview Page**: The printer overview page has been redesigned to improve the user experience. The new
+  design includes a more intuitive layout and better organization of information, making it much more useful for
+  print-farm users.
+
 ### Bug Fixes
 
 - **Led-Control**: Fixed a bug that prevented the app from updating the LED color.
