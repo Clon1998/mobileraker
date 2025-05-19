@@ -85,8 +85,10 @@ class ClientStateChip extends HookWidget {
         break;
       case ClientState.error:
         avatar = Icon(Icons.warning_amber);
-        fg = themeData.colorScheme.error;
-        bg = themeData.colorScheme.errorContainer;
+        final isLight = themeData.brightness == Brightness.light;
+
+        fg = isLight ? themeData.colorScheme.error : themeData.colorScheme.error.darken(30);
+        bg = isLight ? themeData.colorScheme.errorContainer : themeData.colorScheme.error.lighten(20);
         break;
     }
 
