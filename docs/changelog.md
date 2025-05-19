@@ -31,6 +31,12 @@
 - **Webcam API**: Migrated from using the webcam's name to its UID for the API. This change will improve the
   reliability of the webcam API.
 
+- **Preheat-Dialog**: Fixed broken translation in the preheat dialog when using the file action bottom
+  sheet. [#510](https://github.com/Clon1998/mobileraker/issues/510)
+
+- **Missing Files**: Fixed an issue that caused the app to skip some files in the file
+  manager.  [#504](https://github.com/Clon1998/mobileraker/issues/504)
+
 ## [2.8.7] - 2025-03-05
 
 ### Bug Fixes
