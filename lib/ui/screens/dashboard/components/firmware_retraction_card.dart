@@ -61,7 +61,7 @@ class FirmwareRetractionCard extends HookConsumerWidget {
           : null,
       childOnData: Card(
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 15),
+          padding: const EdgeInsets.only(bottom: 8),
           child: _CardBody(machineUUID: machineUUID),
         ),
       ),
@@ -130,7 +130,7 @@ class _FirmwareRetractionSlidersOrTextsLoading extends StatelessWidget {
         children: [
           CardTitleSkeleton.trailingIcon(),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -187,7 +187,7 @@ class _CardBody extends HookConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               SliderOrTextInput(

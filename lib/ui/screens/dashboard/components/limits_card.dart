@@ -83,7 +83,7 @@ class _LimitsSlidersOrTextsLoading extends StatelessWidget {
         children: [
           CardTitleSkeleton.trailingIcon(),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -164,7 +164,7 @@ class _Body extends HookConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               SliderOrTextInput(
