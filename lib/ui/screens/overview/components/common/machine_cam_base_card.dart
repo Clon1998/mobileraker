@@ -88,8 +88,6 @@ class _Cam extends ConsumerWidget {
     final previewCam = ref.watch(activeWebcamInfoForMachineProvider(machine.uuid)).value;
     if (previewCam == null) return const SizedBox.shrink();
 
-    final themeData = Theme.of(context);
-
     return Align(
       alignment: Alignment.bottomCenter,
       child: Column(

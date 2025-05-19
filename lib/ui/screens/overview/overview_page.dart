@@ -4,7 +4,6 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -15,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -53,7 +51,7 @@ class _OverviewBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(_overviewPageControllerProvider).when<Widget>(
           skipLoadingOnReload: true,
-          data: (d) => _Data(machines: d),
+          data: (d) => SafeArea(child: _Data(machines: d)),
           error: (e, s) {
             talker.error('Error in OverView', e, StackTrace.current);
             throw e;
@@ -106,15 +104,6 @@ class _Data extends ConsumerWidget {
             },
             onReorder: ref.read(_overviewPageControllerProvider.notifier).onReorder,
           ),
-        SliverToBoxAdapter(
-          child: Center(
-            child: ElevatedButton.icon(
-              onPressed: () => ref.read(goRouterProvider).pushNamed(AppRoute.printerAdd.name),
-              icon: const Icon(Icons.add),
-              label: const Text('pages.overview.add_machine').tr(),
-            ),
-          ),
-        ),
       ],
     );
   }
