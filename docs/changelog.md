@@ -11,31 +11,36 @@
   thresholds, print states that trigger alerts, and even configure printer-specific overrides—all from one convenient
   interface.
 
-- **Temperature Graph Legend**: It is now possible to exclude en entire sensor by tapping on its name instead of having
-  to tap on each of them
-  individually. This change will make it easier to read the graph and understand the data.
+- **Temperature Graph Legend Improvements**: Exclude entire sensor categories with a single tap on the sensor name,
+  rather than toggling individual data points. This streamlined interaction makes graph data interpretation faster
+  and more intuitive, especially during complex print jobs with multiple temperature sensors.
 
-- **Printer Overview Page**: The printer overview page has been redesigned to improve the user experience. The new
-  design includes a more intuitive layout and better organization of information, making it much more useful for
-  print-farm users.
+- **Redesigned Printer Overview Page**: We've completely revamped the printer overview page with an intuitive layout
+  that prioritizes critical information at a glance. The new design features improved information hierarchy and
+  content organization, providing exceptional visibility across multiple printers—perfect for print-farm operators
+  managing numerous devices simultaneously.
 
 ### Bug Fixes
 
-- **Led-Control**: Fixed a bug that prevented the app from updating the LED color.
+- **LED Control System**: Resolved a critical issue that prevented the app from properly updating LED color settings,
+  ensuring your visual indicators now work reliably across all compatible printer models.
+
+- **Preheat Dialog Translations**: Fixed broken translations in the preheat dialog when accessed through the file action
+  bottom sheet, ensuring a consistent multilingual
+  experience. [#510](https://github.com/Clon1998/mobileraker/issues/510)
+
+- **File Manager Indexing**: Resolved an indexing issue that caused certain files to be omitted from the file manager
+  view, ensuring complete visibility of all available print
+  files. [#504](https://github.com/Clon1998/mobileraker/issues/504)
 
 ### Code Improvements
 
-- **Logging-Framework**: Replaced the logging framework with a new one that is more reliable and provides better
-  performance. This change will allow us to better track and fix issues in the future.
+- **Enhanced Logging Framework**: Implemented a more robust logging system with improved performance characteristics,
+  enabling more comprehensive diagnostics and faster issue resolution. This foundation will significantly improve our
+  ability to identify and address edge cases in future updates.
 
-- **Webcam API**: Migrated from using the webcam's name to its UID for the API. This change will improve the
-  reliability of the webcam API.
-
-- **Preheat-Dialog**: Fixed broken translation in the preheat dialog when using the file action bottom
-  sheet. [#510](https://github.com/Clon1998/mobileraker/issues/510)
-
-- **Missing Files**: Fixed an issue that caused the app to skip some files in the file
-  manager.  [#504](https://github.com/Clon1998/mobileraker/issues/504)
+- **Webcam API Reliability**: Migrated from name-based references to unique identifier (UID) implementation for webcam
+  connections, eliminating potential naming conflicts and ensuring consistent webcam access across network changes.
 
 ## [2.8.7] - 2025-03-05
 
