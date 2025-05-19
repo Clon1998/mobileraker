@@ -800,9 +800,10 @@ class _FileListState extends ConsumerState<_FileListData> {
     final sortConfiguration = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
         .select((data) => data.sortConfiguration));
 
+    final int totalItems = widget.folderContent.totalItems;
     final adEvery = ref.watch(remoteConfigIntProvider('files_page_add_density'));
 
-    int adCount = adEvery == 0 ? 0 : widget.folderContent.totalItems ~/ adEvery;
+    final int adCount = adEvery > 0 ? totalItems ~/ adEvery : 0;
 
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
@@ -878,10 +879,9 @@ class _FileListState extends ConsumerState<_FileListData> {
                 ),
                 itemCount: widget.folderContent.totalItems + adCount,
                 itemBuilder: (context, index) {
-                  // Check if this position should show an ad (every 10th position)
-                  if (adEvery > 0 && index > 0 && index % adEvery == 0) {
+                  if (adEvery > 0 && index > 0 && index % (adEvery + 1) == adEvery) {
                     // Calculate which ad to show (0-based index for ads)
-                    final adIndex = (index ~/ adEvery) - 1;
+                    final adIndex = (index ~/ (adEvery + 1));
 
                     return LayoutBuilder(
                       key: Key('file_list_ad:$adIndex:${widget.filePath}'),
@@ -896,9 +896,9 @@ class _FileListState extends ConsumerState<_FileListData> {
                   }
 
                   // Calculate the actual index in your data, accounting for the ad positions
-                  final adjustedIndex = index - (index ~/ 10);
+                  final int dataIndex = adEvery > 0 ? index - (index ~/ (adEvery + 1)) : index;
 
-                  final file = widget.folderContent.unwrapped[adjustedIndex];
+                  final file = widget.folderContent.unwrapped[dataIndex];
                   return _FileItem(
                     key: ValueKey(file),
                     machineUUID: widget.machineUUID,
