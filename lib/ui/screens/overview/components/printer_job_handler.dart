@@ -363,6 +363,7 @@ class _ActionsWidget extends ConsumerWidget {
     final controller = ref.watch(_printerJobHandlerControllerProvider(machine).notifier);
 
     final themeData = Theme.of(context);
+    final isLight = themeData.brightness == Brightness.light;
 
     final buttons = <Widget>[];
 
@@ -382,8 +383,8 @@ class _ActionsWidget extends ConsumerWidget {
           onPressed: controller.emergencyStop,
           style: ElevatedButton.styleFrom(
             iconSize: 18,
-            backgroundColor: themeData.colorScheme.error,
-            foregroundColor: themeData.colorScheme.onError,
+            backgroundColor: isLight ? themeData.colorScheme.error : themeData.colorScheme.errorContainer,
+            foregroundColor: isLight ? themeData.colorScheme.onError : themeData.colorScheme.onErrorContainer,
           ),
           child: Text('EMS'),
         ));
