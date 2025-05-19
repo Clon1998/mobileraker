@@ -357,7 +357,7 @@ pages:
       stat_card:
         title: Statistiken
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
+        title: "@:pages.files.gcode_file_actions.preheat ?"
         body: |-
           Zieltemperaturen
           Extruder: {}°C

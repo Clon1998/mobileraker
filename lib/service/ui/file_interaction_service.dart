@@ -429,7 +429,7 @@ class FileInteractionService {
     final resp = await _dialogService.showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
       body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
-      actionLabel: 'pages.files.details.preheat'.tr(),
+      actionLabel: 'pages.files.gcode_file_actions.preheat'.tr(),
     );
     if (resp?.confirmed != true) return;
     _printerService.setHeaterTemperature('extruder', 170);

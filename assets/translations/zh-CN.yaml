@@ -355,7 +355,7 @@ pages:
       stat_card:
         title: 统计数据
       preheat_dialog:
-        title: "@:pages.files.details.preheat？"
+        title: "@:pages.files.gcode_file_actions.preheat？"
         body: |-
           目标温度
           挤出头：{}°C
