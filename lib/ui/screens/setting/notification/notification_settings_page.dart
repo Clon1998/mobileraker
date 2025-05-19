@@ -214,12 +214,7 @@ class _DeviceSpecificSection extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 8,
-              children: [
-                for (var machine in machines) _DeviceSetting(machine: machine),
-                for (var machine in machines) _DeviceSetting(machine: machine),
-                for (var machine in machines) _DeviceSetting(machine: machine),
-                for (var machine in machines) _DeviceSetting(machine: machine),
-              ],
+              children: [for (var machine in machines) _DeviceSetting(machine: machine)],
             ),
           AsyncError(:final error) => SimpleErrorWidget(
               title: Text('pages.setting.notification.error_loading_printers_title'.tr()),
