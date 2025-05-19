@@ -350,7 +350,6 @@ pages:
       stat_card:
         title: Statystyki
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
         body: |-
           Zadane temperatury
           Ekstruder: {}°C
