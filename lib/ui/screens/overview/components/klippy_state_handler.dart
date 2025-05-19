@@ -241,6 +241,19 @@ class _Actions extends ConsumerWidget {
       // Error -> Restart Fw, Restart Klipper
 
       // UnAuth -> Edit Config or nothing
+      case KlipperState.disconnected:
+        buttons.add(ElevatedButton.icon(
+          onPressed: () => ref.read(klipperServiceProvider(machine.uuid)).restartKlipper().ignore(),
+          label: Text('pages.dashboard.general.restart_klipper').tr(),
+          icon: Icon(Icons.restart_alt),
+          style: ElevatedButton.styleFrom(
+            iconSize: 18,
+            backgroundColor: themeData.colorScheme.error,
+            foregroundColor: themeData.colorScheme.onError,
+            iconColor: themeData.colorScheme.onError,
+          ),
+        ));
+        break;
 
       case KlipperState.shutdown:
       case KlipperState.error:
