@@ -49,7 +49,7 @@ jobs:
           flutter build apk --release --verbose
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v3.0.0
+        uses: metcalfc/changelog-generator@v4.6.2
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Create a Release
