@@ -1,5 +1,4 @@
 # Mobileraker - Changelog
-
 ## [2.8.8] - 2025-05-22
 
 ### Enhancements
@@ -20,6 +19,12 @@
   content organization, providing exceptional visibility across multiple printers—perfect for print-farm operators
   managing numerous devices simultaneously.
 
+- **Enhanced Machine Monitoring**: Implemented machine last seen tracking service with enhanced Klippy connection 
+  monitoring capabilities, providing better visibility into printer connectivity status.
+
+- **Spoolman Integration Enhancements**: Added support for extra fields in Spoolman forms, spool detail pages now 
+  display spool weight and initial weight information, and improved form handling with better parent value inheritance.
+
 ### Bug Fixes
 
 - **LED Control System**: Resolved a critical issue that prevented the app from properly updating LED color settings,
@@ -33,6 +38,17 @@
   view, ensuring complete visibility of all available print
   files. [#504](https://github.com/Clon1998/mobileraker/issues/504)
 
+- **Webcam Management**: Fixed issue preventing webcam snapshot disabling, resolved broken webcam addition due to UID 
+  changes, and migrated to proper UID field usage for moonraker webcam API.
+
+- **Spoolman Fixes**: Resolved form parsing errors on iOS devices, fixed string field handling when values were empty, 
+  improved error handling for unchanged form submissions, and fixed field reset issues in subsequent save requests.
+
+- **UI & Layout Improvements**: Fixed notification settings page showing too many device selections, resolved screen 
+  keep-alive issue, improved color handling for light and dark themes across multiple components, added restart button 
+  for disconnected Klipper states, fixed console page not showing when Klippy wasn't ready, and wrapped content in 
+  SafeArea for better layout on various screen sizes.
+
 ### Code Improvements
 
 - **Enhanced Logging Framework**: Implemented a more robust logging system with improved performance characteristics,
@@ -41,7 +57,6 @@
 
 - **Webcam API Reliability**: Migrated from name-based references to unique identifier (UID) implementation for webcam
   connections, eliminating potential naming conflicts and ensuring consistent webcam access across network changes.
-
 ## [2.8.7] - 2025-03-05
 
 ### Bug Fixes
