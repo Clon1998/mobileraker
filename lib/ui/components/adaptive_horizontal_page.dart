@@ -52,7 +52,7 @@ class AdaptiveHorizontalPage extends HookWidget {
           final double width = constraints.maxWidth;
 
           // Log some information
-          logger.d(
+          talker.debug(
             '$pageStorageKey (PageView) - visibleCnt:, width: $width, $constraints',
           );
 

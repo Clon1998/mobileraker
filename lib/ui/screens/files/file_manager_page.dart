@@ -800,9 +800,10 @@ class _FileListState extends ConsumerState<_FileListData> {
     final sortConfiguration = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
         .select((data) => data.sortConfiguration));
 
+    final int totalItems = widget.folderContent.totalItems;
     final adEvery = ref.watch(remoteConfigIntProvider('files_page_add_density'));
 
-    int adCount = adEvery == 0 ? 0 : widget.folderContent.totalItems ~/ adEvery;
+    final int adCount = adEvery > 0 ? totalItems ~/ adEvery : 0;
 
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
@@ -824,7 +825,7 @@ class _FileListState extends ConsumerState<_FileListData> {
             _refreshController.refreshCompleted();
           },
           onError: (e, s) {
-            logger.e('Error while refreshing FileListState', e, s);
+            talker.error('Error while refreshing FileListState', e, s);
             _refreshController.refreshFailed();
           },
         ).whenComplete(() => _isUserRefresh.value = false);
@@ -878,10 +879,9 @@ class _FileListState extends ConsumerState<_FileListData> {
                 ),
                 itemCount: widget.folderContent.totalItems + adCount,
                 itemBuilder: (context, index) {
-                  // Check if this position should show an ad (every 10th position)
-                  if (adEvery > 0 && index > 0 && index % adEvery == 0) {
+                  if (adEvery > 0 && index > 0 && index % (adEvery + 1) == adEvery) {
                     // Calculate which ad to show (0-based index for ads)
-                    final adIndex = (index ~/ adEvery) - 1;
+                    final adIndex = (index ~/ (adEvery + 1));
 
                     return LayoutBuilder(
                       key: Key('file_list_ad:$adIndex:${widget.filePath}'),
@@ -896,9 +896,9 @@ class _FileListState extends ConsumerState<_FileListData> {
                   }
 
                   // Calculate the actual index in your data, accounting for the ad positions
-                  final adjustedIndex = index - (index ~/ 10);
+                  final int dataIndex = adEvery > 0 ? index - (index ~/ (adEvery + 1)) : index;
 
-                  final file = widget.folderContent.unwrapped[adjustedIndex];
+                  final file = widget.folderContent.unwrapped[dataIndex];
                   return _FileItem(
                     key: ValueKey(file),
                     machineUUID: widget.machineUUID,
@@ -1077,7 +1077,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     ref.onCancel(() => _uploadToken?.cancel());
     listenSelf(_onModelChanged);
 
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] fetching directory info for $filePath');
 
     final supportedModes = _availableSortModes;
     final sortModeIdx = ref.watch(intSettingProvider(_sortModeKey)).clamp(0, supportedModes.length - 1);
@@ -1091,8 +1091,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     var apiResp = ref.watch(moonrakerFolderContentProvider(machineUUID, filePath, sortConfiguration));
 
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] The api response is: $apiResp ');
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] and the current state is: $stateOrNull');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] The api response is: $apiResp ');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] and the current state is: $stateOrNull');
 
     // Required to get a smoother UX and to prevent the folder content from beeing empty!
     if (stateOrNull != null) {
@@ -1110,7 +1110,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickFile(RemoteFile file, Rect origin) {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] opening file ${file.name} (${file.runtimeType})');
+    talker
+        .info('[ModernFileManagerController($machineUUID, $filePath)] opening file ${file.name} (${file.runtimeType})');
 
     switch (file) {
       case GCodeFile():
@@ -1140,7 +1141,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onLongClickFile(RemoteFile file) {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] file longPress: ${file.name}');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] file longPress: ${file.name}');
     // _goRouter.pushNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': file.absolutPath});
 
     // if not in selected, add
@@ -1158,7 +1159,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickRootNavigation(int index) {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] bottom nav item tapped: $index');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] bottom nav item tapped: $index');
 
     switch (index) {
       case 1:
@@ -1173,7 +1174,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickCreateFolder() async {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] creating folder');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] creating folder');
 
     final usedNames = state.folderContent.requireValue.folderFileNames;
 
@@ -1181,7 +1182,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> onClickSortMode() async {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] sort mode');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] sort mode');
     final args = SortModeSheetArgs(
       toShow: _availableSortModes,
       active: state.sortConfiguration,
@@ -1190,7 +1191,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final res = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.sortMode, data: args));
 
     if (res.confirmed == true) {
-      logger.i('SortModeSheet confirmed: ${res.data}');
+      talker.info('SortModeSheet confirmed: ${res.data}');
 
       // This is required to already show the new sort mode before the data is updated
       state = state.copyWith(sortConfiguration: res.data);
@@ -1201,7 +1202,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickSearch() {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] search');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] search');
 
     _goRouter.pushNamed(AppRoute.fileManager_exlorer_search.name,
         pathParameters: {'path': filePath}, queryParameters: {'machineUUID': machineUUID});
@@ -1209,7 +1210,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> refreshApiResponse([bool forceLoad = false]) {
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] refreshing api response');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] refreshing api response');
     // ref.invalidate(directoryInfoApiResponseProvider(machineUUID, filePath));
     if (forceLoad) {
       state = state.copyWith(folderContent: const AsyncLoading());
@@ -1279,10 +1280,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   //////////////////// NOTIFICATIONS ////////////////////
 
   void _onFileInteractionMenuEvents(FileInteractionMenuEvent event) {
-    // logger.w('[ModernFileManagerController($machineUUID, $filePath)] file interaction menu event: $event');
+    // talker.warning('[ModernFileManagerController($machineUUID, $filePath)] file interaction menu event: $event');
     switch (event) {
       case FileActionSelected():
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] multi file action selected: ${event.action}');
+        talker
+            .info('[ModernFileManagerController($machineUUID, $filePath)] multi file action selected: ${event.action}');
         break;
       case FileOperationTriggered():
         state = state.copyWith(folderContent: state.folderContent.toLoading(false));
@@ -1298,7 +1300,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         state = state.copyWith(upload: event.event);
         break;
       case FileOperationCompleted():
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] file action completed: ${event.action}');
+        talker.info('[ModernFileManagerController($machineUUID, $filePath)] file action completed: ${event.action}');
         // it is NOT possible to have an up and download at the same time!
         _downloadToken = null;
         _uploadToken = null;
@@ -1316,15 +1318,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     if (notification == _lastResponse) return;
     _lastResponse = notification;
 
-    logger.i('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] Got a file notification: $notification');
 
     final activeViewName = _goRouter.state?.name;
     final activeFileUiExtra = _goRouter.state?.extra;
     final activeFileUiPath = _goRouter.state?.uri.path.substring(7).let(Uri.decodeComponent) ?? filePath;
 
     if (_goRouter.state?.uri.path.startsWith('/files/') != true) {
-      logger
-          .i('[ModernFileManagerController($machineUUID, $filePath)] Ignoring notification, not in file manager view');
+      talker.info(
+          '[ModernFileManagerController($machineUUID, $filePath)] Ignoring notification, not in file manager view');
       return;
     }
 
@@ -1348,7 +1350,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         // The controller ensures clean UI state by removing all views that reference
         // now-nonexistent paths in the file system.
 
-        logger.i('''
+        talker.info('''
           [ModernFileManagerController($machineUUID, $filePath)]
             Folder deletion detected:
             - Deleted path: $filePath
@@ -1358,7 +1360,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
         // Case 1: DIRECT DELETION - Handle deletion of currently active folder
         if (activeFileUiPath == filePath) {
-          logger.i('''
+          talker.info('''
             [ModernFileManagerController($machineUUID, $filePath)]
               Direct folder deletion:
               - Closing view for deleted folder: $filePath
@@ -1380,7 +1382,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         // +1 ensures we also pop the deleted folder's view itself
         final viewsToClose = activePathSegments.length - sharedPathDepth + 1;
 
-        logger.i('''
+        talker.info('''
           [ModernFileManagerController($machineUUID, $filePath)]
             Parent folder deletion detected:
             - Views to close: $viewsToClose
@@ -1392,7 +1394,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           final currentlyClosingPath = activePathSegments.sublist(0, activePathSegments.length - i).join('/');
           final closingSegment = activePathSegments[activePathSegments.length - 1 - i];
 
-          logger.i(
+          talker.info(
               '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $closingSegment, path: $currentlyClosingPath');
           _goRouter.pop();
 
@@ -1404,7 +1406,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           }
         }
 
-        logger.i('''
+        talker.info('''
           [ModernFileManagerController($machineUUID, $filePath)]
             Folder deletion handling completed:
             - Total views closed: $viewsToClose
@@ -1436,7 +1438,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         // The destination path where the folder was moved to
         final destinationPathSegments = movedFolder.absolutPath.split('/').toList();
 
-        logger.i('''
+        talker.info('''
           [ModernFileManagerController($machineUUID, $filePath)] 
             Folder move detected:
             - From: $filePath
@@ -1451,7 +1453,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
         // Handle the PARENT MOVE scenario
         if (activeFileUiPath != filePath) {
-          logger.i('''
+          talker.info('''
             [ModernFileManagerController($machineUUID, $filePath)]
               Parent folder move detected:
               - Active child path will be preserved
@@ -1464,7 +1466,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           final childPathSegments = currentUIPathSegments.sublist(parentPathDepth);
           newPathSegmentsToAdd.addAll(childPathSegments);
 
-          logger.i('''
+          talker.info('''
             [ModernFileManagerController($machineUUID, $filePath)]
               Path reconstruction details:
               - Shared path depth: $sharedPathDepth
@@ -1478,7 +1480,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           final segmentToClose = currentUIPathSegments[currentUIPathSegments.length - 1 - i];
           final remainingPath = currentUIPathSegments.sublist(0, currentUIPathSegments.length - i).join('/');
 
-          logger.i(
+          talker.info(
               '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $segmentToClose');
           _goRouter.pop();
 
@@ -1502,7 +1504,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             case String() when !isLast || activeViewName == AppRoute.fileManager_explorer.name:
               reconstructedPath = '$reconstructedPath/$pathSegment';
 
-              logger.i(
+              talker.info(
                   '[ModernFileManagerController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath');
 
               _goRouter.pushNamed(
@@ -1514,7 +1516,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
               break;
             case String()
                 when activeViewName == AppRoute.fileManager_exlorer_gcodeDetail.name && activeFileUiExtra is GCodeFile:
-              logger.i(
+              talker.info(
                   '[ModernFileManagerController($machineUUID, $filePath)] Opening new GCodeDetails view for path: $reconstructedPath');
 
               _goRouter.pushNamed(
@@ -1526,7 +1528,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
               );
               break;
             case String() when activeFileUiExtra is GenericFile:
-              logger.i(
+              talker.info(
                   '[ModernFileManagerController($machineUUID, $filePath)] Opening new $activeViewName view for path: $reconstructedPath');
 
               _goRouter.pushNamed(
@@ -1539,7 +1541,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           }
         }
 
-        logger.i('''
+        talker.info('''
           [ModernFileManagerController($machineUUID, $filePath)]
             Path reconstruction completed:
             - Final path: $reconstructedPath
@@ -1556,14 +1558,15 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     if (nextState == null) return;
 
     if (nextState != ClientState.connected) {
-      logger.i('[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode');
+      talker.info(
+          '[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode');
       state = state.copyWith(selectedFiles: []);
     }
   }
 
   void _onModelChanged(_Model? prev, _Model next) {
     if (!next.hasTimelapseComponent && filePath.startsWith('timelapse')) {
-      logger.i(
+      talker.info(
           '[ModernFileManagerController($machineUUID, $filePath)] Timelapse component was removed/not available anymore, will move to gcodes');
       _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'gcodes'});
     }

@@ -34,19 +34,19 @@ class CustomerInfoNotifier extends _$CustomerInfoNotifier {
   @override
   Future<CustomerInfo> build() async {
     try {
-      logger.i('Fetching customer info');
+      talker.info('Fetching customer info');
       var customerInfo = await Purchases.getCustomerInfo();
-      logger.i('Got customerInfo: $customerInfo');
+      talker.info('Got customerInfo: $customerInfo');
 
       checkForExpired() async {
-        logger.i('Checking for expired subs!');
+        talker.info('Checking for expired subs!');
         var curUserInfo = state;
         var now = DateTime.now();
         if (curUserInfo.hasValue) {
           var hasExpired = curUserInfo.requireValue.entitlements.active.values.any(
               (ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
           if (hasExpired) {
-            logger.i('Found expired Entitlement, force refresh!');
+            talker.info('Found expired Entitlement, force refresh!');
             state = await AsyncValue.guard(() async {
               await Purchases.invalidateCustomerInfoCache();
               return Purchases.getCustomerInfo();
@@ -58,11 +58,11 @@ class CustomerInfoNotifier extends _$CustomerInfoNotifier {
 
       ref.onAddListener(checkForExpired);
       ref.onResume(checkForExpired);
-      logger.i('RCat ID: ${customerInfo.originalAppUserId}');
+      talker.info('RCat ID: ${customerInfo.originalAppUserId}');
 
       return customerInfo;
     } on PlatformException catch (e, s) {
-      logger.w('Could not fetch customer info. Platform code: ${e.code}!', e, s);
+      talker.warning('Could not fetch customer info. Platform code: ${e.code}!', e, s);
       return const CustomerInfo(EntitlementInfos({}, {}), {}, [], [], [], "", "", {}, "");
     }
   }
@@ -106,11 +106,11 @@ bool hasSubscriptionAndLifetime(Ref ref) {
   final subEnt = customerInfo.entitlements.active['supporter_subscription'];
 
   customerInfo.entitlements.active.forEach((_, action) {
-    logger.w('Action: ${action}');
+    talker.warning('Action: ${action}');
   });
 
-  logger.w('Ent: $ent');
-  logger.w('SubEnt: $subEnt');
+  talker.warning('Ent: $ent');
+  talker.warning('SubEnt: $subEnt');
 
   if (subEnt == null || ent == null) return false;
   return subEnt.isActive && ent.isActive && subEnt.productIdentifier != ent.productIdentifier;
@@ -142,7 +142,7 @@ class PaymentService {
     }
     await Purchases.configure(configuration);
     _setupListeners();
-    logger.i('Completed PaymentService init');
+    talker.info('Completed PaymentService init');
   }
 
   Future<Offerings> getOfferings() {
@@ -153,17 +153,17 @@ class PaymentService {
     try {
       var storeProduct = packageToBuy.storeProduct;
       if (Platform.isIOS && storeProduct.discounts?.isNotEmpty == true) {
-        logger.i('Trying to buy ${storeProduct.identifier} at discounted rate ');
+        talker.info('Trying to buy ${storeProduct.identifier} at discounted rate ');
         var promotionalOffer = await Purchases.getPromotionalOffer(storeProduct, storeProduct.discounts!.first);
 
         await Purchases.purchaseDiscountedPackage(packageToBuy, promotionalOffer);
       } else {
-        logger.i('Trying to buy ${storeProduct.identifier}');
+        talker.info('Trying to buy ${storeProduct.identifier}');
         await Purchases.purchasePackage(packageToBuy, googleProductChangeInfo: googleProductChangeInfo);
       }
 
       var customerInfo = await _ref.refresh(customerInfoProvider.future);
-      logger.i('Successful bought package... $customerInfo');
+      talker.info('Successful bought package... $customerInfo');
       // _ref.read(snackBarServiceProvider).show(SnackBarConfig(
       //     title: 'Confirmed!',
       //     message: 'You just subscribed to Mobileraker! Thanks a lot for the support!'));
@@ -177,11 +177,11 @@ class PaymentService {
           fatal: true,
         );
 
-        logger.e('Error while trying to purchase; $e');
+        talker.error('Error while trying to purchase; $e');
         _ref.read(snackBarServiceProvider).show(
             SnackBarConfig(type: SnackbarType.error, title: 'Unexpected Error', message: errorCode.name.capitalize()));
       } else {
-        logger.w('User canceled purchase!');
+        talker.warning('User canceled purchase!');
         // ref.read(snackBarServiceProvider).show(SnackBarConfig(
         //     type: SnackbarType.warning,
         //     title: 'Canceled',
@@ -194,8 +194,8 @@ class PaymentService {
     try {
       var customerInfo = await Purchases.restorePurchases();
       var length = customerInfo.entitlements.active.length;
-      logger.i('Found $length entitlements');
-      logger.i(
+      talker.info('Found $length entitlements');
+      talker.info(
           'Restored Subs: ${customerInfo.activeSubscriptions}, nonSubs: ${customerInfo.nonSubscriptionTransactions} ');
 
       _ref.invalidate(customerInfoProvider);
@@ -214,7 +214,7 @@ class PaymentService {
 
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
 
-      logger.e('Error while trying to restore purchases; $e');
+      talker.error('Error while trying to restore purchases; $e');
       _ref.read(snackBarServiceProvider).show(SnackBarConfig(
           type: SnackbarType.error, title: 'Error during restore', message: errorCode.name.capitalize()));
     }
@@ -240,12 +240,12 @@ class PaymentService {
               Map<dynamic, dynamic> name = _settingService.read(settingKey, {});
               var supporter = Supporter.fromJson(name.cast<String, dynamic>());
 
-              logger.i(
+              talker.info(
                   'Read Supporter storage local: ${supporter.expirationDate}, ${supporter.fcmToken}. Customer.expirationDate: ${supporterEntitlement.expirationDate}, FcmToken: $token');
               if (supporter.expirationDate != null &&
                   DateTime.now().isBefore(supporter.expirationDate!) &&
                   supporter.fcmToken == token) {
-                logger.i('No need to write to firebase, its expected to still have a valid sub!');
+                talker.info('No need to write to firebase, its expected to still have a valid sub!');
                 return;
               }
             }
@@ -261,13 +261,13 @@ class PaymentService {
                   .collection('sup')
                   .doc(customerInfo.originalAppUserId)
                   .set(supporter.toFirebase());
-              logger.i('Added fcmToken to fireStore... now writing it to local storage');
+              talker.info('Added fcmToken to fireStore... now writing it to local storage');
               _settingService.write(settingKey, supporter.toJson());
             } catch (e) {
-              logger.w('Error while trying to register FCM token with firebase:', e);
+              talker.warning('Error while trying to register FCM token with firebase:', e);
             }
           } catch (e, s) {
-            logger.e('Error while trying to register supporter status/fcm token in firebase:', e, s);
+            talker.error('Error while trying to register supporter status/fcm token in firebase:', e, s);
           }
         }
       },
@@ -282,25 +282,25 @@ class PaymentService {
         var isLogout = previous?.valueOrNull != null && next.valueOrNull == null ||
             previous?.valueOrNull?.isAnonymous == false && next.valueOrNull?.isAnonymous == true;
 
-        logger.i('[PaymentService] User changed. isLogin: $isLogin, isLogout: $isLogout');
+        talker.info('[PaymentService] User changed. isLogin: $isLogin, isLogout: $isLogout');
 
         if (isLogin) {
           try {
             LogInResult logInResult = await Purchases.logIn(next.requireValue!.uid);
-            logger.i(
+            talker.info(
                 '[PaymentService] Logged user into rCat: created: ${logInResult.created} - ${logInResult.customerInfo}}');
           } on PlatformException catch (e) {
             var errorCode = PurchasesErrorHelper.getErrorCode(e);
 
-            logger.e('[PaymentService] Error while trying to log in to Purchases: $errorCode');
+            talker.error('[PaymentService] Error while trying to log in to Purchases: $errorCode');
           }
         } else if (isLogout) {
           try {
             var customerInfo = await Purchases.logOut();
-            logger.i('[PaymentService] Logged user out of rCat - new Anonym ID: ${customerInfo.originalAppUserId}');
+            talker.info('[PaymentService] Logged user out of rCat - new Anonym ID: ${customerInfo.originalAppUserId}');
           } on PlatformException catch (e) {
             var errorCode = PurchasesErrorHelper.getErrorCode(e);
-            logger.e('[PaymentService] Error while logging out of rCat: $errorCode');
+            talker.error('[PaymentService] Error while logging out of rCat: $errorCode');
           }
         }
         _ref.invalidate(customerInfoProvider);
@@ -312,12 +312,12 @@ class PaymentService {
       fcmTokenProvider,
       (prev, next) async {
         if (!next.hasValue) return;
-        logger.i('Syncing FCM token with Purchases: ${next.value}');
+        talker.info('Syncing FCM token with Purchases: ${next.value}');
         try {
           await Purchases.setPushToken(next.value!);
-          logger.i('Synced FCM token with Purchases');
+          talker.info('Synced FCM token with Purchases');
         } catch (e) {
-          logger.w('Error while trying to sync FCM token with Purchases', e);
+          talker.warning('Error while trying to sync FCM token with Purchases', e);
         }
       },
       fireImmediately: true,
@@ -328,12 +328,12 @@ class PaymentService {
       (prev, next) async {
         if (!next.hasValue) return;
         var packageInfo = next.requireValue;
-        logger.i('Setting device version to Purchases: $packageInfo');
+        talker.info('Setting device version to Purchases: $packageInfo');
         try {
           await Purchases.setAttributes({r'$deviceVersion': packageInfo.toString()});
-          logger.i('Set device version to Purchases');
+          talker.info('Set device version to Purchases');
         } catch (e) {
-          logger.w('Error while trying to set device version to Purchases', e);
+          talker.warning('Error while trying to set device version to Purchases', e);
         }
       },
       fireImmediately: true,

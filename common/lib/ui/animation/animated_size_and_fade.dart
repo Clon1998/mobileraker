@@ -63,7 +63,7 @@ class AnimatedSizeAndFade extends StatelessWidget {
               currentChild,
             ];
       if (debugLabel != null) {
-        logger.i(
+        talker.info(
             '$debugLabel: I HAVE : ${previousChildren.length} PREVIOUS CHILDREN and total ${children.length} children');
       }
     }

@@ -16,11 +16,11 @@ import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/device_fcm_settings_service.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
-import 'package:common/service/notification_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -76,7 +76,7 @@ Future<MachineSettings> machineRemoteSettings(Ref ref) {
   WebcamListController
 ])
 class PrinterEditController extends _$PrinterEditController {
-  MachineService get _machineService => ref.read(machineServiceProvider);
+  DeviceFcmSettingsService get _deviceFcmService => ref.read(deviceFcmSettingsServiceProvider);
 
   SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
@@ -120,7 +120,7 @@ class PrinterEditController extends _$PrinterEditController {
             message: 'pages.printer_edit.store_error.message'.tr(),
             duration: const Duration(seconds: 10),
           ));
-      logger.w('Could not save printer, formBuilder reported invalid state!');
+      talker.warning('Could not save printer, formBuilder reported invalid state!');
       return;
     }
 
@@ -131,7 +131,7 @@ class PrinterEditController extends _$PrinterEditController {
       Map<String, dynamic> storedValues = Map.unmodifiable(formBuilderState.value);
 
       if (isConnected) {
-        logger.i('Can store remoteSettings, machine is connected!');
+        talker.info('Can store remoteSettings, machine is connected!');
 
         await _saveWebcamInfos(storedValues);
         await _saveMachineRemoteSettings(storedValues);
@@ -139,7 +139,7 @@ class PrinterEditController extends _$PrinterEditController {
       await _saveMachine(storedValues);
     } catch (e, s) {
       state = false;
-      logger.e('Error while trying to save printer data', e, s);
+      talker.error('Error while trying to save printer data', e, s);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
             type: SnackbarType.error,
             title: tr('pages.printer_edit.store_error.title'),
@@ -305,12 +305,11 @@ class PrinterEditController extends _$PrinterEditController {
     try {
       if (dialogResponse?.confirmed ?? false) {
         state = true;
-        _machineService.resetFcmTokens(_machine);
-        var fcmToken = await ref.read(fcmTokenProvider.future);
-        await _machineService.updateMachineFcmSettings(_machine, fcmToken);
+        await _deviceFcmService.clearAllDeviceFcm(_machine);
+        await _deviceFcmService.syncDeviceFcmToMachine(_machine);
       }
     } catch (e) {
-      logger.w(
+      talker.warning(
         'Error while resetting FCM cache on machine ${_machine.name}',
         e,
       );
@@ -321,7 +320,7 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> requestLocationPermission() async {
     var status = await Permission.location.status;
     if (status.isGranted) return;
-    logger.i('Location permission is not granted ($status), requesting it now');
+    talker.info('Location permission is not granted ($status), requesting it now');
     if (status == PermissionStatus.denied) {
       status = await Permission.location.request();
     }
@@ -433,7 +432,7 @@ class PrinterEditController extends _$PrinterEditController {
           ),
         ));
 
-    logger.i('Received from Bottom sheet $show');
+    talker.info('Received from Bottom sheet $show');
     if (!show.confirmed) return;
     state = true;
 
@@ -442,7 +441,7 @@ class PrinterEditController extends _$PrinterEditController {
     //TODO: RI presnet, user adds OE, no error message? (Wtf why?)
 
     if (show.data == null) {
-      logger.i(
+      talker.info(
         'BottomSheet result indicates the removal of all remote connecions!',
       );
 
@@ -494,13 +493,13 @@ class PrinterEditController extends _$PrinterEditController {
     var octoEverywhere = ref.read(_octoEverywhereProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
 
-    logger.wtf(
+    talker.info(
       'tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface',
     );
-    logger.wtf(
+    talker.info(
       'tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere',
     );
-    logger.wtf(
+    talker.info(
       'tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel, obicoEnabled:$_obicoEnabled',
     );
 
@@ -713,14 +712,14 @@ WebcamInfo _applyWebcamFieldsToWebcam(
   Map<String, dynamic> storedValues,
   WebcamInfo cam,
 ) {
-  var name = storedValues['${cam.uuid}-camName'];
-  String? streamUrl = storedValues['${cam.uuid}-streamUrl'];
-  String? snapshotUrl = storedValues['${cam.uuid}-snapshotUrl'];
-  var fH = storedValues['${cam.uuid}-camFH'];
-  var fV = storedValues['${cam.uuid}-camFV'];
-  var service = storedValues['${cam.uuid}-service'];
-  var rotation = storedValues['${cam.uuid}-rotate'];
-  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive) ? storedValues['${cam.uuid}-tFps'] : null;
+  var name = storedValues['${cam.uid}-camName'];
+  String? streamUrl = storedValues['${cam.uid}-streamUrl'];
+  String? snapshotUrl = storedValues['${cam.uid}-snapshotUrl'];
+  var fH = storedValues['${cam.uid}-camFH'];
+  var fV = storedValues['${cam.uid}-camFV'];
+  var service = storedValues['${cam.uid}-service'];
+  var rotation = storedValues['${cam.uid}-rotate'];
+  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive) ? storedValues['${cam.uid}-tFps'] : null;
 
   return cam.copyWith(
     name: name ?? cam.name,

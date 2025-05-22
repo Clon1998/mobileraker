@@ -462,7 +462,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       jrpcClientStateProvider(machineUUID),
       (previous, next) {
         if (next.valueOrNull != ClientState.connected && !_closing) {
-          logger.i('Lost connection to machine, will close filament dialog.');
+          talker.info('Lost connection to machine, will close filament dialog.');
           _closing = true;
           completer(DialogResponse.aborted());
         }
@@ -476,10 +476,10 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       if (modelNext == null) return;
 
       if (modelPrevious?.step != modelNext.step && modelNext.step == _FilamentChangeSteps.heatUp) {
-        logger.i('Set target temperature to ${next.valueOrNull!.targetTemperature}');
+        talker.info('Set target temperature to ${next.valueOrNull!.targetTemperature}');
         _printerService.setHeaterTemperature(args.extruder, next.valueOrNull!.targetTemperature);
       } else if (modelNext.targetReached && modelNext.step == _FilamentChangeSteps.heatUp) {
-        logger.i('Target reached, next step');
+        talker.info('Target reached, next step');
         moveToStep(_FilamentChangeSteps.moveFilament);
         // if we unload, we automatically start extruding
         if (!args.isLoad) moveFilament();
@@ -563,7 +563,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
   Future<void> formTip() async {
     final model = state.valueOrNull;
     if (model == null) return;
-    logger.i('Forming tip');
+    talker.info('Forming tip');
 
     final tipRetract = 18;
 

@@ -17,6 +17,7 @@ import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +29,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -46,7 +46,10 @@ class ConsolePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget body = MachineConnectionGuard(onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID));
+    Widget body = MachineConnectionGuard(
+      onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID),
+      skipKlipperReady: true,
+    );
     if (context.isLargerThanCompact) {
       body = NavigationRailView(page: body);
     }
@@ -432,7 +435,6 @@ class _GCodeSuggestions extends HookConsumerWidget {
 
     return sortedSuggestions;
   }
-
 }
 
 class _Console extends ConsumerWidget {
@@ -535,7 +537,7 @@ class _ConsoleProviderError extends ConsumerWidget {
         ),
         action: TextButton.icon(
           onPressed: () {
-            logger.i('Retrying console provider');
+            talker.info('Retrying console provider');
             ref.invalidate(_consoleListControllerProvider);
           },
           icon: const Icon(Icons.restart_alt_outlined),
@@ -585,7 +587,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
     final themeData = Theme.of(context);
     final dateFormatService = ref.read(dateFormatServiceProvider);
 
-    logger.e('Rebuilding console list. Count: $count');
+    talker.error('Rebuilding console list. Count: $count');
 
     return SmartRefresher(
       header: ClassicHeader(

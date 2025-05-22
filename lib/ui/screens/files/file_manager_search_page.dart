@@ -46,7 +46,7 @@ class FileManagerSearchPage extends HookConsumerWidget {
     final controller = ref.watch(_fileManagerSearchControllerProvider(machineUUID, path).notifier);
 
     useEffect(() {
-      logger.i('[FileManagerSearchPage] useEffect - Search term changed');
+      talker.info('[FileManagerSearchPage] useEffect - Search term changed');
       controller.onSearchTermChanged(textController.text);
     }, [searchQuery]);
 
@@ -223,31 +223,31 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
 
   @override
   _Model build(String machineUUID, String path) {
-    logger.i('[FileManagerSearchController] initializing for $path');
+    talker.info('[FileManagerSearchController] initializing for $path');
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
       if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
         if (_goRouter.canPop()) _goRouter.pop();
-        logger.i('[FileManagerSearchController] Client disconnected. Popping search page');
+        talker.info('[FileManagerSearchController] Client disconnected. Popping search page');
       }
     });
 
     ref.listenSelf((previous, next) {
       if (previous?.searchTerm != next.searchTerm) {
-        logger.i('[FileManagerSearchController] Search term changed, refreshing results');
+        talker.info('[FileManagerSearchController] Search term changed, refreshing results');
         _refreshResults();
       }
     });
     // Start fetching files from the root directory
     _fetchFiles(path).whenComplete(() {
       state = state.copyWith(isLoading: false);
-      logger.i('[FileManagerSearchController] finished fetching files');
+      talker.info('[FileManagerSearchController] finished fetching files');
     });
 
     return const _Model(searchResults: [], isLoading: true);
   }
 
   void onTapFile(RemoteFile file) {
-    logger.i('[FileManagerSearchController] Tapped file: ${file.name}');
+    talker.info('[FileManagerSearchController] Tapped file: ${file.name}');
     switch (file) {
       case GCodeFile():
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name, pathParameters: {'path': path}, extra: file);
@@ -267,17 +267,17 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   }
 
   void onSearchTermChanged(String searchTerm) {
-    logger.i('[FileManagerSearchController] Search term changed: $searchTerm');
+    talker.info('[FileManagerSearchController] Search term changed: $searchTerm');
     _debouncer?.cancel();
     _debouncer = Timer(const Duration(milliseconds: 400), () {
-      logger.i('[FileManagerSearchController] Debounced search term: $searchTerm');
+      talker.info('[FileManagerSearchController] Debounced search term: $searchTerm');
       state = state.copyWith(searchTerm: searchTerm.trim());
     });
   }
 
   /// Fetch all files from the given path and all subfolders
   Future<void> _fetchFiles(String path, [bool isRetry = false]) async {
-    logger.i('[FileManagerSearchController] Fetching files from $path');
+    talker.info('[FileManagerSearchController] Fetching files from $path');
     try {
       final provider = directoryInfoApiResponseProvider(machineUUID, path).future;
       //TODO: Should I really watch or read?
@@ -296,11 +296,11 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
       await Future.wait(futures);
     } catch (e, s) {
       if (!isRetry) {
-        logger.e('Error while fetching files. Retrying in 400ms...', e, s);
+        talker.error('Error while fetching files. Retrying in 400ms...', e, s);
         await Future.delayed(const Duration(milliseconds: 400));
         _fetchFiles(path, true);
       } else {
-        logger.e('Error while fetching files', e, s);
+        talker.error('Error while fetching files', e, s);
       }
     }
   }
@@ -310,7 +310,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
     if (searchTerm?.isNotEmpty != true) return;
     final toFilter = files ?? state.apiResponses.expand((element) => element.files);
     final searchTokens = searchTerm!.split(RegExp(r'[\W,]+'));
-    logger.i('[FileManagerSearchController] Refreshing search results for $searchTerm, tokens: $searchTokens');
+    talker.info('[FileManagerSearchController] Refreshing search results for $searchTerm, tokens: $searchTokens');
     final newSearchResults = toFilter
         .map(
           (file) => (file, file.name.searchScore(searchTerm, searchTokens)),
@@ -319,7 +319,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
         .sorted((a, b) => b.$2.compareTo(a.$2))
         .map((e) => e.$1)
         .toList();
-    logger.i(
+    talker.info(
         '[FileManagerSearchController] Found ${newSearchResults.length}/${toFilter.length} results for ${state.searchTerm}');
 
     state =

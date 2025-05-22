@@ -6,7 +6,7 @@
 import 'dart:convert';
 
 import 'package:common/util/logger.dart';
-import 'package:logger/logger.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Returns the ObjectsJson from the moonraker JSON result using
 /// /printer/objects/query?<OBJECT> Endpoint
@@ -16,9 +16,13 @@ Map<String, dynamic> objectFromHttpApiResult(String input, String objectKey) {
 }
 
 void setupTestLogger() {
-  Logger.level = Level.info;
-  logger = Logger(
-    printer: PrettyPrinter(methodCount: 0, errorMethodCount: 500, noBoxingByDefault: true),
-    output: ConsoleOutput(),
+  talker = Talker(
+    settings: TalkerSettings(),
+    logger: TalkerLogger(
+      settings: TalkerLoggerSettings(
+        // Set current logging level
+        level: LogLevel.info,
+      ),
+    ),
   );
 }

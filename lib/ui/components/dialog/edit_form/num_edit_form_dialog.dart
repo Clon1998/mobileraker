@@ -75,14 +75,14 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
     _value = widget.request.data!.current;
 
     _controller.addListener(() {
-      // logger.i('Controller changed: ${_controller.text}');
+      // talker.info('Controller changed: ${_controller.text}');
       setState(() {
         _validation = _validate(_controller.text);
         if (_isValid) {
           __value = num.tryParse(_controller.text) ?? 0;
         }
       });
-      // logger.i('Validation: $_validation');
+      // talker.info('Validation: $_validation');
       // setState(() {
       //   if (_isValid) {
       //     _value = num.tryParse(_controller.text) ?? 0;

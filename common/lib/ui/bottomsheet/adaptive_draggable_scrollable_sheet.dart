@@ -48,13 +48,13 @@ class AdaptiveDraggableScrollableSheetState extends State<AdaptiveDraggableScrol
             // 2. paddingOf.bottom -> SafeArea padding, which is the padding of the bottom
             // 3. viewInsets.bottom, which is the height of the keyboard -> IF keyboard open, it should extend the sheet if needed
             // We clmap the value between min and max child size
-            // logger.w('Body height: $_bodyHeight, paddingOf: $viewInsets');
+            // talker.warning('Body height: $_bodyHeight, paddingOf: $viewInsets');
 
             // !! Note: We need to use constraints because
             maxHeight = ((_bodyHeight! + paddingOf.bottom + viewInsets.bottom) /
                     (Platform.isIOS ? sizeOf.height : constraints.maxHeight))
                 .clamp(widget.minChildSize, widget.maxChildSize);
-            // logger.w('body.height: $_bodyHeight\n'
+            // talker.warning('body.height: $_bodyHeight\n'
             //     'mediaQuery.height: ${sizeOf.height}\n'
             //     'constraints: $constraints\n'
             //     'paddingOf: $paddingOf\n'
@@ -72,17 +72,17 @@ class AdaptiveDraggableScrollableSheetState extends State<AdaptiveDraggableScrol
                 body: NotificationListener<ScrollNotification>(
                   onNotification: (notification) {
                     if (notification is ScrollStartNotification) {
-                      // logger.e(
+                      // talker.error(
                       //     'START Metrics: ${notification.metrics}');
                       _scrollMetrics = notification.metrics;
                       WidgetsBinding.instance.addPostFrameCallback((_) => refreshHeight());
                       _isScrolling = true;
                     } else if (notification is ScrollEndNotification) {
-                      // logger.e(
+                      // talker.error(
                       //     'END Metrics: ${notification.metrics}');
                       _isScrolling = false;
                     } else if (notification is ScrollUpdateNotification) {
-                      // logger.e(
+                      // talker.error(
                       //     'UPDATE Metrics: ${notification.metrics}');
                       // _scrollMetrics = notification.metrics;
                       // WidgetsBinding.instance.addPostFrameCallback((_) => refreshHeight());
@@ -120,13 +120,13 @@ class AdaptiveDraggableScrollableSheetState extends State<AdaptiveDraggableScrol
     if (renderObject is RenderBox) {
       final newHeight =
           renderObject.size.height + (_scrollMetrics?.extentBefore ?? 0) + (_scrollMetrics?.extentAfter ?? 0);
-      // logger.w('renderHeight: ${renderObject.size.height}, metrics: $_scrollMetrics');
+      // talker.warning('renderHeight: ${renderObject.size.height}, metrics: $_scrollMetrics');
       if (_bodyHeight == null || newHeight != _bodyHeight) {
         setState(() {
           _bodyHeight = newHeight;
         });
       }
     }
-    // logger.i('Body height: $_bodyHeight');
+    // talker.info('Body height: $_bodyHeight');
   }
 }

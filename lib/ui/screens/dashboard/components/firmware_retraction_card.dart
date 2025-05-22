@@ -45,7 +45,7 @@ class FirmwareRetractionCard extends HookConsumerWidget {
     useAutomaticKeepAlive();
     var hadFwRetract = ref.read(boolSettingProvider(_hadFwRetract));
 
-    logger.i('Rebuilding FirmwareRetractionCard for $machineUUID');
+    talker.info('Rebuilding FirmwareRetractionCard for $machineUUID');
 
     return AsyncGuard(
       animate: true,
@@ -61,7 +61,7 @@ class FirmwareRetractionCard extends HookConsumerWidget {
           : null,
       childOnData: Card(
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 15),
+          padding: const EdgeInsets.only(bottom: 8),
           child: _CardBody(machineUUID: machineUUID),
         ),
       ),
@@ -105,7 +105,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding FirmwareRetractionSlidersOrTexts for $machineUUID');
+    talker.info('Rebuilding FirmwareRetractionSlidersOrTexts for $machineUUID');
 
     return AsyncGuard(
       debugLabel: 'FirmwareRetractionSlidersOrTexts-$machineUUID',
@@ -130,7 +130,7 @@ class _FirmwareRetractionSlidersOrTextsLoading extends StatelessWidget {
         children: [
           CardTitleSkeleton.trailingIcon(),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -154,7 +154,7 @@ class _CardBody extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Building FirmwareRetractionBody for $machineUUID');
+    talker.info('Building FirmwareRetractionBody for $machineUUID');
     var inputLocked = useState(true);
     var controller = ref.watch(_firmwareRetractionCardControllerProvider(machineUUID).notifier);
 
@@ -187,7 +187,7 @@ class _CardBody extends HookConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               SliderOrTextInput(

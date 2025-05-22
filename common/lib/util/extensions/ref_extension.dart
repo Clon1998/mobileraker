@@ -21,7 +21,7 @@ extension MobilerakerAutoDispose on Ref {
 
     listen<AsyncValue<T>>(provider, (prev, next) {
       if (next.isRefreshing) {
-        logger.e('isRefreshing SKIPPED');
+        talker.error('isRefreshing SKIPPED');
         return;
       }
       next.when(
@@ -69,7 +69,7 @@ extension MobilerakerAutoDispose on Ref {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted && throwIfDisposeBeforeComplete) {
-        logger.e('Provider with ref $this diposed before `where` could complete');
+        talker.error('Provider with ref $this diposed before `where` could complete');
         completer.completeError(StateError('provider disposed before `where` could complete'), StackTrace.current);
       }
     });
@@ -79,14 +79,14 @@ extension MobilerakerAutoDispose on Ref {
           data: (d) {
             if (evaluatePredicate(d)) {
               if (completer.isCompleted) {
-                logger.i('watchWhere just forces owner to invalidate! Ref:$this');
+                talker.info('watchWhere just forces owner to invalidate! Ref:$this');
                 invalidateSelf();
               } else {
                 completer.complete(d);
               }
             } else {
               if (completer.isCompleted) {
-                if (kDebugMode) logger.e('THIS IS NEW 11 $this');
+                if (kDebugMode) talker.error('THIS IS NEW 11 $this');
                 invalidateSelf();
               }
             }
@@ -105,7 +105,7 @@ extension MobilerakerAutoDispose on Ref {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted) {
-        logger.e('Provider with ref $this diposed before `whereNotNull` could complete');
+        talker.error('Provider with ref $this diposed before `whereNotNull` could complete');
         completer.completeError(
             StateError('provider disposed before `whereNotNull` could complete'), StackTrace.current);
       }
@@ -119,14 +119,14 @@ extension MobilerakerAutoDispose on Ref {
             if (d != null) {
               if (completer.isCompleted) {
                 invalidateSelf();
-                logger.w(
+                talker.warning(
                     'watchWhereNotNull just forces owner to invalidate because a updated value is available! Ref: $this');
               } else {
                 completer.complete(d);
               }
             } else {
               if (completer.isCompleted) {
-                if (kDebugMode) logger.e('THIS IS NEW NULL');
+                if (kDebugMode) talker.error('THIS IS NEW NULL');
                 invalidateSelf();
               }
             }
@@ -147,7 +147,7 @@ extension MobilerakerAutoDispose on Ref {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted && throwIfDisposeBeforeComplete) {
-        logger.e('Provider with ref $this diposed before `read` could complete');
+        talker.error('Provider with ref $this diposed before `read` could complete');
         completer.completeError(
             StateError('provider disposed before `read` could complete for ref:$this'), StackTrace.current);
       }

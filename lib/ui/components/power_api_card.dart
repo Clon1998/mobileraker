@@ -213,7 +213,7 @@ class _ProviderError extends ConsumerWidget {
               body: Text(message),
               action: TextButton.icon(
                 onPressed: () {
-                  logger.i('Invalidating power service for $machineUUID');
+                  talker.info('Invalidating power service for $machineUUID');
                   ref.invalidate(powerServiceProvider(machineUUID));
                 },
                 icon: const Icon(Icons.restart_alt_outlined),
@@ -241,7 +241,7 @@ class _PowerApiCardController extends _$PowerApiCardController {
   Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
 
-    logger.i('Rebuilding PowerApiCardController for $machineUUID');
+    talker.info('Rebuilding PowerApiCardController for $machineUUID');
 
     var hasPowerAPI = await ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.hasPowerComponent));
 

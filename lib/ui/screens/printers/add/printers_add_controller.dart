@@ -71,7 +71,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
         }
       });
     }
-    logger.i('PrinterAddViewController.build()');
+    talker.info('PrinterAddViewController.build()');
     return const PrinterAddState();
   }
 
@@ -96,7 +96,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
 
       var infoResult = appConnectionInfo.result;
       var localIp = infoResult.printerLocalIp;
-      logger.i('OctoEverywhere returned Local IP: $localIp');
+      talker.info('OctoEverywhere returned Local IP: $localIp');
 
       if (localIp == null) {
         throw const OctoEverywhereException(
@@ -119,10 +119,10 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       machine = await ref.read(machineServiceProvider).addMachine(machine);
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on OctoEverywhereException catch (e, s) {
-      logger.e('Error while trying to add printer via Octo', e, s);
+      talker.error('Error while trying to add printer via Octo', e, s);
       _thirdPartyAddError('OctoEverywhere-Error:', e.message);
     } catch (e, s) {
-      logger.e('Error while trying to add printer via Octo', e, s);
+      talker.error('Error while trying to add printer via Octo', e, s);
       _thirdPartyAddError('Error:', e.toString());
     }
   }
@@ -135,9 +135,9 @@ class PrinterAddViewController extends _$PrinterAddViewController {
 
     try {
       var tunnel = await tunnelService.linkApp();
-      logger.i('Tunnel to obico was established successfully!');
+      talker.info('Tunnel to obico was established successfully!');
       PlatformInfo platformInfo = await tunnelService.retrievePlatformInfo(tunnel);
-      logger.i('Local Platform Info used by obico client app: $platformInfo');
+      talker.info('Local Platform Info used by obico client app: $platformInfo');
 
       var localAddress = '${platformInfo.host}:${platformInfo.port}';
       var httpUri = buildMoonrakerHttpUri(localAddress);
@@ -153,10 +153,10 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       machine = await ref.read(machineServiceProvider).addMachine(machine);
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on ObicoException catch (e, s) {
-      logger.e('Error while trying to add printer via Obico', e, s);
+      talker.error('Error while trying to add printer via Obico', e, s);
       _thirdPartyAddError('Obico-Error:', e.message);
     } catch (e, s) {
-      logger.e('Error while trying to add printer via Obico', e, s);
+      talker.error('Error while trying to add printer via Obico', e, s);
       _thirdPartyAddError('Error', e.toString());
     } finally {
       keepAliveExternally.close();
@@ -175,13 +175,13 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   }
 
   provideMachine(Machine machine) {
-    logger.i('provideMachine got: $machine');
+    talker.info('provideMachine got: $machine');
     state = state.copyWith(step: state.step + 1, machineToAdd: machine);
   }
 
   submitMachine() async {
     if (state.nonSupporterError != null) return;
-    logger.i('Submitting machine');
+    talker.info('Submitting machine');
     state = state.copyWith(step: state.step + 1);
     await ref.read(machineServiceProvider).addMachine(state.machineToAdd!);
     state = state.copyWith(addedMachine: true);
@@ -327,9 +327,6 @@ class TestConnectionController extends _$TestConnectionController {
 
   @override
   TestConnectionState build() {
-    ref.listenSelf((previous, next) {
-      logger.wtf('TestConnectionState: $previous -> $next');
-    });
     PrinterAddState printerAddState = ref.watch(printerAddViewControllerProvider);
     var machineToAdd = printerAddState.machineToAdd;
     if (machineToAdd == null) {
@@ -396,7 +393,7 @@ class TestConnectionController extends _$TestConnectionController {
         _testConnectionRPCState?.cancel();
         _client.dispose();
 
-        logger.i(
+        talker.info(
           'Test connection got a result, cancel stream and dispose client.',
         );
       }
@@ -418,7 +415,7 @@ class TestConnectionController extends _$TestConnectionController {
         httpError: isSuccess ? null : '${response.statusCode} - ${response.reasonPhrase}',
       );
     } catch (e) {
-      logger.w('_testHttp returned error', e);
+      talker.warning('_testHttp returned error', e);
 
       state = state.copyWith(httpState: false, httpError: e.toString());
     }

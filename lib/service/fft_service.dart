@@ -40,11 +40,11 @@ class FftService {
     _isolate?.kill();
     _isolate = await Isolate.spawn(_isolateSpawn, token);
     var res = await _capture.init();
-    logger.i('Initialized capture reported init-state: $res');
+    talker.info('Initialized capture reported init-state: $res');
 
     _capture.start(
       (e) {
-        // logger.i('Received data from capturer: ${e.runtimeType}: ${e.length}');
+        // talker.info('Received data from capturer: ${e.runtimeType}: ${e.length}');
         MicData micData;
         if (e is MicData) {
           micData = e;
@@ -52,16 +52,16 @@ class FftService {
           throw ArgumentError('Unknown data type: ${e.runtimeType}');
         }
         var actualSampleRate = _capture.actualSampleRate;
-        // logger.i('Actual sample rate: $actualSampleRate');
+        // talker.info('Actual sample rate: $actualSampleRate');
         if (_sendPort == null) return;
         if (actualSampleRate == null) {
-          logger.w('Sample rate is null, try again on next chunk');
+          talker.warning('Sample rate is null, try again on next chunk');
           return;
         }
         _sendPort!.send(_MicDataMessage(micData, actualSampleRate));
       },
       (e) {
-        logger.w('Error in capturer', e);
+        talker.warning('Error in capturer', e);
       },
       sampleRate: sampleRate,
     );
@@ -73,11 +73,11 @@ class FftService {
   }
 
   _onIsolateMessage(dynamic message) {
-    // logger.i('Received message from isolate: $message');
+    // talker.info('Received message from isolate: $message');
     if (message is SendPort) {
       _sendPort = message;
     } else if (message is _PeakFrequencyMessage) {
-      // logger.i('Received peak frequency from isolate: ${message.frequency}');
+      // talker.info('Received peak frequency from isolate: ${message.frequency}');
       _peakFrequencyController.add(message.frequency);
     }
   }
@@ -91,7 +91,7 @@ class FftService {
     _peakFrequencyController.close();
     _receivePort.close();
     _isolate?.kill();
-    logger.i('Stopped FFT service, killed isolate');
+    talker.info('Stopped FFT service, killed isolate');
   }
 }
 
@@ -114,7 +114,7 @@ class _FFTIsolate {
   }
 
   void _onUiMessage(dynamic message) {
-    // logger.i('Received message from UI: $message');
+    // talker.info('Received message from UI: $message');
     if (message is! _MicDataMessage) return;
     if (_analyzer == null) {
       _analyzer ??= SpectrumAnalyzer(message.sampleRate);

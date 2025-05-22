@@ -354,7 +354,7 @@ pages:
       stat_card:
         title: 統計
       preheat_dialog:
-        title: "@:pages.files.details.preheat ？"
+        title: "@:pages.files.gcode_file_actions.preheat ？"
         body: |-
           目標溫度
           擠出機： {}°C

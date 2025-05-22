@@ -21,9 +21,9 @@ enum PrintState {
 
   String get displayName => tr('print_state.$name');
 
-  String toJsonEnum() => _$PrintStateEnumMap[this]!;
+  String toJson() => _$PrintStateEnumMap[this]!;
 
-  static PrintState? tryFromJson(String json) => $enumDecodeNullable(_$PrintStateEnumMap, json);
+  static PrintState? tryFromJson(Object? json) => $enumDecodeNullable(_$PrintStateEnumMap, json);
 
-  static PrintState fromJson(String json) => tryFromJson(json)!;
+  static PrintState fromJson(Object? json) => tryFromJson(json)!;
 }

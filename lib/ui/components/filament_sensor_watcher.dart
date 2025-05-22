@@ -44,7 +44,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
     ref.listenManual(
       boolSettingProvider(AppSettingKeys.filamentSensorDialog, true),
       (previous, next) {
-        logger.i('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
+        talker.info('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
         if (next != _enabled) {
           _enabled = next;
           if (_enabled == true) {
@@ -71,7 +71,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
   }
 
   void _setup() {
-    logger.i('FilamentSensorWatcher: Setting up filamentSensorWatcher for ${widget.machineUUID}');
+    talker.info('FilamentSensorWatcher: Setting up filamentSensorWatcher for ${widget.machineUUID}');
     _subscription?.close();
     _subscription = ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.filamentSensors),
@@ -89,7 +89,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
           if (_dialogService.isDialogOpen) return;
 
           if (sensor.enabled && !sensor.filamentDetected && model[entry.key] != true) {
-            logger.i('FilamentSensorWatcher: Detected filamentSensor triggered ${sensor.name}... opening Dialog');
+            talker.info('FilamentSensorWatcher: Detected filamentSensor triggered ${sensor.name}... opening Dialog');
             model[entry.key] = true;
             _dialogService.show(DialogRequest(
               type: DialogType.info,

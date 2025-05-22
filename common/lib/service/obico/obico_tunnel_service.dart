@@ -49,11 +49,11 @@ class ObicoTunnelService {
       final result = await FlutterWebAuth.authenticate(url: uri.toString(), callbackUrlScheme: 'mobileraker');
 
       var resultParameters = Uri.parse(result).queryParameters;
-      logger.i('Obico Linking Result: $resultParameters');
+      talker.info('Obico Linking Result: $resultParameters');
 
       return _parseAndValidateTunnelUri(resultParameters);
     } on PlatformException catch (e) {
-      logger.e('Error during Obico Setup', e);
+      talker.error('Error during Obico Setup', e);
       throw const ObicoException('Linking process cancelled');
     }
   }
@@ -66,11 +66,11 @@ class ObicoTunnelService {
 
     var response = await _dio.getUri(uri);
 
-    logger.i('Received platform info from obico tunnel: ${response.data}');
+    talker.info('Received platform info from obico tunnel: ${response.data}');
     try {
       return PlatformInfo.fromJson(response.data);
     } catch (e, s) {
-      logger.i('Error while parsing PlatformInfo response from obico tunnel: ${response.data}', e, s);
+      talker.info('Error while parsing PlatformInfo response from obico tunnel: ${response.data}', e, s);
       throw const ObicoException('Error while parsing response from Obico');
     }
   }
@@ -78,14 +78,14 @@ class ObicoTunnelService {
   Uri _parseAndValidateTunnelUri(Map<String, String> queryParameters) {
     var endpoint = queryParameters['tunnel_endpoint'];
     if (endpoint == null) {
-      logger.i('Obico linking failed, did not receive tunnel_endpoint');
+      talker.info('Obico linking failed, did not receive tunnel_endpoint');
       throw const ObicoException('Obico linking failed');
     }
 
     var tunnelUri = Uri.parse(endpoint);
     var userInfo = tunnelUri.userInfo.split(':');
     if (userInfo.length != 2) {
-      logger.i('Obico linking failed, did not receive username and password. UserInfo length: ${userInfo.length}');
+      talker.info('Obico linking failed, did not receive username and password. UserInfo length: ${userInfo.length}');
       throw const ObicoException('Obico linking failed');
     }
     return tunnelUri;

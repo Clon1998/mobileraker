@@ -6,6 +6,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
@@ -14,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table_controller.dart';
-import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ToolheadInfoTable extends ConsumerWidget {
@@ -50,7 +50,7 @@ class _ToolheadData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding ToolheadInfoTable');
+    talker.info('Rebuilding ToolheadInfoTable');
 
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 
@@ -330,6 +330,7 @@ class _ConsumerTooltipCell extends StatelessWidget {
           return Tooltip(
             margin: const EdgeInsets.all(8.0),
             textAlign: TextAlign.center,
+            showDuration: Duration(seconds: 10),
             triggerMode: TooltipTriggerMode.tap,
             message: asyncTooltipValue.requireValue,
             child: innerChild!,

@@ -17,7 +17,7 @@ dependencies:
 
   #network
   web_socket_channel: ^3.0.1
-  dio: ^5.3.3
+  dio: ^5.8.0+1
   dio_smart_retry: ^7.0.1
   flutter_web_auth: ^0.6.0
   http: ^1.2.1
@@ -78,9 +78,10 @@ dependencies:
     git: https://github.com/jibiel/flutter-icons.git
   flutter_svg: ^2.0.15
   progress_indicators: ^1.0.0
+  pull_to_refresh_flutter3: ^2.0.1
 
   #misc
-  logger: ^1.4.0
+  talker_flutter: ^4.7.1
   rxdart: ^0.28.0
   stringr: ^1.0.0
   collection: ^1.19.0

@@ -50,7 +50,7 @@ class BedMeshCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding bed mesh card.');
+    talker.info('Rebuilding bed mesh card.');
     var hadBedMesh = ref.read(boolSettingProvider(_hadMeshKey));
 
     return AsyncGuard(
@@ -365,7 +365,7 @@ class _Controller extends _$Controller {
     // TODO : Make this safer and not use requireValue and !
     state.whenData((value) async {
       if (value.bedMesh == null) {
-        logger.w('Bed mesh is null');
+        talker.warning('Bed mesh is null');
         return;
       }
       final res = await _bottomSheetService.show(
@@ -420,7 +420,7 @@ class _Controller extends _$Controller {
       if (!res.confirmed || res.data is! BedMeshProfile?) return;
       final selected = res.data as BedMeshProfile?;
 
-      logger.i('Bed mesh settings confirmed: ${selected}');
+      talker.info('Bed mesh settings confirmed: ${selected}');
 
       // state = state.toLoading();
       if (selected == null) {

@@ -56,7 +56,7 @@ class AsyncGuard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var asyncValue = ref.watch(toGuard);
-    if (debugLabel != null) logger.i('Rebuilding Async Guard: $debugLabel with $asyncValue');
+    if (debugLabel != null) talker.info('Rebuilding Async Guard: $debugLabel with $asyncValue');
 
     // Switch on the state of the async value to determine which widget to render.
     var w = switch (asyncValue) {

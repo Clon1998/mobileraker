@@ -29,7 +29,8 @@ class SpectrumAnalyzer {
     _fft = FFT(fftSize);
     maxBucketIndex = min(fftSize - 1, (this.maxDetectedFrequency * fftSize / _sampleRate).ceil());
 
-    logger.i('Created bucketer with fftSize: $fftSize, maxBucketIndex: $maxBucketIndex for sampleRate: $_sampleRate');
+    talker
+        .info('Created bucketer with fftSize: $fftSize, maxBucketIndex: $maxBucketIndex for sampleRate: $_sampleRate');
   }
 
   late final int maxDetectedFrequency;
@@ -82,7 +83,7 @@ class SpectrumAnalyzer {
   }
 
   void _runFft() {
-    // logger.i('Running FFT on buffer size of ${_buffer.length}');
+    // talker.info('Running FFT on buffer size of ${_buffer.length}');
     assert(_buffer.length == fftSize, 'Buffer length is not equal to fftSize');
     var complexData = _fft.realFft(_buffer);
 
@@ -99,7 +100,7 @@ class SpectrumAnalyzer {
 
     if (peakIdx > 0) {
       var peakFreq = _fft.frequency(peakIdx, _sampleRate);
-      // logger.i('Peak: ${peakFreq.toStringAsFixed(1)}Hz : ${max.toStringAsFixed(2)}');
+      // talker.info('Peak: ${peakFreq.toStringAsFixed(1)}Hz : ${max.toStringAsFixed(2)}');
       _peakFrequencyController.add(peakFreq.round());
     }
   }

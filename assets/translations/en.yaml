@@ -2,6 +2,7 @@
 general:
   pause: Pause
   resume: Resume
+  connect: Connect
   connected: Connected
   'off': 'Off'
   'on': 'On'
@@ -67,6 +68,7 @@ general:
   print: Print
   allow: Allow
   deny: Deny
+  settings: Settings
 pages:
   dashboard:
     title: Dashboard
@@ -364,7 +366,7 @@ pages:
       stat_card:
         title: Statistics
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
+        title: "@:pages.files.gcode_file_actions.preheat ?"
         body: |-
           Target Temperatures
           Extruder: {}°C
@@ -431,9 +433,9 @@ pages:
     notification:
       title: Notification
       progress_label: Print-Progress Notification
-      progress_helper: Update interval for print progress notification
+      progress_helper: Update interval for print progress notification.
       state_label: Print-State Notification
-      state_helper: Select states that trigger notifications during active print jobs
+      state_helper: Select states that trigger notifications during active print jobs.
       no_permission_title: No Notification Permission!
       no_permission_desc: |-
         Can not display notifications.
@@ -453,13 +455,41 @@ pages:
         Tap to learn more!
       enable_live_activity: Enable Live Activity
       enable_live_activity_helper: Enables the usage of live activity in addition
-        to the default progress notifications
+        to the default progress notifications.
       opt_out_marketing: Marketing Notifications
       opt_out_marketing_helper: Receive updates on sales and promotions
       opt_out_marketing_error: Error loading marketing preferences, please try again later.
       use_progressbar_notification: Enable Progressbar Notification
       use_progressbar_notification_helper: Enables the usage of a progressbar notification
-        in addition to the default text-based progress notifications
+        in addition to the default text-based progress notifications.
+      snapshot_webcam_label: Snapshot Webcam
+      snapshot_webcam_helper: Select webcam for notification snapshots.
+      snapshot_webcam_type_unsupported: Webcam type not supported!
+      snapshot_webcam_disabled: Dont include webcam snapshots
+      ignore_filament_sensors_label: Exclude Filament Sensors
+      ignore_filament_sensors_helper: Select filament sensors that should not trigger notifications when activated. Useful for sensors in MMU setups.
+      ignore_filament_sensors_empty: No sensors found
+      global: Notification Settings
+      global_helper: Configure the notification behavior for your device and machines.
+      custom_settings_title: Custom Notification Settings
+      custom_settings_helper: Override global settings with custom configurations for this specific machine.
+      enable_custom_settings: Enable Custom Settings
+      enable_custom_settings_helper: Instead of inheriting the global settings, use the ones specified here.
+      hardware_settings_title: Hardware Notification Settings
+      hardware_settings_helper: Configure hardware-specific notification behaviors.
+      machine_notification_title: "{} - Notification - Settings"
+      notification_settings_title: Notification - Settings
+      general_settings_title: General Notification Settings
+      general_settings_helper: Configure app-level notification permissions and general notification preferences.
+      global_settings_title: Global Notification Settings
+      global_settings_helper: Configure which notifications you receive from all connected machines.
+      device_specific_title: Device Specific Notification Settings
+      device_specific_helper: View and configure notification settings for individual machines.
+      error_loading_printers_title: Error loading printers
+      error_loading_printers_body: An unexpected error occurred while loading printers. Please try again later.
+      no_devices_found: No devices found
+      configure_btn: Configure
+      not_connected_btn: Not connected
     developer:
       title: Developer
       crashlytics: Enable Crashlytics reporting
@@ -938,12 +968,14 @@ pages:
       location: Location
       lot_number: Lot Number
       color: Color
+      initial_weight: Initial Weight
     property_sections:
       basic: Basic Information
       usage: Usage Details
       additional: Additional Information
       physical: Physical Properties
       print_settings: Print Settings
+      extra_fields: Extra Fields
     vendor_details:
       page_title: Manufacturer {}
       info_card: Manufacturer Info
@@ -1037,6 +1069,7 @@ components:
       available to Supporters.
     gcode_preview: Sorry, GCode preview is only available to Supporters.
     graph_page: Sorry, the Temperature-History page is only available to Supporters.
+    snapshot_webcam: Sorry, notification snapshots are only available to Supporters.
   machine_deletion_warning:
     title: Machine Deletion
     subtitle: It seems like you are not a Supporter. Only supports can have more than
@@ -1100,6 +1133,30 @@ components:
       subtitle: Display non-printing movement
   select_color_sheet:
     title: Select Color
+  ad_banner:
+    failed:
+      title: Ad not available
+      subtitle: Ads support ongoing development
+  machine_card:
+    last_activity:
+      zero: "Last activity: Today"
+      one: "Last activity: Yesterday"
+      other: "Last activity: {} days ago"
+    waiting_for_job: Waiting for next job
+    last_job: "Last Job: {}"
+    last_seen: Last seen
+    new_print: New Job
+    client_state:
+      disconnected: Machine is disconnected
+    klippy_state:
+      initializing: Klipper is initializing…
+      startup: Klipper is starting…
+      disconnected: Klipper is disconnected
+      shutdown: Klipper-Shutdown
+      error: Klipper-Error
+      unauthorized: Access Denied
+
+
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?
@@ -1263,6 +1320,12 @@ dialogs:
     title: Cancel Print?
     body: |-
       You are about to cancel the print job.
+
+      Confirm your action.
+  confirm_print_pause:
+    title: Pause Print?
+    body: |-
+      You are about to pause the print job.
 
       Confirm your action.
   adjust_spool_filament:
@@ -1446,7 +1509,6 @@ bottom_sheets:
       subtitle: Try a different search term
   temp_chart_settings:
     title: Temperature Chart Settings
-
 klipper_state:
   ready: Ready
   shutdown: Shutdown
@@ -1457,6 +1519,11 @@ klipper_state:
   initializing: Initializing
   not_connected: Moonraker cannot establish a connection with Klipper. Please verify
     that Klipper is running on your system.
+client_state:
+  connected: Connected
+  disconnected: Disconnected
+  connecting: Connecting
+  error: Error
 print_state:
   standby: Standby
   printing: Printing
@@ -1468,6 +1535,10 @@ theme_mode:
   light: Light
   dark: Dark
   system: System
+eta_data_source:
+  file: GCode
+  slicer: Slicer
+  filament: Filament
 notifications:
   channel_printer_grp: Printer {}
   channels:
@@ -1487,6 +1558,7 @@ form_validators:
   simple_url: 'Input only allows URL components: Hostname and Port'
   disallow_mdns: mDNS (.local) addresses are not supported
   file_name_in_use: File name already in use
+  min_before_max: Minimum value must be less or equal to the maximum value
 date:
   year:
     one: Year
@@ -1500,6 +1572,10 @@ date:
   day:
     one: Day
     other: Days
+  reference:
+    today: Today
+    yesterday: Yesterday
+    tomorrow: Tomorrow
 date_periods:
   year:
     one: Yearly

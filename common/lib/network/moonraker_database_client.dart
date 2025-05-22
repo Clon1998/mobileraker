@@ -37,7 +37,7 @@ class MoonrakerDatabaseClient {
       List<String> nameSpaces = List.from(blockingResponse.result['namespaces']);
       return nameSpaces;
     } on JRpcError catch (e) {
-      logger.e('Error while listing Namespaces $e', e);
+      talker.error('Error while listing Namespaces $e', e);
     }
 
     return [];
@@ -46,7 +46,7 @@ class MoonrakerDatabaseClient {
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-database-item
   Future<dynamic> getDatabaseItem(String namespace, {String? key, bool throwOnError = false}) async {
     _validateClientConnection();
-    logger.i('Getting $key');
+    talker.info('Getting $key');
     var params = {'namespace': namespace};
     if (key != null) params['key'] = key;
     try {
@@ -56,7 +56,7 @@ class MoonrakerDatabaseClient {
       if (throwOnError) {
         rethrow;
       }
-      logger.w('Could not retrieve key: $key', e, StackTrace.current);
+      talker.warning('Could not retrieve key: $key', e, StackTrace.current);
     }
     return null;
   }
@@ -64,7 +64,7 @@ class MoonrakerDatabaseClient {
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#add-database-item
   Future<dynamic> addDatabaseItem<T>(String namespace, String key, T value) async {
     _validateClientConnection();
-    logger.d('Adding $key => $value');
+    talker.debug('Adding $key => $value');
     try {
       RpcResponse blockingResponse = await _jsonRpcClient
           .sendJRpcMethod('server.database.post_item', params: {'namespace': namespace, 'key': key, 'value': value});
@@ -77,7 +77,7 @@ class MoonrakerDatabaseClient {
         return resultValue;
       }
     } on JRpcError catch (e) {
-      logger.e('Error while adding to Moonraker-DB: $e', e);
+      talker.error('Error while adding to Moonraker-DB: $e', e);
     }
 
     return null;
@@ -94,9 +94,9 @@ class MoonrakerDatabaseClient {
     } on JRpcError catch (e) {
       if (e.message.contains('not found')) {
         // Add a log that states that the item was not found and could not be deleted:
-        logger.w('Failed to delete item: Item with key \'$key\' not found in namespace \'$namespace\'.');
+        talker.warning('Failed to delete item: Item with key \'$key\' not found in namespace \'$namespace\'.');
       } else {
-        logger.e('Unexpected error while deleting item with key \'$key\': $e', e);
+        talker.error('Unexpected error while deleting item with key \'$key\': $e', e);
       }
     }
 

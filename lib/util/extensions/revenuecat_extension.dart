@@ -4,7 +4,6 @@
  */
 
 import 'package:collection/collection.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -89,7 +88,7 @@ extension MobilerakerRCatPackage on Package {
   }
 
   String? get localizedSubtitle {
-    logger.wtf('Checking for subtitle: ${packageType.name}');
+    // logger.wtf('Checking for subtitle: ${packageType.name}');
     final key = 'products.${packageType.name}.subtitle';
     var translated = tr(key);
 

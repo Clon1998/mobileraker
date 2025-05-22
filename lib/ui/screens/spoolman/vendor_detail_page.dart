@@ -18,10 +18,14 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -52,40 +56,65 @@ class VendorDetailPage extends StatelessWidget {
   }
 }
 
-class _VendorDetailPage extends ConsumerWidget {
+class _VendorDetailPage extends HookConsumerWidget {
   const _VendorDetailPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
     final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
+
+    final themeData = Theme.of(context);
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: ListView(
-        addAutomaticKeepAlives: true,
-        children: [
-          _VendorInfo(machineUUID: machineUUID),
-          if (context.isCompact) ...[
-            _VendorFilaments(machineUUID: machineUUID),
-            _VendorSpools(machineUUID: machineUUID),
-          ],
-          if (context.isLargerThanCompact)
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
-                  Flexible(child: _VendorSpools(machineUUID: machineUUID)),
-                ],
-              ),
+      body: SmartRefresher(
+          controller: refreshController,
+          onRefresh: () async {
+            final vendor = ref.read(_vendorProvider);
+
+            try {
+              await ref.refresh(vendorProvider(machineUUID, vendor.id).future);
+              refreshController.refreshCompleted();
+            } catch (e) {
+              refreshController.refreshFailed();
+            }
+          },
+          header: ClassicHeader(
+            textStyle: TextStyle(color: themeData.colorScheme.onSurface),
+            completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
+            releaseIcon: Icon(
+              Icons.refresh,
+              color: themeData.colorScheme.onSurface,
             ),
-        ],
-      ),
+          ),
+          child: ListView(
+            addAutomaticKeepAlives: true,
+            children: [
+              _VendorInfo(machineUUID: machineUUID),
+              if (context.isCompact) ...[
+                _VendorFilaments(machineUUID: machineUUID),
+                _VendorSpools(machineUUID: machineUUID),
+              ],
+              if (context.isLargerThanCompact)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
+                      Flexible(child: _VendorSpools(machineUUID: machineUUID)),
+                    ],
+                  ),
+                ),
+            ],
+          )),
       // body: _SpoolTab(),
     );
   }
@@ -165,12 +194,14 @@ class _VendorInfo extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
               property: vendor.comment ?? '–',
             ),
           ),
+          ExtraFieldsView(machineUUID: machineUUID, type: SpoolmanEntityType.vendor, extra: vendor.extra),
+          SizedBox(height: 8),
         ],
       ),
     );
@@ -190,7 +221,7 @@ class _VendorFilaments extends HookConsumerWidget {
     var model = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
-    var filter = {'vendor.id': model.id};
+    var filter = SpoolmanFilter({'vendor.id': model.id});
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -243,7 +274,7 @@ class _VendorSpools extends HookConsumerWidget {
     var model = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
-    final filters = {'filament.vendor.id': model.id};
+    final filters = SpoolmanFilter({'filament.vendor.id': model.id});
 
     return Card(
       child: Column(
@@ -329,7 +360,7 @@ class _VendorDetailPageController extends _$VendorDetailPageController
     ));
 
     if (!res.confirmed) return;
-    logger.i('[VendorDetailPage] Action: ${res.data}');
+    talker.info('[VendorDetailPage] Action: ${res.data}');
 
     // Wait for the bottom sheet to close
     await Future.delayed(kThemeAnimationDuration);

@@ -81,8 +81,10 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     required String parentPath,
     required double modified,
     @IntegerConverter() required int size,
-    double? printStartTime,
-    String? jobId,
+    double?
+        printStartTime, // The most recent start time the gcode file was printed. Will be null if the file has yet to be printed.
+    String?
+        jobId, // The last history job ID associated with the gcode. Will be null if no job has been associated with the file.
     String? slicer,
     String? slicerVersion,
     @IntegerConverter() int? gcodeStartByte,
@@ -97,9 +99,16 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     @JsonKey(name: 'first_layer_extr_temp') double? firstLayerTempExtruder,
     double? chamberTemp,
     String? filamentName,
+    List<String>? filamentColors, // #List of filament colors used in #RRGGBB format. TODO: Convert to Color object
+    List<String>? extruderColors, // List of slicer defined extruder colors for the print.
+    List<int>? filamentTemps, // List of base temperatures for filaments, in Celsius.
     String? filamentType,
     double? filamentTotal,
+    int? filamentChangeCount, // The number of filament changes in the print.
     double? filamentWeightTotal,
+    List<double>? filamentWeights, //List of weights in grams used by each tool in the print.
+    int? mmuPrint, // Identifies a multimaterial print with single extruder.
+    List<int>? referencedTools, // List of tool numbers used in the print.
     @JsonKey(fromJson: _sortedThumbnails) @Default([]) List<GCodeThumbnail> thumbnails,
   }) = _GCodeFile;
 

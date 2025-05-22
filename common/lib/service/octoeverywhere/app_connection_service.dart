@@ -54,7 +54,7 @@ class AppConnectionService {
 
       return AppPortalResult.fromJson(resultParameters);
     } on PlatformException catch (e) {
-      logger.e('Error during Octo Setup', e);
+      talker.error('Error during Octo Setup', e);
       throw const OctoEverywhereException('Setup process canceled!');
     }
   }
@@ -62,7 +62,7 @@ class AppConnectionService {
   Future<AppConnectionInfoResponse> getInfo(String appToken) async {
     var response = await _dio.get('/appconnection/info', options: Options(headers: {'AppToken': appToken}));
 
-    logger.i('OctoInfoAPI: Result code: ${response.statusCode}');
+    talker.info('OctoInfoAPI: Result code: ${response.statusCode}');
     return AppConnectionInfoResponse.fromJson(response.data);
   }
 }

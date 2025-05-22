@@ -287,7 +287,7 @@ class _WebcamCardController extends _$WebcamCardController {
   Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
 
-    logger.i('Rebuilding WebcamCardController for $machineUUID');
+    talker.info('Rebuilding WebcamCardController for $machineUUID');
 
     var machine = await ref.watch(machineProvider(machineUUID).future);
 
@@ -334,7 +334,7 @@ class _WebcamCardController extends _$WebcamCardController {
   }
 
   void hideCard() {
-    logger.i('Hiding Webcam Card');
+    talker.info('Hiding Webcam Card');
     state = AsyncValue.data(state.requireValue.copyWith(userRequestedHide: true));
   }
 }
@@ -344,7 +344,7 @@ class _WebcamCardPreviewController extends _WebcamCardController {
   Future<_Model> build(String machineUUID) {
     final model = _Model(machine: Machine(name: 'Preview Machine', httpUri: Uri()), selected: 0, allCams: [
       WebcamInfo(
-        uuid: 'preview',
+        uid: 'preview',
         name: 'Preview Cam',
         service: WebcamServiceType.preview,
         streamUrl: Uri(),

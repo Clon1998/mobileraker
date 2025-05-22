@@ -20,6 +20,7 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -29,11 +30,15 @@ import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/service/ui/pro_dialog_type.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -64,13 +69,16 @@ class SpoolDetailPage extends StatelessWidget {
   }
 }
 
-class _SpoolDetailPage extends ConsumerWidget {
+class _SpoolDetailPage extends HookConsumerWidget {
   const _SpoolDetailPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
     final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
     final themeData = Theme.of(context);
 
@@ -91,7 +99,7 @@ class _SpoolDetailPage extends ConsumerWidget {
               )
             : null,
       ),
-      filters: {'filament.id': spool.filament.id},
+      filters: SpoolmanFilter({'filament.id': spool.filament.id}),
     );
     final sameMaterialSpoolList = _SpoolList(
       key: Key('sameMat-${spool.id}'),
@@ -108,7 +116,7 @@ class _SpoolDetailPage extends ConsumerWidget {
               )
             : null,
       ),
-      filters: {'filament.material': spool.filament.material},
+      filters: SpoolmanFilter({'filament.material': spool.filament.material}),
     );
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
@@ -122,32 +130,53 @@ class _SpoolDetailPage extends ConsumerWidget {
         child: const Icon(Icons.more_vert),
       ),
       body: SafeArea(
-        child: ListView(
-          children: [
-            WarningCard(
-              show: spool.archived,
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              leadingIcon: const Icon(Icons.archive),
-              // leadingIcon: Icon(Icons.layers_clear),
-              title: const Text('pages.spoolman.spool_details.archived_warning.title').tr(),
-              subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
+        child: SmartRefresher(
+          controller: refreshController,
+          onRefresh: () async {
+            final spool = ref.read(_spoolProvider);
+
+            try {
+              await ref.refresh(spoolProvider(machineUUID, spool.id).future);
+              refreshController.refreshCompleted();
+            } catch (e) {
+              refreshController.refreshFailed();
+            }
+          },
+          header: ClassicHeader(
+            textStyle: TextStyle(color: themeData.colorScheme.onSurface),
+            completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
+            releaseIcon: Icon(
+              Icons.refresh,
+              color: themeData.colorScheme.onSurface,
             ),
-            _SpoolInfo(machineUUID: machineUUID),
-            if (context.isCompact) ...[
-              sameFilamentSpoolList,
-              sameMaterialSpoolList,
-            ],
-            if (context.isLargerThanCompact)
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Flexible(child: sameMaterialSpoolList),
-                    Flexible(child: sameFilamentSpoolList),
-                  ],
-                ),
+          ),
+          child: ListView(
+            children: [
+              WarningCard(
+                show: spool.archived,
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                leadingIcon: const Icon(Icons.archive),
+                // leadingIcon: Icon(Icons.layers_clear),
+                title: const Text('pages.spoolman.spool_details.archived_warning.title').tr(),
+                subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
               ),
-          ],
+              _SpoolInfo(machineUUID: machineUUID),
+              if (context.isCompact) ...[
+                sameFilamentSpoolList,
+                sameMaterialSpoolList,
+              ],
+              if (context.isLargerThanCompact)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Flexible(child: sameMaterialSpoolList),
+                      Flexible(child: sameFilamentSpoolList),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
       // body: _SpoolTab(),
@@ -280,6 +309,16 @@ class _SpoolInfo extends ConsumerWidget {
         property: spool.lastUsed?.let(dateFormatGeneral.format) ?? '–',
       ),
       PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.initial_weight'),
+        property: spool.initialWeight?.let(numberFormatDouble.formatGrams) ?? '–',
+      ),
+      PropertyWithTitle.text(
+        title: tr('pages.spoolman.properties.spool_weight'),
+        property: (spool.spoolWeight ?? spool.filament.spoolWeight ?? spool.filament.vendor?.spoolWeight)
+                ?.let(numberFormatDouble.formatGrams) ??
+            '–',
+      ),
+      PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.remaining_weight'),
         property: spool.remainingWeight?.let(numberFormatDouble.formatGrams) ?? '–',
       ),
@@ -357,12 +396,14 @@ class _SpoolInfo extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
               property: spool.comment ?? '–',
             ),
           ),
+          ExtraFieldsView(machineUUID: machineUUID, type: SpoolmanEntityType.spool, extra: spool.extra),
+          SizedBox(height: 8),
         ],
       ),
     );
@@ -374,13 +415,12 @@ class _SpoolList extends ConsumerWidget {
 
   final String machineUUID;
   final Widget Function(BuildContext context, int? total) titleBuilder;
-  final Map<String, dynamic>? filters;
+  final SpoolmanFilter filters;
 
   static const _initial = 5;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // useAutomaticKeepAlive();
     final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
 
     final totalItems = ref.watch(spoolListProvider(machineUUID, pageSize: _initial, page: 0, filters: filters)
@@ -473,7 +513,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     ));
 
     if (!res.confirmed) return;
-    logger.i('[SpoolDetailPage] Action: ${res.data}');
+    talker.info('[SpoolDetailPage] Action: ${res.data}');
 
     // Wait for the bottom sheet to close
     await Future.delayed(kThemeAnimationDuration);
@@ -513,7 +553,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
       final spool = state.spool;
       final qrData = 'web+spoolman:s-${spool.id}';
 
-      logger.i('Generating QR Code for spool ${spool.id} with data: $qrData');
+      talker.info('Generating QR Code for spool ${spool.id} with data: $qrData');
 
       final qrCode = QrCode.fromData(
         data: qrData,
@@ -536,7 +576,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         sharePositionOrigin: origin,
       );
     } catch (e, s) {
-      logger.e('Error while generating and sharing QR Code', e, s);
+      talker.error('Error while generating and sharing QR Code', e, s);
       snackBarServiceRef.show(SnackBarConfig.stacktraceDialog(
         dialogService: dialogServiceRef,
         snackTitle: 'Unexpected Error',
@@ -557,11 +597,11 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     try {
       switch (res?.data) {
         case (num() && final amount, 'mm'):
-          logger.i('Consuming $amount mm of filament');
+          talker.info('Consuming $amount mm of filament');
           await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, length: amount.toDouble());
           break;
         case (num() && final amount, 'g'):
-          logger.i('Consuming $amount g of filament');
+          talker.info('Consuming $amount g of filament');
           await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, weight: amount.toDouble());
           break;
       }
@@ -574,7 +614,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         message: tr('pages.spoolman.update.success.message', args: [tr('pages.spoolman.spool.one')]),
       ));
     } catch (e, s) {
-      logger.e('Error while adjusting filament on spool', e, s);
+      talker.error('Error while adjusting filament on spool', e, s);
       snackBarServiceRef.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [tr('pages.spoolman.spool.one')]),

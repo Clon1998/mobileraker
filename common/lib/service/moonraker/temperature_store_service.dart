@@ -162,7 +162,7 @@ class TemperatureStoreService {
     storeForKey.add(point);
     final controller = _getStoreStreamController(cIdentifier, name);
     if (controller.isClosed) {
-      logger.w(
+      talker.warning(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Stream controller for $cIdentifier $name is closed. Cannot add point');
       return;
     }
@@ -172,14 +172,14 @@ class TemperatureStoreService {
 
   void initStores() async {
     try {
-      logger.i(
+      talker.info(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Initializing temperature stores');
       await _fetchTemperatureStore();
       _startSyncTimer();
-      logger.i(
+      talker.info(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Initialized temperature stores');
     } catch (e, s) {
-      logger.e(
+      talker.error(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Error initializing temperature stores',
           e,
           s);
@@ -189,7 +189,7 @@ class TemperatureStoreService {
   void pauseTimer() {
     _temperatureStoreUpdateTimer?.cancel();
     _pausedAt = DateTime.now();
-    logger.i(
+    talker.info(
         '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Pausing TemperatureStore update timer');
   }
 
@@ -198,11 +198,11 @@ class TemperatureStoreService {
     if (_pausedAt == null) return;
 
     if (DateTime.now().difference(_pausedAt!).inSeconds >= 60) {
-      logger.i(
+      talker.info(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Resuming TemperatureStore update timer by fetching new data');
       initStores();
     } else {
-      logger.i(
+      talker.info(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Resuming TemperatureStore update timer by starting timer');
       _startSyncTimer();
     }
@@ -212,12 +212,12 @@ class TemperatureStoreService {
 
   Future<void> _fetchTemperatureStore() async {
     if (_disposed) return;
-    logger.i(
+    talker.info(
         '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Fetching temperature store... stopping timer');
     _temperatureStoreUpdateTimer?.cancel();
     try {
       RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod('server.temperature_store');
-      logger.i(
+      talker.info(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Got temperature store response');
       Map<String, dynamic> raw = blockingResponse.result;
       final now = DateTime.now();
@@ -235,19 +235,19 @@ class TemperatureStoreService {
         }
 
         if (cIdentifier == null) {
-          logger.w(
+          talker.warning(
               '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Could not parse object identifier from key: $key');
           //TODO: Add error reporting to firebase crashlytics
           continue;
         }
         if (objectName == null) {
-          logger.w(
+          talker.warning(
               '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Could not parse object name from key: $key');
           //TODO: Add error reporting to firebase crashlytics
           continue;
         }
 
-        logger.i(
+        talker.info(
             '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Parsing temperature store for $cIdentifier $objectName');
         final readStore = _parseServerStoreData(now, cIdentifier, data);
         final storeKey = (cIdentifier, objectName);
@@ -257,7 +257,7 @@ class TemperatureStoreService {
       }
       _allStoresController.add(Map.unmodifiable(_temperatureData));
     } catch (e, st) {
-      logger.e(
+      talker.error(
           '[TemperatureStoreService($machineUUID, ${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Error fetching temperature store',
           e,
           st);
@@ -277,7 +277,7 @@ class TemperatureStoreService {
     final int historyLength =
         min(maxStoreSize, max(temperatureHistory.length, max(targetHistory?.length ?? 0, powerHistory?.length ?? 0)));
 
-    logger.i(
+    talker.info(
         '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Parsing temperature store with length: $historyLength');
 
     // If we assume maxStoreSize is smaller than any history, we only take the last maxStoreSize elements from each list
@@ -302,7 +302,7 @@ class TemperatureStoreService {
   }
 
   void _startSyncTimer() {
-    logger.i(
+    talker.info(
         '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Starting TemperatureStore update timer');
     _temperatureStoreUpdateTimer = Timer.periodic(const Duration(seconds: 1), (_) => _updateStores());
   }
@@ -312,7 +312,7 @@ class TemperatureStoreService {
 
     var printer = _printerService.currentOrNull;
     if (printer == null) {
-      logger.w(
+      talker.warning(
           '[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Printer is null, cannot update stores');
       return;
     }
@@ -328,7 +328,7 @@ class TemperatureStoreService {
 
     final now = DateTime.now();
     for (var sensor in sensors) {
-      // logger.i('[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Updating store for sensor: $key');
+      // talker.info('[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Updating store for sensor: $key');
       final newPoint = switch (sensor) {
         HeaterMixin(temperature: final temp, target: final target, power: final power) =>
           HeaterSeriesEntry(time: now, temperature: temp, target: target, power: power),
@@ -347,12 +347,12 @@ class TemperatureStoreService {
     }));
 
     // var allKeys = _temperatureData.keys;
-    // logger.i('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    // talker.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     // for (var value in allKeys) {
-    //   logger.i('\t\t$value');
+    //   talker.info('\t\t$value');
     // }
 
-    // logger.i('[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Updated all stores with timestamp: $now');
+    // talker.info('[TemperatureStoreService($machineUUID${_jsonRpcClient.clientType}@${_jsonRpcClient.uri.obfuscate()}})] Updated all stores with timestamp: $now');
   }
 
   void dispose() {

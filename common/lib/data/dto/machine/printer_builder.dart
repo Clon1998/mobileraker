@@ -286,7 +286,7 @@ class PrinterBuilder {
     List<Extruder> eList = builder.extruders.toList();
     // Takes care of the case where the extruder list is not yet initialized
     if (num >= eList.length) {
-      logger.w('Extruder $num is not yet initialized. Adding ${num - eList.length + 1} extruders');
+      talker.warning('Extruder $num is not yet initialized. Adding ${num - eList.length + 1} extruders');
       // Adding missing extruders up to the required number
       eList.addAll(List.generate(num - eList.length + 1, (i) => Extruder(num: eList.length + i)));
     }

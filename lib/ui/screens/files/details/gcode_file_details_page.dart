@@ -85,7 +85,7 @@ class _CompactBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final animCtrler = useAnimationController(duration: const Duration(milliseconds: 400))..forward();
 
-    logger.w('Rebuilding _GCodeFileDetailPage');
+    talker.warning('Rebuilding _GCodeFileDetailPage');
     final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     final model = ref.watch(_gCodeFileDetailsControllerProvider);
 
@@ -314,7 +314,7 @@ class _MediumBody extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.w('Rebuilding _GCodeFileDetailPage');
+    talker.warning('Rebuilding _GCodeFileDetailPage');
     final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     final model = ref.watch(_gCodeFileDetailsControllerProvider);
 
@@ -332,7 +332,7 @@ class _MediumBody extends HookConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        logger.i('Constraints ${constraints.widthConstraints()}');
+        talker.info('Constraints ${constraints.widthConstraints()}');
 
         final maxWidthCard = constraints.maxWidth / 2;
 
@@ -594,7 +594,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   @override
   _Model build() {
     ref.keepAliveFor();
-    logger.i('Buildign GCodeFileDetailsController');
+    talker.info('Buildign GCodeFileDetailsController');
     canPrintCalc(PrintState? d) => d != null && (d != PrintState.printing || d != PrintState.paused);
     final gCodeFile = ref.watch(_gcodeProvider);
     final klippy = ref.watch(klipperProvider(machineUUID)).valueOrNull;
@@ -667,25 +667,25 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
 
   Future<void> onStartPrintTap() async {
     await for (var event in _fileInteractionService.submitJobAction(state.file)) {
-      logger.i('[GCodeFileDetailsController] onStartPrintTap File-interaction-event: $event');
+      talker.info('[GCodeFileDetailsController] onStartPrintTap File-interaction-event: $event');
     }
   }
 
   Future<void> onActionsTap(Rect position) async {
     await for (var event
         in _fileInteractionService.showFileActionMenu(state.file, position, machineUUID, null, false)) {
-      logger.i('[GCodeFileDetailsController] File-interaction-event: $event');
+      talker.info('[GCodeFileDetailsController] File-interaction-event: $event');
     }
   }
 
   void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
     final notification = next.valueOrNull;
     if (notification == null) return;
-    logger.i('[GCodeFileDetailsController] File-notification: $notification');
+    talker.info('[GCodeFileDetailsController] File-notification: $notification');
 
     switch (notification.action) {
       case FileAction.delete_file:
-        logger.i('[GCodeFileDetailsController] File deleted: ${notification.item.fullPath}, will close view');
+        talker.info('[GCodeFileDetailsController] File deleted: ${notification.item.fullPath}, will close view');
 
         _goRouter.pop();
         WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
@@ -698,7 +698,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
         // The destination path where the file was moved to
         final destinationPathSegments = movedFile.absolutPath.split('/').toList();
 
-        logger.i('''
+        talker.info('''
           [GCodeFileDetailsController($machineUUID, $filePath)] 
             File move detected:
             - From: $filePath
@@ -715,7 +715,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
           final segmentToClose = currentUIPathSegments[currentUIPathSegments.length - 1 - i];
           final remainingPath = currentUIPathSegments.sublist(0, currentUIPathSegments.length - i).join('/');
 
-          logger.i(
+          talker.info(
               '[GCodeFileDetailsController($machineUUID, $filePath)] Closing view for path segment: $segmentToClose');
           _goRouter.pop();
 
@@ -733,7 +733,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
           final isLast = pathSegment == newPathSegmentsToAdd.last;
 
           if (isLast) {
-            logger.i(
+            talker.info(
                 '[GCodeFileDetailsController($machineUUID, $filePath)] Opening new GCodeDetails view for path: ${movedFile.absolutPath}');
             _goRouter.pushNamed(
               AppRoute.fileManager_exlorer_gcodeDetail.name,
@@ -743,7 +743,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
           } else {
             reconstructedPath = '$reconstructedPath/$pathSegment';
 
-            logger.i(
+            talker.info(
                 '[GCodeFileDetailsController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath');
 
             _goRouter.pushNamed(
@@ -755,7 +755,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
           }
         }
 
-        logger.i('''
+        talker.info('''
           [GCodeFileDetailsController($machineUUID, $filePath)]
             Path reconstruction completed:
             - Final path: $reconstructedPath

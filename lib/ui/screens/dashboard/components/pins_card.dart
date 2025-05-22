@@ -65,7 +65,7 @@ class PinsCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding pins card for $machineUUID');
+    talker.info('Rebuilding pins card for $machineUUID');
     return AsyncGuard(
       animate: true,
       debugLabel: 'PinsCard-$machineUUID',
@@ -137,7 +137,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding output card title');
+    talker.info('Rebuilding output card title');
 
     return ListTile(
       leading: const Icon(FlutterIcons.led_outline_mco),
@@ -153,7 +153,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding outputs card body');
+    talker.info('Rebuilding outputs card body');
 
     var elementCount =
         ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.elements.length));
@@ -212,7 +212,7 @@ class _Output extends ConsumerWidget {
 
     var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
 
-    logger.i('Rebuilding pin card for ${pin.name}');
+    talker.info('Rebuilding pin card for ${pin.name}');
 
     if (pinConfig?.pwm == false) {
       return CardWithSwitch(
@@ -357,9 +357,13 @@ class _Led extends ConsumerWidget {
       return Icon(Icons.circle, size: _iconSize, color: c);
     }
 
+    //TODO: this is broken for the light theme...
     return ShaderMask(
-      shaderCallback: (bounds) => SweepGradient(colors: colors).createShader(bounds),
-      child: const Icon(Icons.circle, size: _iconSize),
+      blendMode: BlendMode.modulate,
+      shaderCallback: (bounds) {
+        return SweepGradient(colors: colors).createShader(bounds);
+      },
+      child: const Icon(Icons.circle, size: _iconSize, color: Colors.white),
     );
   }
 
@@ -372,7 +376,7 @@ class _Led extends ConsumerWidget {
 
     var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
 
-    logger.i('Rebuilding led card for ${led.name}');
+    talker.info('Rebuilding led card for ${led.name}');
 
     return CardWithButton(
       buttonChild: const Text('general.set').tr(),
@@ -428,7 +432,7 @@ class _FilamentSensor extends ConsumerWidget {
 
     var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
 
-    logger.i('Rebuilding filament sensor card for ${sensor.name}');
+    talker.info('Rebuilding filament sensor card for ${sensor.name}');
 
     return CardWithSwitch(
       value: sensor.enabled,
@@ -503,7 +507,7 @@ class _PinsCardController extends _$PinsCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    logger.i('Rebuilding pinsCardController for $machineUUID');
+    talker.info('Rebuilding pinsCardController for $machineUUID');
     var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.miscOrdering));
     // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
     // This means that if the value is the same, the widget will not rebuild.
@@ -665,9 +669,9 @@ class _PinsCardController extends _$PinsCardController {
       }
 
       Pixel pixel = Pixel.fromList([
-        selectedColor.r / 255,
-        selectedColor.g / 255,
-        selectedColor.b / 255,
+        selectedColor.r,
+        selectedColor.g,
+        selectedColor.b,
         white,
       ]);
 

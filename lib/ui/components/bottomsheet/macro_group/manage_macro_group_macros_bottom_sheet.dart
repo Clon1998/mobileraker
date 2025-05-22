@@ -113,7 +113,7 @@ class _MacroGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.i('Rebuilding macro group ${macroGroup.name}');
+    talker.info('Rebuilding macro group ${macroGroup.name}');
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -142,7 +142,7 @@ class _MacroChip extends ConsumerWidget {
     var controller = ref.watch(controllerProvider.notifier);
 
     var isSelected = ref.watch(controllerProvider.select((value) => value.macroSelection.contains(macro)));
-    logger.i('Rebuilding macro chip for ${macro.name} with isSelected: $isSelected');
+    talker.info('Rebuilding macro chip for ${macro.name} with isSelected: $isSelected');
     return FilterChip(
       visualDensity: VisualDensity.compact,
       selected: isSelected,

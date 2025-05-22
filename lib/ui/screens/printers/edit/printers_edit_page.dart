@@ -277,7 +277,7 @@ class WebcamList extends ConsumerWidget {
           children: List.generate(data.length, (index) {
             WebcamInfo cam = data[index];
             return _WebCamItem(
-              key: ValueKey(cam.uuid),
+              key: ValueKey(cam.uid),
               cam: cam,
               idx: index,
             );
@@ -339,7 +339,7 @@ class _WebCamItem extends HookConsumerWidget {
                           : () => ref.read(webcamListControllerProvider.notifier).removeWebcam(cam),
                     ),
                   ),
-                  name: '${cam.uuid}-camName',
+                  name: '${cam.uid}-camName',
                   initialValue: cam.name,
                   onChanged: (name) =>
                       camName.value = ((name?.isNotEmpty ?? false) ? name! : 'pages.printer_edit.cams.new_cam'.tr()),
@@ -354,7 +354,7 @@ class _WebCamItem extends HookConsumerWidget {
                     labelText: 'pages.printer_edit.cams.stream_url'.tr(),
                     helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=stream',
                   ),
-                  name: '${cam.uuid}-streamUrl',
+                  name: '${cam.uid}-streamUrl',
                   initialValue: cam.streamUrl.toString(),
                   validator: FormBuilderValidators.compose(
                     [FormBuilderValidators.required()],
@@ -367,7 +367,7 @@ class _WebCamItem extends HookConsumerWidget {
                     labelText: 'pages.printer_edit.cams.snapshot_url'.tr(),
                     helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=snapshot',
                   ),
-                  name: '${cam.uuid}-snapshotUrl',
+                  name: '${cam.uid}-snapshotUrl',
                   initialValue: cam.snapshotUrl.toString(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -375,7 +375,7 @@ class _WebCamItem extends HookConsumerWidget {
                   contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 FormBuilderDropdown(
-                  name: '${cam.uuid}-service',
+                  name: '${cam.uid}-service',
                   initialValue: cam.service,
                   items: {
                     ...WebcamServiceType.renderedValues(),
@@ -400,7 +400,7 @@ class _WebCamItem extends HookConsumerWidget {
                       labelText: 'pages.printer_edit.cams.target_fps'.tr(),
                       suffix: const Text('FPS'),
                     ),
-                    name: '${cam.uuid}-tFps',
+                    name: '${cam.uid}-tFps',
                     initialValue: cam.targetFps.toString(),
                     validator: FormBuilderValidators.compose([
                       FormBuilderValidators.min(0),
@@ -419,7 +419,7 @@ class _WebCamItem extends HookConsumerWidget {
                   decoration: InputDecoration(
                     labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
                   ),
-                  name: '${cam.uuid}-rotate',
+                  name: '${cam.uid}-rotate',
                   initialValue: cam.rotation,
                   items: [0, 90, 180, 270]
                       .map((e) => DropdownMenuItem(
@@ -433,7 +433,7 @@ class _WebCamItem extends HookConsumerWidget {
                   decoration: const InputDecoration(border: InputBorder.none),
                   secondary: const Icon(FlutterIcons.swap_vertical_mco),
                   initialValue: cam.flipVertical,
-                  name: '${cam.uuid}-camFV',
+                  name: '${cam.uid}-camFV',
                   activeColor: themeData.colorScheme.primary,
                 ),
                 FormBuilderSwitch(
@@ -441,7 +441,7 @@ class _WebCamItem extends HookConsumerWidget {
                   decoration: const InputDecoration(border: InputBorder.none),
                   secondary: const Icon(FlutterIcons.swap_horizontal_mco),
                   initialValue: cam.flipHorizontal,
-                  name: '${cam.uuid}-camFH',
+                  name: '${cam.uid}-camFH',
                   activeColor: themeData.colorScheme.primary,
                 ),
                 OutlinedButton(

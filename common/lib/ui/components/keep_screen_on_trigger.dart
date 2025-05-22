@@ -27,13 +27,13 @@ class _KeepScreenOnTriggerState extends ConsumerState<KeepScreenOnTrigger> {
     _providerSubscription = ref.listenManual(
       boolSettingProvider(AppSettingKeys.keepScreenOn, false),
       (_, val) {
-        logger.i('Keep screen on: $val');
+        talker.info('Keep screen on: $val');
         if (val) {
-          logger.i('User requested to keep screen on at all times');
+          talker.info('User requested to keep screen on at all times');
           KeepScreenOn.turnOn();
         } else {
-          logger.i('User requested to NOT keep screen on at all times');
-          KeepScreenOn.turnOn();
+          talker.info('User requested to NOT keep screen on at all times');
+          KeepScreenOn.turnOff();
         }
       },
       fireImmediately: true,
@@ -49,7 +49,7 @@ class _KeepScreenOnTriggerState extends ConsumerState<KeepScreenOnTrigger> {
   void dispose() {
     super.dispose();
     _providerSubscription?.close();
-    logger.i('Dispose KeepScreenOnTrigger, disabled keep screen on');
+    talker.info('Dispose KeepScreenOnTrigger, disabled keep screen on');
     KeepScreenOn.turnOff();
   }
 }

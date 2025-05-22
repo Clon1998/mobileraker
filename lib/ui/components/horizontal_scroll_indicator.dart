@@ -56,7 +56,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     controller.removeListener(_updateIndexFromPage);
 
     if (controller is PageController?) {
-      logger.d(
+      talker.debug(
         'initiPage ${pageController.initialPage} - ${pageController.hasClients}',
       );
       controller.addListener(_updateIndexFromPage);
@@ -81,7 +81,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
 
     // Calculate index
     double newIndex = (offset / wPerStep).clamp(0, steps - 1);
-    logger.d('newIndex: $newIndex, offset: $offset, maxScrollExtent: $maxScrollExtent');
+    talker.debug('newIndex: $newIndex, offset: $offset, maxScrollExtent: $maxScrollExtent');
     if ((_curIndex - newIndex).abs() < 0.1) return;
     setState(() {
       _curIndex = newIndex;

@@ -12,6 +12,7 @@ import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.da
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../enums/eta_data_source.dart';
 import '../config/config_file.dart';
 import '../files/gcode_file.dart';
 import 'beacon.dart';
@@ -75,7 +76,7 @@ class Printer with _$Printer {
 
   double get zOffset => gCodeMove.homingOrigin[2];
 
-  DateTime? calcEta(Set<String> sources) {
+  DateTime? calcEta(Set<ETADataSource> sources) {
     final remaining = calcRemainingTimeAvg(sources) ?? 0;
     if (remaining <= 0) return null;
     return DateTime.now().add(Duration(seconds: remaining));
@@ -104,24 +105,24 @@ class Printer with _$Printer {
     return (slicerEstimate - printDuration).toInt();
   }
 
-  int? calcRemainingTimeAvg(Set<String> sources) {
+  int? calcRemainingTimeAvg(Set<ETADataSource> sources) {
     var remaining = 0;
     var cnt = 0;
 
     final rFile = remainingTimeByFile ?? 0;
-    if (rFile > 0 && sources.contains('file')) {
+    if (rFile > 0 && sources.contains(ETADataSource.file)) {
       remaining += rFile;
       cnt++;
     }
 
     final rFilament = remainingTimeByFilament ?? 0;
-    if (rFilament > 0 && sources.contains('filament')) {
+    if (rFilament > 0 && sources.contains(ETADataSource.filament)) {
       remaining += rFilament;
       cnt++;
     }
 
     final rSlicer = remainingTimeBySlicer ?? 0;
-    if (rSlicer > 0 && sources.contains('slicer')) {
+    if (rSlicer > 0 && sources.contains(ETADataSource.slicer)) {
       remaining += rSlicer;
       cnt++;
     }

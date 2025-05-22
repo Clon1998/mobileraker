@@ -34,7 +34,7 @@ class ActiveLocale extends _$ActiveLocale {
   @override
   Locale build() {
     ref.listenSelf((previous, next) {
-      logger.i('Active locale changed from $previous to $next');
+      talker.info('Active locale changed from $previous to $next');
       _settingService.writeString(UtilityKeys.lastLocale, next.toString());
     });
 

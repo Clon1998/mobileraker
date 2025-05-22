@@ -71,7 +71,7 @@ class _ImportSettingsDialog extends ConsumerWidget {
                 return const _DialogBody();
               },
               error: (e, s) {
-                logger.e('Error in importSettings', e, s);
+                talker.error('Error in importSettings', e, s);
                 return Column(
                   children: [
                     ListTile(

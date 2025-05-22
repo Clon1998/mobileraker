@@ -58,7 +58,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
       )
           .catchError((err) {
         setState(() {
-          logger.w('Could not load video File...', err);
+          talker.warning('Could not load video File...', err);
           loading = false;
           error = err.toString();
         });
@@ -160,8 +160,8 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           return;
         }
         var downloadFile = event as FileDownloadComplete;
-        // logger.i('File in FS is at ${file.absolute.path}');
-        logger.i(
+        // talker.info('File in FS is at ${file.absolute.path}');
+        talker.info(
           'File in FS is at ${downloadFile.file.absolute.path}, size : ${downloadFile.file.lengthSync()}',
         );
         setState(() {
@@ -173,7 +173,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           subject: 'Video ${widget.file.name}',
           sharePositionOrigin: pos,
         );
-        logger.i('Done with sharing');
+        talker.info('Done with sharing');
         setState(() {
           fileDownloadProgress = null;
           loading = false;
@@ -191,7 +191,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         });
       },
       onDone: () {
-        logger.i('File Dowload is completed');
+        talker.info('File Dowload is completed');
       },
     );
 

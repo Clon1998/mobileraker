@@ -2,6 +2,7 @@
 general:
   pause: Szünet
   resume: Folytatás
+  connect: Csatlakozás
   connected: Csatlakozva
   'off': 'Ki'
   'on': 'Be'
@@ -67,6 +68,7 @@ general:
   print: Nyomtatás
   allow: Engedélyez
   deny: Megtagad
+  settings: Beállítások
 pages:
   dashboard:
     title: Irányítópult
@@ -358,7 +360,7 @@ pages:
       stat_card:
         title: Statisztikák
       preheat_dialog:
-        title: "@:pages.files.details.preheat ?"
+        title: "@:pages.files.gcode_file_actions.preheat ?"
         body: |-
           Célhőmérséklet
           Fúvóka: {}°C
@@ -446,6 +448,34 @@ pages:
       opt_out_marketing_error: Hiba a marketingbeállítások betöltésében, kérjük, próbáld újra később.
       use_progressbar_notification: Előrehaladási sáv értesítés engedélyezése
       use_progressbar_notification_helper: Engedélyezi az előrehaladási sáv értesítést az alapértelmezett szöveges előrehaladási értesítések mellett
+      snapshot_webcam_label: Webkamera pillanatkép
+      snapshot_webcam_helper: Válaszd ki a webkamerát az értesítési pillanatképekhez.
+      snapshot_webcam_type_unsupported: Nem támogatott webkamera típus!
+      snapshot_webcam_disabled: Ne tartalmazzon webkamerás felvételeket
+      ignore_filament_sensors_label: Szálérzékelők kizárása
+      ignore_filament_sensors_helper: Válaszd ki azokat a szálérzékelőket, amelyek aktiválásakor nem kérsz értesítéseket. Hasznos az MMU beállításokban lévő érzékelők esetében.
+      ignore_filament_sensors_empty: Nem találtam érzékelőket
+      global: Értesítési beállítások
+      global_helper: Állítsd be a készülék és a gépek értesítési viselkedését.
+      custom_settings_title: Egyéni értesítési beállítások
+      custom_settings_helper: A globális beállítások felülírása az adott gépre vonatkozó egyéni konfigurációkkal.
+      enable_custom_settings: Egyéni beállítások aktiválása
+      enable_custom_settings_helper: Ahelyett, hogy a globális beállításokat örökölné, használja az itt megadottakat.
+      hardware_settings_title: Hardveres értesítési beállítások
+      hardware_settings_helper: Hardver-specifikus értesítési viselkedés konfigurálása.
+      machine_notification_title: "{} - Értesítés - Beállítások"
+      notification_settings_title: Értesítés - Beállítások
+      general_settings_title: Általános értesítési beállítások
+      general_settings_helper: Alkalmazásszintű értesítési engedélyek és általános értesítési beállítások konfigurálása.
+      global_settings_title: Globális értesítési beállítások
+      global_settings_helper: Beállíthatod, hogy milyen értesítéseket kapj az összes csatlakoztatott géptől.
+      device_specific_title: Eszközspecifikus értesítési beállítások
+      device_specific_helper: Az egyes gépek értesítési beállításainak megtekintése és konfigurálása.
+      error_loading_printers_title: Nyomtatók betöltési hibája
+      error_loading_printers_body: Váratlan hiba történt a nyomtatók betöltése közben. Kérjük, próbáld újra később.
+      no_devices_found: Nem találtam eszközt
+      configure_btn: Konfigurálás
+      not_connected_btn: Nem csatlakozik
     developer:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
@@ -882,12 +912,14 @@ pages:
       location: Helyszín
       lot_number: Tételszám
       color: Szín
+      initial_weight: Kezdeti súly
     property_sections:
       basic: Alapvető információ
       usage: Használat részletei
       additional: További információ
       physical: Fizikai tulajdonságok
       print_settings: Nyomtatás beállításai
+      extra_fields: Extra mezők
     vendor_details:
       page_title: Gyártó {}
       info_card: Gyártói információ
@@ -972,6 +1004,7 @@ components:
     full_file_management: Sajnáljuk, a teljes fájlkezelő (Letöltés, Feltöltés…) csak a Támogatóknak érhető el.
     gcode_preview: Sajnáljuk, a G-Kód előnézet csak Támogatóknak érhető el.
     graph_page: Sajnáljuk, a Hőmérséklet-előzmény oldal csak a Támogatók számára elérhető.
+    snapshot_webcam: Sajnáljuk, az értesítések pillanatfelvételei csak a Támogatók számára érhetőek el.
   machine_deletion_warning:
     title: Gépi törlés
     subtitle: Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig.
@@ -1032,6 +1065,28 @@ components:
       subtitle: Nem nyomtatási mozgás kijelzése
   select_color_sheet:
     title: Szín kiválasztása
+  ad_banner:
+    failed:
+      title: Hirdetés nem elérhető
+      subtitle: A hirdetések támogatják a folyamatos fejlődést
+  machine_card:
+    last_activity:
+      zero: "Utolsó tevékenység: Ma"
+      one: "Utolsó tevékenység: Tegnap"
+      other: "Utolsó tevékenység: {} nappal ezelőtt"
+    waiting_for_job: Várakozás a következő munkára
+    last_job: "Utolsó munka: {}"
+    last_seen: Utoljára látott
+    new_print: Új munka
+    client_state:
+      disconnected: A gép le van választva
+    klippy_state:
+      initializing: Klipper inicializálás…
+      startup: Klipper indul…
+      disconnected: Klipper le van választva
+      shutdown: Klipper-leállt
+      error: Klipper-hiba
+      unauthorized: Hozzáférés megtagadva
 dialogs:
   rate_my_app:
     title: Értékeled a Mobileraker-t?
@@ -1189,6 +1244,12 @@ dialogs:
     title: Nyomtatás leállítása?
     body: |-
       A nyomtatási feladat törlésére készülsz.
+
+      Erősítsd meg a műveletet.
+  confirm_print_pause:
+    title: Nyomtatás szünetelése?
+    body: |-
+      A nyomtatási feladat szüneteltetése előtt állsz.
 
       Erősítsd meg a műveletet.
   adjust_spool_filament:
@@ -1354,6 +1415,11 @@ klipper_state:
   unauthorized: Jogosulatlan
   initializing: Inicializálás
   not_connected: Moonraker nem tud kapcsolódni a Klipper-hez. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden.
+client_state:
+  connected: Csatlakoztatva
+  disconnected: Leválasztva
+  connecting: Csatlakozás
+  error: Hiba
 print_state:
   standby: Készenlét
   printing: Nyomtatás
@@ -1365,6 +1431,10 @@ theme_mode:
   light: Világos
   dark: Sötét
   system: Rendszer
+eta_data_source:
+  file: G-Kód
+  slicer: Szeletelő
+  filament: Nyomtatószál
 notifications:
   channel_printer_grp: Nyomtató {}
   channels:
@@ -1384,6 +1454,7 @@ form_validators:
   simple_url: 'A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port'
   disallow_mdns: Az MDNs (.local) címek nem támogatottak.
   file_name_in_use: Fájlnév már használatban van
+  min_before_max: A minimális értéknek kisebbnek vagy egyenlőnek kell lennie a maximális értékkel
 date:
   year:
     one: Év
@@ -1397,6 +1468,10 @@ date:
   day:
     one: Nap
     other: Napok
+  reference:
+    today: Ma
+    yesterday: Tegnap
+    tomorrow: Holnap
 date_periods:
   year:
     one: Éves

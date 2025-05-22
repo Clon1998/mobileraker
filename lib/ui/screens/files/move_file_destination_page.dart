@@ -84,7 +84,7 @@ class _Body extends HookConsumerWidget {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
       if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
         if (context.canPop()) context.pop(FileDestinationSelectionResult.cancel());
-        logger.i('Closing search screen due to client state change');
+        talker.info('Closing search screen due to client state change');
       }
     });
 
@@ -264,7 +264,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   }
 
   Future<void> onSortMode() async {
-    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] sort mode');
+    talker.info('[_FileManagerMovePageController($machineUUID, $filePath)] sort mode');
     final model = state.requireValue;
     final args = SortModeSheetArgs(
       toShow: [SortMode.name, SortMode.lastModified, SortMode.size],
@@ -274,7 +274,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
     final res = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.sortMode, data: args));
 
     if (res.confirmed == true) {
-      logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] SortModeSheet confirmed: ${res.data}');
+      talker.info('[_FileManagerMovePageController($machineUUID, $filePath)] SortModeSheet confirmed: ${res.data}');
 
       // This is required to already show the new sort mode before the data is updated
       state = state.whenData((data) => data.copyWith(sortConfig: res.data));
@@ -289,13 +289,13 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
       queryParameters: {'machineUUID': machineUUID, 'submitLabel': submitLabel},
     );
 
-    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] onTapFolder CHILD RETURNED: $res');
+    talker.info('[_FileManagerMovePageController($machineUUID, $filePath)] onTapFolder CHILD RETURNED: $res');
     // Only for a cancel or move here result we need to pop -> propagate the result
     if (res case CancelFileDestinationResult() || MoveHereFileDestinationResult()) _goRouter.pop(res);
   }
 
   void onCreateFolder() async {
-    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] creating folder');
+    talker.info('[_FileManagerMovePageController($machineUUID, $filePath)] creating folder');
 
     final usedNames = state.requireValue.folderContent.folderFileNames;
 
@@ -334,18 +334,19 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
   }
 
   void _onFileNotification(FileActionResponse notification) {
-    logger.i('[_FileManagerMovePageController($machineUUID, $filePath)] Got a file notification: $notification');
+    talker.info('[_FileManagerMovePageController($machineUUID, $filePath)] Got a file notification: $notification');
 
     // Check if the notifications are only related to the current folder
 
     switch (notification.action) {
       case FileAction.delete_dir when notification.item.fullPath == filePath:
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was deleted, will move to parent');
+        talker.info('[ModernFileManagerController($machineUUID, $filePath)] Folder was deleted, will move to parent');
         _goRouter.pop(FileDestinationSelectionResult.back());
         ref.invalidateSelf();
         break;
       case FileAction.move_dir when notification.sourceItem?.fullPath == filePath:
-        logger.i('[ModernFileManagerController($machineUUID, $filePath)] Folder was moved, will move to new location');
+        talker
+            .info('[ModernFileManagerController($machineUUID, $filePath)] Folder was moved, will move to new location');
         _goRouter.pop(FileDestinationSelectionResult.back());
         ref.invalidateSelf();
       default:

@@ -18,6 +18,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -157,7 +158,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   void clearAllFilters() => state = const SpoolmanFilters();
 
   void filterArchived(bool isActive) {
-    logger.i('[SpoolmanFilterChipsController($machineUUID)] Toggling archived to: $isActive');
+    talker.info('[SpoolmanFilterChipsController($machineUUID)] Toggling archived to: $isActive');
 
     state = state.copyWith(allowArchived: isActive);
   }
@@ -183,7 +184,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
       ),
     );
 
-    logger.i('[SpoolmanFilterChipsController($machineUUID)] Selected Material(s): $res');
+    talker.info('[SpoolmanFilterChipsController($machineUUID)] Selected Material(s): $res');
     if (res.confirmed) {
       final selected = res.data.cast<String>();
       if (selected.isEmpty) {
@@ -215,7 +216,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
       ),
     );
 
-    logger.i('[SpoolmanFilterChipsController($machineUUID) selected Location(s): $res');
+    talker.info('[SpoolmanFilterChipsController($machineUUID) selected Location(s): $res');
     if (res.confirmed) {
       final selected = res.data.cast<String>();
       if (selected.isEmpty) {
@@ -267,7 +268,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
       ),
     );
 
-    logger.i('[SpoolmanFilterChipsController($machineUUID) selected Filament(s): $res');
+    talker.info('[SpoolmanFilterChipsController($machineUUID) selected Filament(s): $res');
     if (res.confirmed) {
       final selected = res.data.cast<GetFilament>().toList();
       if (selected.isEmpty) {
@@ -295,7 +296,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
       ),
     );
 
-    logger.i('[SpoolmanFilterChipsController($machineUUID) selected Vendor(s): $res');
+    talker.info('[SpoolmanFilterChipsController($machineUUID) selected Vendor(s): $res');
     if (res.confirmed) {
       final selected = res.data.cast<GetVendor>().toList();
       if (selected.isEmpty) {
@@ -312,7 +313,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
       data: state.color,
     ));
 
-    logger.i('[SpoolmanFilterChipsController($machineUUID) selected Color: $res');
+    talker.info('[SpoolmanFilterChipsController($machineUUID) selected Color: $res');
     if (res.confirmed) {
       final selected = res.data as String?;
       if (selected == null) {
@@ -321,9 +322,9 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
       }
 
       final filamentsWithColor =
-          await ref.read(filamentListProvider(machineUUID, filters: {'color_hex': selected}).future);
+          await ref.read(filamentListProvider(machineUUID, filters: SpoolmanFilter({'color_hex': selected})).future);
 
-      logger.i('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
+      talker.info('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
       state = state.copyWith(
         color: selected,
         colorFilaments: filamentsWithColor.items,
@@ -338,7 +339,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
     // final filamentsWithColor =
     //     await ref.read(filamentListProvider(machineUUID, filters: {'color_hex': '104ac5'}).future);
     //
-    // logger.i('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
+    // talker.info('[SpoolmanFilterChipsController($machineUUID) found Filament(s) with color: $filamentsWithColor');
     // state = state.copyWith(
     //   color: '104ac5',
     //   colorFilaments: filamentsWithColor.items,
@@ -360,34 +361,34 @@ class SpoolmanFilters with _$SpoolmanFilters {
     List<GetFilament>? colorFilaments,
   }) = _SpoolmanFilters;
 
-  Map<String, dynamic> toFilterForType(SpoolmanListType type) {
+  SpoolmanFilter toFilterForType(SpoolmanListType type) {
     switch (type) {
       case SpoolmanListType.spools:
         return toSpoolFilter();
       case SpoolmanListType.filaments:
         return toFilamentFilter();
       default:
-        return {};
+        return SpoolmanFilter.empty();
     }
   }
 
-  Map<String, dynamic> toSpoolFilter() {
+  SpoolmanFilter toSpoolFilter() {
     Set<GetFilament> combinedFilaments = {...?filaments, ...?colorFilaments};
 
-    return {
+    return SpoolmanFilter({
       'allow_archived': allowArchived == true,
       if (locations != null) 'location': locations!.join(','),
       if (materials != null) 'filament.material': materials!.join(','),
       if (combinedFilaments.isNotEmpty) 'filament.id': combinedFilaments.map((e) => e.id).join(','),
       if (vendors != null) 'filament.vendor.id': vendors!.map((e) => e.id).join(','),
-    };
+    });
   }
 
-  Map<String, dynamic> toFilamentFilter() {
-    return {
+  SpoolmanFilter toFilamentFilter() {
+    return SpoolmanFilter({
       if (materials != null) 'material': materials!.join(','),
       if (vendors != null) 'vendor.id': vendors!.map((e) => e.id).join(','),
       if (color != null) 'color_hex': color,
-    };
+    });
   }
 }

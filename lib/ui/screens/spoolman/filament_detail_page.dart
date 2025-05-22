@@ -19,10 +19,14 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -53,13 +57,17 @@ class FilamentDetailPage extends StatelessWidget {
   }
 }
 
-class _FilamentDetailPage extends ConsumerWidget {
+class _FilamentDetailPage extends HookConsumerWidget {
   const _FilamentDetailPage({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
+    final themeData = Theme.of(context);
     final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
@@ -67,12 +75,33 @@ class _FilamentDetailPage extends ConsumerWidget {
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: ListView(
-        children: [
-          _FilamentInfo(machineUUID: machineUUID),
-          // const _VendorInfo(),
-          _FilamentSpools(machineUUID: machineUUID),
-        ],
+      body: SmartRefresher(
+        controller: refreshController,
+        onRefresh: () async {
+          final filament = ref.read(_filamentProvider);
+
+          try {
+            await ref.refresh(filamentProvider(machineUUID, filament.id).future);
+            refreshController.refreshCompleted();
+          } catch (e) {
+            refreshController.refreshFailed();
+          }
+        },
+        header: ClassicHeader(
+          textStyle: TextStyle(color: themeData.colorScheme.onSurface),
+          completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
+          releaseIcon: Icon(
+            Icons.refresh,
+            color: themeData.colorScheme.onSurface,
+          ),
+        ),
+        child: ListView(
+          children: [
+            _FilamentInfo(machineUUID: machineUUID),
+            // const _VendorInfo(),
+            _FilamentSpools(machineUUID: machineUUID),
+          ],
+        ),
       ),
       // body: _SpoolTab(),
     );
@@ -230,12 +259,14 @@ class _FilamentInfo extends ConsumerWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8) - const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
             child: PropertyWithTitle.text(
               title: tr('pages.spoolman.properties.comment'),
               property: filament.comment ?? '–',
             ),
           ),
+          ExtraFieldsView(machineUUID: machineUUID, type: SpoolmanEntityType.filament, extra: filament.extra),
+          SizedBox(height: 8),
         ],
       ),
     );
@@ -255,7 +286,7 @@ class _FilamentSpools extends HookConsumerWidget {
     final model = ref.watch(_filamentDetailPageControllerProvider(machineUUID).select((d) => d.id));
     useAutomaticKeepAlive();
 
-    final filter = {'filament.id': model};
+    final filter = SpoolmanFilter({'filament.id': model});
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -347,7 +378,7 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
     ));
 
     if (!res.confirmed) return;
-    logger.i('[FilamentDetailPage] Selected action: ${res.data}');
+    talker.info('[FilamentDetailPage] Selected action: ${res.data}');
 
     // Wait for the bottom sheet to close
     await Future.delayed(kThemeAnimationDuration);

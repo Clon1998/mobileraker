@@ -38,13 +38,13 @@ JsonRpcClient _jsonRpcClient(Ref ref, String machineUUID, ClientType type) {
   jrpcClientBuilder.httpClient = httpClientFactory.fromBaseOptions(clientOptions);
 
   JsonRpcClient jsonRpcClient = jrpcClientBuilder.build();
-  logger.i('${jsonRpcClient.logPrefix} JsonRpcClient CREATED!!');
+  talker.info('${jsonRpcClient.logPrefix} JsonRpcClient CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
 
   ref.listen(appLifecycleProvider, (_, appState) {
     if (jsonRpcClient.curState == ClientState.connected) return;
     if (appState == AppLifecycleState.resumed) {
-      logger.i('_jsonRpcClient(${machine.name}, $type): Client is not connected. Will retry to connect');
+      talker.info('_jsonRpcClient(${machine.name}, $type): Client is not connected. Will retry to connect');
       ref.invalidateSelf();
     }
   });
@@ -55,7 +55,6 @@ JsonRpcClient _jsonRpcClient(Ref ref, String machineUUID, ClientType type) {
 @riverpod
 Stream<ClientState> _jsonRpcState(Ref ref, String machineUUID, ClientType type) {
   JsonRpcClient activeClient = ref.watch(_jsonRpcClientProvider(machineUUID, type));
-
   return activeClient.stateStream;
 }
 
@@ -80,22 +79,22 @@ class JrpcClientManager extends _$JrpcClientManager {
     //TODO: This can be to aggressive. Especially for file operations like upload or download, this can cause an unexpected disconnect...
     ref.listen(appLifecycleProvider, (_, appState) {
       if (appState == AppLifecycleState.resumed) {
-        logger.i('[JrpcClientManager@${machine.name}] App resumed. Will reevaluate used client');
+        talker.info('[JrpcClientManager@${machine.name}] App resumed. Will reevaluate used client');
         ref.invalidateSelf();
       }
     });
 
-    logger.i('[JrpcClientManager@${machine.name}] Returning LocalClient');
+    talker.info('[JrpcClientManager@${machine.name}] Returning LocalClient');
     return _jsonRpcClientProvider(machineUUID, ClientType.local);
   }
 
   Future<void> _setupHandover(Machine machine) async {
     var remoteClientType = machine.remoteClientType;
-    logger.i(
+    talker.info(
         '[JrpcClientManager@${machine.name}] A ${remoteClientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
 
     if (!ref.read(remoteConfigBoolProvider('obico_remote_connection')) && remoteClientType == ClientType.obico) {
-      logger.i(
+      talker.info(
           '[JrpcClientManager@${machine.name}] Obico detected as remoteClientType, but obico is disabled in remoteConfig. Will not setup handover');
       return;
     }
@@ -107,24 +106,24 @@ class JrpcClientManager extends _$JrpcClientManager {
         return;
       }
     } else {
-      logger.i('[Smart-Switching@${machine.name}] Local SSID list is empty. Smart switching disabled');
+      talker.info('[Smart-Switching@${machine.name}] Local SSID list is empty. Smart switching disabled');
     }
 
     // This is just an extension to prevent having to setup a listener and stuff here!
     var value = await ref.readWhere(
         _jsonRpcStateProvider(machineUUID, ClientType.local), (clientState) => clientState == ClientState.error, false);
 
-    logger.i(
+    talker.info(
         '[JrpcClientManager@${machine.name}] Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
 
     // ref.state = remoteClinet;
     state = _jsonRpcClientProvider(machineUUID, remoteClientType);
-    logger.i('[JrpcClientManager@${machine.name}] Returned ${remoteClientType.name}-RemoteClient');
+    talker.info('[JrpcClientManager@${machine.name}] Returned ${remoteClientType.name}-RemoteClient');
   }
 
   /// Returns if the smart switch decided to use the remote client or not
   Future<bool> _evaluateSmartSwitching(Machine machine, ClientType remoteClientType) async {
-    logger.i('[Smart-Switching@${machine.name}] Local SSID are set. Can do rapid remote con switching');
+    talker.info('[Smart-Switching@${machine.name}] Local SSID are set. Can do rapid remote con switching');
     List results = await Future.wait([
       ref.read(networkInfoServiceProvider).getWifiName(),
       ref.read(permissionStatusProvider(Permission.location).future),
@@ -136,24 +135,24 @@ class JrpcClientManager extends _$JrpcClientManager {
     ServiceStatus? permissionServiceStatus = results[2];
 
     if (permissionStatus?.isGranted != true) {
-      logger.i(
+      talker.info(
           '[Smart-Switching@${machine.name}] WiFi List exists and is not empty, but no location permission. Smart Switching is disabled');
       return false;
     }
 
     if (permissionServiceStatus?.isEnabled != true) {
-      logger.i(
+      talker.info(
           '[Smart-Switching@${machine.name}] WiFi List exists and is not empty, but location service is disabled. Smart Switching is disabled');
       return false;
     }
 
     if (machine.localSsids.contains(wifiName)) {
-      logger
-          .i('[Smart-Switching@${machine.name}] Connected to a WiFi in LocalSsid list of machine. Will use local con');
+      talker.info(
+          '[Smart-Switching@${machine.name}] Connected to a WiFi in LocalSsid list of machine. Will use local con');
       return false;
     }
 
-    logger.i(
+    talker.info(
         '[Smart-Switching@${machine.name}] Connected to a WiFi NOT in LocalSsid list of machine. Will use remote con');
     state = _jsonRpcClientProvider(machineUUID, remoteClientType);
     return true;

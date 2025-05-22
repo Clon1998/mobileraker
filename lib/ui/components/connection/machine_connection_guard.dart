@@ -48,7 +48,7 @@ class MachineConnectionGuard extends ConsumerWidget {
     final machine = ref.watch(selectedMachineProvider);
     return Center(
       child: switch (machine) {
-        AsyncData(value: null) => const _WelcomeMessage().also((_) => logger.i('MACHINE GUARD DETECTED NO MACHINE')),
+        AsyncData(value: null) => const _WelcomeMessage().also((_) => talker.info('MACHINE GUARD DETECTED NO MACHINE')),
         AsyncData(:final value?) => _WebsocketStateWidget(
             machineUUID: value.uuid,
             skipKlipperReady: skipKlipperReady,

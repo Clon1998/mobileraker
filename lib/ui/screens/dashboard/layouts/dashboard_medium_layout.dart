@@ -5,11 +5,13 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/pull_to_refresh_printer.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/logger.dart';
@@ -19,7 +21,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../components/dashboard_card.dart';
-import '../../../components/pull_to_refresh_printer.dart';
 import '../../../components/reordable_multi_col_row.dart';
 import '../components/editing_dashboard_card.dart';
 
@@ -68,7 +69,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
         scrollController: sc,
         reorderAnimationDuration: const Duration(milliseconds: 200),
         onReorder: (oldIndex, newIndex) {
-          logger.i('On Reorder: $oldIndex -> $newIndex');
+          talker.info('On Reorder: $oldIndex -> $newIndex');
           if (onReorder != null) {
             onReorder!(tabs[oldIndex.$1], tabs[newIndex.$1], oldIndex.$2, newIndex.$2);
           }
@@ -178,7 +179,8 @@ class DashboardMediumLayout extends HookConsumerWidget {
     return PullToRefreshPrinter(
       enablePullDown: !isEditing,
       scrollController: sc, //Maybe that is the reason why autoscroll is broken?
-      physics: const RangeMaintainingScrollPhysics(),
+      physics: RangeMaintainingScrollPhysics(
+          parent: Platform.isIOS ? const BouncingScrollPhysics() : const ClampingScrollPhysics()),
       child: SingleChildScrollView(
         // primary: true,
         // controller: sc,
@@ -215,13 +217,13 @@ class DashboardMediumLayout extends HookConsumerWidget {
     //       ]
     //     ],
     //     onReorder: (oldColumnIndex, oldItemIndex, newColumnIndex, newItemIndex) {
-    //       logger.i('On Reorder: $oldColumnIndex, $oldItemIndex, $newColumnIndex, $newItemIndex');
+    //       talker.info('On Reorder: $oldColumnIndex, $oldItemIndex, $newColumnIndex, $newItemIndex');
     //     });
     //
     // // return ReorderableBuilder(
     //   children: comb,
     //   onReorder: (updated) {
-    //     logger.i('On Reorder: updated');
+    //     talker.info('On Reorder: updated');
     //   },
     //   builder: (ele) {
     //     return GridView(

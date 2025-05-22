@@ -28,7 +28,7 @@ Future<PackageInfo> versionInfo(Ref _) {
 Future<PermissionStatus> permissionStatus(Ref ref, Permission permission) async {
   var status = await permission.status;
 
-  logger.i('Permission $permission is $status');
+  talker.info('Permission $permission is $status');
   return status;
 }
 
@@ -36,7 +36,7 @@ Future<PermissionStatus> permissionStatus(Ref ref, Permission permission) async 
 Future<ServiceStatus> permissionServiceStatus(Ref ref, PermissionWithService permission) async {
   var status = await permission.serviceStatus;
 
-  logger.i('Permission $permission serviceStatus is $status');
+  talker.info('Permission $permission serviceStatus is $status');
   return status;
 }
 
@@ -45,7 +45,7 @@ class AppLifecycle extends _$AppLifecycle {
   @override
   AppLifecycleState build() {
     listenSelf((previous, next) {
-      logger.i('AppLifecycleState changed from $previous to $next');
+      talker.info('AppLifecycleState changed from $previous to $next');
     });
 
     return AppLifecycleState.resumed;
@@ -59,5 +59,16 @@ class AppLifecycle extends _$AppLifecycle {
 @riverpod
 // Just an helper provider to trigger a refetching of list providers because riverpod does not allow invalidation due to circular dependencies
 int signalingHelper(Ref ref, String type) {
+  talker.info("Issuing Signaling helper for $type");
+  ref.onDispose(() {
+    talker.info("Signaling helper for $type disposed");
+  });
+  ref.onCancel(() {
+    talker.info("Signaling helper for $type canceled -> All listeners removed");
+  });
+  ref.onResume(() {
+    talker.info("Signaling helper for $type resumed");
+  });
+
   return DateTime.now().millisecond;
 }

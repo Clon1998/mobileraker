@@ -83,7 +83,7 @@ class _MultipliersSlidersOrTextsLoading extends StatelessWidget {
         children: [
           CardTitleSkeleton.trailingIcon(),
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -129,7 +129,7 @@ class _Body extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Building MultipliersBody for $machineUUID');
+    talker.info('Building MultipliersBody for $machineUUID');
 
     var inputLocked = useState(true);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
@@ -163,7 +163,7 @@ class _Body extends HookConsumerWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               SliderOrTextInput(

@@ -22,10 +22,10 @@ class FirebaseUser extends _$FirebaseUser {
   Stream<User?> build() {
     var firebaseAuth = ref.watch(authProvider);
     listenSelf((AsyncValue<User?>? previous, next) {
-      logger.i('Firebase Auth User changed from $previous to $next');
+      talker.info('Firebase Auth User changed from $previous to $next');
 
       if (next case AsyncData(value: null)) {
-        logger.i('Firebase Auth User is null, can safely log in as annonymous user');
+        talker.info('Firebase Auth User is null, can safely log in as annonymous user');
         firebaseAuth.signInAnonymously();
       }
     });

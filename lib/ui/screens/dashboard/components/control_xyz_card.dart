@@ -62,7 +62,7 @@ class ControlXYZCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    logger.i('Rebuilding ControlXYZCard.');
+    talker.info('Rebuilding ControlXYZCard.');
 
     return AsyncGuard(
       animate: true,
@@ -646,7 +646,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     if (!res.confirmed || res.data is! String) return;
 
     await _printerService.selectBeaconModel(res.data as String);
-    logger.i('Selected beacon model: ${res.data}');
+    talker.info('Selected beacon model: ${res.data}');
   }
 
   List<_QuickAction> _quickActions(ConfigFile configFile) {
@@ -734,7 +734,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 class _ControlXYZCardPreviewController extends _ControlXYZCardController {
   @override
   Stream<_Model> build(String machineUUID) {
-    logger.i('Building ControlXYZCardPreviewController for $machineUUID.');
+    talker.info('Building ControlXYZCardPreviewController for $machineUUID.');
 
     state = AsyncValue.data(_Model(
       showCard: true,

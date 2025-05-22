@@ -31,15 +31,15 @@ class PaywallPageController extends _$PaywallPageController {
     try {
       return _fetchPaywallState();
     } on PlatformException catch (e, s) {
-      logger.e('Error while trying to fetch offerings from revenue cat!', e, s);
+      talker.error('Error while trying to fetch offerings from revenue cat!', e, s);
       rethrow;
     }
   }
 
   Future<PaywallPageState> _fetchPaywallState() async {
     Offerings offerings = await ref.watch(paymentServiceProvider).getOfferings();
-    logger.wtf('Got offerings:${offerings.all.keys}');
-    logger.wtf('Got offerings detailed:$offerings');
+    talker.info('Got offerings:${offerings.all.keys}');
+    talker.verbose('Got offerings detailed:$offerings');
 
     Offering? activeOffering = offerings.current;
     // if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
@@ -77,7 +77,7 @@ class PaywallPageController extends _$PaywallPageController {
   onTippingPressed() async {
     // var tipPacket = state.valueOrNull?.tipPackage;
     if (state.valueOrNull?.tipAvailable != true) {
-      logger.w('Tip package is not available');
+      talker.warning('Tip package is not available');
       return;
     }
 
@@ -88,7 +88,7 @@ class PaywallPageController extends _$PaywallPageController {
           ),
         );
     if (dialogResponse?.confirmed == true) {
-      logger.i('User selected tip package: ${dialogResponse?.data}');
+      talker.info('User selected tip package: ${dialogResponse?.data}');
       makePurchase(dialogResponse!.data as Package);
     }
   }

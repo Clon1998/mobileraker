@@ -40,6 +40,7 @@ import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
 import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
+import 'package:mobileraker/ui/screens/setting/notification/notification_settings_page.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/filament_detail_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/spool_detail_page.dart';
@@ -52,10 +53,12 @@ import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
 import '../ui/screens/files/move_file_destination_page.dart';
+import '../ui/screens/setting/notification/machine_notification_settings_page.dart';
 import '../ui/screens/spoolman/filament_form_page.dart';
 import '../ui/screens/spoolman/spool_form_page.dart';
 import '../ui/screens/spoolman/vendor_form_page.dart';
@@ -74,10 +77,13 @@ enum AppRoute implements RouteDefinitionMixin {
   qrScanner,
   console,
   settings,
+  settings_notification,
+  settings_notification_device,
   imprint,
   dev,
   faq,
   changelog,
+  talker_logscreen,
   supportDev,
   supportDev_benefits,
   tool,
@@ -239,6 +245,21 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/setting',
         name: AppRoute.settings.name,
         builder: (context, state) => const SettingPage(),
+        routes: [
+          GoRoute(
+            path: 'notification',
+            name: AppRoute.settings_notification.name,
+            builder: (context, state) => NotificationSettingsPage(),
+            routes: [
+              GoRoute(
+                path: 'device',
+                name: AppRoute.settings_notification_device.name,
+                pageBuilder: GoTransitions.fullscreenDialog,
+                builder: (context, state) => MachineNotificationSettingsPage(machine: state.extra as Machine),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: '/imprint',
@@ -298,6 +319,14 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/dev',
         name: AppRoute.dev.name,
         builder: (context, state) => DevPage(),
+      ),
+      GoRoute(
+        path: '/talker',
+        name: AppRoute.talker_logscreen.name,
+        builder: (context, state) => TalkerScreen(
+          talker: talker,
+          appBarTitle: 'App-Logs',
+        ),
       ),
       GoRoute(
         path: '/tool',

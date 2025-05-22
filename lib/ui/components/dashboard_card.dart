@@ -73,7 +73,7 @@ class DasboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // logger.i(
+    // talker.info(
     //     'Building DashboardCard with isDemo: $_isDemo, instance: #${identityHashCode(this)}, child: ${identityHashCode(child)}');
 
     // This provides the componentUUID to the children without the need to pass it down manually
@@ -114,7 +114,7 @@ class DasboardCard extends StatelessWidget {
   }
 
   static Widget _resolveDemo(DashboardComponentType type) {
-    // logger.w('Resolving demo card for $type');
+    // talker.warning('Resolving demo card for $type');
     return switch (type) {
       DashboardComponentType.zOffset => ZOffsetCard.preview(),
       DashboardComponentType.machineStatus => MachineStatusCard.preview(),

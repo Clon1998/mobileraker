@@ -59,7 +59,7 @@ class GadgetService {
 
   // https://octoeverywhere.stoplight.io/docs/octoeverywhere-api-docs/b538c771f5cef-get-gadget-s-status-for-app-connections
   Future<GadgetStatus> getStatus(String appToken) async {
-    logger.i('Getting gadget status for appToken: ${appToken.obfuscate()}');
+    talker.info('Getting gadget status for appToken: ${appToken.obfuscate()}');
 
     var response =
         await _dio.post('/gadget/GetStatusFromAppConnection', options: Options(headers: {'AppToken': appToken}));
@@ -70,7 +70,7 @@ class GadgetService {
     }
 
     var gadgetStatus = GadgetStatus.fromJson(responseJson['Result']);
-    logger.i('Got gadget status: $gadgetStatus');
+    talker.info('Got gadget status: $gadgetStatus');
     return gadgetStatus;
   }
 }

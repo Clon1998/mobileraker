@@ -36,6 +36,7 @@ import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker_pro/ads/ui/ad_mobs_consent.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
 import 'service/ui/dialog_service_impl.dart';
@@ -48,9 +49,9 @@ Future<void> main() async {
 
   await setupLogger();
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
-  logger.i('-----------------------');
-  logger.i('Starting Mobileraker...');
-  logger.i('-----------------------');
+  talker.info('-----------------------');
+  talker.info('Starting Mobileraker...');
+  talker.info('-----------------------');
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(ProviderScope(
     // Injecting local implementation of interfaces defined in the common module
@@ -61,7 +62,44 @@ Future<void> main() async {
       themePackProvider.overrideWith(themePacks),
       goRouterProvider.overrideWith(goRouterImpl),
     ],
-    observers: const [if (kDebugMode) RiverPodLogger()],
+    observers: kDebugMode
+        ? [
+            TalkerRiverpodObserver(
+              settings: TalkerRiverpodLoggerSettings(printProviderUpdated: false),
+            ),
+            TalkerRiverpodObserver(
+              settings: TalkerRiverpodLoggerSettings(
+                printProviderAdded: false,
+                printProviderUpdated: true,
+                printProviderDisposed: false,
+                printProviderFailed: false,
+                printStateFullData: false,
+                printFailFullData: false,
+                providerFilter: (provider) => [
+                  '_jsonRpcClientProvider',
+                  'jrpcClientProvider',
+                  'machineProvider',
+                  'klipperSelectedProvider',
+                  'selectedMachineProvider',
+                  '_jsonRpcStateProvider',
+                  // 'machinePrinterKlippySettingsProvider',
+                ].contains(provider.name),
+              ),
+            ),
+            TalkerRiverpodObserver(
+              settings: TalkerRiverpodLoggerSettings(
+                printProviderAdded: false,
+                printProviderUpdated: false,
+                printProviderDisposed: true,
+                printProviderFailed: false,
+                printStateFullData: false,
+                printFailFullData: false,
+                providerFilter: (provider) =>
+                    !['toolheadInfoProvider', 'temperatureStoreProvider'].contains(provider.name),
+              ),
+            ),
+          ]
+        : [],
     child: const _WarmUp(),
   ));
 }

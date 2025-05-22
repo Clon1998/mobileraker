@@ -78,6 +78,7 @@ pages:
     server_status:
       unavailable: Serwer niedostępny
       available: Status serwera {} oraz Klippy {}
+    fetching_printer: "@:general.pobieranie drukarki…"
     general:
       print_card:
         reset: Reset
@@ -90,6 +91,7 @@ pages:
         elapsed: Upłynęło
         flow: Flow
         filament: Filament
+        filament_tooltip: Użyto {} % filamentu, czyli {} m z przewidywanych {} m.
         eta_tooltip: |-
           Pozostały czas:
           Średni:
@@ -101,6 +103,9 @@ pages:
       cam_card:
         webcam: Kamera
         fullscreen: Pełny ekran
+        error_connecting: |-
+          Błąd połączenia z {}.
+          Sprawdź ustawienia połączenia i upewnij się, że kamera internetowa jest online.
       temp_card:
         title: Kontrola temperatury
         presets_btn: Nastawy
@@ -110,6 +115,11 @@ pages:
         sensors: Sensory
         heater_on: "{} °C cel"
         btn_thermistor: Sensor
+        still_hot: "{} jest nadal gorący!"
+      temp_preset_card:
+        cooloff: Studzenie
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
       move_card:
         title: Przesuń oś
         home_xy_tooltip: Pozycja startowa X i Y
@@ -124,15 +134,25 @@ pages:
         m84_btn: M84
         step_size: Wielkość kroku
         stc_tooltip: Uruchom pomiar Screws-Tilt
+        stc_btn: STC
+        ztilt_tooltip: Uruchom kalibrację Z-Tilt
+        ztilt_btn: Z-Tilt
         poff_tooltip:
         poff_btn: Kalibracja Probe
         zoff_btn: Kalibracja krańcówki Z
+        bsa_tooltip: Uruchom kalibrację regulacji śrub stołu
+        bsa_btn: Regulacja śrub stołu
         save_tooltip: Zapisz rezultat kalibracji
         save_btn: Zapisz konfigurację
         more_btn: Więcej
+        beacon_models: Modele Beacon
+        beacon_btn: Beacon
+        beacon_tooltip: Wybierz model Beacon
       baby_step_card:
         title: Mikro Kalibracja Osi Z
+        z_offset: Przesunięcie Z
       restart_klipper: Zrestartuj Klippera
+      restart_mcu: "@:general.restart @:general.firmware"
     control:
       fan_card:
         title:
@@ -152,9 +172,14 @@ pages:
         show_all_tooltip: Pokaż wszystkie makra
       pin_card:
         title_misc: Różne
+        pin_btn: Przypnij
         filament_sensor:
           detected: Wykryto
           not_detected: Pusty
+      power_card:
+        title: Panel zasilania
+        pin_btn: Przypnij
+        provider_error_title: Błąd podczas pobierania urządzeń API zasilania
       multipl_card:
         title: Mnożnik
         flow: Przepływ
@@ -164,26 +189,39 @@ pages:
         title: Limity
         velocity: Prędkość
         accel: Akceleracja
+        sq_corn_vel: Prędkość na rogu kwadratu
       fw_retraction_card:
+        title: Retrakcja z Firmware
         retract_length: Długość retrakcji
         retract_speed: Prędkość retrakcji
+        extra_unretract_length: Dodatkowa ilość dla powrotu
+        unretract_speed: Prędkość powrotu retrakcji
       bed_mesh_card:
         title: Siatka stołu
         profiles: Profile
+        range_tooltip: Zakres między najwyższym i najniższym punktem
       spoolman_card:
+        title: Spoolman
         no_spool: |-
           Nie wybrano szpuli.
           Zużycie filamentu nie będzie śledzone.
+        select_spool: Wybierz szpulę
         used: 'Użyty: {}'
+        provider_error_title: Błąd podczas pobierania danych z Spoolman
       gcode_preview_card:
         title: GCode Podgląd
         follow: Śledź postęp
         kinematic_not_supported: Obecnie aplikacja nie obsługuje renderowania kodu GCode dla układu kinematycznego tej drukarki.
         start_preview:
           btn: Włącz podgląd
+          hint: Aplikacja pobierze aktywny plik wydruku i spróbuje go wyrenderować.
   customizing_dashboard:
+    title: Spersonalizuj panel
     cancel_confirm:
       title: Odrzucić zmiany?
+      body: |-
+        Czy na pewno chcesz opuścić tryb edycji układu?
+        Wszystkie zmiany zostaną utracone. Aby zapisać zmiany, naciśnij przycisk Zapisz.
     add_card: Dodaj kartę
     remove_page: Usuń stronę
     saved_snack:
@@ -191,14 +229,19 @@ pages:
       body: Twoje zmiany zostały zapisane.
     cant_remove_snack:
       title: Nie mogę usunąć strony!
+      body: Potrzebujesz co najmniej 2 stron, aby móc usunąć jedną.
     confirm_removal:
       title: Usunąć stronę?
+      body: Czy na pewno chcesz usunąć tę stronę?
     editing_card:
       title: Tryb edycji
+      body: Możesz teraz zmienić kolejność, dodać i usunąć karty i strony. Wszystkie karty pokazują dane poglądowe.
     error_save_snack:
       title: Błąd w zapisie układu!
+      body: Wystąpił błąd podczas próby zapisania układu.
     error_no_components:
       title: Pusty układ!
+      body: Nie dodano żadnych widżetów. Dodaj co najmniej jeden widżet, aby zapisać układ.
   files:
     title: Pliki
     empty_folder:
@@ -223,6 +266,7 @@ pages:
       upload_bulk: Wyślij pliki
       zip_file: Utwórz archiwum
     gcode_file_actions:
+      submit: Prześlij zadanie wydruku
       preheat: Podgrzej
       enqueue: Dodaj do kolejki wydruku
       preview: Podgląd
@@ -241,26 +285,42 @@ pages:
         body: Plik został poprawnie wysłany.
       upload_failed:
         title: Wysyłanie nieudane
+        body: Wystąpił błąd podczas próby przesłania pliku. Spróbuj ponownie później.
         reasons:
           type_mismatch:
             title: Niezgodność typu pliku
             body: Dozwolone są tylko pliki '{}'.
+      zipping_success:
+        title: Archiwizacja zakończona pomyślnie
+        body: Archiwum zostało pomyślnie utworzone.
+      zipping_failed:
+        title: Archiwizacja nie powiodła się
+        body: Wystąpił błąd podczas próby utworzenia archiwum. Spróbuj ponownie później.
       copy_created:
         title: Kopia utworzona
+        body: Kopia została pomyślnie utworzona w '{}'.
       move_success:
         title: Ruch zakończony sukcesem
+        body: Plik(i) pomyślnie przeniesione do '{}'.
       move_failed:
         title: Ruch nieudany
+        body: Wystąpił błąd podczas próby przeniesienia pliku(ów). Spróbuj ponownie później.
     search_files: Szukaj w katalogu
     search:
       clear_search: Wyczyść wyszukiwanie
+      waiting: Oczekiwanie na wyszukiwanie!
       no_results:
         title: Nie znaleziono plików
+        subtitle: Spróbuj użyć innego zapytania
     cancel_fab:
       upload: Anuluj wysyłanie
       download: Anuluj pobieranie
     move_here: Przenieś tutaj
     copy_here: Kopiuj tutaj
+    no_matches_file_pattern: Tylko litery, cyfry, podkreślenia (_), myślniki (-) i kropki są dozwolone!
+    gcode_tab: GCode
+    config_tab: Konfiguracje
+    timelapse_tab: Filmy poklatkowe
     element:
       one: Element
       other: Elementy
@@ -271,6 +331,7 @@ pages:
         last_printed: Ostatnio drukowany
         no_data: Brak danych
       meta_card:
+        title: Metadane GCode
         filament: Filament
         filament_type: Typ
         filament_name: Nazwa
@@ -282,6 +343,10 @@ pages:
         layer_higher: Wysokość warstwy
         first_layer: Pierwsza warstwa
         others: Inne
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Temperatury"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
       stat_card:
         title: Statystyki
       preheat_dialog:
@@ -293,32 +358,85 @@ pages:
         body: |-
           Ekstruder: {}°C
           Stół: {}°C
+      print_queue_snackbar:
+        title: Dodano do kolejki wydruku
+        body:
+          1: Plik został pomyślnie dodany do kolejki wydruku.
+          other: Pliki zostały pomyślnie dodane do kolejki wydruku.
       spoolman_warnings:
         insufficient_filament_title: Niewystarczająca ilość filamentu
+        insufficient_filament_body: |-
+          Aktywna szpula ma tylko {} pozostałego filamentu, co nie wystarcza do tego pliku.
+          Dotknij, aby zmienić aktywną szpulę.
         material_mismatch_title: Niedopasowanie materiałów
+        material_mismatch_body: |-
+          Materiał pliku {} nie pasuje do materiału aktywnej szpuli {}.
+          Dotknij, aby zmienić aktywną szpulę.
   setting:
     title: Ustawienia aplikacji
     general:
       title: Ogólne
       ems_confirm: Potwierdź zatrzymanie awaryjne
+      ems_confirm_hint: Wyświetlaj okno potwierdzenia przed wysłaniem polecenia zatrzymania awaryjnego
+      always_baby: Tryb karty Z-Offset
+      always_baby_hint: Zawsze wyświetlaj kartę Z-Offset na pulpicie
+      start_with_overview: Ustaw @:pages.overview.title jako stronę startową
       use_offset_pos: Pozycja Offsetu
+      lcFullCam: Orientacja kamery na pełnym ekranie
+      lcFullCam_hint: Przełącz kamerę na tryb poziomy w trybie pełnoekranowym
       language: Język
+      companion: "Czy chcesz otrzymywać zdalne powiadomienia?\nDowiedz się, jak skonfigurować dodatek Mobileraker Companion na"
+      companion_link: Oficjalna strona GitHub
+      sliders_grouping: Grupuj karty z suwakami
+      sliders_grouping_hint: Zgrupuj wszystkie suwaki w jedną kartę
       time_format: Format czasu
       system_theme: Motyw UI
       system_theme_mode: Jasność motywu
+      filament_sensor_dialog: Pokazuj alerty czujnika filamentu
+      filament_sensor_dialog_hint: Wyświetlaj okno dialogowe przy wyzwoleniu czujnika filamentu
+      confirm_gcode: Potwierdź wykonanie makra
+      confirm_gcode_hint: Zawsze wyświetlaj okno potwierdzenia przed wykonaniem makra GCode na pulpicie
       eta_sources: Obliczanie zakończenia
+      eta_sources_hint: Wybierz źródło, które ma być używane do obliczania ETA
+      medium_ui: Tablet UI
+      medium_ui_hint: Używaj interfejsu tabletowego na większych ekranach lub w trybie poziomym
       keep_screen_on: Utrzymuj ekran w stanie czuwania
       keep_screen_on_hint: Zapobiegaj wyłączaniu ekranu, gdy aplikacja jest aktywna
     notification:
       title: Powiadomienia
+      progress_label: Powiadomienie o postępie drukowania
+      state_label: Powiadomienie o stanie druku
+      no_permission_title: Brak uprawnień do powiadomień!
+      no_permission_desc: |-
+        Nie można wyświetlić powiadomień.
+        Poproś o zgodę poprzez kliknięcie!
       no_firebase_title: Nie mogę wyświetlić powiadomień
+      no_firebase_desc: |-
+        Mobileraker nie może dostarczać żadnych powiadomień na to urządzenie.
+        Wygląda na to, że na Twoim urządzeniu brakuje usług Google Play lub blokuje ono połączenie z Firebase!
+      ios_notifications_title: Dostarczanie powiadomień iOS
+      ios_notifications_desc: |-
+        Powiadomienia wymagają, aby Mobileraker został otwarty co najmniej raz i działał w tle.
+        Niektóre powiadomienia mogą jednak zostać zablokowane przez system operacyjny!
+      opt_out_marketing: Powiadomienia marketingowe
+      opt_out_marketing_helper: Otrzymuj aktualizacje dotyczące wyprzedaży i promocji
+      opt_out_marketing_error: Błąd podczas ładowania preferencji marketingowych, spróbuj ponownie później.
+      use_progressbar_notification: Włącz powiadomienie z paskiem postępu
     developer:
+      title: Deweloper
       crashlytics: Włącz raportowanie Crashlytics
+    imprint: Prywatność / Impressum
+    ump_dialog: Ustawienia prywatności i zgody
   printer_edit:
     title: Edytuj {}
     import_settings: Importuj ustawienia
     remove_printer: Usuń drukarkę
+    no_values_found: Nie znaleziono wartości!
+    fetching_additional_settings: "@:general.fetching dodatkowych ustawień z sieci…"
+    could_not_fetch_additional: Nie można pobrać dodatkowych ustawień!
+    fetch_error_hint: Upewnij się, że drukarka jest osiągalna, a Mobileraker jest z nią połączony.
     reset_notification_registry: Wyczyść rejestr urządzeń powiadamiających
+    configure_remote_connection: Konfiguracja połączenia zdalnego
     store_error:
       title: Zapisywanie nieudane!
       message: |-
@@ -331,54 +449,147 @@ pages:
     general:
       displayname: Wyświetlana nazwa
       printer_addr: Drukarka - adres
+      ws_addr: WebSocket - Adres
+      moonraker_api_key: Moonraker - klucz API
+      moonraker_api_desc: Tylko jeśli używasz zaufanych klientów. FluiddPI to wymusza!
       full_url: '!Wysokość warstwy'
       timeout_label: Upłynął czas oczekiwania
+      timeout_helper: Limit czasu na połączenie klienta w sekundach
       theme: Motyw UI
       theme_helper: Motyw UI dla drukarki
+      theme_unavailable: Motyw interfejsu dla drukarki, dostępny tylko dla wspierających
     ssl:
       title: SSL - Ustawienia
+      pin_certificate_label: Przypinanie odcisku palca certyfikatu
+      pin_certificate_helper: Wybierz plik certyfikatu w formacie PEM dla SSL — Przypinanie
+      self_signed: Zaufaj certyfikatom z podpisem własnym
     motion_system:
+      title: System ruchu
+      invert_x: Odwróć sterowanie X
       invert_x_short: Odwróć X
+      invert_y: Odwróć sterowanie Y
       invert_y_short: Odwróć Y
+      invert_z: Odwróć sterowanie Z
       invert_z_short: Odwróć Z
+      speed_xy: Prędkość osi X/Y
+      speed_xy_short: Prędkość X/Y
+      speed_z: Prędkość osi Z
+      speed_z_short: Prędkość Z
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
     extruders:
+      title: Ekstruder(y)
+      feedrate: Prędkość ekstruzji
       feedrate_short: Prędkość
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Odległość dyszy ekstrudera
     cams:
       target_fps: Decelowa ilość FPS
       new_cam: Nowa kamera
       no_webcams: Nie dodano kamer!
+      stream_url: Adres URL strumienia
+      snapshot_url: Adres URL migawki
       default_url: Domyślny URL
       flip_vertical: Odwróć w pionie
       flip_horizontal: Odwróć w poziomie
     macros:
       default_grp: Domyślny
+      new_macro_grp: Nowy makro - Grupa
       no_macros_available: Brak dostępnych makr!
+      no_macros_found: Nie znaleziono makr!
+      no_macros_in_grp: Brak makr w grupie!
+      deleted_grp: Usunięto grupę {}
       macros: Makra
+      default_name: Nowa grupa makr
+      macros_to_default:
+        one: Przeniesiono jedno makro do grupy domyślnej!
+        two: Przeniesiono dwa makra do grupy domyślnej!
+        other: Przeniesiono {} makr do grupy domyślnej!
     presets:
       no_presets: Nie dodano ustawień wstępnych!
       new_preset: Nowe ustawienie wstępne
+    confirm_fcm_reset:
+      body: "Zamierzasz zresetować rejestr urządzeń, który jest używany do określania urządzeń, na które aplikacja towarzysząca wysyła powiadomienia.\nAby ponownie ustanowić powiadomienia push, musisz ponownie uruchomić aplikację na wszystkich urządzeniach i ponownie połączyć je z drukarką.\n\nPotwierdź swoją akcję."
+    confirm_remote_interface_removal:
+      title:
+        other: Usunąć połączenie?
+      body:
+        oe: Potwierdź odłączenie drukarki {} od OctoEverywhere.
+        other: Potwierdź usunięcie połączenia zdalnego z drukarką {}.
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
+    remote_interface_exists:
+      title: Znaleziono połączenie zdalne
+    remote_interface_removed:
+      title: Połączenie zdalne usunięte!
+    remote_interface_added:
+      title:
+        oe: Połączony z OctoEverywhere.
+        obico: Połączony z Obico.
+        other: Dodano połączenie zdalne.
+    wifi_access_warning:
+      title: Informacje Wi-Fi niedostępne
+      subtitle: |-
+        Aby określić, czy Mobileraker powinien używać zdalnego połączenia, przyznaj dostęp do lokalizacji. Umożliwi to aplikacji pobranie nazwy bieżącej sieci Wi-Fi.
+
+        Dotknij, aby przyznać uprawnienia.
     local_ssid:
+      section_header: Inteligentne przełączanie
       no_ssids: Nie dodano nazwy sieci WiFi!
+      helper: Inteligentne przełączanie sprawia, że aplikacja automatycznie zmienia połączenie między lokalnym a zdalnym w zależności od aktualnej sieci WiFi. Aby włączyć tę funkcję, dodaj nazwę swojej domowej sieci WiFi do listy.
       dialog:
         title_add: Dodaj nazwę WiFi do listy
         title_edit: Edytuj nazwę WiFi
         label: Nazwa WiFi (SSID)
+        quick_add_hint: 'Wskazówka: Aby szybko dodać aktualną nazwę sieci WiFi, przytrzymaj przycisk, który otworzył to okno.'
+      error_fetching_snackbar:
+        title: Wystąpił błąd podczas pobierania nazwy WiFi!
+        body: Upewnij się, że aplikacja ma niezbędne uprawnienia dostępu do stanu WiFi urządzenia.
+    temp_ordering:
+      title: Kolejność czujników temperatury
+      helper: Zmień kolejność czujników temperatury w panelu.
+      no_sensors: Nie znaleziono czujników temperatury!
     fan_ordering:
+      title: Kolejność wentylatorów
+      helper: Zmień kolejność wentylatorów w panelu.
       no_fans: Brak wentylatorów!
   printer_add:
     steps:
       mode: Tryb
       input: Wejście
+      test: Test
       done: Zrobione
     title: Dodaj nową drukarkę
     initial_name: Moja drukarka
     select_mode:
+      title: 'Wybierz tryb wprowadzania danych:'
+      body: Jeśli dopiero zaczynasz, najlepiej trzymać się trybu prostego. Jeśli jednak jesteś doświadczony i potrzebujesz używać niestandardowych nagłówków, certyfikatów itp., tryb ekspercki jest dla Ciebie. Pamiętaj, że wybrany tryb nie wpłynie na samą aplikację, ale określi, w jaki sposób dane wejściowe są weryfikowane i wyświetlane oraz jakie opcje są dostępne podczas dodawania drukarki.
+      simple: Prosty
       advanced: Zaawansowane
+    simple_form:
+      hint_title: Wskazówka - Tryb uproszczony
+      hint_body: Tryb prosty pozwala na wprowadzenie hosta i portu. Jeśli jednak potrzebujesz dostosować ścieżkę, nagłówki, certyfikaty lub inne ustawienia, przełącz się na tryb zaawansowany.
+      url_hint: IP lub nazwa hosta drukarki
     advanced_form:
+      hint_title: Wskazówka - Tryb zaawansowany
+      hint_body: Pamiętaj, że w trybie zaawansowanym walidacja jest w większości wyłączona. Ważne jest, abyś wziął pełną odpowiedzialność za upewnienie się, że wprowadzony adres URL jest prawidłowy.
+      http_helper: Proszę wprowadzić punkt końcowy HTTP Moonrakera
+      ws_helper: Opcjonalnie, punkt końcowy WebSocket Moonrakera
       section_security: Bezpieczeństwo
+      section_headers: Nagłówki HTTP
+      empty_headers: Brak dodanych nagłówków!
     test_connection:
+      section_connection: Dane połączenia
+      ws_url_label: Wynikowy adres URL WebSocket
+      http_url_label: Wynikowy adres URL HTTP
+      section_test: Testy połączenia
+      http_label: Test punktu końcowego HTTP
+      ws_label: Test punktu końcowego WebSocket
+      awaiting: Oczekiwanie na wynik…
+      continue: Kontynuuj
+      continue_anyway: Kontynuuj mimo to
+      proceed_warning: Wygląda na to, że aplikacja ma problemy z połączeniem z drukarką. Może to być spowodowane tym, że nie znajdujesz się w tej samej sieci co drukarka lub nie masz uprawnień do uzyskania do niej dostępu. Mimo że możesz dodać drukarkę pomimo tego problemu, pamiętaj, że nie ma gwarancji poprawnego połączenia. Należy zachować ostrożność.
       button: Przetestuj połączenie
     confirmed:
       title: Drukarka {} dodana!
@@ -386,25 +597,151 @@ pages:
   console:
     title: Konsola
     card_title: GCode Konsola
+    no_entries: Nie znaleziono poleceń w pamięci podręcznej
+    fetching_console: "@:general.fetching wpisów z konsoli…"
+    macro_suggestions: Sugestie G-Code
     no_suggestions: Nie znaleziono sugestii!
     command_input:
       hint: Wprowadź polecenie konsoli
+    provider_error:
+      title: Błąd podczas pobierania danych konsoli
+      body: Wystąpił błąd podczas pobierania danych z konsoli. Spróbuj ponownie później!
   overview:
     title: Podsumowanie
+    fetching_machines: "@:general.fetching maszyn…"
+    no_entries: Nie znaleziono maszyn
     add_machine: Dodaj maszyę
+  markdown:
+    loading: "@:general.loading {}…"
+    error: Wystąpił błąd podczas próby pobrania {};
+    open_in_browser: Otwórz @:pages.faq.title w przeglądarce
   faq:
     title: FAQ
   changelog:
     title: Dziennik zmian
+  paywall:
+    benefits:
+      title: Funkcje wspierającego
+      subtitle: Odblokuj ekskluzywne funkcje, zostając Wspierającym Mobilerakera!
+      become_supporter: Zostań wspierającym
+      discover_all: Odkryj wszystkie funkcje wspierającego
+      theme_perk:
+        title: Motyw wspierającego
+        subtitle: Ekskluzywny motyw z użyciem Material 3
+        detail: Doświadcz wyglądu premium z naszym motywem Material 3, z dynamicznym dostosowaniem kolorów i ulepszonymi elementami wizualnymi.
+      contact_perk:
+        title: Kontakt z deweloperem
+        subtitle: Łatwy kontakt z deweloperem!
+        detail: Uzyskaj bezpośredni dostęp do priorytetowego wsparcia i zgłaszania funkcji, pomagając kształtować przyszłość Mobilerakera.
+      notification_perk:
+        title: Powiadomienia z migawką
+        subtitle: Powiadomienia o statusie zawierają migawkę z kamery internetowej
+        detail: Bądź na bieżąco dzięki bogatym powiadomieniom o statusie drukowania, zawierającym migawki z kamery internetowej na żywo, umożliwiającym monitorowanie wydruków z dowolnego miejsca.
+      webrtc_perk:
+        title: Wsparcie WebRtc
+        subtitle: Pozwala na używanie kamer internetowych WebRtc!
+        detail: Doświadcz wysokiej jakości strumieniowania wideo o niskich opóźnieniach z pomocą WebRTC, oferując najbardziej przejrzysty widok Twojej drukarki.
+      job_queue_perk:
+        title: Kolejka zadań
+        subtitle: Zarządzaj kolejką zadań Moonrakera z Mobilerakera!
+      unlimited_printers_perk:
+        title: Nieograniczona liczba drukarek
+        subtitle: Kontroluj tyle drukarek, ile chcesz, korzystając z Mobilerakera!
+      printer_theme_perk:
+        title: Motywy zależne od drukarki
+        subtitle: Wybierz inny motyw dla każdej drukarki!
+        detail: Spersonalizuj swoje doświadczenie, przypisując unikalne motywy do każdej drukarki, aby łatwiej odróżniać je na pierwszy rzut oka.
+      custom_dashboard_perk:
+        title: Własny panel
+        subtitle: Dostosuj panel do swoich potrzeb!
+        detail: Stwórz idealny przepływ pracy, rozmieszczając widżety i elementy sterujące dokładnie tak, jak chcesz, umieszczając najważniejsze informacje na wyciągnięcie ręki.
+        short: Twój idealny workflow
+      full_file_management_perk:
+        title: Pełne zarządzanie plikami
+        subtitle: Odblokuj wszystkie funkcje zarządzania plikami Mobilerakera!
+        detail: Przejmij pełną kontrolę nad swoimi plikami do drukowania dzięki zaawansowanym funkcjom zarządzania, takim jak organizowanie, przesyłanie i utrzymywanie biblioteki wydruków.
+      ad_free_perk:
+        title: Doświadczenie bez reklam
+        subtitle: Ciesz się Mobilerakerem bez reklam!
+        detail: Skup się całkowicie na druku dzięki czystemu, wolnemu od rozproszeń interfejsowi, który stawia Twoje treści na pierwszym planie.
+        short: Pełna koncentracja
+      spoolman_perk:
+        title: Spoolman-UI
+        subtitle: Zarządzaj swoimi szpulami filamentu za pomocą Spoolman
+        detail: Zachowaj doskonałą kontrolę nad zapasami filamentu dzięki zintegrowanemu wsparciu Spoolman – śledź zużycie, koszty i pozostałe ilości dla każdej szpuli podczas druku, co sprawia, że zarządzanie materiałami staje się proste.
+      advanced_perk:
+        short: Pełne możliwości
+    tipping:
+      title: Kup mi kawę
+      subtitle: "Chcesz okazać dodatkowe uznanie? Wesprzyj przyszły rozwój szybkim prezentem:"
+    sup_lifetime_warning:
+      subtitle: |-
+        Zauważyliśmy, że masz zarówno dożywotni dostęp, jak i aktywną subskrypcję.
+        Chociaż dożywotni dostęp obejmuje wszystkie funkcje, możesz utrzymać subskrypcję, aby wspierać dalszy rozwój.
+
+        Pamiętaj, że dożywotni dostęp nie anuluje automatycznie istniejących subskrypcji - musisz to zrobić ręcznie, jeśli się na to zdecydujesz.
+
+        W każdym przypadku doceniamy Twoje wsparcie!
+    sup_origin_warning:
+      subtitle: Jesteś wspierającym, ale Twój status wspierającego został zakupiony na innej platformie! Nadal możesz korzystać ze wszystkich funkcji premium, ale nie możesz zarządzać swoją subskrypcją tutaj!
+    header:
+      rating: "{} na {}"
+      open_core: Open Core
+      active_dev: Aktywnie rozwijany
+    manage_view:
+      title: Dziękujemy za Twoje wsparcie!
+      subtitle: Pomagasz sprawić, że Mobileraker staje się lepszy dla wszystkich, jednocześnie ciesząc się funkcjami premium i doświadczeniem bez reklam. Dziękujemy, że jesteś częścią naszej społeczności makerów!
+      offering_title: Zmień poziom wsparcia
+      cancel_btn: Anuluj subskrypcję
+    subscribe_view:
+      title: Zostań wspierającym Mobilerakera!
+      subtitle: Mobileraker zapewnia szybki i niezawodny interfejs mobilny dla Klippera, inspirowany społecznością makerów. Podstawowe funkcje pozostają darmowe, natomiast wspierający użytkownicy otrzymują dostęp do funkcji premium oraz korzystania bez reklam.
+      offering_title: Wybierz poziom wsparcia
+    contact_dialog:
+      title: Kontakt do dewelopera
+      body: |-
+        Poczta: {}
+        Discord: {}
+    title: Wesprzyj dewelopera!
+    calling_store: Przetwarzanie żądania…
+    promo_title: Oferta specjalna
+    trial_disclaimer: Do końca bezpłatnego okresu próbnego nie zostaniesz obciążony żadną opłatą i możesz anulować subskrypcję w dowolnym momencie w trakcie tego okresu.
+    subscription_disclaimer: Subskrypcja odnawia się automatycznie. Możesz ją anulować w dowolnym momencie.
+    restore_sign_in: Przywróć / Zaloguj się
+  video_player:
+    downloading_for_sharing: Pobieranie filmu do udostępnienia… ({})
   tool:
     title: Narzędzia
   beltTuner:
     title: Tuning paska
+    description: Zapewnienie odpowiedniego napięcia pasków jest kluczowe dla optymalnej pracy drukarek 3D. Nieprawidłowe napięcie, zbyt mocne lub zbyt luźne, może prowadzić do problemów mechanicznych, przedwczesnego zużycia i obniżenia jakości wydruku. Podane wartości służą jako punkty odniesienia; zaleca się jednak zapoznanie się z zaleceniami producenta, aby uzyskać konkretne wytyczne dostosowane do modelu Twojej drukarki. Regulacje należy dokonywać w oparciu zarówno o te zalecane wartości, jak i indywidualne wymagania i warunki drukarki.
+    beltType: 'Wybierz rodzaj paska:'
+    target: 'Cel: {} Hz na odcinku {} mm'
+    permissionWarning:
+      title: Wymagane uprawnienia dostępu do mikrofonu
+      subtitle: |-
+        Stroik pasków używa mikrofonu telefonu do analizy częstotliwości pasków.
+
+        Dotknij, aby udzielić uprawnienia.
   spoolman:
+    title: Spoolman
+    not_available: "Spoolman nie jest dostępny dla tej drukarki. \nUpewnij się, że Spoolman jest zainstalowany i włączony na Twojej drukarce."
+    learn_more: Aby dowiedzieć się więcej o Spoolman i jak go zainstalować, odwiedź projekt
     learn_more_link: Strona GitHub.
+    no_spools: Nie znaleziono szpul!
+    no_filaments: Nie znaleziono filamentów!
+    no_vendors: Nie znaleziono producentów!
+    error_loading_spools: Błąd podczas ładowania szpul
+    error_loading_filaments: Błąd podczas ładowania filamentów
     spoolman_actions:
       deactivate: Dezaktywacja
       clone: Klonuj
+      archive: Archiwizuj
+      unarchive: Przywróć z archiwum
+      adjust: Dostosuj szpulę filamentu
+      share_qr: Udostępnij kod QR
+      add_spool: Dodaj szpulę
+      add_filament: Dodaj filament
     update:
       success:
         title: "{} zaktualizowano!"
@@ -418,19 +755,76 @@ pages:
         title: Usunąć {}?
       success:
         title: "{} usunięto!"
+    spool:
+      one: Szpula
+      other: Szpule
+    filament:
+      one: Filament
+      other: Filamenty
+    vendor:
+      one: Producent
+      other: Producenci
     properties:
+      id: ID
+      name: Nazwa
+      registered: Zarejestrowano
       comment: Komentarz
+      material: Materiał
       price: Cena
+      density: Gęstość
+      diameter: Średnica
       weight: Waga
+      spool_weight: Waga szpuli
+      article_number: Numer artykułu
       first_used: Pierwsze użycie
       last_used: Ostanie użycie
+      remaining_weight: Pozostała waga
+      used_weight: Użyta waga
+      remaining_length: Pozostała długość
+      used_length: Użyta długość
       location: Lokalizacja
+      lot_number: Numer partii (LOT)
       color: Kolor
+      initial_weight: Waga początkowa
     property_sections:
       basic: Podstawowe informacje
+      additional: Dodatkowe informacje
+      extra_fields: Pola dodatkowe
+    vendor_details:
+      page_title: Producent {}
+      info_card: Informacje o producencie
+      filaments_card: Filamenty od producenta
+      spools_card: Szpule od producenta
+    filament_details:
+      info_card: Informacje o filamencie
+      spools_card: Szpule filamentu
+    spool_details:
+      page_title: Szpula {}
+      info_card: Informacje o szpuli
+      set_active: Ustaw jako aktywną szpulę
+      archived_warning:
+        title: Szpula jest zarchiwizowana
+        body: Ta szpula jest zarchiwizowana i nie może być użyta do nowych wydruków.
+      alternative_spool:
+        same_filament: Alternatywne szpule (ten sam filament)
+        same_material: Alternatywne szpule (ten sam materiał)
+    spool_form:
+      create_page_title: Utwórz szpulę
+      update_page_title: Edytuj szpulę
+      helper:
+        location: Miejsce, w którym przechowujesz szpulę
+        lot_number: Numer partii producenta. Może być używany do zapewnienia spójnego koloru wydruku przy użyciu wielu szpul filamentu.
     filament_form:
       create_page_title: Utwórz filament
       update_page_title: Edytuj filament
+    vendor_form:
+      create_page_title: Utwórz producenta
+      update_page_title: Edytuj producenta
+      helper:
+        empty_weight: Waga pustej szpuli od tego producenta.
+  temp_chart:
+    title: Wykres temperatury
+    chart_y_axis: Temperatura [°C]
 components:
   app_version_display:
     version: 'Wersja:'
@@ -439,10 +833,29 @@ components:
     printer_settings: Ustawienia drukarki
     manage_printers: Zarządzaj drukarkami
     fetching_printers: "…………"
+    footer: |-
+      Stworzone z ❤️ przez Patricka Schmidt
+      Sprawdź projekty
   connection_watcher:
     reconnect: Połącz ponownie
+    trying_connect: Próba połączenia…
+    trying_connect_remote: Próba połączenia za pomocą klienta zdalnego…
+    more_details: Więcej szczegółów
+    add_printer: |-
+      Cześć!
+
+      Cieszę się, że tu jesteś!
+      Aby rozpocząć, dodaj drukarkę do Mobilerakera. Po wykonaniu tego kroku będziesz mógł przejąć bezpośrednią kontrolę nad swoją drukarką bezpośrednio z Mobilerakera.
   supporter_add:
     title: Lubisz Mobileraker?
+  supporter_only_feature:
+    dialog_title: Funkcjonalność dostępna tylko dla wspierających
+    button: Zostań wspierającym Mobilerakera
+    spoolman_page: Przepraszamy, strona Spoolman jest dostępna tylko dla wspierających.
+  machine_deletion_warning:
+    subtitle: Wygląda na to, że nie jesteś Wspierającym. Tylko Wspierający mogą mieć więcej niż {} maszyn. Pozostało Ci {} dni, zanim nadmiarowe maszyny zostaną usunięte.
+  remote_connection_indicator:
+    title: Korzystanie z połączenia zdalnego!
   gcode_preview:
     layer:
       one: Warstwa
@@ -453,15 +866,91 @@ components:
   gcode_preview_settings_sheet:
     show_grid:
       title: Pokaż siatkę
+    show_extrusion:
+      title: Pokaż ekstruzje
+    show_retraction:
+      title: Pokaż retrakcje
+    show_travel:
+      title: Pokaż ruchy
   select_color_sheet:
     title: Wybierz kolor
+  ad_banner:
+    failed:
+      title: Reklama niedostępna
+      subtitle: Reklamy wspierają bieżący rozwój
 dialogs:
+  rate_my_app:
+    title: Oceń Mobileraker?
+    message: Jeśli podoba Ci się Mobileraker i chcesz wesprzeć rozwój, proszę rozważ ocenę Mobilerakera!
+  import_setting:
+    fetching_error_title: Nie można pobrać ustawień!
+    select_source: Wybierz źródło
   create_folder:
     title: Utwórz folder
+    label: Nazwa folderu
+  delete_folder:
+    title: Jesteś pewien?
+    description: |-
+      Wszystkie pliki zawarte w folderze również zostaną usunięte!
+
+      Potwierdź usunięcie folderu '/{}'.
+  rename_folder:
+    title: Zmień nazwę folderu
+    label: Nazwa folderu
+  copy_folder:
+    title: Kopiuj folder
+    label: Nazwa folderu
+  delete_file:
+    description: Potwierdź usunięcie pliku '{}'.
+  rename_file:
+    title: Zmień nazwę pliku
+    label: Nazwa pliku
+  copy_file:
+    title: Kopiuj plik
+    label: Nazwa pliku
+  create_file:
+    title: Utwórz plik
+    label: Nazwa pliku
+  create_archive:
+    title: Utwórz archiwum
+    label: Nazwa archiwum
+  delete_files:
+    description: Potwierdź usunięcie {} plików.
+  exclude_object:
+    title: Wyklucz obiekt z wydruku
+    label: Obiekt do wykluczenia
+    confirm_tile_title: Jesteś pewien?
+    confirm_tile_subtitle: Tej operacji nie da się cofnąć!
+    exclude: Wyklucz
+  gcode_params:
+    confirm_body: |-
+      Zamierzasz wykonać makro '{}'.
+
+      Potwierdź swoją akcję.
+  rgbw:
+    recent_colors: Ostatnie kolory
+  select_machine:
+    title: Wybierz maszynę
+    active_machine: 'Aktywna maszyna: {}'
+    hint: Dotknij maszyny, aby ustawić ją jako aktywną.
+  tipping:
+    title: Wesprzyj Dewelopera!
+    body: Ta darowizna ma na celu wyłącznie docenienie wysiłków dewelopera i NIE zapewnia dostępu do żadnych dodatkowych funkcji.
+    amount_label: Kwota wsparcia
+    tip: Wsparcie
   macro_settings:
+    show_for_states: Stany drukowania
+    show_for_states_hint: Wybierz stany, w których makro ma być wyświetlane
     visible: Widoczny
+  screws_tilt_adjust:
+    hint: To okno dialogowe pomaga w regulacji śrub stołu. Dla każdej śruby wyświetlane są wymagane regulacje jako zegar w formacie GG:MM. Na przykład 01:15 oznacza pełny obrót plus ćwierć obrotu w kierunku wskazanym przez ikonę.
   filament_switch:
     steps:
+      set_temps:
+        title: Temperatura filamentu
+        subtitle: Wybierz temperaturę docelową
+      heat_up:
+        subtitle: Grzanie do temperatury docelowej
       move:
         title:
           load: Ładuj filament
@@ -475,17 +964,61 @@ dialogs:
         title: Oczyść filament
         subtitle:
           processing: Czyszczenie filamentu...
+      tip_form:
+        title: Formowanie końcówki
+        subtitle: Formowanie końcówki filamentu
+  heater_temperature:
+    title: "{} Temperatura [°C]"
   confirm_print_cancelation:
     title: Anulować drukowanie?
     body: |-
       Zamierzasz anulować zadanie drukowania.
 
       Potwierdź swoją akcję.
+  adjust_spool_filament:
+    title: Dostosuj szpulę filamentu
+    subtitle: Tutaj możesz bezpośrednio dodać lub usunąć filament ze szpuli. Dodatnia wartość spowoduje odjęcie filamentu, ujemna wartość spowoduje jego dodanie.
+    input_label: Wpisz ilość
+    submit_label: Dostosuj
+    tooltip:
+      weight: Przełącz na tryb wagi
+      length: Przełącz na tryb długości
 bottom_sheets:
+  job_queue_sheet:
+    start_queue: Uruchom kolejkę
+    pause_queue: Wstrzymaj kolejkę
+    remove_all: Wyczyść kolejkę
+    remove_all_confirm: Ta operacja spowoduje usunięcie wszystkich zadań z kolejki.
+  add_remote_con:
+    active_service_info:
+      title: Wykryto istniejącą konfigurację!
+    octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: Połącz OctoEverywhere
+      unlink: Odłącz OctoEverywhere
+      description: OctoEverywhere.com to projekt społecznościowy, umożliwiający bezpieczne połączenie z drukarką z dowolnego miejsca. OctoEverywhere oferuje również społeczności bezpłatne wykrywanie awarii wydruku oparte na sztucznej inteligencji, powiadomienia, transmisję na żywo i wiele więcej. Konfiguracja zajmuje tylko 20 sekund!
+    manual:
+      description: Jeśli jesteś zaawansowanym użytkownikiem, możesz ręcznie dodać alternatywne połączenie. Alternatywne połączenie wchodzi w grę, gdy próby połączenia z adresem podstawowym są nieudane. Może to być przydatne, jeśli masz połączenie reverse proxy z drukarką lub jeśli masz dodatkowy adres IP, którego możesz użyć do połączenia z drukarką.
+    obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: Połącz Obico
+      unlink: Odłącz Obico
+      description: Obico to tworzone przez społeczność, w pełni otwarte oprogramowanie do druku 3D. Umożliwia sterowanie i monitorowanie drukarki Klipper z dowolnego miejsca, a wszystko to bez żadnych kosztów. Jest jednym z pionierskich rozwiązań do wykrywania awarii opartych na sztucznej inteligencji, wykorzystującym wyłącznie kamerę internetową drukarki.
+      self_hosted:
+        title: Samodzielnie hostowany
+        url_label: Własny adres URL
   manage_macros_in_grp:
     title: Dodaj makro
+    hint: Wybierz makra do grupy {}
   signIn:
     forgot_password: Zapomniałeś hasła?
+    forgot_password_success: Wysłano e-mail dotyczący resetowania hasła!
+    hint:
+      sign_in: Nie masz jeszcze konta?
+      sign_up: Posiadasz już konto?
+      reset_password: Podaj swój adres e-mail, aby otrzymać link do resetowania hasła.
     action:
       sign_in: Zaloguj
       sign_up: Wyloguj
@@ -505,15 +1038,27 @@ bottom_sheets:
     restore_purchases: Przywróć zakupy
     restore_success: Zakupy zostały pomyślnie przywrócone!
     delete_account: Usuń konto.
+    email_verification:
+      description: Zweryfikuj swój adres e-mail, aby zapewnić sobie stały dostęp do swojego konta.
+      send: Wyślij weryfikację
     delete_account_dialog:
       title: Usunąć konto?
+      body: Za chwilę usuniesz swoje konto. Tej czynności nie można cofnąć.
   bedMesh:
+    no_mesh_loaded: Nie załadowano jeszcze siatki stołu.
     load_bed_mesh_profile: Załaduj profil siatki stołu
     no_mesh: Brak siatki stołu
   select_spool:
     header:
+      spools: Szpule
       qr: Kod QR
+    no_spools: Nie znaleziono żadnych szpul. Proszę dodać szpule do Spoolman
+    error: 'Wystąpił błąd podczas próby załadowania szpul: {}'
+    qr_loading: Ładowanie skanera QR…
+    qr_error: 'Błąd podczas ładowania skanera QR: {}'
     scan_again: Skanuj ponownie
+    set_active: Ustaw jako aktywną
+    spool_id_not_found: 'Przepraszamy, nie znaleziono szpuli o podanym ID #{}.'
   non_printing:
     manage_service:
       no_services: Nie znaleziono usług!
@@ -522,16 +1067,41 @@ bottom_sheets:
       title: Jesteś pewien?
       hint:
         long_press: 'Podpowiedź: Aby pominąć, przytrzymaj dłużej przycisk, który otworzył to potwierdzenie.'
+      body:
+        pi_restart: Zamierzasz ponownie uruchomić Raspberry Pi. Czy na pewno chcesz kontynuować?
+        pi_shutdown: Zamierzasz wyłączyć Raspberry Pi. Spowoduje to rozłączenie wszystkich aktywnych połączeń i zatrzymanie wszystkich uruchomionych procesów. Czy na pewno chcesz kontynuować?
+        fw_restart: Zamierzasz ponownie uruchomić firmware. Czy na pewno chcesz kontynuować?
+        service_start: Zamierzasz uruchomić usługę '{}'. Czy na pewno chcesz kontynuować?
+        service_restart: Zamierzasz ponownie uruchomić usługę '{}'. Czy na pewno chcesz kontynuować?
+        service_stop: Zamierzasz zatrzymać usługę '{}'. Czy na pewno chcesz kontynuować?
+  dashboard_cards:
+    title: Dodaj kartę
+    subtitle: Wybierz kartę, aby dodać ją do panelu
   dashboard_layout:
+    title: Układ panelu głównego
+    subtitle: 'Aktualny układ:'
+    available_layouts:
+      label: 'Dostępne układy:'
+      empty: Brak dostępnych układów
+      add_empty: Dodaj pusty układ
     layout_preview:
       not_saved: Nie zapisano
     rename_layout:
+      title: Zmień nazwę układu
       label: Nazwa układu
     delete_layout:
       title: Usuń układ
+      body: |-
+        Czy na pewno chcesz usunąć układ {}?
+        Wszystkie maszyny korzystające z tego układu powrócą do układu domyślnego.
+    import_snackbar:
+      title: Układ zaimportowany!
+      body: Pamiętaj, aby nacisnąć przycisk "Zapisz", aby zastosować zmiany.
   selections:
     no_selections:
       title: Nie znaleziono wyników.
+  temp_chart_settings:
+    title: Ustawienia wykresu temperatury
 klipper_state:
   ready: Gotowy
   shutdown: Zamknięcie
@@ -551,12 +1121,17 @@ theme_mode:
   light: Jasny
   dark: Ciemny
   system: System
+eta_data_source:
+  file: GCode
+  slicer: Slicer
+  filament: Filament
 notifications:
   channel_printer_grp: Drukarka {}
   channels:
     status:
       name: Aktualizacje statusu wydruku - {}
       desc: Powiadomienia dotyczące statusu drukowania.
+      title: Stan wydruku {} zmieniony!
       body_printing: 'Drukowanie pliku: "{}"'
       body_paused: 'Wstrzymano drukowanie pliku: "{}"'
       body_complete: 'Zakończono druk: "{}"'
@@ -592,3 +1167,29 @@ date_periods:
   day:
     one: Codziennie
     other: Dni
+consent_cards:
+  marketing_notifications:
+    description: "Chcielibyśmy wysyłać Ci powiadomienia, aby informować Cię o ważnych aktualizacjach i odpowiednich ofertach."
+    agreement: 'Akceptując, zgadzasz się, że możemy:'
+    terms: |
+      • Przechowujemy identyfikator FCM Twojego urządzenia w celach powiadomień
+      • Wysyłamy Ci komunikaty marketingowe i oferty promocyjne
+      • Przetwarzamy te dane zgodnie z naszą Polityką Prywatności
+    disclaimer: W każdej chwili możesz wycofać swoją zgodę w ustawieniach aplikacji. Więcej informacji o tym, jak przetwarzamy Twoje dane, znajdziesz w naszej Polityce Prywatności.
+products:
+  most_popular: Najbardziej popularne
+  lifetime:
+    title: Dożywotnie wsparcie
+    subtitle: Jednorazowa wpłata
+  annual:
+    title: Coroczny wspierający
+    subtitle: Zapłać mniej za pomocą naszego rocznego planu
+  monthly:
+    title: Comiesięczny wspierający
+    subtitle: Wspieraj nas co miesiąc
+  weekly:
+    title: Cotygodniowy wspierający
+  tip:
+    coffee: "Kawa"
+    snack: "Przekąska"
+    lunch: "Lunch"

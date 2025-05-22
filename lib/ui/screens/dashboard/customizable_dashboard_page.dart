@@ -68,7 +68,12 @@ part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
 
 const _staticWidgets = [
-  InlineAdaptiveAdBanner(unit: AdBlockUnit.homeBanner, constraints: BoxConstraints(maxHeight: 80)),
+  InlineAdaptiveAdBanner(
+    unit: AdBlockUnit.homeBanner,
+    constraints: BoxConstraints(maxHeight: 80),
+    animated: false,
+    placeholder: true,
+  ),
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),
@@ -177,14 +182,14 @@ class _BodyState extends ConsumerState<_Body> {
         if (pageController.page?.round() == _animationPageTarget) {
           _animationPageTarget = null;
           _lastPage = pageController.page?.round() ?? 0;
-          logger.i('[UI] PageController finished animating to: ${pageController.page?.round()}');
+          talker.info('[UI] PageController finished animating to: ${pageController.page?.round()}');
         }
         return;
       }
       if (pageController.positions.length != 1) return;
       if (pageController.page?.round() == _lastPage) return;
       _lastPage = pageController.page?.round() ?? 0;
-      logger.i('[UI] Page Changed: ${pageController.page?.round()}');
+      talker.info('[UI] Page Changed: ${pageController.page?.round()}');
       ref.read(_dashboardPageControllerProvider(machineUUID).notifier).onPageChanged(pageController.page?.round() ?? 0);
     });
 
@@ -273,22 +278,22 @@ class _BodyState extends ConsumerState<_Body> {
           /// We need to use the post frame because otherwise the pageController will not be ready
           // ignore: avoid-passing-async-when-sync-expected
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-            logger.i('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
+            talker.info('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
             if (pageController.hasClients && pageController.positions.isNotEmpty) {
               if (previous?.valueOrNull?.activeIndex == null) {
-                logger.i('[Controller->UI] Jumping to: ${next.value!.activeIndex}');
+                talker.info('[Controller->UI] Jumping to: ${next.value!.activeIndex}');
                 pageController.jumpToPage(next.value!.activeIndex);
                 _lastPage = next.value!.activeIndex;
-                logger.i('[Controller->UI] PageController finished jumping to: ${pageController.page?.round()}');
+                talker.info('[Controller->UI] PageController finished jumping to: ${pageController.page?.round()}');
                 return;
               }
 
               _animationPageTarget = next.value!.activeIndex;
-              logger.i('[Controller->UI] Animating to: ${next.value!.activeIndex}');
+              talker.info('[Controller->UI] Animating to: ${next.value!.activeIndex}');
               await pageController.animateToPage(next.value!.activeIndex,
                   duration: kThemeAnimationDuration, curve: Curves.easeOutCubic);
               _lastPage = next.value!.activeIndex;
-              logger.i('[Controller->UI] PageController finished animating to: ${pageController.page?.round()}');
+              talker.info('[Controller->UI] PageController finished animating to: ${pageController.page?.round()}');
             }
           });
         }
@@ -490,7 +495,7 @@ class _BottomNavigationBar extends ConsumerWidget {
             if (model.isEditing && model.layout.tabs.length < 5) FlutterIcons.plus_ant,
           ],
           activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
-          inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor,
+          inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor?.withAlpha(125),
           gapLocation: GapLocation.end,
           backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ?? colorScheme.primary,
           notchSmoothness: NotchSmoothness.softEdge,
@@ -504,7 +509,7 @@ class _BottomNavigationBar extends ConsumerWidget {
             } else if (model.isEditing && index >= model.layout.tabs.length) {
               ref.read(_dashboardPageControllerProvider(machineUUID).notifier).addEmptyPage();
             } else {
-              logger.i('[BottomNavigationBar] Page Changed: $index');
+              talker.info('[BottomNavigationBar] Page Changed: $index');
               ref.read(_dashboardPageControllerProvider(machineUUID).notifier).onPageChanged(index);
             }
           },
@@ -543,7 +548,7 @@ class _PrinterAppBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.i('Rebuilding _PrinterAppBar for ${machine.name}');
+    talker.info('Rebuilding _PrinterAppBar for ${machine.name}');
     final model = ref.watch(_dashboardPageControllerProvider(machine.uuid));
     final controller = ref.watch(_dashboardPageControllerProvider(machine.uuid).notifier);
 
@@ -600,14 +605,14 @@ class _DashboardPageController extends _$DashboardPageController {
     // Cache it if the user goes back to the page, but dont persist it longer!
     ref.keepAliveFor();
     ref.listenSelf((previous, next) {
-      logger.i(
+      talker.info(
           'DashboardPageController: (aIdx: ${previous?.valueOrNull?.activeIndex}, l:  ${previous?.valueOrNull?.layout.tabs.length}) -> (aIdx: ${next?.valueOrNull?.activeIndex}, l:  ${next?.valueOrNull?.layout.tabs.length})');
 
       if (previous?.valueOrNull?.isEditing != true && next.valueOrNull?.isEditing == true) {
-        logger.i('Disable NavWidget');
+        talker.info('Disable NavWidget');
         ref.read(navWidgetControllerProvider.notifier).disable();
       } else if (previous?.valueOrNull?.isEditing == true && next.valueOrNull?.isEditing != true) {
-        logger.i('Enable NavWidget');
+        talker.info('Enable NavWidget');
         ref.read(navWidgetControllerProvider.notifier).enable();
       }
     });
@@ -616,7 +621,7 @@ class _DashboardPageController extends _$DashboardPageController {
 
     inited = true;
 
-    logger.i('Current Layout: ${layout.name} (${layout.uuid}), ${layout.created}');
+    talker.info('Current Layout: ${layout.name} (${layout.uuid}), ${layout.created}');
 
     // return;
     return _Model(layout: layout, activeIndex: 0, isEditing: false);
@@ -625,7 +630,7 @@ class _DashboardPageController extends _$DashboardPageController {
   void startEditMode() {
     var value = state.requireValue;
     if (value.isEditing) return;
-    logger.i('Start Edit Mode');
+    talker.info('Start Edit Mode');
 
     // Make a copy of the layout to be able to cancel changes
     _originalLayout = value.layout;
@@ -650,12 +655,12 @@ class _DashboardPageController extends _$DashboardPageController {
         body: tr('pages.customizing_dashboard.cancel_confirm.body'),
       );
       if (res?.confirmed != true) {
-        logger.i('User cancelled canceling edit mode');
+        talker.info('User cancelled canceling edit mode');
         return;
       }
     }
 
-    logger.i('Cancel Edit Mode');
+    talker.info('Cancel Edit Mode');
 
     state = AsyncValue.data(value.copyWith(
       activeIndex: 0,
@@ -680,7 +685,7 @@ class _DashboardPageController extends _$DashboardPageController {
 
     var value = state.requireValue;
     if (!value.isEditing) return;
-    logger.i('Save Current Layout');
+    talker.info('Save Current Layout');
     updateLayout(value.layout);
   }
 
@@ -702,10 +707,10 @@ class _DashboardPageController extends _$DashboardPageController {
   void updateLayout(DashboardLayout toUpdate) async {
     final value = state.requireValue;
     if (!value.isEditing) return;
-    logger.i('Trying to save layout ${toUpdate.name} (${toUpdate.uuid}) for machine $machineUUID');
+    talker.info('Trying to save layout ${toUpdate.name} (${toUpdate.uuid}) for machine $machineUUID');
     try {
       if (toUpdate == _originalLayout && _originalLayout?.created != null) {
-        logger.i('No changes detected');
+        talker.info('No changes detected');
         state = AsyncValue.data(value.copyWith(isEditing: false, layout: _originalLayout!));
         _originalLayout = null;
         return;
@@ -726,7 +731,7 @@ class _DashboardPageController extends _$DashboardPageController {
         duration: const Duration(seconds: 5),
       ));
     } catch (e, s) {
-      logger.e('Error saving layout', e, s);
+      talker.error('Error saving layout', e, s);
 
       _snackbarService.show(SnackBarConfig.stacktraceDialog(
         dialogService: _dialogService,
@@ -743,7 +748,7 @@ class _DashboardPageController extends _$DashboardPageController {
   void onPageChanged(int index) {
     var value = state.requireValue;
     if (value.activeIndex == index) return;
-    logger.i('Page Change received: $index');
+    talker.info('Page Change received: $index');
 
     state = AsyncValue.data(value.copyWith(activeIndex: index));
   }
@@ -760,12 +765,12 @@ class _DashboardPageController extends _$DashboardPageController {
 
     if (result case BottomSheetResult(confirmed: true, data: DashboardLayout() && var toLoad)) {
       if (toLoad == state.requireValue.layout) {
-        logger.i('No changes detected');
+        talker.info('No changes detected');
         return;
       }
-      logger.i('Changing layout...');
-      // logger.w('Old Layout: ${state.requireValue.layout}');
-      // logger.e('New Layout: $toLoad');
+      talker.info('Changing layout...');
+      // talker.warning('Old Layout: ${state.requireValue.layout}');
+      // talker.error('New Layout: $toLoad');
 
       state = AsyncValue.data(state.requireValue.copyWith(layout: toLoad, activeIndex: 0));
     }
@@ -775,10 +780,10 @@ class _DashboardPageController extends _$DashboardPageController {
     final value = state.requireValue;
     if (!value.isEditing) return;
     if (value.layout.tabs.length > 5) {
-      logger.i('Max Pages reached');
+      talker.info('Max Pages reached');
       return;
     }
-    logger.i('Add Empty Page');
+    talker.info('Add Empty Page');
     var nTab = _dashboardLayoutService.emptyDashboardTab();
 
     var mLayout = value.layout.copyWith(tabs: [...value.layout.tabs, nTab]);
@@ -836,10 +841,10 @@ class _DashboardPageController extends _$DashboardPageController {
     //   newIndex += 1;
     // }
 
-    logger.i('Reordering from ${oldTab.name} to ${newTab.name} from $oldIndex to $newIndex');
+    talker.info('Reordering from ${oldTab.name} to ${newTab.name} from $oldIndex to $newIndex');
     // We act like this is an immutable...
     if (oldTab == newTab) {
-      logger.i('Reordering in same tab');
+      talker.info('Reordering in same tab');
       onTabComponentsReordered(oldTab, oldIndex, newIndex);
       return;
     }
@@ -875,13 +880,13 @@ class _DashboardPageController extends _$DashboardPageController {
     final value = state.requireValue;
     if (!value.isEditing) return;
 
-    logger.i('Add Widget request for tab ${tab.name}');
+    talker.info('Add Widget request for tab ${tab.name}');
     var result = await ref
         .read(bottomSheetServiceProvider)
         .show(BottomSheetConfig(type: SheetType.dashboardCards, data: machineUUID, isScrollControlled: true));
 
     if (result.confirmed) {
-      logger.i('User wants to add ${result.data}');
+      talker.info('User wants to add ${result.data}');
 
       // Act like this is an immutable...
       final mTab = tab.copyWith(components: [...tab.components, DashboardComponent(type: result.data)]);
@@ -896,7 +901,7 @@ class _DashboardPageController extends _$DashboardPageController {
   void onTabComponentRemove(DashboardTab tab, DashboardComponent toRemove) {
     final value = state.requireValue;
     if (!value.isEditing) return;
-    logger.i('Remove Widget request for tab ${tab.name}');
+    talker.info('Remove Widget request for tab ${tab.name}');
 
     final mTab = tab.copyWith(components: tab.components.where((e) => e != toRemove).toList());
     final mLayout = value.layout.copyWith(
@@ -910,9 +915,9 @@ class _DashboardPageController extends _$DashboardPageController {
     final value = state.requireValue;
     if (!value.isEditing) return;
 
-    logger.i('Remove Tab request for tab ${tab.name}');
+    talker.info('Remove Tab request for tab ${tab.name}');
     if (value.layout.tabs.length <= 2) {
-      logger.i('Cannot remove last page');
+      talker.info('Cannot remove last page');
       _snackbarService.show(SnackBarConfig(
         type: SnackbarType.warning,
         title: tr('pages.customizing_dashboard.cant_remove_snack.title'),

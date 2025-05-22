@@ -260,7 +260,7 @@ class _BeltTunerController extends _$BeltTunerController {
   Future<void> requestPermission() async {
     var status = await ref.read(permissionStatusProvider(Permission.microphone).future);
     if (status.isGranted) return;
-    logger.i('Mic permission is not granted ($status), requesting it now');
+    talker.info('Mic permission is not granted ($status), requesting it now');
 
     if (status == PermissionStatus.denied) {
       status = await Permission.microphone.request();
@@ -280,7 +280,7 @@ class _BeltTunerController extends _$BeltTunerController {
 
   start() async {
     var status = await ref.read(permissionStatusProvider(Permission.microphone).future);
-    logger.e(status);
+    talker.error(status);
     if (!status.isGranted) return;
     _fftService.start();
   }

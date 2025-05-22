@@ -64,7 +64,7 @@ class Machine extends HiveObject {
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 
-  set lastPrintState(PrintState? n) => n?.toJsonEnum();
+  set lastPrintState(PrintState? n) => n?.toJson();
 
   String get statusUpdatedChannelKey => '$uuid-statusUpdates';
 

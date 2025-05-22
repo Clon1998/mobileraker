@@ -35,13 +35,13 @@ class SupporterOfferings extends StatelessWidget {
     for (var package in packets!) {
       // if (package.identifier != '\$rc_annual') continue;
       //
-      // logger.w('Package: ${package}');
-      // logger.w('\tSP: ${package.storeProduct}');
+      // talker.warning('Package: ${package}');
+      // talker.warning('\tSP: ${package.storeProduct}');
       //
-      // logger.w('\t\tDefault: ${package.storeProduct.defaultOption}');
-      // logger.w('\t\t\tTrial: ${package.storeProduct.defaultOption?.freePhase}');
-      // logger.w('\t\t\tIntro: ${package.storeProduct.defaultOption?.introPhase}');
-      // logger.w('\t\t\tFull: ${package.storeProduct.defaultOption?.fullPricePhase}');
+      // talker.warning('\t\tDefault: ${package.storeProduct.defaultOption}');
+      // talker.warning('\t\t\tTrial: ${package.storeProduct.defaultOption?.freePhase}');
+      // talker.warning('\t\t\tIntro: ${package.storeProduct.defaultOption?.introPhase}');
+      // talker.warning('\t\t\tFull: ${package.storeProduct.defaultOption?.fullPricePhase}');
     }
 
     return Column(
@@ -78,8 +78,8 @@ class _ProductPackage extends ConsumerWidget {
     EntitlementInfo? activeEntitlement = ref.watch(customerInfoProvider.select((asyncData) {
       CustomerInfo? customerInfo = asyncData.valueOrNull;
 
-      // logger.w('CustomerInfo:');
-      // logger.w('\tActive: ${customerInfo?.entitlements.active}');
+      // talker.warning('CustomerInfo:');
+      // talker.warning('\tActive: ${customerInfo?.entitlements.active}');
 
       if (customerInfo?.isSubscriptionActive(package) != true) return null;
       return customerInfo!.getActiveEntitlementForPackage(package);
@@ -166,7 +166,7 @@ class _SubscriptionProduct extends ConsumerWidget {
     var storeProduct = package.storeProduct;
     var discountOffer = storeProduct.discounts?.firstOrNull;
 
-    // logger.w('discountOffer: ${storeProduct.introductoryPrice}');
+    // talker.warning('discountOffer: ${storeProduct.introductoryPrice}');
 
     // ToDo: Intro Prices for IOS
     // var hasIntroPrice = storeProduct.introductoryPrice != null;

@@ -3,10 +3,9 @@
  * All rights reserved.
  */
 
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../stamped_entity.dart';
-
+part 'apns.freezed.dart';
 part 'apns.g.dart';
 
 /**
@@ -14,41 +13,20 @@ part 'apns.g.dart';
     "created":"",
     "lastModified":"",
     "liveActivity": "<UUID>",
+    "pushToStart": "<APPLE-ID>"
     }
  */
 
-@JsonSerializable()
-class APNs extends StampedEntity {
-  APNs({
+@freezed
+class APNs with _$APNs {
+  const APNs._();
+
+  const factory APNs({
     DateTime? created,
     DateTime? lastModified,
-    this.liveActivity,
-  }) : super(created, lastModified ?? DateTime.now());
-
-  String? liveActivity;
+    String? liveActivity,
+    String? pushToStart,
+  }) = _APNs;
 
   factory APNs.fromJson(Map<String, dynamic> json) => _$APNsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$APNsToJson(this);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      super == other && other is APNs && runtimeType == other.runtimeType && liveActivity == other.liveActivity;
-
-  @override
-  int get hashCode => super.hashCode ^ liveActivity.hashCode;
-
-  @override
-  String toString() {
-    return 'APNs{liveActivity: $liveActivity}';
-  }
-
-// APNs copyWith({double? progress, Set<String>? states}) {
-//   return APNs(
-//     created: created,
-//     progress: progress ?? this.progress,
-//     states: states ?? this.states,
-//   );
-// }
 }

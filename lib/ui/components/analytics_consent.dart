@@ -31,21 +31,21 @@ class AnalyticsConsent extends HookConsumerWidget {
     if (event == null) return;
 
     final analytics = FirebaseAnalytics.instance;
-    logger.i('[AnalyticsConsent] IAB-TCF Received a new value: $event');
+    talker.info('[AnalyticsConsent] IAB-TCF Received a new value: $event');
 
     if (event.gdprApplies == false) {
       _setAllConsents(analytics, granted: true);
-      logger.i('[AnalyticsConsent] IAB-TCF GDPR does not apply - all consents granted');
+      talker.info('[AnalyticsConsent] IAB-TCF GDPR does not apply - all consents granted');
       return;
     }
 
-    logger.i('[AnalyticsConsent] IAB-TCF GDPR applies');
+    talker.info('[AnalyticsConsent] IAB-TCF GDPR applies');
 
     if (event case ConsentInfo()) {
       _setConsentsBasedOnResult(analytics, event);
     } else {
       _setAllConsents(analytics, granted: false);
-      logger.i('[AnalyticsConsent] IAB-TCF GDPR applies but no consent info available');
+      talker.info('[AnalyticsConsent] IAB-TCF GDPR applies but no consent info available');
     }
   }
 
@@ -65,7 +65,7 @@ class AnalyticsConsent extends HookConsumerWidget {
     final adPersonalization = consents.contains(DataUsagePurpose.selectPersonalisedAds);
     final adUserData = consents.contains(DataUsagePurpose.createAPersonalisedAdsProfile);
 
-    logger.i('[AnalyticsConsent] Setting consent - '
+    talker.info('[AnalyticsConsent] Setting consent - '
         'adStorage: $adStorage, '
         'analyticsStorage: $analyticsStorage, '
         'adPersonalization: $adPersonalization, '

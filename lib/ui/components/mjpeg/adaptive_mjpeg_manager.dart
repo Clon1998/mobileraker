@@ -41,10 +41,10 @@ class AdaptiveMjpegManager implements MjpegManager {
   @override
   void start() {
     if (_isActive) {
-      logger.w('[AdaptiveMjpegManager] Already started, ignoring start request');
+      talker.warning('[AdaptiveMjpegManager] Already started, ignoring start request');
       return;
     }
-    logger.i('[AdaptiveMjpegManager] Starting');
+    talker.info('[AdaptiveMjpegManager] Starting');
     _isActive = true;
     _scheduleNextFrame(Duration.zero);
   }
@@ -90,7 +90,7 @@ class AdaptiveMjpegManager implements MjpegManager {
       _scheduleNextFrame(Duration(microseconds: max(0, targetDelay.inMicroseconds)));
       _lastRefresh = now;
     } on DioException catch (error, stack) {
-      logger.w('DioException while requesting MJPEG-Snapshot', error);
+      talker.warning('DioException while requesting MJPEG-Snapshot', error);
 
       if (!_mjpegStreamController.isClosed && _isActive) {
         _mjpegStreamController.addError(error, stack);
@@ -102,7 +102,7 @@ class AdaptiveMjpegManager implements MjpegManager {
 
   @override
   void stop() {
-    logger.i('[AdaptiveMjpegManager] Stopping');
+    talker.info('[AdaptiveMjpegManager] Stopping');
     _isActive = false;
     _timer?.cancel();
     _timer = null;
@@ -110,7 +110,7 @@ class AdaptiveMjpegManager implements MjpegManager {
 
   @override
   Future<void> dispose() async {
-    logger.i('[AdaptiveMjpegManager] Disposing');
+    talker.info('[AdaptiveMjpegManager] Disposing');
     stop();
     await _mjpegStreamController.close();
   }

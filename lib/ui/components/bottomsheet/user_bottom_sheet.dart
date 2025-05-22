@@ -526,13 +526,13 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
 
   @override
   Future<_Model> build() async {
-    logger.i('Rebuilding UserBottomSheetController');
+    talker.info('Rebuilding UserBottomSheetController');
     var user = await ref.watch(firebaseUserProvider.future);
     return _Model(user: user);
   }
 
   void onLinkedProviderChanged() {
-    logger.i('onLinkedProviderChanged');
+    talker.info('onLinkedProviderChanged');
     ref.invalidateSelf();
   }
 
@@ -541,10 +541,10 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } on FirebaseAuthException catch (e) {
-      logger.e('Error signing in', e);
+      talker.error('Error signing in', e);
       state = state.whenData((value) => value.copyWith(errorText: e.message));
     } catch (e) {
-      logger.e('Error signing in', e);
+      talker.error('Error signing in', e);
       state = state.whenData((value) =>
           value.copyWith(errorText: 'An unexpected error occured while signing in. Please try again later.'));
     }
@@ -556,17 +556,17 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
       var user = state.value?.user;
       if (user?.isAnonymous == true) {
         var credential = EmailAuthProvider.credential(email: email, password: password);
-        logger.i('Linking anonymous user to email');
+        talker.info('Linking anonymous user to email');
         await user!.linkWithCredential(credential);
       } else if (user == null) {
-        logger.i('Creating new user with email');
+        talker.info('Creating new user with email');
         await _auth.createUserWithEmailAndPassword(email: email, password: password);
       }
     } on FirebaseAuthException catch (e) {
-      logger.e('AuthError while trying to Sign-Up', e);
+      talker.error('AuthError while trying to Sign-Up', e);
       state = state.whenData((value) => value.copyWith(errorText: e.message));
     } catch (e) {
-      logger.e('Unexpected error while trying to Sign-Up', e);
+      talker.error('Unexpected error while trying to Sign-Up', e);
       state = state.whenData((value) =>
           value.copyWith(errorText: 'An unexpected error occured while registering. Please try again later.'));
     }
@@ -575,7 +575,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   Future<void> signOut() {
     clearErrorText();
     return _auth.signOut().catchError((e) {
-      logger.e('Error signing out', e);
+      talker.error('Error signing out', e);
       state = state.whenData((value) =>
           value.copyWith(errorText: 'An unexpected error occured while signing out. Please try again later.'));
     });
@@ -585,10 +585,10 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     try {
       await _auth.currentUser?.sendEmailVerification();
     } on FirebaseAuthException catch (e) {
-      logger.e('Error sending email verification', e);
+      talker.error('Error sending email verification', e);
       state = state.whenData((value) => value.copyWith(errorText: e.message));
     } catch (e) {
-      logger.e('Error sending email verification', e);
+      talker.error('Error sending email verification', e);
       state = state.whenData((value) => value.copyWith(
           errorText: 'An unexpected error occured while sending the email verification. Please try again later.'));
     }
@@ -596,14 +596,14 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
 
   Future<void> forgotPassword(String email) async {
     try {
-      logger.i('Sending password reset email to $email');
+      talker.info('Sending password reset email to $email');
       await _auth.sendPasswordResetEmail(email: email);
       _showInfoText(tr('bottom_sheets.signIn.forgot_password_success'));
     } on FirebaseAuthException catch (e) {
-      logger.e('Error sending password reset email', e);
+      talker.error('Error sending password reset email', e);
       state = state.whenData((value) => value.copyWith(errorText: e.message));
     } catch (e) {
-      logger.e('Error sending password reset email', e);
+      talker.error('Error sending password reset email', e);
       state = state.whenData((value) => value.copyWith(
           errorText: 'An unexpected error occured while sending the password reset email. Please try again later.'));
     }
@@ -624,7 +624,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     try {
       usr.delete();
     } catch (e) {
-      logger.e('Error deleting user account', e);
+      talker.error('Error deleting user account', e);
       state = state.whenData((value) => value.copyWith(
             errorText: 'An unexpected error occured while deleting your account. Please try again later.',
           ));
@@ -634,7 +634,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   Future<void> restorePurchases() async {
     await _paymentService.restorePurchases(passErrors: true, showSnacks: false).catchError((e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
-      logger.e('Error restoring purchases. Error code: $errorCode');
+      talker.error('Error restoring purchases. Error code: $errorCode');
       state = state.whenData(
         (value) => value.copyWith(errorText: 'An unexpected error occured while restoring purchases.\n$errorCode'),
       );

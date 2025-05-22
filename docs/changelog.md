@@ -1,6 +1,53 @@
 # Mobileraker - Changelog
 
+## [2.8.8] - 2025-03-xx
+
+### Enhancements
+
+- **Integrated Notification Management**: You can now configure all companion notification settings directly within the
+  app! Navigate to Settings → Notifications to manage both global defaults and printer-specific notification
+  preferences. This eliminates the need to manually edit the `mobileraker.conf` file on your printer, making
+  notification setup more user-friendly while ensuring consistency across all your devices. Customize notification
+  thresholds, print states that trigger alerts, and even configure printer-specific overrides—all from one convenient
+  interface.
+
+- **Temperature Graph Legend Improvements**: Exclude entire sensor categories with a single tap on the sensor name,
+  rather than toggling individual data points. This streamlined interaction makes graph data interpretation faster
+  and more intuitive, especially during complex print jobs with multiple temperature sensors.
+
+- **Redesigned Printer Overview Page**: We've completely revamped the printer overview page with an intuitive layout
+  that prioritizes critical information at a glance. The new design features improved information hierarchy and
+  content organization, providing exceptional visibility across multiple printers—perfect for print-farm operators
+  managing numerous devices simultaneously.
+
+### Bug Fixes
+
+- **LED Control System**: Resolved a critical issue that prevented the app from properly updating LED color settings,
+  ensuring your visual indicators now work reliably across all compatible printer models.
+
+- **Preheat Dialog Translations**: Fixed broken translations in the preheat dialog when accessed through the file action
+  bottom sheet, ensuring a consistent multilingual
+  experience. [#510](https://github.com/Clon1998/mobileraker/issues/510)
+
+- **File Manager Indexing**: Resolved an indexing issue that caused certain files to be omitted from the file manager
+  view, ensuring complete visibility of all available print
+  files. [#504](https://github.com/Clon1998/mobileraker/issues/504)
+
+### Code Improvements
+
+- **Enhanced Logging Framework**: Implemented a more robust logging system with improved performance characteristics,
+  enabling more comprehensive diagnostics and faster issue resolution. This foundation will significantly improve our
+  ability to identify and address edge cases in future updates.
+
+- **Webcam API Reliability**: Migrated from name-based references to unique identifier (UID) implementation for webcam
+  connections, eliminating potential naming conflicts and ensuring consistent webcam access across network changes.
+
 ## [2.8.7] - 2025-03-05
+
+### Bug Fixes
+
+- **Keep Screen Awake**: Fixed an issue where the "Keep Screen Awake" setting was not working correctly causing the
+  screen to always stay on.
 
 ### Enhancements
 

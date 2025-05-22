@@ -3,11 +3,13 @@
  * All rights reserved.
  */
 
-import 'package:collection/collection.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../stamped_entity.dart';
+import '../../../dto/machine/print_state_enum.dart';
+import '../../../enums/eta_data_source.dart';
 
+part 'notification_settings.freezed.dart';
 part 'notification_settings.g.dart';
 
 /**
@@ -15,75 +17,91 @@ part 'notification_settings.g.dart';
     "created":"",
     "lastModified":"",
     "progress": 0.25,
-    "android_progressbar": true,
-    "states": ["error","printing","paused"]
+    "androidProgressbar": true,
+    "states": ["error","printing","paused"],
+    "webcamUUID": "UUID"
     }
  */
 
-@JsonSerializable()
-class NotificationSettings extends StampedEntity {
-  NotificationSettings({
+@freezed
+class NotificationSettings with _$NotificationSettings {
+  const NotificationSettings._();
+
+  @JsonSerializable(explicitToJson: true)
+  const factory NotificationSettings({
     DateTime? created,
     DateTime? lastModified,
-    required this.progress,
-    required this.states,
-    this.androidProgressbar = true,
-    this.etaSources = const {},
-  }) : super(created, lastModified ?? DateTime.now());
+    // Whether the notification uses global default settings instead of device-specific settings.
+    // Used by the app to determine which device settings to update if the global defaults are used
+    @Default(true) bool inheritGlobalSettings,
+    // The interval to send notifications
+    required double progress,
+    // The states to send notifications for
+    required Set<PrintState> states,
+    // Whether to use the Android progress bar
+    @Default(true) bool androidProgressbar,
+    // The ETA sources to use for the progress bar
+    @Default({}) Set<ETADataSource> etaSources,
+    // The UUID of the webcam to use for snapshots
+    String? snapshotWebcam,
+    // The filament sensors to exclude from notifications
+    @Default({}) Set<String> excludeFilamentSensors,
+  }) = _NotificationSettings;
 
-  double progress;
-  Set<String> states;
-  bool androidProgressbar;
-  Set<String> etaSources;
-
-  NotificationSettings.fallback()
-      : this(
-          created: DateTime.now(),
-          lastModified: DateTime.now(),
-          progress: 0.25,
-          states: const {'error', 'printing', 'paused'},
-          androidProgressbar: true,
-          etaSources: const {'slicer', 'filament'},
-        );
-
-  factory NotificationSettings.fromJson(Map<String, dynamic> json) =>
-      _$NotificationSettingsFromJson(json);
-
-  Map<String, dynamic> toJson() => _$NotificationSettingsToJson(this);
-
-  NotificationSettings copyWith(
-      {double? progress, Set<String>? states, bool? androidProgressbar, Set<String>? etaSources}) {
+  factory NotificationSettings.fallback() {
+    final now = DateTime.now();
     return NotificationSettings(
-      created: created,
-      progress: progress ?? this.progress,
-      states: states ?? this.states,
-      androidProgressbar: androidProgressbar ?? this.androidProgressbar,
-      etaSources: etaSources ?? this.etaSources,
+      created: now,
+      lastModified: now,
+      progress: ProgressNotificationMode.TWENTY_FIVE.value,
+      states: {PrintState.error, PrintState.printing, PrintState.paused},
+      androidProgressbar: true,
+      etaSources: {ETADataSource.filament, ETADataSource.slicer},
     );
   }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      super == other &&
-          other is NotificationSettings &&
-          runtimeType == other.runtimeType &&
-          progress == other.progress &&
-          androidProgressbar == other.androidProgressbar &&
-          const DeepCollectionEquality().equals(states, other.states) &&
-          const DeepCollectionEquality().equals(etaSources, other.etaSources);
+  factory NotificationSettings.fromJson(Map<String, dynamic> json) => _$NotificationSettingsFromJson(json);
 
-  @override
-  int get hashCode => Object.hashAll([
-        runtimeType,
-        progress,
-        androidProgressbar,
-        const DeepCollectionEquality().hash(states),
-        const DeepCollectionEquality().hash(etaSources),
-      ]);
+  Map<String, dynamic> delta(NotificationSettings other) {
+    // Delta ignores:
+    // - created
+    // - lastModified
+    // - inheritGlobalSettings
+    // - snapshotWebcam
+    // - excludeFilamentSensors
 
-  @override
-  String toString() {
-    return 'NotificationSettings{progress: $progress, states: $states, androidProgressbar: $androidProgressbar, etaSourves: $etaSources, created: $created, lastModified: $lastModified}';
+    final Map<String, dynamic> delta = {};
+
+    if (progress != other.progress) {
+      delta['progress'] = other.progress;
+    }
+
+    if (!DeepCollectionEquality.unordered().equals(states, other.states)) {
+      delta['states'] = other.states;
+    }
+
+    if (!DeepCollectionEquality.unordered().equals(etaSources, other.etaSources)) {
+      delta['etaSources'] = other.etaSources;
+    }
+
+    if (androidProgressbar != other.androidProgressbar) {
+      delta['androidProgressbar'] = other.androidProgressbar;
+    }
+
+    return delta;
+  }
+
+  NotificationSettings applyDelta(Map<String, dynamic> delta) {
+    if (delta.isEmpty) {
+      return this;
+    }
+
+    return copyWith(
+      lastModified: DateTime.now(),
+      progress: delta['progress'] ?? progress,
+      states: (delta['states'] as Set<PrintState>?) ?? states,
+      etaSources: (delta['etaSources'] as Set<ETADataSource>?) ?? etaSources,
+      androidProgressbar: delta['androidProgressbar'] ?? androidProgressbar,
+    );
   }
 }

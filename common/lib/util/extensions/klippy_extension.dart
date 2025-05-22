@@ -13,6 +13,6 @@ extension UiKlippy on KlipperInstance {
       return tr('klipper_state.not_connected');
     }
 
-    return klippyStateMessage ?? tr('Klipper @.lower:${klippyState.name}');
+    return klippyStateMessage ?? tr('Klipper @.lower:${klippyState.displayName}');
   }
 }

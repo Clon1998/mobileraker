@@ -5,11 +5,13 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/pull_to_refresh_printer.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -20,7 +22,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/editing_dashboard_card.dart';
 
 import '../../../components/dashboard_card.dart';
-import '../../../components/pull_to_refresh_printer.dart';
 
 class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
   const DashboardCompactLayoutPage({
@@ -67,7 +68,7 @@ class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
 class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
   @override
   Widget build(BuildContext context) {
-    logger.i('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
+    talker.info('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
 
     final components = widget.tab.components;
 
@@ -75,7 +76,6 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     var scroll = CustomScrollView(
       key: PageStorageKey<String>(widget.tab.uuid),
-      physics: const RangeMaintainingScrollPhysics(),
       slivers: <Widget>[
         if (widget.isEditing)
           SliverPadding(
@@ -132,7 +132,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
               widget.onReorder!(widget.tab, oldIndex, newIndex);
             },
             proxyDecorator: (child, index, animation) {
-              logger.i('Proxy Decorator: $index, $animation, $child#${identityHashCode(child)}');
+              talker.info('Proxy Decorator: $index, $animation, $child#${identityHashCode(child)}');
               return AnimatedBuilder(
                 animation: animation,
                 builder: (BuildContext ctx, Widget? c) {
@@ -178,6 +178,8 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     // Only offer pull to refresh when not editing
     return PullToRefreshPrinter(
+      physics: RangeMaintainingScrollPhysics(
+          parent: Platform.isIOS ? const BouncingScrollPhysics() : const ClampingScrollPhysics()),
       enablePullDown: !widget.isEditing,
       child: scroll,
     );
@@ -208,12 +210,12 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
   }
 
   void _onReorderStart(int index) {
-    logger.i('Reorder Start: $index');
+    talker.info('Reorder Start: $index');
     // _selectedIndex = index;
   }
 
   void _onReorderEnd(int newIndex) {
-    logger.i('Reorder End: $newIndex');
+    talker.info('Reorder End: $newIndex');
     // _selectedIndex = null;
   }
 }

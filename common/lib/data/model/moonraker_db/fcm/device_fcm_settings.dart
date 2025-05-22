@@ -3,13 +3,12 @@
  * All rights reserved.
  */
 
-import 'package:collection/collection.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../stamped_entity.dart';
 import 'apns.dart';
 import 'notification_settings.dart';
 
+part 'device_fcm_settings.freezed.dart';
 part 'device_fcm_settings.g.dart';
 
 /**
@@ -32,74 +31,82 @@ part 'device_fcm_settings.g.dart';
 
  */
 
-@JsonSerializable()
-class DeviceFcmSettings extends StampedEntity {
-  DeviceFcmSettings({
+@freezed
+class DeviceFcmSettings with _$DeviceFcmSettings {
+  const DeviceFcmSettings._();
+
+  @JsonSerializable(explicitToJson: true)
+  const factory DeviceFcmSettings({
     DateTime? created,
     DateTime? lastModified,
-    required this.fcmToken,
-    required this.machineName,
-    this.language = 'en',
-    this.timeFormat = '24h',
-    required this.settings,
-    this.snap,
-    this.version,
-  }) : super(created, lastModified ?? DateTime.now());
+    required String fcmToken,
+    required String machineName,
+    @Default('en') String language,
+    @Default('24h') String timeFormat,
+    String? version,
+    required NotificationSettings settings,
+    Map<String, dynamic>? snap,
+    APNs? apns,
+  }) = _DeviceFcmSettings;
 
-  String fcmToken;
-  String machineName;
-  String language;
-  String timeFormat;
-  String? version;
-  NotificationSettings settings;
-  Map<String, dynamic>? snap;
-  APNs? apns;
+  // Implementing the fallback factory constructor
+  factory DeviceFcmSettings.fallback(String fcmToken, String machineName, String? version,
+      NotificationSettings? settings) {
+    final now = DateTime.now();
+    return DeviceFcmSettings(
+      created: now,
+      lastModified: now,
+      fcmToken: fcmToken,
+      machineName: machineName,
+      settings: settings ?? NotificationSettings.fallback(),
+      version: version,
+    );
+  }
 
-  DeviceFcmSettings.fallback(String fcmToken, String machineName, String? version)
-      : this(
-          created: DateTime.now(),
-          lastModified: DateTime.now(),
-          fcmToken: fcmToken,
-          machineName: machineName,
-          settings: NotificationSettings.fallback(),
-          version: version,
-        );
 
   factory DeviceFcmSettings.fromJson(Map<String, dynamic> json) => _$DeviceFcmSettingsFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DeviceFcmSettingsToJson(this);
+  Map<String, dynamic> delta(DeviceFcmSettings other) {
+    final delta = <String, dynamic>{};
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      super == other &&
-          other is DeviceFcmSettings &&
-          runtimeType == other.runtimeType &&
-          (identical(fcmToken, other.fcmToken) || fcmToken == other.fcmToken) &&
-          (identical(machineName, other.machineName) || machineName == other.machineName) &&
-          (identical(language, other.language) || language == other.language) &&
-          (identical(timeFormat, other.timeFormat) || timeFormat == other.timeFormat) &&
-          (identical(settings, other.settings) || settings == other.settings) &&
-          const DeepCollectionEquality().equals(snap, other.snap) &&
-          (identical(apns, other.apns) || apns == other.apns) &&
-          (identical(version, other.version) || version == other.version);
+    if (fcmToken != other.fcmToken) {
+      delta['fcmToken'] = other.fcmToken;
+    }
+    if (machineName != other.machineName) {
+      delta['machineName'] = other.machineName;
+    }
+    if (language != other.language) {
+      delta['language'] = other.language;
+    }
+    if (timeFormat != other.timeFormat) {
+      delta['timeFormat'] = other.timeFormat;
+    }
+    if (version != other.version) {
+      delta['version'] = other.version;
+    }
 
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        super.hashCode,
-        fcmToken,
-        machineName,
-        language,
-        timeFormat,
-        settings,
-        const DeepCollectionEquality().hash(snap),
-        apns,
-        version,
-      );
+    // APNs and Snap are not included in the delta calculation as they are primarily used by the companion app
+    final settingsDelta = settings.delta(other.settings);
+    if (settingsDelta.isNotEmpty) {
+      delta['settings'] = settingsDelta;
+    }
 
-  @override
-  String toString() {
-    return 'DeviceFcmSettings{machineId: $fcmToken, machineName: $machineName, language: $language, settings: $settings, version: $version, snap: $snap, apns: $apns}';
+    return delta;
+  }
+
+  DeviceFcmSettings applyDelta(Map<String, dynamic> delta) {
+    if (delta.isEmpty) {
+      return this;
+    }
+
+    return copyWith(
+      lastModified: DateTime.now(),
+      fcmToken: delta['fcmToken'] ?? fcmToken,
+      machineName: delta['machineName'] ?? machineName,
+      language: delta['language'] ?? language,
+      timeFormat: delta['timeFormat'] ?? timeFormat,
+      version: delta['version'] ?? version,
+      settings: settings.applyDelta(delta['settings'] as Map<String, dynamic>? ?? {}),
+    );
   }
 }

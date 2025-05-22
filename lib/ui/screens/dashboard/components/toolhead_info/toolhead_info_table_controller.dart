@@ -7,6 +7,7 @@ import 'dart:math';
 
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/double_extension.dart';
@@ -39,7 +40,7 @@ class ToolheadInfo with _$ToolheadInfo {
     int? remainingSlicer,
   }) = _ToolheadInfo;
 
-  factory ToolheadInfo.byComponents(Printer printer, bool positionWithOffset, Set<String> etaSources) {
+  factory ToolheadInfo.byComponents(Printer printer, bool positionWithOffset, Set<ETADataSource> etaSources) {
     final GCodeFile? currentFile = printer.currentFile;
     int maxLayer = _calculateMaxLayer(printer);
     int curLayer = _calculateCurrentLayer(printer, maxLayer);
@@ -123,7 +124,11 @@ Stream<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
   final applyOffsetSettings = ref.watch(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion));
 
-  final etaSourceSettings = ref.watch(stringListSettingProvider(AppSettingKeys.etaSources)).toSet();
+  final etaSourceSettings = ref
+      .watch(listSettingProvider(AppSettingKeys.etaSources,
+          AppSettingKeys.etaSources.defaultValue as List<ETADataSource>, ETADataSource.fromJson))
+      .cast<ETADataSource>()
+      .toSet();
 
   yield* ref
       .watchAsSubject(printerProvider(machineUUID))

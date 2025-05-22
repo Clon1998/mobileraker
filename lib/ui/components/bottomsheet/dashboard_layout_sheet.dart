@@ -454,11 +454,11 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
   }
 
   Future<void> onImportLayout() async {
-    logger.i('Importing layout from clipboard');
+    talker.info('Importing layout from clipboard');
     try {
       var data = await Clipboard.getData('text/plain');
       if (data?.text == null) {
-        logger.w('Clipboard data is null or empty');
+        talker.warning('Clipboard data is null or empty');
         _snackBarService.show(SnackBarConfig(
           title: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.title'),
           message: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.body'),
@@ -477,7 +477,7 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
         duration: const Duration(seconds: 5),
       ));
     } catch (e, s) {
-      logger.e('Error importing layout: $e');
+      talker.error('Error importing layout: $e');
       _snackBarService.show(SnackBarConfig.stacktraceDialog(
         dialogService: _dialogService,
         exception: e,
@@ -488,7 +488,7 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
   }
 
   Future<void> onRenameLayout(DashboardLayout layout) async {
-    logger.i('Renaming layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
+    talker.info('Renaming layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
 
     var isSupporter = ref.read(isSupporterProvider);
 
@@ -526,7 +526,7 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
   }
 
   Future<void> onDeleteLayout(DashboardLayout layout) async {
-    logger.i('Deleting layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
+    talker.info('Deleting layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
 
     final result = await _dialogService.showDangerConfirm(
       title: tr('bottom_sheets.dashboard_layout.delete_layout.title'),

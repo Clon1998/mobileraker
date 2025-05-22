@@ -133,12 +133,12 @@ class FileInteractionService {
       actions: _getFileActions(file, canStartPrint, klippyReady),
     );
 
-    logger.i('[FileInteractionService($_machineUUID)] showing file action menu for ${file.name}');
+    talker.info('[FileInteractionService($_machineUUID)] showing file action menu for ${file.name}');
 
     final resp =
         await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
 
-    logger.i('[FileInteractionService($_machineUUID)] file action menu response: $resp');
+    talker.info('[FileInteractionService($_machineUUID)] file action menu response: $resp');
     if (!resp.confirmed) return;
 
     yield FileActionSelected(action: resp.data, files: [file]);
@@ -169,12 +169,12 @@ class FileInteractionService {
       ],
     );
 
-    logger.i('[FileInteractionService($_machineUUID)] showing multi file action menu for ${files.length} files');
+    talker.info('[FileInteractionService($_machineUUID)] showing multi file action menu for ${files.length} files');
 
     final resp =
         await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
 
-    logger.i('[FileInteractionService($_machineUUID)] multi file action menu response: $resp');
+    talker.info('[FileInteractionService($_machineUUID)] multi file action menu response: $resp');
     if (!resp.confirmed) return;
 
     yield FileActionSelected(action: resp.data, files: files);
@@ -294,7 +294,7 @@ class FileInteractionService {
           '${file.parentPath}/$newName',
         );
       } on JRpcError catch (e) {
-        logger.e('Could not perform rename.', e);
+        talker.error('Could not perform rename.', e);
         _snackBarService.show(SnackBarConfig(
           type: SnackbarType.error,
           message: 'Could not rename File.\n${e.message}',
@@ -316,7 +316,7 @@ class FileInteractionService {
     if (res case MoveHereFileDestinationResult(path: final String selectedPath)) {
       if (first.parentPath == selectedPath) return;
       final newPath = selectedPath;
-      logger.i('[FileInteractionService($_machineUUID)] moving files to $selectedPath');
+      talker.info('[FileInteractionService($_machineUUID)] moving files to $selectedPath');
 
       final waitFor = <Future>[];
       for (var file in files) {
@@ -372,7 +372,7 @@ class FileInteractionService {
       yield FileOperationTriggered(action: FileSheetAction.copy, files: [file]);
 
       final copyPath = '$selectedPath/$copyName';
-      logger.i('[FileInteractionService($_machineUUID)] creating copy of file ${file.name} at $copyPath');
+      talker.info('[FileInteractionService($_machineUUID)] creating copy of file ${file.name} at $copyPath');
       await _fileService.copyFile(file.absolutPath, copyPath);
       _snackBarService.show(SnackBarConfig(
         title: tr('pages.files.file_operation.copy_created.title'),
@@ -429,7 +429,7 @@ class FileInteractionService {
     final resp = await _dialogService.showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
       body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
-      actionLabel: 'pages.files.details.preheat'.tr(),
+      actionLabel: 'pages.files.gcode_file_actions.preheat'.tr(),
     );
     if (resp?.confirmed != true) return;
     _printerService.setHeaterTemperature('extruder', 170);
@@ -547,16 +547,16 @@ class FileInteractionService {
           sharePositionOrigin: origin,
         );
       } catch (e) {
-        logger.e('Could not share file', e);
+        talker.error('Could not share file', e);
       }
     } catch (e, s) {
-      logger.e('[FileInteractionService($_machineUUID)] Could not download file.', e, s);
+      talker.error('[FileInteractionService($_machineUUID)] Could not download file.', e, s);
       _onOperationError(e, s, 'download');
     }
   }
 
   Stream<FileInteractionMenuEvent> zipFilesAction(List<RemoteFile> toZip) async* {
-    logger.i('[FileInteractionService($_machineUUID)] creating new archive for files');
+    talker.info('[FileInteractionService($_machineUUID)] creating new archive for files');
 
     final initialName = toZip.length == 1 ? toZip.first.name : _zipDateFormat.format(DateTime.now());
 
@@ -591,7 +591,7 @@ class FileInteractionService {
   Stream<FileInteractionMenuEvent> createEmptyFolderAction(String parentPath, List<String>? usedNames) async* {
     usedNames ??= await _fileService.fetchDirectoryInfo(parentPath).then((e) => e.folderFileNames);
 
-    logger.i('[FileInteractionService($_machineUUID)] creating new folder');
+    talker.info('[FileInteractionService($_machineUUID)] creating new folder');
 
     var dialogResponse = await _dialogService.show(
       DialogRequest(
@@ -636,7 +636,7 @@ class FileInteractionService {
       return;
     }
 
-    logger.i('[FileInteractionService($_machineUUID)] uploading file. Allowed: $allowedFileTypes');
+    talker.info('[FileInteractionService($_machineUUID)] uploading file. Allowed: $allowedFileTypes');
 
     bool useAny = kDebugMode || Platform.isAndroid;
 
@@ -648,7 +648,7 @@ class FileInteractionService {
       withData: false,
     );
 
-    logger.i('[FileInteractionService($_machineUUID)] FilePicker result: $result');
+    talker.info('[FileInteractionService($_machineUUID)] FilePicker result: $result');
     if (result == null || result.count == 0) return;
 
     // If we did not filter by OS, we need to check the file extension manually here
@@ -668,7 +668,7 @@ class FileInteractionService {
     }
 
     for (var toUpload in result.files) {
-      logger.i('[FileInteractionService($_machineUUID)] Selected file: ${toUpload.name}');
+      talker.info('[FileInteractionService($_machineUUID)] Selected file: ${toUpload.name}');
 
       final relativeToRoot = parentPath.split('/').skip(1).join('/');
 
@@ -682,7 +682,7 @@ class FileInteractionService {
   }
 
   Stream<FileInteractionMenuEvent> newFileAction(String parentPath, List<String>? usedNames) async* {
-    logger.i('[FileInteractionService($_machineUUID)] creating new file');
+    talker.info('[FileInteractionService($_machineUUID)] creating new file');
 
     usedNames ??= await _fileService.fetchDirectoryInfo(parentPath).then((e) => e.folderFileNames);
 
@@ -790,7 +790,7 @@ class FileInteractionService {
           yield* zipFilesAction([file]);
           break;
         default:
-          logger.w('Action not implemented: $action');
+          talker.warning('Action not implemented: $action');
           yield FileActionFailed(action: action, files: [file], error: 'Action not implemented');
       }
       yield FileOperationCompleted(action: action, files: [file]);
@@ -861,7 +861,7 @@ class FileInteractionService {
     try {
       final zipFile = await _fileService.zipFiles(dest, targets);
 
-      logger.i('[FileInteractionService($_machineUUID)] Files zipped');
+      talker.info('[FileInteractionService($_machineUUID)] Files zipped');
 
       if (showSnack) {
         _snackBarService.show(SnackBarConfig(
@@ -872,7 +872,7 @@ class FileInteractionService {
       }
       return zipFile;
     } catch (e, s) {
-      logger.e('[FileInteractionService($_machineUUID)] Could not zip files.', e, s);
+      talker.error('[FileInteractionService($_machineUUID)] Could not zip files.', e, s);
       _onOperationError(e, s, 'zipping');
     }
     return null;
@@ -895,7 +895,7 @@ class FileInteractionService {
         return;
       }
 
-      logger.i('[FileInteractionService($_machineUUID)] File uploaded');
+      talker.info('[FileInteractionService($_machineUUID)] File uploaded');
 
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.info,
@@ -903,7 +903,7 @@ class FileInteractionService {
         message: tr('pages.files.file_operation.upload_success.body'),
       ));
     } catch (e, s) {
-      logger.e('[FileInteractionService($_machineUUID)] Could not upload file.', e, s);
+      talker.error('[FileInteractionService($_machineUUID)] Could not upload file.', e, s);
       _onOperationError(e, s, 'upload');
       yield const FileActionFailed(action: FileSheetAction.uploadFile, files: [], error: 'Upload failed');
     }

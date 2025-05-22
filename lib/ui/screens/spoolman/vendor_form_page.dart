@@ -19,8 +19,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_vendor.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/extra_fields_form.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../printers/components/section_header.dart';
@@ -75,7 +77,8 @@ class _VendorFormPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sourceVendor = ref.watch(_vendorFormPageControllerProvider(machineUUID).select((model) => model.source));
+    final (sourceVendor, saving) =
+        ref.watch(_vendorFormPageControllerProvider(machineUUID).select((model) => (model.source, model.isSaving)));
 
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
 
@@ -91,52 +94,64 @@ class _VendorFormPage extends HookConsumerWidget {
           child: ResponsiveLimit(
             child: FormBuilder(
               key: _formKey,
-              child: ListView(
+              enabled: !saving,
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                children: [
-                  SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
-                  FormBuilderTextField(
-                    name: _VendorFormFormComponent.name.name,
-                    initialValue: sourceVendor?.name,
-                    focusNode: nameFocusNode,
-                    keyboardType: TextInputType.text,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.name'.tr()),
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
-                    onSubmitted: (txt) =>
-                        focusNext(_VendorFormFormComponent.name.name, nameFocusNode, spoolWeightFocusNode),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  FormBuilderTextField(
-                    name: _VendorFormFormComponent.spoolWeight.name,
-                    initialValue: sourceVendor?.spoolWeight?.let(numFormatInputs.format),
-                    valueTransformer: (text) => text?.let(double.tryParse),
-                    focusNode: spoolWeightFocusNode,
-                    keyboardType: TextInputType.number,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'pages.spoolman.properties.spool_weight'.tr(),
-                      suffixText: '[g]',
-                      helperText: tr('pages.spoolman.vendor_form.helper.empty_weight'),
-                      helperMaxLines: 100,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SectionHeader(title: tr('pages.spoolman.property_sections.basic')),
+                    FormBuilderTextField(
+                      name: _VendorFormFormComponent.name.name,
+                      initialValue: sourceVendor?.name,
+                      focusNode: nameFocusNode,
+                      keyboardType: TextInputType.text,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(labelText: 'pages.spoolman.properties.name'.tr()),
+                      validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+                      onSubmitted: (txt) =>
+                          focusNext(_VendorFormFormComponent.name.name, nameFocusNode, spoolWeightFocusNode),
+                      textInputAction: TextInputAction.next,
                     ),
-                    validator: FormBuilderValidators.compose([FormBuilderValidators.numeric()]),
-                    onSubmitted: (txt) =>
-                        focusNext(_VendorFormFormComponent.spoolWeight.name, spoolWeightFocusNode, commentFocusNode),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
-                  FormBuilderTextField(
-                    name: _VendorFormFormComponent.comment.name,
-                    initialValue: sourceVendor?.comment,
-                    maxLines: null,
-                    focusNode: commentFocusNode,
-                    keyboardType: TextInputType.multiline,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(labelText: 'pages.spoolman.properties.comment'.tr()),
-                    textInputAction: TextInputAction.newline,
-                  ),
-                ],
+                    FormBuilderTextField(
+                      name: _VendorFormFormComponent.spoolWeight.name,
+                      initialValue: sourceVendor?.spoolWeight?.let(numFormatInputs.format),
+                      valueTransformer: (text) => text?.let(double.tryParse),
+                      focusNode: spoolWeightFocusNode,
+                      keyboardType: TextInputType.number,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.properties.spool_weight'.tr(),
+                        suffixText: '[g]',
+                        helperText: tr('pages.spoolman.vendor_form.helper.empty_weight'),
+                        helperMaxLines: 100,
+                      ),
+                      validator:
+                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      onSubmitted: (txt) =>
+                          focusNext(_VendorFormFormComponent.spoolWeight.name, spoolWeightFocusNode, commentFocusNode),
+                      textInputAction: TextInputAction.next,
+                    ),
+                    SectionHeader(title: tr('pages.spoolman.property_sections.additional')),
+                    FormBuilderTextField(
+                      name: _VendorFormFormComponent.comment.name,
+                      initialValue: sourceVendor?.comment,
+                      maxLines: null,
+                      focusNode: commentFocusNode,
+                      keyboardType: TextInputType.multiline,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(labelText: 'pages.spoolman.properties.comment'.tr()),
+                      textInputAction: TextInputAction.newline,
+                    ),
+                    // Extra Fields Section
+                    ExtraFieldsFormSection(
+                      machineUUID: machineUUID,
+                      type: SpoolmanEntityType.vendor,
+                      extraValues: sourceVendor?.extra,
+                      header: SectionHeader(title: tr('pages.spoolman.property_sections.extra_fields')),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -216,13 +231,13 @@ class _VendorFormPageController extends _$VendorFormPageController {
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
-    logger.i('[VendorFormPageController($machineUUID)] Form submitted');
+    talker.info('[VendorFormPageController($machineUUID)] Form submitted');
     if (formData == null) {
-      logger.w('[VendorFormPageController($machineUUID)] Form data is null');
+      talker.warning('[VendorFormPageController($machineUUID)] Form data is null');
       return;
     }
-
     state = state.copyWith(isSaving: true);
+
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
@@ -236,7 +251,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
 
   Future<void> _create(Map<String, dynamic> formData) async {
     final dto = _createDtoFromForm(formData);
-    logger.i('[VendorFormPageController($machineUUID)] Create DTO: $dto');
+    talker.info('[VendorFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = tr('pages.spoolman.vendor.one');
     try {
       final res = await _spoolmanService.createVendor(dto);
@@ -247,7 +262,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       ));
       _goRouter.pop(res);
     } catch (e, s) {
-      logger.e('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.create.error.title', args: [entityName]),
@@ -260,7 +275,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
 
   Future<void> _update(Map<String, dynamic> formData) async {
     final dto = _updateDtoFromForm(formData, state.source!);
-    logger.i('[VendorFormPageController($machineUUID)] Update DTO: $dto');
+    talker.info('[VendorFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.vendor.one');
 
     if (dto == null) {
@@ -282,7 +297,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       ));
       _goRouter.pop(updated);
     } catch (e, s) {
-      logger.e('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
+      talker.error('[VendorFormPageController($machineUUID)] Error while saving.', e, s);
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: tr('pages.spoolman.update.error.title', args: [entityName]),
@@ -300,6 +315,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       spoolWeight: formData[_VendorFormFormComponent.spoolWeight.name],
       externalId: formData[_VendorFormFormComponent.externalId.name],
       comment: formData[_VendorFormFormComponent.comment.name],
+      extra: formData.extractExtraFields(),
     );
   }
 
@@ -309,11 +325,18 @@ class _VendorFormPageController extends _$VendorFormPageController {
     final externalId = formData[_VendorFormFormComponent.externalId.name];
     final comment = formData[_VendorFormFormComponent.comment.name];
 
+    // Extra field values:
+    final extras = formData.extractExtraFields();
+
     // If no changes were made, return null
+    final extraIsSame = DeepCollectionEquality().equals(extras, source.extra);
     if (name == source.name &&
         spoolWeight == source.spoolWeight &&
         externalId == source.externalId &&
-        comment == source.comment) return null;
+        comment == source.comment &&
+        extraIsSame) {
+      return null;
+    }
 
     return UpdateVendor(
       id: source.id,
@@ -321,6 +344,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
       spoolWeight: source.spoolWeight == spoolWeight ? null : spoolWeight,
       comment: source.comment == comment ? null : comment,
       externalId: source.externalId == externalId ? null : externalId,
+      extra: extraIsSame ? null : extras,
     );
   }
 }
