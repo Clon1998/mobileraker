@@ -141,7 +141,6 @@ pages:
       language: Мова
     notification:
       title: Сповіщення
-      progress_helper: Інтервал оновлення для сповіщення про хід друку
       no_permission_title: Немає дозволу на сповіщення!
       no_permission_desc: |-
         Не можливо відобразити сповіщення.

@@ -141,7 +141,6 @@ pages:
       language: Idioma
     notification:
       title: Notificação
-      progress_helper: Intervalo para Notificações de Progresso de Impressão
       no_permission_title: Sem Permissão para Notificações!
       no_permission_desc: |-
         Não é possível exibir notificações.

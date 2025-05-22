@@ -163,7 +163,6 @@ pages:
       language: Lingua
     notification:
       title: Notifiche
-      progress_helper: Scegli la percentuale di avanzamento di stampa da mostrare nella notifica
       no_permission_title: Nessun Autorizzazione di Notifica!
       no_permission_desc: |-
         Impossibile visualizzare le notifiche.
