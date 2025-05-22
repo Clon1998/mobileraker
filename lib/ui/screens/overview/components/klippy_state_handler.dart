@@ -106,6 +106,7 @@ class _KlippyStartupInitializingDisconnected extends HookWidget {
         Text(
           'components.machine_card.klippy_state.${klippy.klippyState.name}',
           style: themeData.textTheme.titleMedium,
+          textAlign: TextAlign.center,
         ).tr(),
         if (klippy.statusMessage.isNotEmpty == true)
           Text(klippy.statusMessage, style: themeData.textTheme.bodySmall, textAlign: TextAlign.center),

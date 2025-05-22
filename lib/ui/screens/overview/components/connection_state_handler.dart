@@ -85,8 +85,12 @@ class _ClientDisconnectedBody extends ConsumerWidget {
         Gap(8),
         Icon(Icons.wifi_off, size: 36, color: themeData.disabledColor),
         Gap(4),
-        Text('components.machine_card.client_state.disconnected', style: themeData.textTheme.titleMedium).tr(),
-        Text('@:components.machine_card.last_seen: $lastSeen', style: themeData.textTheme.bodySmall).tr(),
+        Text('components.machine_card.client_state.disconnected',
+                style: themeData.textTheme.titleMedium, textAlign: TextAlign.center)
+            .tr(),
+        Text('@:components.machine_card.last_seen: $lastSeen',
+                style: themeData.textTheme.bodySmall, textAlign: TextAlign.center)
+            .tr(),
         Gap(8),
         _Actions(machine: machine, clientState: ClientState.disconnected),
       ],
@@ -114,9 +118,13 @@ class _ClientErrorBody extends ConsumerWidget {
         Gap(8),
         Icon(Icons.warning_amber, size: 36, color: themeData.colorScheme.error),
         Gap(4),
-        Text('client_state.error', style: themeData.textTheme.titleMedium?.copyWith(color: themeData.colorScheme.error))
+        Text('client_state.error',
+                style: themeData.textTheme.titleMedium?.copyWith(color: themeData.colorScheme.error),
+                textAlign: TextAlign.center)
             .tr(),
-        Text('@:components.machine_card.last_seen: $lastSeen', style: themeData.textTheme.bodySmall).tr(),
+        Text('@:components.machine_card.last_seen: $lastSeen',
+                style: themeData.textTheme.bodySmall, textAlign: TextAlign.center)
+            .tr(),
         if (errorMessage != null) ...[
           Gap(4),
           SizedBox(
@@ -164,8 +172,14 @@ class _ClientConnectingBody extends HookConsumerWidget {
         Gap(8),
         RotationTransition(turns: animationController, child: Icon(Icons.autorenew, size: 36)),
         Gap(4),
-        Text('components.connection_watcher.trying_connect', style: themeData.textTheme.titleMedium).tr(),
-        Text('@:components.machine_card.last_seen: $lastSeen', style: themeData.textTheme.bodySmall).tr(),
+        Text(
+          'components.connection_watcher.trying_connect',
+          style: themeData.textTheme.titleMedium,
+          textAlign: TextAlign.center,
+        ).tr(),
+        Text('@:components.machine_card.last_seen: $lastSeen',
+                style: themeData.textTheme.bodySmall, textAlign: TextAlign.center)
+            .tr(),
       ],
     );
   }
