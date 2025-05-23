@@ -73,6 +73,7 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final printState = ref.watch(_printerJobHandlerControllerProvider(machine).selectRequireValue((d) => d.printState));
+    final controller = ref.watch(_printerJobHandlerControllerProvider(machine).notifier);
 
     final body = switch (printState) {
       PrintState.complete || PrintState.cancelled => _JobCompleteCancelledBody(machine: machine),
@@ -81,7 +82,7 @@ class _Body extends ConsumerWidget {
       PrintState.standby => _JobStandbyBody(machine: machine),
     };
 
-    return MachineCamBaseCard(machine: machine, body: body);
+    return MachineCamBaseCard(machine: machine, body: body, onTap: controller.openMachineDashboard);
   }
 }
 

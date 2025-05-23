@@ -22,29 +22,33 @@ import '../../../../components/machine_state_indicator.dart';
 import '../../../../components/webcam/webcam.dart';
 
 class MachineCamBaseCard extends ConsumerWidget {
-  const MachineCamBaseCard({super.key, required this.machine, required this.body});
+  const MachineCamBaseCard({super.key, required this.machine, required this.body, this.onTap});
 
   final Machine machine;
 
   final Widget body;
 
+  final GestureTapCallback? onTap;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('Rebuilding MachineCamBaseCard for ${machine.logName}');
-
     final themeData = Theme.of(context);
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _Header(machine: machine),
-          Divider(height: 0),
-          Flexible(child: _Cam(machine: machine)),
-          Padding(padding: const EdgeInsets.all(8.0), child: body),
-          if (themeData.useMaterial3) Gap(4),
-        ],
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _Header(machine: machine),
+            Divider(height: 0),
+            Flexible(child: _Cam(machine: machine)),
+            Padding(padding: const EdgeInsets.all(8.0), child: body),
+            if (themeData.useMaterial3) Gap(4),
+          ],
+        ),
       ),
     );
   }
