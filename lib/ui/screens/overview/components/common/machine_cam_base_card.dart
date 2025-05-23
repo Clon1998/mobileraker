@@ -100,7 +100,8 @@ class _Cam extends ConsumerWidget {
             stackContent: [
               Consumer(builder: (innerContext, innerRef, _) {
                 final innerThemeData = Theme.of(innerContext);
-                final printState = innerRef.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state)).value;
+                final printState =
+                    innerRef.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state)).valueOrNull;
                 if (printState == null) return const SizedBox.shrink();
                 return Positioned.fill(
                   top: innerThemeData.useMaterial3 ? 4 : 0,
