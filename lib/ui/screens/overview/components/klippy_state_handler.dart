@@ -5,7 +5,9 @@
 
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -36,6 +38,14 @@ class KlippyStateHandler extends ConsumerWidget {
       toGuard: klipperProvider(machine.uuid).selectAs((d) => true),
       childOnData: _Body(machine: machine),
       childOnLoading: PrinterCard.loading(),
+      childOnError: (err, stack) => MachineCamBaseCard(
+        machine: machine,
+        body: _KlippyProviderErrorBody(
+          machine: machine,
+          error: err,
+          stack: stack,
+        ),
+      ),
     );
   }
 }
@@ -221,12 +231,113 @@ class _KlippyErrorShutdownUnauthorized extends StatelessWidget {
   }
 }
 
+class _KlippyProviderErrorBody extends ConsumerWidget {
+  const _KlippyProviderErrorBody({super.key, required this.machine, required this.error, required this.stack});
+
+  final Machine machine;
+
+  final Object error;
+  final StackTrace stack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+
+    Color? onColor = themeData.colorScheme.onErrorContainer;
+    Color? bgColor = themeData.colorScheme.errorContainer;
+    IconData icon = Icons.running_with_errors;
+
+    String? message;
+    var e = error;
+    if (e is MobilerakerException) {
+      // title = e.message;
+      if (e.parentException != null) {
+        message = e.parentException.toString();
+      }
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Gap(8),
+        Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+        Gap(8),
+        Card(
+          color: bgColor,
+          shape: _border(context, onColor),
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: InkWell(
+            onTap: () {
+              ref.read(dialogServiceProvider).show(DialogRequest(
+                  type: CommonDialogs.stacktrace, title: 'Klipper Exception', body: 'Exception:\n $error\n\n$stack'));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: const EdgeInsets.all(4.0), child: Icon(icon, color: onColor)),
+                  Gap(8),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('Error while fetching Klipper Data'),
+                          style: themeData.textTheme.bodyMedium?.copyWith(color: onColor),
+                        ),
+                        if (message != null)
+                          Text(
+                            message,
+                            style: themeData.textTheme.bodySmall?.copyWith(color: onColor),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Gap(8),
+        _Actions(machine: machine, klippy: null),
+      ],
+    );
+  }
+
+  ShapeBorder _border(BuildContext context, Color? borderColor) {
+    /// If this property is null then [CardTheme.shape] of [ThemeData.cardTheme]
+    /// is used. If that's null then the shape will be a [RoundedRectangleBorder]
+    /// with a circular corner radius of 12.0 and if [ThemeData.useMaterial3] is
+    /// false, then the circular corner radius will be 4.0.
+
+    final themeData = Theme.of(context);
+
+    final borderSide = BorderSide(color: borderColor ?? Color(0xFF000000), width: 0.5);
+    final cardShape = themeData.cardTheme.shape;
+    if (cardShape case RoundedRectangleBorder()) {
+      return RoundedRectangleBorder(
+        borderRadius: cardShape.borderRadius,
+        side: borderSide,
+      );
+    }
+
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(themeData.useMaterial3 ? 12 : 4),
+      side: borderSide,
+    );
+  }
+}
+
 class _Actions extends ConsumerWidget {
   const _Actions({super.key, required this.machine, required this.klippy});
 
   final Machine machine;
 
-  final KlipperInstance klippy;
+  final KlipperInstance? klippy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -234,7 +345,7 @@ class _Actions extends ConsumerWidget {
     final buttons = <Widget>[];
 
     final themeData = Theme.of(context);
-    switch (klippy.klippyState) {
+    switch (klippy?.klippyState) {
       // StartUp -> Nix oder refresh state
       // Initializing -> Nix oder refresh state
 
@@ -242,6 +353,8 @@ class _Actions extends ConsumerWidget {
       // Error -> Restart Fw, Restart Klipper
 
       // UnAuth -> Edit Config or nothing
+
+      // Null -> KlippyProvider error -> retry and show details
       case KlipperState.disconnected:
         buttons.add(ElevatedButton.icon(
           onPressed: () => ref.read(klipperServiceProvider(machine.uuid)).restartKlipper().ignore(),
@@ -269,7 +382,7 @@ class _Actions extends ConsumerWidget {
             iconColor: themeData.colorScheme.onError,
           ),
         ));
-        if (klippy.klippyConnected) {
+        if (klippy!.klippyConnected) {
           buttons.add(ElevatedButton.icon(
             onPressed: () => ref.read(klipperServiceProvider(machine.uuid)).restartMCUs(),
             label: Text('pages.dashboard.general.restart_mcu').tr(),
@@ -282,6 +395,19 @@ class _Actions extends ConsumerWidget {
             ),
           ));
         }
+        break;
+      case null:
+        buttons.add(ElevatedButton.icon(
+          onPressed: () => ref.invalidate(klipperServiceProvider(machine.uuid)),
+          label: Text('general.retry').tr(),
+          icon: Icon(Icons.restart_alt),
+          style: ElevatedButton.styleFrom(
+            iconSize: 18,
+            backgroundColor: themeData.extension<CustomColors>()?.warning,
+            foregroundColor: themeData.extension<CustomColors>()?.onWarning,
+            iconColor: themeData.extension<CustomColors>()?.onWarning,
+          ),
+        ));
         break;
       default:
       // Do Nothing;

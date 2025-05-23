@@ -7,6 +7,7 @@ import 'package:common/data/dto/history/historical_print_job.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/history_service.dart';
@@ -58,6 +59,8 @@ class PrinterJobHandler extends ConsumerWidget {
       toGuard: _printerJobHandlerControllerProvider(machine).selectAs((d) => true),
       childOnData: _Body(machine: machine),
       childOnLoading: PrinterCard.loading(),
+      childOnError: (e, s) =>
+          MachineCamBaseCard(machine: machine, body: _PrinterProviderErrorBody(machine: machine, error: e, stack: s)),
     );
   }
 }
@@ -108,23 +111,18 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
-                    Gap(4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(FlutterIcons.file_outline_mco, size: 14),
-                        Gap(4),
-                        Flexible(child: Text(job!)),
-                      ],
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                      Gap(4),
+                      _JobText(job!),
+                    ],
+                  ),
                 ),
-                if (!hasWebcam) PrintStateChip(printState: printState),
+                if (!hasWebcam) ...[Gap(4), PrintStateChip(printState: printState)],
               ],
             ),
           ],
@@ -159,7 +157,7 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
                 )
               : null,
         ),
-        _ActionsWidget(machine: machine),
+        _Actions(machine: machine),
       ],
     );
   }
@@ -192,23 +190,18 @@ class _JobPrintingPausedBody extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
-                    Gap(4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(FlutterIcons.file_outline_mco, size: 14),
-                        Gap(4),
-                        Flexible(child: Text(job!)),
-                      ],
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                      Gap(4),
+                      _JobText(job!),
+                    ],
+                  ),
                 ),
-                if (!hasWebcam) PrintStateChip(printState: printState),
+                if (!hasWebcam) ...[Gap(4), PrintStateChip(printState: printState)],
               ],
             ),
           ],
@@ -232,7 +225,7 @@ class _JobPrintingPausedBody extends ConsumerWidget {
             ],
           ),
         ),
-        _ActionsWidget(machine: machine),
+        _Actions(machine: machine),
       ],
     );
   }
@@ -264,14 +257,14 @@ class _JobStandbyBody extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
-                Text('components.machine_card.waiting_for_job').tr(),
+                Flexible(child: Text('components.machine_card.waiting_for_job').tr()),
               ],
             ),
             if (!hasWebcam) PrintStateChip(printState: PrintState.standby),
           ],
         ),
         if (lastJob?.endTime != null) Text(lastActivity(lastJob!.endTime), style: themeData.textTheme.bodySmall),
-        _ActionsWidget(machine: machine),
+        _Actions(machine: machine),
       ],
     );
   }
@@ -309,23 +302,18 @@ class _JobErrorBody extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
-                    Gap(4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(FlutterIcons.file_outline_mco, size: 14),
-                        Gap(4),
-                        Flexible(child: Text(job!)),
-                      ],
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                      Gap(4),
+                      _JobText(job!),
+                    ],
+                  ),
                 ),
-                if (!hasWebcam) PrintStateChip(printState: PrintState.error),
+                if (!hasWebcam) ...[Gap(4), PrintStateChip(printState: PrintState.error)],
               ],
             ),
           ],
@@ -345,21 +333,125 @@ class _JobErrorBody extends ConsumerWidget {
           ),
           Gap(8),
         ],
-        _ActionsWidget(machine: machine),
+        _Actions(machine: machine),
       ],
     );
   }
 }
 
-class _ActionsWidget extends ConsumerWidget {
-  const _ActionsWidget({super.key, required this.machine});
+class _PrinterProviderErrorBody extends ConsumerWidget {
+  const _PrinterProviderErrorBody({super.key, required this.machine, required this.error, required this.stack});
+
+  final Machine machine;
+
+  final Object error;
+  final StackTrace stack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+
+    Color? onColor = themeData.colorScheme.onErrorContainer;
+    Color? bgColor = themeData.colorScheme.errorContainer;
+    IconData icon = Icons.running_with_errors;
+
+    String? message;
+    var e = error;
+    if (e is MobilerakerException) {
+      // title = e.message;
+      if (e.parentException != null) {
+        message = e.parentException.toString();
+      }
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Gap(8),
+        Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+        Gap(8),
+        Card(
+          color: bgColor,
+          shape: _border(context, onColor),
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: InkWell(
+            onTap: () {
+              ref.read(dialogServiceProvider).show(DialogRequest(
+                  type: CommonDialogs.stacktrace,
+                  title: 'Error fetching Printer Data',
+                  body: 'Exception:\n $error\n\n$stack'));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(padding: const EdgeInsets.all(4.0), child: Icon(icon, color: onColor)),
+                  Gap(8),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('Error while fetching Printer Data'),
+                          style: themeData.textTheme.bodyMedium?.copyWith(color: onColor),
+                        ),
+                        if (message != null)
+                          Text(
+                            message,
+                            style: themeData.textTheme.bodySmall?.copyWith(color: onColor),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Gap(8),
+        _Actions(machine: machine),
+      ],
+    );
+  }
+
+  ShapeBorder _border(BuildContext context, Color? borderColor) {
+    /// If this property is null then [CardTheme.shape] of [ThemeData.cardTheme]
+    /// is used. If that's null then the shape will be a [RoundedRectangleBorder]
+    /// with a circular corner radius of 12.0 and if [ThemeData.useMaterial3] is
+    /// false, then the circular corner radius will be 4.0.
+
+    final themeData = Theme.of(context);
+
+    final borderSide = BorderSide(color: borderColor ?? Color(0xFF000000), width: 0.5);
+    final cardShape = themeData.cardTheme.shape;
+    if (cardShape case RoundedRectangleBorder()) {
+      return RoundedRectangleBorder(
+        borderRadius: cardShape.borderRadius,
+        side: borderSide,
+      );
+    }
+
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(themeData.useMaterial3 ? 12 : 4),
+      side: borderSide,
+    );
+  }
+}
+
+class _Actions extends ConsumerWidget {
+  const _Actions({super.key, required this.machine});
 
   final Machine machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('Rebuilding _ActionsWidget for ${machine.logName}');
-    final printState = ref.watch(_printerJobHandlerControllerProvider(machine).selectRequireValue((d) => d.printState));
+    final printState =
+        ref.watch(_printerJobHandlerControllerProvider(machine).select((d) => d.valueOrNull?.printState));
     final controller = ref.watch(_printerJobHandlerControllerProvider(machine).notifier);
 
     final themeData = Theme.of(context);
@@ -367,7 +459,7 @@ class _ActionsWidget extends ConsumerWidget {
 
     final buttons = <Widget>[];
 
-    switch (printState ?? PrintState.standby) {
+    switch (printState) {
       case PrintState.printing: // Checked
         buttons.add(ElevatedButton.icon(
           onPressed: controller.pauseJob,
@@ -451,15 +543,52 @@ class _ActionsWidget extends ConsumerWidget {
           child: Text('pages.dashboard.general.print_card.reset').tr(),
         ));
         break;
+      case null:
+        buttons.add(ElevatedButton.icon(
+          onPressed: () => ref.invalidate(printerServiceProvider(machine.uuid)),
+          label: Text('general.retry').tr(),
+          icon: Icon(Icons.restart_alt),
+          style: ElevatedButton.styleFrom(
+            iconSize: 18,
+            backgroundColor: themeData.extension<CustomColors>()?.warning,
+            foregroundColor: themeData.extension<CustomColors>()?.onWarning,
+            iconColor: themeData.extension<CustomColors>()?.onWarning,
+          ),
+        ));
+        break;
     }
 
     return Row(
       spacing: 6,
       children: [
         for (var button in buttons) Expanded(child: button),
-        IconButton(
-          onPressed: controller.openMachineDashboard,
-          icon: Icon(Icons.keyboard_arrow_right_outlined),
+        if (printState != null)
+          IconButton(
+            onPressed: controller.openMachineDashboard,
+            icon: Icon(Icons.keyboard_arrow_right_outlined),
+          ),
+      ],
+    );
+  }
+}
+
+class _JobText extends StatelessWidget {
+  const _JobText(this.job, {super.key});
+
+  final String job;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(FlutterIcons.file_outline_mco, size: 14),
+        Gap(4),
+        Flexible(
+          child: Tooltip(
+            message: job,
+            child: Text(job, maxLines: 2, overflow: TextOverflow.ellipsis),
+          ),
         ),
       ],
     );
@@ -574,6 +703,7 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
   }
 
   void openMachineDashboard() {
+    _selectedMachineService.selectMachine(machine);
     _goRouter.pushNamed(AppRoute.dashBoard.name);
   }
 
