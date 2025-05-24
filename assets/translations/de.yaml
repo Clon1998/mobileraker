@@ -1081,6 +1081,7 @@ components:
     new_print: Neuer Auftrag
     client_state:
       disconnected: Keine Verbindung zur Maschine
+    job_error_detected: Fehler beim drucken erkannt
     klippy_state:
       initializing: Klipper initialisiert…
       startup: Klipper startet…
