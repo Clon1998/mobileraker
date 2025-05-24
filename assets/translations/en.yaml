@@ -430,6 +430,11 @@ pages:
         landscape mode
       keep_screen_on: Keep Screen Awake
       keep_screen_on_hint: Prevent the screen from turning off while the app is active
+    ui:
+      machine_card_style:
+        title: Overview - Machine Card Style
+        default: Default
+        classic: Compact
     notification:
       title: Notification
       progress_label: Print-Progress Notification

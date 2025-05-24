@@ -181,6 +181,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   etaSources('etaCalS', [ETADataSource.slicer, ETADataSource.filament]),
   useMediumUI('useMediumUI', true),
   keepScreenOn('keepScreenOn', false),
+  machineCardStyle('machineCardStyle', true), // true -> modern, false -> classic
   ;
 
   @override

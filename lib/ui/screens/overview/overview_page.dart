@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -17,6 +18,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'components/legacy_printer_card.dart';
 import 'components/printer_card.dart';
 
 part 'overview_page.g.dart';
@@ -81,6 +83,8 @@ class _Data extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final useModern = ref.watch(boolSettingProvider(AppSettingKeys.machineCardStyle));
+
     return CustomScrollView(
       // shrinkWrap: true,
       physics: const ClampingScrollPhysics(),
@@ -99,7 +103,7 @@ class _Data extends ConsumerWidget {
               return ReorderableDelayedDragStartListener(
                 key: ValueKey(machine.uuid),
                 index: index,
-                child: PrinterCard(machine),
+                child: useModern ? PrinterCard(machine) : LegacyPrinterCard(machine),
               );
             },
             onReorder: ref.read(_overviewPageControllerProvider.notifier).onReorder,

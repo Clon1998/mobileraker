@@ -418,6 +418,11 @@ pages:
       medium_ui_hint: Aktiviert das Tablet-UI für größere Bildschirme
       keep_screen_on: Bildschirm aktiviert lassen
       keep_screen_on_hint: Verhindert, dass sich der Bildschirm ausschaltet, solange die App aktiv ist
+    ui:
+      machine_card_style:
+        title: Übersichts - Karten Stil
+        default: Standard
+        classic: Kompakt
     notification:
       title: Benachrichtigung
       progress_label: Druckfortschritt Benachrichtigungen

@@ -230,6 +230,24 @@ class _UiSection extends ConsumerWidget {
         const SectionHeader(title: 'UI'),
         const _ThemeSelector(),
         const _ThemeModeSelector(),
+        FormBuilderDropdown<bool>(
+          name: 'classicMachineCards',
+          onChanged: (b) => settingService.writeBool(
+            AppSettingKeys.machineCardStyle,
+            b ?? false,
+          ),
+          initialValue: ref.read(
+            boolSettingProvider(AppSettingKeys.machineCardStyle),
+          ),
+          decoration: InputDecoration(
+            labelStyle: themeData.textTheme.labelLarge,
+            labelText: 'pages.setting.ui.machine_card_style.title'.tr(),
+          ),
+          items: [
+            DropdownMenuItem(child: Text('pages.setting.ui.machine_card_style.default').tr(), value: true),
+            DropdownMenuItem(child: Text('pages.setting.ui.machine_card_style.classic').tr(), value: false),
+          ],
+        ),
         if (context.canBecomeLargerThanCompact) const _ToggleMediumUI(),
         FormBuilderSwitch(
           name: 'keepScreenOn',
@@ -493,8 +511,6 @@ class _Footer extends ConsumerWidget {
   }
 }
 
-
-
 const Map<String, String> languageToCountry = {
   'af': 'ZA',
   'en': 'US',
@@ -708,6 +724,3 @@ class _ToggleMediumUI extends ConsumerWidget {
     );
   }
 }
-
-
-
