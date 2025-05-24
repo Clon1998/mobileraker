@@ -7,11 +7,13 @@
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/client_state_extension.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 
 class PrintStateChip extends HookWidget {
   const PrintStateChip({super.key, required this.printState});
@@ -25,11 +27,8 @@ class PrintStateChip extends HookWidget {
     )..repeat();
 
     Widget? avatar = switch (printState) {
-      PrintState.printing => RotationTransition(
-          turns: animationController,
-          child: Icon(Icons.autorenew),
-        ),
-      PrintState.error => Icon(Icons.warning_amber),
+      PrintState.printing => Icon(FlutterIcons.printer_3d_nozzle_mco),
+      PrintState.error => Icon(MobilerakerIcons.nozzle_alert_outline),
       PrintState.paused => Icon(Icons.pause_outlined),
       PrintState.complete => Icon(Icons.done),
       PrintState.cancelled => Icon(Icons.do_not_disturb_on_outlined),

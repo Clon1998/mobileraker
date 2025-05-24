@@ -19,6 +19,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
@@ -326,9 +327,32 @@ class _JobErrorBody extends ConsumerWidget {
             elevation: 0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                message,
-                style: themeData.textTheme.bodyMedium?.copyWith(color: themeData.colorScheme.onErrorContainer),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child:
+                          Icon(MobilerakerIcons.nozzle_alert_outline, color: themeData.colorScheme.onErrorContainer)),
+                  Gap(8),
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('components.machine_card.job_error_detected'),
+                          style:
+                              themeData.textTheme.bodyMedium?.copyWith(color: themeData.colorScheme.onErrorContainer),
+                        ),
+                        Text(
+                          message,
+                          style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.onErrorContainer),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

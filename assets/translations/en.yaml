@@ -1153,6 +1153,7 @@ components:
     new_print: New Job
     client_state:
       disconnected: Machine is disconnected
+    job_error_detected: Error detected when printing
     klippy_state:
       initializing: Klipper is initializing…
       startup: Klipper is starting…
