@@ -112,7 +112,7 @@ ThemePack _mobilerakerPack() {
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: false,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   var dark = FlexThemeData.dark(
@@ -134,7 +134,7 @@ ThemePack _mobilerakerPack() {
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: false,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   return ThemePack(
@@ -212,7 +212,7 @@ ThemePack _voronPack() {
     surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: false,
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   var dark = FlexThemeData.dark(
@@ -233,7 +233,7 @@ ThemePack _voronPack() {
     appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: false,
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   return ThemePack(
@@ -312,7 +312,7 @@ ThemePack _ratRigPack() {
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: false,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   var dark = FlexThemeData.dark(
@@ -333,7 +333,7 @@ ThemePack _ratRigPack() {
     appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: false,
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
   return ThemePack(
     name: 'RatRig',
@@ -400,7 +400,7 @@ ThemePack _vzBot() {
     bottomAppBarElevation: 5.0,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.varela().fontFamily,
+    fontFamily: GoogleFonts.karla().fontFamily,
     useMaterial3: false,
   );
 
@@ -417,7 +417,7 @@ ThemePack _vzBot() {
     // bottomAppBarElevation: 5.0,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.varela().fontFamily,
+    fontFamily: GoogleFonts.karla().fontFamily,
     useMaterial3: false,
   );
 
@@ -492,7 +492,7 @@ ThemePack _mobilerakerSupporterPack() {
     // visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   var dark = FlexThemeData.dark(
@@ -514,7 +514,7 @@ ThemePack _mobilerakerSupporterPack() {
     // visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
-    fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.lato().fontFamily,
   );
 
   return ThemePack(
@@ -696,7 +696,7 @@ ThemePack _mobilerakerOLEDPack() {
     darkIsTrueBlack: true,
     // Enable true black for OLED
     keyColors: const FlexKeyColors(keepPrimary: true),
-    fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+    fontFamily: GoogleFonts.sourceSans3().fontFamily,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
   );
