@@ -11,12 +11,24 @@ jobs:
     outputs:
       flutter-version: ${{ steps.versions.outputs.flutter }}
       java-version: ${{ steps.versions.outputs.java }}
+      app-version: ${{ steps.versions.outputs.app-version }}
     steps:
       - name: Set versions
         id: versions
         run: |
           echo "flutter=3.27.1" >> $GITHUB_OUTPUT
           echo "java=17.x" >> $GITHUB_OUTPUT
+          
+          # Extract version from tag (remove 'android' prefix if present)
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#android}"  # Remove 'android' prefix
+            VERSION="${VERSION#v}"        # Remove 'v' prefix if present
+            echo "app-version=${VERSION}" >> $GITHUB_OUTPUT
+          else
+            # For non-tag builds, use commit SHA
+            echo "app-version=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
 
   prepare-dependencies:
     runs-on: ubuntu-latest
@@ -102,11 +114,18 @@ jobs:
           flutter packages pub run build_runner build
           flutter build apk --release --verbose
       
+      - name: Rename APK with version
+        run: |
+          VERSION="${{ needs.setup.outputs.app-version }}"
+          mkdir -p ./output
+          cp ./mobileraker/build/app/outputs/flutter-apk/app-release.apk "./output/mobileraker-${VERSION}.apk"
+          echo "Final APK: mobileraker-${VERSION}.apk"
+      
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: mobileraker/build/app/outputs/flutter-apk/app-release.apk
+          path: ./output/mobileraker-*.apk
           retention-days: 30
 
   release:
@@ -134,6 +153,6 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "./artifacts/app-release.apk"
+          artifacts: "./artifacts/mobileraker-*.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.changelog.outputs.changelog }}
