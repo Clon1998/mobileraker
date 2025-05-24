@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table_controller.dart';
+import 'package:mobileraker/util/Superscript.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ToolheadInfoTable extends ConsumerWidget {
@@ -200,8 +201,7 @@ class _ToolheadData extends ConsumerWidget {
                                   children: [
                                     if (days != null && days > 0)
                                       TextSpan(
-                                        text: '+$days',
-                                        style: TextStyle(fontFeatures: [FontFeature.superscripts()]),
+                                        text: Superscript.plus + Superscript.fromNumber(days),
                                       ),
                                   ],
                                 ),
