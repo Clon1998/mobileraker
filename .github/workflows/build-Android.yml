@@ -18,10 +18,15 @@ jobs:
           echo "flutter=3.27.1" >> $GITHUB_OUTPUT
           echo "java=17.x" >> $GITHUB_OUTPUT
 
-  build-pro:
+  prepare-dependencies:
     runs-on: ubuntu-latest
     needs: setup
     steps:
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
+        with:
+          path: 'mobileraker'
+      
       - name: Checkout Mobileraker Pro
         uses: actions/checkout@v4
         with:
@@ -29,87 +34,58 @@ jobs:
           ref: 'main'
           path: 'mobileraker_pro'
           token: ${{ secrets.PRO_PAT }}
-
+      
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ needs.setup.outputs.flutter-version }}
           cache: true
-
-      - name: Build Mobileraker Pro
-        working-directory: ./mobileraker_pro
-        run: |
-          flutter pub get
-          flutter packages pub run build_runner build
-
-      - name: Cache Pro Build
-        uses: actions/cache@v4
-        with:
-          path: mobileraker_pro/
-          key: pro-build-${{ github.sha }}
-
-  build-common:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - name: Checkout Main Repository
-        uses: actions/checkout@v4
-        with:
-          path: 'mobileraker'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ needs.setup.outputs.flutter-version }}
-          cache: true
-
+      
       - name: Build Common Module
         working-directory: ./mobileraker/common
         run: |
           flutter pub get
           flutter packages pub run build_runner build
-
-      - name: Cache Common Build
+      
+      - name: Build Mobileraker Pro
+        working-directory: ./mobileraker_pro
+        run: |
+          flutter pub get
+          flutter packages pub run build_runner build
+      
+      - name: Cache Dependencies
         uses: actions/cache@v4
         with:
-          path: mobileraker/common/
-          key: common-build-${{ github.sha }}
+          path: |
+            mobileraker/
+            mobileraker_pro/
+          key: dependencies-${{ github.sha }}
 
   build-android:
     runs-on: ubuntu-latest
-    needs: [setup, build-pro, build-common]
+    needs: [setup, prepare-dependencies]
     steps:
-      - name: Checkout Main Repository
-        uses: actions/checkout@v4
-        with:
-          path: 'mobileraker'
-
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ needs.setup.outputs.java-version }}
-
+      
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ needs.setup.outputs.flutter-version }}
           cache: true
-
-      - name: Restore Pro Build Cache
+      
+      - name: Restore Dependencies Cache
         uses: actions/cache@v4
         with:
-          path: mobileraker_pro/
-          key: pro-build-${{ github.sha }}
+          path: |
+            mobileraker/
+            mobileraker_pro/
+          key: dependencies-${{ github.sha }}
           fail-on-cache-miss: true
-
-      - name: Restore Common Build Cache
-        uses: actions/cache@v4
-        with:
-          path: mobileraker/common/
-          key: common-build-${{ github.sha }}
-          fail-on-cache-miss: true
-
+      
       - name: Setup Environment Files
         working-directory: ./mobileraker
         run: |
@@ -118,14 +94,14 @@ jobs:
           echo "${{ secrets.PLAY_STORE_JKS }}" | base64 -d > ./android/app/gps.jks
           echo "${{ secrets.AWESOME_NOTI_LICENSE }}" | base64 -d > ./lib/license.dart
           echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 -d > ./lib/firebase_options.dart
-
+      
       - name: Build Android APK
         working-directory: ./mobileraker
         run: |
           flutter pub get
           flutter packages pub run build_runner build
           flutter build apk --release --verbose
-
+      
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -142,19 +118,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      
       - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
           name: android-apk
           path: ./artifacts
-
+      
       - name: Generate Changelog
         id: changelog
         uses: metcalfc/changelog-generator@v4.6.2
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
-
+      
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
