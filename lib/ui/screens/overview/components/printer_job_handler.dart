@@ -22,7 +22,6 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -153,9 +152,21 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
                 )
               : null,
           trailing: lastJob != null
-              ? Text(
-                  dateFormat(lastJob.endTime),
-                  style: themeData.textTheme.bodySmall,
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.task_outlined,
+                      size: themeData.textTheme.bodySmall?.fontSize,
+                      color: themeData.textTheme.bodySmall?.color,
+                    ),
+                    Gap(4),
+                    Text(
+                      dateFormat(lastJob.endTime),
+                      style: themeData.textTheme.bodySmall,
+                    ),
+                  ],
                 )
               : null,
         ),
@@ -178,7 +189,7 @@ class _JobPrintingPausedBody extends ConsumerWidget {
     final (progress, job, hasWebcam, printState, eta) = ref.watch(_printerJobHandlerControllerProvider(machine)
         .selectRequireValue((d) => (d.progress, d.job, d.hasWebcam, d.printState, d.eta)));
 
-    final dateFormat = eta?.isToday() == true ? formatService.Hm() : formatService.add_Hm(DateFormat.yMMMd());
+    final dateFormat = ref.watch(dateFormatServiceProvider).formatRelativeHm();
 
     final themeData = Theme.of(context);
 
@@ -221,7 +232,7 @@ class _JobPrintingPausedBody extends ConsumerWidget {
               ),
               Gap(4),
               Text(
-                '@:pages.dashboard.general.print_card.eta: ${eta?.let(dateFormat.format) ?? '--:--'}',
+                '@:pages.dashboard.general.print_card.eta: ${eta?.let(dateFormat) ?? '--:--'}',
                 style: themeData.textTheme.bodySmall,
               ).tr(),
             ],
