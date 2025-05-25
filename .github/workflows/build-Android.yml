@@ -4,57 +4,155 @@ on:
   push:
     tags:
       - 'android*'
+
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      flutter-version: ${{ steps.versions.outputs.flutter }}
+      java-version: ${{ steps.versions.outputs.java }}
+      app-version: ${{ steps.versions.outputs.app-version }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Set versions
+        id: versions
+        run: |
+          echo "flutter=3.27.1" >> $GITHUB_OUTPUT
+          echo "java=17.x" >> $GITHUB_OUTPUT
+          
+          # Extract version from tag (remove 'android' prefix if present)
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#android}"  # Remove 'android' prefix
+            VERSION="${VERSION#v}"        # Remove 'v' prefix if present
+            echo "app-version=${VERSION}" >> $GITHUB_OUTPUT
+          else
+            # For non-tag builds, use commit SHA
+            echo "app-version=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+  prepare-dependencies:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
         with:
           path: 'mobileraker'
-      - uses: actions/checkout@v3
+      
+      - name: Checkout Mobileraker Pro
+        uses: actions/checkout@v4
         with:
           repository: 'Clon1998/mobileraker_pro'
           ref: 'main'
           path: 'mobileraker_pro'
           token: ${{ secrets.PRO_PAT }}
-      - uses: actions/setup-java@v1
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          java-version: '17.x'
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.1'
-      - name: Setup Env Files
-        working-directory: ./mobileraker
+          flutter-version: ${{ needs.setup.outputs.flutter-version }}
+          cache: true
+      
+      - name: Build Common Module
+        working-directory: ./mobileraker/common
         run: |
-          echo ${{ secrets.GOOGLE_SERVICES_JSON }} | base64 -d > ./android/app/google-services.json
-          echo ${{ secrets.KEY_PROPERTIES }} | base64 -d > ./android/key.properties
-          echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
-          echo ${{ secrets.AWESOME_NOTI_LICENSE }} | base64 -d > ./lib/license.dart
-          echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
+          flutter pub get
+          flutter packages pub run build_runner build
+      
       - name: Build Mobileraker Pro
         working-directory: ./mobileraker_pro
         run: |
-          flutter pub get || true
+          flutter pub get
           flutter packages pub run build_runner build
-      - name: Build Mobileraker Common Module
-        working-directory: ./mobileraker/common
+      
+      - name: Cache Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            mobileraker/
+            mobileraker_pro/
+          key: dependencies-${{ github.sha }}
+
+  build-android:
+    runs-on: ubuntu-latest
+    needs: [setup, prepare-dependencies]
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ needs.setup.outputs.java-version }}
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ needs.setup.outputs.flutter-version }}
+          cache: true
+      
+      - name: Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            mobileraker/
+            mobileraker_pro/
+          key: dependencies-${{ github.sha }}
+          fail-on-cache-miss: true
+      
+      - name: Setup Environment Files
+        working-directory: ./mobileraker
         run: |
-          flutter pub get || true
-          flutter packages pub run build_runner build
-      - name: Build Mobileraker
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > ./android/app/google-services.json
+          echo "${{ secrets.KEY_PROPERTIES }}" | base64 -d > ./android/key.properties
+          echo "${{ secrets.PLAY_STORE_JKS }}" | base64 -d > ./android/app/gps.jks
+          echo "${{ secrets.AWESOME_NOTI_LICENSE }}" | base64 -d > ./lib/license.dart
+          echo "${{ secrets.FIREBASE_OPTIONS }}" | base64 -d > ./lib/firebase_options.dart
+      
+      - name: Build Android APK
         working-directory: ./mobileraker
         run: |
           flutter pub get
           flutter packages pub run build_runner build
           flutter build apk --release --verbose
-      - name: Generate changelog
+      
+      - name: Rename APK with version
+        run: |
+          VERSION="${{ needs.setup.outputs.app-version }}"
+          mkdir -p ./output
+          cp ./mobileraker/build/app/outputs/flutter-apk/app-release.apk "./output/mobileraker-${VERSION}.apk"
+          echo "Final APK: mobileraker-${VERSION}.apk"
+      
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: ./output/mobileraker-*.apk
+          retention-days: 30
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: startsWith(github.ref, 'refs/tags/android')
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: ./artifacts
+      
+      - name: Generate Changelog
         id: changelog
         uses: metcalfc/changelog-generator@v4.6.2
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create a Release
+      
+      - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "mobileraker/build/app/outputs/flutter-apk/app-release.apk"
+          artifacts: "./artifacts/mobileraker-*.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.changelog.outputs.changelog }}
