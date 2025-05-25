@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh_profile.dart';
@@ -380,7 +381,7 @@ class _Controller extends _$Controller {
                   label: tr('bottom_sheets.bedMesh.no_mesh'),
                   subtitle: tr('bottom_sheets.bedMesh.clear_loaded_profile'),
                 ),
-              for (final profile in value.bedMesh!.profiles)
+              for (final profile in value.bedMesh!.profiles.sortedBy((p) => p.name))
                 SelectionOption(
                   value: profile,
                   horizontalTitleGap: 10,

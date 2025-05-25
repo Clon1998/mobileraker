@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
@@ -623,6 +624,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     var printer = ref.read(printerProvider(machineUUID)).valueOrNull;
     if (printer?.beacon == null) return;
     final beaconModels = printer!.configFile.beaconModels ?? [];
+
+    beaconModels.sort();
 
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
