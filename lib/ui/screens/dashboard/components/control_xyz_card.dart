@@ -39,7 +39,6 @@ import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table.dart';
 import 'package:overflow_view/overflow_view.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/bottom_sheet_service_impl.dart';
@@ -67,7 +66,7 @@ class ControlXYZCard extends HookConsumerWidget {
 
     return AsyncGuard(
       animate: true,
-      debugLabel: 'ControlXYZCard-$machineUUID',
+      // debugLabel: 'ControlXYZCard-$machineUUID',
       toGuard: _controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: const _ControlXYZLoading(),
       childOnData: Card(
@@ -518,43 +517,28 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.moveStepIndex, machineUUID);
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
 
     // await Future.delayed(Duration(seconds: 5));
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
+    final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    var showCard =
-        ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.print.state != PrintState.printing));
+    final klipperFuture = ref.watch(klipperProvider(machineUUID).future);
+    final printerFuture = ref.watch(printerProvider(machineUUID).future);
+    final machineSettingsFuture = ref.watch(machineSettingsProvider(machineUUID).future);
 
-    var steps = ref.watchAsSubject(machineSettingsProvider(machineUUID).selectAs((data) => data.moveSteps));
+    final (klippy, printer, machineSettings) = await (klipperFuture, printerFuture, machineSettingsFuture).wait;
 
-    // Using a combination of select and map here to avoid excessive calls to _quickActions when the printer changes
-    var actions = ref
-        .watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile))
-        .map((data) => _quickActions(data));
+    var idx = state.whenData((value) => value.selected).valueOrNull ??
+        initialIndex.clamp(0, machineSettings.moveSteps.length - 1);
 
-    var initialIndex = _settingService.readInt(_settingsKey, 0);
-
-    yield* Rx.combineLatest4(
-      showCard,
-      klippyCanReceiveCommands,
-      actions,
-      steps,
-      (a, b, c, d) {
-        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex.clamp(0, d.length - 1);
-
-        return _Model(
-          showCard: a,
-          klippyCanReceiveCommands: b,
-          directActions: c,
-          steps: d,
-          selected: min(max(0, idx), d.length - 1),
-        );
-      },
+    return _Model(
+      showCard: printer.print.state != PrintState.printing && printer.configFile.configPrinter?.kinematics != 'none',
+      klippyCanReceiveCommands: klippy.klippyCanReceiveCommands,
+      directActions: _quickActions(printer.configFile),
+      steps: machineSettings.moveSteps,
+      selected: min(max(0, idx), machineSettings.moveSteps.length - 1),
     );
   }
 
@@ -736,10 +720,10 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 
 class _ControlXYZCardPreviewController extends _ControlXYZCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
+  Future<_Model> build(String machineUUID) {
     talker.info('Building ControlXYZCardPreviewController for $machineUUID.');
 
-    state = AsyncValue.data(_Model(
+    var model = _Model(
       showCard: true,
       klippyCanReceiveCommands: true,
       selected: 2,
@@ -764,9 +748,9 @@ class _ControlXYZCardPreviewController extends _ControlXYZCardController {
           callback: () => null,
         ),
       ],
-    ));
-
-    return const Stream.empty();
+    );
+    state = AsyncValue.data(model);
+    return Future.value(model);
   }
 
   @override

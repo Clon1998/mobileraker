@@ -57,15 +57,18 @@ class ToolheadInfo with _$ToolheadInfo {
           (printer.print.filamentUsed / currentFile.filamentTotal! * 100),
         );
       }
-      double crossSection = pow(
-            (printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2,
-            2,
-          ) *
-          pi;
-      currentFlow = (crossSection * printer.motionReport.liveExtruderVelocity).toPrecision(1).abs();
+      if (printer.motionReport != null) {
+        double crossSection = pow(
+              (printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2,
+              2,
+            ) *
+            pi;
+        currentFlow = (crossSection * printer.motionReport!.liveExtruderVelocity).toPrecision(1).abs();
+      }
     }
 
-    var position = positionWithOffset ? printer.gCodeMove.gcodePosition : printer.motionReport.livePosition;
+    var position =
+        positionWithOffset ? printer.gCodeMove.gcodePosition : printer.motionReport?.livePosition ?? [0, 0, 0];
 
     return ToolheadInfo(
       postion: position.toList(growable: false),

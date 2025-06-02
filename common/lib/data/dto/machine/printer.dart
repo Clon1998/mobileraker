@@ -46,12 +46,12 @@ class Printer with _$Printer {
     required HeaterBed? heaterBed,
     required PrintFan? printFan,
     required GCodeMove gCodeMove,
-    required MotionReport motionReport,
+    required MotionReport? motionReport,
     DisplayStatus? displayStatus,
     required PrintStats print,
     ExcludeObject? excludeObject,
     required ConfigFile configFile,
-    required VirtualSdCard virtualSdCard,
+    required VirtualSdCard? virtualSdCard,
     ManualProbe? manualProbe,
     BedScrew? bedScrew,
     ScrewsTiltAdjust? screwsTiltAdjust,
@@ -133,22 +133,24 @@ class Printer with _$Printer {
 
   // Relative file position progress (0-1)
   double get printProgress {
+    var sdCard = virtualSdCard;
+    if (sdCard == null) return 0;
     if (currentFile?.gcodeStartByte != null &&
         currentFile?.gcodeEndByte != null &&
         currentFile?.name == this.print.filename) {
       final gcodeStartByte = currentFile!.gcodeStartByte!;
       final gcodeEndByte = currentFile!.gcodeEndByte!;
-      if (virtualSdCard.filePosition <= gcodeStartByte) return 0;
-      if (virtualSdCard.filePosition >= gcodeEndByte) return 1;
+      if (sdCard.filePosition <= gcodeStartByte) return 0;
+      if (sdCard.filePosition >= gcodeEndByte) return 1;
 
-      final currentPosition = virtualSdCard.filePosition - gcodeStartByte;
+      final currentPosition = sdCard.filePosition - gcodeStartByte;
       final maxPosition = gcodeEndByte - gcodeStartByte;
       if (currentPosition > 0 && maxPosition > 0) {
         return currentPosition / maxPosition;
       }
     }
 
-    return virtualSdCard.progress;
+    return sdCard.progress;
   }
 
   bool get isPrintFanAvailable => printFan != null;

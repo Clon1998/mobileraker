@@ -94,8 +94,11 @@ Future<void> main() async {
                 printProviderFailed: false,
                 printStateFullData: false,
                 printFailFullData: false,
-                providerFilter: (provider) =>
-                    !['toolheadInfoProvider', 'temperatureStoreProvider'].contains(provider.name),
+                providerFilter: (provider) => ![
+                  'toolheadInfoProvider',
+                  'temperatureStoreProvider',
+                  '_controlXYZCardControllerProvider'
+                ].contains(provider.name),
               ),
             ),
           ]

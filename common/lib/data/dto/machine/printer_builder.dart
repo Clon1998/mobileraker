@@ -83,18 +83,14 @@ class PrinterBuilder {
   factory PrinterBuilder.preview() {
     var toolhead = const Toolhead();
     var gCodeMove = const GCodeMove();
-    var motionReport = const MotionReport();
     var print = const PrintStats();
     var configFile = ConfigFile();
-    var virtualSdCard = const VirtualSdCard();
 
     return PrinterBuilder()
       ..toolhead = toolhead
       ..gCodeMove = gCodeMove
-      ..motionReport = motionReport
       ..print = print
-      ..configFile = configFile
-      ..virtualSdCard = virtualSdCard;
+      ..configFile = configFile;
   }
 
   PrinterBuilder.fromPrinter(Printer printer)
@@ -161,17 +157,11 @@ class PrinterBuilder {
     if (gCodeMove == null) {
       throw const MobilerakerException('Missing field: gCodeMove');
     }
-    if (motionReport == null) {
-      throw const MobilerakerException('Missing field: motionReport');
-    }
     if (print == null) {
       throw const MobilerakerException('Missing field: print');
     }
     if (configFile == null) {
       throw const MobilerakerException('Missing field: configFile');
-    }
-    if (virtualSdCard == null) {
-      throw const MobilerakerException('Missing field: virtualSdCard');
     }
 
     var printer = Printer(
@@ -180,12 +170,12 @@ class PrinterBuilder {
       heaterBed: heaterBed,
       printFan: printFan,
       gCodeMove: gCodeMove!,
-      motionReport: motionReport!,
+      motionReport: motionReport,
       displayStatus: displayStatus,
       print: print!,
       excludeObject: excludeObject,
       configFile: configFile!,
-      virtualSdCard: virtualSdCard!,
+      virtualSdCard: virtualSdCard,
       manualProbe: manualProbe,
       bedScrew: bedScrew,
       screwsTiltAdjust: screwsTiltAdjust,

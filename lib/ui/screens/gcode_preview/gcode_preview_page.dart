@@ -211,7 +211,8 @@ class _LivePreview extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final renderSupplier = useMemoized(() => GCodeLayerRenderer(structure), [structure]);
 
-    final filePos = ref.watch(printerProvider(machineUUID).selectRequireValue((d) => d.virtualSdCard.filePosition));
+    final filePos =
+        ref.watch(printerProvider(machineUUID).selectRequireValue((d) => d.virtualSdCard?.filePosition ?? 0));
 
     final currentLayerData = useMemoized(
       () => renderSupplier.createRenderDataForFilePosition(filePos),
