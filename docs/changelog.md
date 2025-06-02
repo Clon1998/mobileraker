@@ -8,6 +8,8 @@
   desired model in the list.
 - **Bed-Mesh Selection**: The bed-mesh selection is now sorted by name, improving usability when selecting
   different bed meshes.
+- **Non-Motion Setups**: Removed the requirement for `virtual_sdcard` and `motion_report` objects, enabling users to
+  control non-printer Klipper projects (such as filament driers, pcb-hot plates, or other projects) through Mobileraker.
 
 ### Bug Fixes
 
