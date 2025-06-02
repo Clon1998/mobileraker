@@ -175,17 +175,9 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
     final sensorsFuture =
         ref.watch(printerProvider(machine.uuid).selectAsync((printer) => _Hack(printer.filamentSensors)));
 
-    final futures = await Future.wait([
-      deviceFcmFuture,
-      webcamsFuture,
-      sensorsFuture,
-    ]);
+    final (deviceFcm, webcams, hack) = await (deviceFcmFuture, webcamsFuture, sensorsFuture).wait;
 
-    final DeviceFcmSettings? deviceFcm = futures[0] as DeviceFcmSettings?;
-    final List<WebcamInfo> webcams = futures[1] as List<WebcamInfo>;
-    final Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> sensors = (futures[2] as _Hack).sensors;
-
-    return _Model(deviceFcmSettings: deviceFcm!, webcams: webcams, sensors: sensors.values.toList());
+    return _Model(deviceFcmSettings: deviceFcm!, webcams: webcams, sensors: hack.sensors.values.toList());
   }
 
   void onUseCustomChanged(bool value) {

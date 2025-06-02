@@ -702,11 +702,8 @@ class _ConsoleListController extends _$ConsoleListController {
 
     final availableCommandsFuture = ref.watch(printerAvailableCommandsProvider(machineUUID).future);
 
-    final results = await Future.wait([klippyCanReceiveCommandsFuture, _commandHistory(), availableCommandsFuture]);
-
-    final klippyCanReceiveCommands = results[0] as bool;
-    final consoleEntries = results[1] as List<ConsoleEntry>;
-    final availableCommands = results[2] as List<Command>;
+    final (klippyCanReceiveCommands, consoleEntries, availableCommands) =
+        await (klippyCanReceiveCommandsFuture, _commandHistory(), availableCommandsFuture).wait;
 
     final sub = _printerService.gCodeResponseStream.listen((event) {
       if (_tempPattern.hasMatch(event)) return;

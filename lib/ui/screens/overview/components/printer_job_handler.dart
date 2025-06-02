@@ -669,11 +669,8 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
         d.print.message.unless(d.print.message.isEmpty),
       );
     }));
-    final result = await Future.wait([lastJobFuture, printerDataFuture]);
-
-    final lastJob = result[0] as HistoricalPrintJob?;
-    final (printState, progress, job, eta, remaining, totalDuration, message) =
-        result[1] as (PrintState, double, String?, DateTime?, int?, double?, String?);
+    final (lastJob, (printState, progress, job, eta, remaining, totalDuration, message)) =
+        await (lastJobFuture, printerDataFuture).wait;
 
     return _Model(
       printState: printState,

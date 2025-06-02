@@ -255,9 +255,7 @@ class _FirmwareRetractionCardController extends _$FirmwareRetractionCardControll
         ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
     var firmwareRetractionF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.firmwareRetraction));
 
-    var [a, b] = await Future.wait([klippyCanReceiveF, firmwareRetractionF]);
-
-    var fwRetract = b as FirmwareRetraction?;
+    final (klippyCanReceiveCommands, fwRetract) = await (klippyCanReceiveF, firmwareRetractionF).wait;
 
     var tmp = fwRetract != null;
     if (_wroteValue != tmp) {
@@ -266,7 +264,7 @@ class _FirmwareRetractionCardController extends _$FirmwareRetractionCardControll
     }
 
     return _Model(
-      klippyCanReceiveCommands: a as bool,
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
       firmwareRetraction: fwRetract,
     );
   }

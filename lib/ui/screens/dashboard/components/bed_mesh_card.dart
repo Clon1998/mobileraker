@@ -6,7 +6,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh_profile.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -337,10 +336,8 @@ class _Controller extends _$Controller {
       printerProvider(machineUUID).selectAsync((value) => value.configFile),
     );
 
-    var results = await Future.wait([klippyCanReceiveCommandsF, bedMeshF, configFileF]);
+    final (klippyCanReceiveCommands, mesh, configFile) = await (klippyCanReceiveCommandsF, bedMeshF, configFileF).wait;
 
-    var mesh = results[1] as BedMesh?;
-    ConfigFile configFile = results[2] as ConfigFile;
     var showCard = mesh != null;
 
     if (_wroteValue != showCard) {
@@ -350,7 +347,7 @@ class _Controller extends _$Controller {
 
     return _Model(
       canRender: configFile.stepperX != null && configFile.stepperY != null,
-      klippyCanReceiveCommands: results[0] as bool,
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
       showProbed: showProbed,
       bedMesh: mesh,
       bedMin: (configFile.minX, configFile.minY),
