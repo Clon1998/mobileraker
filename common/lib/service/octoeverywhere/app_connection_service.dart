@@ -9,7 +9,7 @@ import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_web_auth/flutter_web_auth.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -42,7 +42,7 @@ class AppConnectionService {
     });
 
     try {
-      final result = await FlutterWebAuth.authenticate(url: uri.toString(), callbackUrlScheme: 'mobileraker');
+      final result = await FlutterWebAuth2.authenticate(url: uri.toString(), callbackUrlScheme: 'mobileraker');
 
       var resultParameters = Uri.parse(result).queryParameters;
 

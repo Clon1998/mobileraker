@@ -19,7 +19,7 @@ version: 2.9.1+580
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
-  flutter: '>=3.16.5'
+  flutter: '>=3.32.0'
 
 
 dependency_overrides:
@@ -88,7 +88,7 @@ dependencies:
 
   #theme
   cupertino_icons: ^1.0.2
-  flex_color_scheme: ^8.0.2
+  flex_color_scheme: ^8.2.0
   google_fonts: ^6.2.0 # 6.2.0 preventing the app from building
 
   #notification
@@ -123,7 +123,7 @@ dependencies:
   gap: ^3.0.1
   persistent_header_adaptive: ^2.1.0
   extended_wrap: ^0.1.5
-  overflow_view: ^0.4.0
+  overflow_view: ^0.5.0
   flutter_staggered_grid_view: ^0.7.0
   auto_size_text: ^3.0.0
   snap_scroll_physics: ^0.0.1+3

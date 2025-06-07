@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:common/data/dto/obico/platform_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_web_auth/flutter_web_auth.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -46,7 +46,7 @@ class ObicoTunnelService {
     });
 
     try {
-      final result = await FlutterWebAuth.authenticate(url: uri.toString(), callbackUrlScheme: 'mobileraker');
+      final result = await FlutterWebAuth2.authenticate(url: uri.toString(), callbackUrlScheme: 'mobileraker');
 
       var resultParameters = Uri.parse(result).queryParameters;
       talker.info('Obico Linking Result: $resultParameters');
