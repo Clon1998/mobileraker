@@ -23,7 +23,7 @@ part 'beacon.g.dart';
 class Beacon with _$Beacon {
   //TODO: Add all fields if I ever need them!
   const factory Beacon({
-    required String model, // The active model
+    String? model, // The active model
   }) = _Beacon;
 
   factory Beacon.fromJson(Map<String, dynamic> json) => _$BeaconFromJson(json);
