@@ -184,7 +184,7 @@ class _GeneralSection extends ConsumerWidget {
             isCollapsed: true,
           ),
         ),
-        FormBuilderFilterChip<ETADataSource>(
+        FormBuilderFilterChips<ETADataSource>(
           name: AppSettingKeys.etaSources.key,
           onChanged: controller.onEtaSourcesChanged,
           initialValue: ref

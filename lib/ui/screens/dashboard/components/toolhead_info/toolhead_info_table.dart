@@ -245,7 +245,7 @@ class _ConsumerCell extends StatelessWidget {
 
           return switch (asyncValue) {
             AsyncValue(isLoading: true, isReloading: false) => const _LoadingCell(),
-            AsyncData(value: var data) => Padding(
+            AsyncData(value: String data) => Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,

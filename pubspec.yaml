@@ -23,9 +23,8 @@ environment:
 
 
 dependency_overrides:
-  web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
-  rxdart: ^0.28.0
-  intl: ^0.19.0 # Required because awesome notifcations is in conflict with form builder
+#  web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
+
 
 dependencies:
   flutter:
@@ -56,8 +55,8 @@ dependencies:
   json_annotation: ^4.7.0
 
   #routing
-  go_router: ^14.2.2
-  go_transitions: ^0.7.1
+  go_router: ^15.1.3
+  go_transitions: ^0.8.1
 
   #util
   rxdart: ^0.28.0
@@ -68,7 +67,7 @@ dependencies:
   talker_flutter: ^4.7.1
   talker_riverpod_logger: ^4.7.1
 
-  permission_handler: ^11.0.0
+  permission_handler: ^12.0.0+1
   collection: ^1.19.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
@@ -99,9 +98,9 @@ dependencies:
   #        ref: feature/multi-state-req
 
   #form
-  flutter_form_builder: ^9.1.0
-  form_builder_validators: ^11.0.0
-  form_builder_extra_fields: ^11.0.0
+  flutter_form_builder: ^10.0.1
+  form_builder_validators: ^11.1.2
+  form_builder_extra_fields: ^12.0.0
 
   #translation
   easy_localization: ^3.0.3
@@ -145,10 +144,10 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   dots_indicator: 2.1.2
   webview_flutter: ^4.4.0
-  fl_chart: ^0.70.2
-  syncfusion_flutter_charts: ^28.1.41
+  fl_chart: ^1.0.0
+  syncfusion_flutter_charts: ^29.2.9
   code_text_field: ^1.0.2
-  mobile_scanner: ^6.0.2
+  mobile_scanner: ^7.0.1
   touchable:
     #    path: ../touchable
     git:
@@ -162,30 +161,30 @@ dependencies:
       url: https://github.com/JahnChoi/appinio_flutter_packages
       path: packages/appinio_video_player
       ref: feature/switch-cached-video-player-dep
-  file_picker: 9.0.2
+  file_picker: ^10.1.9
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
 
 dev_dependencies:
-  analyzer: 7.3.0
+  analyzer: ^7.4.5
   flutter_test:
     sdk: flutter
   build_runner: ^2.4.13
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   freezed: ^2.5.2
-  mockito: ^5.4.5
+  mockito: ^5.4.6
   json_serializable: ^6.9.0
   riverpod_generator: ^2.6.3
   # riverpod_lint makes it easier to work with Riverpod
   riverpod_lint: ^2.6.3
   # import custom_lint too as riverpod_lint depends on it
-  custom_lint: ^0.7.0
-  flutter_native_splash: ^2.2.19
+  custom_lint: ^0.7.3
+  flutter_native_splash: ^2.4.6
   flutter_launcher_icons: ^0.14.1
   dart_code_metrics_presets: ^2.5.0
 
   #ads
-  google_mobile_ads: ^5.3.1
+  google_mobile_ads: ^6.0.0
 
 flutter_icons:
   android: true

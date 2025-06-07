@@ -57,7 +57,7 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
             color: Colors.white,
             icon: switch (facing) {
               CameraFacing.front => const Icon(Icons.camera_front),
-              CameraFacing.back => const Icon(Icons.camera_rear),
+              CameraFacing.back || _ => const Icon(Icons.camera_rear),
             },
             iconSize: 32.0,
             onPressed: () => _cameraController.switchCamera(),
