@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 2.9.1+580
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
+  sdk: '>=3.8.0 <4.0.0'
   flutter: '>=3.32.0'
 
 
@@ -166,13 +166,13 @@ dependencies:
   pretty_qr_code: ^3.3.0
 
 dev_dependencies:
-  analyzer: ^7.4.5
+  analyzer: 7.3.0
   flutter_test:
     sdk: flutter
   build_runner: ^2.4.13
   flutter_lints: ^6.0.0
   freezed: ^2.5.2
-  mockito: ^5.4.6
+  mockito: ^5.4.5
   json_serializable: ^6.9.0
   riverpod_generator: ^2.6.3
   # riverpod_lint makes it easier to work with Riverpod

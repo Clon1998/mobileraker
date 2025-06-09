@@ -4,7 +4,7 @@ version: 2.6.7
 homepage: mobileraker.com
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
+  sdk: '>=3.8.0 <4.0.0'
   flutter: '>=3.16.5'
 
 dependency_overrides:
@@ -99,10 +99,10 @@ dependencies:
 
 
 dev_dependencies:
-  analyzer: ^7.4.5
+  analyzer: 7.3.0
   flutter_test:
     sdk: flutter
-  mockito: ^5.4.6
+  mockito: ^5.4.5
   flutter_lints: ^6.0.0
   riverpod_lint: ^2.6.3
   custom_lint: ^0.7.0
