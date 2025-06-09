@@ -43,8 +43,8 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   }
 
   @override
-  void didUpdateWidget(_) {
-    super.didUpdateWidget(_);
+  void didUpdateWidget(HorizontalScrollIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _init();
   }
 
