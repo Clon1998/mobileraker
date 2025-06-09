@@ -38,7 +38,7 @@ class AppConnectionService {
       'moonraker': 'true',
       'returnUrl': 'mobileraker://octoeverywhere',
       'appLogoUrl': 'https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png',
-      if (printerId != null) 'printerId': printerId,
+    'printerId': ?printerId,
     });
 
     try {
