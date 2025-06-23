@@ -5,7 +5,7 @@ homepage: mobileraker.com
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
-  flutter: '>=3.16.5'
+  flutter: '>=3.32.0'
 
 dependency_overrides:
 #  web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
@@ -106,9 +106,9 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   riverpod_lint: ^2.6.3
   custom_lint: ^0.7.0
-  build_runner: ^2.4.13
+  build_runner: 2.4.15
   freezed: ^2.5.2
-  json_serializable: ^6.9.0
+  json_serializable: ^6.9.5
   riverpod_generator: ^2.6.3
   hive_ce_generator: ^1.8.0
 
