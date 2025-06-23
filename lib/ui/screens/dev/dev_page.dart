@@ -478,7 +478,7 @@ class _Consent extends ConsumerWidget {
 
         if (await ConsentInformation.instance.isConsentFormAvailable()) {
           await ConsentForm.loadAndShowConsentFormIfRequired(
-              (_) => talker.warning('ConsentFormDismissed: ${_?.message}'));
+                  (e) => talker.warning('ConsentFormDismissed: ${e?.message}'));
         }
 
         // ConsentForm.showPrivacyOptionsForm((_) => null);
