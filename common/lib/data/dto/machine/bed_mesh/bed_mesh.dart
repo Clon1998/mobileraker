@@ -55,6 +55,12 @@ class BedMesh with _$BedMesh {
     return _transformToCords(matrix);
   }
 
+
+  BedMeshProfile? get activeProfile {
+    if (profileName?.isEmpty == true) return null;
+    return profiles.firstWhereOrNull((p) => p.name == profileName);
+  }
+
   List<List<double>> _transformToCords(List<List<double>> matrix) {
     if (matrix.isEmpty) {
       return List.empty();

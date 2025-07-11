@@ -43,6 +43,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../dashboard/components/bed_mesh_card.dart';
+
 part 'dev_page.g.dart';
 
 class DevPage extends HookConsumerWidget {
@@ -84,7 +86,7 @@ class DevPage extends HookConsumerWidget {
         // BedMeshCard(machineUUID: selMachine!.uuid),
         // FirmwareRetractionCard(machineUUID: selMachine!.uuid),
         // MachineStatusCardLoading(),
-        // BedMeshCard(machineUUID: selMachine!.uuid),
+        BedMeshCard(machineUUID: selMachine!.uuid),
         // SpoolmanCardLoading(),
 
         // FansCard(machineUUID: selMachine.uuid),
