@@ -143,64 +143,63 @@ class _SearchResults extends ConsumerWidget {
           Text('pages.files.search.no_results.subtitle', style: themeData.textTheme.bodySmall).tr(),
         ],
       );
-    } else {
-      widget = Column(
-        key: ValueKey(model.searchResults.length),
-        children: [
-          const SizedBox(height: 8),
-          Expanded(
-            child: CustomScrollView(
-              slivers: [
-                SliverList.builder(
-                  itemCount: model.searchResults.length,
-                  itemBuilder: (context, index) {
-                    final file = model.searchResults[index];
-                    return RemoteFileListTile(
-                      machineUUID: machineUUID,
-                      file: file,
-                      onTap: () => controller.onTapFile(file),
-                      useHero: false,
-                      showPrintedIndicator: true,
-                      subtitle: Text('/${file.parentPath}'),
-                    );
-                  },
-                ),
-                if (model.isLoading)
-                  SliverToBoxAdapter(
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey,
-                      highlightColor: themeData.colorScheme.background,
-                      child: const ListTile(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 14),
-                        horizontalTitleGap: 8,
-                        leading: SizedBox(
-                          width: 42,
-                          height: 42,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.red),
-                          ),
-                        ),
-                        title: FractionallySizedBox(
-                          alignment: Alignment.bottomLeft,
-                          widthFactor: 0.7,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                            child: Text(' '),
-                          ),
-                        ),
-                        dense: true,
-                        subtitle: FractionallySizedBox(
-                          alignment: Alignment.bottomLeft,
-                          widthFactor: 0.42,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                            child: Text(' '),
-                          ),
-                        ),
-                      ),
+    } else {e {
+      widget = CustomScrollViekey: ValueKey(model.searchResults.length),
+        slivers: [
+          SliverList.builder(
+            itemCount: model.searchResults.length,
+            itemBuilder: (context, index) {
+              final file = model.searchResults[index];
+              return RemoteFileListTile(
+                machineUUID: machineUUID,
+                file: file,
+                onTap: () => controller.onTapFile(file),
+                useHero: false,
+                showPrintedIndicator: true,
+                subtitle: Text('/${file.parentPath}'),
+              );
+            },
+          ),
+          if (model.isLoading)
+            SliverToBoxAdapter(
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey,
+                highlightColor: themeData.colorScheme.background,
+                child: const ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 14),
+                  horizontalTitleGap: 8,
+                  leading: SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Colors.red),
                     ),
                   ),
-              ],
+                  title: FractionallySizedBox(
+                    alignment: Alignment.bottomLeft,
+                    widthFactor: 0.7,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Colors.white),
+                      child: Text(' '),
+                    ),
+                  ),
+                  dense: true,
+                  subtitle: FractionallySizedBox(
+                    alignment: Alignment.bottomLeft,
+                    widthFactor: 0.42,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(color: Colors.white),
+                      child: Text(' '),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: MediaQuery
+                  .viewPaddingOf(context)
+                  .bottom,
             ),
           ),
         ],
