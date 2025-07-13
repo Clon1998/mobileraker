@@ -39,22 +39,17 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
         : useFuture(arguments.asyncOptions);
 
     // For async options we need to update the valueNotifier when the options are loaded
-    useEffect(
-      () {
-        if (selected == null) return;
-        if (optionsSnapshot.connectionState == ConnectionState.done) {
-          selected.value = optionsSnapshot.data!.where((e) => e.selected).map((e) => e.value).toList();
-        }
-      },
-      [optionsSnapshot.connectionState],
-    );
+    useEffect(() {
+      if (selected == null) return;
+      if (optionsSnapshot.connectionState == ConnectionState.done) {
+        selected.value = optionsSnapshot.data!.where((e) => e.selected).map((e) => e.value).toList();
+      }
+    }, [optionsSnapshot.connectionState]);
 
     talker.warning('SelectionBottomSheet: ${optionsSnapshot}');
 
     return SheetContentScaffold(
-      resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
-        maintainBottomBar: true,
-      ),
+      resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(maintainBottomBar: true),
       appBar: _Title(arguments: arguments, textEditingController: textCtl),
       body: _bodyFromSnapshot(optionsSnapshot, textCtl, selected),
       bottomBar: StickyBottomBarVisibility(
@@ -81,10 +76,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
     final Widget widget;
     if (snapshot.connectionState == ConnectionState.done) {
       if (snapshot.hasError) {
-        widget = FractionallySizedBox(
-          heightFactor: 0.5,
-          child: Center(child: Text(snapshot.error.toString())),
-        );
+        widget = FractionallySizedBox(heightFactor: 0.5, child: Center(child: Text(snapshot.error.toString())));
       } else {
         widget = _DataBottomSheet(
           arguments: arguments,
@@ -94,16 +86,10 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
         );
       }
     } else {
-      widget = const FractionallySizedBox(
-        heightFactor: 0.2,
-        child: Center(child: CircularProgressIndicator()),
-      );
+      widget = const FractionallySizedBox(heightFactor: 0.2, child: Center(child: CircularProgressIndicator()));
     }
 
-    return AnimatedSizeAndFade(
-      alignment: Alignment.topCenter,
-      child: widget,
-    );
+    return AnimatedSizeAndFade(alignment: Alignment.topCenter, child: widget);
   }
 }
 
@@ -189,12 +175,7 @@ class _DataBottomSheet<T> extends HookConsumerWidget {
 }
 
 class _FilteredResults<T> extends StatelessWidget {
-  const _FilteredResults({
-    super.key,
-    required this.options,
-    this.searchTerm,
-    this.selectedNotifier,
-  });
+  const _FilteredResults({super.key, required this.options, this.searchTerm, this.selectedNotifier});
 
   final List<SelectionOption<T>> options;
   final String? searchTerm;
@@ -237,8 +218,12 @@ class _FilteredResults<T> extends StatelessWidget {
     final searchTokens = term.split(RegExp(r'[\W,]+'));
 
     return options
-        .map((e) => (e, e.label.searchScore(term, searchTokens))
-            .also((it) => talker.warning('Score: ${it.$2} for ${it.$1.label}')))
+        .map(
+          (e) => (
+            e,
+            e.label.searchScore(term, searchTokens),
+          ).also((it) => talker.warning('Score: ${it.$2} for ${it.$1.label}')),
+        )
         .where((e) => e.$2 > 150)
         .sortedBy<num>((e) => e.$2)
         .map((e) => e.$1)
@@ -261,34 +246,38 @@ class _Entry<T> extends HookWidget {
       () => selectedNotifier?.value.contains(option.value) ?? option.selected,
     );
 
-    return Padding(
-      padding: themeData.useMaterial3 ? const EdgeInsets.only(left: 12.0) : EdgeInsets.zero,
-      child: ListTile(
-        enabled: option.enabled,
-        selected: isSelected,
-        visualDensity: VisualDensity.compact,
-        // leading: Icon(option.icon),
-        leading: option.leading,
-        trailing: option.trailing,
-        horizontalTitleGap: option.horizontalTitleGap,
-        title: Text(option.label, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: option.subtitle != null ? Text(option.subtitle!) : null,
-        minLeadingWidth: 42,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(left: Radius.circular(44)))
-            .only(themeData.useMaterial3),
-        onTap: () {
-          if (selectedNotifier != null) {
-            if (isSelected) {
-              selectedNotifier!.value = [...?selectedNotifier?.value.whereNot((e) => e == option.value)];
+    return Material(
+      color: Colors.transparent,
+      child: Padding(
+        padding: themeData.useMaterial3 ? const EdgeInsets.only(left: 12.0) : EdgeInsets.zero,
+        child: ListTile(
+          enabled: option.enabled,
+          selected: isSelected,
+          visualDensity: VisualDensity.compact,
+          // leading: Icon(option.icon),
+          leading: option.leading,
+          trailing: option.trailing,
+          horizontalTitleGap: option.horizontalTitleGap,
+          title: Text(option.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: option.subtitle != null ? Text(option.subtitle!) : null,
+          minLeadingWidth: 42,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.horizontal(left: Radius.circular(44)),
+          ).only(themeData.useMaterial3),
+          onTap: () {
+            if (selectedNotifier != null) {
+              if (isSelected) {
+                selectedNotifier!.value = [...?selectedNotifier?.value.whereNot((e) => e == option.value)];
+              } else {
+                selectedNotifier!.value = [...?selectedNotifier?.value, option.value];
+              }
             } else {
-              selectedNotifier!.value = [...?selectedNotifier?.value, option.value];
+              context.pop(BottomSheetResult.confirmed(option.value));
             }
-          } else {
-            context.pop(BottomSheetResult.confirmed(option.value));
-          }
-        },
-        // selectedColor: themeData.colorScheme.primary,
-        selectedTileColor: themeData.colorScheme.primary.withOpacity(0.1),
+          },
+          // selectedColor: themeData.colorScheme.primary,
+          selectedTileColor: themeData.colorScheme.primary.withOpacity(0.1),
+        ),
       ),
     );
   }
@@ -329,12 +318,7 @@ class SelectionBottomSheetArgs<T> {
           title == other.title;
 
   @override
-  int get hashCode => Object.hash(
-        const DeepCollectionEquality().hash(options),
-        title,
-        showSearch,
-        multiSelect,
-      );
+  int get hashCode => Object.hash(const DeepCollectionEquality().hash(options), title, showSearch, multiSelect);
 }
 
 @immutable
