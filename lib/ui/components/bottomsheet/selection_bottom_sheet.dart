@@ -49,19 +49,17 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
     talker.warning('SelectionBottomSheet: ${optionsSnapshot}');
 
     return SheetContentScaffold(
-      resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(maintainBottomBar: true),
-      appBar: _Title(arguments: arguments, textEditingController: textCtl),
+      topBar: _Title(arguments: arguments, textEditingController: textCtl),
       body: _bodyFromSnapshot(optionsSnapshot, textCtl, selected),
-      bottomBar: StickyBottomBarVisibility(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                context.pop(BottomSheetResult.confirmed(selected!.value));
-              },
-              child: Text(MaterialLocalizations.of(context).keyboardKeySelect),
-            ),
+      bottomBarVisibility: BottomBarVisibility.always(),
+      bottomBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: () {
+              context.pop(BottomSheetResult.confirmed(selected!.value));
+            },
+            child: Text(MaterialLocalizations.of(context).keyboardKeySelect),
           ),
         ),
       ).only(arguments.multiSelect),
@@ -204,8 +202,9 @@ class _FilteredResults<T> extends StatelessWidget {
         ],
       );
     }
+
     return ListView(
-      padding: const EdgeInsets.only(top: 4),
+      padding: EdgeInsets.only(top: 4, bottom: MediaQuery.viewPaddingOf(context).bottom),
       shrinkWrap: true,
       // physics: const ClampingScrollPhysics(),
       children: [for (final opt in result) _Entry(option: opt, selectedNotifier: selectedNotifier)],

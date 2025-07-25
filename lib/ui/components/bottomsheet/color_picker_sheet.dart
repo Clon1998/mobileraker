@@ -49,8 +49,7 @@ class ColorPickerSheet extends HookConsumerWidget {
       ),
     );
 
-    final bottom = StickyBottomBarVisibility(
-      child: SafeArea(
+    final bottom = SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Row(
@@ -78,13 +77,13 @@ class ColorPickerSheet extends HookConsumerWidget {
             ],
           ),
         ),
-      ),
+
     );
 
     return SheetContentScaffold(
-      resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(maintainBottomBar: true),
-      appBar: title,
+      topBar: title,
       body: body,
+      bottomBarVisibility: BottomBarVisibility.always(),
       bottomBar: bottom,
     );
   }

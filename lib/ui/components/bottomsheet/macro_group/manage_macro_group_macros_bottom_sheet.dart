@@ -53,16 +53,15 @@ class ManageMacroGroupMacrosBottomSheet extends ConsumerWidget {
 
     // const EdgeInsets.only(top: 10, bottom: 10),
     return SheetContentScaffold(
-      appBar: _Title(targetGrp: targetGrp.name),
+      topBar: _Title(targetGrp: targetGrp.name),
       body: body,
-      bottomBar: StickyBottomBarVisibility(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: ElevatedButton(
-              onPressed: controller.applyMacros,
-              child: const Text('general.apply').tr(),
-            ),
+      bottomBarVisibility: BottomBarVisibility.always(),
+      bottomBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: ElevatedButton(
+            onPressed: controller.applyMacros,
+            child: const Text('general.apply').tr(),
           ),
         ),
       ),

@@ -66,8 +66,6 @@ import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
 
-final sheetTransitionObserver = NavigationSheetTransitionObserver();
-
 enum AppRoute implements RouteDefinitionMixin {
   dashBoard,
   overview,
@@ -424,7 +422,6 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       ),
       ShellRoute(
         observers: [
-          sheetTransitionObserver,
           MobilerakerRouteObserver('SheetShell'),
         ],
         pageBuilder: (context, state, child) {
@@ -433,18 +430,21 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             name: 'BottomSheetModalSheet',
             // transitionDuration: const Duration(milliseconds: 3000),
             swipeDismissible: true,
-            child: SafeArea(
-              bottom: false,
-              child: NavigationSheet(
-                transitionObserver: sheetTransitionObserver,
-                child: Material(
+            viewportPadding: EdgeInsets.only(
+              // Add the top padding to avoid the status bar.
+              top: MediaQuery
+                  .viewPaddingOf(context)
+                  .top,
+            ),
+            child: PagedSheet(
+              decoration: MaterialSheetDecoration(
+                size: SheetSize.stretch,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   clipBehavior: Clip.antiAlias,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 500),
-                    child: child,
-                  ),
-                ),
+              ),
+              navigator: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 500),
+                child: child,
               ),
             ),
           );

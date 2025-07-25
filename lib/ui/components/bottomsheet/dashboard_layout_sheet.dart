@@ -110,7 +110,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
 
     return ProviderScope(
       child: SheetContentScaffold(
-        appBar: title,
+        topBar: title,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
@@ -131,12 +131,12 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
             ],
           ),
         ),
-        bottomBar: StickyBottomBarVisibility(
-          child: Theme(
-            data: Theme.of(context).copyWith(useMaterial3: false),
-            child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom),
-          ),
+        bottomBarVisibility: BottomBarVisibility.always(),
+        bottomBar: Theme(
+          data: Theme.of(context).copyWith(useMaterial3: false),
+          child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom),
         ),
+
       ),
     );
   }

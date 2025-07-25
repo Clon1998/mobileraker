@@ -70,7 +70,7 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #bottomsheet:
-  smooth_sheets: ^1.0.0-f324.0.10.2
+  smooth_sheets: ^0.14.0
 
   #ui
   flutter_icons:

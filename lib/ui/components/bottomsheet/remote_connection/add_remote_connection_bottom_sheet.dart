@@ -89,7 +89,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
     );
 
     return SheetContentScaffold(
-      appBar: _TabHeader(tabController: tabController, obicoEnabled: obicoEnabled, octoIndex: octoIndex),
+      topBar: _TabHeader(tabController: tabController, obicoEnabled: obicoEnabled, octoIndex: octoIndex),
       body: FormBuilder(
         key: ref.watch(formKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,

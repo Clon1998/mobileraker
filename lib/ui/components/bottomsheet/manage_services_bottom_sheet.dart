@@ -59,34 +59,41 @@ class ManageServicesBottomSheet extends ConsumerWidget {
           child: Center(child: CircularProgressIndicator.adaptive()),
         ),
       AsyncError(:final error) =>
-        SheetDraggable(key: const Key('systemInfoError'), child: _SystemInfoProviderError(error: error)),
+          _SystemInfoProviderError(key: const Key('systemInfoError'), error: error),
       _ => const SizedBox.shrink(),
     };
 
     return SheetContentScaffold(
-      appBar: title,
+      topBar: title,
       body: AnimatedSizeAndFade(child: body),
-      bottomBar: StickyBottomBarVisibility(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (ModalRoute.of(context)?.impliesAppBarDismissal == true)
-                  TextButton.icon(
-                    label: Text(MaterialLocalizations.of(context).backButtonTooltip),
-                    icon: const Icon(Icons.keyboard_arrow_left),
-                    onPressed: context.pop,
-                  ),
-                if (ModalRoute.of(context)?.impliesAppBarDismissal != true)
-                  TextButton.icon(
-                    label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    onPressed: context.pop,
-                  ),
-              ],
-            ),
+      bottomBarVisibility: BottomBarVisibility.always(),
+      bottomBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (ModalRoute
+                  .of(context)
+                  ?.impliesAppBarDismissal == true)
+                TextButton.icon(
+                  label: Text(MaterialLocalizations
+                      .of(context)
+                      .backButtonTooltip),
+                  icon: const Icon(Icons.keyboard_arrow_left),
+                  onPressed: context.pop,
+                ),
+              if (ModalRoute
+                  .of(context)
+                  ?.impliesAppBarDismissal != true)
+                TextButton.icon(
+                  label: Text(MaterialLocalizations
+                      .of(context)
+                      .closeButtonTooltip),
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  onPressed: context.pop,
+                ),
+            ],
           ),
         ),
       ),

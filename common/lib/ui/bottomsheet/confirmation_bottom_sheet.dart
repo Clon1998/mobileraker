@@ -47,32 +47,39 @@ class ConfirmationBottomSheet extends ConsumerWidget {
 
     return SheetContentScaffold(
       body: body,
-      bottomBar: StickyBottomBarVisibility(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (ModalRoute.of(context)?.impliesAppBarDismissal == true)
-                  TextButton.icon(
-                    label: Text(MaterialLocalizations.of(context).backButtonTooltip),
-                    icon: const Icon(Icons.keyboard_arrow_left),
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                if (ModalRoute.of(context)?.impliesAppBarDismissal != true)
-                  TextButton.icon(
-                    label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
-                  onPressed: () => context.pop(true),
-                  child: const Text('general.confirm').tr(),
+      bottomBarVisibility: BottomBarVisibility.always(),
+      bottomBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (ModalRoute
+                  .of(context)
+                  ?.impliesAppBarDismissal == true)
+                TextButton.icon(
+                  label: Text(MaterialLocalizations
+                      .of(context)
+                      .backButtonTooltip),
+                  icon: const Icon(Icons.keyboard_arrow_left),
+                  onPressed: () => Navigator.of(context).pop(false),
                 ),
-              ],
-            ),
+              if (ModalRoute
+                  .of(context)
+                  ?.impliesAppBarDismissal != true)
+                TextButton.icon(
+                  label: Text(MaterialLocalizations
+                      .of(context)
+                      .closeButtonTooltip),
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
+                onPressed: () => context.pop(true),
+                child: const Text('general.confirm').tr(),
+              ),
+            ],
           ),
         ),
       ),

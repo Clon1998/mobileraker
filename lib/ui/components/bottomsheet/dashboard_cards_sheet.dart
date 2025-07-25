@@ -82,7 +82,7 @@ class DashboardCardsBottomSheet extends HookWidget {
         );
 
         return SheetContentScaffold(
-          appBar: title,
+          topBar: title,
           body: cssGrid,
         );
       }),

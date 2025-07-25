@@ -32,7 +32,7 @@ class GraphSettingsSheet extends ConsumerWidget {
     );
 
     return SheetContentScaffold(
-      appBar: title,
+      topBar: title,
       body: _OptionsList(machineUUID: machineUUID),
     );
   }
@@ -57,7 +57,9 @@ class _OptionsList extends ConsumerWidget {
 
     return ListView.builder(
       itemCount: stores.length,
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery
+          .viewPaddingOf(context)
+          .bottom),
       shrinkWrap: true,
       itemBuilder: (context, index) {
         final store = entries.elementAt(index);

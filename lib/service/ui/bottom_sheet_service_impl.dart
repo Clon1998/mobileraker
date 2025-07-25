@@ -62,16 +62,15 @@ class BottomSheetServiceImpl implements BottomSheetService {
         GoRoute(
           name: SheetType.nonPrintingMenu.name,
           path: '/sheet/non-printing',
-          pageBuilder: (context, state) => DraggableNavigationSheetPage(
-            key: state.pageKey,
+      pageBuilder: (context, state) => PagedSheetPage(key: state.pageKey,
             child: NonPrintingBottomSheet(),
           ),
           routes: [
             GoRoute(
               name: SheetType.manageMachineServices.name,
-              path: 'manage-services',
-              pageBuilder: (context, state) => ScrollableNavigationSheetPage(
-                key: state.pageKey,
+              path: 'manage-services',ageBuilder: (context, state) => PagedSheetPage(
+            scrollConfiguration: const SheetScrollConfiguration(),
+            kkey: state.pageKey,
                 child: ManageServicesBottomSheet(),
               ),
             ),
@@ -83,9 +82,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
           pageBuilder: (context, state) {
             assert(state.extra is ConfirmationBottomSheetArgs, 'Invalid extra data for ConfirmationBottomSheetArgs');
 
-            // SheetContentScaffold
-            return DraggableNavigationSheetPage(
-              key: state.pageKey,
+            // SheetContentScaffoldeturn PagedSheetPage(
+          kkey: state.pageKey,
               name: state.name,
               child: ConfirmationBottomSheet(args: state.extra as ConfirmationBottomSheetArgs),
             );
@@ -96,7 +94,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
           path: '/sheet/job-queue',
           pageBuilder: (context, state) {
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: const JobQueueBottomSheet(),
@@ -109,7 +108,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
           pageBuilder: (context, state) {
             assert(state.extra is AddRemoteConnectionSheetArgs, 'Invalid extra data for AddRemoteConnectionSheetArgs');
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: AddRemoteConnectionBottomSheet(args: state.extra as AddRemoteConnectionSheetArgs),
@@ -123,7 +123,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is ManageMacroGroupMacrosBottomSheetArguments,
                 'Invalid extra data for ManageMacroGroupMacrosBottomSheetArguments');
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: ManageMacroGroupMacrosBottomSheet(
@@ -136,7 +137,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
           name: SheetType.userManagement.name,
           path: '/sheet/user-management',
           pageBuilder: (context, state) {
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: const UserBottomSheet(),
@@ -150,7 +152,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is String, 'Invalid extra data for String');
 
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: SelectSpoolmanSheet(machineUUID: state.extra as String),
@@ -164,10 +167,12 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is String, 'Invalid extra data for String');
 
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
-              initialPosition: SheetAnchor.proportional(context.isCompact ? 0.6 : 1),
+              initialOffset: SheetOffset(context.isCompact ? 0.6 : 1),
+              // Configure initial offset
               child: DashboardCardsBottomSheet(machineUUID: state.extra as String),
             );
           },
@@ -179,7 +184,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is DashboardLayout, 'Invalid extra data for DashboardLayout');
 
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: DashboardLayoutBottomSheet(
@@ -196,7 +202,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is SortModeSheetArgs, 'Invalid extra data for SortModeSheetArgs');
 
             // ListView for padding handling
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: SortModeBottomSheet(arguments: state.extra as SortModeSheetArgs),
@@ -210,7 +217,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is ActionBottomSheetArgs, 'Invalid extra data for ActionBottomSheetArgs');
 
             // ListView for padding handling
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: ActionBottomSheet(arguments: state.extra as ActionBottomSheetArgs),
@@ -224,7 +232,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is SelectionBottomSheetArgs, 'Invalid extra data for SelectionBottomSheetArgs');
 
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               name: state.name,
               child: SelectionBottomSheet(arguments: state.extra as SelectionBottomSheetArgs),
             );
@@ -234,7 +243,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
           name: ProSheetType.gcodeVisualizerSettings.name,
           path: '/sheet/gcode-visualizer-settings',
           pageBuilder: (context, state) {
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: const GCodeVisualizerSettingsSheet(),
@@ -248,7 +258,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             assert(state.extra is String?, 'Invalid extra data for String');
 
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: ColorPickerSheet(initialColor: state.extra as String?),
@@ -262,7 +273,8 @@ class BottomSheetServiceImpl implements BottomSheetService {
             // assert(state.extra is String?, 'Invalid extra data for String');
 
             // SheetContentScaffold
-            return ScrollableNavigationSheetPage(
+            return PagedSheetPage(
+              scrollConfiguration: const SheetScrollConfiguration(),
               key: state.pageKey,
               name: state.name,
               child: GraphSettingsSheet(machineUUID: state.extra as String),
