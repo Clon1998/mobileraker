@@ -14,6 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/graph_settings_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/manage_services_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/select_file_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_visualizer_settings_sheet.dart';
 import 'package:mobileraker_pro/job_queue/ui/job_queue_sheet.dart';
@@ -45,6 +46,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   colorPicker,
   confirm,
   graphSettings,
+  selectPrintJob,
 }
 
 BottomSheetService bottomSheetServiceImpl(Ref ref) => BottomSheetServiceImpl(ref);
@@ -67,13 +69,13 @@ class BottomSheetServiceImpl implements BottomSheetService {
           ),
           routes: [
             GoRoute(
-              name: SheetType.manageMachineServices.name,
-              path: 'manage-services',ageBuilder: (context, state) => PagedSheetPage(
+              name: SheetType.manageMachineServices.name,ath: 'manage-services',
+          pageBuilder: (context, state) => PagedSheetPage(
             scrollConfiguration: const SheetScrollConfiguration(),
-            kkey: state.pageKey,
-                child: ManageServicesBottomSheet(),
-              ),
-            ),
+            key: state.pageKey,
+            child: ManageServicesBottomSheet(),
+          ),
+        )),
           ],
         ),
         GoRoute(
@@ -82,8 +84,9 @@ class BottomSheetServiceImpl implements BottomSheetService {
           pageBuilder: (context, state) {
             assert(state.extra is ConfirmationBottomSheetArgs, 'Invalid extra data for ConfirmationBottomSheetArgs');
 
-            // SheetContentScaffoldeturn PagedSheetPage(
-          kkey: state.pageKey,
+            // SheetContentScaffold
+            return PagedSheetPage(
+              key: state.pageKey,
               name: state.name,
               child: ConfirmationBottomSheet(args: state.extra as ConfirmationBottomSheetArgs),
             );
@@ -281,7 +284,23 @@ class BottomSheetServiceImpl implements BottomSheetService {
             );
           },
         ),
-      ];
+    GoRoute(
+      name: SheetType.selectPrintJob.name,
+      path: '/sheet/select-print-job',
+      pageBuilder: (context, state) {
+        assert(state.extra is SelectFileBottomSheetArgs, 'Invalid extra data for SelectFileBottomSheetArgs');
+
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          // initialOffset: SheetOffset(0.7),
+          key: state.pageKey,
+          name: state.name,
+          child: SelectFileBottomSheet(args: state.extra as SelectFileBottomSheetArgs),
+        );
+      },
+    ),
+  ];
 
   @override
   final Map<BottomSheetIdentifierMixin, Widget Function(BuildContext, Object?)> availableSheets = {};

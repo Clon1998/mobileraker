@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/history/historical_print_job.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/eta_data_source.dart';
@@ -16,6 +17,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
@@ -39,6 +41,8 @@ import 'package:mobileraker/ui/screens/overview/components/printer_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../routing/app_router.dart';
+import '../../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../../components/bottomsheet/select_file_bottom_sheet.dart';
 import 'common/progress_tracker.dart';
 import 'common/state_chips.dart';
 
@@ -645,6 +649,8 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
 
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
   _Model? _lastUpdate;
 
   @override
@@ -744,10 +750,17 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
     _goRouter.pushNamed(AppRoute.printerEdit.name, extra: this.machine);
   }
 
-  void openFileBrowser() {
-    //TODO: This should be replaced via a bottom sheet!
-    _selectedMachineService.selectMachine(this.machine);
-    _goRouter.push('/files/gcodes');
+  void openFileBrowser() async {
+    final res = await _bottomSheetService.show(
+        BottomSheetConfig(type: SheetType.selectPrintJob, data: SelectFileBottomSheetArgs(machine.uuid)));
+
+
+    if (res case BottomSheetResult(confirmed:true, data: final GCodeFile file)) {
+      talker.info('[_PrinterJobHandlerController] openFileBrowser: User selected file: ${file.name}');
+      _printerService.startPrintFile(file);
+      return;
+    }
+    talker.info('[_PrinterJobHandlerController] openFileBrowser: System reported a dismissed result');
   }
 
   void reprintFile() => _printerService.reprintCurrentFile();

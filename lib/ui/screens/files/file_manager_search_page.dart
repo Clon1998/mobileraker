@@ -51,7 +51,8 @@ class FileManagerSearchPage extends HookConsumerWidget {
     }, [searchQuery]);
 
     final themeData = Theme.of(context);
-    final onBackground = themeData.appBarTheme.foregroundColor ??
+    final onBackground =
+        themeData.appBarTheme.foregroundColor ??
         (themeData.colorScheme.brightness == Brightness.dark
             ? themeData.colorScheme.onSurface
             : themeData.colorScheme.onPrimary);
@@ -73,7 +74,7 @@ class FileManagerSearchPage extends HookConsumerWidget {
                       icon: const Icon(Icons.search_off),
                       onPressed: textController.clear,
                     )
-                  : const SizedBox.shrink(),
+                  : const SizedBox.shrink(key: Key('no-search-term')),
             ),
           ),
         ],
@@ -89,7 +90,11 @@ class FileManagerSearchPage extends HookConsumerWidget {
           ),
         ),
       ),
-      body: Center(child: ResponsiveLimit(child: _SearchResults(machineUUID: machineUUID, path: path))),
+      body: Center(
+        child: ResponsiveLimit(
+          child: _SearchResults(machineUUID: machineUUID, path: path),
+        ),
+      ),
     );
   }
 }
@@ -143,8 +148,9 @@ class _SearchResults extends ConsumerWidget {
           Text('pages.files.search.no_results.subtitle', style: themeData.textTheme.bodySmall).tr(),
         ],
       );
-    } else {e {
-      widget = CustomScrollViekey: ValueKey(model.searchResults.length),
+    } else {
+      widget = CustomScrollView(
+        key: ValueKey(model.searchResults.length),
         slivers: [
           SliverList.builder(
             itemCount: model.searchResults.length,
@@ -171,9 +177,7 @@ class _SearchResults extends ConsumerWidget {
                   leading: SizedBox(
                     width: 42,
                     height: 42,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(color: Colors.red),
-                    ),
+                    child: DecoratedBox(decoration: BoxDecoration(color: Colors.red)),
                   ),
                   title: FractionallySizedBox(
                     alignment: Alignment.bottomLeft,
@@ -195,13 +199,7 @@ class _SearchResults extends ConsumerWidget {
                 ),
               ),
             ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: MediaQuery
-                  .viewPaddingOf(context)
-                  .bottom,
-            ),
-          ),
+          SliverToBoxAdapter(child: SizedBox(height: MediaQuery.viewPaddingOf(context).bottom)),
         ],
       );
     }
@@ -311,18 +309,18 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
     final searchTokens = searchTerm!.split(RegExp(r'[\W,]+'));
     talker.info('[FileManagerSearchController] Refreshing search results for $searchTerm, tokens: $searchTokens');
     final newSearchResults = toFilter
-        .map(
-          (file) => (file, file.name.searchScore(searchTerm, searchTokens)),
-        )
+        .map((file) => (file, file.name.searchScore(searchTerm, searchTokens)))
         .where((element) => element.$2 > 150)
         .sorted((a, b) => b.$2.compareTo(a.$2))
         .map((e) => e.$1)
         .toList();
     talker.info(
-        '[FileManagerSearchController] Found ${newSearchResults.length}/${toFilter.length} results for ${state.searchTerm}');
+      '[FileManagerSearchController] Found ${newSearchResults.length}/${toFilter.length} results for ${state.searchTerm}',
+    );
 
-    state =
-        state.copyWith(searchResults: files == null ? newSearchResults : [...state.searchResults, ...newSearchResults]);
+    state = state.copyWith(
+      searchResults: files == null ? newSearchResults : [...state.searchResults, ...newSearchResults],
+    );
   }
 }
 
