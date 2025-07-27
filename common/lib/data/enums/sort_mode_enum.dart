@@ -18,4 +18,20 @@ enum SortMode {
   final String translation;
 
   final SortKind defaultKind;
+
+  static List<SortMode> availableForGCodes() =>
+      [
+        name,
+        lastModified,
+        lastPrinted,
+        estimatedPrintTime,
+        size,
+      ];
+
+  static List<SortMode> availableForFiles() =>
+      [
+        name,
+        lastModified,
+        size,
+      ];
 }

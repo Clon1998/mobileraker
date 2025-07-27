@@ -1045,14 +1045,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   String get _root => filePath.split('/').first;
 
   List<SortMode> get _availableSortModes => switch (_root) {
-        'gcodes' => [
-            SortMode.name,
-            SortMode.lastModified,
-            SortMode.lastPrinted,
-            SortMode.estimatedPrintTime,
-            SortMode.size
-          ],
-        _ => [SortMode.name, SortMode.lastModified, SortMode.size],
+    'gcodes' => SortMode.availableForGCodes(),
+    _ => SortMode.availableForFiles(),
       };
 
   CompositeKey get _sortModeKey => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, 'mode:$_root');

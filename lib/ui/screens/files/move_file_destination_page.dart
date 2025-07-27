@@ -267,7 +267,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
     talker.info('[_FileManagerMovePageController($machineUUID, $filePath)] sort mode');
     final model = state.requireValue;
     final args = SortModeSheetArgs(
-      toShow: [SortMode.name, SortMode.lastModified, SortMode.size],
+      toShow: SortMode.availableForFiles(),
       active: model.sortConfig,
     );
 
