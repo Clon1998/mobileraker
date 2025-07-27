@@ -1412,6 +1412,8 @@ bottom_sheets:
       subtitle: Próbálj meg egy másik kifejezésre keresni
   temp_chart_settings:
     title: Hőmérséklet diagram beállítások
+  select_file:
+    title: Nyomtatási feladat kiválasztása
 klipper_state:
   ready: Kész
   shutdown: Leállítás
