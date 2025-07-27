@@ -29,23 +29,16 @@ class ManageServicesBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var systemInfo = ref.watch(selectedKlipperSystemInfoProvider);
 
-    if (systemInfo
-        case (AsyncLoading(hasValue: false) ||
-                AsyncValue(hasValue: true, value: KlipperSystemInfo(availableServices: []))) ||
-            AsyncError()) {}
 
-    final title = PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // const Gap(10),
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            title: const Text('bottom_sheets.non_printing.manage_service.title').tr(),
-          ),
-        ],
-      ),
+    final title = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // const Gap(10),
+        ListTile(
+          visualDensity: VisualDensity.compact,
+          title: const Text('bottom_sheets.non_printing.manage_service.title').tr(),
+        ),
+      ],
     );
 
     final body = switch (systemInfo) {
