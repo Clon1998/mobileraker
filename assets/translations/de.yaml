@@ -1403,6 +1403,8 @@ bottom_sheets:
       subtitle: Versuchen Sie einen anderen Suchbegriff
   temp_chart_settings:
     title: Temperaturverlauf Einstellungen
+  select_file:
+    title: Druck-Datei auswählen
 klipper_state:
   ready: Bereit
   shutdown: Runtergefahren
