@@ -67,7 +67,7 @@ class SelectFileBottomSheet extends HookConsumerWidget {
         leading: IconButton(onPressed: context.pop, icon: Icon(isRoot ? Icons.close : Icons.arrow_back)),
         // leading: arguments.leading,
         horizontalTitleGap: 8,
-        title: Text(isRoot ? 'Select Print Job' : folderName),
+        title: Text(isRoot ? tr('bottom_sheets.select_file.title') : folderName),
         subtitle: Text(split.join(' > ')),
         minLeadingWidth: 42,
       ),

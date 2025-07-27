@@ -1515,6 +1515,8 @@ bottom_sheets:
       subtitle: Try a different search term
   temp_chart_settings:
     title: Temperature Chart Settings
+  select_file:
+    title: Select Print Job
 klipper_state:
   ready: Ready
   shutdown: Shutdown
