@@ -10,6 +10,8 @@
   different bed meshes.
 - **Non-Motion Setups**: Removed the requirement for `virtual_sdcard` and `motion_report` objects, enabling users to
   control non-printer Klipper projects (such as filament driers, pcb-hot plates, or other projects) through Mobileraker.
+- **Print Job Bottom Sheet**: A new bottom sheets now allows users to select a print job directly from the overview
+  page. This makes it easier for any users running a farm to more quickly select a new print job.
 
 ### Bug Fixes
 
