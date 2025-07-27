@@ -441,7 +441,7 @@ class _PrintingFAB extends ConsumerWidget {
             label: tr('pages.paywall.benefits.job_queue_perk.title'),
             onTap: () => ref
                 .read(bottomSheetServiceProvider)
-                .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
+                .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu)),
           ),
       ],
     );
@@ -883,7 +883,7 @@ class _DashboardPageController extends _$DashboardPageController {
     talker.info('Add Widget request for tab ${tab.name}');
     var result = await ref
         .read(bottomSheetServiceProvider)
-        .show(BottomSheetConfig(type: SheetType.dashboardCards, data: machineUUID, isScrollControlled: true));
+        .show(BottomSheetConfig(type: SheetType.dashboardCards, data: machineUUID));
 
     if (result.confirmed) {
       talker.info('User wants to add ${result.data}');

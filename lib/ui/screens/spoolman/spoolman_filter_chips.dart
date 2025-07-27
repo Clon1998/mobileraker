@@ -167,7 +167,6 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<String>(
           options: _spoolmanService.allMaterials().then((materials) async {
             // await Future.delayed(Duration(seconds: 4));
@@ -199,7 +198,6 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<String>(
           options: _spoolmanService.allLocations().then((locations) async {
             // await Future.delayed(Duration(seconds: 4));
@@ -234,7 +232,6 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<GetFilament>(
           options: ref
               .read(filamentListProvider(
@@ -283,7 +280,6 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<GetVendor>(
           options: ref.read(vendorListProvider(machineUUID).future).then((vendors) => [
                 for (final vendor in vendors.items.sortedBy((e) => e.name))

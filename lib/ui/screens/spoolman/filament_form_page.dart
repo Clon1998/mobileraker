@@ -485,7 +485,6 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<GetVendor>(
           options: [
             for (final vendor in vendors.sortedBy((e) => e.name))

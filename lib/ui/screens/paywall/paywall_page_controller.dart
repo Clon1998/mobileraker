@@ -122,7 +122,7 @@ class PaywallPageController extends _$PaywallPageController {
   void userSignIn() {
     ref
         .read(bottomSheetServiceProvider)
-        .show(BottomSheetConfig(type: SheetType.userManagement, isScrollControlled: true));
+        .show(BottomSheetConfig(type: SheetType.userManagement));
   }
 
   openManagement() async {

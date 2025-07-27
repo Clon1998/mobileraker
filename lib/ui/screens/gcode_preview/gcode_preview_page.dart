@@ -139,7 +139,7 @@ class _StaticPreview extends HookWidget {
                 onPressed: () {
                   ref
                       .read(bottomSheetServiceProvider)
-                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings, isScrollControlled: true));
+                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings));
                 },
                 icon: const Icon(Icons.settings),
               ));
@@ -278,7 +278,7 @@ class _LivePreview extends HookConsumerWidget {
                 onPressed: () {
                   ref
                       .read(bottomSheetServiceProvider)
-                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings, isScrollControlled: true));
+                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings));
                 },
                 icon: const Icon(Icons.settings),
               ));

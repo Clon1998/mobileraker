@@ -214,7 +214,6 @@ class _GraphPageController extends _$GraphPageController {
 
   void openFilterSheet() => _bottomSheetService.show(BottomSheetConfig(
         type: SheetType.graphSettings,
-        isScrollControlled: true,
         data: machineUUID,
       ));
 

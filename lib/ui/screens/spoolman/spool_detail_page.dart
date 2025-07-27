@@ -481,7 +481,6 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
 
     final res = await bottomSheetServiceRef.show(BottomSheetConfig(
       type: SheetType.actions,
-      isScrollControlled: true,
       data: ActionBottomSheetArgs(
         title: RichText(
           text: TextSpan(

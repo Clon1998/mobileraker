@@ -660,7 +660,6 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   void changeActiveSpool() {
     _bottomSheetService.show(BottomSheetConfig(
       type: ProSheetType.selectSpoolman,
-      isScrollControlled: true,
       data: state.machineUUID,
     ));
   }

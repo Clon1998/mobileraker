@@ -1223,7 +1223,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   void onClickJobQueueFab() {
     ref
         .read(bottomSheetServiceProvider)
-        .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true));
+        .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu));
   }
 
   Future<void> onClickAddFileFab(Rect origin) async {

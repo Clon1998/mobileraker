@@ -520,7 +520,6 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<GetFilament>(
           options: [
             for (final filament in filaments.sortedBy((e) {

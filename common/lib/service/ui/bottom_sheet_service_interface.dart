@@ -25,12 +25,10 @@ abstract interface class BottomSheetService {
 class BottomSheetConfig<T> {
   BottomSheetConfig({
     required this.type,
-    this.isScrollControlled = false,
     this.data,
   });
 
   final BottomSheetIdentifierMixin type;
-  final bool isScrollControlled;
 
   final T? data;
 }

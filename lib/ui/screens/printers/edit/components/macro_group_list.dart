@@ -404,7 +404,7 @@ class MacroGroupListController extends _$MacroGroupListController {
 
     var result = await ref
         .read(bottomSheetServiceProvider)
-        .show(BottomSheetConfig(type: SheetType.manageMacroGroupMacros, data: arguments, isScrollControlled: true));
+        .show(BottomSheetConfig(type: SheetType.manageMacroGroupMacros, data: arguments));
 
     talker.info('Got result from manageMacroGroupMacros sheet: $result');
     if (result.confirmed) {

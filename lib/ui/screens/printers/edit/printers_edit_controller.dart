@@ -423,7 +423,6 @@ class PrinterEditController extends _$PrinterEditController {
     var obicoTunnel = ref.read(_obicoTunnelProvider);
     BottomSheetResult show = await ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
           type: SheetType.addRemoteCon,
-          isScrollControlled: true,
           data: AddRemoteConnectionSheetArgs(
             machine: _machine,
             octoEverywhere: octoEverywhere,

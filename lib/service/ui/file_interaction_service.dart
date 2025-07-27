@@ -136,7 +136,7 @@ class FileInteractionService {
     talker.info('[FileInteractionService($_machineUUID)] showing file action menu for ${file.name}');
 
     final resp =
-        await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
+    await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: arg));
 
     talker.info('[FileInteractionService($_machineUUID)] file action menu response: $resp');
     if (!resp.confirmed) return;
@@ -172,7 +172,7 @@ class FileInteractionService {
     talker.info('[FileInteractionService($_machineUUID)] showing multi file action menu for ${files.length} files');
 
     final resp =
-        await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: arg));
+    await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: arg));
 
     talker.info('[FileInteractionService($_machineUUID)] multi file action menu response: $resp');
     if (!resp.confirmed) return;
@@ -198,7 +198,7 @@ class FileInteractionService {
     ]);
 
     final resp = await _bottomSheetService
-        .show(BottomSheetConfig(type: SheetType.actions, isScrollControlled: true, data: args));
+        .show(BottomSheetConfig(type: SheetType.actions, data: args));
 
     if (!resp.confirmed) return;
 

@@ -614,7 +614,6 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     final res = await _bottomSheetService.show(
       BottomSheetConfig(
         type: SheetType.selections,
-        isScrollControlled: true,
         data: SelectionBottomSheetArgs<String>(
           options: [
             for (final beaconModel in beaconModels)

@@ -99,7 +99,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             OutlinedButton(
               onPressed: () => ref
                   .read(bottomSheetServiceProvider)
-                  .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
+                  .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu)),
               child: AutoSizeText(
                 tr('pages.paywall.benefits.job_queue_perk.title'),
                 maxLines: 1,

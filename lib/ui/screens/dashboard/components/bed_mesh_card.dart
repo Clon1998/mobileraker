@@ -369,7 +369,6 @@ class _Controller extends _$Controller {
       final res = await _bottomSheetService.show(
         BottomSheetConfig(
           type: SheetType.selections,
-          isScrollControlled: true,
           data: SelectionBottomSheetArgs<BedMeshProfile?>(
             options: [
               if (value.bedMesh?.profileName != null)
