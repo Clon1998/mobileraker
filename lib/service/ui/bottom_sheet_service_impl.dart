@@ -61,229 +61,230 @@ class BottomSheetServiceImpl implements BottomSheetService {
   // ListView -> Automatically adds safe area padding to its content. This ensures that the content can be scrolled behind the SystemUI but if bottom reached no systemUI will cover the list
 
   static List<RouteBase> get routes => [
+    GoRoute(
+      name: SheetType.nonPrintingMenu.name,
+      path: '/sheet/non-printing',
+      pageBuilder: (context, state) => PagedSheetPage(key: state.pageKey, child: NonPrintingBottomSheet()),
+      routes: [
         GoRoute(
-          name: SheetType.nonPrintingMenu.name,
-          path: '/sheet/non-printing',
-      pageBuilder: (context, state) => PagedSheetPage(key: state.pageKey,
-            child: NonPrintingBottomSheet(),
-          ),
-          routes: [
-            GoRoute(
-              name: SheetType.manageMachineServices.name,ath: 'manage-services',
+          name: SheetType.manageMachineServices.name,
+          path: 'manage-services',
           pageBuilder: (context, state) => PagedSheetPage(
             scrollConfiguration: const SheetScrollConfiguration(),
             key: state.pageKey,
             child: ManageServicesBottomSheet(),
           ),
-        )),
-          ],
         ),
-        GoRoute(
-          name: SheetType.confirm.name,
-          path: '/sheet/confirm',
-          pageBuilder: (context, state) {
-            assert(state.extra is ConfirmationBottomSheetArgs, 'Invalid extra data for ConfirmationBottomSheetArgs');
+      ],
+    ),
+    GoRoute(
+      name: SheetType.confirm.name,
+      path: '/sheet/confirm',
+      pageBuilder: (context, state) {
+        assert(state.extra is ConfirmationBottomSheetArgs, 'Invalid extra data for ConfirmationBottomSheetArgs');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              key: state.pageKey,
-              name: state.name,
-              child: ConfirmationBottomSheet(args: state.extra as ConfirmationBottomSheetArgs),
-            );
-          },
-        ),
-        GoRoute(
-          name: ProSheetType.jobQueueMenu.name,
-          path: '/sheet/job-queue',
-          pageBuilder: (context, state) {
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: const JobQueueBottomSheet(),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.addRemoteCon.name,
-          path: '/sheet/add-remote-connection',
-          pageBuilder: (context, state) {
-            assert(state.extra is AddRemoteConnectionSheetArgs, 'Invalid extra data for AddRemoteConnectionSheetArgs');
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: AddRemoteConnectionBottomSheet(args: state.extra as AddRemoteConnectionSheetArgs),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.manageMacroGroupMacros.name,
-          path: '/sheet/manage-macro-group-macros',
-          pageBuilder: (context, state) {
-            assert(state.extra is ManageMacroGroupMacrosBottomSheetArguments,
-                'Invalid extra data for ManageMacroGroupMacrosBottomSheetArguments');
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: ManageMacroGroupMacrosBottomSheet(
-                arguments: state.extra as ManageMacroGroupMacrosBottomSheetArguments,
-              ),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.userManagement.name,
-          path: '/sheet/user-management',
-          pageBuilder: (context, state) {
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: const UserBottomSheet(),
-            );
-          },
-        ),
-        GoRoute(
-          name: ProSheetType.selectSpoolman.name,
-          path: '/sheet/select-spoolman',
-          pageBuilder: (context, state) {
-            assert(state.extra is String, 'Invalid extra data for String');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          key: state.pageKey,
+          name: state.name,
+          child: ConfirmationBottomSheet(args: state.extra as ConfirmationBottomSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: ProSheetType.jobQueueMenu.name,
+      path: '/sheet/job-queue',
+      pageBuilder: (context, state) {
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: const JobQueueBottomSheet(),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.addRemoteCon.name,
+      path: '/sheet/add-remote-connection',
+      pageBuilder: (context, state) {
+        assert(state.extra is AddRemoteConnectionSheetArgs, 'Invalid extra data for AddRemoteConnectionSheetArgs');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: AddRemoteConnectionBottomSheet(args: state.extra as AddRemoteConnectionSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.manageMacroGroupMacros.name,
+      path: '/sheet/manage-macro-group-macros',
+      pageBuilder: (context, state) {
+        assert(
+          state.extra is ManageMacroGroupMacrosBottomSheetArguments,
+          'Invalid extra data for ManageMacroGroupMacrosBottomSheetArguments',
+        );
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: ManageMacroGroupMacrosBottomSheet(
+            arguments: state.extra as ManageMacroGroupMacrosBottomSheetArguments,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.userManagement.name,
+      path: '/sheet/user-management',
+      pageBuilder: (context, state) {
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: const UserBottomSheet(),
+        );
+      },
+    ),
+    GoRoute(
+      name: ProSheetType.selectSpoolman.name,
+      path: '/sheet/select-spoolman',
+      pageBuilder: (context, state) {
+        assert(state.extra is String, 'Invalid extra data for String');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: SelectSpoolmanSheet(machineUUID: state.extra as String),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.dashboardCards.name,
-          path: '/sheet/dashboard-cards',
-          pageBuilder: (context, state) {
-            assert(state.extra is String, 'Invalid extra data for String');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: SelectSpoolmanSheet(machineUUID: state.extra as String),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.dashboardCards.name,
+      path: '/sheet/dashboard-cards',
+      pageBuilder: (context, state) {
+        assert(state.extra is String, 'Invalid extra data for String');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              initialOffset: SheetOffset(context.isCompact ? 0.6 : 1),
-              // Configure initial offset
-              child: DashboardCardsBottomSheet(machineUUID: state.extra as String),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.dashobardLayout.name,
-          path: '/sheet/dashboard-layout',
-          pageBuilder: (context, state) {
-            assert(state.extra is DashboardLayout, 'Invalid extra data for DashboardLayout');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          initialOffset: SheetOffset(context.isCompact ? 0.6 : 1),
+          // Configure initial offset
+          child: DashboardCardsBottomSheet(machineUUID: state.extra as String),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.dashobardLayout.name,
+      path: '/sheet/dashboard-layout',
+      pageBuilder: (context, state) {
+        assert(state.extra is DashboardLayout, 'Invalid extra data for DashboardLayout');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: DashboardLayoutBottomSheet(
-                machineUUID: state.uri.queryParameters['machineUUID']!,
-                currentLayout: state.extra as DashboardLayout,
-              ),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.sortMode.name,
-          path: '/sheet/sort-mode',
-          pageBuilder: (context, state) {
-            assert(state.extra is SortModeSheetArgs, 'Invalid extra data for SortModeSheetArgs');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: DashboardLayoutBottomSheet(
+            machineUUID: state.uri.queryParameters['machineUUID']!,
+            currentLayout: state.extra as DashboardLayout,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.sortMode.name,
+      path: '/sheet/sort-mode',
+      pageBuilder: (context, state) {
+        assert(state.extra is SortModeSheetArgs, 'Invalid extra data for SortModeSheetArgs');
 
-            // ListView for padding handling
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: SortModeBottomSheet(arguments: state.extra as SortModeSheetArgs),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.actions.name,
-          path: '/sheet/actions',
-          pageBuilder: (context, state) {
-            assert(state.extra is ActionBottomSheetArgs, 'Invalid extra data for ActionBottomSheetArgs');
+        // ListView for padding handling
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: SortModeBottomSheet(arguments: state.extra as SortModeSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.actions.name,
+      path: '/sheet/actions',
+      pageBuilder: (context, state) {
+        assert(state.extra is ActionBottomSheetArgs, 'Invalid extra data for ActionBottomSheetArgs');
 
-            // ListView for padding handling
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: ActionBottomSheet(arguments: state.extra as ActionBottomSheetArgs),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.selections.name,
-          path: '/sheet/selections',
-          pageBuilder: (context, state) {
-            assert(state.extra is SelectionBottomSheetArgs, 'Invalid extra data for SelectionBottomSheetArgs');
+        // ListView for padding handling
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: ActionBottomSheet(arguments: state.extra as ActionBottomSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.selections.name,
+      path: '/sheet/selections',
+      pageBuilder: (context, state) {
+        assert(state.extra is SelectionBottomSheetArgs, 'Invalid extra data for SelectionBottomSheetArgs');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              name: state.name,
-              child: SelectionBottomSheet(arguments: state.extra as SelectionBottomSheetArgs),
-            );
-          },
-        ),
-        GoRoute(
-          name: ProSheetType.gcodeVisualizerSettings.name,
-          path: '/sheet/gcode-visualizer-settings',
-          pageBuilder: (context, state) {
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: const GCodeVisualizerSettingsSheet(),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.colorPicker.name,
-          path: '/sheet/color-picker',
-          pageBuilder: (context, state) {
-            assert(state.extra is String?, 'Invalid extra data for String');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          name: state.name,
+          child: SelectionBottomSheet(arguments: state.extra as SelectionBottomSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: ProSheetType.gcodeVisualizerSettings.name,
+      path: '/sheet/gcode-visualizer-settings',
+      pageBuilder: (context, state) {
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: const GCodeVisualizerSettingsSheet(),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.colorPicker.name,
+      path: '/sheet/color-picker',
+      pageBuilder: (context, state) {
+        assert(state.extra is String?, 'Invalid extra data for String');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: ColorPickerSheet(initialColor: state.extra as String?),
-            );
-          },
-        ),
-        GoRoute(
-          name: SheetType.graphSettings.name,
-          path: '/sheet/graph-settings',
-          pageBuilder: (context, state) {
-            // assert(state.extra is String?, 'Invalid extra data for String');
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: ColorPickerSheet(initialColor: state.extra as String?),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.graphSettings.name,
+      path: '/sheet/graph-settings',
+      pageBuilder: (context, state) {
+        // assert(state.extra is String?, 'Invalid extra data for String');
 
-            // SheetContentScaffold
-            return PagedSheetPage(
-              scrollConfiguration: const SheetScrollConfiguration(),
-              key: state.pageKey,
-              name: state.name,
-              child: GraphSettingsSheet(machineUUID: state.extra as String),
-            );
-          },
-        ),
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: GraphSettingsSheet(machineUUID: state.extra as String),
+        );
+      },
+    ),
     GoRoute(
       name: SheetType.selectPrintJob.name,
       path: '/sheet/select-print-job',
