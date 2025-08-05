@@ -15,6 +15,9 @@
 
 ### Bug Fixes
 
+- **Printer-Edit Padding**: Added dynamic padding to ensure system UI elements (like the navigation bar) do not
+  overlap with the printer edit page content, enhancing usability on devices with varying screen sizes.
+
 ## [2.9.0] - 2025-05-24
 
 ### Enhancements

@@ -120,130 +120,128 @@ class _Body extends ConsumerWidget {
     return Center(
       child: ResponsiveLimit(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(6.0)+ EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom),
           child: FormBuilder(
             enabled: !isSaving,
             key: ref.watch(editPrinterFormKeyProvider),
             autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  SectionHeader(
-                    title: 'pages.setting.general.title'.tr(),
-                    padding: EdgeInsets.zero,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                SectionHeader(
+                  title: 'pages.setting.general.title'.tr(),
+                  padding: EdgeInsets.zero,
+                ),
+                FormBuilderTextField(
+                  enableInteractiveSelection: true,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.displayname'.tr(),
                   ),
-                  FormBuilderTextField(
-                    enableInteractiveSelection: true,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.general.displayname'.tr(),
-                    ),
-                    name: 'printerName',
-                    initialValue: machine.name,
-                    validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required()],
-                    ),
-                    contextMenuBuilder: defaultContextMenuBuilder,
+                  name: 'printerName',
+                  initialValue: machine.name,
+                  validator: FormBuilderValidators.compose(
+                    [FormBuilderValidators.required()],
                   ),
-                  const _ThemeSelector(),
-                  FormBuilderTextField(
-                    keyboardType: TextInputType.url,
-                    decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.general.printer_addr'.tr(),
-                      hintText: 'pages.printer_edit.general.full_url'.tr(),
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                ),
+                const _ThemeSelector(),
+                FormBuilderTextField(
+                  keyboardType: TextInputType.url,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.printer_addr'.tr(),
+                    hintText: 'pages.printer_edit.general.full_url'.tr(),
+                  ),
+                  name: 'printerUrl',
+                  initialValue: machine.httpUri.toString(),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.url(
+                      requireTld: false,
+                      requireProtocol: false,
+                      protocols: ['http', 'https'],
                     ),
-                    name: 'printerUrl',
-                    initialValue: machine.httpUri.toString(),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.url(
-                        requireTld: false,
-                        requireProtocol: false,
-                        protocols: ['http', 'https'],
+                  ]),
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                ),
+                FormBuilderTextField(
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                    suffix: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: InkWell(
+                        child: const Icon(Icons.qr_code_sharp, size: 18),
+                        onTap: () => controller.openQrScanner(context),
                       ),
-                    ]),
-                    contextMenuBuilder: defaultContextMenuBuilder,
-                  ),
-                  FormBuilderTextField(
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
-                      suffix: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: InkWell(
-                          child: const Icon(Icons.qr_code_sharp, size: 18),
-                          onTap: () => controller.openQrScanner(context),
-                        ),
-                      ),
-                      helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
-                      helperMaxLines: 5,
                     ),
-                    name: 'printerApiKey',
-                    initialValue: machine.apiKey,
-                    contextMenuBuilder: defaultContextMenuBuilder,
+                    helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                    helperMaxLines: 5,
                   ),
-                  FormBuilderTextField(
-                    keyboardType: const TextInputType.numberWithOptions(),
-                    decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.general.timeout_label'.tr(),
-                      helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
-                      helperMaxLines: 5,
-                      suffixText: 's',
-                    ),
-                    name: 'printerLocalTimeout',
-                    initialValue: machine.timeout.toString(),
-                    contextMenuBuilder: defaultContextMenuBuilder,
-                    valueTransformer: (String? text) => text?.let(int.tryParse) ?? 5,
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.min(0),
-                      FormBuilderValidators.max(600),
-                      FormBuilderValidators.integer(),
-                    ]),
+                  name: 'printerApiKey',
+                  initialValue: machine.apiKey,
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                ),
+                FormBuilderTextField(
+                  keyboardType: const TextInputType.numberWithOptions(),
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+                    helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+                    helperMaxLines: 5,
+                    suffixText: 's',
                   ),
-                  SslSettings(
-                    initialCertificateDER: machine.pinnedCertificateDERBase64,
-                    initialTrustSelfSigned: machine.trustUntrustedCertificate,
+                  name: 'printerLocalTimeout',
+                  initialValue: machine.timeout.toString(),
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                  valueTransformer: (String? text) => text?.let(int.tryParse) ?? 5,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(0),
+                    FormBuilderValidators.max(600),
+                    FormBuilderValidators.integer(),
+                  ]),
+                ),
+                SslSettings(
+                  initialCertificateDER: machine.pinnedCertificateDERBase64,
+                  initialTrustSelfSigned: machine.trustUntrustedCertificate,
+                ),
+                HttpHeaders(initialValue: machine.httpHeaders),
+                const Divider(),
+                // if (machine.hasRemoteConnection)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: SsidPreferenceList(initialValue: machine.localSsids),
+                ),
+                WarningCard(
+                  show: ref
+                          .watch(permissionStatusProvider(Permission.location).selectAs((data) => !data.isGranted))
+                          .valueOrNull ==
+                      true,
+                  title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
+                  subtitle: const Text(
+                    'pages.printer_edit.wifi_access_warning.subtitle',
+                  ).tr(),
+                  leadingIcon: const Icon(Icons.wifi_off_outlined),
+                  onTap: controller.requestLocationPermission,
+                ),
+                OutlinedButton(
+                  onPressed: controller.openRemoteConnectionSheet,
+                  child: const Text(
+                    'pages.printer_edit.configure_remote_connection',
+                  ).tr(),
+                ),
+                const Divider(),
+                const _RemoteSettings(),
+                const Divider(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: TextButton.icon(
+                    onPressed: isSaving ? null : controller.deleteIt,
+                    icon: const Icon(Icons.delete_forever_outlined),
+                    label: const Text('pages.printer_edit.remove_printer').tr(),
                   ),
-                  HttpHeaders(initialValue: machine.httpHeaders),
-                  const Divider(),
-                  // if (machine.hasRemoteConnection)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: SsidPreferenceList(initialValue: machine.localSsids),
-                  ),
-                  WarningCard(
-                    show: ref
-                            .watch(permissionStatusProvider(Permission.location).selectAs((data) => !data.isGranted))
-                            .valueOrNull ==
-                        true,
-                    title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
-                    subtitle: const Text(
-                      'pages.printer_edit.wifi_access_warning.subtitle',
-                    ).tr(),
-                    leadingIcon: const Icon(Icons.wifi_off_outlined),
-                    onTap: controller.requestLocationPermission,
-                  ),
-                  OutlinedButton(
-                    onPressed: controller.openRemoteConnectionSheet,
-                    child: const Text(
-                      'pages.printer_edit.configure_remote_connection',
-                    ).tr(),
-                  ),
-                  const Divider(),
-                  const _RemoteSettings(),
-                  const Divider(),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: TextButton.icon(
-                      onPressed: isSaving ? null : controller.deleteIt,
-                      icon: const Icon(Icons.delete_forever_outlined),
-                      label: const Text('pages.printer_edit.remove_printer').tr(),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
