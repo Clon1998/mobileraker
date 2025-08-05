@@ -94,10 +94,7 @@ class _PrinterEdit extends ConsumerWidget {
         ],
       ),
       floatingActionButton: ref.watch(printerEditControllerProvider)
-          ? const FloatingActionButton(
-              onPressed: null,
-              child: CircularProgressIndicator(),
-            )
+          ? const FloatingActionButton(onPressed: null, child: CircularProgressIndicator())
           : FloatingActionButton(
               onPressed: ref.read(printerEditControllerProvider.notifier).saveForm,
               child: const Icon(Icons.save_outlined),
@@ -120,7 +117,7 @@ class _Body extends ConsumerWidget {
     return Center(
       child: ResponsiveLimit(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(6.0)+ EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom),
+          padding: const EdgeInsets.all(6.0) + EdgeInsets.only(bottom: MediaQuery.viewPaddingOf(context).bottom),
           child: FormBuilder(
             enabled: !isSaving,
             key: ref.watch(editPrinterFormKeyProvider),
@@ -128,21 +125,14 @@ class _Body extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                SectionHeader(
-                  title: 'pages.setting.general.title'.tr(),
-                  padding: EdgeInsets.zero,
-                ),
+                SectionHeader(title: 'pages.setting.general.title'.tr(), padding: EdgeInsets.zero),
                 FormBuilderTextField(
                   enableInteractiveSelection: true,
                   keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.displayname'.tr(),
-                  ),
+                  decoration: InputDecoration(labelText: 'pages.printer_edit.general.displayname'.tr()),
                   name: 'printerName',
                   initialValue: machine.name,
-                  validator: FormBuilderValidators.compose(
-                    [FormBuilderValidators.required()],
-                  ),
+                  validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
                   contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 const _ThemeSelector(),
@@ -156,11 +146,7 @@ class _Body extends ConsumerWidget {
                   initialValue: machine.httpUri.toString(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
-                    FormBuilderValidators.url(
-                      requireTld: false,
-                      requireProtocol: false,
-                      protocols: ['http', 'https'],
-                    ),
+                    FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: ['http', 'https']),
                   ]),
                   contextMenuBuilder: defaultContextMenuBuilder,
                 ),
@@ -213,22 +199,19 @@ class _Body extends ConsumerWidget {
                   child: SsidPreferenceList(initialValue: machine.localSsids),
                 ),
                 WarningCard(
-                  show: ref
+                  show:
+                      ref
                           .watch(permissionStatusProvider(Permission.location).selectAs((data) => !data.isGranted))
                           .valueOrNull ==
                       true,
                   title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
-                  subtitle: const Text(
-                    'pages.printer_edit.wifi_access_warning.subtitle',
-                  ).tr(),
+                  subtitle: const Text('pages.printer_edit.wifi_access_warning.subtitle').tr(),
                   leadingIcon: const Icon(Icons.wifi_off_outlined),
                   onTap: controller.requestLocationPermission,
                 ),
                 OutlinedButton(
                   onPressed: controller.openRemoteConnectionSheet,
-                  child: const Text(
-                    'pages.printer_edit.configure_remote_connection',
-                  ).tr(),
+                  child: const Text('pages.printer_edit.configure_remote_connection').tr(),
                 ),
                 const Divider(),
                 const _RemoteSettings(),
@@ -274,22 +257,12 @@ class WebcamList extends ConsumerWidget {
           onReorderStart: (i) => FocusScope.of(context).unfocus(),
           children: List.generate(data.length, (index) {
             WebcamInfo cam = data[index];
-            return _WebCamItem(
-              key: ValueKey(cam.uid),
-              cam: cam,
-              idx: index,
-            );
+            return _WebCamItem(key: ValueKey(cam.uid), cam: cam, idx: index);
           }),
         );
       },
-      error: (e, s) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text('Error while loading webcam: $e'),
-      ),
-      loading: () => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: const Text('general.fetching').tr(),
-      ),
+      error: (e, s) => Padding(padding: const EdgeInsets.all(8.0), child: Text('Error while loading webcam: $e')),
+      loading: () => Padding(padding: const EdgeInsets.all(8.0), child: const Text('general.fetching').tr()),
     );
   }
 }
@@ -341,9 +314,7 @@ class _WebCamItem extends HookConsumerWidget {
                   initialValue: cam.name,
                   onChanged: (name) =>
                       camName.value = ((name?.isNotEmpty ?? false) ? name! : 'pages.printer_edit.cams.new_cam'.tr()),
-                  validator: FormBuilderValidators.compose(
-                    [FormBuilderValidators.required()],
-                  ),
+                  validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
                   contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 FormBuilderTextField(
@@ -354,9 +325,7 @@ class _WebCamItem extends HookConsumerWidget {
                   ),
                   name: '${cam.uid}-streamUrl',
                   initialValue: cam.streamUrl.toString(),
-                  validator: FormBuilderValidators.compose(
-                    [FormBuilderValidators.required()],
-                  ),
+                  validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
                   contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 FormBuilderTextField(
@@ -367,29 +336,24 @@ class _WebCamItem extends HookConsumerWidget {
                   ),
                   name: '${cam.uid}-snapshotUrl',
                   initialValue: cam.snapshotUrl.toString(),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                  ]),
+                  validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
                   contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 FormBuilderDropdown(
                   name: '${cam.uid}-service',
                   initialValue: cam.service,
-                  items: {
-                    ...WebcamServiceType.renderedValues(),
-                    cam.service,
-                  }
-                      .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
-                            enabled: serviceType.supported,
-                            value: serviceType,
-                            child: Text(
-                              '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}',
-                            ),
-                          ))
+                  items: {...WebcamServiceType.renderedValues(), cam.service}
+                      .map(
+                        (serviceType) => DropdownMenuItem<WebcamServiceType>(
+                          enabled: serviceType.supported,
+                          value: serviceType,
+                          child: Text(
+                            '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}',
+                          ),
+                        ),
+                      )
                       .toList(),
-                  decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
-                  ),
+                  decoration: InputDecoration(labelText: 'pages.printer_edit.cams.cam_mode'.tr()),
                   onChanged: (WebcamServiceType? v) => serviceType.value = v!,
                 ),
                 if (serviceType.value == WebcamServiceType.mjpegStreamerAdaptive)
@@ -408,23 +372,18 @@ class _WebCamItem extends HookConsumerWidget {
                     valueTransformer: (String? text) {
                       return text == null ? 0 : int.tryParse(text);
                     },
-                    keyboardType: const TextInputType.numberWithOptions(
-                      signed: false,
-                      decimal: false,
-                    ),
+                    keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                   ),
                 FormBuilderDropdown(
-                  decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
-                  ),
+                  decoration: InputDecoration(labelText: 'pages.printer_edit.cams.cam_rotate'.tr()),
                   name: '${cam.uid}-rotate',
                   initialValue: cam.rotation,
-                  items: [0, 90, 180, 270]
-                      .map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text('$e°'),
-                          ))
-                      .toList(growable: false),
+                  items: [
+                    0,
+                    90,
+                    180,
+                    270,
+                  ].map((e) => DropdownMenuItem(value: e, child: Text('$e°'))).toList(growable: false),
                 ),
                 FormBuilderSwitch(
                   title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
@@ -447,7 +406,8 @@ class _WebCamItem extends HookConsumerWidget {
                       ? () => (ref.read(webcamListControllerProvider.notifier).previewWebcam(cam))
                       : null,
                   child: Text(
-                      'general.preview'.tr() + (serviceType.value.supported ? '' : ' (${tr('general.unsupported')})')),
+                    'general.preview'.tr() + (serviceType.value.supported ? '' : ' (${tr('general.unsupported')})'),
+                  ),
                 ),
               ],
       ),
@@ -465,7 +425,9 @@ class _RemoteSettings extends ConsumerWidget {
     var machineUUID = ref.watch(currentlyEditingProvider.select((value) => value.uuid));
 
     return Column(
-      children: ref.watch(machineRemoteSettingsProvider).when(
+      children: ref
+          .watch(machineRemoteSettingsProvider)
+          .when(
             data: (machineSettings) {
               return [
                 SectionHeader(
@@ -505,20 +467,30 @@ class _RemoteSettings extends ConsumerWidget {
                   initialValue: machineSettings.speedXY.toString(),
                   valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.motion_system.speed_xy'.tr(), suffixText: 'mm/s', isDense: true),
+                    labelText: 'pages.printer_edit.motion_system.speed_xy'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator:
-                      FormBuilderValidators.compose([FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                  ]),
                 ),
                 FormBuilderTextField(
                   name: 'speedZ',
                   initialValue: machineSettings.speedZ.toString(),
                   valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.motion_system.speed_z'.tr(), suffixText: 'mm/s', isDense: true),
+                    labelText: 'pages.printer_edit.motion_system.speed_z'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator:
-                      FormBuilderValidators.compose([FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                  ]),
                 ),
                 const MoveStepSegmentInput(),
                 const BabyStepSegmentInput(),
@@ -529,7 +501,10 @@ class _RemoteSettings extends ConsumerWidget {
                   initialValue: machineSettings.extrudeFeedrate.toString(),
                   valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.extruders.feedrate'.tr(), suffixText: 'mm/s', isDense: true),
+                    labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -648,18 +623,12 @@ class _RemoteSettings extends ConsumerWidget {
             },
             error: (e, s) => [
               WarningCard(
-                title: const Text(
-                  'pages.printer_edit.could_not_fetch_additional',
-                ).tr(),
+                title: const Text('pages.printer_edit.could_not_fetch_additional').tr(),
                 subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
                 leadingIcon: const Icon(Icons.error_outline),
               ),
             ],
-            loading: () => [
-              FadingText(
-                'pages.printer_edit.fetching_additional_settings'.tr(),
-              ),
-            ],
+            loading: () => [FadingText('pages.printer_edit.fetching_additional_settings'.tr())],
           ),
     );
   }
@@ -673,16 +642,10 @@ class MoveStepSegmentInput extends ConsumerWidget {
     var numberFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
-      decoration: InputDecoration(
-        labelText: 'pages.printer_edit.motion_system.steps_move'.tr(),
-        suffixText: 'mm',
-      ),
+      decoration: InputDecoration(labelText: 'pages.printer_edit.motion_system.steps_move'.tr(), suffixText: 'mm'),
       options: ref
           .watch(moveStepStateProvider)
-          .map((e) => FormBuilderFieldOption(
-                value: e,
-                child: Text(numberFormat.format(e)),
-              ))
+          .map((e) => FormBuilderFieldOption(value: e, child: Text(numberFormat.format(e))))
           .toList(growable: false),
       onAdd: isSaving ? null : ref.read(moveStepStateProvider.notifier).onAdd,
       onSelected: isSaving ? null : ref.read(moveStepStateProvider.notifier).onSelected,
@@ -704,10 +667,7 @@ class BabyStepSegmentInput extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
-      decoration: InputDecoration(
-        labelText: 'pages.printer_edit.motion_system.steps_baby'.tr(),
-        suffixText: 'mm',
-      ),
+      decoration: InputDecoration(labelText: 'pages.printer_edit.motion_system.steps_baby'.tr(), suffixText: 'mm'),
       options: ref
           .watch(babyStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -732,10 +692,7 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
-      decoration: InputDecoration(
-        labelText: 'pages.printer_edit.extruders.steps_extrude'.tr(),
-        suffixText: 'mm',
-      ),
+      decoration: InputDecoration(labelText: 'pages.printer_edit.extruders.steps_extrude'.tr(), suffixText: 'mm'),
       options: ref
           .watch(extruderStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -776,24 +733,14 @@ class TemperaturePresetList extends ConsumerWidget {
       onReorderStart: (i) => FocusScope.of(context).unfocus(),
       children: List.generate(tempPresets.length, (index) {
         TemperaturePreset preset = tempPresets[index];
-        return _TempPresetItem(
-          key: ValueKey(preset.uuid),
-          preset: preset,
-          idx: index,
-          machine: machine,
-        );
+        return _TempPresetItem(key: ValueKey(preset.uuid), preset: preset, idx: index, machine: machine);
       }),
     );
   }
 }
 
 class _TempPresetItem extends HookConsumerWidget {
-  const _TempPresetItem({
-    super.key,
-    required this.preset,
-    required this.idx,
-    required this.machine,
-  });
+  const _TempPresetItem({super.key, required this.preset, required this.idx, required this.machine});
 
   final TemperaturePreset preset;
   final int idx;
@@ -802,10 +749,12 @@ class _TempPresetItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var name = useState(preset.name);
-    ConfigExtruder? primaryExtConfig =
-        ref.watch(printerProvider(machine.uuid).selectAs((data) => data.configFile.primaryExtruder)).valueOrNull;
-    ConfigHeaterBed? bedConfig =
-        ref.watch(printerProvider(machine.uuid).selectAs((data) => data.configFile.configHeaterBed)).valueOrNull;
+    ConfigExtruder? primaryExtConfig = ref
+        .watch(printerProvider(machine.uuid).selectAs((data) => data.configFile.primaryExtruder))
+        .valueOrNull;
+    ConfigHeaterBed? bedConfig = ref
+        .watch(printerProvider(machine.uuid).selectAs((data) => data.configFile.configHeaterBed))
+        .valueOrNull;
     var extruderMaxTemp = (primaryExtConfig?.maxTemp ?? 500).toInt();
     var bedMaxTemp = (bedConfig?.maxTemp ?? 120).toInt();
     return Card(
@@ -814,10 +763,7 @@ class _TempPresetItem extends HookConsumerWidget {
         tilePadding: const EdgeInsets.symmetric(horizontal: 10),
         childrenPadding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
         title: Text(name.value),
-        leading: ReorderableDragStartListener(
-          index: idx,
-          child: const Icon(Icons.drag_handle),
-        ),
+        leading: ReorderableDragStartListener(index: idx, child: const Icon(Icons.drag_handle)),
         children: [
           FormBuilderTextField(
             keyboardType: TextInputType.text,
@@ -827,58 +773,36 @@ class _TempPresetItem extends HookConsumerWidget {
                 icon: Icons.delete,
                 onPressed: ref.watch(printerEditControllerProvider)
                     ? null
-                    : () => ref
-                        .read(
-                          temperaturePresetListControllerProvider.notifier,
-                        )
-                        .removeTemperaturePreset(preset),
+                    : () => ref.read(temperaturePresetListControllerProvider.notifier).removeTemperaturePreset(preset),
               ),
             ),
             name: '${preset.uuid}-presetName',
             initialValue: name.value,
             onChanged: (v) => name.value = ((v?.isEmpty ?? true) ? 'pages.printer_edit.presets.new_preset'.tr() : v!),
-            validator: FormBuilderValidators.compose(
-              [FormBuilderValidators.required()],
-            ),
+            validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
           ),
           FormBuilderTextField(
-            decoration: InputDecoration(
-              labelText: tr('pages.printer_edit.presets.hotend_temp'),
-              suffixText: '°C',
-            ),
+            decoration: InputDecoration(labelText: tr('pages.printer_edit.presets.hotend_temp'), suffixText: '°C'),
             name: '${preset.uuid}-extruderTemp',
             initialValue: preset.extruderTemp.toString(),
             valueTransformer: (String? text) => (text != null) ? int.tryParse(text) : primaryExtConfig?.minTemp ?? 0,
-            validator: FormBuilderValidators.compose(
-              [
-                FormBuilderValidators.required(),
-                FormBuilderValidators.min(0),
-                FormBuilderValidators.max(
-                  extruderMaxTemp,
-                  errorText: 'Heater only allows up to $extruderMaxTemp°C',
-                ),
-              ],
-            ),
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(),
+              FormBuilderValidators.min(0),
+              FormBuilderValidators.max(extruderMaxTemp, errorText: 'Heater only allows up to $extruderMaxTemp°C'),
+            ]),
             keyboardType: TextInputType.number,
           ),
           FormBuilderTextField(
-            decoration: InputDecoration(
-              labelText: tr('pages.printer_edit.presets.bed_temp'),
-              suffixText: '°C',
-            ),
+            decoration: InputDecoration(labelText: tr('pages.printer_edit.presets.bed_temp'), suffixText: '°C'),
             name: '${preset.uuid}-bedTemp',
             initialValue: preset.bedTemp.toString(),
             valueTransformer: (String? text) => (text != null) ? int.tryParse(text) : bedConfig?.minTemp ?? 0,
-            validator: FormBuilderValidators.compose(
-              [
-                FormBuilderValidators.required(),
-                FormBuilderValidators.min(0),
-                FormBuilderValidators.max(
-                  bedMaxTemp,
-                  errorText: 'Heater only allows up to $bedMaxTemp°C',
-                ),
-              ],
-            ),
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(),
+              FormBuilderValidators.min(0),
+              FormBuilderValidators.max(bedMaxTemp, errorText: 'Heater only allows up to $bedMaxTemp°C'),
+            ]),
             keyboardType: TextInputType.number,
           ),
         ],
@@ -1036,9 +960,7 @@ class _SegmentsState<T> extends State<Segments<T>> {
               backgroundColor: Theme.of(context).colorScheme.primary,
               label: Text(
                 '+',
-                style: DefaultTextStyle.of(context).style.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).colorScheme.onPrimary),
               ),
               selected: false,
               onSelected: (v) => goIntoEditing(),
@@ -1077,11 +999,7 @@ class _ThemeSelector extends ConsumerWidget {
             child: Row(
               children: [
                 (brandingIcon == null)
-                    ? SvgPicture.asset(
-                        'assets/vector/mr_logo.svg',
-                        width: 32,
-                        height: 32,
-                      )
+                    ? SvgPicture.asset('assets/vector/mr_logo.svg', width: 32, height: 32)
                     : Image(height: 32, width: 32, image: brandingIcon),
                 const SizedBox(width: 8),
                 Flexible(child: Text(theme.name)),
@@ -1099,8 +1017,9 @@ class _ThemeSelector extends ConsumerWidget {
             : IconButton(
                 constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
                 icon: const Icon(FlutterIcons.hand_holding_heart_faw5s),
-                onPressed:
-                    isSupporter ? null : ref.read(printerEditControllerProvider.notifier).printerThemeSupporterDialog,
+                onPressed: isSupporter
+                    ? null
+                    : ref.read(printerEditControllerProvider.notifier).printerThemeSupporterDialog,
               ),
       ),
       enabled: isSupporter,
