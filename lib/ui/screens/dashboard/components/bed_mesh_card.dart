@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh_profile.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -24,12 +25,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_legend.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_plot.dart';
+import 'package:mobileraker/ui/screens/tools/bedMesh/bed_mesh_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../../routing/app_router.dart';
 import '../../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../../components/bottomsheet/selection_bottom_sheet.dart';
 
@@ -83,9 +87,7 @@ class _Preview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
-      ],
+      overrides: [_controllerProvider(_machineUUID).overrideWith(_PreviewController.new)],
       child: const BedMeshCard(machineUUID: _machineUUID),
     );
   }
@@ -118,18 +120,14 @@ class _BedMeshLoading extends StatelessWidget {
                           child: SizedBox(
                             width: 30,
                             height: double.infinity,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(color: Colors.white),
-                            ),
+                            child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                           ),
                         ),
                         SizedBox(height: 8),
                         SizedBox(
                           width: 30,
                           height: 30,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ],
                     ),
@@ -137,9 +135,7 @@ class _BedMeshLoading extends StatelessWidget {
                     Expanded(
                       child: AspectRatio(
                         aspectRatio: 1,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(color: Colors.white),
-                        ),
+                        child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                       ),
                     ),
                   ],
@@ -166,9 +162,7 @@ class _CardTitle extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.grid_4x4),
       // leading: const Icon(FlutterIcons.grid_mco),
-      title: Row(children: [
-        const Text('pages.dashboard.control.bed_mesh_card.title').tr(),
-      ]),
+      title: Row(children: [const Text('pages.dashboard.control.bed_mesh_card.title').tr()]),
       trailing: TextButton(
         onPressed: () => controller.onSettingsTap(context),
         child: const Text('pages.dashboard.control.bed_mesh_card.profiles').tr(),
@@ -240,9 +234,18 @@ class _CardBody extends ConsumerWidget {
                   Column(
                     children: [
                       Expanded(
-                        child: BedMeshLegend(
-                          valueRange:
-                              model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh,
+                        child: GestureDetector(
+                          onLongPress: () {
+                            // prevent bubbling up to the parent
+                          },
+                          child: Hero(
+                            tag: 'bed_mesh_legend',
+                            child: BedMeshLegend(
+                              valueRange: model.showProbed
+                                  ? model.bedMesh!.zValueRangeProbed
+                                  : model.bedMesh!.zValueRangeMesh,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -253,21 +256,24 @@ class _CardBody extends ConsumerWidget {
                             'pages.dashboard.control.bed_mesh_card.showing_matrix',
                             gender: model.showProbed ? 'probed' : 'mesh',
                           ),
-                          child: AnimatedSwitcher(
-                            duration: kThemeAnimationDuration,
-                            child: (model.showProbed
-                                ? Icon(
-                                    Icons.blur_on,
-                                    key: const ValueKey('probed'),
-                                    size: 30,
-                                    color: themeData.colorScheme.secondary,
-                                  )
-                                : Icon(
-                                    Icons.grid_on,
-                                    key: const ValueKey('mesh'),
-                                    size: 30,
-                                    color: themeData.colorScheme.secondary,
-                                  )),
+                          child: Hero(
+                            tag: 'bed_mesh_mode_icon',
+                            child: AnimatedSwitcher(
+                              duration: kThemeAnimationDuration,
+                              child: (model.showProbed
+                                  ? Icon(
+                                      Icons.blur_on,
+                                      key: const ValueKey('probed'),
+                                      size: 30,
+                                      color: themeData.colorScheme.secondary,
+                                    )
+                                  : Icon(
+                                      Icons.grid_on,
+                                      key: const ValueKey('mesh'),
+                                      size: 30,
+                                      color: themeData.colorScheme.secondary,
+                                    )),
+                            ),
                           ),
                         ),
                       ),
@@ -276,15 +282,20 @@ class _CardBody extends ConsumerWidget {
                   const SizedBox(width: 8),
                 ],
                 Expanded(
-                  child: BedMeshPlot(
-                    bedMesh: model.bedMesh,
-                    bedMin: model.bedMin,
-                    bedMax: model.bedMax,
-                    isProbed: model.showProbed,
+                  child: GestureDetector(
+                    onTap: controller.onPlotTap,
+                    behavior: HitTestBehavior.translucent,
+                    child: Hero(
+                      tag: 'bed_mesh_plot',
+                      child: BedMeshPlot(
+                        bedMesh: model.bedMesh,
+                        bedMin: model.bedMin,
+                        bedMax: model.bedMax,
+                        isProbed: model.showProbed,
+                      ),
+                    ),
                   ),
                 ),
-                // _GradientLegend(machineUUID: machineUUID),
-                // _ScaleIndicator(gradient: invertedGradient, min: zMin, max: zMax),
               ],
             ),
           ),
@@ -312,6 +323,8 @@ class _Controller extends _$Controller {
 
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
+  GoRouter get _router => ref.read(goRouterProvider);
+
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.meshViewMode, machineUUID);
 
   CompositeKey get _hadMeshKey => CompositeKey.keyWithString(UiKeys.hadMeshView, machineUUID);
@@ -329,12 +342,8 @@ class _Controller extends _$Controller {
     var klippyCanReceiveCommandsF = ref.watch(
       klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands),
     );
-    var bedMeshF = ref.watch(
-      printerProvider(machineUUID).selectAsync((value) => value.bedMesh),
-    );
-    var configFileF = ref.watch(
-      printerProvider(machineUUID).selectAsync((value) => value.configFile),
-    );
+    var bedMeshF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.bedMesh));
+    var configFileF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.configFile));
 
     final (klippyCanReceiveCommands, mesh, configFile) = await (klippyCanReceiveCommandsF, bedMeshF, configFileF).wait;
 
@@ -355,10 +364,11 @@ class _Controller extends _$Controller {
     );
   }
 
-  onSettingsTap(BuildContext context) {
-    final themeData = Theme.of(context);
-    final mmFormat =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 3);
+  void onSettingsTap(BuildContext context) {
+    final mmFormat = NumberFormat.decimalPatternDigits(
+      locale: context.locale.toStringWithSeparator(),
+      decimalDigits: 3,
+    );
 
     // TODO : Make this safer and not use requireValue and !
     state.whenData((value) async {
@@ -428,7 +438,19 @@ class _Controller extends _$Controller {
     });
   }
 
-  changeMode() {
+  void onPlotTap() {
+    if (state case AsyncData(value: _Model(:final bedMesh?, :final bedMin, :final bedMax, :final showProbed)) when bedMesh.activeProfile != null) {
+      // ToDo: receive the selected bed mesh from the page if changed to adapt it (No need tho because this is handled by klipper)
+      _router.pushNamed(
+        AppRoute.tool_bedMesh.name,
+        extra: BedMeshPageArgs(bedMesh: bedMesh, bedMin: bedMin, bedMax: bedMax, isProbed: showProbed),
+      );
+    } else {
+      talker.warning('Bed mesh state is not ready, cannot open bed mesh page');
+    }
+  }
+
+  void changeMode() {
     if (state case AsyncValue(hasValue: true, :final value?)) {
       var mode = !value.showProbed;
       _settingService.writeBool(_settingsKey, mode);
@@ -437,11 +459,11 @@ class _Controller extends _$Controller {
     }
   }
 
-  loadProfile(String profileName) async {
+  Future<void> loadProfile(String profileName) async {
     await _printerService.loadBedMeshProfile(profileName);
   }
 
-  clearActiveMesh() async {
+  Future<void> clearActiveMesh() async {
     await _printerService.clearBedMeshProfile();
   }
 }
@@ -462,7 +484,7 @@ class _PreviewController extends _Controller {
           [-0.21, 0.01, -0.09, 0.08, -0.06],
           [-0.13, -0.11, -0.07, -0.07, -0.06],
           [-0.15, -0.10, -0.09, -0.07, -0.06],
-          [-0.02, -0.10, -0.10, -0.09, -0.09]
+          [-0.02, -0.10, -0.10, -0.09, -0.09],
         ],
         meshMatrix: [
           [-0.69, -0.05, 0.22, 0.44, 0.43, 0.18, -0.33, -0.06, 0.19, -0.21, 0.26, 0.16, 0.07],
@@ -477,7 +499,7 @@ class _PreviewController extends _Controller {
           [-0.07, -0.03, -0.06, -0.08, -0.10, -0.07, -0.03, 0.01, 0.01, -0.07, -0.11, -0.08, -0.07],
           [-0.07, -0.05, -0.05, -0.04, -0.05, -0.06, -0.08, -0.07, -0.06, -0.07, -0.06, -0.02, -0.02],
           [-0.14, -0.09, -0.07, -0.10, -0.13, -0.09, -0.08, -0.07, -0.05, -0.07, -0.09, -0.07, -0.06],
-          [-0.15, -0.11, -0.10, -0.12, -0.13, -0.10, -0.09, -0.08, -0.07, -0.09, -0.10, -0.10, -0.09]
+          [-0.15, -0.11, -0.10, -0.12, -0.13, -0.10, -0.09, -0.08, -0.07, -0.09, -0.10, -0.10, -0.09],
         ],
         profiles: [
           BedMeshProfile(
@@ -487,7 +509,7 @@ class _PreviewController extends _Controller {
               [0.0025, -0.02, -0.0075, -0.005, -0.005],
               [-0.005, -0.0325, 0, -0.0075, 0.015],
               [-0.0025, -0.01, -0.0075, -0.015, 0.02],
-              [-0.0175, -0.0425, -0.0275, -0.025, -0.0025]
+              [-0.0175, -0.0425, -0.0275, -0.025, -0.0025],
             ],
             meshParams: BedMeshParams(
               minX: 40,
@@ -501,7 +523,7 @@ class _PreviewController extends _Controller {
               algo: 'bicubic',
               tension: 0.2,
             ),
-          )
+          ),
         ],
       ),
       bedMin: (0, 0),
@@ -512,7 +534,14 @@ class _PreviewController extends _Controller {
   }
 
   @override
-  onSettingsTap(BuildContext _) {
+  // ignore: no-empty-block
+  void onSettingsTap(BuildContext _) {
+    // Do nothing in preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  void onPlotTap() {
     // Do nothing in preview
   }
 
@@ -526,12 +555,14 @@ class _PreviewController extends _Controller {
   }
 
   @override
-  loadProfile(String profileName) async {
+  // ignore: no-empty-block
+  Future<void> loadProfile(String profileName) async {
     // Do nothing in preview
   }
 
   @override
-  clearActiveMesh() async {
+  // ignore: no-empty-block
+  Future<void> clearActiveMesh() async {
     // Do nothing in preview
   }
 }

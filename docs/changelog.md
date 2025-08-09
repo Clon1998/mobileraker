@@ -4,6 +4,9 @@
 
 ### Enhancements
 
+- **Bed Mesh Visualization**: The bed mesh visualization card has been enhanced to display the bed mesh in a
+  more accurate way by using a custom widget instead of a chart to render the mesh. This provides a clearer and more
+  precise representation of the bed mesh, making it easier for users to visualize and understand the bed leveling data.
 - **Beacon Model Selection**: The beacon model selection is now sorted by name, making it easier to find the
   desired model in the list.
 - **Bed-Mesh Selection**: The bed-mesh selection is now sorted by name, improving usability when selecting
@@ -115,9 +118,9 @@
   correctly. Users can navigate back to the previous page or cancel the move/copy operation immediately, instead of
   always moving up to the root folder.
 - **File Manager Navigation**: The file manager now automatically follows folder operations:
-  - When a folder is moved, the view automatically navigates to its new location
-  - When a folder is deleted, the view returns to the parent folder
-  - These behaviors work correctly for both directly affected folders and their nested children
+    - When a folder is moved, the view automatically navigates to its new location
+    - When a folder is deleted, the view returns to the parent folder
+    - These behaviors work correctly for both directly affected folders and their nested children
 - **GCode Detail Page**: The GCode detail page now provides the same file management functionality as the normal file
   manager page when a GCode file is selected.
 - **Spoolman Page Klipper Offline**: Users can now access the Spoolman page even if Klipper is offline. This allows
@@ -275,21 +278,21 @@ correctly. [#448](https://github.com/Clon1998/mobileraker/issues/448)
 ### Enhancements
 
 - **File Operations**: The file manager now supports additional operations:
-  - **Zipping**: Easily zip both files and folders.
-  - **Batch Operations**: You can now delete, download, or zip selected files directly from the selection screen for
-    more efficient management.
+    - **Zipping**: Easily zip both files and folders.
+    - **Batch Operations**: You can now delete, download, or zip selected files directly from the selection screen for
+      more efficient management.
 
 - **Printed File Indicator**: A green checkmark indicator has been added to the file browser, making it simpler to
   identify which files have already been printed.
 
 - **Number Input Dialog**: The number input and range dialog has been streamlined for improved usability:
-  - **Autofocus**: The input field now autofocuses when opened.
-  - **Auto-Selection**: The current value is automatically selected for quicker editing.
-  - **Keyboard Submission**: While in text editing mode, you can now submit via the keyboard action.  
-    [#406](https://github.com/Clon1998/mobileraker/issues/406)
+    - **Autofocus**: The input field now autofocuses when opened.
+    - **Auto-Selection**: The current value is automatically selected for quicker editing.
+    - **Keyboard Submission**: While in text editing mode, you can now submit via the keyboard action.  
+      [#406](https://github.com/Clon1998/mobileraker/issues/406)
 
 - **Spool Management**: You can now manage spools, filaments, and manufacturers through the **Spoolman** page:
-  - **Add, Edit, Delete**: Easily add, modify, or remove spools and related information.
+    - **Add, Edit, Delete**: Easily add, modify, or remove spools and related information.
 
 ## [2.7.2] - 2024-08-26
 

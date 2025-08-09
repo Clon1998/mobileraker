@@ -62,6 +62,7 @@ import '../ui/screens/setting/notification/machine_notification_settings_page.da
 import '../ui/screens/spoolman/filament_form_page.dart';
 import '../ui/screens/spoolman/spool_form_page.dart';
 import '../ui/screens/spoolman/vendor_form_page.dart';
+import '../ui/screens/tools/bedMesh/bed_mesh_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
@@ -85,7 +86,8 @@ enum AppRoute implements RouteDefinitionMixin {
   supportDev,
   supportDev_benefits,
   tool,
-  beltTuner,
+  tool_beltTuner,
+  tool_bedMesh,
   graph,
   fileManager_explorer,
   fileManager_exlorer_search,
@@ -333,8 +335,14 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         routes: [
           GoRoute(
             path: 'belt-tuner',
-            name: AppRoute.beltTuner.name,
+            name: AppRoute.tool_beltTuner.name,
             builder: (context, state) => const BeltTuner(),
+          ),
+          GoRoute(
+            path: 'bed-mesh',
+            name: AppRoute.tool_bedMesh.name,
+            builder: (context, state) => BedMeshPage(args: state.extra as BedMeshPageArgs),
+            pageBuilder: GoTransitions.fullscreenDialog,
           ),
         ],
       ),

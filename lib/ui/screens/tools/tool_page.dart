@@ -52,7 +52,7 @@ class ToolPage extends HookConsumerWidget {
                     icon: const Icon(Icons.graphic_eq),
                     label: const Text('pages.beltTuner.title').tr(),
                     onTap: () {
-                      ref.read(goRouterProvider).goNamed(AppRoute.beltTuner.name);
+                      ref.read(goRouterProvider).goNamed(AppRoute.tool_beltTuner.name);
                     },
                   ),
                   const _UrlToolCard(

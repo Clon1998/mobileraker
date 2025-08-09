@@ -13,11 +13,13 @@ import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_plot.dart';
 class BedMeshLegend extends StatefulWidget {
   final (double, double) valueRange;
   final EdgeInsets marginTooltip;
+  final Axis axis;
 
   const BedMeshLegend({
     super.key,
     required this.valueRange,
     this.marginTooltip = const EdgeInsets.all(8),
+    this.axis = Axis.vertical,
   });
 
   @override
@@ -30,21 +32,31 @@ class _BedMeshLegendState extends State<BedMeshLegend> {
 
   late final NumberFormat formatter = NumberFormat('#0.000mm', context.locale.toStringWithSeparator());
 
+  bool get _isVertical => widget.axis == Axis.vertical;
+
   @override
   Widget build(BuildContext context) {
-    LinearGradient gradient = gradientForRange(widget.valueRange.$1, widget.valueRange.$2, true);
+    LinearGradient gradient = gradientForRange(
+      widget.valueRange.$1,
+      widget.valueRange.$2,
+      inverse: _isVertical,
+      axis: widget.axis,
+    );
 
-    // min: zMin, max: zMax
     return GestureDetector(
-      onVerticalDragUpdate: (details) => _showTooltip(details.localPosition.dy),
+      onVerticalDragUpdate: _isVertical ? (details) => _showTooltip(details.localPosition.dy) : null,
+      onHorizontalDragUpdate: _isVertical ? null : (details) => _showTooltip(details.localPosition.dx),
       onTapDown: (details) {
-        _showTooltip(details.localPosition.dy);
+        final position = _isVertical ? details.localPosition.dy : details.localPosition.dx;
+        _showTooltip(position);
       },
       onTapUp: (details) => removeOverlay(),
-      onVerticalDragEnd: (details) => removeOverlay(),
+      onVerticalDragEnd: _isVertical ? (details) => removeOverlay() : null,
+      onHorizontalDragEnd: _isVertical ? null : (details) => removeOverlay(),
       child: AnimatedContainer(
         duration: kThemeAnimationDuration,
-        width: 30,
+        width: _isVertical ? 30 : null,
+        height: _isVertical ? null : 30,
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: BorderRadius.circular(4),
@@ -53,24 +65,32 @@ class _BedMeshLegendState extends State<BedMeshLegend> {
     );
   }
 
-  void _showTooltip(double dy) {
+  void _showTooltip(double position) {
     RenderBox box = context.findRenderObject() as RenderBox;
 
     // Prevent dragging outside of the box
-    dy = dy.clamp(0, box.size.height);
+    final maxPosition = _isVertical ? box.size.height : box.size.width;
+    position = position.clamp(0, maxPosition);
 
-    double percent = 1 - (dy / box.size.height);
+    // Calculate percentage based on orientation
+    double percent;
+    if (_isVertical) {
+      percent = 1 - (position / box.size.height); // Vertical: top = max, bottom = min
+    } else {
+      percent = position / box.size.width; // Horizontal: left = min, right = max
+    }
+
     double value = widget.valueRange.$1 + (widget.valueRange.$2 - widget.valueRange.$1) * percent;
     _value = value;
     removeOverlay();
 
     var start = box.localToGlobal(const Offset(0, 0));
 
-    _overlayEntry = _createOverlayEntry(start, box.size, dy);
+    _overlayEntry = _createOverlayEntry(start, box.size, position);
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  OverlayEntry _createOverlayEntry(Offset boxStartGlobal, Size boxSize, double dy) {
+  OverlayEntry _createOverlayEntry(Offset boxStartGlobal, Size boxSize, double position) {
     // Get the size of the screen
     final screenSize = MediaQuery.sizeOf(context);
 
@@ -107,26 +127,36 @@ class _BedMeshLegendState extends State<BedMeshLegend> {
       textPainter.dispose();
     }
 
-    double centerHorizontal = boxStartGlobal.dx + (boxSize.width) / 2;
+    // Calculate tooltip position based on orientation
+    double tooltipLeft, tooltipTop;
 
-    // calculate the postion of the widget from the right edge of the screen
-    // This can be used to show the tooltip on the left side of the widget
-    double right = screenSize.width - boxStartGlobal.dx;
+    if (_isVertical) {
+      // Vertical legend: tooltip appears to the right/left
+      double centerVertical = boxStartGlobal.dy + position - tooltipSize.height / 2;
+      double left = boxStartGlobal.dx + boxSize.width;
 
-    // calculate the postion of the widget from the left edge of the screen
-    // This can be used to show the tooltip on the right side of the widget
-    double left = boxStartGlobal.dx + boxSize.width;
+      tooltipLeft = left;
+      tooltipTop = centerVertical;
+    } else {
+      // Horizontal legend: tooltip appears above/below
+      double centerHorizontal = boxStartGlobal.dx + position - tooltipSize.width / 2;
+      double top = boxStartGlobal.dy - tooltipSize.height - 8; // 8px gap above
 
-    // Calculate the position of the tooltip
-    double top = boxStartGlobal.dy + dy - tooltipSize.height / 2;
+      // If tooltip would go off screen top, show it below instead
+      if (top < 0) {
+        top = boxStartGlobal.dy + boxSize.height + 8; // 8px gap below
+      }
+
+      tooltipLeft = centerHorizontal.clamp(0, screenSize.width - tooltipSize.width);
+      tooltipTop = top;
+    }
 
     return OverlayEntry(
       builder: (_) => Positioned(
-        // right: right,
-        left: left,
-        top: top,
+        left: tooltipLeft,
+        top: tooltipTop,
         child: Material(
-          color: tooltipBackground, // Set the background color of the tooltip
+          color: tooltipBackground,
           borderRadius: BorderRadius.circular(4),
           child: Padding(
             padding: widget.marginTooltip,

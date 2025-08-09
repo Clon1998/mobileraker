@@ -21,6 +21,7 @@ class BedMeshPlot extends StatefulWidget {
   final (double, double) bedMin; // values from config
   final (double, double) bedMax; // values from config
   final bool isProbed;
+  final bool interactive;
 
   const BedMeshPlot({
     super.key,
@@ -28,6 +29,7 @@ class BedMeshPlot extends StatefulWidget {
     required this.bedMin,
     required this.bedMax,
     this.isProbed = true,
+    this.interactive = false,
   });
 
   @override
@@ -54,17 +56,18 @@ class _BedMeshPlotState extends State<BedMeshPlot> {
     var themeData = Theme.of(context);
 
     // Define the gradients
-    LinearGradient gradient = gradientForRange(zRange.$1, zRange.$2, false, scaler);
+    LinearGradient gradient = gradientForRange(zRange.$1, zRange.$2, scaler: scaler);
 
     return AspectRatio(
       aspectRatio: (widget.bedMax.$1 - widget.bedMin.$1) / (widget.bedMax.$2 - widget.bedMin.$2),
       child: CanvasTouchDetector(
-        gesturesToOverride: const [
+        gesturesToOverride: widget.interactive? const [
           GestureType.onTapDown,
           GestureType.onTapUp,
           GestureType.onPanUpdate,
           GestureType.onPanEnd,
-        ],
+          GestureType.onLongPressStart,
+        ]:[],
         builder: (context) => CustomPaint(
           painter: _BedMeshPainter(
             bedWidth: widget.bedMax.$1 - widget.bedMin.$1,
@@ -172,22 +175,22 @@ class _BedMeshPlotState extends State<BedMeshPlot> {
   }
 }
 
-LinearGradient gradientForRange(double min, double max, [bool inverse = false, NumScaler? scaler]) {
+LinearGradient gradientForRange(double min, double max, {bool inverse = false, Axis axis = Axis.vertical, NumScaler? scaler}) {
   scaler ??= NumScaler(originMin: min, originMax: max, targetMin: 0, targetMax: 1);
   assert(scaler.targetMin == 0 && scaler.targetMax == 1, 'Target min and max must be 0 and 1');
-  // Stops msut be equal to colors length and should go from 0 (min) to 1 (max) thats why we scale...
+  // Stops must be equal to colors length and should go from 0 (min) to 1 (max) that's why we scale...
 
   if (min == 0 && max == 0) {
-    return const LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [Colors.blue, Colors.red],
+    return LinearGradient(
+      begin: _getGradientBegin(axis, inverse),
+      end: _getGradientEnd(axis, inverse),
+      colors: const [Colors.blue, Colors.red],
     );
   }
 
   return LinearGradient(
-    begin: inverse ? Alignment.bottomCenter : Alignment.topCenter,
-    end: inverse ? Alignment.topCenter : Alignment.bottomCenter,
+    begin: _getGradientBegin(axis, inverse),
+    end: _getGradientEnd(axis, inverse),
     colors: [if (min < 0) Colors.blue, Colors.white, if (max > 0) Colors.red],
     stops: [
       scaler.scale(min).toDouble(),
@@ -195,6 +198,20 @@ LinearGradient gradientForRange(double min, double max, [bool inverse = false, N
       scaler.scale(max).toDouble(),
     ],
   );
+}
+
+Alignment _getGradientBegin(Axis axis, bool inverse) {
+  if (axis == Axis.vertical) {
+    return inverse ? Alignment.bottomCenter : Alignment.topCenter;
+  }
+  return inverse ? Alignment.centerRight : Alignment.centerLeft;
+}
+
+Alignment _getGradientEnd(Axis axis, bool inverse) {
+  if (axis == Axis.vertical) {
+    return inverse ? Alignment.topCenter : Alignment.bottomCenter;
+  }
+  return inverse ? Alignment.centerLeft : Alignment.centerRight;
 }
 
 class _BedMeshPainter extends PrintBedPainter {
@@ -263,6 +280,9 @@ class _BedMeshPainter extends PrintBedPainter {
         onTapUp: (_) => onHideTooltip(),
         onPanEnd: (_) => onHideTooltip(),
         onPanUpdate: (details) => _showTooltipForPoint(x, y, z, details.localPosition),
+        // onPanUpdate: (details) => talker.info("XXX-$details"),
+        onLongPressStart: (_) => talker.info("LongPressStart"),
+        onLongPressMoveUpdate: (details) => talker.info("Rofl-$details"),
       );
     }
 
