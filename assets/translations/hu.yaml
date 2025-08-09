@@ -419,6 +419,11 @@ pages:
       medium_ui_hint: Válaszd ki, hogy a táblagép felhasználói felületét teljes képernyőn vagy fekvő módban szeretnéd használni
       keep_screen_on: Tartsa ébren a képernyőt
       keep_screen_on_hint: A képernyő kikapcsolásának megakadályozása az alkalmazás működése közben
+    ui:
+      machine_card_style:
+        title: Áttekintés - Gépkártya stílus
+        default: Alapértelmezett
+        classic: Kompakt
     notification:
       title: Értesítés
       progress_label: Nyomtatás-előrehaladási értesítés
@@ -1080,6 +1085,7 @@ components:
     new_print: Új munka
     client_state:
       disconnected: A gép le van választva
+    job_error_detected: Hiba észlelése nyomtatáskor
     klippy_state:
       initializing: Klipper inicializálás…
       startup: Klipper indul…
@@ -1406,6 +1412,8 @@ bottom_sheets:
       subtitle: Próbálj meg egy másik kifejezésre keresni
   temp_chart_settings:
     title: Hőmérséklet diagram beállítások
+  select_file:
+    title: Nyomtatási feladat kiválasztása
 klipper_state:
   ready: Kész
   shutdown: Leállítás
