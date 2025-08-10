@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:common/data/dto/machine/output_pin.dart';
+import 'package:common/data/dto/machine/pins/output_pin.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../test_utils.dart';

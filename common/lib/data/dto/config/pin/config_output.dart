@@ -5,11 +5,13 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import './config_pin.dart';
+
 part 'config_output.freezed.dart';
 part 'config_output.g.dart';
 
 @freezed
-class ConfigOutput with _$ConfigOutput {
+class ConfigOutput extends ConfigPin with _$ConfigOutput {
   const factory ConfigOutput({
     required String name,
     @Default(1) double scale,

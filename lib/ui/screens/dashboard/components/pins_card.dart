@@ -7,14 +7,17 @@ import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
-import 'package:common/data/dto/config/config_output.dart';
 import 'package:common/data/dto/config/led/config_dumb_led.dart';
 import 'package:common/data/dto/config/led/config_led.dart';
+import 'package:common/data/dto/config/pin/config_output.dart';
+import 'package:common/data/dto/config/pin/config_pin.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/leds/addressable_led.dart';
 import 'package:common/data/dto/machine/leds/dumb_led.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
-import 'package:common/data/dto/machine/output_pin.dart';
+import 'package:common/data/dto/machine/pins/output_pin.dart';
+import 'package:common/data/dto/machine/pins/pin.dart';
+import 'package:common/data/dto/machine/pins/pwm_tool.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -94,9 +97,7 @@ class _Preview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _pinsCardControllerProvider(_machineUUID).overrideWith(_PinsCardPreviewController.new),
-      ],
+      overrides: [_pinsCardControllerProvider(_machineUUID).overrideWith(_PinsCardPreviewController.new)],
       child: const PinsCard(machineUUID: _machineUUID),
     );
   }
@@ -117,10 +118,7 @@ class _PinsCardLoading extends StatelessWidget {
           children: [
             const CardTitleSkeleton(),
             HorizontalScrollSkeleton(
-              contentTextStyles: [
-                themeData.textTheme.bodySmall,
-                themeData.textTheme.headlineSmall,
-              ],
+              contentTextStyles: [themeData.textTheme.bodySmall, themeData.textTheme.headlineSmall],
             ),
             const SizedBox(height: 8),
           ],
@@ -155,8 +153,9 @@ class _CardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('Rebuilding outputs card body');
 
-    var elementCount =
-        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.elements.length));
+    var elementCount = ref.watch(
+      _pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.elements.length),
+    );
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: 'pins$machineUUID',
@@ -184,7 +183,7 @@ class _Element extends ConsumerWidget {
 
     return switch (element) {
       Led() => _Led(led: element, machineUUID: machineUUID),
-      OutputPin() => _Output(pin: element, machineUUID: machineUUID),
+      Pin() => _Output(pin: element, machineUUID: machineUUID),
       FilamentSensor() => _FilamentSensor(sensor: element, machineUUID: machineUUID),
       _ => throw ArgumentError('Unknown element type'),
     };
@@ -194,7 +193,7 @@ class _Element extends ConsumerWidget {
 class _Output extends ConsumerWidget {
   const _Output({super.key, required this.pin, required this.machineUUID});
 
-  final OutputPin pin;
+  final Pin pin;
   final String machineUUID;
 
   String pinValue(double v, String locale) {
@@ -205,16 +204,18 @@ class _Output extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    var klippyCanReceiveCommands =
-        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
-    var pinConfig = ref
-        .watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.pinConfig[pin.configName]));
+    var klippyCanReceiveCommands = ref.watch(
+      _pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands),
+    );
+    var pinConfig = ref.watch(
+      _pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.pinConfig[(pin.kind, pin.configName)]),
+    );
 
     var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
 
     talker.info('Rebuilding pin card for ${pin.name}');
 
-    if (pinConfig?.pwm == false) {
+    if (pinConfig case ConfigOutput(pwm: false)) {
       return CardWithSwitch(
         value: pin.value > 0,
         onChanged: klippyCanReceiveCommands ? (v) => controller.onUpdateBinaryPin(pin, v) : null,
@@ -233,10 +234,7 @@ class _Output extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                  pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(),
-                  style: textTheme.headlineSmall,
-                ),
+                Text(pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(), style: textTheme.headlineSmall),
               ],
             ),
           );
@@ -264,10 +262,7 @@ class _Output extends ConsumerWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                pinValue(
-                  pin.value * (pinConfig?.scale ?? 1),
-                  context.locale.toStringWithSeparator(),
-                ),
+                pinValue(pin.value * (pinConfig?.scale ?? 1), context.locale.toStringWithSeparator()),
                 style: textTheme.headlineSmall,
               ),
             ],
@@ -333,11 +328,7 @@ class _Led extends ConsumerWidget {
     }
 
     if (!power) {
-      return const Icon(
-        Icons.circle_outlined,
-        size: _iconSize,
-        color: Colors.white,
-      );
+      return const Icon(Icons.circle_outlined, size: _iconSize, color: Colors.white);
     }
 
     List<Color> colors;
@@ -369,10 +360,12 @@ class _Led extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    var ledConfig = ref.watch(_pinsCardControllerProvider(machineUUID)
-        .selectRequireValue((data) => data.ledConfig[(led.kind, led.configName)]));
-    var klippyCanReceiveCommands =
-        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var ledConfig = ref.watch(
+      _pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.ledConfig[(led.kind, led.configName)]),
+    );
+    var klippyCanReceiveCommands = ref.watch(
+      _pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands),
+    );
 
     var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
 
@@ -427,8 +420,9 @@ class _FilamentSensor extends ConsumerWidget {
 
   @override
   Widget build(_, WidgetRef ref) {
-    var klippyCanReceiveCommands =
-        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watch(
+      _pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands),
+    );
 
     var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
 
@@ -456,16 +450,13 @@ class _FilamentSensor extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      switch (sensor) {
-                        FilamentSensor(enabled: true, filamentDetected: true) =>
-                          'pages.dashboard.control.pin_card.filament_sensor.detected'.tr(),
-                        FilamentSensor(enabled: true, filamentDetected: false) =>
-                          'pages.dashboard.control.pin_card.filament_sensor.not_detected'.tr(),
-                        _ => 'general.disabled'.tr(),
-                      },
-                      style: textTheme.headlineSmall,
-                    ),
+                    Text(switch (sensor) {
+                      FilamentSensor(enabled: true, filamentDetected: true) =>
+                        'pages.dashboard.control.pin_card.filament_sensor.detected'.tr(),
+                      FilamentSensor(enabled: true, filamentDetected: false) =>
+                        'pages.dashboard.control.pin_card.filament_sensor.not_detected'.tr(),
+                      _ => 'general.disabled'.tr(),
+                    }, style: textTheme.headlineSmall),
                   ],
                 ),
               ),
@@ -512,60 +503,64 @@ class _PinsCardController extends _$PinsCardController {
     // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
     // This means that if the value is the same, the widget will not rebuild.
     // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
-    var klippyCanReceiveCommands =
-        ref.watchAsSubject(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watchAsSubject(
+      klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands),
+    );
 
     var elements = ref
-        .watchAsSubject(printerProvider(machineUUID).selectAs((value) {
-      var leds = value.leds;
-      var filamentSensors = value.filamentSensors;
-      var pins = value.outputPins;
+        .watchAsSubject(
+          printerProvider(machineUUID).selectAs((value) {
+            var leds = value.leds;
+            var filamentSensors = value.filamentSensors;
+            var pins = value.outputPins;
 
-      return [...leds.values, ...pins.values, ...filamentSensors.values];
-    }))
+            return [...leds.values, ...pins.values, ...filamentSensors.values];
+          }),
+        )
         // Use map here since this prevents to many operations if the original list not changes!
         .map((elements) {
-      var output = <dynamic>[];
+          var output = <dynamic>[];
 
-      for (var el in elements) {
-        switch (el) {
-          case Led():
-            if (el.name.startsWith('_')) continue;
-            break;
-          case OutputPin():
-            if (el.name.startsWith('_')) continue;
-            break;
-          case FilamentSensor():
-            if (el.name.startsWith('_')) continue;
-            break;
-          default:
-            continue;
-        }
-        output.add(el);
-      }
+          for (var el in elements) {
+            switch (el) {
+              case Led():
+                if (el.name.startsWith('_')) continue;
+                break;
+              case Pin():
+                if (el.name.startsWith('_')) continue;
+                break;
+              case FilamentSensor():
+                if (el.name.startsWith('_')) continue;
+                break;
+              default:
+                continue;
+            }
+            output.add(el);
+          }
 
-      // Sort output by ordering, if ordering is not found it will be placed at the end
-      output.sort((a, b) {
-        determineKind(obj) => switch (obj) {
+          // Sort output by ordering, if ordering is not found it will be placed at the end
+          output.sort((a, b) {
+            determineKind(obj) => switch (obj) {
               Led() => obj.kind,
               FilamentSensor() => obj.kind,
               OutputPin() => ConfigFileObjectIdentifiers.output_pin,
+              PwmTool() => ConfigFileObjectIdentifiers.pwm_tool,
               _ => null,
             };
 
-        ConfigFileObjectIdentifiers? aKind = determineKind(a);
-        ConfigFileObjectIdentifiers? bKind = determineKind(b);
+            ConfigFileObjectIdentifiers? aKind = determineKind(a);
+            ConfigFileObjectIdentifiers? bKind = determineKind(b);
 
-        var aIndex = ordering.indexWhere((element) => element.name == a.name && element.kind == aKind);
-        var bIndex = ordering.indexWhere((element) => element.name == b.name && element.kind == bKind);
+            var aIndex = ordering.indexWhere((element) => element.name == a.name && element.kind == aKind);
+            var bIndex = ordering.indexWhere((element) => element.name == b.name && element.kind == bKind);
 
-        if (aIndex == -1) aIndex = output.length;
-        if (bIndex == -1) bIndex = output.length;
+            if (aIndex == -1) aIndex = output.length;
+            if (bIndex == -1) bIndex = output.length;
 
-        return aIndex.compareTo(bIndex);
-      });
-      return output;
-    });
+            return aIndex.compareTo(bIndex);
+          });
+          return output;
+        });
 
     var configFile = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile));
 
@@ -573,39 +568,36 @@ class _PinsCardController extends _$PinsCardController {
       klippyCanReceiveCommands,
       elements,
       configFile,
-      (a, b, c) => _Model(
-        klippyCanReceiveCommands: a,
-        elements: b,
-        ledConfig: c.leds,
-        pinConfig: c.outputs,
-      ),
+      (a, b, c) => _Model(klippyCanReceiveCommands: a, elements: b, ledConfig: c.leds, pinConfig: c.outputs),
     );
   }
 
-  Future<void> onEditPin(OutputPin pin) async {
+  Future<void> onEditPin(Pin pin) async {
     if (!state.hasValue) return;
-    ConfigOutput? configOutput = state.requireValue.pinConfig[pin.configName];
-    int fractionToShow = (configOutput == null || !configOutput.pwm) ? 0 : 2;
+    ConfigPin? configOutput = state.requireValue.pinConfig[(pin.kind, pin.configName)];
+    int fractionToShow = (configOutput == null || (configOutput is ConfigOutput && !configOutput.pwm)) ? 0 : 2;
 
-    var result = await _dialogService.show(DialogRequest(
-      type: _dialogMode,
-      title: '${tr('general.edit')} ${beautifyName(pin.name)}',
-      data: NumberEditDialogArguments(
-        current: pin.value * (configOutput?.scale ?? 1),
-        min: 0,
-        max: configOutput?.scale.toInt() ?? 1,
-        fraction: fractionToShow,
+    var result = await _dialogService.show(
+      DialogRequest(
+        type: _dialogMode,
+        title: '${tr('general.edit')} ${beautifyName(pin.name)}',
+        data: NumberEditDialogArguments(
+          current: pin.value * (configOutput?.scale ?? 1),
+          min: 0,
+          max: configOutput?.scale.toInt() ?? 1,
+          fraction: fractionToShow,
+        ),
       ),
-    ));
+    );
 
     if (result case DialogResponse(confirmed: true, data: num v)) {
       _printerService.outputPin(pin.name, v.toDouble());
     }
   }
 
-  void _onTogglePin(OutputPin pin) {
+  void _onTogglePin(Pin pin) {
     if (!state.hasValue) return;
-    ConfigOutput? configOutput = state.requireValue.pinConfig[pin.configName];
+    ConfigPin? configOutput = state.requireValue.pinConfig[(pin.kind, pin.configName)];
 
     if (pin.value > 0) {
       _printerService.outputPin(pin.name, 0).ignore();
@@ -614,7 +606,7 @@ class _PinsCardController extends _$PinsCardController {
     }
   }
 
-  void onUpdateBinaryPin(OutputPin pin, bool value) {
+  void onUpdateBinaryPin(Pin pin, bool value) {
     _printerService.outputPin(pin.name, value ? 1 : 0);
   }
 
@@ -629,15 +621,17 @@ class _PinsCardController extends _$PinsCardController {
 
     String name = beautifyName(led.name);
     if (configLed.isSingleColor == true && configLed is ConfigDumbLed) {
-      var result = await _dialogService.show(DialogRequest(
-        type: _dialogMode,
-        title: '${tr('general.edit')} $name %',
-        data: NumberEditDialogArguments(
-          current: (led as DumbLed).color.asList().reduce(max) * 100.round(),
-          min: 0,
-          max: 100,
+      var result = await _dialogService.show(
+        DialogRequest(
+          type: _dialogMode,
+          title: '${tr('general.edit')} $name %',
+          data: NumberEditDialogArguments(
+            current: (led as DumbLed).color.asList().reduce(max) * 100.round(),
+            min: 0,
+            max: 100,
+          ),
         ),
-      ));
+      );
 
       if (result case DialogResponse(confirmed: true, data: num v)) {
         double val = v.toInt() / 100;
@@ -658,22 +652,16 @@ class _PinsCardController extends _$PinsCardController {
       return;
     }
 
-    var result = await _dialogService.show(DialogRequest(
-      type: DialogType.ledRGBW,
-      data: LedRGBWDialogArgument(configLed, led),
-    ));
+    var result = await _dialogService.show(
+      DialogRequest(type: DialogType.ledRGBW, data: LedRGBWDialogArgument(configLed, led)),
+    );
     if (result case DialogResponse(confirmed: true, data: Color selectedColor)) {
       double white = 0;
       if (configLed.hasWhite && selectedColor.value == 0xFFFFFFFF) {
         white = 1;
       }
 
-      Pixel pixel = Pixel.fromList([
-        selectedColor.r,
-        selectedColor.g,
-        selectedColor.b,
-        white,
-      ]);
+      Pixel pixel = Pixel.fromList([selectedColor.r, selectedColor.g, selectedColor.b, white]);
 
       _printerService.led(led.name, pixel);
     }
@@ -701,36 +689,34 @@ class _PinsCardController extends _$PinsCardController {
 class _PinsCardPreviewController extends _PinsCardController {
   @override
   Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
-      klippyCanReceiveCommands: true,
-      elements: [
-        OutputPin(name: 'Preview Pin', value: 0),
-        DumbLed(name: 'Preview Led', kind: ConfigFileObjectIdentifiers.led),
-      ],
-      ledConfig: {
-        (ConfigFileObjectIdentifiers.led, 'preview led'): ConfigDumbLed(
-          name: 'preview led',
-        ),
-      },
-      pinConfig: {
-        'preview pin': ConfigOutput(
-          name: 'preview pin',
-          pwm: true,
-          scale: 1,
-        ),
-      },
-    ));
+    state = const AsyncValue.data(
+      _Model(
+        klippyCanReceiveCommands: true,
+        elements: [
+          OutputPin(name: 'Preview Pin', value: 0),
+          DumbLed(name: 'Preview Led', kind: ConfigFileObjectIdentifiers.led),
+        ],
+        ledConfig: {(ConfigFileObjectIdentifiers.led, 'preview led'): ConfigDumbLed(name: 'preview led')},
+        pinConfig: {
+          (ConfigFileObjectIdentifiers.output_pin, 'preview pin'): ConfigOutput(
+            name: 'preview pin',
+            pwm: true,
+            scale: 1,
+          ),
+        },
+      ),
+    );
 
     return const Stream.empty();
   }
 
   @override
-  Future<void> onEditPin(OutputPin pin) async {
+  Future<void> onEditPin(Pin pin) async {
     // Do nothing in preview mode
   }
 
   @override
-  void onUpdateBinaryPin(OutputPin pin, bool value) {
+  void onUpdateBinaryPin(Pin pin, bool value) {
     // Do nothing in preview mode
   }
 
@@ -753,7 +739,7 @@ class _Model with _$Model {
     required bool klippyCanReceiveCommands,
     required List<dynamic> elements,
     required Map<(ConfigFileObjectIdentifiers, String), ConfigLed> ledConfig,
-    required Map<String, ConfigOutput> pinConfig,
+    required Map<(ConfigFileObjectIdentifiers, String), ConfigPin> pinConfig,
   }) = __Model;
 
   bool get showCard => elements.isNotEmpty;

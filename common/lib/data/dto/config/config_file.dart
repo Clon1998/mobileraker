@@ -5,6 +5,7 @@
 
 //TODO Decide regarding null values or not!
 import 'package:common/data/dto/config/config_screws_tilt_adjust.dart';
+import 'package:common/data/dto/config/pin/config_pin.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,7 +15,6 @@ import 'config_file_object_identifiers_enum.dart';
 import 'config_gcode_macro.dart';
 import 'config_heater_bed.dart';
 import 'config_heater_generic.dart';
-import 'config_output.dart';
 import 'config_printer.dart';
 import 'config_stepper.dart';
 import 'fan/config_controller_fan.dart';
@@ -28,6 +28,8 @@ import 'led/config_dumb_led.dart';
 import 'led/config_led.dart';
 import 'led/config_neopixel.dart';
 import 'led/config_pca_led.dart';
+import 'pin/config_output.dart';
+import 'pin/config_pwm_tool.dart';
 
 var stepperRegex = RegExp(r'^stepper_(\w+)$', caseSensitive: false);
 
@@ -38,7 +40,7 @@ class ConfigFile {
   ConfigBedScrews? configBedScrews;
   ConfigScrewsTiltAdjust? configScrewsTiltAdjust;
   Map<String, ConfigExtruder> extruders = {};
-  Map<String, ConfigOutput> outputs = {};
+  Map<(ConfigFileObjectIdentifiers, String), ConfigPin> outputs = {};
   Map<String, ConfigStepper> steppers = {};
   Map<String, ConfigGcodeMacro> gcodeMacros = {};
   Map<(ConfigFileObjectIdentifiers, String), ConfigLed> leds = {};
@@ -71,7 +73,9 @@ class ConfigFile {
         }
         extruders[key] = ConfigExtruder.fromJson(key, jsonChild);
       } else if (cIdentifier == ConfigFileObjectIdentifiers.output_pin) {
-        outputs[objectName!] = ConfigOutput.fromJson(objectName, jsonChild);
+        outputs[(cIdentifier!, objectName!)] = ConfigOutput.fromJson(objectName, jsonChild);
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.pwm_tool) {
+        outputs[(cIdentifier!, objectName!)] = ConfigPwmTool.fromJson(objectName, jsonChild);
       } else if (stepperRegex.hasMatch(key)) {
         var match = stepperRegex.firstMatch(key)!;
         steppers[match.group(1)!] = ConfigStepper.fromJson(match.group(1)!, jsonChild);

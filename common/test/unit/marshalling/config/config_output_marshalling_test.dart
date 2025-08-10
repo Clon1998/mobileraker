@@ -5,7 +5,7 @@
 
 import 'dart:convert';
 
-import 'package:common/data/dto/config/config_output.dart';
+import 'package:common/data/dto/config/pin/config_output.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

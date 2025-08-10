@@ -6,7 +6,6 @@
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/service/machine_service.dart';
@@ -140,10 +139,7 @@ class MiscOrderingListController extends _$MiscOrderingListController {
     }
 
     for (var pin in printerData.outputPins.values) {
-      availableElements.add(ReordableElement(
-        kind: ConfigFileObjectIdentifiers.output_pin,
-        name: pin.name,
-      ));
+      availableElements.add(ReordableElement(kind: pin.kind, name: pin.name));
     }
 
     for (var sensor in printerData.filamentSensors.values) {

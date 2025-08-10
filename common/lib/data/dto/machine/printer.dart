@@ -7,6 +7,7 @@ import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart'
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
+import 'package:common/data/dto/machine/pins/pin.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
@@ -29,7 +30,6 @@ import 'heaters/heater_bed.dart';
 import 'leds/led.dart';
 import 'manual_probe.dart';
 import 'motion_report.dart';
-import 'output_pin.dart';
 import 'temperature_sensor.dart';
 import 'toolhead.dart';
 import 'virtual_sd_card.dart';
@@ -62,7 +62,7 @@ class Printer with _$Printer {
     Beacon? beacon,
     @Default({}) Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
-    @Default({}) Map<String, OutputPin> outputPins,
+    @Default({}) Map<(ConfigFileObjectIdentifiers, String), Pin> outputPins,
     @Default([]) List<String> queryableObjects,
     @Default({}) Map<String, GcodeMacro> gcodeMacros,
     @Default({}) Map<(ConfigFileObjectIdentifiers, String), Led> leds,

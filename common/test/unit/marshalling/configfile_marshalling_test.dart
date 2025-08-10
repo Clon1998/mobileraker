@@ -8,6 +8,7 @@ import 'dart:io';
 
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
+import 'package:common/data/dto/config/pin/config_output.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -78,10 +79,12 @@ void main() {
 
     // Verify outputs
     expect(config.outputs, hasLength(1));
-    expect(config.outputs['beeper'], isNotNull);
-    expect(config.outputs['beeper']?.name, 'beeper');
-    expect(config.outputs['beeper']?.pwm, false);
-    expect(config.outputs['beeper']?.scale, 1.0);
+    var key = (ConfigFileObjectIdentifiers.output_pin, 'beeper');
+    expect(config.outputs[key], isNotNull);
+    expect(config.outputs[key] is ConfigOutput, true);
+    expect(config.outputs[key]?.name, 'beeper');
+    expect((config.outputs[key] as ConfigOutput)?.pwm, false);
+    expect(config.outputs[key]?.scale, 1.0);
 
     // Verify steppers
     expect(config.steppers, hasLength(6));

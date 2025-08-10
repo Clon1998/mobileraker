@@ -7,6 +7,7 @@ import 'package:common/data/dto/machine/beacon.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
+import 'package:common/data/dto/machine/pins/pin.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
@@ -30,7 +31,6 @@ import 'heaters/heater_bed.dart';
 import 'leds/led.dart';
 import 'manual_probe.dart';
 import 'motion_report.dart';
-import 'output_pin.dart';
 import 'printer.dart';
 import 'temperature_sensor.dart';
 import 'toolhead.dart';
@@ -60,10 +60,11 @@ final Map<ConfigFileObjectIdentifiers, Function?> _partialUpdateMethodMappings =
   ConfigFileObjectIdentifiers.manual_probe: PrinterBuilder._updateManualProbe,
   ConfigFileObjectIdentifiers.motion_report: PrinterBuilder._updateMotionReport,
   ConfigFileObjectIdentifiers.neopixel: PrinterBuilder._updateLed,
-  ConfigFileObjectIdentifiers.output_pin: PrinterBuilder._updateOutputPin,
+  ConfigFileObjectIdentifiers.output_pin: PrinterBuilder._updatePin,
   ConfigFileObjectIdentifiers.pca9533: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.pca9632: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.print_stats: PrinterBuilder._updatePrintStat,
+  ConfigFileObjectIdentifiers.pwm_tool: PrinterBuilder._updatePin,
   ConfigFileObjectIdentifiers.screws_tilt_adjust: PrinterBuilder._updateScrewsTiltAdjust,
   ConfigFileObjectIdentifiers.temperature_fan: PrinterBuilder._updateNamedFan,
   ConfigFileObjectIdentifiers.temperature_sensor: PrinterBuilder._updateTemperatureSensor,
@@ -143,7 +144,7 @@ class PrinterBuilder {
   Beacon? beacon;
   Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
-  Map<String, OutputPin> outputPins = {};
+  Map<(ConfigFileObjectIdentifiers, String), Pin> outputPins = {};
   List<String> queryableObjects = [];
   Map<String, GcodeMacro> gcodeMacros = {};
   Map<(ConfigFileObjectIdentifiers, String), Led> leds = {};
@@ -332,9 +333,12 @@ class PrinterBuilder {
     return builder..motionReport = MotionReport.partialUpdate(builder.motionReport, json);
   }
 
-  static PrinterBuilder _updateOutputPin(String pin, Map<String, dynamic> json, PrinterBuilder builder) {
-    final outputPin = builder.outputPins[pin] ?? OutputPin(name: pin);
-    return builder..outputPins = {...builder.outputPins, pin: OutputPin.partialUpdate(outputPin, json)};
+  static PrinterBuilder _updatePin(
+      ConfigFileObjectIdentifiers identifier, String name, Map<String, dynamic> json, PrinterBuilder builder) {
+    final key = (identifier, name);
+
+    final pin = builder.outputPins[key] ?? Pin.fallback(identifier, name);
+    return builder..outputPins = {...builder.outputPins, key: Pin.partialUpdate(pin, json)};
   }
 
   static PrinterBuilder _updatePrintStat(Map<String, dynamic> json, PrinterBuilder builder) {
