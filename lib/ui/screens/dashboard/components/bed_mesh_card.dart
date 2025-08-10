@@ -282,17 +282,14 @@ class _CardBody extends ConsumerWidget {
                   const SizedBox(width: 8),
                 ],
                 Expanded(
-                  child: GestureDetector(
-                    onTap: controller.onPlotTap,
-                    behavior: HitTestBehavior.translucent,
-                    child: Hero(
-                      tag: 'bed_mesh_plot',
-                      child: BedMeshPlot(
-                        bedMesh: model.bedMesh,
-                        bedMin: model.bedMin,
-                        bedMax: model.bedMax,
-                        isProbed: model.showProbed,
-                      ),
+                  child: Hero(
+                    tag: 'bed_mesh_plot',
+                    child: BedMeshPlot(
+                      bedMesh: model.bedMesh,
+                      bedMin: model.bedMin,
+                      bedMax: model.bedMax,
+                      isProbed: model.showProbed,
+                      interactive: true,
                     ),
                   ),
                 ),
