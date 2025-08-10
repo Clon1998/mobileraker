@@ -15,6 +15,8 @@
   control non-printer Klipper projects (such as filament driers, pcb-hot plates, or other projects) through Mobileraker.
 - **Print Job Bottom Sheet**: A new bottom sheets now allows users to select a print job directly from the overview
   page. This makes it easier for any users running a farm to more quickly select a new print job.
+- **Pwm_Tool Object**: Added support for the `pwm_tool` object, allowing users to control PWM tools directly from the
+  app.
 
 ### Bug Fixes
 
