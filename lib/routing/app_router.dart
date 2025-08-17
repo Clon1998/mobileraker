@@ -342,7 +342,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: 'bed-mesh',
             name: AppRoute.tool_bedMesh.name,
             builder: (context, state) => BedMeshPage(args: state.extra as BedMeshPageArgs),
-            pageBuilder: GoTransitions.fullscreenDialog,
+            pageBuilder: GoTransitions.material.withBackGesture.build(settings: const GoTransitionSettings(fullscreenDialog: true)),
           ),
         ],
       ),
