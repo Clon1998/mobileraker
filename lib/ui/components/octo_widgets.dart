@@ -18,30 +18,21 @@ class OctoEveryWhereBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xff7399ff),
+    onPressed: onPressed,
+    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff6547f1)),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SvgPicture.asset('assets/vector/oe_rocket.svg', width: 30, height: 30),
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
+          ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SvgPicture.asset(
-              'assets/vector/oe_rocket.svg',
-              width: 30,
-              height: 30,
-            ),
-            Flexible(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }
 
 class OctoIndicator extends StatelessWidget {
@@ -54,11 +45,7 @@ class OctoIndicator extends StatelessWidget {
     return Tooltip(
       preferBelow: false,
       message: 'components.octo_indicator.tooltip'.tr(),
-      child: SvgPicture.asset(
-        'assets/vector/oe_rocket.svg',
-        width: size?.width ?? 20,
-        height: size?.height ?? 20,
-      ),
+      child: SvgPicture.asset('assets/vector/oe_rocket.svg', width: size?.width ?? 20, height: size?.height ?? 20),
     );
   }
 }
@@ -72,7 +59,9 @@ class GadgetIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var iconSize = this.iconSize ?? Theme.of(context).iconTheme.size ?? 20;
-    return ref.watch(gadgetStatusProvider(appToken)).maybeWhen(
+    return ref
+        .watch(gadgetStatusProvider(appToken))
+        .maybeWhen(
           data: (d) {
             if (d.state == GadgetState.disabled) {
               return const SizedBox.shrink();
@@ -80,11 +69,7 @@ class GadgetIndicator extends ConsumerWidget {
 
             return Tooltip(
               message: d.status,
-              child: SvgPicture.asset(
-                d.statusSvg,
-                width: iconSize,
-                height: iconSize,
-              ),
+              child: SvgPicture.asset(d.statusSvg, width: iconSize, height: iconSize),
             );
           },
           orElse: () => const SizedBox.shrink(),
