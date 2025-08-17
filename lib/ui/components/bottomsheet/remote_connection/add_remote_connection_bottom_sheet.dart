@@ -33,9 +33,11 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final useFairness = ref.watch(remoteConfigBoolProvider('third_party_fairness'));
+
     return ProviderScope(
       overrides: [sheetArgsProvider.overrideWithValue(args)],
-      child: _AddRemoteConnectionBottomSheet(thirdPartyFairness: Random().nextInt(2)),
+      child: _AddRemoteConnectionBottomSheet(thirdPartyFairness: useFairness? Random().nextInt(2):0),
     );
   }
 }
@@ -52,41 +54,37 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
     final obicoIndex = 1 - thirdPartyFairness;
     final octoIndex = obicoEnabled ? 0 + thirdPartyFairness : 0;
 
-    final initialIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
-      if (obicoEnabled && value.obicoTunnel != null) {
-        return obicoIndex;
-      }
-      if (value.octoEverywhere != null) {
-        return octoIndex;
-      }
-
-      if (value.remoteInterface != null) {
-        if (obicoEnabled) {
-          return 2;
+    final initialIndex = ref.watch(
+      addRemoteConnectionBottomSheetControllerProvider.select((value) {
+        if (obicoEnabled && value.obicoTunnel != null) {
+          return obicoIndex;
         }
-        return 1;
-      }
-      return 0;
-    }));
+        if (value.octoEverywhere != null) {
+          return octoIndex;
+        }
 
-    var tabController = useTabController(
-      initialLength: obicoEnabled ? 3 : 2,
-      initialIndex: initialIndex,
+        if (value.remoteInterface != null) {
+          if (obicoEnabled) {
+            return 2;
+          }
+          return 1;
+        }
+        return 0;
+      }),
     );
+
+    var tabController = useTabController(initialLength: obicoEnabled ? 3 : 2, initialIndex: initialIndex);
 
     // Close keyboard when switching tabs
-    useEffect(
-      () {
-        closeKeyBoard() {
-          FocusManager.instance.primaryFocus?.unfocus();
-        }
+    useEffect(() {
+      closeKeyBoard() {
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
 
-        tabController.addListener(closeKeyBoard);
+      tabController.addListener(closeKeyBoard);
 
-        return () => tabController.removeListener(closeKeyBoard);
-      },
-      [tabController],
-    );
+      return () => tabController.removeListener(closeKeyBoard);
+    }, [tabController]);
 
     return SheetContentScaffold(
       topBar: _TabHeader(tabController: tabController, obicoEnabled: obicoEnabled, octoIndex: octoIndex),
@@ -133,36 +131,16 @@ class _TabHeader extends StatelessWidget implements PreferredSizeWidget {
               automaticIndicatorColorAdjustment: false,
               tabAlignment: TabAlignment.start,
               tabs: [
-                if (octoIndex == 0)
-                  Tab(
-                    text: tr(
-                      'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
-                    ),
-                  ),
-                if (obicoEnabled)
-                  Tab(
-                    text: tr(
-                      'bottom_sheets.add_remote_con.obico.service_name',
-                    ),
-                  ),
-                if (octoIndex == 1)
-                  Tab(
-                    text: tr(
-                      'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
-                    ),
-                  ),
-                Tab(
-                  text: tr('bottom_sheets.add_remote_con.manual.tab_name'),
-                ),
+                if (octoIndex == 0) Tab(text: tr('bottom_sheets.add_remote_con.octoeverywehre.tab_name')),
+                if (obicoEnabled) Tab(text: tr('bottom_sheets.add_remote_con.obico.service_name')),
+                if (octoIndex == 1) Tab(text: tr('bottom_sheets.add_remote_con.octoeverywehre.tab_name')),
+                Tab(text: tr('bottom_sheets.add_remote_con.manual.tab_name')),
               ],
             ),
           ),
           IconButton(
             onPressed: context.pop,
-            icon: Icon(
-              Icons.close,
-              color: themeData.colorScheme.onPrimary,
-            ),
+            icon: Icon(Icons.close, color: themeData.colorScheme.onPrimary),
           ),
         ],
       ),
@@ -193,13 +171,7 @@ class _OctoTab extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Flexible(
-                        child: SvgPicture.asset(
-                          'assets/vector/oe_logo.svg',
-                          height: 80,
-                          width: 80,
-                        ),
-                      ),
+                      Flexible(child: SvgPicture.asset('assets/vector/oe_logo.svg', height: 80, width: 80)),
                       const SizedBox(height: 32),
                       const Text(
                         'bottom_sheets.add_remote_con.octoeverywehre.description',
@@ -258,15 +230,9 @@ class _ManualTab extends ConsumerWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                child: SvgPicture.asset(
-                  'assets/vector/undraw_server_cluster_jwwq.svg',
-                  height: 120,
-                ),
+                child: SvgPicture.asset('assets/vector/undraw_server_cluster_jwwq.svg', height: 120),
               ),
-              const Text(
-                'bottom_sheets.add_remote_con.manual.description',
-                textAlign: TextAlign.center,
-              ).tr(),
+              const Text('bottom_sheets.add_remote_con.manual.description', textAlign: TextAlign.center).tr(),
               SectionHeader(title: tr('pages.setting.general.title')),
               FormBuilderTextField(
                 name: 'alt.uri',
@@ -298,9 +264,7 @@ class _ManualTab extends ConsumerWidget {
                   FormBuilderValidators.integer(),
                 ]),
               ),
-              HttpHeaders(
-                initialValue: model.remoteInterface?.httpHeaders ?? const {},
-              ),
+              HttpHeaders(initialValue: model.remoteInterface?.httpHeaders ?? const {}),
               if (model.activeClientType == ClientType.manual)
                 TextButton.icon(
                   onPressed: () => controller.removeRemoteConnection(false),
@@ -319,10 +283,7 @@ class _ManualTab extends ConsumerWidget {
             ),
           ),
         if (model.activeClientType != null && model.activeClientType != ClientType.manual)
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: _ActiveServiceInfo(),
-          ),
+          const Padding(padding: EdgeInsets.all(8.0), child: _ActiveServiceInfo()),
       ],
     );
   }
@@ -348,16 +309,9 @@ class _ObicoTab extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset(
-                        'assets/vector/obico_logo.svg',
-                        height: 80,
-                        width: 80,
-                      ),
+                      SvgPicture.asset('assets/vector/obico_logo.svg', height: 80, width: 80),
                       const SizedBox(height: 32),
-                      const Text(
-                        'bottom_sheets.add_remote_con.obico.description',
-                        textAlign: TextAlign.center,
-                      ).tr(),
+                      const Text('bottom_sheets.add_remote_con.obico.description', textAlign: TextAlign.center).tr(),
                       if (model.activeClientType == null) ...[
                         SectionHeader(title: tr('bottom_sheets.add_remote_con.obico.self_hosted.title')),
                         Text(
@@ -389,10 +343,7 @@ class _ObicoTab extends ConsumerWidget {
           if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ObicoButton(
-                title: tr('bottom_sheets.add_remote_con.obico.link'),
-                onPressed: controller.linkObico,
-              ),
+              child: ObicoButton(title: tr('bottom_sheets.add_remote_con.obico.link'), onPressed: controller.linkObico),
             ),
           if (model.activeClientType == ClientType.obico)
             Padding(
@@ -439,10 +390,7 @@ class _ActiveServiceInfo extends ConsumerWidget {
     };
 
     return InfoCard(
-      leading: ClientTypeIndicator(
-        clientType: model.activeClientType!,
-        iconSize: 32,
-      ),
+      leading: ClientTypeIndicator(clientType: model.activeClientType!, iconSize: 32),
       title: const Text('bottom_sheets.add_remote_con.active_service_info.title').tr(),
       body: const Text('bottom_sheets.add_remote_con.active_service_info.body').tr(args: [serviceName]),
     );
