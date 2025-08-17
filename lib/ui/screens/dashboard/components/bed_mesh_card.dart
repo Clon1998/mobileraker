@@ -17,6 +17,7 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -188,6 +189,7 @@ class _CardBody extends ConsumerWidget {
     var meshIsActive = model.bedMesh?.profileName?.isNotEmpty == true;
     var activeMeshName = model.bedMesh?.profileName ?? tr('general.none');
     var valueRange = model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh;
+    var gridSize = model.bedMesh!.activeProfile?.meshParams.let((it) => '${it.xCount}x${it.yCount}');
 
     var range = numberFormat.format((valueRange.$2 - valueRange.$1));
 
@@ -196,34 +198,47 @@ class _CardBody extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (meshIsActive)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Tooltip(
-                  message: activeMeshName,
-                  child: Text(
-                    activeMeshName,
-                    style: themeData.textTheme.titleSmall,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+          Hero(
+            tag: 'bed_mesh_card_title',
+            child: Material(
+              color: Colors.transparent,
+              child: Row(
+                spacing: 8,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Tooltip(
+                          message: activeMeshName,
+                          child: Text(
+                            activeMeshName,
+                            style: themeData.textTheme.titleSmall,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        Text(gridSize ?? '', style: themeData.textTheme.bodySmall),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Tooltip(
-                message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
-                child: Chip(
-                  label: Text(range),
-                  avatar: const Icon(
-                    FlutterIcons.unfold_less_horizontal_mco,
-                    // FlutterIcons.flow_line_ent,
-                    // color: Colors.white,
-                    size: 20,
+                  Tooltip(
+                    message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
+                    child: Chip(
+                      label: Text(range),
+                      avatar: const Icon(
+                        FlutterIcons.unfold_less_horizontal_mco,
+                        // FlutterIcons.flow_line_ent,
+                        // color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         if (model.canRender)
           IntrinsicHeight(
@@ -439,7 +454,9 @@ class _Controller extends _$Controller {
   }
 
   void onPlotTap() {
-    if (state case AsyncData(value: _Model(:final bedMesh?, :final bedMin, :final bedMax, :final showProbed)) when bedMesh.activeProfile != null) {
+    if (state case AsyncData(
+      value: _Model(:final bedMesh?, :final bedMin, :final bedMax, :final showProbed),
+    ) when bedMesh.activeProfile != null) {
       // ToDo: receive the selected bed mesh from the page if changed to adapt it (No need tho because this is handled by klipper)
       _router.pushNamed(
         AppRoute.tool_bedMesh.name,
