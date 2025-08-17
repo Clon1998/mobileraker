@@ -205,6 +205,7 @@ class _OctoTab extends ConsumerWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ).tr(namedArgs: {'service': 'OctoEverywhere'}),
+          SizedBox(height: MediaQuery.viewPaddingOf(context).bottom),
         ],
       ),
     );
@@ -284,6 +285,7 @@ class _ManualTab extends ConsumerWidget {
           ),
         if (model.activeClientType != null && model.activeClientType != ClientType.manual)
           const Padding(padding: EdgeInsets.all(8.0), child: _ActiveServiceInfo()),
+        SizedBox(height: MediaQuery.viewPaddingOf(context).bottom),
       ],
     );
   }
@@ -359,6 +361,7 @@ class _ObicoTab extends ConsumerWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ).tr(namedArgs: {'service': 'Obico'}),
+          SizedBox(height: MediaQuery.viewPaddingOf(context).bottom),
           // if (model.activeClientType == null)
           //   TextButton(
           //     style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
