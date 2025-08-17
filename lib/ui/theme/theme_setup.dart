@@ -597,9 +597,9 @@ ThemePack _mobilerakerSupporterPack() {
 ThemePack _oePack() {
   var light = FlexThemeData.light(
     colors: const FlexSchemeColor(
-      primary: Color(0xff78a4fa),
-      secondary: Color(0xffa45cb4),
-      tertiary: Color(0xff4a2b94),
+      primary: Color(0xff180441),
+      secondary: Color(0xff6547f1),
+      tertiary: Color(0xff0BA5EC),
       error: Color(0xffb00020),
     ),
     usedColors: 7,
@@ -615,9 +615,9 @@ ThemePack _oePack() {
 
   var dark = FlexThemeData.dark(
     colors: const FlexSchemeColor(
-      primary: Color(0xff78a4fa),
-      secondary: Color(0xffa45cb4),
-      tertiary: Color(0xff4a2b94),
+      primary: Color(0xff180441),
+      secondary: Color(0xff6547f1),
+      tertiary: Color(0xff0BA5EC),
       error: Color(0xffb00020),
     ),
     swapColors: true,
