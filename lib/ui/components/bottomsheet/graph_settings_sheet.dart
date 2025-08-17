@@ -24,10 +24,7 @@ class GraphSettingsSheet extends ConsumerWidget {
       preferredSize: Size.fromHeight(kToolbarHeight),
       child: ListTile(
         visualDensity: VisualDensity.compact,
-        title: Text(
-          'bottom_sheets.temp_chart_settings.title',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ).tr(),
+        title: Text('bottom_sheets.temp_chart_settings.title', style: Theme.of(context).textTheme.headlineSmall).tr(),
       ),
     );
 
@@ -48,25 +45,23 @@ class _OptionsList extends ConsumerWidget {
     final stores = ref.read(temperatureStoresProvider(machineUUID)).valueOrNull ?? {};
 
     if (stores.isEmpty) {
-      return const ListTile(
-        title: Text('No temperature stores found'),
-      );
+      return const ListTile(title: Text('No temperature stores found'));
     }
 
     var entries = stores.entries.toList();
 
     return ListView.builder(
       itemCount: stores.length,
-      padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery
-          .viewPaddingOf(context)
-          .bottom),
+      padding: EdgeInsets.only(left: 16, right: 16) + MediaQuery.viewPaddingOf(context),
       shrinkWrap: true,
       itemBuilder: (context, index) {
         final store = entries.elementAt(index);
         final themeData = Theme.of(context);
         final color = indexToColor(index);
-        final tempSettingKey =
-            CompositeKey.keyWithStrings(UtilityKeys.graphSettings, [store.key.$1.name, store.key.$2]);
+        final tempSettingKey = CompositeKey.keyWithStrings(UtilityKeys.graphSettings, [
+          store.key.$1.name,
+          store.key.$2,
+        ]);
         final targetSettingKey = CompositeKey.keyWithString(tempSettingKey, 'target');
 
         return HookConsumer(
@@ -86,13 +81,17 @@ class _OptionsList extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.circle,
-                          size: 10, color: tempActive || targetActive ? color.$1 : themeData.disabledColor),
+                      Icon(
+                        Icons.circle,
+                        size: 10,
+                        color: tempActive || targetActive ? color.$1 : themeData.disabledColor,
+                      ),
                       Gap(8),
                       Text(
                         beautifyName(store.key.$2),
-                        style: themeData.textTheme.bodyLarge
-                            ?.copyWith(color: tempActive || targetActive ? null : themeData.disabledColor),
+                        style: themeData.textTheme.bodyLarge?.copyWith(
+                          color: tempActive || targetActive ? null : themeData.disabledColor,
+                        ),
                         maxLines: 1,
                       ),
                     ],

@@ -18,6 +18,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 part 'non_printing_bottom_sheet.g.dart';
 
@@ -29,9 +30,9 @@ class NonPrintingBottomSheet extends ConsumerWidget {
     final controller = ref.read(_nonPrintingBottomSheetControllerProvider.notifier);
 
     var themeData = Theme.of(context);
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 15, 25, 0),
+    return SheetContentScaffold(
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(25, 15, 25, 0) + MediaQuery.viewPaddingOf(context),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -56,10 +57,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(
-                    FlutterIcons.raspberry_pi_faw5d,
-                    color: themeData.colorScheme.onBackground,
-                  ),
+                  child: Icon(FlutterIcons.raspberry_pi_faw5d, color: themeData.colorScheme.onBackground),
                 ),
                 Flexible(
                   flex: 5,
@@ -87,23 +85,16 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             OutlinedButton(
               onPressed: () => context.pushNamed(SheetType.manageMachineServices.name),
               // onPressed: () => pageController.value = 1,
-              child: AutoSizeText(
-                tr('bottom_sheets.non_printing.manage_service.title'),
-                maxLines: 1,
-              ),
+              child: AutoSizeText(tr('bottom_sheets.non_printing.manage_service.title'), maxLines: 1),
             ),
             // OutlinedButton(
             //   onPressed: _btnAction(context, klippyService.restartMoonraker),
             //   child: Text('Moonraker ${tr('@.lower:general.restart')}'),
             // ),
             OutlinedButton(
-              onPressed: () => ref
-                  .read(bottomSheetServiceProvider)
-                  .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu)),
-              child: AutoSizeText(
-                tr('pages.paywall.benefits.job_queue_perk.title'),
-                maxLines: 1,
-              ),
+              onPressed: () =>
+                  ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: ProSheetType.jobQueueMenu)),
+              child: AutoSizeText(tr('pages.paywall.benefits.job_queue_perk.title'), maxLines: 1),
             ),
 
             /// Dont strech the button

@@ -159,7 +159,6 @@ ThemePack _mobilerakerPack() {
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       cardTheme: light.cardTheme.copyWith(elevation: 3),
       bottomSheetTheme: light.bottomSheetTheme.copyWith(
-        modalBackgroundColor: light.colorScheme.background,
         shape: _bottomSheetShape,
         constraints: const BoxConstraints(maxWidth: 640),
       ),
@@ -183,7 +182,6 @@ ThemePack _mobilerakerPack() {
       ),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
-        modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
         constraints: const BoxConstraints(maxWidth: 640),
       ),
@@ -278,7 +276,6 @@ ThemePack _voronPack() {
       ),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
-        modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
         constraints: const BoxConstraints(maxWidth: 640),
       ),
@@ -352,7 +349,6 @@ ThemePack _ratRigPack() {
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       cardTheme: light.cardTheme.copyWith(elevation: 3),
       bottomSheetTheme: light.bottomSheetTheme.copyWith(
-        modalBackgroundColor: light.colorScheme.background,
         shape: _bottomSheetShape,
         constraints: const BoxConstraints(maxWidth: 640),
       ),
@@ -461,7 +457,6 @@ ThemePack _vzBot() {
       ),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
-        modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
         constraints: const BoxConstraints(maxWidth: 640),
       ),
@@ -557,7 +552,6 @@ ThemePack _mobilerakerSupporterPack() {
       // inputDecorationTheme:
       // light.inputDecorationTheme.copyWith(filled: false),
       // cardTheme: light.cardTheme.copyWith(elevation: 3),
-      bottomSheetTheme: light.bottomSheetTheme.copyWith(modalBackgroundColor: light.colorScheme.background),
       extensions: [CustomColors.light],
     ),
     darkTheme: dark.copyWith(
@@ -587,7 +581,6 @@ ThemePack _mobilerakerSupporterPack() {
         alwaysCircular: true,
       ),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
-      bottomSheetTheme: dark.bottomSheetTheme.copyWith(modalBackgroundColor: dark.colorScheme.background),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
     ),
@@ -650,7 +643,6 @@ ThemePack _oePack() {
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       // cardTheme: light.cardTheme.copyWith(elevation: 3, color: light.colorScheme.surface),
       bottomSheetTheme: light.bottomSheetTheme.copyWith(
-          modalBackgroundColor: light.colorScheme.background,
           shape: _bottomSheetShape,
           constraints: const BoxConstraints(maxWidth: 640)),
       extensions: [
@@ -731,7 +723,6 @@ ThemePack _mobilerakerOLEDPack() {
       ),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
-        modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
         constraints: const BoxConstraints(maxWidth: 640),
       ),

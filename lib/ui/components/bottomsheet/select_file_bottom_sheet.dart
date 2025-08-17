@@ -71,7 +71,7 @@ class SelectFileBottomSheet extends HookConsumerWidget {
         subtitle: Text(split.join(' > ')),
         minLeadingWidth: 42,
       ),
-      body: SafeArea(child: _Body(args: args)),
+      body: _Body(args: args),
     );
   }
 }
@@ -145,15 +145,18 @@ class _FileListData extends ConsumerWidget {
           child: SortedFileListHeader(activeSortConfig: sortConfig, onTapSortMode: onSortMode),
         ),
 
-        SliverList.separated(
-          separatorBuilder: (_, _) => const Divider(height: 0, indent: 18, endIndent: 18),
-          itemCount: folderContent.totalItems,
-          itemBuilder: (context, index) {
-            final file = folderContent.unwrapped[index];
-            final sortMode = sortConfig.mode;
+        SliverPadding(
+          padding: MediaQuery.viewPaddingOf(context),
+          sliver: SliverList.separated(
+            separatorBuilder: (_, _) => const Divider(height: 0, indent: 18, endIndent: 18),
+            itemCount: folderContent.totalItems,
+            itemBuilder: (context, index) {
+              final file = folderContent.unwrapped[index];
+              final sortMode = sortConfig.mode;
 
-            return _FileItem(machineUUID: machineUUID, file: file, dateFormat: dateFormat, sortMode: sortMode);
-          },
+              return _FileItem(machineUUID: machineUUID, file: file, dateFormat: dateFormat, sortMode: sortMode);
+            },
+          ),
         ),
       ],
     );

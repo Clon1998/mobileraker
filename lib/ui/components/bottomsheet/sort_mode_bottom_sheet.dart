@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 class SortModeBottomSheet extends ConsumerWidget {
   const SortModeBottomSheet({super.key, required this.arguments});
@@ -22,22 +23,33 @@ class SortModeBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListView(
-      shrinkWrap: true,
-      children: [
-        const Gap(10),
-        ListTile(
-          visualDensity: VisualDensity.compact,
-          titleAlignment: ListTileTitleAlignment.center,
-          // leading: arguments.leading,
-          horizontalTitleGap: 8,
-          title: const Text('pages.files.sort_by.sort_by').tr(),
-          minLeadingWidth: 42,
+    return SheetContentScaffold(
+      topBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Gap(10),
+          ListTile(
+            visualDensity: VisualDensity.compact,
+            titleAlignment: ListTileTitleAlignment.center,
+            // leading: arguments.leading,
+            horizontalTitleGap: 8,
+            title: const Text('pages.files.sort_by.sort_by').tr(),
+            minLeadingWidth: 42,
+          ),
+          const Divider(),
+        ],
+      ),
+      body: Material(
+        type: MaterialType.transparency,
+        child: ListView(
+          shrinkWrap: true,
+          padding: MediaQuery.viewPaddingOf(context),
+          children: [
+            for (final entry in arguments.toShow)
+              _Entry(mode: entry, kind: arguments.active.kind.only(entry == arguments.active.mode)),
+          ],
         ),
-        const Divider(),
-        for (final entry in arguments.toShow)
-          _Entry(mode: entry, kind: arguments.active.kind.only(entry == arguments.active.mode)),
-      ],
+      ),
     );
   }
 }
@@ -68,8 +80,9 @@ class _Entry extends StatelessWidget {
         selectedTileColor: themeData.colorScheme.primary.withOpacity(0.1),
         // selectedTileColor: themeData.colorScheme.secondaryFixed.withOpacity(0.9),
         // selectedColor: themeData.colorScheme.onSecondaryFixed,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(44)))
-            .only(themeData.useMaterial3),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.horizontal(right: Radius.circular(44)),
+        ).only(themeData.useMaterial3),
         selected: kind != null,
         onTap: () {
           var nextKind = mode.defaultKind;
@@ -101,10 +114,7 @@ class SortModeSheetArgs {
           active == other.active;
 
   @override
-  int get hashCode => Object.hash(
-        const DeepCollectionEquality().hash(toShow),
-        active,
-      );
+  int get hashCode => Object.hash(const DeepCollectionEquality().hash(toShow), active);
 
   @override
   String toString() {

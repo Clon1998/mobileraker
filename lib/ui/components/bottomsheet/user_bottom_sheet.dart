@@ -23,9 +23,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:purchases_flutter/errors.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 part 'user_bottom_sheet.freezed.dart';
 part 'user_bottom_sheet.g.dart';
@@ -37,13 +39,15 @@ class UserBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
-      child: Column(
+    return SheetContentScaffold(
+      body: Column(
         mainAxisSize: MainAxisSize.min, // To make the card compact
         children: [
           Flexible(child: SingleChildScrollView(child: _CardBody())),
           // Info box for status messages AKA a snackbar alternative...
           _InfoText(),
+          Text('ABCD'),
+          Gap(MediaQuery.viewPaddingOf(context).bottom),
         ],
       ),
     );
