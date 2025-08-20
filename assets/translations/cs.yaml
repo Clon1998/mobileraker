@@ -7,4 +7,8 @@ pages:
       advanced_perk:
         short: Plné možnosti
   spoolman:
-    error_loading_filaments: Chyba při načítání filamentů
+    error_loading_filaments: Chyba při načítání vláken
+print_state:
+  standby: Připraven
+products:
+  most_popular: Nejpopulárnější
