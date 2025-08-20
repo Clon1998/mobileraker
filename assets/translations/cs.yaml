@@ -1,0 +1,4 @@
+pages:
+  console:
+    provider_error:
+      body: Nastala chyba při pokusu o načtení dat konzoly. Opakujte akci později!
