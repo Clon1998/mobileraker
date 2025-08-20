@@ -2,3 +2,9 @@ pages:
   console:
     provider_error:
       body: Nastala chyba při pokusu o načtení dat konzoly. Opakujte akci později!
+  paywall:
+    benefits:
+      advanced_perk:
+        short: Plné možnosti
+  spoolman:
+    error_loading_filaments: Chyba při načítání filamentů
