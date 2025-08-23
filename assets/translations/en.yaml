@@ -1737,7 +1737,7 @@ languages:
       nativeName: hrvatski
     cs:
       name: Czech
-      nativeName: česky, čeština
+      nativeName: Česky, čeština
     da:
       name: Danish
       nativeName: dansk
@@ -1770,7 +1770,7 @@ languages:
       nativeName: suomi, suomen kieli
     fr:
       name: French
-      nativeName: français, langue française
+      nativeName: Français, langue française
     ff:
       name: Fula; Fulah; Pulaar; Pular
       nativeName: Fulfulde, Pulaar, Pular
@@ -2008,7 +2008,7 @@ languages:
       nativeName: فارسی
     pl:
       name: Polish
-      nativeName: polski
+      nativeName: Polski
     ps:
       name: Pashto, Pushto
       nativeName: پښتو
@@ -2026,10 +2026,10 @@ languages:
       nativeName: kiRundi
     ro:
       name: Romanian, Moldavian, Moldovan
-      nativeName: română
+      nativeName: Română
     ru:
       name: Russian
-      nativeName: русский язык
+      nativeName: Pусский язык
     sa:
       name: Sanskrit (Saṁskṛta)
       nativeName: संस्कृतम्

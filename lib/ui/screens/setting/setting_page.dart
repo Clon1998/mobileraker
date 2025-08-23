@@ -407,6 +407,7 @@ class _Footer extends ConsumerWidget {
 
 const Map<String, String> languageToCountry = {
   'af': 'ZA',
+  'cs': 'CZ',
   'en': 'US',
   'de': 'DE',
   'fr': 'FR',
