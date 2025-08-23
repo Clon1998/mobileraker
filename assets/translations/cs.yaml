@@ -1,0 +1,1524 @@
+---
+general:
+  pause: Pozastavit
+  resume: Obnovit
+  connect: Připojit
+  connected: Připojeno
+  'off': 'Vypnuto'
+  'on': 'Zapnuto'
+  none: N / A
+  add: Přidat
+  create: Vytvořit
+  rename: Přejmenovat
+  remove: Odstranit
+  set: Nastavit
+  use: Použít
+  restart: Restartovat
+  shutdown: Vypnout
+  firmware: Firmware
+  fetching: Nahrávání
+  loading: Načítání
+  unknown: Neznámý
+  disabled: Vypnuto
+  confirm: Potvrdit
+  cancel: Zrušit
+  close: Zavřít
+  edit: Upravit
+  preview: Náhled
+  retry: Zkusit znovu
+  supported: Podporováno
+  unsupported: Nepodporováno
+  details: Podrobnosti
+  google_play: Google Play
+  ios_store: AppStore
+  active: Aktivní
+  canceled: Zrušeno
+  monthly: Měsíčně
+  restore: Obnovit
+  accept: Přijmout
+  abort: Přerušit
+  offset: Odsazení
+  valid: Platné
+  invalid: Neplatné
+  free: Zdarma
+  one_time: Jednorázově
+  delete: Odstranit
+  clear: Vymazat
+  unlink: Odpojit
+  save: Uložit
+  apply: Použít
+  completed: Dokončeno
+  activate: Aktivovat
+  stop: Zastavit
+  start: Začít
+  repeat: Opakovat
+  load_more: Načíst více
+  archived: Archivované
+  leave: Odejít
+  export: Exportovat
+  import: Importovat
+  current: Aktuální
+  load: Načíst
+  unload: Vysunout
+  discard: Zahodit změny
+  hide: Skrýt
+  finish: Dokončit
+  select: Zvolit
+  folder: Adresář
+  print: Tisk
+  allow: Povolit
+  deny: Zakázat
+  settings: Nastavení
+pages:
+  dashboard:
+    title: Přehled
+    ems_btn: Nouzové zastavení
+    ems_confirmation:
+      title: Potvrdit nouzové zastavení
+      body: Chystáte se odeslat příkaz nouzového zastavení do tiskárny. Tím se okamžitě zastaví všechny motory a topení.
+      confirm: STOP!
+    server_status:
+      unavailable: Není k dispozici žádný server
+      available: Stav serveru je {} a Klippy je {}
+    fetching_printer: "@:general.připojování tiskárny…"
+    general:
+      print_card:
+        reset: Resetovat
+        reprint: Znovu vytisknout
+        printing_for: 'Tisk: {}'
+        speed: Rychlost
+        layer: Vrstva
+        eta: Zbývající čas
+        current_object: Aktuální objekt
+        elapsed: Uplynulá doba
+        flow: Průtok
+        filament: Filament
+        filament_tooltip: Využito {} % filamentu, to je {} m z {} m předpovídáno.
+        eta_tooltip: |-
+          Zbývající čas:
+          AVG: {avg}
+          Slicer: {slicer}
+          Soubor: {file}
+          Filament: {filament}
+        remaining: Zbývající čas
+        print_time: Čas tisku
+      cam_card:
+        webcam: Webkamera
+        fullscreen: Celá obrazovka
+        error_connecting: |-
+          Chyba při připojování k {}.
+          Zkontrolujte prosím nastavení připojení a ujistěte se, že je webokamera online.
+      temp_card:
+        title: Řízení teploty
+        presets_btn: Přednastavení
+        hotend: Hotend
+        bed: Podložka
+        temp_presets: Přednastavení teploty
+        sensors: Senzory
+        heater_on: "{} °C nastaveno"
+        btn_thermistor: Senzor
+        still_hot: "{} je stále horký!"
+      temp_preset_card:
+        cooloff: Zchladit
+        h_temp: "@:pages.dashboard.general.temp_card.hotend {}°C"
+        b_temp: "@:pages.dashboard.general.temp_card.bed {}°C"
+      move_card:
+        title: Posouvání osy
+        home_xy_tooltip: Zaparkovat XY osy
+        home_z_tooltip: Zaparkovat osu Z
+        home_all_tooltip: Zaparkovat všechny osy
+        home_all_btn: Vše
+        qgl_tooltip: Spustit QGL
+        qgl_btn: QGL
+        mesh_tooltip: Spustit kalibraci sítě podložky
+        mesh_btn: Síť
+        m84_tooltip: Vypnout motory
+        m84_btn: M84
+        step_size: Velikost kroku
+        stc_tooltip: Spustit výpočet Screws-Tilt
+        stc_btn: STC
+        ztilt_tooltip: Spustit Z-Tilt kalibraci
+        ztilt_btn: zTilt
+        poff_tooltip: Spustit kalibraci odsazení probe (TAP sondy)
+        poff_btn: Kalibrace sondy probe (TAP)
+        zoff_tooltip: Spustit kalibraci odsazení endstopu Z
+        zoff_btn: Kalibrace Z-Endstop
+        bsa_tooltip: Spustit kalibraci seřízení podložky
+        bsa_btn: Seřízení podložky
+        save_tooltip: Uložit výsledky kalibrace
+        save_btn: Uložit konfiguraci
+        more_btn: Více
+        homed: Zaparkované osy
+        beacon_models: Majákové modely
+        beacon_btn: Maják
+        beacon_tooltip: Vyberte model majáku
+      baby_step_card:
+        title: Microstep osa Z
+        z_offset: Odsazení Z
+      restart_klipper: Restartovat Klipper
+      restart_mcu: "@:general.restart @:general.firmware"
+    control:
+      fan_card:
+        title:
+          zero: Ventilátor
+          one: Ventilátor
+          other: Ventilátory
+        part_fan: Ventilátor chlazení modelu
+        static_fan_btn: Ventilátor
+      extrude_card:
+        title: Extruder
+        extrude: Vytlačovat
+        retract: Provést retrakci
+        extrude_len: "@:pages.dashboard.control.extrude_card.extrude délka"
+        cold_extrude_error: Extrudér ještě nedosáhl min_extrude_temp {}°C!
+      macro_card:
+        title: G-Kódy - Makra
+        no_macros: V této skupině nejsou momentálně viditelná žádná makra
+        add_grp_hint: Můžete vytvořit různé skupiny pro uspořádání maker. Stačí jít do nastavení tiskárny a přidat novou skupinu.
+        show_all_tooltip: Zobrazit všechna makra
+      pin_card:
+        title_misc: Ostatní
+        pin_btn: Pin
+        filament_sensor:
+          detected: Detekováno
+          not_detected: Prázdný
+      power_card:
+        title: Panel napájení
+        pin_btn: Pin
+        provider_error_title: Chyba při načítání napájení zařízení Api
+      multipl_card:
+        title: Násobiče
+        flow: Průtok
+        press_adv: Pressure Advance
+        smooth_time: Doba vyhlazování
+      limit_card:
+        title: Limity
+        velocity: Rychlost
+        accel: Zrychlení
+        sq_corn_vel: Rychlost čtverečních rohů
+        accel_to_decel: Accel to Decel
+      fw_retraction_card:
+        title: Firmwarová retrakce
+        retract_length: Délka retrakce
+        retract_speed: Rychlost retrakce
+        extra_unretract_length: Dodatečná vzdálenost deretrakce
+        unretract_speed: Rychlost deretrakce
+      bed_mesh_card:
+        title: Síť podložky
+        profiles: Profily
+        range_tooltip: Rozsah mezi nejvyšším a nejnižším bodem
+        showing_matrix:
+          probed: Zobrazení změřené matice
+          mesh: Zobrazení matice sítě
+      spoolman_card:
+        title: Spoolman
+        no_spool: |-
+          Nebyla detekována žádná cívka. Využití filamentu nebude sledováno.
+        select_spool: Vybrat cívku
+        used: 'Využito: {}'
+        provider_error_title: Chyba při načítání dat ze Spoolmanu
+      gcode_preview_card:
+        title: Náhled GCode
+        follow: Sledovat postup
+        kinematic_not_supported: V současné době aplikace nepodporuje vykreslování kinematického systému této tiskárny.
+        start_preview:
+          btn: Začít náhled
+          hint: Aplikace stáhne aktivní tiskový soubor a pokusí se jej vykreslit.
+  customizing_dashboard:
+    title: Přizpůsobit řídicí panel
+    cancel_confirm:
+      title: Zahodit změny?
+      body: |-
+        Jste si jisti, že chcete opustit režim nastavování rozložení? Všechny změny budou ztraceny. Pro uložení vašich změn stiskněte Uložit.
+    add_card: Přidat kartu
+    remove_page: Odstranit stránku
+    saved_snack:
+      title: Rozvržení uloženo!
+      body: Vaše změny byly uloženy.
+    cant_remove_snack:
+      title: Stránku nelze odstranit!
+      body: Potřebujete alespoň 2 stránky, abyste je mohli jednu odebrat.
+    confirm_removal:
+      title: Odebrat stránku?
+      body: Jste si jisti, že chcete odstranit tuto stránku?
+    editing_card:
+      title: Režim úprav
+      body: Nyní můžete přeuspořádat, přidat a odebrat karty a stránky. Všechny karty zobrazují náhledy dat.
+    error_save_snack:
+      title: Chyba při ukládání rozložení!
+      body: Nastala chyba při ukládání rozvržení.
+    error_no_components:
+      title: Prázdné rozložení!
+      body: Nepřidali jste žádné widgety. Přidejte alespoň jeden widget pro uložení rozložení.
+  files:
+    title: Soubory
+    empty_folder:
+      title: Adresář je prázdný
+      subtitle: Nenalezeny žádné soubory
+    sort_by:
+      sort_by: Seřadit podle
+      name: Název
+      last_modified: Naposledy upraveno
+      last_printed: Naposledy vytištěno
+      file_size: Velikost
+      estimated_time: Odhadovaný čas tisku
+    file_actions:
+      download: Stáhnout
+      delete: Odstranit
+      copy: Kopírovat
+      move: Přesunout
+      rename: Přejmenovat
+      create_file: Vytvořit soubor
+      create_folder: Vytvořit adresář
+      upload: Nahrát soubor
+      upload_bulk: Nahrát soubory
+      zip_file: Vytvořit archiv
+    gcode_file_actions:
+      submit: Odeslat úlohu k tisku
+      preheat: Předehřát
+      enqueue: Přidat do tiskové fronty
+      preview: Náhled
+    file_operation:
+      download_canceled:
+        title: Stahování bylo zrušeno
+        body: Stahování bylo zrušeno.
+      download_failed:
+        title: Stahování selhalo
+        body: Při pokusu o stažení souboru došlo k chybě. Zkuste to prosím později.
+      upload_canceled:
+        title: Nahrávání zrušeno
+        body: Nahrávání bylo zrušeno.
+      upload_success:
+        title: Úspěšně nahráno
+        body: Soubor byl úspěšně nahrán.
+      upload_failed:
+        title: Nahrávání selhalo
+        body: Při pokusu o nahrání souboru došlo k chybě. Zkuste to prosím znovu později.
+        reasons:
+          type_mismatch:
+            title: Neshoda typu souboru
+            body: Jsou povoleny pouze soubory '{}'.
+      zipping_success:
+        title: Zazipování proběhlo úspěšně
+        body: Archiv byl úspěšně vytvořen.
+      zipping_failed:
+        title: Zazipování se nezddařilo
+        body: Nastala chyba při vytváření archivu. Zkuste to prosím znovu později.
+      copy_created:
+        title: Kopírovat vytvořené
+        body: Kopie byla úspěšně vytvořena v '{}'.
+      move_success:
+        title: Přesunutí bylo úspěšné
+        body: Soubory byly úspěšně přesunuty do '{}'.
+      move_failed:
+        title: Přesunutí se nezdařilo
+        body: Nastala chyba při pokusu o přesunutí souboru. Opakujte akci později.
+    search_files: Hledat v adresáři
+    search:
+      clear_search: Vymazat vyhledávání
+      waiting: Čeká se na vyhledávání!
+      no_results:
+        title: Nebyly nalezeny žádné soubory
+        subtitle: Zkuste jiný hledaný výraz
+    cancel_fab:
+      upload: Zrušit nahrávání
+      download: Zrušit stahování
+    move_here: Přesunout sem
+    copy_here: Kopírovat sem
+    no_matches_file_pattern: Jsou povolena pouze písmena, čísla, podtržítka, pomlčky a tečky!
+    gcode_tab: G-Kódy
+    config_tab: Konfigurace
+    timelapse_tab: Časosběry
+    element:
+      one: Prvek
+      other: Prvky
+    details:
+      general_card:
+        path: Cesta
+        last_mod: Naposledy změněno
+        last_printed: Naposledy vytištěno
+        no_data: Žádná data
+      meta_card:
+        title: GCode Meta data
+        filament: Filament
+        filament_type: Typ
+        filament_name: Název
+        filament_weight: Hmotnost
+        filament_length: Délka
+        est_print_time: Odhadovaný čas tisku
+        slicer: Použitý Slicer
+        nozzle_diameter: Průměr trysky
+        layer_higher: Výška vrstvy
+        first_layer: První vrstva
+        others: Ostatní
+        first_layer_temps: "@:pages.files.details.meta_card.first_layer - Teploty"
+        first_layer_temps_value: |-
+          @:pages.dashboard.general.temp_card.hotend: {}°C
+          @:pages.dashboard.general.temp_card.bed: {}°C
+      stat_card:
+        title: Statistiky
+      preheat_dialog:
+        title: "@:pages.files.gcode_file_actions.preheat ?"
+        body: |-
+          Cílové teploty
+          Extruder: {}°C
+          Bed: {}°C
+      preheat_snackbar:
+        title: Spuštěné předehřívání
+        body: |-
+          Extruder: {}°C
+          Podložka: {}°C
+      print_queue_snackbar:
+        title: Přidáno do tiskové fronty
+        body:
+          1: Soubor byl úspěšně přidán do tiskové fronty.
+          other: Soubory byly úspěšně přidány do tiskové fronty.
+      spoolman_warnings:
+        insufficient_filament_title: Nedostatek filamentu
+        insufficient_filament_body: |-
+          Aktivní cívka má pouze {} vlákna, což pro tento soubor nestačí.
+          Kliknutím změníte aktivní cívku.
+        material_mismatch_title: Neshoda materiálu
+        material_mismatch_body: |-
+          Materiál souboru {} neodpovídá materiálu aktivní cívky{}.
+          Kliknutím změníte aktivní cívku.
+  setting:
+    title: Aplikace - Nastavení
+    general:
+      title: Obecné
+      ems_confirm: Potvrdit nouzové zastavení
+      ems_confirm_hint: Zobrazit potvrzovací dialog před odesláním příkazu pro nouzové zastavení
+      always_baby: Odsazení Z panel
+      always_baby_hint: Vždy zobrazovat Z-Offset kartě na přehledu
+      num_edit: Režim vstupu čísla
+      num_edit_hint: Použít číselnou klávesnici pro zadávání čísel namísto posuvníků
+      start_with_overview: Nastavit @:pages.overview.title jako úvodní stránku
+      start_with_overview_hint: Spustit aplikaci na stránce přehledu místo přehledu tiskárny
+      use_offset_pos: Odsazení pozice
+      use_offset_pos_hint: Přidat odsazení k zobrazeným souřadnicím
+      lcFullCam: Orientace kamery na celou obrazovku
+      lcFullCam_hint: Přepnout kameru na šířku v režimu celé obrazovky
+      language: Jazyk
+      companion: "Chcete dostávat vzdálená oznámení?\nNaučte se, jak nastavit Mobileraker rozšíření na"
+      companion_link: Oficiální GitHub stránka
+      sliders_grouping: Seskupit posuvné karty
+      sliders_grouping_hint: Seřadit všechny posuvníky do jedné karty
+      time_format: Formát času
+      system_theme: Motiv UI
+      system_theme_mode: Jas motivu
+      printer_theme_warning: Aktuálně používáte specifický motiv pro tiskárnu. Pro úpravu jděte do nastavení tiskárny.
+      filament_sensor_dialog: Zobrazit upozornění od senzorů filamentu
+      filament_sensor_dialog_hint: Zobrazit dialog pokud  je sepnut senzor filamentu
+      confirm_gcode: Potvrdit spuštění makra
+      confirm_gcode_hint: Vždy zobrazit potvrzovací dialog před spuštěním GCode-Macro na přehledu
+      eta_sources: Výpočet ETA
+      eta_sources_hint: Vyberte zdroj, který by měl být použit pro výpočet ETA
+      medium_ui: UI tabletu
+      medium_ui_hint: Zvolte, zda použít rozhraní tabletu na větší obrazovce nebo na šířku
+      keep_screen_on: Udržet obrazovku zapnutou
+      keep_screen_on_hint: Zabránit vypnutí obrazovky, když je aplikace aktivní
+    ui:
+      machine_card_style:
+        title: Přehled - Styl karty stroje
+        default: Výchozí
+        classic: Kompaktní
+    notification:
+      title: Oznámení
+      progress_label: Oznámení o průběhu tisku
+      progress_helper: Aktualizovat interval pro oznámení průběhu tisku
+      state_label: Oznámení o stavu tisku
+      state_helper: Vyberte stavy, které spouštějí oznámení během aktivních tiskových úloh.
+      no_permission_title: Žádné oprávnění pro oznámení!
+      no_permission_desc: |-
+        Nelze zobrazit oznámení.
+        Požádat o oprávnění kliknutím!
+      no_firebase_title: Nelze zobrazit oznámení
+      no_firebase_desc: |-
+        Mobileraker nemůže doručit žádné oznámení do zařízení.
+        Zdá se, že vašemu zařízení chybí služby Google Play nebo blokuje Firebase připojení!
+      ios_notifications_title: Doručování oznámení na IOS
+      ios_notifications_desc: |-
+        Oznámení vyžadují, aby byl Mobileraker otevřen alespoň jednou a aby byl na pozadí. Pořád ale mohou být některá oznámení blokována operačním systémem.
+      missing_companion_title: Rozšíření nebylo nalezeno!
+      missing_companion_body: |-
+        Vypadá to, že rozšíření není nainstalováno a proto následující stroje nemohou odesílat oznámení: {}
+
+        Klikněte pro více informací!
+      enable_live_activity: Povolit živou aktivitu
+      enable_live_activity_helper: Povolí využití živé aktivity navíc k výchozím oznámením o průběhu.
+      opt_out_marketing: Marketingová oznámení
+      opt_out_marketing_helper: Přijímat aktualizace o prodejích a slevách
+      opt_out_marketing_error: Chyba při načítání marketingových preferencí, zkuste to prosím znovu později.
+      use_progressbar_notification: Povolit oznámení v Progressbaru
+      use_progressbar_notification_helper: Povolí použití Progressbaru v oznámení současně s textovými upozorněními o postupu.
+      snapshot_webcam_label: Snímek z kamery
+      snapshot_webcam_helper: Vyberte webkameru pro snímky oznámení.
+      snapshot_webcam_type_unsupported: Tato webkamera není podporována!
+      snapshot_webcam_disabled: Nezahrnout webcam snímky
+      ignore_filament_sensors_label: Vyloučit senzory Filament
+      ignore_filament_sensors_helper: Vyberte senzory filamentu, které by neměly spouštět oznámení. Užitečné pro senzory v MMU sestavách.
+      ignore_filament_sensors_empty: Nebyly nalezeny žádné senzory
+      global: Nastavení oznámení
+      global_helper: Nastavte chování oznámení pro vaše zařízení a stroje.
+      custom_settings_title: Vlastní nastavení oznámení
+      custom_settings_helper: Přepsat globální nastavení vlastními konfiguracemi pro tento konkrétní stroj.
+      enable_custom_settings: Povolit vlastní nastavení
+      enable_custom_settings_helper: Namísto zdědění globálních nastavení, použijte zadané prvky.
+      hardware_settings_title: Nastavení hardwarových oznámení
+      hardware_settings_helper: Konfigurace chování oznámení specifické pro hardware.
+      machine_notification_title: "{} - Oznámení - Nastavení"
+      notification_settings_title: Nastavení oznámení
+      general_settings_title: Obecná nastavení oznámení
+      general_settings_helper: Konfigurace oprávnění oznámení úrovně aplikace a obecných nastavení oznámení.
+      global_settings_title: Globální nastavení oznámení
+      global_settings_helper: Nastavte, která oznámení obdržíte ze všech připojených strojů.
+      device_specific_title: Nastavení oznámení pro specifické stroje
+      device_specific_helper: Zobrazit a konfigurovat nastavení oznámení pro jednotlivé stroje.
+      error_loading_printers_title: Chyba při načítání tiskáren
+      error_loading_printers_body: Při načítání tiskáren došlo k neočekávané chybě. Opakujte akci později.
+      no_devices_found: Nebyla nalezena žádná zařízení
+      configure_btn: Konfigurace
+      not_connected_btn: Nepřipojeno
+    developer:
+      title: Vývojář
+      crashlytics: Povolit hlášení Crashlytics
+    imprint: Soukromí/Impressum
+    ump_dialog: Soukromí & Nastavení souhlasu
+  printer_edit:
+    title: Upravit {}
+    import_settings: Importovat nastavení
+    remove_printer: Odstranit tiskárnu
+    no_values_found: Nebyly nalezeny žádné hodnoty!
+    fetching_additional_settings: "@:general.načítání dalších nastavení ze sítě…"
+    could_not_fetch_additional: Nelze načíst další nastavení!
+    fetch_error_hint: Ujistěte se, že je stroj dostupný a Mobileraker je připojen.
+    reset_notification_registry: Vymazat registr oznámení zařízení
+    configure_remote_connection: Nastavit vzdálené připojení
+    store_error:
+      title: Uložení se nezdařilo!
+      message: |-
+        Některá pole obsahují neplatné hodnoty!
+        Ujistěte se, že všechna pole jsou platná.
+      unexpected_error: Při pokusu o uložení dat o počítači došlo k neočekávané chybě!
+    confirm_deletion:
+      title: Smazat {}?
+      body: "Chystáte se odstranit tiskárnu '{}' připojenou na '{}'. \n\nPotvrďte svou akci."
+    general:
+      displayname: Zobrazené jméno
+      printer_addr: Tiskárna - adresa
+      ws_addr: Websocket - adresa
+      moonraker_api_key: Moonraker - API klíč
+      moonraker_api_desc: Potřebný pouze v případě, že používáte důvěryhodné klienty. FluiddPI to vynutí!
+      full_url: Celá URL
+      timeout_label: Klient timeout
+      timeout_helper: Časový limit pro připojení klienta v sekundách
+      theme: UI Motiv
+      theme_helper: UI motiv pro tiskárnu
+      theme_unavailable: UI motiv pro tiskárnu, dostupné pouze pro Podporovatele
+    ssl:
+      title: SSL - Nastavení
+      pin_certificate_label: Připnutí otisku certifikátu
+      pin_certificate_helper: Vyberte soubor certifikátu ve formátu PEM pro SSL-Pinning
+      self_signed: Důvěřovat certifikátům s vlastními podpisy
+    motion_system:
+      title: Systém pohybu
+      invert_x: Invertovat osu X
+      invert_x_short: Invertovat X
+      invert_y: Invertovat osu Y
+      invert_y_short: Invertovat Y
+      invert_z: Invertovat osu Z
+      invert_z_short: Invertovat Z
+      speed_xy: Rychlost X/Y - osa
+      speed_xy_short: Rychlost X/Y
+      speed_z: Rychlost Z – osa
+      speed_z_short: Rychlost Z
+      steps_move: Kroky pohybu
+      steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
+      steps_baby: Z-odsazení kroky
+      steps_baby_short: Z-Kroky
+    extruders:
+      title: Extruder(y)
+      feedrate: Rychlost vytlačování
+      feedrate_short: Rychlost
+      steps_extrude: Kroky extruze
+      steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
+      filament:
+        loading_distance: Vzdálenost Extruder -> Tryska
+        loading_distance_helper: Vzdálenost od trysky k extruderu. Používá se pro zavádění / vysunování vlákna
+        loading_speed: "Rychlost zavádění / vysunování"
+        loading_speed_helper: Rychlost zavádění a vysouvání vlákna mezi tryskou a extruderem
+        purge_amount: Délka čištění
+        purge_amount_helper: Délka filamentu na čištění
+        purge_speed: Rychlost čištění
+        purge_speed_helper: Rychlost pro čištění vlákna
+    cams:
+      target_fps: Cílové FPS
+      new_cam: Nová Webkamera
+      no_webcams: Nebyly přidány žádné webkamery!
+      stream_url: URL Streamu
+      snapshot_url: Snapshot URL
+      default_url: Výchozí URL
+      flip_vertical: Překlopit svisle
+      flip_horizontal: Překlopit vodorovně
+      cam_mode: Režim kamery
+      cam_rotate: Rotace
+      read_only: Webkamera je pouze pro čtení
+    macros:
+      default_grp: Výchozí
+      new_macro_grp: Nová makro skupina
+      no_macros_available: Nejsou k dispozici žádná makra!
+      no_macros_found: Nebyla nalezena žádná makra!
+      no_macros_in_grp: Ve skupině nejsou žádná makra!
+      deleted_grp: Smazaná skupina {}
+      macros: Makra
+      default_name: Nová makro skupina
+      macros_to_default:
+        one: Přesunuto jedno makro do výchozí skupiny!
+        two: Přesunuta dvě makra do výchozí skupiny!
+        other: '{} maker přesunuto do výchozí skupiny!'
+      macro_removed: Makro nebylo nalezeno a brzy bude automaticky odstraněno
+    presets:
+      no_presets: Žádná přednastavení nebyla přidána!
+      hotend_temp: "@:pages.dashboard.general.temp_card.hotend Teplota"
+      bed_temp: "@:pages.dashboard.general.temp_card.bed Teplota"
+      new_preset: Nové přednastavení
+    confirm_fcm_reset:
+      title: Vymazat registr oznámení zařízení?
+      body: "Chystáte se resetovat registr zařízení, který se používá k určení zařízení, do kterých rozšíření posílá oznámení.\nChcete-li obnovit push oznámení, musíte restartovat aplikaci na všech zařízeních a znovu ji připojit k zařízení. \n\nPotvrďte vaši akci."
+    confirm_remote_interface_removal:
+      title:
+        oe: Odpojit {}?
+        other: Odstranit spojení?
+      body:
+        oe: Potvrďte prosím odpojení tiskárny {} od OctoEverywhere.
+        other: Potvrďte prosím odstranění vzdáleného připojení z tiskárny {}.
+      button:
+        oe: "@:general.unlink"
+        other: "@:general.remove"
+    remote_interface_exists:
+      title: Nalezeno vzdálené připojení
+      body:
+        oe: Tato tiskárna je již propojena s OctoEverywhere pro vzdálený přístup. Před pokračováním ji prosím odpojte.
+        obico: Tato tiskárna je již propojena s Obico pro vzdálený přístup. Před pokračováním ji prosím odpojte.
+        other: Pro tuto tiskárnu je již navázáno vzdálené připojení. Před pokračováním jej prosím odstraňte.
+    remote_interface_removed:
+      title: Vzdálené připojení odstraněno!
+      body: Nezapomeňte uložit tiskárnu pro aplikaci změn.
+    remote_interface_added:
+      title:
+        oe: Připojeno k OctoEverywhere.
+        obico: Propojeno s Obico.
+        other: Přidáno vzdálené připojení.
+      body: Nezapomeňte uložit tiskárnu pro aplikaci změn.
+    wifi_access_warning:
+      title: Informace o WiFi nejsou k dispozici
+      subtitle: |-
+        Pro určení, zda by měl Mobileraker používat dálkové připojení, povolte přístup k poloze. Toto umožňuje aplikaci načíst název aktuální WiFi Network.
+
+        Klepnutím udělíte oprávnění.
+    local_ssid:
+      section_header: Chytré přepínání
+      no_ssids: Nebylo přidáno žádné jméno WiFi!
+      helper: Inteligentní přepínání umožňuje aplikaci automaticky přepínat mezi lokálním a vzdáleným připojením na základě aktuální WiFi sítě. Chcete-li povolit tuto funkci, přidejte do seznamu své WiFi jméno.
+      dialog:
+        title_add: Přidat jméno WiFi do seznamu
+        title_edit: Upravit jméno WiFi
+        label: Jméno WiFi (SSID)
+        quick_add_hint: 'Tip: Chcete-li rychle přidat aktuální název WiFi, dlouze stiskněte tlačítko, které otevřelo toto dialogové okno.'
+      error_fetching_snackbar:
+        title: Chyba při načítání jména WiFi!
+        body: Ujistěte se, že aplikace má potřebná oprávnění k přístupu ke stavu WiFi zařízení.
+    temp_ordering:
+      title: UI Řazení čidla teploty
+      helper: Změnit pořadí snímačů teploty na přehledovém panelu.
+      no_sensors: Nebyly nalezeny žádné snímače teploty!
+    fan_ordering:
+      title: UI Řazení ventilátorů
+      helper: Změnit pořadí ventilátorů na přehledu.
+      no_fans: Nenalezeny žádné ventilátory!
+    misc_ordering:
+      title: UI Řazení různých prvků
+      helper: Změnit pořadí různých prvků na přehledu.
+      no_controls: Nenalezeny žádné ostatní prvky!
+  printer_add:
+    steps:
+      mode: Režim
+      input: Vstup
+      test: Test
+      done: Hotovo
+    title: Přidat novou tiskárnu
+    initial_name: Moje tiskárna
+    select_mode:
+      title: 'Vyberte režim vstupu:'
+      body: Pokud jste zde noví, je nejlepší držet se jednoduchého režimu. Nicméně, pokud máte zkušenosti a potřebujete používat vlastní hlavičky, certifikáty atd., pak je pro vás expertní režim. Mějte na paměti, že zvolený režim neovlivní samotnou aplikaci. ale určí, jak je vstup ověřován a zobrazen, a jaké možnosti jsou k dispozici, když přidáváte stroj.
+      simple: Jednoduchý
+      advanced: Pokročilý
+      add_via_oe: Nastavení OctoEverywhere 1 kliknutím
+      add_via_obico: Nastavení Obico 1 kliknutím
+    simple_form:
+      hint_title: Tip - Jednoduchý režim
+      hint_body: Jednoduchý režim vám umožní vstoupit do hostitele a portu. Pokud však potřebujete přizpůsobit cestu, hlavičky, certifikáty nebo jiná nastavení, přepněte do pokročilého režimu.
+      url_hint: IP nebo název hostname tiskárny
+    advanced_form:
+      hint_title: Nápověda - Pokročilý režim
+      hint_body: Vezměte prosím na vědomí, že v pokročilém režimu je ověřování většinou zakázáno. Je důležité, abyste převzali plnou odpovědnost za zajištění platnosti URL adresy.
+      http_helper: Zadejte prosím koncový bod HTTP Moonrakeru
+      ws_helper: Volitelné, koncový bod WebSocket Moonrakeru
+      section_security: Zabezpečení
+      section_headers: HTTP - Hlavičky
+      empty_headers: Nebyly přidány žádné hlavičky!
+    test_connection:
+      section_connection: Data připojení
+      ws_url_label: Výsledná WebSocket-URL
+      http_url_label: Výsledná HTTP-URL
+      section_test: Testy připojení
+      http_label: Http koncový bod - Test
+      ws_label: Koncový bod Websocket - Test
+      awaiting: Čeká se na výsledek…
+      continue: Pokračovat
+      continue_anyway: Přesto pokračovat
+      proceed_warning: Zdá se, že aplikace má problémy s připojením ke stroji. Může to být proto, že nejste ve stejné síti jako stroj nebo nemáte potřebná oprávnění k přístupu. I když se můžete rozhodnout přidat stroj navzdory problému, mějte prosím na paměti, že není žádná záruka, že bude správně připojen. Pokračujte prosím opatrně.
+      button: Test připojení
+    confirmed:
+      title: Tiskárna {} přidána!
+      to_dashboard: Přejít na přehled
+  console:
+    title: Konzole
+    card_title: GCode Konzole
+    no_entries: Žádné uložené příkazy nenalezeny
+    fetching_console: "@:general.fetching položky konzoly…"
+    macro_suggestions: Návrhy GCode
+    no_suggestions: Nebyly nalezeny žádné návrhy!
+    command_input:
+      hint: Zadejte příkaz konzole
+    provider_error:
+      title: Chyba při načítání dat konzole
+      body: Nastala chyba při pokusu o načtení dat konzoly. Opakujte akci později!
+  overview:
+    title: Přehled
+    fetching_machines: "@:general.fetching stroje…"
+    no_entries: Nebyly nalezeny žádné stroje
+    add_machine: Přidat stroj
+  markdown:
+    loading: "@:general.loading {}…"
+    error: Došlo k chybě při pokusu o načtení {};
+    open_in_browser: Otevřít @:pages.faq.title v prohlížeči
+  faq:
+    title: FAQ (Časté dotazy)
+  changelog:
+    title: Seznam změn
+  paywall:
+    benefits:
+      title: Možnosti Podporovatelů
+      subtitle: Odemkněte exkluzivní funkce tím, že se stanete Podporovatelem Mobileraker!
+      become_supporter: Staňte se Podporovatelem
+      discover_all: Objevte všechny funkce podporovatele
+      theme_perk:
+        title: Motiv pro podporovatele
+        subtitle: Exkluzivní motiv využívající Material 3
+        detail: Zažijte prémiový vzhled s naší Material 3 šablonou, s dynamickým přizpůsobením barev a vylepšenými vizuálními prvky.
+      contact_perk:
+        title: Kontakt na vývojáře
+        subtitle: Snadný kontakt s vývojářem!
+        detail: Získejte přímý přístup k prioritní podpoře a požadavkům na funkce, přičemž vaše zpětná vazba pomůže utvářet budoucnost Mobilerakeru.
+      notification_perk:
+        title: Snímkové upozornění
+        subtitle: Oznámení o stavu zahrnuje snímek Webcam
+        detail: Zůstaňte informováni s bohatými notifikacemi o stavu tisku, které zobrazují živé snímky z webové kamery a umožňují sledovat Vaše tisky odkudkoliv.
+      webrtc_perk:
+        title: Podpora WebRtc
+        subtitle: Umožňuje používat WebRtc webkamery!
+        detail: Zažijte vysoce kvalitní a nízkolatencové video streamování vašich tisků s podporou WebRTC, která nabízí nejjasnější pohled na vaši tiskárnu.
+      job_queue_perk:
+        title: Fronta úloh
+        subtitle: Spravujte frontu úloh Moonrakera z Mobilerakeru!
+        detail: Zefektivněte svůj pracovní postup spravováním a organizováním tiskové fronty přímo v aplikaci Mobileraker, která je ideální pro hromadný tisk a plánování výroby.
+      unlimited_printers_perk:
+        title: Neomezené tiskárny
+        subtitle: Spravujte tiskáren kolik chcete pomocí Mobilerakeru!
+        detail: Rozšiřujte svůj tisk bez limitů - perfektní pro správu více tiskáren u vás doma v laboratoři nebo v tiskové farmě.
+        short: Rozšiřte svůj tisk
+      printer_theme_perk:
+        title: Motivy založené na tiskárně
+        subtitle: Vyberte si různé motivy pro každou tiskárnu zvlášť!
+        detail: Přizpůsobte si své zkušenosti přiřazením unikátních motivů ke každé tiskárně, díky čemuž je na první pohled snadnější rozlišovat mezi různými stroji.
+      custom_dashboard_perk:
+        title: Vlastní řídicí panel
+        subtitle: Přizpůsobte si dashboard podle svého přání!
+        detail: Vytvořte si ideální pracovní postup uspořádáním widgetů a určete přesně, jak je chcete, a přidejte nejdůležitější informace na vrch
+        short: Váš perfektní pracovní postup
+      full_file_management_perk:
+        title: Úplná správa souborů
+        subtitle: Odemkněte všechny možnosti pro správu souborů Mobileraker!
+        detail: Převezměte kompletní kontrolu nad svými tiskovými soubory s pokročilými funkcemi řízení, včetně organizace, nahrávání a údržby Vaší tiskové knihovny.
+      ad_free_perk:
+        title: Zážitek bez reklam
+        subtitle: Užijte si Mobileraker bez jakýchkoli reklam!
+        detail: Zaměřte se výhradně na váš tisk čistým, nerozptýleným rozhraním, které staví váš obsah přehledně.
+        short: Úplné zaostření
+      spoolman_perk:
+        title: Spoolman-UI
+        subtitle: Spravujte své cívky filamentu se Spoolmanem
+        detail: Udržujte perfektní přehled o organizaci vlákna s integrovanou podporou Spoolman - sledovat, náklady a zbývající částky za každou cívku při tisku, takže je řízení materiálu snadné.
+      advanced_perk:
+        title: Rozšířené nastavení
+        short: Plné možnosti
+    tipping:
+      title: Kupte mi kávu (Byu me a coffee projekt)
+      subtitle: "Chcete zobrazit další ocenění? Podpořte budoucí vývoj rychlým dárkem:"
+      subtitle_supporter: "Chcete podpořit probíhající vývoj? Zvažte přidání tipu k předplatnému."
+      disclaimer: Balíky Tip jsou nevratné a neposkytují žádné další funkce.
+      other_btn: Jiná částka
+      divider: Nebo ukažte své uznání
+    sup_lifetime_warning:
+      title: Oznámení o předplatném
+      subtitle: |-
+        Všimli jsme si, že máte celoživotní přístup i aktivní předplatné.
+        Zatímco celoživotní přístup zahrnuje všechny funkce, můžete si ponechat předplatné pro podporu pokračujícího vývoje.
+
+        Vezměte prosím na vědomí, že celoživotní přístup automaticky nezruší stávající předplatné - pokud se tak rozhodnete, budete to muset udělat ručně.
+
+        Každopádně si vážíme Vaší podpory!
+    sup_origin_warning:
+      title: Předplatné externí platformy
+      subtitle: Jste podporovatel, ale váš status podporovatele byl zakoupen na jiné platformě! Stále můžete používat všechny prémiové funkce, ale nemůžete spravovat zde své předplatné!
+    header:
+      rating: "{} na {}"
+      open_core: Otevřené jádro
+      amnt_users: "{} uživatelé"
+      active_dev: Aktivní vývojář
+    manage_view:
+      title: Děkujeme za Vaši podporu!
+      subtitle: Pomáháte tomu, aby byl Mobileraker lepší pro všechny, zatímco máte prémiové funkce a zážitek bez reklam. Děkujeme, že jste součástí naší komunity tvůrců!
+      offering_title: Změňit svou úroveň podpory
+      cancel_btn: Zrušit předplatné
+    subscribe_view:
+      title: Staňte se Podporovatelem Mobilerakeru!
+      subtitle: Mobileraker poskytuje rychlý a spolehlivý mobilní Ul pro Klipper, inspirovaný komunitou tvůrců. Zatímco základní funkce zůstávají zdarma, podporovatelé mají k dispozici prémiové funkce a zážitek bez reklam.
+      offering_title: Vyberte si svou podporovatelskou úroveň
+    supporter_tier_list:
+      error_title: Chyba při načítání úrovní podporovatelů!
+      error_body: Omlouváme se, došlo k neočekávané chybě. Nelze načíst úrovně podpory. Zkuste to prosím později!
+    contact_dialog:
+      title: Kontakt na vývojáře
+      body: |-
+        E-mail: {}
+        Discord: {}
+    title: Podpořte vývoj!
+    calling_store: Zpracovávání požadavku...
+    promo_title: Speciální nabídka
+    free_phase: První {} zdarma
+    intro_phase: "{} s {} ušetříte"
+    iap_offer: "{} z původní ceny"
+    trial_disclaimer: Spusťte zkušební verzi zdarma. Nebudete vám nic účtováno, dokud neskončí, a můžete ji kdykoliv zrušit bez závazku.
+    subscription_disclaimer: Předplatné se obnovuje automaticky. Kdykoli můžete zrušit.
+    restore_sign_in: Obnovit / Přihlásit se
+  video_player:
+    downloading_for_sharing: Stahování videa pro sdílení…({})
+  tool:
+    title: Nástroje
+  beltTuner:
+    title: Dotahovač řemenů
+    description: Zajištění správného napětí řemenů je nezbytné pro optimální výkon 3D tiskáren. Nesprávné napětí, ať už příliš těsné nebo příliš volné, může vést k mechanickým problémům, předčasnému opotřebení a ohrožené kvalitě tisku. Jako referenční body slouží uvedené hodnoty napětí; doporučuje se však konzultovat doporučení výrobce pro konkrétní pokyny přizpůsobené vašemu modelu tiskárny. Úpravy by měly být prováděny jak na základě těchto doporučení, tak na základě individuálních požadavků a podmínek tiskárny.
+    beltType: 'Vyberte svůj typ řemenu:'
+    target: 'Cíl: {} Hz nad {} mm'
+    permissionWarning:
+      title: Je vyžadováno oprávnění k mikrofonu
+      subtitle: |-
+        Dotahovač řemenů používá mikrofon vašeho telefonu pro analýzu frekvence vibrací řemenů.
+
+        Klikněte pro udělení oprávnění.
+  spoolman:
+    title: Spoolman
+    not_available: "Spoolman není pro tuto tiskárnu k dispozici. \nUjistěte se, že Spoolman je nainstalován a povolen ve vaší tiskárně."
+    learn_more: Chcete-li se dozvědět více o Spoolmanu a jak jej nainstalovat, navštivte projekt
+    learn_more_link: GitHub stránka
+    no_spools: Nenalezeny žádné cívky!
+    no_filaments: Nenalezeny žádné filamenty!
+    no_vendors: Nenalezeni žádní výrobci!
+    error_loading_spools: Chyba při načítání cívek
+    error_loading_filaments: Chyba při načítání vláken
+    spoolman_actions:
+      activate: "@:general.activate"
+      deactivate: Vypnout
+      clone: Duplikovat
+      edit: "@:general.edit"
+      archive: Archivovat
+      unarchive: Zrušit archivaci
+      adjust: Upravit Spool Filament
+      share_qr: Sdílet QR kód
+      delete: "@:general.delete"
+      add_spool: Přidat cívku
+      add_filament: Přidat Filament
+    create:
+      success:
+        title: "{} vytvořeno!"
+        message:
+          one: '{} bylo úspěšně vytvořeno.'
+          other: '{} bylo úspěšně vytvořeno.'
+      error:
+        title: Chyba při vytváření {}!
+        message: Neočekávaná chyba! Zkuste to prosím znovu později.
+    update:
+      success:
+        title: "{} aktualizováno!"
+        message: '{} bylo úspěšně aktualizováno.'
+      error:
+        title: Chyba při aktualizaci {}!
+        message: Neočekávaná chyba! Zkuste to prosím znovu později.
+      no_changes:
+        title: Nebyly provedeny žádné změny!
+        message: V {} nebyly provedeny žádné změny.
+    delete:
+      confirm:
+        title: Smazat {}?
+        body: |-
+          Chystáte se odstranit {}.
+          Tuto akci nelze vrátit zpět.
+
+          Potvrďte vaši akci.
+      success:
+        title: "{} smazáno!"
+        message:
+          one: '{} bylo úspěšně smazáno.'
+          other: '{} bylo úspěšně smazáno.'
+      error:
+        title: Chyba při mazání {}!
+        message: Neočekávaná chyba, zkuste to prosím znovu později.
+    spool:
+      one: Cívka
+      other: Cívky
+    filament:
+      one: Filament
+      other: Filamenty
+    vendor:
+      one: Výrobce
+      other: Výrobci
+    properties:
+      id: ID
+      name: Jméno
+      registered: Registrováno
+      comment: Komentář
+      material: Materiál
+      price: Cena
+      density: Hustota
+      diameter: Průměr
+      weight: Hmotnost
+      spool_weight: Hmotnost cívky
+      article_number: Číslo položky
+      first_used: Poprvé použito
+      last_used: Naposledy použito
+      remaining_weight: Zbývající hmotnost
+      used_weight: Použitá hmotnost
+      remaining_length: Zbývající délka
+      used_length: Použitá délka
+      location: Poloha
+      lot_number: Číslo šarže
+      color: Barva
+      initial_weight: Počáteční hmotnost
+    property_sections:
+      basic: Základní informace
+      usage: Podrobnosti o využíití
+      additional: Další informace
+      physical: Fyzické vlastnosti
+      print_settings: Nastavení tisku
+      extra_fields: Extra Pole
+    vendor_details:
+      page_title: Výrobce {}
+      info_card: Informace o výrobci
+      filaments_card: Filamenty podle výrobce
+      spools_card: Cívky podle výrobce
+    filament_details:
+      info_card: Informace o filamentu
+      spools_card: Cívky s filamenty
+    spool_details:
+      page_title: Cívka {}
+      info_card: Informace o cívce
+      set_active: Nastavit jako aktivní cívku
+      archived_warning:
+        title: Cívka je archivovaná
+        body: Tato cívka je archivovaná a nemůže být použita pro nové tisky.
+      alternative_spool:
+        same_filament: Alternativní cívky (stejný filament)
+        same_material: Alternativní cívky (stejný materiál)
+    spool_form:
+      create_page_title: Vytvořit cívku
+      update_page_title: Upravit cívku
+      helper:
+        price: "@:pages.spoolman.filament_form.helper.price Výchozí hodnota ceny vlákna, pokud není nastavena"
+        initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight výchozí hodnota hmotnosti vlákna, pokud není nastavena"
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight výchozí hmotnost vlákna nebo cívky, výrobce pokud není nastavena"
+        used_weight: Hmotnost použitého vlákna; hodnota 0 gramů znamená, že je cívka nepoužitá.
+        location: Místo, kde ukládáte cívku
+        lot_number: Číslo šarže výrobce. Může být použito pro zajištění konzistentní barvy při používání více cívek.
+    filament_form:
+      create_page_title: Vytvořit Filament
+      update_page_title: Upravit Filament
+      helper:
+        price: Cena cívky vlákna.
+        initial_weight: Čistá hmotnost vlákna v celé cívce, s výjimkou cívky. Obvykle se uvádí na obalu.
+        empty_weight: Prázdná hmotnost cívky.
+    vendor_form:
+      create_page_title: Vytvořit výrobce
+      update_page_title: Upravit výrobce
+      helper:
+        empty_weight: Hmotnost prázdné cívky od tohoto výrobce.
+  temp_chart:
+    title: Teplotní graf
+    chart_y_axis: Teplota [°C]
+components:
+  app_version_display:
+    version: 'Verze:'
+    installed_version: 'Nainstalovaná verze: '
+  pull_to_refresh:
+    pull_up_idle: Potažením nahoru obnovíte
+  nav_drawer:
+    printer_settings: Nastavení tiskárny
+    manage_printers: Správa tiskáren
+    fetching_printers: "@:general.fetching tiskárny…"
+    footer: |-
+      Vyrobeno s ❤️ uživatelem Patrick Schmidt
+      Podívejte se na projekt
+  connection_watcher:
+    reconnect: Znovu připojit
+    trying_connect: Pokus o připojení…
+    trying_connect_remote: Pokus o připojení pomocí vzdáleného klienta…
+    server_starting: Server startuje...
+    more_details: Další podrobnosti
+    add_printer: |-
+      Ahoj!
+      Jsem nadšen, že Vás tu vidím!
+      Pro rozjetí Vašeho zážitku, přidejte laskavě tiskárnu do Mobilerakeru. Jakmile dokončíte tento krok, budete moci ovládat svoji tiskárnu přímo z Mobilerakeru.
+  octo_indicator:
+    tooltip: Využívám OctoEverywhere!
+  supporter_add:
+    title: Líbí se vám Mobileraker?
+    subtitle: Klikni na mě! Uvidíš, jak můžeš podpořit vývoj!
+  supporter_only_feature:
+    dialog_title: Funkce pouze pro Podporovatele
+    button: Staňte se Podporovatelem Mobilerakeru
+    webcam: Je nám líto, ale webové kamery typu {} jsou k dispozici pouze Podporovatelům. Jako alternativu jsou webové kamery Mjpeg dostupné všem uživatelům.
+    printer_add: Dosáhli jste limitu počtu zařízení. Pouze Podporovatelé Mobilerakeru mohou přidat více než {} strojů.
+    job_queue: Je nám líto, ale fronta úloh je dostupná pouze pro Podporovatele.
+    timelaps_share: Je nám líto, ale funkce Sdílení časosběrů je dostupná pouze pro Podporovatele.
+    printer_theme: Je nám líto, ale konkrétní témata tiskáren jsou dostupná pouze pro Podporovatele.
+    spoolman_page: Je nám líto, ale stránka Spoolmanu je dostupná pouze pro Podporovatele.
+    custom_dashboard: Je nám líto, ale přizpůsobení hlavní obrazovky je funkce dostupná pouze pro Podporovatele.
+    full_file_management: Je nám líto, ale plná správa souborů je funkce dostupná pouze pro Podporovatele.
+    gcode_preview: Je nám líto, ale náhled GCode je k dispozici pouze pro Podporovatele.
+    graph_page: Je nám líto, ale stránka s historií teploty je dostupná pouze pro Podporovatele.
+    snapshot_webcam: Omlouváme se, ale snímky oznámení jsou k dispozici pouze pro Podporovatele.
+  machine_deletion_warning:
+    title: Odstranění stroje
+    subtitle: Zdá se, že nejste Podporovatel. Pouze Podporovatelé mohou mít více než {} zařízení. Máte {} dní před automatickým odstraněním nadbytečných strojů.
+  remote_connection_indicator:
+    title: Využívám vzdálené připojení!
+  web_rtc:
+    renderer_missing: WebRtc video  není dostupné!
+    oe_warning: WebRtc přes OctoEverywhere zatím není podporováno!
+  ri_indicator:
+    tooltip: Využívám vzdálené připojení!
+  obico_indicator:
+    tooltip: Využívám Obico Tunnel!
+  gcode_preview:
+    layer:
+      one: Vrstva
+      other: Vrstvy
+    move:
+      one: Pohyb
+      other: Pohyby
+    downloading:
+      starting: Čeká se na stažení…
+      progress: Stahování GCode souboru ({})…
+    parsing:
+      setting_up: Nastavování GCode Parser…
+      progress: Analyzuji GCode ({})…
+      canceled: Analýza GCodes byla zrušena!
+      error:
+        title: Error při analýze GCode!
+        body: Nastala chyba při pokusu analyzovat GCode. Zkuste to znovu. Pokud problém přetrvává, otevřete prosím problém (Issue) na GitHubu a připojte GCode soubor.
+    error:
+      config:
+        title: Chyba při načítání konfigurace tiskárny!
+        body: Nastala chyba při pokusu o načtení konfigurace tiskárny Ujistěte se, že stroj je dostupný a Mobileraker je připojen.
+  gcode_preview_settings_sheet:
+    title: Nastavení vizualizéru
+    show_grid:
+      title: Zobrazit mřížku
+      subtitle: Zobrazit referenční mřížku
+    show_axes:
+      title: Zobrazit osy
+      subtitle: Zobrazit osy X a Y
+    show_next_layer:
+      title: Zobrazit další vrstvu
+      subtitle: Zobrazit nadcházející vrstvu v náhledu
+    show_previous_layer:
+      title: Zobrazit předchozí vrstvu
+      subtitle: Zobrazit předchozí tištěnou vrstvu
+    extrusion_width_multiplier:
+      prefix: Násobitel šířky linky
+    show_extrusion:
+      title: Zobrazit extruze
+      subtitle: Zvýraznit pohyb materiálu
+    show_retraction:
+      title: Zobrazit retrakce
+      subtitle: Zvýraznit pohyby retrakce filamentu
+    show_travel:
+      title: Zobrazit pohyby cestování
+      subtitle: Zobrazit netisknoucí pohyb
+  select_color_sheet:
+    title: Vybrat barvu
+  ad_banner:
+    failed:
+      title: Reklama není k dispozici
+      subtitle: Reklamy podporují pokračující vývoj
+  machine_card:
+    last_activity:
+      zero: "Poslední aktivita: dnes"
+      one: "Poslední aktivita: Včera"
+      other: "Poslední aktivita: před {} dny"
+    waiting_for_job: Čekání na další práci
+    last_job: "Poslední práce: {}"
+    last_seen: Naposledy spatřen
+    new_print: Nová úloha
+    client_state:
+      disconnected: Stroj je odpojen
+    job_error_detected: Zjištěna chyba při tisku
+    klippy_state:
+      initializing: Inicializece Klipperu…
+      startup: Klipper startuje...
+      disconnected: Klipper je odpojen
+      shutdown: Klipper-vypnutí
+      error: Error Klipperu
+      unauthorized: Přístup odepřen
+dialogs:
+  rate_my_app:
+    title: Ohodnotit Mobileraker?
+    message: Pokud máte rádi Mobileraker a chcete podpořit vývoj, zvažte prosím hodnocení Mobileraker!
+  import_setting:
+    fetching: Načítání zdrojů…
+    fetching_error_title: Nelze načíst nastavení!
+    fetching_error_sub: Ujistěte se, že jsou připojeny ostatní stroje.
+    select_source: Vyberte zdroj
+  create_folder:
+    title: Vytvořit adresář
+    label: Název adresáře
+  delete_folder:
+    title: Jste si jisti?
+    description: |-
+      Všechny soubory obsažené v adresáři budou také odstraněny!
+
+      Potvrďte smazání složky '/{}'.
+  rename_folder:
+    title: Přejmenovat adresář
+    label: Název adresáře
+  copy_folder:
+    title: Kopírovat adresář
+    label: Název adresáře
+  delete_file:
+    description: Potvrďte odstranění souboru '{}'.
+  rename_file:
+    title: Přejmenovat soubor
+    label: Název souboru
+  copy_file:
+    title: Kopírovat soubor
+    label: Název souboru
+  create_file:
+    title: Vytvořit soubor
+    label: Název souboru
+  create_archive:
+    title: Vytvořit archiv
+    label: Jméno archivu
+  delete_files:
+    description: Potvrďte odstranění {} souborů.
+  exclude_object:
+    title: Vyloučit objekt z tisku
+    label: Objekt k vyloučení
+    confirm_tile_title: Jste si jisti?
+    confirm_tile_subtitle: Tuto akci nelze vrátit zpět.
+    exclude: Vyloučit
+    no_visualization: Nejsou k dispozici žádná vizualizační data!
+  ws_input_help:
+    title: Nápověda pro vstup URL
+    body: |-
+      Můžete buď zadat IP adresu, URL nebo úplnou adresu URI do svého webového rozhraní nebo přímo do instance websocketu poskytnuté Moonrakerem.
+
+      Platné příklady:
+  gcode_params:
+    hint: 'Tip: Můžete také dlouze stisknout, pokud chcete odeslat makro s výchozími hodnotami!'
+    confirm_title: Spustit {}?
+    confirm_body: |-
+      Chystáte se spustit makro '{}'.
+
+      Potvrďte svou akci.
+  rgbw:
+    recent_colors: Nedávné barvy
+  select_machine:
+    title: Vyberte stroj
+    active_machine: 'Aktivní stroj: {}'
+    hint: Klepnutím na stroj jej nastavíte jako aktivní.
+  bed_screw_adjust:
+    title: Seřízení šroubů podložky
+    xy_plane: 'Plocha X/Y tiskárny:'
+    active_screw_title: 'Aktivní šroub:'
+    accept_screw_title: 'Přijaté šrouby:'
+    accept_screw_value: "{} z {}"
+    hint: Klepněte na tlačítko Upravit, pokud je nutné provést významné nastavení na aktuálním šroubu; v opačném případě klepněte na tlačítko Přijmout a pokračujte.
+    adjusted_btn: Seřízeno
+  manual_offset:
+    title: "@:general.offset Kalibrace"
+    hint_tooltip: Dokumentace ke Klipper Paper Testu
+    snackbar_title: Kalibrace dokončena
+    snackbar_message: Ujistěte se, že jste provedli příkaz Save Config pro uložení odsazení z kalibrace.
+  tipping:
+    title: Tip vývojáře!
+    body: Tento tip je pouze myšlen pro ukázání snahy vývojáře a NEUMOŽŇUJE přístup k žádným dalším funkcím.
+    amount_label: Výše tipu
+    tip: Tip
+  http_header:
+    title: Http-hlavička
+    header: Hlavička
+    header_hint: Název hlavičky HTTP
+    value: Hodnota hlavičky
+    value_hint: Hodnota hlavičky
+  macro_settings:
+    show_for_states: Stavy tisku
+    show_for_states_hint: Vyberte stavy, pro které má být makro zobrazeno
+    visible: Viditelný
+  extruder_feedrate:
+    title: Rychlost extruze [mm/s]
+  fan_speed:
+    title: Upravit {} %
+  filament_sensor_triggered:
+    title: Filament Sensor sepnut
+    body: |-
+      Senzor '{}' byl spuštěn.
+
+      Prosím zkontrolujte tiskárnu a senzor a ujistěte se, že je k dispozici vlákno nebo že senzor vypnete.
+  screws_tilt_adjust:
+    title: Úprava sklonu šroubů
+    base: Základ
+    hint: Dialog vám pomůže upravit šrouby postele. Pro každý šroub vidíte požadované úpravy jako hodiny ve formátu HH:MM. Například 01:15 označuje plnou otočení plus čtvrtinu otočení ve směru, který ikona udává.
+  dashboard_page_settings:
+    title: Nastavení stránky Přehledu
+    icon_label: 'Vyberte ikonu stránky:'
+  filament_switch:
+    title:
+      load: Průvodce zavedením Filamentu
+      unload: Průvodce vysunutím Filamentu
+    controls:
+      heat_up: Nahřát
+      change_temp: Změnit teplotu
+      purge: Vyčistit filament
+      repeat_load: Znovu zavést
+      repeat_unload: Znovu vysunout
+      repeat_purge: Znovu vyčistit
+    steps:
+      set_temps:
+        title: Teplota filamentu
+        subtitle: Vyberte cílovou teplotu
+      heat_up:
+        title: Nahřívání tiskové hlavy
+        subtitle: Nahřívání na cílovou teplotu
+      move:
+        title:
+          load: Zavést filament
+          unload: Vysunout filament
+        subtitle:
+          load:
+            idle: Vložte vlákno do extruderu
+            processing: Zavádění filamentu...
+            processed: Dosáhlo vlákno trysky? V případě potřeby opakujte.
+          unload:
+            idle: Vytáhněte filament z extruderu
+            processing: Vysouvání filamentu...
+            processed: Vyšlo vlákno z extrudéru? V případě potřeby opakujte.
+      purge:
+        title: Vyčistit filament
+        subtitle:
+          idle: Zavést vlákno do trysky
+          processing: Čištění filamentu...
+          processed: Ověřte, jestli je vytlačený materiál čistý. V případě potřeby opakujte.
+      tip_form:
+        title: Tip Forming
+        subtitle: Provádění Tip forming
+  heater_temperature:
+    title: "{} Teplota [°C]"
+  confirm_print_cancelation:
+    title: Zrušit tisk?
+    body: |-
+      Chystáte se zrušit tiskovou úlohu.
+
+      Potvrďte vaši akci.
+  confirm_print_pause:
+    title: Pozastavit tisk?
+    body: |-
+      Chystáte se pozastavit tiskovou úlohu.
+
+      Potvrďte vaši akci.
+  adjust_spool_filament:
+    title: Upravit Spool Filament
+    subtitle: Přidat nebo odečíst vlákno od cívky. Pozitivní hodnota bude spotřebovávat vlákno, přidá ho záporná hodnota.
+    input_label: Upravit množství
+    submit_label: Seřídit
+    tooltip:
+      weight: Přepnout do režimu hmotnosti
+      length: Přepnout do režimu délky
+  num_range_dialog:
+    helper:
+      min: Zadejte hodnotu alespoň {}
+      range: Zadejte hodnotu mezi {} a {}
+bottom_sheets:
+  job_queue_sheet:
+    next: Další tisková úloha
+    empty: Fronta úloh je prázdná. Úlohy můžete přidat přes prohlížeč souborů.
+    start_queue: Spustit frontu
+    pause_queue: Pozastavit frontu
+    remove_all: Vymazat Frontu
+    remove_all_confirm: Tato operace odstraní všechny úlohy z fronty.
+  add_remote_con:
+    disclosure: "{service} není spojen s Mobilerakerem. Může to vyžadovat další předplatné. Pro více informací prosím zkontrolujte webové stránky {service}."
+    active_service_info:
+      title: Stávající konfigurace nalezena!
+      body: Momentálně používáte {} jako službu vzdáleného připojení. Před přidáním nové ji odstraňte.
+    octoeverywehre:
+      service_name: OctoEverywhere
+      tab_name: "@:bottom_sheets.add_remote_con.octoeverywehre.service_name"
+      link: Propojit s OctoEverywhere
+      unlink: Zrušit propojení OctoEverywhere
+      description: OctoEverywhere.com je komunitní projekt, který vám umožňuje bezpečně se připojit k tiskárně odkudkoliv. OctoEverywhere také poskytuje komunitě zdarma detekci selhání, oznámení, live streamování a další. Nastavení trvá pouze 20 sekund!
+    manual:
+      service_name: Manuální vzdálené připojení
+      tab_name: Ručně
+      description: Pokud jste pokročilý uživatel, můžete si vybrat ručně přidat alternativní připojení. Alternativní připojení přichází do hry, když pokusy o připojení k hlavní adrese nejsou úspěšné. To může být užitečné, pokud máte reverzní proxy připojení k tiskárně, nebo pokud máte sekundární IP adresu, kterou můžete použít pro připojení k tiskárně.
+      address_label: Alternativní adresa
+      address_hint: Základní adresa vzdáleného připojení, které má být použito
+    obico:
+      service_name: Obico
+      tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
+      link: Přopojit Obico
+      unlink: Zrušit propojení Obico
+      description: Obico je komunitou plně open-source 3D tiskařský software. Umožňuje vám ovládat a sledovat vaši Klipper tiskárnu odkudkoli, a to za každou cenu. Jedná se o jedno z průkopnických řešení pro detekci selhání pomocí AI pomocí webové kamery vašeho tiskárny.
+      self_hosted:
+        title: Vlastní hosting
+        description: Ve výchozím nastavení bude Mobileraker používat oficiální instanci Obico. Pokud však spravujete svou vlastní instanci, můžete zde zadat adresu URL.
+        url_label: URL adresa vlastního hostování
+        url_hint: Základní URL instance Obico
+  manage_macros_in_grp:
+    title: Přidat makra
+    hint: Vyberte makra pro skupinu {}
+  signIn:
+    subtitle: Přestože je vytvoření účtu nepovinné, je nutné to udělat pro obnovení nákupů provedených na jiném zařízení nebo platformě.
+    forgot_password: Zapomenuté heslo?
+    forgot_password_success: E-mail pro obnovení hesla byl odeslán!
+    hint:
+      sign_in: Ještě nemáte účet?
+      sign_up: Již máte účet?
+      reset_password: Zadejte svou e-mailovou adresu pro získání odkazu pro obnovení hesla.
+    action:
+      sign_in: Přihlásit se
+      sign_up: Registrovat se
+      reset_password: Resetovat heslo
+    email:
+      label: E-mail
+      hint: Vaše e-mailová adresa
+    password:
+      label: Heslo
+      hint: Vaše heslo
+    confirm_password:
+      label: Potvrďte heslo
+      hint: Potvrďte svoje heslo
+      error: Hesla se neshodují!
+  profile:
+    title: Jste přihlášeni.
+    description: Vítejte zpět! Váš uživatelský účet je klíčem k vylepšenému zážitku z jakéhokoliv mobilního zařízení. Bezproblémově sdílejte váš stav podpory a užívejte si oprávnění bez námahy, ať už s telefonem, tabletem nebo jinými zařízeními.
+    restore_purchases: Obnovit nákupy
+    restore_success: Nákupy byly úspěšně obnoveny
+    sign_out: Odhlásit se
+    delete_account: Odstranit účet
+    email_verification:
+      title:
+        pending: Ověřovací e-mail byl odeslán
+        not_verified: E-mail není ověřen
+      description: Ověřte prosím svou e-mailovou adresu, abyste se ujistili, že máte vždy přístup k vašemu účtu.
+      send: Odeslat ověření
+    delete_account_dialog:
+      title: Odstranit účet?
+      body: Chystáte se odstranit svůj účet. Tuto akci nelze vrátit zpět.
+  bedMesh:
+    no_mesh_loaded: Zatím nebyla načtena žádná síť podložky.
+    load_bed_mesh_profile: Načíst profil sítě podložky
+    no_mesh: Žádná síť
+    clear_loaded_profile: Vymazat načtený profil
+    cant_render: Vykreslování síťky podložky pro kinematiku tiskárny ještě není podporováno.
+  select_spool:
+    header:
+      spools: Cívky
+      qr: QR kód
+    no_spools: Nebyly nalezeny žádné cívky. Přidejte prosím cívky do Spoolmanu
+    error: 'Došlo k chybě při pokusu o načítání cívek: {}'
+    qr_loading: Načítání QR skeneru…
+    qr_error: 'Chyba při pokusu o načtení QR skeneru: {}'
+    scan_again: Skenovat Znovu
+    set_active: Nastavit aktivní
+    spool_id_not_found: 'Omlouváme se, žádná spool nebyla nalezena s ID #{}.'
+  non_printing:
+    manage_service:
+      title: Spravovat služby
+      no_services: Nebyly nalezeny žádné služby!
+      provider_error: Chyba při načítání služeb
+    confirm_action:
+      title: Jste si jisti?
+      hint:
+        long_press: 'Tip: Pro přeskočení dlouze stiskněte tlačítko, které otevřelo toto potvrzení.'
+      body:
+        pi_restart: Chystáte se restartovat Raspberry / BTT Pi. Opravdu chcete pokračovat?
+        pi_shutdown: Chystáte se uzavřít Raspberry Pi. Toto odpojí všechna aktivní připojení a zastaví všechny spuštěné procesy. Opravdu chcete pokračovat?
+        fw_restart: Chystáte se restartovat firmware. Opravdu chcete pokračovat?
+        service_start: Chystáte se spustit službu '{}'. Jste si jisti, že chcete pokračovat?
+        service_restart: Chystáte se restartovat službu '{}'. Opravdu chcete pokračovat?
+        service_stop: Chystáte se zastavit službu '{}'. Jste si jisti, že chcete pokračovat?
+  dashboard_cards:
+    title: Přidat kartu
+    subtitle: Vyberte kartu, kterou chcete přidat do řídicího panelu
+  dashboard_layout:
+    title: Rozložení přehledu
+    subtitle: 'Aktuální rozložení:'
+    available_layouts:
+      label: 'Dostupné rozložení:'
+      empty: Není k dispozici žádné rozložení
+      add_empty: Přidat prázdné rozložení
+    layout_preview:
+      not_saved: Neuloženo
+    rename_layout:
+      title: Přejmenovat rozložení
+      label: Jméno rozvržení
+    delete_layout:
+      title: Odstranit Rozložení
+      body: |-
+        Opravdu chcete odstranit rozvržení {}?
+        Všechny stroje používající toto rozvržení se vrátí do výchozího rozvržení.
+    import_snackbar:
+      title: Rozložení importováno!
+      body: Pro aplikaci změn se ujistěte, že stisknete tlačítko uložit.
+    falsy_import_snackbar:
+      title: Chyba při importu rozložení!
+      body: Rozložení nelze importovat. Ujistěte se, že schránka obsahuje platné rozložení.
+  selections:
+    no_selections:
+      title: Nebyly nalezeny žádné výsledky
+      subtitle: Zkuste jiný hledaný výraz
+  temp_chart_settings:
+    title: Nastavení grafu teploty
+  select_file:
+    title: Vybrat úlohu pro tisk
+klipper_state:
+  ready: Připraven
+  shutdown: Vypnut
+  starting: Startuje
+  disconnected: Odpojen
+  error: Error
+  unauthorized: Neautorizovaný
+  initializing: Inicializace
+  not_connected: Moonraker nemůže navázat spojení s Klipperem. Ověřte, zda Klipper běží na vašem systému.
+client_state:
+  connected: Připojen
+  disconnected: Odpojen
+  connecting: Připojování
+  error: Error
+print_state:
+  standby: Připraven
+  printing: Probíhá tisk
+  paused: Pozastaveno
+  complete: Dokončeno
+  cancelled: Zrušeno
+  error: Error
+theme_mode:
+  light: Světlý
+  dark: Tmavý
+  system: Systémový
+eta_data_source:
+  file: G-Kód
+  slicer: Slicer
+  filament: Filament
+notifications:
+  channel_printer_grp: Tiskárna {}
+  channels:
+    status:
+      name: Aktualizace stavu tisku - {}
+      desc: Oznámení týkající se stavu tisku.
+      title: Stav tisku {} se změnil!
+      body_printing: 'Začal se tisknout soubor: "{}"'
+      body_paused: 'Pozastavený tiskový soubor: "{}"'
+      body_complete: 'Dokončený tisk: "{}"'
+      body_error: 'Při tisku souboru došlo k chybě: "{}"'
+    progress:
+      name: Aktualizace průběhu tisku - {}
+      desc: Oznámení týkající se postupu tisku.
+      title: Postup tisku {}
+form_validators:
+  simple_url: 'Vstup povoluje pouze komponenty URL: název hostitele a port'
+  disallow_mdns: mDNS (.local) adresy nejsou podporovány
+  file_name_in_use: Název souboru je již používán
+  min_before_max: Minimální hodnota musí být menší nebo rovna maximální hodnotě
+date:
+  year:
+    one: Rok
+    other: Roky
+  month:
+    one: Měsíc
+    other: Měsíce
+  week:
+    one: Týden
+    other: Týdny
+  day:
+    one: Den
+    other: Dny
+  reference:
+    today: Dnes
+    yesterday: Včera
+    tomorrow: Zítra
+date_periods:
+  year:
+    one: Ročně
+    other: Roky
+  month:
+    one: Měsíčně
+    other: Měsíce
+  week:
+    one: Týdně
+    other: Týdny
+  day:
+    one: Denně
+    other: Dny
+consent_cards:
+  marketing_notifications:
+    title: 'Zůstat ve spojení s oznámením'
+    description: "Rádi bychom vám posílali oznámení, abychom vás informovali o důležitých aktualizacích a relevantních nabídkách."
+    agreement: 'Přijetím souhlasíte, že můžeme:'
+    terms: |
+      • Uložení FCM ID vašeho zařízení pro účely zasílání oznámení
+      • Zasílání marketingových sdělení a propagačních nabídek
+      • Zpracování těchto údajů v souladu s našimi zásadami ochrany osobních údajů
+    disclaimer: Souhlas můžete kdykoliv odebrat prostřednictvím nastavení aplikace. Další informace o tom, jak nakládáme s vašimi údaji, naleznete v našich Zásadách ochrany osobních údajů.
+products:
+  most_popular: Nejpopulárnější
+  lifetime:
+    title: Doživotní Podporovatel
+    subtitle: Jednorázový příspěvek
+  annual:
+    title: Roční Podporovatel
+    subtitle: Zaplaťte méně s naším ročním plánem
+  sixMonth:
+    title: Šestiměsíční Podporovatel
+  threeMonth:
+    title: Tříměsíční Podporovatel
+  monthly:
+    title: Měsíční Podporovatel
+    subtitle: Podpořte nás každý měsíc
+  weekly:
+    title: Týdenní Podporovatel
+  tip:
+    coffee: "Káva"
+    snack: "Svačinka"
+    lunch: "Oběd"
