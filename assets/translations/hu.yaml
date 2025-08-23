@@ -1633,7 +1633,7 @@ languages:
       nativeName: hrvatski
     cs:
       name: Cseh
-      nativeName: česky, čeština
+      nativeName: Cseh, cseh nyelv
     da:
       name: Dán
       nativeName: dán
@@ -1666,7 +1666,7 @@ languages:
       nativeName: suomi, suomen kieli
     fr:
       name: Francia
-      nativeName: français, langue française
+      nativeName: Francia, francia nyelv
     ff:
       name: Fula; Fulah; Pulaar; Pular
       nativeName: Fulfulde, Pulaar, Pular
@@ -1903,7 +1903,7 @@ languages:
       nativeName: فارسی
     pl:
       name: Polish
-      nativeName: polski
+      nativeName: Lengyel
     ps:
       name: Pashto, Pushto
       nativeName: پښتو
@@ -1924,7 +1924,7 @@ languages:
       nativeName: Román
     ru:
       name: Orosz
-      nativeName: русский язык
+      nativeName: Orosz nyelv
     sa:
       name: Sanskrit (Saṁskṛta)
       nativeName: संस्कृतम्
