@@ -121,6 +121,7 @@ To edit an existing language file manually:
 - 🇨🇳 Chinese
   Mainland, [@emo64](https://github.com/emo64), [@ptsa](https://github.com/ptsa), [@zhengzhengju](https://github.com/zhengzhengju)
 - 🇹🇼 Chinese Taiwan, Kayzed
+- 🇨🇿 Czech, [@MarekKozak](https://github.com/Marek-Dvorny)
 - 🇳🇱 Dutch, [@JSMPI](https://github.com/JSMPI)
 - 🇬🇧 English, [@Clon1998](https://github.com/Clon1998)
 - 🇫🇷 French, [@Jothoreptile](https://github.com/Jothoreptile), Arnaud Petetin, [@dtourde](https://github.com/dtourde)
@@ -130,7 +131,7 @@ To edit an existing language file manually:
 - 🇵🇱 Polish, solargrim
 - 🇧🇷 Portuguese Brasil, [@opastorello](https://github.com/opastorello)
 - 🇷🇴 Romanian, [@vaxxi](https://github.com/vaxxi)
-- 🇷🇺 Russian, [@teuchezh](https://github.com/teuchezh)
+- 🇷🇺 Russian, [@teuchezh](https://github.com/teuchezh), DrPerryCoke
 - 🇹🇷 Turkish, [@larinspub ](https://github.com/larinspub)
 - 🇺🇦 Ukrainian, [@iZonex](https://github.com/iZonex)
 

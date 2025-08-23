@@ -2,6 +2,11 @@
 
 ## [2.9.1] - 2025-0X-XX
 
+### Localization
+
+- Added the 🇨🇿czech translation, thanks to [@Marek-Dvorny](https://github.com/Marek-Dvorny).
+- Updated the 🇷🇺russian translation, thanks to DrPerryCoke.
+
 ### Enhancements
 
 - **Bed Mesh Visualization**: The bed mesh visualization card has been enhanced to display the bed mesh in a
