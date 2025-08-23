@@ -7,6 +7,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -672,7 +673,7 @@ ThemePack _oePack() {
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
     ),
-    brandingIcon: const AssetImage('assets/images/oe_icon.png'),
+    brandingIcon: const Svg('assets/vector/oe_rocket.svg'),
   );
 }
 

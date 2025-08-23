@@ -28,7 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
@@ -998,9 +998,7 @@ class _ThemeSelector extends ConsumerWidget {
             value: idx,
             child: Row(
               children: [
-                (brandingIcon == null)
-                    ? SvgPicture.asset('assets/vector/mr_logo.svg', width: 32, height: 32)
-                    : Image(height: 32, width: 32, image: brandingIcon),
+                Image(height: 32, width: 32, image: brandingIcon?? Svg('assets/vector/mr_logo.svg')),
                 const SizedBox(width: 8),
                 Flexible(child: Text(theme.name)),
               ],

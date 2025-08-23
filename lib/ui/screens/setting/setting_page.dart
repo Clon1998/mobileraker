@@ -21,7 +21,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/flutter_svg.dart' hide Svg;
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -107,82 +108,41 @@ class _GeneralSection extends ConsumerWidget {
           name: 'emsConfirmation',
           title: const Text('pages.setting.general.ems_confirm').tr(),
           subtitle: const Text('pages.setting.general.ems_confirm_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.confirmEmergencyStop,
-            b ?? false,
-          ),
-          initialValue: ref.read(boolSettingProvider(
-            AppSettingKeys.confirmEmergencyStop,
-            true,
-          )),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.confirmEmergencyStop, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.confirmEmergencyStop, true)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'confirmGCode',
           title: const Text('pages.setting.general.confirm_gcode').tr(),
           subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.confirmMacroExecution,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.confirmMacroExecution),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.confirmMacroExecution, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.confirmMacroExecution)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'useTextInputForNum',
           title: const Text('pages.setting.general.num_edit').tr(),
           subtitle: const Text('pages.setting.general.num_edit_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.defaultNumEditMode,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.defaultNumEditMode),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.defaultNumEditMode, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.defaultNumEditMode)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'startWithOverview',
           title: const Text('pages.setting.general.start_with_overview').tr(),
           subtitle: const Text('pages.setting.general.start_with_overview_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.overviewIsHomescreen,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.overviewIsHomescreen),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.overviewIsHomescreen, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.overviewIsHomescreen)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'useLivePos',
           title: const Text('pages.setting.general.use_offset_pos').tr(),
           subtitle: const Text('pages.setting.general.use_offset_pos_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.applyOffsetsToPostion,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.applyOffsetsToPostion),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.applyOffsetsToPostion, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderFilterChips<ETADataSource>(
           name: AppSettingKeys.etaSources.key,
@@ -203,10 +163,7 @@ class _GeneralSection extends ConsumerWidget {
           alignment: WrapAlignment.spaceEvenly,
           options: [
             for (var e in ETADataSource.values)
-              FormBuilderChipOption(
-                value: e,
-                child: Text('eta_data_source.${e.name}').tr(),
-              ),
+              FormBuilderChipOption(value: e, child: Text('eta_data_source.${e.name}').tr()),
           ],
           validator: (list) {
             return FormBuilderValidators.minLength(1).call(list);
@@ -232,13 +189,8 @@ class _UiSection extends ConsumerWidget {
         const _ThemeModeSelector(),
         FormBuilderDropdown<bool>(
           name: 'classicMachineCards',
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.machineCardStyle,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.machineCardStyle),
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.machineCardStyle, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.machineCardStyle)),
           decoration: InputDecoration(
             labelStyle: themeData.textTheme.labelLarge,
             labelText: 'pages.setting.ui.machine_card_style.title'.tr(),
@@ -253,79 +205,41 @@ class _UiSection extends ConsumerWidget {
           name: 'keepScreenOn',
           title: const Text('pages.setting.general.keep_screen_on').tr(),
           subtitle: const Text('pages.setting.general.keep_screen_on_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.keepScreenOn,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.keepScreenOn),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.keepScreenOn, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.keepScreenOn)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'alwaysShowBaby',
           title: const Text('pages.setting.general.always_baby').tr(),
           subtitle: const Text('pages.setting.general.always_baby_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.alwaysShowBabyStepping,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.alwaysShowBabyStepping, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'sliders_grouping',
           title: const Text('pages.setting.general.sliders_grouping').tr(),
           subtitle: const Text('pages.setting.general.sliders_grouping_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.groupSliders,
-            b ?? false,
-          ),
-          initialValue: ref.read(
-            boolSettingProvider(AppSettingKeys.groupSliders, true),
-          ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.groupSliders, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.groupSliders, true)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'lcFullCam',
           title: const Text('pages.setting.general.lcFullCam').tr(),
           subtitle: const Text('pages.setting.general.lcFullCam_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.fullscreenCamOrientation,
-            b ?? false,
-          ),
-          initialValue: ref.read(boolSettingProvider(
-            AppSettingKeys.fullscreenCamOrientation,
-          )),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.fullscreenCamOrientation, b ?? false),
+          initialValue: ref.read(boolSettingProvider(AppSettingKeys.fullscreenCamOrientation)),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
           name: 'fSensorDialog',
           title: const Text('pages.setting.general.filament_sensor_dialog').tr(),
           subtitle: const Text('pages.setting.general.filament_sensor_dialog_hint').tr(),
-          onChanged: (b) => settingService.writeBool(
-            AppSettingKeys.filamentSensorDialog,
-            b ?? true,
-          ),
+          onChanged: (b) => settingService.writeBool(AppSettingKeys.filamentSensorDialog, b ?? true),
           initialValue: ref.read(boolSettingProvider(AppSettingKeys.filamentSensorDialog, true)),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
       ],
     );
@@ -361,11 +275,7 @@ class _NotificationSection extends ConsumerWidget {
               TextSpan(
                 text: '\n${tr('pages.setting.general.companion_link')} ',
                 style: TextStyle(color: themeData.colorScheme.secondary),
-                children: const [
-                  WidgetSpan(
-                    child: Icon(FlutterIcons.github_alt_faw, size: 18),
-                  ),
-                ],
+                children: const [WidgetSpan(child: Icon(FlutterIcons.github_alt_faw, size: 18))],
                 recognizer: TapGestureRecognizer()
                   ..onTap = ref.read(settingPageControllerProvider.notifier).openCompanion,
               ),
@@ -394,10 +304,7 @@ class _DeveloperSection extends ConsumerWidget {
           enabled: !kDebugMode,
           onChanged: (b) => FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(b ?? true),
           initialValue: FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isCollapsed: true,
-          ),
+          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         TextButton(
           style: TextButton.styleFrom(
@@ -433,77 +340,64 @@ class _Footer extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          Consumer(builder: (context, ref, child) {
-            final isFormAvailable = ref.watch(isConsentFormAvailableProvider);
+          Consumer(
+            builder: (context, ref, child) {
+              final isFormAvailable = ref.watch(isConsentFormAvailableProvider);
 
-            return OverflowBar(
-              alignment: MainAxisAlignment.spaceEvenly,
-              overflowAlignment: OverflowBarAlignment.center,
-              spacing: 4,
-              children: [
-                if (isFormAvailable.valueOrNull == true) const DataAndPrivacyTextButton(),
-                if (Platform.isIOS)
+              return OverflowBar(
+                alignment: MainAxisAlignment.spaceEvenly,
+                overflowAlignment: OverflowBarAlignment.center,
+                spacing: 4,
+                children: [
+                  if (isFormAvailable.valueOrNull == true) const DataAndPrivacyTextButton(),
+                  if (Platform.isIOS)
+                    TextButton(
+                      child: const Text('EULA'),
+                      onPressed: () async {
+                        const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+                        if (await canLaunchUrlString(url)) {
+                          await launchUrlString(url, mode: LaunchMode.externalApplication);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                    ),
+                  if (Platform.isAndroid)
+                    TextButton(
+                      child: const Text('EULA'),
+                      onPressed: () async {
+                        const String url = 'https://mobileraker.com/eula.html';
+                        if (await canLaunchUrlString(url)) {
+                          await launchUrlString(url, mode: LaunchMode.externalApplication);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                    ),
                   TextButton(
-                    child: const Text('EULA'),
-                    onPressed: () async {
-                      const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-                      if (await canLaunchUrlString(url)) {
-                        await launchUrlString(
-                          url,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      } else {
-                        throw 'Could not launch $url';
-                      }
-                    },
-                  ),
-                if (Platform.isAndroid)
-                  TextButton(
-                    child: const Text('EULA'),
-                    onPressed: () async {
-                      const String url = 'https://mobileraker.com/eula.html';
-                      if (await canLaunchUrlString(url)) {
-                        await launchUrlString(
-                          url,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      } else {
-                        throw 'Could not launch $url';
-                      }
-                    },
-                  ),
-                TextButton(
-                  child: Text(
-                    MaterialLocalizations.of(context).viewLicensesButtonLabel,
-                  ),
-                  onPressed: () {
-                    var version = ref.watch(versionInfoProvider).maybeWhen(
-                          orElse: () => 'unavailable',
-                          data: (d) => '${d.version}-${d.buildNumber}',
-                        );
+                    child: Text(MaterialLocalizations.of(context).viewLicensesButtonLabel),
+                    onPressed: () {
+                      var version = ref
+                          .watch(versionInfoProvider)
+                          .maybeWhen(orElse: () => 'unavailable', data: (d) => '${d.version}-${d.buildNumber}');
 
-                    showLicensePage(
-                      context: context,
-                      applicationVersion: version,
-                      applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-                      applicationIcon: Center(
-                        child: SvgPicture.asset(
-                          'assets/vector/mr_logo.svg',
-                          width: 80,
-                          height: 80,
+                      showLicensePage(
+                        context: context,
+                        applicationVersion: version,
+                        applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
+                        applicationIcon: Center(
+                          child: SvgPicture.asset('assets/vector/mr_logo.svg', width: 80, height: 80),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            );
-          }),
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
           Align(
             alignment: Alignment.center,
-            child: AppVersionText(
-              prefix: tr('components.app_version_display.version'),
-            ),
+            child: AppVersionText(prefix: tr('components.app_version_display.version')),
           ),
         ],
       ),
@@ -569,10 +463,7 @@ class _LanguageSelector extends ConsumerWidget {
       initialValue: context.locale,
       name: 'lan',
       items: supportedLocals
-          .map((local) => DropdownMenuItem(
-                value: local,
-                child: Text(constructLanguageText(local)),
-              ))
+          .map((local) => DropdownMenuItem(value: local, child: Text(constructLanguageText(local))))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -642,13 +533,7 @@ class _ThemeSelector extends ConsumerWidget {
           value: theme,
           child: Row(
             children: [
-              (brandingIcon == null)
-                  ? SvgPicture.asset(
-                      'assets/vector/mr_logo.svg',
-                      width: 32,
-                      height: 32,
-                    )
-                  : Image(height: 32, width: 32, image: brandingIcon),
+              Image(height: 32, width: 32, image:brandingIcon?? Svg('assets/vector/mr_logo.svg')),
               const SizedBox(width: 8),
               Flexible(child: Text(theme.name)),
             ],
@@ -681,9 +566,7 @@ class _ThemeModeSelector extends ConsumerWidget {
     var themeService = ref.watch(themeServiceProvider);
 
     return FormBuilderDropdown(
-      initialValue: ref.watch(
-        activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode),
-      ),
+      initialValue: ref.watch(activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode)),
       name: 'themeMode',
       items: [
         for (var mode in ThemeMode.values)
@@ -710,17 +593,9 @@ class _ToggleMediumUI extends ConsumerWidget {
       name: 'enableMediumUI',
       title: const Text('pages.setting.general.medium_ui').tr(),
       subtitle: const Text('pages.setting.general.medium_ui_hint').tr(),
-      onChanged: (b) => ref.read(settingServiceProvider).writeBool(
-            AppSettingKeys.useMediumUI,
-            b ?? false,
-          ),
-      initialValue: ref.read(
-        boolSettingProvider(AppSettingKeys.useMediumUI),
-      ),
-      decoration: const InputDecoration(
-        border: InputBorder.none,
-        isCollapsed: true,
-      ),
+      onChanged: (b) => ref.read(settingServiceProvider).writeBool(AppSettingKeys.useMediumUI, b ?? false),
+      initialValue: ref.read(boolSettingProvider(AppSettingKeys.useMediumUI)),
+      decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
     );
   }
 }

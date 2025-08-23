@@ -154,6 +154,7 @@ dependencies:
   #  touchable: ^1.0.2
   flutter_markdown: ^0.7.3+1
   flutter_svg: ^2.0.5
+  flutter_svg_provider: ^1.0.7
   loader_overlay: ^5.0.0
   appinio_video_player:
     git:

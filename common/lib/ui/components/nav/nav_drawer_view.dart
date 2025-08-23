@@ -14,7 +14,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -80,19 +80,12 @@ class NavigationDrawerWidget extends HookConsumerWidget {
                     TextSpan(
                       text: ' GitHub ',
                       style: TextStyle(color: themeData.colorScheme.secondary),
-                      children: const [
-                        WidgetSpan(
-                          child: Icon(FlutterIcons.github_alt_faw, size: 18),
-                        ),
-                      ],
+                      children: const [WidgetSpan(child: Icon(FlutterIcons.github_alt_faw, size: 18))],
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           const String url = 'https://github.com/Clon1998/mobileraker';
                           if (await canLaunchUrlString(url)) {
-                            await launchUrlString(
-                              url,
-                              mode: LaunchMode.externalApplication,
-                            );
+                            await launchUrlString(url, mode: LaunchMode.externalApplication);
                           } else {
                             throw 'Could not launch $url';
                           }
@@ -129,8 +122,9 @@ class _NavHeader extends HookConsumerWidget {
     // UI Stuff
     final themeData = Theme.of(context);
     final themePack = ref.watch(activeThemeProvider).requireValue.themePack;
-    final brandingIcon =
-        (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
+    final brandingIcon = (themeData.brightness == Brightness.light)
+        ? themePack.brandingIcon
+        : themePack.brandingIconDark;
     final background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
         : themeData.colorScheme.primaryContainer;
@@ -150,10 +144,7 @@ class _NavHeader extends HookConsumerWidget {
             InkWell(
               onTap: () {
                 if (selectedMachine.hasValue && selectedMachine.value != null) {
-                  controller.pushingTo(
-                    '/printer/edit',
-                    arguments: selectedMachine.requireValue!,
-                  );
+                  controller.pushingTo('/printer/edit', arguments: selectedMachine.requireValue!);
                 } else {
                   controller.pushingTo('/printer/add');
                 }
@@ -166,13 +157,7 @@ class _NavHeader extends HookConsumerWidget {
                     Expanded(
                       child: Row(
                         children: [
-                          (brandingIcon == null)
-                              ? SvgPicture.asset(
-                                  'assets/vector/mr_logo.svg',
-                                  width: 60,
-                                  height: 60,
-                                )
-                              : Image(height: 60, width: 60, image: brandingIcon),
+                          Image(height: 60, width: 60, image: brandingIcon ?? Svg('assets/vector/mr_logo.svg')),
                           Flexible(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -201,11 +186,7 @@ class _NavHeader extends HookConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Tooltip(
                         message: 'components.nav_drawer.printer_settings'.tr(),
-                        child: Icon(
-                          FlutterIcons.settings_mdi,
-                          color: onBackground,
-                          size: 27,
-                        ),
+                        child: Icon(FlutterIcons.settings_mdi, color: onBackground, size: 27),
                       ),
                     ),
                   ],
@@ -214,10 +195,7 @@ class _NavHeader extends HookConsumerWidget {
             ),
             ListTile(
               // contentPadding: EdgeInsets.,
-              title: Text(
-                'components.nav_drawer.manage_printers',
-                style: TextStyle(color: onBackground),
-              ).tr(),
+              title: Text('components.nav_drawer.manage_printers', style: TextStyle(color: onBackground)).tr(),
               trailing: ValueListenableBuilder(
                 valueListenable: machineSelectionExt,
                 builder: (context, value, child) => AnimatedRotation(
@@ -238,12 +216,7 @@ class _NavHeader extends HookConsumerWidget {
 }
 
 class _DrawerItem extends ConsumerWidget {
-  const _DrawerItem({
-    required this.text,
-    required this.icon,
-    required this.routeName,
-    required this.routeMatcher,
-  });
+  const _DrawerItem({required this.text, required this.icon, required this.routeName, required this.routeMatcher});
 
   final String text;
   final IconData icon;
@@ -298,15 +271,15 @@ class _PrinterSelection extends HookConsumerWidget {
               children: [
                 if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.requireValue!, isSelected: true),
                 ...ref
-                    .watch(allMachinesProvider.selectAs((data) => data.where(
-                          (element) => element.uuid != selMachine.valueOrNull?.uuid,
-                        )))
+                    .watch(
+                      allMachinesProvider.selectAs(
+                        (data) => data.where((element) => element.uuid != selMachine.valueOrNull?.uuid),
+                      ),
+                    )
                     .maybeWhen(
                       orElse: () => [
                         ListTile(
-                          title: FadingText(
-                            'components.nav_drawer.fetching_printers'.tr(),
-                          ),
+                          title: FadingText('components.nav_drawer.fetching_printers'.tr()),
                           contentPadding: basePadding,
                         ),
                       ],
@@ -333,11 +306,7 @@ class _PrinterSelection extends HookConsumerWidget {
 }
 
 class _MachineTile extends ConsumerWidget {
-  const _MachineTile({
-    super.key,
-    required this.machine,
-    this.isSelected = false,
-  });
+  const _MachineTile({super.key, required this.machine, this.isSelected = false});
 
   final Machine machine;
   final bool isSelected;
@@ -351,10 +320,7 @@ class _MachineTile extends ConsumerWidget {
 
     return ListTile(
       title: Text(machine.name, maxLines: 1),
-      trailing: Icon(
-        isSelected ? Icons.check : Icons.arrow_forward_ios_sharp,
-        size: baseIconSize,
-      ),
+      trailing: Icon(isSelected ? Icons.check : Icons.arrow_forward_ios_sharp, size: baseIconSize),
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onBackground,
