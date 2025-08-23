@@ -15,7 +15,6 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
-import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -256,7 +255,7 @@ class DevPage extends HookConsumerWidget {
   final customID = "338e8845-0cc9-42fa-810f-b09bba7469cc";
 
   startLiveActivity(WidgetRef ref) async {
-    ref.read(liveActivityServiceProvider).disableClearing();
+    // ref.read(v2LiveActivityProvider).disableClearing();
     var liveActivities = ref.read(liveActivityProvider);
 
     // _liveActivitiesPlugin.activityUpdateStream.listen((event) {

@@ -30,7 +30,6 @@ import '../data/dto/machine/print_state_enum.dart';
 import '../data/dto/machine/printer.dart';
 import '../data/repository/notifications_hive_repository.dart';
 import '../data/repository/notifications_repository.dart';
-import 'live_activity_service.dart';
 import 'misc_providers.dart';
 import 'moonraker/printer_service.dart';
 import 'ui/theme_service.dart';
@@ -38,6 +37,12 @@ import 'ui/theme_service.dart';
 part 'live_activity_service_v2.g.dart';
 
 const int PRINTER_DATA_REFRESH_INTERVAL = 5; // SECONDS
+
+@Riverpod(keepAlive: true)
+LiveActivities liveActivity(Ref ref) {
+  return LiveActivities();
+}
+
 
 @riverpod
 LiveActivityServiceV2 v2LiveActivity(Ref ref) {

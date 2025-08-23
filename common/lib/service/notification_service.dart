@@ -18,7 +18,6 @@ import 'package:common/data/model/firestore/consent_entry.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/model_event.dart';
 import 'package:common/service/consent_service.dart';
-import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -87,7 +86,6 @@ class NotificationService {
       : _machineService = _ref.watch(machineServiceProvider),
         _settingsService = _ref.watch(settingServiceProvider),
         _notifyAPI = _ref.watch(awesomeNotificationProvider),
-        _liveActivityService = _ref.watch(liveActivityServiceProvider),
         _liveActivityServicev2 = _ref.watch(v2LiveActivityProvider),
         _notifyFCM = _ref.watch(awesomeNotificationFcmProvider);
 
@@ -96,7 +94,6 @@ class NotificationService {
   final SettingService _settingsService;
   final AwesomeNotifications _notifyAPI;
   final AwesomeNotificationsFcm _notifyFCM;
-  final LiveActivityService _liveActivityService;
   final LiveActivityServiceV2 _liveActivityServicev2;
 
   final ReceivePort _notificationTapPort = ReceivePort();
