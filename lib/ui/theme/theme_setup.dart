@@ -80,15 +80,11 @@ var tealy = const MaterialColor(0xff18b2b2, <int, Color>{
 var _elevatedButtonThemeData = ElevatedButtonThemeData(
   style: ElevatedButton.styleFrom(
     padding: const EdgeInsets.all(8),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-    ),
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
   ),
 );
 
-var _bottomSheetShape = const RoundedRectangleBorder(
-  borderRadius: BorderRadius.vertical(top: Radius.circular(14.0)),
-);
+var _bottomSheetShape = const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(14.0)));
 
 ThemePack _mobilerakerPack() {
   var light = FlexThemeData.light(
@@ -255,9 +251,7 @@ ThemePack _voronPack() {
       ),
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       cardTheme: light.cardTheme.copyWith(elevation: 3),
-      extensions: [
-        CustomColors.light.copyWith(danger: const Color(0xfffab487)),
-      ],
+      extensions: [CustomColors.light.copyWith(danger: const Color(0xfffab487))],
     ),
     darkTheme: dark.copyWith(
       elevatedButtonTheme: _elevatedButtonThemeData,
@@ -385,10 +379,7 @@ ThemePack _ratRigPack() {
 
 ThemePack _vzBot() {
   var light = FlexThemeData.light(
-    colors: const FlexSchemeColor(
-      primary: Color(0xffe32020),
-      secondary: Color(0xff7d7d7d),
-    ),
+    colors: const FlexSchemeColor(primary: Color(0xffe32020), secondary: Color(0xff7d7d7d)),
     usedColors: 2,
     surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
     blendLevel: 2,
@@ -402,10 +393,7 @@ ThemePack _vzBot() {
   );
 
   var dark = FlexThemeData.dark(
-    colors: const FlexSchemeColor(
-      primary: Color(0xfffb1818),
-      secondary: Color(0xffb0adad),
-    ),
+    colors: const FlexSchemeColor(primary: Color(0xfffb1818), secondary: Color(0xffb0adad)),
     usedColors: 2,
     surfaceMode: FlexSurfaceMode.highScaffoldLowSurfaces,
     blendLevel: 1,
@@ -480,11 +468,7 @@ ThemePack _mobilerakerSupporterPack() {
     appBarStyle: FlexAppBarStyle.scaffoldBackground,
     appBarElevation: 4.0,
     bottomAppBarElevation: 1.5,
-    keyColors: const FlexKeyColors(
-      useSecondary: true,
-      keepPrimary: true,
-      keepSecondary: true,
-    ),
+    keyColors: const FlexKeyColors(useSecondary: true, keepPrimary: true, keepSecondary: true),
     // visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
@@ -522,9 +506,7 @@ ThemePack _mobilerakerSupporterPack() {
           foregroundColor: light.colorScheme.onPrimary,
           iconColor: light.colorScheme.onPrimary,
           padding: const EdgeInsets.all(8),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         ),
       ),
       // elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
@@ -562,9 +544,7 @@ ThemePack _mobilerakerSupporterPack() {
           foregroundColor: light.colorScheme.onPrimary,
           iconColor: light.colorScheme.onPrimary,
           padding: const EdgeInsets.all(8),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         ),
       ),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBarTheme(
@@ -602,27 +582,27 @@ ThemePack _oePack() {
     appBarElevation: 1.0,
     bottomAppBarElevation: 5.0,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: false,
+    useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
   );
 
   var dark = FlexThemeData.dark(
     colors: const FlexSchemeColor(
-      primary: Color(0xff180441),
-      secondary: Color(0xff6547f1),
-      tertiary: Color(0xff0BA5EC),
+      primary: Color(0xff6547f1),
+      secondary: Color(0xff0BA5EC),
+      tertiary: Color(0xffc30bec),
       error: Color(0xffb00020),
     ),
-    swapColors: true,
-    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-    blendLevel: 15,
+    swapColors: false,
+    surfaceMode: FlexSurfaceMode.highBackgroundLowScaffold,
+    blendLevel: 10,
     appBarStyle: FlexAppBarStyle.background,
-    usedColors: 7,
+    usedColors: 4,
     appBarElevation: 1.0,
     bottomAppBarElevation: 5.0,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: false,
+    useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
   );
@@ -644,14 +624,21 @@ ThemePack _oePack() {
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       // cardTheme: light.cardTheme.copyWith(elevation: 3, color: light.colorScheme.surface),
       bottomSheetTheme: light.bottomSheetTheme.copyWith(
-          shape: _bottomSheetShape,
-          constraints: const BoxConstraints(maxWidth: 640)),
-      extensions: [
-        CustomColors.light,
-      ],
+        shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
+      ),
+      extensions: [CustomColors.light],
     ),
     darkTheme: dark.copyWith(
-      elevatedButtonTheme: _elevatedButtonThemeData,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: dark.colorScheme.primary,
+          foregroundColor: dark.colorScheme.onPrimary,
+          iconColor: light.colorScheme.onPrimary,
+          padding: const EdgeInsets.all(8),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        ),
+      ),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBarTheme(
         colorScheme: dark.colorScheme,
@@ -668,8 +655,10 @@ ThemePack _oePack() {
         backgroundSchemeColor: SchemeColor.surfaceContainer,
         surfaceTintColor: dark.colorScheme.primary,
       ),
-      bottomSheetTheme:
-          dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape, constraints: const BoxConstraints(maxWidth: 640)),
+      bottomSheetTheme: dark.bottomSheetTheme.copyWith(
+        shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
+      ),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
     ),
@@ -703,9 +692,7 @@ ThemePack _mobilerakerOLEDPack() {
           foregroundColor: dark.colorScheme.onPrimary,
           iconColor: dark.colorScheme.onPrimary,
           padding: const EdgeInsets.all(8),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         ),
       ),
       bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBarTheme(
@@ -718,10 +705,7 @@ ThemePack _mobilerakerOLEDPack() {
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
-      drawerTheme: FlexSubThemes.drawerTheme(
-        colorScheme: dark.colorScheme,
-        backgroundSchemeColor: SchemeColor.black,
-      ),
+      drawerTheme: FlexSubThemes.drawerTheme(colorScheme: dark.colorScheme, backgroundSchemeColor: SchemeColor.black),
       inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
         shape: _bottomSheetShape,
