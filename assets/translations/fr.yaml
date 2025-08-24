@@ -30,6 +30,8 @@ general:
   details: Details
   google_play: GooglePlay
   ios_store: AppStore
+  google_play_services: Services Google Play
+  apple_services: Services Apple
   active: Active
   canceled: Annulé
   monthly: Mensuel

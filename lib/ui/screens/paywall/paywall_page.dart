@@ -106,12 +106,12 @@ class _PaywallPage extends ConsumerWidget {
             return _FetchErrorWidget();
           },
           loading: () => Column(
+            spacing: 20,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SpinKitPumpingHeart(color: Theme.of(context).colorScheme.primary, size: 66),
-              const SizedBox(height: 20),
-              FadingText('Loading supporter Tiers'),
+              FadingText('pages.paywall.loading.title'.tr()),
             ],
           ),
         );
@@ -120,6 +120,14 @@ class _PaywallPage extends ConsumerWidget {
 
 class _ServicesUnavailableWidget extends ConsumerWidget {
   const _ServicesUnavailableWidget({super.key});
+
+  String _getStoreDisplayName() {
+    return tr(Platform.isAndroid ? 'general.google_play' : 'general.ios_store');
+  }
+
+  String _getServicesName() {
+    return tr(Platform.isAndroid ? 'general.google_play_services' : 'general.apple_services');
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -136,16 +144,16 @@ class _ServicesUnavailableWidget extends ConsumerWidget {
         children: [
           // Title
           Text(
-            '${Platform.isAndroid ? 'Google' : 'Apple'} Account Sign-In Unavailable',
+            'pages.paywall.services_unavailable.title',
             style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
-          ),
+          ).tr(args: [_getStoreDisplayName()]),
           const Gap(12),
           Text(
-            '${Platform.isAndroid ? 'Google Play services' : 'App Store services'} are not installed or configured on this device. If you have a premium account, you can still access it using manual sign-in.',
+            'pages.paywall.services_unavailable.description',
             style: textTheme.bodyMedium,
             textAlign: TextAlign.center,
-          ),
+          ).tr(args: [_getServicesName()]),
           Gap(32),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -153,27 +161,29 @@ class _ServicesUnavailableWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Possible Solutions:',
+                  'pages.paywall.services_unavailable.solutions_title',
                   style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
-                ),
+                ).tr(),
                 const SizedBox(height: 16),
 
                 // Step 1
                 _buildTroubleshootStep(
                   context,
                   1,
-                  'Install ${Platform.isAndroid ? 'Google Play Services' : 'Apple Services'} from your app store',
+                  'pages.paywall.services_unavailable.install_services',
+                  args: [_getServicesName()],
                 ),
 
                 // Step 2
                 _buildTroubleshootStep(
                   context,
                   2,
-                  'Update ${Platform.isAndroid ? 'Google Play Services' : 'Apple Services'} if already installed',
+                  'pages.paywall.services_unavailable.update_services',
+                  args: [_getServicesName()],
                 ),
 
                 // Step 3
-                _buildTroubleshootStep(context, 3, 'Sign in manually if you acquired the supporter status elsewhere'),
+                _buildTroubleshootStep(context, 3, 'pages.paywall.services_unavailable.manual_signin'),
               ],
             ),
           ),
@@ -181,19 +191,19 @@ class _ServicesUnavailableWidget extends ConsumerWidget {
           ElevatedButton(
             onPressed: controller.userSignIn,
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-            child: Text('Sign In'),
+            child: Text('pages.paywall.services_unavailable.signin_btn').tr(),
           ),
           Gap(12),
           OutlinedButton(
             onPressed: () => ref.invalidate(paywallPageControllerProvider),
             style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-            child: Text('Retry Connection'),
+            child: Text('pages.paywall.services_unavailable.retry_btn').tr(),
           ),
           Gap(12),
           TextButton.icon(
             onPressed: controller.openGithub,
             icon: const Icon(FlutterIcons.github_faw5d),
-            label: const Text('Support on GitHub'),
+            label: Text('pages.paywall.services_unavailable.github_btn').tr(),
             style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
           ),
         ],
@@ -201,7 +211,7 @@ class _ServicesUnavailableWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildTroubleshootStep(BuildContext context, int stepNumber, String stepText) {
+  Widget _buildTroubleshootStep(BuildContext context, int stepNumber, String stepTextKey, {List<String>? args}) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -226,9 +236,9 @@ class _ServicesUnavailableWidget extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 0),
               child: Text(
-                stepText,
+                stepTextKey,
                 style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant, height: 1.4),
-              ),
+              ).tr(args: args),
             ),
           ),
         ],
@@ -245,6 +255,7 @@ class _FetchErrorWidget extends ConsumerWidget {
     final themeData = Theme.of(context);
     final colorScheme = themeData.colorScheme;
     final textTheme = themeData.textTheme;
+    final controller = ref.read(paywallPageControllerProvider.notifier);
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -255,17 +266,17 @@ class _FetchErrorWidget extends ConsumerWidget {
           Icon(Icons.cloud_off, size: 55, color: colorScheme.error),
           Gap(24),
           Text(
-            'Unable to Load Supporter Tiers',
+            'pages.paywall.fetch_error.title',
             style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
-          ),
+          ).tr(),
           Gap(12),
 
           Text(
-            'We encountered a problem while trying to load the supporter tiers. This might be due to network connectivity or server issues.',
+            'pages.paywall.fetch_error.description',
             style: textTheme.bodyMedium,
             textAlign: TextAlign.center,
-          ),
+          ).tr(),
           Gap(32),
           Padding(
             padding: const EdgeInsets.all(12),
@@ -273,16 +284,16 @@ class _FetchErrorWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'What you can try:',
+                  'pages.paywall.fetch_error.what_to_try',
                   style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
-                ),
+                ).tr(),
                 const SizedBox(height: 12),
 
-                _buildSuggestion(context, '📶', 'Check your internet connection'),
+                _buildSuggestion(context, '📶', 'pages.paywall.fetch_error.check_connection'),
 
-                _buildSuggestion(context, '🔄', 'Wait a moment and try again'),
+                _buildSuggestion(context, '🔄', 'pages.paywall.fetch_error.wait_retry'),
 
-                _buildSuggestion(context, '⏰', 'Try again later if the issue persists'),
+                _buildSuggestion(context, '⏰', 'pages.paywall.fetch_error.try_later'),
               ],
             ),
           ),
@@ -290,15 +301,21 @@ class _FetchErrorWidget extends ConsumerWidget {
           ElevatedButton.icon(
             onPressed: () => ref.invalidate(paywallPageControllerProvider),
             icon: const Icon(Icons.refresh),
-            label: Text('Try Again'),
+            label: Text('pages.paywall.fetch_error.try_again_btn').tr(),
             style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+          ),
+          Gap(12),
+          OutlinedButton(
+            onPressed: controller.userSignIn,
+            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+            child: Text('pages.paywall.services_unavailable.signin_btn').tr(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSuggestion(BuildContext context, String emoji, String text) {
+  Widget _buildSuggestion(BuildContext context, String emoji, String textKey) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -309,7 +326,7 @@ class _FetchErrorWidget extends ConsumerWidget {
         children: [
           Text(emoji, style: const TextStyle(fontSize: 16)),
           Expanded(
-            child: Text(text, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+            child: Text(textKey, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)).tr(),
           ),
         ],
       ),

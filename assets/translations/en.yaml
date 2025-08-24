@@ -29,8 +29,10 @@ general:
   supported: Supported
   unsupported: Unsupported
   details: Details
-  google_play: GooglePlay
+  google_play: Google Play
   ios_store: AppStore
+  google_play_services: Google Play Services
+  apple_services: Apple Services
   active: Active
   canceled: Canceled
   monthly: Monthly
@@ -864,6 +866,27 @@ pages:
     trial_disclaimer: Start your free trial now. You won't be charged until it ends, and you can cancel at any time with no obligation.
     subscription_disclaimer: Subscription renews automatically. You can cancel at any time.
     restore_sign_in: Restore / Sign in
+    loading:
+      title: Loading supporter Tiers
+    services_unavailable:
+      title: "{} Account Sign-In Unavailable"
+      description: "{} are not installed or configured on this device. If you have a premium account, you can still access it using manual sign-in."
+      solutions_title: Possible Solutions
+      install_services: "Install {} from your app store"
+      update_services: "Update {} if already installed"
+      manual_signin: Sign in manually if you acquired the supporter status elsewhere
+      signin_btn: Sign In
+      retry_btn: Retry Connection
+      github_btn: Support on GitHub
+
+    fetch_error:
+      title: Unable to Load Supporter Tiers
+      description: We encountered a problem while trying to load the supporter tiers. This might be due to network connectivity or server issues.
+      what_to_try: What you can try
+      check_connection: Check your internet connection
+      wait_retry: Wait a moment and try again
+      try_later: Try again later if the issue persists
+      try_again_btn: Try Again
   video_player:
     downloading_for_sharing: Downloading video for sharing… ({})
   tool:

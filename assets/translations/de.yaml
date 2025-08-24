@@ -29,8 +29,10 @@ general:
   supported: Unterstützt
   unsupported: Nicht unterstützt
   details: Details
-  google_play: GooglePlay
-  ios_store: AppStore
+  google_play: Google Play
+  ios_store: App Store
+  google_play_services: Google Play-Dienste
+  apple_services: Apple-Dienste
   active: Aktiv
   canceled: Abgebrochen
   monthly: Monatlich
@@ -813,6 +815,27 @@ pages:
     trial_disclaimer: Bis zum Ende des kostenlosen Testzeitraums werden Ihnen keine Kosten in Rechnung gestellt, und Sie können während des Zeitraums jederzeit kündigen.
     subscription_disclaimer: Abonnement verlängert sich automatisch. Sie können jederzeit kündigen.
     restore_sign_in: Wiederherstellen / Anmelden
+    loading:
+      title: Lade Unterstützer-Stufen
+    services_unavailable:
+      title: "{}-Konto-Anmeldung nicht verfügbar"
+      description: "{} sind auf diesem Gerät nicht installiert oder konfiguriert. Wenn Sie ein Premium-Konto haben, können Sie trotzdem über die manuelle Anmeldung darauf zugreifen."
+      solutions_title: Mögliche Lösungen
+      install_services: "{} aus Ihrem App Store installieren"
+      update_services: "{} aktualisieren, falls bereits installiert"
+      manual_signin: Manuell anmelden, falls Sie den Unterstützerstatus anderswo erworben haben
+      signin_btn: Anmelden
+      retry_btn: Verbindung wiederholen
+      github_btn: Auf GitHub unterstützen
+
+    fetch_error:
+      title: Unterstützer-Stufen konnten nicht geladen werden
+      description: Wir sind auf ein Problem gestoßen, als wir versucht haben, die Unterstützer-Stufen zu laden. Dies könnte auf Netzwerkverbindungsprobleme oder Serverprobleme zurückzuführen sein.
+      what_to_try: Was Sie versuchen können
+      check_connection: Überprüfen Sie Ihre Internetverbindung
+      wait_retry: Warten Sie einen Moment und versuchen Sie es erneut
+      try_later: Versuchen Sie es später noch einmal, falls das Problem weiterhin besteht
+      try_again_btn: Erneut versuchen
   video_player:
     downloading_for_sharing: Lade das Video zum Teilen herunter… ({})
   tool:
