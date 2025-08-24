@@ -29,7 +29,6 @@ general:
   supported: Поддерживается
   unsupported: Не поддерживается
   details: Подробности
-  google_play: Google Play
   ios_store: App Store
   active: Активный
   canceled: Отмененный
