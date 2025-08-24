@@ -29,7 +29,6 @@ general:
   supported: Podporováno
   unsupported: Nepodporováno
   details: Podrobnosti
-  google_play: Google Play
   ios_store: AppStore
   active: Aktivní
   canceled: Zrušeno
