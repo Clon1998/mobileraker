@@ -34,10 +34,11 @@ class Toolhead with _$Toolhead {
   }) = _Toolhead;
 
   int? get activeExtruderIndex {
-    if (activeExtruder.length < 9) {
+    if (activeExtruder.length < 8) {
       return null;
     }
-    return int.tryParse(activeExtruder.substring(8));
+    // If it matches 'extruder' the active extruder is 0
+    return int.tryParse(activeExtruder.substring(8))??0;
   }
 
   factory Toolhead.fromJson(Map<String, dynamic> json) => _$ToolheadFromJson(json);
