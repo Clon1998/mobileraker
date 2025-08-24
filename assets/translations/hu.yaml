@@ -29,7 +29,6 @@ general:
   supported: Támogatott
   unsupported: Nem támogatott
   details: Részletek
-  google_play: GooglePlay
   ios_store: AppStore
   active: Aktív
   canceled: Törölve
