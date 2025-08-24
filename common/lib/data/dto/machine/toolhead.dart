@@ -33,7 +33,12 @@ class Toolhead with _$Toolhead {
     @JsonKey(name: 'square_corner_velocity') @Default(1500) double squareCornerVelocity,
   }) = _Toolhead;
 
-  int get activeExtruderIndex => int.tryParse(activeExtruder.substring(8)) ?? 0;
+  int? get activeExtruderIndex {
+    if (activeExtruder.length < 9) {
+      return null;
+    }
+    return int.tryParse(activeExtruder.substring(8));
+  }
 
   factory Toolhead.fromJson(Map<String, dynamic> json) => _$ToolheadFromJson(json);
 

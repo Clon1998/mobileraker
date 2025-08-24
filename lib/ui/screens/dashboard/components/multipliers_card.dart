@@ -134,10 +134,10 @@ class _Body extends HookConsumerWidget {
     var inputLocked = useState(true);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
 
-    var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var model =
+        ref.watch(_controllerProvider(machineUUID).requireValue());
 
-    var canEdit = klippyCanReceiveCommands && !inputLocked.value;
+    var canEdit = model.klippyCanReceiveCommands && !inputLocked.value;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -146,7 +146,7 @@ class _Body extends HookConsumerWidget {
           leading: const Icon(FlutterIcons.speedometer_slow_mco),
           title: const Text('pages.dashboard.control.multipl_card.title').tr(),
           trailing: IconButton(
-            onPressed: klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
+            onPressed: model.klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
             icon: AnimatedSwitcher(
               duration: kThemeAnimationDuration,
               transitionBuilder: (child, anim) => RotationTransition(
@@ -167,25 +167,27 @@ class _Body extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.speedFactor)),
+                value: model.speedFactor,
                 prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                 onChange: canEdit ? controller.onEditedSpeedMultiplier : null,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.extrudeFactor)),
+                value: model.extrudeFactor,
                 prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                 onChange: canEdit ? controller.onEditedFlowMultiplier : null,
               ),
+              if (model.pressureAdvance != null)
               SliderOrTextInput(
-                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.pressureAdvance)),
+                value: model.pressureAdvance!,
                 prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                 onChange: canEdit ? controller.onEditedPressureAdvanced : null,
                 numberFormat: NumberFormat('0.##### mm/s', context.locale.toStringWithSeparator()),
                 unit: 'mm/s',
               ),
+              if (model.smoothTime != null)
               SliderOrTextInput(
-                value: ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.smoothTime)),
+                value: model.smoothTime!,
                 prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                 onChange: canEdit ? controller.onEditedSmoothTime : null,
                 numberFormat: NumberFormat('0.### s', context.locale.toStringWithSeparator()),
@@ -224,8 +226,8 @@ class _Controller extends _$Controller {
         klippyCanReceiveCommands: a,
         speedFactor: c.speedFactor,
         extrudeFactor: c.extrudeFactor,
-        pressureAdvance: b.pressureAdvance,
-        smoothTime: b.smoothTime,
+        pressureAdvance: b?.pressureAdvance,
+        smoothTime: b?.smoothTime,
       ),
     );
   }
@@ -291,7 +293,7 @@ class _Model with _$Model {
     required bool klippyCanReceiveCommands,
     required double speedFactor,
     required double extrudeFactor,
-    required double pressureAdvance,
-    required double smoothTime,
+    required double? pressureAdvance,
+    required double? smoothTime,
   }) = __Model;
 }

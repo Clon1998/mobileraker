@@ -70,7 +70,9 @@ class Printer with _$Printer {
     @Default({}) Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> filamentSensors,
   }) = _Printer;
 
-  Extruder get extruder => extruders[0]; // Fast way for first extruder -> always present!
+  bool get hasExtruder => extruders.isNotEmpty;
+
+  Extruder? get extruder => extruders.elementAtOrNull(0); // Shortcut for the first extruder, if present!
 
   int get extruderCount => extruders.length;
 

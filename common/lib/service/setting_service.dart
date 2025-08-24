@@ -231,6 +231,7 @@ enum UiKeys implements KeyValueStoreKey {
   hadPowerAPI('hPower'),
   hadFirmwareRetraction('hFwRetr'),
   hadMoreMacros('hMoreMacros'),
+  hadExtruder('hExtruder'),
   ;
 
   @override

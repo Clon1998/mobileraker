@@ -60,16 +60,22 @@ class ControlExtruderCard extends HookConsumerWidget {
 
   final String machineUUID;
 
+  CompositeKey get _hadExtruder => CompositeKey.keyWithString(UiKeys.hadExtruder, machineUUID);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
+    final hadExtruder = ref.read(boolSettingProvider(_hadExtruder));
 
     return AsyncGuard(
       animate: true,
       debugLabel: 'ControlExtruderCard-$machineUUID',
       toGuard: _controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard),
-      childOnLoading: const _ControlExtruderLoading(),
+      childOnLoading: hadExtruder
+          ? const _ControlExtruderLoading(key: Key('conExt-load'))
+          : SizedBox.shrink(key: Key('conExt-non')),
       childOnData: Card(
+        key: Key('conExt-data'),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -130,26 +136,20 @@ class _ControlExtruderLoading extends StatelessWidget {
                         child: SizedBox(
                           height: 40,
                           width: 104,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ),
                       SizedBox(
                         height: 24,
                         width: 24,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(color: Colors.white),
-                        ),
+                        child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 4),
                         child: SizedBox(
                           height: 40,
                           width: 104,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ),
                     ],
@@ -162,9 +162,7 @@ class _ControlExtruderLoading extends StatelessWidget {
                         child: SizedBox(
                           height: 19,
                           width: 142,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ),
                       RangeSelectorSkeleton(itemCount: 5),
@@ -182,28 +180,20 @@ class _ControlExtruderLoading extends StatelessWidget {
                         child: SizedBox(
                           height: 40,
                           width: 104,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ),
                       SizedBox(
                         width: 24,
                         height: 24,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 4),
                         child: SizedBox(
                           height: 40,
                           width: 104,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white),
-                          ),
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ),
                     ],
@@ -245,10 +235,7 @@ class _CardTitle extends ConsumerWidget {
                   'pages.dashboard.control.extrude_card.cold_extrude_error',
                   args: [(model.activeExtruderConfig?.minExtrudeTemp ?? 180).toStringAsFixed(0)],
                 ),
-                child: Icon(
-                  Icons.severe_cold,
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                child: Icon(Icons.severe_cold, color: Theme.of(context).colorScheme.error),
               ),
             ),
           ),
@@ -306,9 +293,7 @@ class _CardBody extends ConsumerWidget {
                     children: [
                       ElevatedButton.icon(
                         icon: const Icon(MobilerakerIcons.nozzle_unload),
-                        label: const Text(
-                          'pages.dashboard.control.extrude_card.retract',
-                        ).tr(),
+                        label: const Text('pages.dashboard.control.extrude_card.retract').tr(),
                         onPressed: canExtrude ? () => controller.onMoveE(true) : null,
                       ),
                     ],
@@ -327,9 +312,7 @@ class _CardBody extends ConsumerWidget {
                     children: [
                       ElevatedButton.icon(
                         icon: const Icon(MobilerakerIcons.nozzle_load),
-                        label: const Text(
-                          'pages.dashboard.control.extrude_card.extrude',
-                        ).tr(),
+                        label: const Text('pages.dashboard.control.extrude_card.extrude').tr(),
                         onPressed: canExtrude ? () => controller.onMoveE() : null,
                       ),
                     ],
@@ -339,9 +322,7 @@ class _CardBody extends ConsumerWidget {
             );
           },
         ),
-        Text(
-          '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]',
-        ),
+        Text('${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
         const SizedBox(height: 8),
         SingleValueSelector(
           selectedIndex: model.stepIndex,
@@ -415,26 +396,23 @@ class _ToolSelector extends ConsumerWidget {
     final sel = theme.useMaterial3
         ? SegmentedButton<GcodeMacro>(
             showSelectedIcon: false,
-            segments: [
-              for (var tool in model.toolchangeMacros) _buildButtonSegment((tool)),
-            ],
+            segments: [for (var tool in model.toolchangeMacros) _buildButtonSegment((tool))],
             selected: model.toolchangeMacros.where((e) => e.vars['active'] == true).toSet(),
             onSelectionChanged: model.klippyCanReceiveCommands ? controller.onToolSetSelected : null,
           )
         : ToggleButtons(
-            isSelected: [
-              for (var tool in model.toolchangeMacros) tool.vars['active'] == true,
-            ],
+            isSelected: [for (var tool in model.toolchangeMacros) tool.vars['active'] == true],
             onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
-            children: [
-              for (var tool in model.toolchangeMacros) _ToolItem(tool: tool),
-            ],
+            children: [for (var tool in model.toolchangeMacros) _ToolItem(tool: tool)],
           );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child:
-          SingleChildScrollView(scrollDirection: Axis.horizontal, physics: const ClampingScrollPhysics(), child: sel),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        child: sel,
+      ),
     );
   }
 
@@ -477,6 +455,7 @@ class _ToolItem extends StatelessWidget {
 
 @Riverpod(dependencies: [])
 class _ControlExtruderCardController extends _$ControlExtruderCardController {
+
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   SettingService get _settingService => ref.read(settingServiceProvider);
@@ -487,19 +466,30 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.extruderStepIndex, machineUUID);
 
+  CompositeKey get _hadExtruder => CompositeKey.keyWithString(UiKeys.hadExtruder, machineUUID);
+
   @override
   Stream<_Model> build(String machineUUID) async* {
     ref.keepAliveFor();
-    // await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(seconds: 5));
+
+    listenSelf((prev, next) {
+      if (prev?.hasValue == true) return;
+      if (next.hasValue == false) return;
+      talker.info('Writing...dsa.das.');
+      _settingService.writeBool(_hadExtruder, next.requireValue.extruderCount > 0);
+    });
 
     talker.info('Building ControlExtruderCardController for $machineUUID');
 
     // The active extruder (Set via klipper/moonraker) is watched and based on it, the streams are constructed
-    var activeExtruder =
-        await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex));
+    var activeExtruder = await ref.watch(
+      printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex),
+    );
 
-    var showCard =
-        ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.print.state != PrintState.printing));
+    var showCard = ref.watchAsSubject(
+      printerProvider(machineUUID).selectAs((data) => data.hasExtruder && data.print.state != PrintState.printing),
+    );
 
     // Below is stream code to prevent to many controller rebuilds
     var klippy = ref.watchAsSubject(klipperProvider(machineUUID));
@@ -507,35 +497,29 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     var printer = ref.watchAsSubject(printerProvider(machineUUID));
 
     var initialIndex = _settingService.readInt(_settingsKey, 0);
-    var initialVelocity =
-        await ref.watch(machineSettingsProvider(machineUUID).selectAsync((data) => data.extrudeFeedrate.toDouble()));
-
-    yield* Rx.combineLatest4(
-      klippy,
-      printer,
-      steps,
-      showCard,
-      (a, b, c, d) {
-        final velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
-        final idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
-
-        return _Model(
-          showCard: d,
-          klippyCanReceiveCommands: a.klippyCanReceiveCommands,
-          extruderCount: b.extruderCount,
-          extruderIndex: activeExtruder,
-          stepIndex: min(max(0, idx), c.length - 1),
-          steps: c,
-          toolchangeMacros: b.gcodeMacros.values.where((e) => _toolchangeMacroRegex.hasMatch(e.name)).sortedByCompare(
-                (e) => int.tryParse(e.name.substring(1)) ?? 0,
-                (i, j) => i.compareTo(j),
-              ),
-          extruderVelocity: velocity,
-          activeExtruder: b.extruders[activeExtruder],
-          activeExtruderConfig: b.configFile.extruderForIndex(activeExtruder)!,
-        );
-      },
+    var initialVelocity = await ref.watch(
+      machineSettingsProvider(machineUUID).selectAsync((data) => data.extrudeFeedrate.toDouble()),
     );
+
+    yield* Rx.combineLatest4(klippy, printer, steps, showCard, (a, b, c, d) {
+      final velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
+      final idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
+
+      return _Model(
+        showCard: d,
+        klippyCanReceiveCommands: a.klippyCanReceiveCommands,
+        extruderCount: b.extruderCount,
+        extruderIndex: activeExtruder,
+        stepIndex: min(max(0, idx), c.length - 1),
+        steps: c,
+        toolchangeMacros: b.gcodeMacros.values
+            .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
+            .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
+        extruderVelocity: velocity,
+        activeExtruder: activeExtruder?.let(b.extruders.elementAtOrNull),
+        activeExtruderConfig: activeExtruder?.let(b.configFile.extruderForIndex),
+      );
+    });
   }
 
   void onExtruderSelected(int? idx) {
@@ -554,10 +538,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     if (velocity == null) return;
 
     HapticFeedback.selectionClick();
-    await _printerService.moveExtruder(
-      (isRetract ? step * -1 : step).toDouble(),
-      velocity,
-    );
+    await _printerService.moveExtruder((isRetract ? step * -1 : step).toDouble(), velocity);
   }
 
   void onSelectedStepChanged(int? index) {
@@ -575,56 +556,61 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
         ?.floorToDouble();
 
     _dialogService
-        .show(DialogRequest(
-      type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-          ? DialogType.numEdit
-          : DialogType.rangeEdit,
-      title: tr('dialogs.extruder_feedrate.title'),
-      data: NumberEditDialogArguments(
-        current: state.requireValue.extruderVelocity,
-        min: 0.1,
-        max: maxVelocity ?? 20,
-        fraction: 1,
-      ),
-    ))
+        .show(
+          DialogRequest(
+            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
+                : DialogType.rangeEdit,
+            title: tr('dialogs.extruder_feedrate.title'),
+            data: NumberEditDialogArguments(
+              current: state.requireValue.extruderVelocity,
+              min: 0.1,
+              max: maxVelocity ?? 20,
+              fraction: 1,
+            ),
+          ),
+        )
         .then((value) {
-      if (value != null && value.confirmed && value.data != null) {
-        num v = value.data;
-        state = state.whenData((s) => s.copyWith(extruderVelocity: v.toDouble().toPrecision(1)));
-      }
-    });
+          if (value != null && value.confirmed && value.data != null) {
+            num v = value.data;
+            state = state.whenData((s) => s.copyWith(extruderVelocity: v.toDouble().toPrecision(1)));
+          }
+        });
   }
 
   Future<void> onUnloadFilament() async {
     HapticFeedback.selectionClick().ignore();
+    final activeAxtruder = state.requireValue.extruderIndex;
+    if (activeAxtruder == null) return;
+    final extruderName = activeAxtruder > 0
+        ? 'extruder$activeAxtruder'
+        : 'extruder';
 
-    final extruderName =
-        state.requireValue.extruderIndex > 0 ? 'extruder${state.requireValue.extruderIndex}' : 'extruder';
-
-    _dialogService.show(DialogRequest(
+    _dialogService.show(
+      DialogRequest(
         type: DialogType.filamentOperation,
         barrierDismissible: false,
-        data: FilamentOperationDialogArgs(
-          machineUUID: machineUUID,
-          isLoad: false,
-          extruder: extruderName,
-        )));
+        data: FilamentOperationDialogArgs(machineUUID: machineUUID, isLoad: false, extruder: extruderName),
+      ),
+    );
   }
 
   Future<void> onLoadFilament() async {
     HapticFeedback.selectionClick().ignore();
 
-    final extruderName =
-        state.requireValue.extruderIndex > 0 ? 'extruder${state.requireValue.extruderIndex}' : 'extruder';
+    final activeAxtruder = state.requireValue.extruderIndex;
+    if (activeAxtruder == null) return;
+    final extruderName = activeAxtruder > 0
+        ? 'extruder$activeAxtruder'
+        : 'extruder';
 
-    _dialogService.show(DialogRequest(
+    _dialogService.show(
+      DialogRequest(
         type: DialogType.filamentOperation,
         barrierDismissible: false,
-        data: FilamentOperationDialogArgs(
-          machineUUID: machineUUID,
-          isLoad: true,
-          extruder: extruderName,
-        )));
+        data: FilamentOperationDialogArgs(machineUUID: machineUUID, isLoad: true, extruder: extruderName),
+      ),
+    );
   }
 
   void onToolSelected(int toolIdx) {
@@ -648,24 +634,26 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     HapticFeedback.selectionClick().ignore();
 
     _dialogService
-        .show(DialogRequest(
-      type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-          ? DialogType.numEdit
-          : DialogType.rangeEdit,
-      title: tr('dialogs.heater_temperature.title', args: [beautifyName(cur.activeExtruder!.name)]),
-      data: NumberEditDialogArguments(
-        current: cur.activeExtruder!.target,
-        min: 0,
-        max: cur.activeExtruderConfig!.maxTemp,
-        segment: 5,
-      ),
-    ))
+        .show(
+          DialogRequest(
+            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
+                : DialogType.rangeEdit,
+            title: tr('dialogs.heater_temperature.title', args: [beautifyName(cur.activeExtruder!.name)]),
+            data: NumberEditDialogArguments(
+              current: cur.activeExtruder!.target,
+              min: 0,
+              max: cur.activeExtruderConfig!.maxTemp,
+              segment: 5,
+            ),
+          ),
+        )
         .then((value) {
-      if (value == null || !value.confirmed || value.data == null) return;
+          if (value == null || !value.confirmed || value.data == null) return;
 
-      num v = value.data;
-      _printerService.setHeaterTemperature(cur.activeExtruder!.name, v.toInt());
-    });
+          num v = value.data;
+          _printerService.setHeaterTemperature(cur.activeExtruder!.name, v.toInt());
+        });
   }
 }
 
@@ -747,7 +735,7 @@ class _Model with _$Model {
     required bool showCard,
     required bool klippyCanReceiveCommands,
     @Default(1) int extruderCount,
-    required int extruderIndex,
+    required int? extruderIndex,
     required int stepIndex,
     required List<int> steps,
     @Default([]) List<GcodeMacro> toolchangeMacros,

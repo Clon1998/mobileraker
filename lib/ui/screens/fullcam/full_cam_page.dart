@@ -47,48 +47,48 @@ class _FullCamView extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Stack(children: [
-          InteractiveViewer(
-            constrained: true,
-            maxScale: 10,
-            child: SizedBox.expand(
-              child: Center(
-                child: Webcam(
-                  machine: machine,
-                  webcamInfo: selectedCam,
-                  stackContent: const [StackContent()],
-                  showFpsIfAvailable: true,
-                  showRemoteIndicator: false,
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              constrained: true,
+              maxScale: 10,
+              child: SizedBox.expand(
+                child: Center(
+                  child: Webcam(
+                    machine: machine,
+                    webcamInfo: selectedCam,
+                    stackContent: const [_StackContent()],
+                    showFpsIfAvailable: true,
+                    showRemoteIndicator: false,
+                  ),
                 ),
               ),
             ),
-          ),
-          const _CamSelector(),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: IconButton(
-              icon: const Icon(Icons.close_fullscreen_outlined),
-              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: MachineActiveClientTypeIndicator(
-                machineId: machine.uuid,
+            const _CamSelector(),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                icon: const Icon(Icons.close_fullscreen_outlined),
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ),
-          ),
-        ]),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: MachineActiveClientTypeIndicator(machineId: machine.uuid),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class StackContent extends ConsumerWidget {
-  const StackContent({super.key});
+class _StackContent extends ConsumerWidget {
+  const _StackContent({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,23 +102,51 @@ class StackContent extends ConsumerWidget {
         children: printer.maybeWhen(
           orElse: () => [],
           data: (d) {
-            var extruder = d.extruder;
-            var target = extruder.target;
+            List<TextSpan> info = [];
 
-            var nozzleText = tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
-              '${numFormat.format(extruder.temperature)}${target > 0 ? '/${numFormat.format(target)}' : ''}',
-            ]);
-            String info = nozzleText;
+            final activeIndex = d.toolhead.activeExtruderIndex;
+
+            if (d.extruderCount == 1 && d.hasExtruder) {
+              final extruder = d.extruder!;
+              final target = extruder.target;
+              info.add(
+                TextSpan(
+                  text: tr(
+                    'pages.dashboard.general.temp_preset_card.h_temp',
+                    args: [
+                      '${numFormat.format(extruder.temperature)}${target > 0 ? '/${numFormat.format(target)}' : ''}\n',
+                    ],
+                  ),
+                ),
+              );
+            } else {
+              for (var extruder in d.extruders) {
+                final isActive = extruder.num == activeIndex;
+                final current = extruder.temperature;
+                final target = extruder.target;
+
+                info.add(
+                  TextSpan(
+                    text: 'T${extruder.num}: ${numFormat.format(current)}${target > 0 ? '/${numFormat.format(target)}' : ''} °C \n',
+                    style: isActive ? const TextStyle(fontWeight: FontWeight.bold) : null,
+                  ),
+                );
+              }
+            }
 
             if (d.heaterBed != null) {
-              var bedTarget = d.heaterBed!.target;
-              var bedText = tr(
-                'pages.dashboard.general.temp_preset_card.b_temp',
-                args: [
-                  '${numFormat.format(d.heaterBed!.temperature)}${bedTarget > 0 ? '/${numFormat.format(bedTarget)}' : ''}',
-                ],
+              final bedTarget = d.heaterBed!.target;
+
+              info.add(
+                TextSpan(
+                  text: tr(
+                    'pages.dashboard.general.temp_preset_card.b_temp',
+                    args: [
+                      '${numFormat.format(d.heaterBed!.temperature)}${bedTarget > 0 ? '/${numFormat.format(bedTarget)}' : ''}',
+                    ],
+                  ),
+                ),
               );
-              info = '$info\n$bedText';
             }
 
             return [
@@ -127,8 +155,8 @@ class StackContent extends ConsumerWidget {
                   alignment: Alignment.topLeft,
                   child: Container(
                     margin: const EdgeInsets.only(top: 5, left: 2),
-                    child: Text(
-                      info,
+                    child: Text.rich(
+                      TextSpan(children: info),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                     ),
                   ),
@@ -138,9 +166,7 @@ class StackContent extends ConsumerWidget {
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.bottomCenter,
-                    child: LinearProgressIndicator(
-                      value: d.printProgress,
-                    ),
+                    child: LinearProgressIndicator(value: d.printProgress),
                   ),
                 ),
             ];
@@ -167,12 +193,7 @@ class _CamSelector extends ConsumerWidget {
       child: DropdownButton<WebcamInfo>(
         value: ref.watch(fullCamPageControllerProvider),
         onChanged: ref.watch(fullCamPageControllerProvider.notifier).selectCam,
-        items: webcams
-            .map((c) => DropdownMenuItem(
-                  value: c,
-                  child: Text(beautifyName(c.name)),
-                ))
-            .toList(),
+        items: webcams.map((c) => DropdownMenuItem(value: c, child: Text(beautifyName(c.name)))).toList(),
       ),
     );
   }
