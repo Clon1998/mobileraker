@@ -28,7 +28,6 @@ general:
   supported: 支援
   unsupported: 未支援
   details: 詳細資料
-  google_play: GooglePlay
   ios_store: AppStore
   active: 啟用
   canceled: 已取消

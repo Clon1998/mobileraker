@@ -28,7 +28,6 @@ general:
   supported: 支持
   unsupported: 不支持
   details: 详细
-  google_play: 谷歌游戏
   ios_store: 应用商店
   active: 激活
   canceled: 取消

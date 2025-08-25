@@ -827,7 +827,6 @@ pages:
       signin_btn: Anmelden
       retry_btn: Verbindung wiederholen
       github_btn: Auf GitHub unterstützen
-
     fetch_error:
       title: Unterstützer-Stufen konnten nicht geladen werden
       description: Wir sind auf ein Problem gestoßen, als wir versucht haben, die Unterstützer-Stufen zu laden. Dies könnte auf Netzwerkverbindungsprobleme oder Serverprobleme zurückzuführen sein.
