@@ -29,7 +29,10 @@ general:
   supported: Поддерживается
   unsupported: Не поддерживается
   details: Подробности
+  google_play: Google Play
   ios_store: App Store
+  google_play_services: Службы Google Play
+  apple_services: Службы Apple
   active: Активный
   canceled: Отмененный
   monthly: Ежемесячно
@@ -814,6 +817,26 @@ pages:
     trial_disclaimer: Начните бесплатную пробную версию прямо сейчас. С вас не будет взиматься плата до её окончания, и вы можете отменить её в любое время без обязательств.
     subscription_disclaimer: Подписка продлевается автоматически. Вы можете отменить её в любое время.
     restore_sign_in: Восстановить / Войти
+    loading:
+      title: Загрузка уровней спонсорства
+    services_unavailable:
+      title: "{} Вход в аккаунт недоступен"
+      description: "{} не установлены или не настроены на этом устройстве. Если у вас есть премиум-аккаунт, вы всё ещё можете получить доступ с помощью ручного входа."
+      solutions_title: Возможные решения
+      install_services: "Установите {} из магазина приложений"
+      update_services: "Обновите {}, если уже установлено"
+      manual_signin: Войдите вручную, если вы получили статус спонсора в другом месте
+      signin_btn: Войти
+      retry_btn: Повторить попытку подключения
+      github_btn: Поддержка на GitHub
+    fetch_error:
+      title: Не удалось загрузить уровни спонсорства
+      description: Мы столкнулись с проблемой при загрузке уровней спонсорства. Возможны проблемы с сетью или сервером.
+      what_to_try: Что можно попробовать
+      check_connection: Проверьте подключение к интернету
+      wait_retry: Подождите немного и попробуйте снова
+      try_later: Попробуйте позже, если проблема сохраняется
+      try_again_btn: Попробовать снова
   video_player:
     downloading_for_sharing: Загрузка видео для общего доступа… ({})
   tool:
@@ -1516,3 +1539,15 @@ products:
     coffee: "Кофе"
     snack: "Перекус"
     lunch: "Обед"
+languages:
+  languageCode:
+    cs:
+      nativeName: Česky, čeština
+    fr:
+      nativeName: Français, langue française
+    pl:
+      nativeName: Polski
+    ro:
+      nativeName: Română
+    ru:
+      nativeName: Русский язык
