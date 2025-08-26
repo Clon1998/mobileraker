@@ -16,7 +16,7 @@ jobs:
       - name: Set versions
         id: versions
         run: |
-          echo "flutter=3.27.1" >> $GITHUB_OUTPUT
+          echo "flutter=3.32.8" >> $GITHUB_OUTPUT
           echo "java=17.x" >> $GITHUB_OUTPUT
           
           # Extract version from tag (remove 'android' prefix if present)
@@ -143,6 +143,14 @@ jobs:
         with:
           name: android-apk
           path: ./artifacts
+      
+      - name: Extract APK from artifact
+        run: |
+          cd ./artifacts
+          if [ -f android-apk.zip ]; then
+            unzip android-apk.zip
+            rm android-apk.zip
+          fi
       
       - name: Generate Changelog
         id: changelog
