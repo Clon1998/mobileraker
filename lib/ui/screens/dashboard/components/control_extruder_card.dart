@@ -471,7 +471,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   @override
   Stream<_Model> build(String machineUUID) async* {
     ref.keepAliveFor();
-    await Future.delayed(Duration(seconds: 5));
+    // await Future.delayed(Duration(seconds: 5));
 
     listenSelf((prev, next) {
       if (prev?.hasValue == true) return;
