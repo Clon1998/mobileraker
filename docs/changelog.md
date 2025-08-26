@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.9.1] - 2025-0X-XX
+## [2.9.1] - 2025-08-27
 
 ### Localization
 
