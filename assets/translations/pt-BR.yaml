@@ -28,7 +28,6 @@ general:
   supported: Suportado
   unsupported: Não suportado
   details: Detalhes
-  google_play: Google Play
   ios_store: App Store
   active: Ativo
   canceled: Cancelado
