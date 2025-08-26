@@ -3,9 +3,8 @@
 ## [2.9.1] - 2025-08-27
 
 ### Localization
-
-- Added the 🇨🇿czech translation, thanks to [@Marek-Dvorny](https://github.com/Marek-Dvorny).
-- Updated the 🇷🇺russian translation, thanks to DrPerryCoke.
+- Added the 🇨🇿 czech translation, thanks to [@Marek-Dvorny](https://github.com/Marek-Dvorny).
+- Updated the 🇷🇺 russian translation, thanks to DrPerryCoke.
 
 ### Enhancements
 
@@ -16,17 +15,21 @@
   desired model in the list.
 - **Bed-Mesh Selection**: The bed-mesh selection is now sorted by name, improving usability when selecting
   different bed meshes.
-- **Non-Motion Setups**: Removed the requirement for `virtual_sdcard` and `motion_report` objects, enabling users to
+- **Non-Motion Setups**: Removed the requirement for `virtual_sdcard`, `extruder` and `motion_report` objects, enabling users to
   control non-printer Klipper projects (such as filament driers, pcb-hot plates, or other projects) through Mobileraker.
-- **Print Job Bottom Sheet**: A new bottom sheets now allows users to select a print job directly from the overview
+- **Print Job Bottom Sheet**: A new bottom sheet now allows users to select a print job directly from the overview
   page. This makes it easier for any users running a farm to more quickly select a new print job.
 - **Pwm_Tool Object**: Added support for the `pwm_tool` object, allowing users to control PWM tools directly from the
   app.
+- **File Selection**: Added a new file selection bottom sheet that makes it easier to browse and select files within the app.
 
 ### Bug Fixes
 
 - **Printer-Edit Padding**: Added dynamic padding to ensure system UI elements (like the navigation bar) do not
   overlap with the printer edit page content, enhancing usability on devices with varying screen sizes.
+- **Bottom Sheet Styling**: Fixed bottom sheet color schemes to match the app's theme consistently.
+- **Search Page**: Added proper padding at the bottom of search pages to prevent system UI overlap.
+- **Selected Item Highlighting**: Fixed background overflow issues when items are selected in lists.
 
 ## [2.9.0] - 2025-05-24
 
