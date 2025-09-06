@@ -88,5 +88,9 @@
                 <data android:scheme="mobileraker"/>
             </intent-filter>
         </activity>
+
+        <service
+                android:name="com.example.live_activities.LiveActivityFirebaseMessagingService"
+                android:enabled="false" />
     </application>
 </manifest>

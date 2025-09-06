@@ -44,8 +44,8 @@ dependencies:
   live_activities: ^2.4.1
   #        ref: main
   #      ref: feature/multi-state-req
-  #  live_activities:
-  #    path: ../../flutter_live_activities
+#  live_activities:
+#    path: ../../flutter_live_activities
 
   #routing
   go_router: ^15.1.3
