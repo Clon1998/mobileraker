@@ -75,6 +75,12 @@ class MachineFcmSettingsService {
         delta.remove('settings');
       }
 
+      String? fcmToken = delta['fcmToken'];
+      if (fcmToken?.isEmpty == true) {
+        // If the token is empty, we should not update it
+        delta.remove('fcmToken');
+      }
+
       if (delta.isNotEmpty) {
         talker.info('[MachineFcmSettingsService] Updating DeviceFcmSettings entry with delta: $delta');
         updateDeviceFcmSettings = currentDeviceFcm.applyDelta(delta);
