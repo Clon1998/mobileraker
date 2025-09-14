@@ -327,22 +327,28 @@ class _SelectFileBottomSheetController extends _$SelectFileBottomSheetController
     ref.invalidateSelf();
   }
 
-  Future<void> onSelectFile(RemoteFile file) async {
-    talker.info('[_SelectFileBottomSheetController($machineUUID, $filePath)] Selected file: $file');
+	Future<void> onSelectFile(RemoteFile file) async {
+		talker.info('[_SelectFileBottomSheetController($machineUUID, $filePath)] Selected file: $file');
 
-    if (file is Folder) {
-      _bottomSheetService.show(
-        BottomSheetConfig(
-          type: SheetType.selectPrintJob,
-          data: SelectFileBottomSheetArgs(machineUUID, file.absolutPath),
-        ),
-      );
-    } else if (file is GCodeFile) {
-      _goRouter.pop(BottomSheetResult.confirmed(file));
-    } else {
-      talker.warning('[_SelectFileBottomSheetController($machineUUID, $filePath)] Unsupported file type: $file');
-    }
-  }
+		if (file is Folder) {
+			final result = await _bottomSheetService.show(
+				BottomSheetConfig(
+					type: SheetType.selectPrintJob,
+					data: SelectFileBottomSheetArgs(machineUUID, file.absolutPath),
+				),
+			);
+			
+			if (result.confirmed == true && result.data != null) {
+				_goRouter.pop(BottomSheetResult.confirmed(result.data));
+			}
+			// If dismissed or no selection, do nothing (stay in current sheet)
+			
+		} else if (file is GCodeFile) {
+			_goRouter.pop(BottomSheetResult.confirmed(file));
+		} else {
+			talker.warning('[_SelectFileBottomSheetController($machineUUID, $filePath)] Unsupported file type: $file');
+		}
+	}
 
   void _onFileNotification(FileActionResponse notification) {
     talker.info('[_SelectFileBottomSheetController($machineUUID, $filePath)] Got a file notification: $notification');
