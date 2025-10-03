@@ -29,6 +29,7 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -105,8 +106,6 @@ class _Body extends ConsumerWidget {
       duration: kThemeAnimationDuration,
       switchInCurve: Curves.easeInOutSine,
       switchOutCurve: Curves.easeInOutSine.flipped,
-      // switchInCurve: Curves.easeInOutCubicEmphasized,
-      // switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
       child: widget,
     );
   }
@@ -129,7 +128,7 @@ class _FileListData extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
-
+    final themeData = Theme.of(context);
     return CustomScrollView(
       slivers: [
         AdaptiveHeightSliverPersistentHeader(
@@ -138,7 +137,25 @@ class _FileListData extends ConsumerWidget {
           needRepaint: true,
           child: SortedFileListHeader(activeSortConfig: sortConfig, onTapSortMode: onSortMode),
         ),
-
+        if (folderContent.isEmpty)
+          SliverFillRemaining(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FractionallySizedBox(
+                    heightFactor: 0.3,
+                    child: SvgPicture.asset('assets/vector/undraw_void_-3-ggu.svg'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text('pages.files.empty_folder.title', style: themeData.textTheme.titleMedium).tr(),
+                Text('pages.files.empty_folder.subtitle', style: themeData.textTheme.bodySmall).tr(),
+              ],
+            ),
+          ),
+        if (folderContent.isNotEmpty)
         SliverPadding(
           padding: MediaQuery.viewPaddingOf(context),
           sliver: SliverList.separated(
