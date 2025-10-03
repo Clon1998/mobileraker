@@ -214,6 +214,16 @@ class _Body extends ConsumerWidget {
                   child: const Text('pages.printer_edit.configure_remote_connection').tr(),
                 ),
                 const Divider(),
+                SectionHeader(
+                  title: 'pages.dashboard.general.cam_card.webcam'.tr(),
+                  trailing: TextButton.icon(
+                    onPressed: isSaving ? null : ref.read(webcamListControllerProvider.notifier).addNewWebCam,
+                    label: const Text('general.add').tr(),
+                    icon: const Icon(FlutterIcons.webcam_mco),
+                  ),
+                ),
+                const WebcamList(),
+                const Divider(),
                 const _RemoteSettings(),
                 const Divider(),
                 Align(
@@ -430,16 +440,6 @@ class _RemoteSettings extends ConsumerWidget {
           .when(
             data: (machineSettings) {
               return [
-                SectionHeader(
-                  title: 'pages.dashboard.general.cam_card.webcam'.tr(),
-                  trailing: TextButton.icon(
-                    onPressed: isSaving ? null : ref.read(webcamListControllerProvider.notifier).addNewWebCam,
-                    label: const Text('general.add').tr(),
-                    icon: const Icon(FlutterIcons.webcam_mco),
-                  ),
-                ),
-                const WebcamList(),
-                const Divider(),
                 SectionHeader(title: 'pages.printer_edit.motion_system.title'.tr()),
                 FormBuilderSwitch(
                   name: 'invertX',
