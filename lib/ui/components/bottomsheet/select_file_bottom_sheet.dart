@@ -348,12 +348,15 @@ class _SelectFileBottomSheetController extends _$SelectFileBottomSheetController
 					data: SelectFileBottomSheetArgs(machineUUID, file.absolutPath),
 				),
 			);
-			
 			if (result.confirmed == true && result.data != null) {
-				_goRouter.pop(BottomSheetResult.confirmed(result.data));
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_goRouter.canPop()) {
+            _goRouter.pop(BottomSheetResult.confirmed(result.data));
+          }
+        });
 			}
 			// If dismissed or no selection, do nothing (stay in current sheet)
-			
+
 		} else if (file is GCodeFile) {
 			_goRouter.pop(BottomSheetResult.confirmed(file));
 		} else {
