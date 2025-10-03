@@ -55,7 +55,7 @@ dependencies:
   json_annotation: ^4.7.0
 
   #routing
-  go_router: ^15.1.3
+  go_router: ^16.2.4
   go_transitions: ^0.8.1
 
   #util
