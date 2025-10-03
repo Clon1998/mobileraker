@@ -46,7 +46,6 @@ class UserBottomSheet extends StatelessWidget {
           Flexible(child: SingleChildScrollView(child: _CardBody())),
           // Info box for status messages AKA a snackbar alternative...
           _InfoText(),
-          Text('ABCD'),
           Gap(MediaQuery.viewPaddingOf(context).bottom),
         ],
       ),
