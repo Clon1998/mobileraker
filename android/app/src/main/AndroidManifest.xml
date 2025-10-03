@@ -80,12 +80,14 @@
         <meta-data android:name="google_analytics_default_allow_ad_user_data" android:value="eu_consent_policy"/>
         <meta-data android:name="google_analytics_default_allow_ad_personalization_signals"
                    android:value="eu_consent_policy"/>
-        <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
-            <intent-filter android:label="flutter_web_auth">
+        <activity
+                android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
+                android:exported="true">
+            <intent-filter android:label="flutter_web_auth_2">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mobileraker"/>
+                <data android:scheme="mobileraker" />
             </intent-filter>
         </activity>
 
