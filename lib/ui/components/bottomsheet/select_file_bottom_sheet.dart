@@ -52,13 +52,9 @@ class SelectFileBottomSheet extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(_selectFileBottomSheetControllerProvider(args.machineUUID, args.path));
-    final controller = ref.watch(_selectFileBottomSheetControllerProvider(args.machineUUID, args.path).notifier);
-    final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
-
     var split = args.path.split('/');
     final isRoot = split.length <= 1;
-    final folderName = split.lastOrNull ?? 'TODO';
+    final folderName = split.lastOrNull ?? 'Unknown';
 
     return SheetContentScaffold(
       topBar: ListTile(
@@ -85,8 +81,6 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(_selectFileBottomSheetControllerProvider(args.machineUUID, args.path));
     final controller = ref.watch(_selectFileBottomSheetControllerProvider(args.machineUUID, args.path).notifier);
-
-    talker.warning("ROFL: ${model.isLoading}, ${model.isRefreshing} $model");
 
     final widget = switch (model) {
       AsyncValue(hasValue: true, value: _Model(:final sortConfig, :final folderContent) && final content) =>
