@@ -585,6 +585,7 @@ class _Footer extends ConsumerWidget {
       ),
       child: OverflowBar(
         alignment: MainAxisAlignment.spaceEvenly,
+        overflowAlignment: OverflowBarAlignment.center,
         children: [
           TextButton(
             onPressed: controller.userSignIn,
