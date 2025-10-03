@@ -114,9 +114,10 @@ class _StackContent extends ConsumerWidget {
                   text: tr(
                     'pages.dashboard.general.temp_preset_card.h_temp',
                     args: [
-                      '${numFormat.format(extruder.temperature)}${target > 0 ? '/${numFormat.format(target)}' : ''}\n',
+                      '${numFormat.format(extruder.temperature)}${target > 0 ? '/${numFormat.format(target)}' : ''}',
                     ],
                   ),
+                  children: [TextSpan(text: '\n')],
                 ),
               );
             } else {
@@ -127,7 +128,8 @@ class _StackContent extends ConsumerWidget {
 
                 info.add(
                   TextSpan(
-                    text: 'T${extruder.num}: ${numFormat.format(current)}${target > 0 ? '/${numFormat.format(target)}' : ''} °C \n',
+                    text:
+                        'T${extruder.num}: ${numFormat.format(current)}${target > 0 ? '/${numFormat.format(target)}' : ''} °C \n',
                     style: isActive ? const TextStyle(fontWeight: FontWeight.bold) : null,
                   ),
                 );
