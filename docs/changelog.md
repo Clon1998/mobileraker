@@ -1,8 +1,25 @@
 # Mobileraker - Changelog
 
+## [2.9.2] - 2025-10-xx
+
+### Enhancements
+
+- **Empty directory indicator**: File selection bottom sheet now consistently displays the empty directory widget,
+  matching the behavior of the main file manager.
+
+### Bug Fixes
+
+- **Remote services**: Fixed crash when linking OctoEverywhere or Obico
+  accounts. [#533](https://github.com/Clon1998/mobileraker/issues/533)
+- **Fullscreen Webcam view**: Resolved temperature display text wrapping issue in fullscreen webcam
+  mode. [#536](https://github.com/Clon1998/mobileraker/issues/536)
+- **Webcam configuration**: Webcam settings can now be edited regardless of Klippy/MCU connection status.
+- **Subfolder navigation**: File selection bottom sheet now properly handles file selection from subfolders.
+
 ## [2.9.1] - 2025-08-27
 
 ### Localization
+
 - Added the 🇨🇿 czech translation, thanks to [@Marek-Dvorny](https://github.com/Marek-Dvorny).
 - Updated the 🇷🇺 russian translation, thanks to DrPerryCoke.
 
@@ -15,13 +32,15 @@
   desired model in the list.
 - **Bed-Mesh Selection**: The bed-mesh selection is now sorted by name, improving usability when selecting
   different bed meshes.
-- **Non-Motion Setups**: Removed the requirement for `virtual_sdcard`, `extruder` and `motion_report` objects, enabling users to
+- **Non-Motion Setups**: Removed the requirement for `virtual_sdcard`, `extruder` and `motion_report` objects, enabling
+  users to
   control non-printer Klipper projects (such as filament driers, pcb-hot plates, or other projects) through Mobileraker.
 - **Print Job Bottom Sheet**: A new bottom sheet now allows users to select a print job directly from the overview
   page. This makes it easier for any users running a farm to more quickly select a new print job.
 - **Pwm_Tool Object**: Added support for the `pwm_tool` object, allowing users to control PWM tools directly from the
   app.
-- **File Selection**: Added a new file selection bottom sheet that makes it easier to browse and select files within the app.
+- **File Selection**: Added a new file selection bottom sheet that makes it easier to browse and select files within the
+  app.
 
 ### Bug Fixes
 
