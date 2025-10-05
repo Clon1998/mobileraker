@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2025. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: prefer-single-widget-per-file
 
 import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/config/config_heater_bed.dart';
@@ -805,6 +807,18 @@ class _TempPresetItem extends HookConsumerWidget {
             ]),
             keyboardType: TextInputType.number,
           ),
+          FormBuilderTextField(
+            decoration: InputDecoration(
+              labelText: tr('pages.printer_edit.presets.custom_gcode'),
+              helperText: tr('pages.printer_edit.presets.custom_gcode_helper'),
+              helperMaxLines: 3,
+            ),
+            name: '${preset.uuid}-gCode',
+            initialValue: preset.customGCode,
+            keyboardType: TextInputType.multiline,
+            minLines: 1,
+            maxLines: 5,
+          ),
         ],
       ),
     );
@@ -998,7 +1012,7 @@ class _ThemeSelector extends ConsumerWidget {
             value: idx,
             child: Row(
               children: [
-                Image(height: 32, width: 32, image: brandingIcon?? Svg('assets/vector/mr_logo.svg')),
+                Image(height: 32, width: 32, image: brandingIcon ?? Svg('assets/vector/mr_logo.svg')),
                 const SizedBox(width: 8),
                 Flexible(child: Text(theme.name)),
               ],

@@ -584,6 +584,8 @@ pages:
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperatur"
       bed_temp: "@:pages.dashboard.general.temp_card.bed Temperatur"
       new_preset: Neue Voreinstellung
+      custom_gcode: Benutzerdefinierter GCode
+      custom_gcode_helper: Optionaler GCode, der nach dem Einstellen der Temperatur(en) ausgeführt wird
     confirm_fcm_reset:
       title: Setzte Geräte für Push-Mitteilungen zurück?
       body: "Sie sind dabei, die Registrierungen für die Push-Mitteilungen zurückzusetzen. Diese werden genutzt um die Geräte zu bestimmt, an die der Companion Push-Meldungen sendet.\nUm ein Gerät wieder zu registrieren, müssen Sie die App auf allen Geräten neu starten und sie erneut mit dem Gerät verbinden. \n\nBestätigen Sie die Aktion."

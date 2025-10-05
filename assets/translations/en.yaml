@@ -606,6 +606,8 @@ pages:
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Temperature"
       bed_temp: "@:pages.dashboard.general.temp_card.bed Temperature"
       new_preset: New Preset
+      custom_gcode: Custom GCode
+      custom_gcode_helper: Optional GCode to run after setting the temperature(s)
     confirm_fcm_reset:
       title: Clear Notification Device Registry?
       body: "You are about to reset the device registry, which is used to determine

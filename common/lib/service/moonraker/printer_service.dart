@@ -432,8 +432,8 @@ class PrinterService {
     gCode('SET_VELOCITY_LIMIT ACCEL_TO_DECEL=$accelDecel');
   }
 
-  setHeaterTemperature(String heater, int target) {
-    gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
+  Future<bool> setHeaterTemperature(String heater, int target) {
+    return gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
   }
 
   setTemperatureFanTarget(String fan, int target) {

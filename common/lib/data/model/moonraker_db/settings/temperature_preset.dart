@@ -19,6 +19,7 @@ class TemperaturePreset extends StampedEntity {
     String? uuid,
     this.bedTemp = 60,
     this.extruderTemp = 170,
+    this.customGCode,
   })  : uuid = uuid ?? const Uuid().v4(),
         super(created, lastModified ?? DateTime.now());
 
@@ -26,6 +27,7 @@ class TemperaturePreset extends StampedEntity {
   final String uuid;
   int bedTemp; // Safe values
   int extruderTemp; // Safe values
+  String? customGCode;
 
   factory TemperaturePreset.fromJson(Map<String, dynamic> json) => _$TemperaturePresetFromJson(json);
 
@@ -33,7 +35,7 @@ class TemperaturePreset extends StampedEntity {
 
   @override
   String toString() {
-    return 'TemperatureTemplate{name: $name, uuid: $uuid, bedTemp: $bedTemp, extruderTemp: $extruderTemp}';
+    return 'TemperatureTemplate{name: $name, uuid: $uuid, bedTemp: $bedTemp, extruderTemp: $extruderTemp, customGCode: $customGCode}';
   }
 
   @override
@@ -44,7 +46,9 @@ class TemperaturePreset extends StampedEntity {
           (identical(other.name, name) || name == other.name) &&
           (identical(other.uuid, uuid) || uuid == other.uuid) &&
           (identical(other.bedTemp, bedTemp) || bedTemp == other.bedTemp) &&
-          (identical(other.extruderTemp, extruderTemp) || extruderTemp == other.extruderTemp);
+          (identical(other.extruderTemp, extruderTemp) || extruderTemp == other.extruderTemp) &&
+          (identical(other.customGCode, customGCode) || customGCode == other.customGCode)
+  ;
 
   @override
   int get hashCode => Object.hash(
@@ -53,5 +57,6 @@ class TemperaturePreset extends StampedEntity {
         uuid,
         bedTemp,
         extruderTemp,
+        customGCode,
       );
 }

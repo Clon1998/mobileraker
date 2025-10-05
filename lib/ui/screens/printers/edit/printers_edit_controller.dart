@@ -198,11 +198,13 @@ class PrinterEditController extends _$PrinterEditController {
       var name = storedValues['${preset.uuid}-presetName'];
       int? extruderTemp = storedValues['${preset.uuid}-extruderTemp'];
       int? bedTemp = storedValues['${preset.uuid}-bedTemp'];
+      String? customGCode = storedValues['${preset.uuid}-gCode'];
 
       preset
         ..name = name
         ..extruderTemp = extruderTemp!
         ..bedTemp = bedTemp!
+        ..customGCode= customGCode?.trim()
         ..lastModified = DateTime.now();
     }
 

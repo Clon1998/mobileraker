@@ -27,12 +27,7 @@ part 'temperature_preset_card.freezed.dart';
 part 'temperature_preset_card.g.dart';
 
 class TemperaturePresetCard extends ConsumerWidget {
-  const TemperaturePresetCard({
-    super.key,
-    required this.machineUUID,
-    this.trailing,
-    this.onPresetApplied,
-  });
+  const TemperaturePresetCard({super.key, required this.machineUUID, this.trailing, this.onPresetApplied});
 
   final String machineUUID;
   final Widget? trailing;
@@ -55,10 +50,7 @@ class TemperaturePresetCard extends ConsumerWidget {
                 title: const Text('pages.dashboard.general.temp_card.temp_presets').tr(),
                 trailing: trailing,
               ),
-              _CardBody(
-                machineUUID: machineUUID,
-                onPresetApplied: onPresetApplied,
-              ),
+              _CardBody(machineUUID: machineUUID, onPresetApplied: onPresetApplied),
             ],
           ),
         ),
@@ -68,11 +60,7 @@ class TemperaturePresetCard extends ConsumerWidget {
 }
 
 class _CardBody extends ConsumerWidget {
-  const _CardBody({
-    super.key,
-    required this.machineUUID,
-    this.onPresetApplied,
-  });
+  const _CardBody({super.key, required this.machineUUID, this.onPresetApplied});
 
   final String machineUUID;
   final VoidCallback? onPresetApplied;
@@ -86,7 +74,7 @@ class _CardBody extends ConsumerWidget {
       name: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
       bedTemp: model.hasPrintBed ? 0 : null,
-      onTap: model.enabled ? () => controller.adjustNozzleAndBed(0, model.hasPrintBed ? 0 : null) : null,
+      onTap: model.enabled ? () => controller.submitPreset(0, model.hasPrintBed ? 0 : null, null) : null,
     );
 
     List<TemperaturePreset> tempPresets = model.temperaturePresets;
@@ -97,19 +85,13 @@ class _CardBody extends ConsumerWidget {
         extruderTemp: preset.extruderTemp,
         bedTemp: model.hasPrintBed ? preset.bedTemp : null,
         onTap: model.enabled
-            ? () => controller.adjustNozzleAndBed(
-                  preset.extruderTemp,
-                  preset.bedTemp,
-                )
+            ? () => controller.submitPreset(preset.extruderTemp, preset.bedTemp, preset.customGCode)
             : null,
       );
     });
     presetWidgets.insert(0, coolOf);
 
-    return AdaptiveHorizontalScroll(
-      pageStorageKey: 'presets$machineUUID',
-      children: presetWidgets,
-    );
+    return AdaptiveHorizontalScroll(pageStorageKey: 'presets$machineUUID', children: presetWidgets);
   }
 }
 
@@ -164,20 +146,18 @@ class _TemperaturePresetController extends _$TemperaturePresetController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(
-    String machineUUID,
-    VoidCallback? onPresetApplied,
-  ) async* {
+  Stream<_Model> build(String machineUUID, VoidCallback? onPresetApplied) async* {
     ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
     var machineSettingsProviderr = machineSettingsProvider(machineUUID);
-    var klippyCanReceiveCommand =
-        ref.watchAsSubject(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
-    var isPrintingOrPaused = ref.watchAsSubject(printerProviderr.selectAs(
-      (value) => {PrintState.printing, PrintState.paused}.contains(value.print.state),
-    ));
+    var klippyCanReceiveCommand = ref.watchAsSubject(
+      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
+    );
+    var isPrintingOrPaused = ref.watchAsSubject(
+      printerProviderr.selectAs((value) => {PrintState.printing, PrintState.paused}.contains(value.print.state)),
+    );
     var hasPrintBed = ref.watchAsSubject(printerProviderr.selectAs((value) => value.heaterBed != null));
     var temperaturePresets = ref.watchAsSubject(machineSettingsProviderr.selectAs((data) => data.temperaturePresets));
 
@@ -186,18 +166,17 @@ class _TemperaturePresetController extends _$TemperaturePresetController {
       isPrintingOrPaused,
       hasPrintBed,
       temperaturePresets,
-      (a, b, c, d) => _Model(
-        enabled: a && !b,
-        hasPrintBed: c,
-        temperaturePresets: d,
-      ),
+      (a, b, c, d) => _Model(enabled: a && !b, hasPrintBed: c, temperaturePresets: d),
     );
   }
 
-  adjustNozzleAndBed(int extruderTemp, int? bedTemp) {
-    _printerService.setHeaterTemperature('extruder', extruderTemp);
+  submitPreset(int extruderTemp, int? bedTemp, String? customGCode) {
+    _printerService.setHeaterTemperature('extruder', extruderTemp).ignore();
     if (bedTemp != null) {
-      _printerService.setHeaterTemperature('heater_bed', bedTemp);
+      _printerService.setHeaterTemperature('heater_bed', bedTemp).ignore();
+    }
+    if (customGCode?.isNotEmpty == true) {
+      _printerService.gCode(customGCode!).ignore();
     }
     onPresetApplied?.call();
   }
