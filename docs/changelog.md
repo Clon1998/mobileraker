@@ -6,6 +6,8 @@
 
 - **GCode Console Card**: Added a GCode console card to the dashboard, allowing users to send GCode commands directly
   from the dashboard.
+- **Temperature Preset GCode**: Added support for custom GCode execution when temperature presets are
+  applied [#530](https://github.com/Clon1998/mobileraker/issues/530)
 - **Empty directory indicator**: File selection bottom sheet now consistently displays the empty directory widget,
   matching the behavior of the main file manager.
 
