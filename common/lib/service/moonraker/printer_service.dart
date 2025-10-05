@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:common/data/dto/console/gcode_store_entry.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
@@ -26,9 +27,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
 import '../../data/dto/console/command.dart';
-import '../../data/dto/console/console_entry.dart';
 import '../../data/dto/machine/printer_builder.dart';
-import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../misc_providers.dart';
 import '../selected_machine_service.dart';
@@ -69,11 +68,9 @@ class PrinterNotifier extends _$PrinterNotifier {
       final prevMessage = previous?.valueOrNull?.print.message;
       final nextMessage = next.valueOrNull?.print.message;
       if (prevMessage != nextMessage && nextMessage?.isNotEmpty == true) {
-        ref.read(snackBarServiceProvider).show(SnackBarConfig(
-              type: SnackbarType.warning,
-              title: 'Klippy-Message',
-              message: nextMessage,
-            ));
+        ref
+            .read(snackBarServiceProvider)
+            .show(SnackBarConfig(type: SnackbarType.warning, title: 'Klippy-Message', message: nextMessage));
       }
     });
 
@@ -111,17 +108,38 @@ Stream<Printer> printerSelected(Ref ref) async* {
   }
 }
 
+@riverpod
+class PrinterGCodeStore extends _$PrinterGCodeStore {
+  @override
+  FutureOr<List<GCodeStoreEntry>> build(String machineUUID) async {
+    final printerService = ref.watch(printerServiceProvider(machineUUID));
+    final gcodeStore = await printerService.gcodeStore();
+
+    final subscription = printerService.gCodeResponseStream.listen((data) {
+      state = state.whenData((store) => [...store, GCodeStoreEntry.response(data)]);
+    });
+    ref.onDispose(subscription.cancel);
+
+    return gcodeStore;
+  }
+
+  void appendCommand(String command) {
+    state = state.whenData((store) => [...store, GCodeStoreEntry.command(command)]);
+  }
+}
+
 class PrinterService {
   PrinterService(this.ref, this.ownerUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
-        _fileService = ref.watch(fileServiceProvider(ownerUUID)),
-        _snackBarService = ref.watch(snackBarServiceProvider),
-        _dialogService = ref.watch(dialogServiceProvider) {
+    : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
+      _fileService = ref.watch(fileServiceProvider(ownerUUID)),
+      _snackBarService = ref.watch(snackBarServiceProvider),
+      _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
 
     ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyConnected), (previous, next) {
       talker.info(
-          '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new Klippy.IsConnected: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}');
+        '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new Klippy.IsConnected: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}',
+      );
 
       // IS Klippy connected?
       //TODO: Investigage/Simplify. We have the prev state so do we really need the _queriedForSession?
@@ -158,7 +176,6 @@ class PrinterService {
 
   bool _queriedForSession = false;
 
-  //TODO: Make this private and offer a riverpod provider
   Stream<String> get gCodeResponseStream => _gCodeResponseStreamController.stream;
 
   Printer? _current;
@@ -166,7 +183,10 @@ class PrinterService {
   set current(Printer nI) {
     if (disposed) {
       talker.warning(
-          'Tried to set current Printer on an old printerService? ${identityHashCode(this)}', null, StackTrace.current);
+        'Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
+        null,
+        StackTrace.current,
+      );
       return;
     }
     _current = nI;
@@ -200,32 +220,39 @@ class PrinterService {
     } on JRpcTimeoutError catch (e, s) {
       talker.error('Timeout while refreshing printer $ownerUUID...', e);
       _printerStreamCtler.addError(
-          MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s), s);
+        MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s),
+        s,
+      );
 
       //TODO only show snack if printer is active/selected!
       _snackBarService.showForMachine(
-          ownerUUID,
-          SnackBarConfig.stacktraceDialog(
-            dialogService: _dialogService,
-            exception: e,
-            stack: s,
-            snackTitle: 'Refresh Printer Error',
-            snackMessage: 'Timeout while trying to refresh printer',
-          ));
+        ownerUUID,
+        SnackBarConfig.stacktraceDialog(
+          dialogService: _dialogService,
+          exception: e,
+          stack: s,
+          snackTitle: 'Refresh Printer Error',
+          snackMessage: 'Timeout while trying to refresh printer',
+        ),
+      );
     } on JRpcError catch (e, s) {
       talker.error('Unable to refresh Printer $ownerUUID...', e, s);
 
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(
-          MobilerakerException('Could not fetch printer...', parentException: e, parentStack: s), s);
+        MobilerakerException('Could not fetch printer...', parentException: e, parentStack: s),
+        s,
+      );
       FirebaseCrashlytics.instance.recordError(e, s, reason: 'JRpcError thrown during printer refresh');
     } catch (e, s) {
       talker.error('Unexpected exception thrown during refresh $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(e, s);
       if (e is Future) {
-        e.then((value) => talker.error('Error was a Future: Data. $value'),
-            onError: (e, s) => talker.error('Error was a Future: Error. $e', e, s));
+        e.then(
+          (value) => talker.error('Error was a Future: Data. $value'),
+          onError: (e, s) => talker.error('Error was a Future: Error. $e', e, s),
+        );
       }
       FirebaseCrashlytics.instance.recordError(e, s, reason: 'Error thrown during printer refresh');
     }
@@ -347,6 +374,8 @@ class PrinterService {
 
   Future<bool> gCode(String script, {bool throwOnError = false, bool showSnackOnErr = true}) async {
     try {
+      // Append the command to the store
+      ref.read(printerGCodeStoreProvider(ownerUUID).notifier).appendCommand(script);
       await _jRpcClient.sendJRpcMethod('printer.gcode.script', params: {'script': script}, timeout: Duration.zero);
       talker.info('GCode "$script" executed successfully!');
       return true;
@@ -355,8 +384,9 @@ class PrinterService {
       talker.info('GCode execution failed: ${gCodeException.message}');
 
       if (showSnackOnErr) {
-        _snackBarService
-            .show(SnackBarConfig(type: SnackbarType.warning, title: 'GCode-Error', message: gCodeException.message));
+        _snackBarService.show(
+          SnackBarConfig(type: SnackbarType.warning, title: 'GCode-Error', message: gCodeException.message),
+        );
       }
 
       if (throwOnError) {
@@ -428,17 +458,18 @@ class PrinterService {
 
   Future<void> led(String ledName, Pixel pixel) async {
     await gCode(
-        'SET_LED LED=$ledName RED=${pixel.red.toStringAsFixed(2)} GREEN=${pixel.green.toStringAsFixed(2)} BLUE=${pixel.blue.toStringAsFixed(2)} WHITE=${pixel.white.toStringAsFixed(2)}');
+      'SET_LED LED=$ledName RED=${pixel.red.toStringAsFixed(2)} GREEN=${pixel.green.toStringAsFixed(2)} BLUE=${pixel.blue.toStringAsFixed(2)} WHITE=${pixel.white.toStringAsFixed(2)}',
+    );
   }
 
-  Future<List<ConsoleEntry>> gcodeStore() async {
+  Future<List<GCodeStoreEntry>> gcodeStore() async {
     talker.info('Fetching cached GCode commands');
     try {
       RpcResponse blockingResponse = await _jRpcClient.sendJRpcMethod('server.gcode_store');
 
       List<dynamic> raw = blockingResponse.result['gcode_store'];
       talker.info('Received cached GCode commands');
-      return List.generate(raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
+      return List.generate(raw.length, (index) => GCodeStoreEntry.fromJson(raw[index]));
     } on JRpcError catch (e) {
       talker.error('Error while fetching cached GCode commands: $e');
     }
@@ -549,8 +580,13 @@ class PrinterService {
       talker.error('Error while parsing $key object', e, s);
       _printerStreamCtler.addError(e, s);
       _showParsingExceptionSnackbar(e, s, key, json);
-      FirebaseCrashlytics.instance
-          .recordError(e, s, reason: 'Error while parsing $key object from JSON', information: [json], fatal: true);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        s,
+        reason: 'Error while parsing $key object from JSON',
+        information: [json],
+        fatal: true,
+      );
     }
   }
 
@@ -580,8 +616,10 @@ class PrinterService {
     talker.info('>>>Querying Printer Objects!');
     Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer.queryableObjects);
 
-    RpcResponse jRpcResponse =
-        await _jRpcClient.sendJRpcMethod('printer.objects.query', params: {'objects': queryObjects});
+    RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
+      'printer.objects.query',
+      params: {'objects': queryObjects},
+    );
 
     _parseQueriedObjects(jRpcResponse.result, printer);
   }
@@ -612,32 +650,38 @@ class PrinterService {
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
     _snackBarService.showForMachine(
-        ownerUUID,
-        SnackBarConfig.stacktraceDialog(
-          dialogService: _dialogService,
-          exception: e,
-          stack: s,
-          snackTitle: 'Refresh Printer Error',
-          snackMessage: 'Could not parse: $e',
-        ));
+      ownerUUID,
+      SnackBarConfig.stacktraceDialog(
+        dialogService: _dialogService,
+        exception: e,
+        stack: s,
+        snackTitle: 'Refresh Printer Error',
+        snackMessage: 'Could not parse: $e',
+      ),
+    );
   }
 
   void _showParsingExceptionSnackbar(Object e, StackTrace s, String key, Map<String, dynamic> json) {
     _snackBarService.showForMachine(
-        ownerUUID,
-        SnackBarConfig(
-            type: SnackbarType.error,
-            title: 'Refreshing Printer failed',
-            message: 'Parsing of $key failed:\n$e',
-            duration: const Duration(seconds: 30),
-            mainButtonTitle: 'Details',
-            closeOnMainButtonTapped: true,
-            onMainButtonTapped: () {
-              _dialogService.show(DialogRequest(
-                  type: CommonDialogs.stacktrace,
-                  title: 'Parsing "${key.titleCase()}" failed',
-                  body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
-            }));
+      ownerUUID,
+      SnackBarConfig(
+        type: SnackbarType.error,
+        title: 'Refreshing Printer failed',
+        message: 'Parsing of $key failed:\n$e',
+        duration: const Duration(seconds: 30),
+        mainButtonTitle: 'Details',
+        closeOnMainButtonTapped: true,
+        onMainButtonTapped: () {
+          _dialogService.show(
+            DialogRequest(
+              type: CommonDialogs.stacktrace,
+              title: 'Parsing "${key.titleCase()}" failed',
+              body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}',
+            ),
+          );
+        },
+      ),
+    );
   }
 
   void dispose() {

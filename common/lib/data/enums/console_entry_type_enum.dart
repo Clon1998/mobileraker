@@ -10,7 +10,9 @@ part 'console_entry_type_enum.g.dart';
 @JsonEnum(alwaysCreate: true)
 enum ConsoleEntryType {
   response,
-  command;
+  temperatureResponse,
+  command,
+  batchCommand;
 
   String toJsonEnum() => _$ConsoleEntryTypeEnumMap[this]!;
 

@@ -9,6 +9,9 @@ class Command {
 
   Command(this.cmd, this.description);
 
+  // Entries starting with '_' are considered hidden and can be filtered out in the UI.
+  bool get isInternal => cmd.startsWith('_');
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

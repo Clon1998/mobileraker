@@ -29,6 +29,7 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -36,6 +37,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iabtcf_consent_info/iabtcf_consent_info.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/console/command_input.dart';
+import 'package:mobileraker/ui/components/console/command_suggestions.dart';
+import 'package:mobileraker/ui/components/console/console_history.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:path_provider/path_provider.dart';
@@ -47,9 +51,7 @@ import '../dashboard/components/bed_mesh_card.dart';
 part 'dev_page.g.dart';
 
 class DevPage extends HookConsumerWidget {
-  DevPage({
-    super.key,
-  });
+  DevPage({super.key});
 
   String? _bla;
 
@@ -58,6 +60,7 @@ class DevPage extends HookConsumerWidget {
     talker.info('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
 
+    var editingController = useTextEditingController();
     if (selMachine == null) {
       return const Center(child: Text('No machine selected'));
     }
@@ -69,14 +72,19 @@ class DevPage extends HookConsumerWidget {
         // GCodePreviewCard.preview(),
         // const _StlPreview(),
         ElevatedButton(
-            onPressed: () {
-              ref.watch(fileServiceSelectedProvider).getGCodeMetadata('noti/v_2_small_test_noti.gcode').then((v) {
-                talker.info('Receivef meta: $v');
-              });
-            },
-            child: Text('GcodeMetaRequest')),
+          onPressed: () {
+            ref.watch(fileServiceSelectedProvider).getGCodeMetadata('noti/v_2_small_test_noti.gcode').then((v) {
+              talker.info('Receivef meta: $v');
+            });
+          },
+          child: Text('GcodeMetaRequest'),
+        ),
         const _Consent(),
         _IabTCTSTATUS(),
+
+        SizedBox(height: 500, child: ConsoleHistory(machineUUID: selMachine.uuid)),
+        CommandSuggestions(machineUUID: selMachine.uuid, onSuggestionTap: (_) => null, textNotifier: editingController),
+        CommandInput(machineUUID: selMachine.uuid, consoleTextEditor: editingController),
 
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
@@ -86,6 +94,7 @@ class DevPage extends HookConsumerWidget {
         // FirmwareRetractionCard(machineUUID: selMachine!.uuid),
         // MachineStatusCardLoading(),
         BedMeshCard(machineUUID: selMachine!.uuid),
+
         // SpoolmanCardLoading(),
 
         // FansCard(machineUUID: selMachine.uuid),
@@ -100,23 +109,27 @@ class DevPage extends HookConsumerWidget {
         // ),
         // const _TestAd(),
         // PrinterCard(selMachine),
-
         OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
         OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
         OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
         OutlinedButton(
-            onPressed: () => ref
-                .read(bottomSheetServiceProvider)
-                .show(BottomSheetConfig(type: SheetType.userManagement)),
-            child: const Text('UserMngnt')),
+          onPressed: () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.userManagement)),
+          child: const Text('UserMngnt'),
+        ),
         ElevatedButton(
-            onPressed: () {
-              ref.read(snackBarServiceProvider).show(SnackBarConfig(
-                  type: SnackbarType.info,
-                  title: 'Purchases restored',
-                  message: 'Managed to restore Supporter-Status!'));
-            },
-            child: const Text('SNACKBAR')),
+          onPressed: () {
+            ref
+                .read(snackBarServiceProvider)
+                .show(
+                  SnackBarConfig(
+                    type: SnackbarType.info,
+                    title: 'Purchases restored',
+                    message: 'Managed to restore Supporter-Status!',
+                  ),
+                );
+          },
+          child: const Text('SNACKBAR'),
+        ),
 
         // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
         // OutlinedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
@@ -125,17 +138,18 @@ class DevPage extends HookConsumerWidget {
         //   value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
         //   data: (data) => getMeshChart(data),
         // ),
-
         ElevatedButton(
-            onPressed: () {
-              jrpc.addMethodListener(bla, 'notify_status_update');
-            },
-            child: Text('Add JRPC-Listener')),
+          onPressed: () {
+            jrpc.addMethodListener(bla, 'notify_status_update');
+          },
+          child: Text('Add JRPC-Listener'),
+        ),
         ElevatedButton(
-            onPressed: () {
-              jrpc.removeMethodListener(bla, 'notify_status_update');
-            },
-            child: Text('Remove JRPC-Listener')),
+          onPressed: () {
+            jrpc.removeMethodListener(bla, 'notify_status_update');
+          },
+          child: Text('Remove JRPC-Listener'),
+        ),
       ],
     );
 
@@ -144,9 +158,7 @@ class DevPage extends HookConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dev'),
-      ),
+      appBar: AppBar(title: const Text('Dev')),
       drawer: const NavigationDrawerWidget(),
       body: body,
     );
@@ -162,15 +174,30 @@ class DevPage extends HookConsumerWidget {
     // Create the Period object for billing
 
     final defaultPricing = PricingPhase(
-        Period(PeriodUnit.year, 1, 'P1Y'), RecurrenceMode.infiniteRecurring, 0, Price('€21.99', 21990000, 'EUR'), null);
-    final freePhase = PricingPhase(Period(PeriodUnit.day, 7, 'P7D'), RecurrenceMode.nonRecurring, 1,
-        Price('€0', 0, 'EUR'), OfferPaymentMode.freeTrial);
-    final discountedPhase = PricingPhase(Period(PeriodUnit.month, 1, 'P1M'), RecurrenceMode.finiteRecurring, 3,
-        Price('€0.50', 500000, 'EUR'), OfferPaymentMode.discountedRecurringPayment);
+      Period(PeriodUnit.year, 1, 'P1Y'),
+      RecurrenceMode.infiniteRecurring,
+      0,
+      Price('€21.99', 21990000, 'EUR'),
+      null,
+    );
+    final freePhase = PricingPhase(
+      Period(PeriodUnit.day, 7, 'P7D'),
+      RecurrenceMode.nonRecurring,
+      1,
+      Price('€0', 0, 'EUR'),
+      OfferPaymentMode.freeTrial,
+    );
+    final discountedPhase = PricingPhase(
+      Period(PeriodUnit.month, 1, 'P1M'),
+      RecurrenceMode.finiteRecurring,
+      3,
+      Price('€0.50', 500000, 'EUR'),
+      OfferPaymentMode.discountedRecurringPayment,
+    );
 
-// Create the PricingPhase object
+    // Create the PricingPhase object
 
-// Create the main SubscriptionOption object
+    // Create the main SubscriptionOption object
     final subscriptionOption = SubscriptionOption(
       '2199-1y',
       'mobileraker_supporter_v2:2199-1y',
@@ -206,10 +233,15 @@ class DevPage extends HookConsumerWidget {
     // Create the Period object for billing
 
     final defaultPricing = PricingPhase(
-        Period(PeriodUnit.month, 1, 'P1M'), RecurrenceMode.infiniteRecurring, 0, Price('€1.99', 1990000, 'EUR'), null);
-// Create the PricingPhase object
+      Period(PeriodUnit.month, 1, 'P1M'),
+      RecurrenceMode.infiniteRecurring,
+      0,
+      Price('€1.99', 1990000, 'EUR'),
+      null,
+    );
+    // Create the PricingPhase object
 
-// Create the main SubscriptionOption object
+    // Create the main SubscriptionOption object
     final subscriptionOption = SubscriptionOption(
       '200-1m',
       'mobileraker_supporter_v2:2199-1m',
@@ -303,7 +335,7 @@ class DevPage extends HookConsumerWidget {
       'state': 'printing',
       'file':
           'Some/more/more/more/more/long/er/Very-Long/Folder-Strct/here/now/even/miore../asd/12--222--2m-22Benchy.gcode' ??
-              'Unknown',
+          'Unknown',
       // 'file': 'Benchy.gcode' ?? 'Unknown',
       'eta': DateTime.now().add(const Duration(seconds: 60 * 20)).secondsSinceEpoch ?? -1,
 
@@ -325,36 +357,30 @@ class DevPage extends HookConsumerWidget {
     //   data,
     // );
 
-    await liveActivities.createOrUpdateActivity(
-      customID,
-      data,
-    );
+    await liveActivities.createOrUpdateActivity(customID, data);
     talker.info('UPDATED activity with customID: $customID');
     // talker.info('UPDATED activity with id: $_bla -> $activityId');
   }
 
-//   var test = 44.4;
-//   var dowloadUri = Uri.parse('http://192.168.178.135/server/files/timelapse/file_example_MP4_1920_18MG.mp4');
-//   final tmpDir = await getTemporaryDirectory();
-//   final tmpFile = File('${tmpDir.path}/$filess');
-//
-//   workerManager.executeWithPort<File, double>((port) async {
-//     await setupIsolateLogger();
-//     return isolateDownloadFile(port: port, targetUri: dowloadUri, downloadPath: tmpFile.path);
-//   }, onMessage: (message) {
-//     talker.info('Got new message from port: $message');
-//   }).then((value) => talker.info('Execute done: ${value}'));
-// }
+  //   var test = 44.4;
+  //   var dowloadUri = Uri.parse('http://192.168.178.135/server/files/timelapse/file_example_MP4_1920_18MG.mp4');
+  //   final tmpDir = await getTemporaryDirectory();
+  //   final tmpFile = File('${tmpDir.path}/$filess');
+  //
+  //   workerManager.executeWithPort<File, double>((port) async {
+  //     await setupIsolateLogger();
+  //     return isolateDownloadFile(port: port, targetUri: dowloadUri, downloadPath: tmpFile.path);
+  //   }, onMessage: (message) {
+  //     talker.info('Got new message from port: $message');
+  //   }).then((value) => talker.info('Execute done: ${value}'));
+  // }
 }
 
 void dummyDownload() async {
   final tmpDir = await getTemporaryDirectory();
   final File file = File('${tmpDir.path}/dummy.zip');
 
-  var dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 5),
-    receiveTimeout: const Duration(seconds: 5),
-  ));
+  var dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 5), receiveTimeout: const Duration(seconds: 5)));
 
   // Some file that is rather "large" and takes longer to download
   var uri = 'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip';
@@ -479,7 +505,8 @@ class _Consent extends ConsumerWidget {
 
         if (await ConsentInformation.instance.isConsentFormAvailable()) {
           await ConsentForm.loadAndShowConsentFormIfRequired(
-                  (e) => talker.warning('ConsentFormDismissed: ${e?.message}'));
+            (e) => talker.warning('ConsentFormDismissed: ${e?.message}'),
+          );
         }
 
         // ConsentForm.showPrivacyOptionsForm((_) => null);
@@ -514,13 +541,11 @@ class FeatureSectionHeader extends StatelessWidget {
               // Headline
               Text(
                 "Become a Mobileraker Supporter!",
-                style: themeData.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+                style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
               ),
               Gap(4),
-              // Description
 
+              // Description
               Text(
                 "Mobileraker provides a fast and reliable mobile Ul for Klipper, inspired by the maker community. While essential features remain free, premium features and an ad-free experience are available to supporters.",
                 style: themeData.textTheme.bodySmall,
@@ -578,10 +603,7 @@ class FeatureSectionHeader extends StatelessWidget {
                 children: [
                   Icon(FlutterIcons.console_line_mco, size: 15, color: themeData.textTheme.bodySmall?.color),
                   Gap(4),
-                  Text(
-                    "Active Dev",
-                    style: themeData.textTheme.bodySmall,
-                  ),
+                  Text("Active Dev", style: themeData.textTheme.bodySmall),
                 ],
               ),
             ],
@@ -612,18 +634,12 @@ class PaywallFooter extends StatelessWidget {
             TextButton(
               onPressed: () {},
               child: Text('Restore Purchase'),
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.bodySmall,
-                iconSize: 10,
-              ),
+              style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.bodySmall, iconSize: 10),
             ),
             TextButton(
               onPressed: () {},
               child: Text('Cancel Subscription'),
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.bodySmall,
-                iconSize: 10,
-              ),
+              style: TextButton.styleFrom(textStyle: Theme.of(context).textTheme.bodySmall, iconSize: 10),
             ),
           ],
         ),
