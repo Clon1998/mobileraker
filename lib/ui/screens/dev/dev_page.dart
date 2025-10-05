@@ -37,9 +37,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iabtcf_consent_info/iabtcf_consent_info.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/console/command_input.dart';
-import 'package:mobileraker/ui/components/console/command_suggestions.dart';
-import 'package:mobileraker/ui/components/console/console_history.dart';
+import 'package:mobileraker/ui/components/console/console_card.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:path_provider/path_provider.dart';
@@ -82,13 +80,11 @@ class DevPage extends HookConsumerWidget {
         const _Consent(),
         _IabTCTSTATUS(),
 
-        SizedBox(height: 500, child: ConsoleHistory(machineUUID: selMachine.uuid)),
-        CommandSuggestions(machineUUID: selMachine.uuid, onSuggestionTap: (_) => null, textNotifier: editingController),
-        CommandInput(machineUUID: selMachine.uuid, consoleTextEditor: editingController),
-
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
         // PowerApiCardLoading(),
+        ConsoleCard.preview(),
+        ConsoleCard(machineUUID: selMachine.uuid),
 
         // BedMeshCard(machineUUID: selMachine!.uuid),
         // FirmwareRetractionCard(machineUUID: selMachine!.uuid),

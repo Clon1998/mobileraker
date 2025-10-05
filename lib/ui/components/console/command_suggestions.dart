@@ -8,7 +8,6 @@ import 'package:common/data/dto/console/command.dart';
 import 'package:common/data/dto/console/gcode_store_entry.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:common/service/moonraker/printer_service.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +18,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class CommandSuggestions extends HookConsumerWidget {
   static List<String> additionalCmds = ['ABORT', 'ACCEPT', 'ADJUSTED', 'GET_POSITION', 'SET_RETRACTION', 'TESTZ'];
 
-  const CommandSuggestions({super.key, required this.machineUUID, this.onSuggestionTap, required this.textNotifier});
+  const CommandSuggestions({super.key, required this.machineUUID, this.onSuggestionTap, required this.textNotifier, this.verticalLayout = false});
 
   final String machineUUID;
   final ValueChanged<String>? onSuggestionTap;
   final ValueNotifier<TextEditingValue> textNotifier;
+  final bool verticalLayout;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +42,7 @@ class CommandSuggestions extends HookConsumerWidget {
     final themeData = Theme.of(context);
     final enabled = onSuggestionTap != null;
 
-    if (context.isLargerThanCompact) {
+    if (verticalLayout) {
       if (suggestedMacros.isEmpty) {
         return Center(
           child: Column(

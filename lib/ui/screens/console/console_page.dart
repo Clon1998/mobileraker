@@ -132,6 +132,7 @@ class _CardBody extends StatelessWidget {
                   machineUUID: machineUUID,
                   onSuggestionTap: (s) => consoleTextEditor.textAndMoveCursor = s,
                   textNotifier: consoleTextEditor,
+                  verticalLayout: context.isLargerThanCompact,
                 ),
               ),
             ],

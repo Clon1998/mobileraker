@@ -42,5 +42,7 @@ enum DashboardComponentType {
   @HiveField(15)
   bedMesh,
   @HiveField(16)
-  gcodePreview;
+  gcodePreview,
+  @HiveField(17)
+  gcodeConsole,
 }
