@@ -29,7 +29,10 @@ general:
   supported: Podporováno
   unsupported: Nepodporováno
   details: Podrobnosti
+  google_play: Google Play
   ios_store: AppStore
+  google_play_services: Služby Google Play
+  apple_services: Služby Apple
   active: Aktivní
   canceled: Zrušeno
   monthly: Měsíčně
@@ -812,6 +815,26 @@ pages:
     trial_disclaimer: Spusťte zkušební verzi zdarma. Nebudete vám nic účtováno, dokud neskončí, a můžete ji kdykoliv zrušit bez závazku.
     subscription_disclaimer: Předplatné se obnovuje automaticky. Kdykoli můžete zrušit.
     restore_sign_in: Obnovit / Přihlásit se
+    loading:
+      title: Načítání podporovatelských úrovní
+    services_unavailable:
+      title: "{} Přihlášení k účtu není k dispozici"
+      description: "{} nejsou na tomto zařízení nainstalovány nebo nakonfigurovány. Pokud máte prémiový účet, můžete k němu stále přistupovat pomocí manuálního přihlášení."
+      solutions_title: Možná řešení
+      install_services: "Nainstalujte {} z vašeho obchodu s aplikacemi"
+      update_services: "Aktualizovat {} pokud je již nainstalováno"
+      manual_signin: Přihlaste se ručně, pokud jste získali status podporovatele jinde
+      signin_btn: Přihlásit se
+      retry_btn: Opakovat připojení
+      github_btn: Podpora na GitHubu
+    fetch_error:
+      title: Nelze načíst podporovatelské úrovně
+      description: Při pokusu o načtení úrovní podpory došlo k problému. To může být způsobeno problémy s připojením k síti nebo serverem.
+      what_to_try: Co můžete zkusit
+      check_connection: Zkontrolujte vaše připojení k internetu
+      wait_retry: Počkejte chvíli a zkuste to znovu
+      try_later: Zkuste to znovu později, pokud problém přetrvává
+      try_again_btn: Zkusit znovu
   video_player:
     downloading_for_sharing: Stahování videa pro sdílení…({})
   tool:
@@ -1521,3 +1544,15 @@ products:
     coffee: "Káva"
     snack: "Svačinka"
     lunch: "Oběd"
+languages:
+  languageCode:
+    cs:
+      nativeName: Česky, čeština
+    fr:
+      nativeName: Français, langue française
+    pl:
+      nativeName: Polski
+    ro:
+      nativeName: Română
+    ru:
+      nativeName: Pусский язык
