@@ -65,7 +65,7 @@ import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pullex/pullex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stringr/stringr.dart';
@@ -695,7 +695,7 @@ class _FileListData extends ConsumerStatefulWidget {
 }
 
 class _FileListState extends ConsumerState<_FileListData> {
-  final RefreshController _refreshController = RefreshController(initialRefresh: false);
+  final PullexRefreshController _refreshController = PullexRefreshController(initialRefresh: false);
 
   ValueNotifier<bool> _isUserRefresh = ValueNotifier(false);
 
@@ -713,16 +713,9 @@ class _FileListState extends ConsumerState<_FileListData> {
 
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
-    return SmartRefresher(
+    return PullexRefresh(
       // header: const WaterDropMaterialHeader(),
-      header: ClassicHeader(
-        textStyle: TextStyle(color: themeData.colorScheme.onBackground),
-        completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
-        releaseIcon: Icon(
-          Icons.refresh,
-          color: themeData.colorScheme.onBackground,
-        ),
-      ),
+      header: BaseHeader(),
       controller: _refreshController,
       onRefresh: () {
         _isUserRefresh.value = true;

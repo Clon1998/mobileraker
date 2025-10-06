@@ -38,7 +38,7 @@ import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pullex/pullex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -76,7 +76,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final refreshController = useMemoized(() => RefreshController(), const []);
+    final refreshController = useMemoized(() => PullexRefreshController(), const []);
     useEffect(() => refreshController.dispose, const []);
 
     final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
@@ -130,7 +130,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
         child: const Icon(Icons.more_vert),
       ),
       body: SafeArea(
-        child: SmartRefresher(
+        child: PullexRefresh(
           controller: refreshController,
           onRefresh: () async {
             final spool = ref.read(_spoolProvider);
@@ -142,14 +142,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
               refreshController.refreshFailed();
             }
           },
-          header: ClassicHeader(
-            textStyle: TextStyle(color: themeData.colorScheme.onSurface),
-            completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
-            releaseIcon: Icon(
-              Icons.refresh,
-              color: themeData.colorScheme.onSurface,
-            ),
-          ),
+          header: BaseHeader(),
           child: ListView(
             children: [
               WarningCard(

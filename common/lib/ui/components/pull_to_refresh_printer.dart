@@ -17,23 +17,21 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pullex/pullex.dart';
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
-  const PullToRefreshPrinter({super.key, this.child, this.enablePullDown = true, this.scrollController, this.physics});
+  const PullToRefreshPrinter({super.key, this.child, this.enablePullDown = true});
 
   final Widget? child;
 
   final bool enablePullDown;
-  final ScrollController? scrollController;
-  final ScrollPhysics? physics;
 
   @override
   ConsumerState createState() => _PullToRefreshPrinterState();
 }
 
 class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
-  final RefreshController refreshController = RefreshController(initialRefresh: false);
+  final PullexRefreshController refreshController = PullexRefreshController();
 
   SnackBarService get snackBarService => ref.read(snackBarServiceProvider);
 
@@ -43,20 +41,12 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
   @override
   Widget build(BuildContext context) {
-    var onBackground = Theme.of(context).colorScheme.onBackground;
-    return SmartRefresher(
+    return PullexRefresh(
       enablePullDown: widget.enablePullDown,
-      header: ClassicHeader(
-        textStyle: TextStyle(color: onBackground),
-        failedIcon: Icon(Icons.error, color: onBackground),
-        completeIcon: Icon(Icons.done, color: onBackground),
-        idleIcon: Icon(Icons.arrow_downward, color: onBackground),
-        releaseIcon: Icon(Icons.refresh, color: onBackground),
-      ),
+      header: BaseHeader(),
       controller: refreshController,
-      scrollController: widget.scrollController,
-      physics: widget.physics,
       onRefresh: onRefresh,
+      // These params are only forwarded if the child is not a Scrollable itself
       child: widget.child,
     );
   }

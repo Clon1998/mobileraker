@@ -35,7 +35,7 @@ import 'package:mobileraker/ui/components/responsive_builder.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker_pro/ads/ui/ad_mobs_consent.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pullex/pullex.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
@@ -172,7 +172,7 @@ class MyApp extends ConsumerWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
                 FormBuilderLocalizations.delegate,
-                RefreshLocalizations.delegate,
+                PullexLocalizations.delegate,
               ],
               supportedLocales: context.supportedLocales,
               locale: context.locale,

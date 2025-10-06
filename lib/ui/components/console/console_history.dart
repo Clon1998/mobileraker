@@ -15,7 +15,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pullex/pullex.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ConsoleHistory extends StatelessWidget {
@@ -76,7 +76,7 @@ class _ConsoleProviderError extends ConsumerWidget {
 }
 
 class _ConsoleDataState extends ConsumerState<_ConsoleData> {
-  final RefreshController _refreshController = RefreshController();
+  final PullexRefreshController _refreshController = PullexRefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -106,15 +106,12 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     talker.error('Rebuilding console list. Count: $count');
 
-    return SmartRefresher(
-      header: ClassicHeader(
-        textStyle: TextStyle(color: themeData.colorScheme.onSurface),
-        idleIcon: Icon(Icons.arrow_upward, color: themeData.colorScheme.onSurface),
-        completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
-        releaseIcon: Icon(Icons.refresh, color: themeData.colorScheme.onSurface),
+    return PullexRefresh(
+      controller: _refreshController,
+      header: BaseHeader(
+        idleIcon: Icon(Icons.arrow_upward),
         idleText: tr('components.pull_to_refresh.pull_up_idle'),
       ),
-      controller: _refreshController,
       onRefresh: () => ref.invalidate(printerGCodeStoreProvider),
       child: ListView.builder(
         reverse: true,

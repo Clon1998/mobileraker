@@ -26,7 +26,7 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:pullex/pullex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -64,7 +64,7 @@ class _FilamentDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final refreshController = useMemoized(() => RefreshController(), const []);
+    final refreshController = useMemoized(() => PullexRefreshController(), const []);
     useEffect(() => refreshController.dispose, const []);
 
     final themeData = Theme.of(context);
@@ -75,7 +75,7 @@ class _FilamentDetailPage extends HookConsumerWidget {
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: SmartRefresher(
+      body: PullexRefresh(
         controller: refreshController,
         onRefresh: () async {
           final filament = ref.read(_filamentProvider);
@@ -87,13 +87,7 @@ class _FilamentDetailPage extends HookConsumerWidget {
             refreshController.refreshFailed();
           }
         },
-        header: ClassicHeader(
-          textStyle: TextStyle(color: themeData.colorScheme.onSurface),
-          completeIcon: Icon(Icons.done, color: themeData.colorScheme.onSurface),
-          releaseIcon: Icon(
-            Icons.refresh,
-            color: themeData.colorScheme.onSurface,
-          ),
+        header: BaseHeader(
         ),
         child: ListView(
           children: [
