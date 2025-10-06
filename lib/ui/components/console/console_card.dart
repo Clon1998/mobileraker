@@ -41,6 +41,7 @@ class ConsoleCard extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final consoleTextEditor = useTextEditingController();
+    final scrollController = useScrollController();
 
     return Card(
       child: Padding(
@@ -52,6 +53,26 @@ class ConsoleCard extends HookWidget {
               leading: const Icon(FlutterIcons.console_line_mco),
               title: const Text('pages.console.card_title').tr(),
               // trailing: IconButton(onPressed: () => context.pushNamed(AppRoute.console.name), icon: Icon(Icons.fullscreen)),
+              trailing: HookBuilder(
+                builder: (BuildContext context) {
+                  bool hasOffset = useListenableSelector(scrollController, () => scrollController.hasClients && scrollController.offset > 0);
+
+                  return AnimatedSwitcher(
+                    duration: kThemeAnimationDuration,
+                    child: hasOffset
+                        ? IconButton(
+                      key: Key('console_scroll_to_bottom'),
+                            onPressed: () => scrollController.animateTo(
+                              0,
+                              duration: kThemeAnimationDuration,
+                              curve: Curves.easeOutCubic,
+                            ),
+                            icon: Icon(Icons.arrow_downward),
+                          )
+                        : const SizedBox.shrink(key: Key('hide_console_scroll_to_bottom'),),
+                  );
+                },
+              ),
             ),
             Flexible(
               child: ConstrainedBox(
@@ -59,6 +80,8 @@ class ConsoleCard extends HookWidget {
                 child: ConsoleHistory(
                   machineUUID: machineUUID,
                   onCommandTap: (s) => consoleTextEditor.textAndMoveCursor = s,
+                  scrollController: scrollController,
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 ),
               ),
             ),

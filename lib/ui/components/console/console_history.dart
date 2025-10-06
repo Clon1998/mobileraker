@@ -19,10 +19,12 @@ import 'package:pullex/pullex.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ConsoleHistory extends StatelessWidget {
-  const ConsoleHistory({super.key, required this.machineUUID, this.onCommandTap});
+  const ConsoleHistory({super.key, required this.machineUUID, this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
 
   final String machineUUID;
   final ValueChanged<String>? onCommandTap;
+  final ScrollController? scrollController;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +33,22 @@ class ConsoleHistory extends StatelessWidget {
       toGuard: printerGCodeStoreProvider(machineUUID).selectAs((_) => true),
       childOnLoading: const _ConsoleLoading(),
       childOnError: (error, _) => _ConsoleProviderError(error: error),
-      childOnData: _ConsoleData(machineUUID: machineUUID, onCommandTap: onCommandTap),
+      childOnData: _ConsoleData(
+        machineUUID: machineUUID,
+        onCommandTap: onCommandTap,
+        scrollController: scrollController,
+      ),
     );
   }
 }
 
 class _ConsoleData extends ConsumerStatefulWidget {
-  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap});
+  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
 
   final String machineUUID;
   final ValueChanged<String>? onCommandTap;
+  final ScrollController? scrollController;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
 
   @override
   ConsumerState<_ConsoleData> createState() => _ConsoleDataState();
@@ -114,6 +122,8 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
       ),
       onRefresh: () => ref.invalidate(printerGCodeStoreProvider),
       child: ListView.builder(
+        keyboardDismissBehavior: widget.keyboardDismissBehavior,
+        controller: widget.scrollController,
         reverse: true,
         itemCount: count,
         itemBuilder: (context, index) {
