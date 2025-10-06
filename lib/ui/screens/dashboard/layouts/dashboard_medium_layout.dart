@@ -5,7 +5,6 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
@@ -62,6 +61,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Required to allow the editing screen to scroll in the custom scroll viewport
     final sc = useScrollController(debugLabel: 'DashboardTabletLayout');
     final Widget body;
     if (isEditing) {
@@ -113,24 +113,26 @@ class DashboardMediumLayout extends HookConsumerWidget {
             ),
         ],
         buildDraggableFeedback: (BuildContext context, BoxConstraints constraints, Widget child) {
-          return HookBuilder(builder: (context) {
-            final animation = useAnimationController(duration: const Duration(milliseconds: 250))..forward();
+          return HookBuilder(
+            builder: (context) {
+              final animation = useAnimationController(duration: const Duration(milliseconds: 250))..forward();
 
-            return AnimatedBuilder(
-              animation: animation,
-              builder: (BuildContext ctx, Widget? c) {
-                final double animValue = Curves.easeInOut.transform(animation.value);
-                final double scale = lerpDouble(1, 0.75, animValue)!;
-                return Transform.scale(scale: scale, alignment: Alignment.topCenter, child: c);
-              },
-              child: Material(
-                // elevation: 10.0,
-                color: Colors.transparent,
-                // borderRadius: BorderRadius.zero,
-                child: ConstrainedBox(constraints: constraints, child: child),
-              ),
-            );
-          });
+              return AnimatedBuilder(
+                animation: animation,
+                builder: (BuildContext ctx, Widget? c) {
+                  final double animValue = Curves.easeInOut.transform(animation.value);
+                  final double scale = lerpDouble(1, 0.75, animValue)!;
+                  return Transform.scale(scale: scale, alignment: Alignment.topCenter, child: c);
+                },
+                child: Material(
+                  // elevation: 10.0,
+                  color: Colors.transparent,
+                  // borderRadius: BorderRadius.zero,
+                  child: ConstrainedBox(constraints: constraints, child: child),
+                ),
+              );
+            },
+          );
         },
         children: [
           for (var tab in tabs)
@@ -178,114 +180,17 @@ class DashboardMediumLayout extends HookConsumerWidget {
 
     return PullToRefreshPrinter(
       enablePullDown: !isEditing,
-      scrollController: sc, //Maybe that is the reason why autoscroll is broken?
-      physics: RangeMaintainingScrollPhysics(
-          parent: Platform.isIOS ? const BouncingScrollPhysics() : const ClampingScrollPhysics()),
-      child: SingleChildScrollView(
-        // primary: true,
-        // controller: sc,
-
-        // physics: const RangeMaintainingScrollPhysics(),
-        child: SafeArea(child: body),
+      //Maybe that is the reason why autoscroll is broken?
+      child: CustomScrollView(
+        key: PageStorageKey<String>('$machineUUID-medium-layout-dashboard'),
+        controller: sc,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: RangeMaintainingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverSafeArea(sliver: SliverToBoxAdapter(child: body))
+        ]
       ),
     );
-
-    //
-    // return ReorderableColumns(
-    //     data: [
-    //       [
-    //         // for (var e in [...left]) DasboardCard(key: Key(e.name), type: e, machineUUID: machineUUID),
-    //         for (var e in [...left])
-    //           Card(
-    //               key: Key(e.name),
-    //               child: SizedBox(
-    //                 child: Text(e.name),
-    //                 height: 250,
-    //                 width: double.infinity,
-    //               )),
-    //       ],
-    //       [
-    //         // for (var e in [...right]) DasboardCard(key: Key(e.name), type: e, machineUUID: machineUUID),
-    //         for (var e in [...right])
-    //           Card(
-    //               key: Key(e.name),
-    //               child: SizedBox(
-    //                 child: Text(e.name),
-    //                 height: 250,
-    //                 width: double.infinity,
-    //               )),
-    //       ]
-    //     ],
-    //     onReorder: (oldColumnIndex, oldItemIndex, newColumnIndex, newItemIndex) {
-    //       talker.info('On Reorder: $oldColumnIndex, $oldItemIndex, $newColumnIndex, $newItemIndex');
-    //     });
-    //
-    // // return ReorderableBuilder(
-    //   children: comb,
-    //   onReorder: (updated) {
-    //     talker.info('On Reorder: updated');
-    //   },
-    //   builder: (ele) {
-    //     return GridView(
-    //       key: _gridViewKey,
-    //       // controller: _scrollController,
-    //       children: comb,
-    //       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    //         crossAxisCount: 2,
-    //         mainAxisSpacing: 4,
-    //         crossAxisSpacing: 8,
-    //       ),
-    //     );
-    //   },
-    // );
-
-    // return KanbanBoard([
-    //   BoardListsData(
-    //     items: [
-    //       for (var type in left) DasboardCard(type: type, machineUUID: machineUUID),
-    //     ],
-    //   ),
-    //   BoardListsData(
-    //     items: [
-    //       for (var type in right) DasboardCard(type: type, machineUUID: machineUUID),
-    //     ],
-    //   ),
-    // ]);
-
-    // return PullToRefreshPrinter(
-    //   child: SingleChildScrollView(
-    //     child: Row(
-    //       crossAxisAlignment: CrossAxisAlignment.start,
-    //       children: [
-    //         Flexible(
-    //           child: Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             children: [
-    //               ..._staticWidgets,
-    //               for (var type in left)
-    //                 DasboardCard(
-    //                   type: type,
-    //                   machineUUID: machineUUID,
-    //                 ),
-    //             ],
-    //           ),
-    //         ),
-    //         Flexible(
-    //           child: Column(
-    //             mainAxisSize: MainAxisSize.min,
-    //             children: [
-    //               for (var type in right)
-    //                 DasboardCard(
-    //                   type: type,
-    //                   machineUUID: machineUUID,
-    //                 ),
-    //             ],
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    // );
   }
 }
 

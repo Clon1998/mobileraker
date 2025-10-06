@@ -5,7 +5,6 @@
 
 // ignore_for_file: avoid-passing-async-when-sync-expected
 
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
@@ -36,8 +35,9 @@ class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
     this.onRemove,
     required this.onRequestedEdit,
   }) : assert(
-            !isEditing || onReorder != null && onAddComponent != null && onRemoveComponent != null && onRemove != null,
-            'If editing is enabled, all callbacks must be provided');
+         !isEditing || onReorder != null && onAddComponent != null && onRemoveComponent != null && onRemove != null,
+         'If editing is enabled, all callbacks must be provided',
+       );
 
   final String machineUUID;
 
@@ -76,6 +76,8 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     var scroll = CustomScrollView(
       key: PageStorageKey<String>(widget.tab.uuid),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      physics: RangeMaintainingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       slivers: <Widget>[
         if (widget.isEditing)
           SliverPadding(
@@ -170,16 +172,12 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
               ),
             ),
           ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 40),
-        )
+        const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
     );
 
     // Only offer pull to refresh when not editing
     return PullToRefreshPrinter(
-      physics: RangeMaintainingScrollPhysics(
-          parent: Platform.isIOS ? const BouncingScrollPhysics() : const ClampingScrollPhysics()),
       enablePullDown: !widget.isEditing,
       child: scroll,
     );
@@ -221,11 +219,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 }
 
 class _EditingSuffix extends StatelessWidget {
-  const _EditingSuffix({
-    super.key,
-    required this.onAddComponent,
-    required this.onRemoveComponent,
-  });
+  const _EditingSuffix({super.key, required this.onAddComponent, required this.onRemoveComponent});
 
   final void Function() onAddComponent;
   final void Function() onRemoveComponent;
