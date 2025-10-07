@@ -418,7 +418,7 @@ class _ToolSelector extends ConsumerWidget {
 
   ButtonSegment<GcodeMacro> _buildButtonSegment(GcodeMacro tool) {
     final Object? val = tool.vars['color'] ?? tool.vars['colour'];
-    final color = val?.let((t) => Color(int.parse(t.toString(), radix: 16) | 0xFF000000));
+    final color = val?.let((v) => int.tryParse(v.toString(), radix: 16))?.let((i) => Color(i | 0xFF000000));
 
     return ButtonSegment(
       value: tool,
