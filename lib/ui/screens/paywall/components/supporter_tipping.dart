@@ -110,7 +110,7 @@ class TippingCard extends ConsumerWidget {
     ThemeData theme,
   ) {
     final tipOptions = [
-      (packages[0], '☕️', tr('products.tip.coffee')),
+      (packages[0], '🧋', tr('products.tip.coffee')),
       (packages[1], '🥨', tr('products.tip.snack')),
       (packages[2], '🍱', tr('products.tip.lunch')),
     ];
