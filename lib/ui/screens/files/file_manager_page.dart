@@ -47,7 +47,6 @@ import 'package:common/util/path_utils.dart';
 import 'package:common/util/time_util.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -66,6 +65,7 @@ import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stringr/stringr.dart';
@@ -680,7 +680,7 @@ class _FileListData extends ConsumerStatefulWidget {
 }
 
 class _FileListState extends ConsumerState<_FileListData> {
-  final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true);
+  final RefreshController _refreshController = RefreshController();
 
   ValueNotifier<bool> _isUserRefresh = ValueNotifier(false);
 
@@ -702,9 +702,8 @@ class _FileListState extends ConsumerState<_FileListData> {
 
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
-    return EasyRefresh(
+    return SmartRefresher(
       // header: const WaterDropMaterialHeader(),
-      header: OverrideHeader(header: EasyRefresh.defaultHeaderBuilder(), position: IndicatorPosition.locator),
       controller: _refreshController,
       onRefresh: () {
         _isUserRefresh.value = true;
@@ -712,11 +711,11 @@ class _FileListState extends ConsumerState<_FileListData> {
             .refreshApiResponse()
             .then(
               (_) {
-                _refreshController.finishRefresh();
+                _refreshController.refreshCompleted();
               },
               onError: (e, s) {
                 talker.error('Error while refreshing FileListState', e, s);
-                _refreshController.finishRefresh(IndicatorResult.fail);
+                _refreshController.refreshFailed();
               },
             )
             .whenComplete(() => _isUserRefresh.value = false);
@@ -744,7 +743,6 @@ class _FileListState extends ConsumerState<_FileListData> {
               isUserRefresh: _isUserRefresh,
             ),
           ),
-          const HeaderLocator.sliver(),
           if (widget.folderContent.isEmpty)
             SliverFillRemaining(
               child: Column(

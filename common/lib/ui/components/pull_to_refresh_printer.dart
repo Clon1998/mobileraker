@@ -13,19 +13,17 @@ import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
-  const PullToRefreshPrinter({super.key, this.child, this.childBuilder, this.enablePullDown = true});
+  const PullToRefreshPrinter({super.key, this.child, this.enablePullDown = true});
 
   final Widget? child;
 
-  final ERChildBuilder? childBuilder;
 
   final bool enablePullDown;
 
@@ -34,7 +32,7 @@ class PullToRefreshPrinter extends ConsumerStatefulWidget {
 }
 
 class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
-  final EasyRefreshController refreshController = EasyRefreshController(controlFinishRefresh: true);
+  final RefreshController refreshController = RefreshController();
 
   SnackBarService get snackBarService => ref.read(snackBarServiceProvider);
 
@@ -44,17 +42,10 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.childBuilder != null) {
-      return EasyRefresh.builder(
-        controller: refreshController,
-        onRefresh: onRefresh.only(widget.enablePullDown),
-        // These params are only forwarded if the child is not a Scrollable itself
-        childBuilder: widget.childBuilder!,
-      );
-    }
-    return EasyRefresh(
+    return SmartRefresher(
       controller: refreshController,
-      onRefresh: onRefresh.only(widget.enablePullDown),
+      onRefresh: onRefresh,
+      enablePullDown: widget.enablePullDown,
       // These params are only forwarded if the child is not a Scrollable itself
       child: widget.child,
     );
@@ -66,11 +57,11 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
       selMachine = await ref.read(selectedMachineProvider.future);
 
       if (selMachine == null) {
-        refreshController.finishRefresh();
+        refreshController.refreshCompleted();
         return;
       }
     } catch (_) {
-      refreshController.finishRefresh(IndicatorResult.fail);
+      refreshController.refreshFailed();
       return;
     }
 
@@ -97,10 +88,10 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
         ref.invalidate(temperatureStoreServiceProvider(selMachine.uuid));
       }
       // throw MobilerakerException('Klippy is not ready to receive commands');
-      refreshController.finishRefresh();
+      refreshController.refreshCompleted();
     } catch (e, s) {
       talker.warning('Error while trying to refresh printer', e);
-      refreshController.finishRefresh(IndicatorResult.fail);
+      refreshController.refreshFailed();
       snackBarService.show(SnackBarConfig.stacktraceDialog(
         dialogService: dialogService,
         exception: e,

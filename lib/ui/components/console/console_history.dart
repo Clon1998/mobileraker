@@ -13,9 +13,9 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ConsoleHistory extends StatelessWidget {
@@ -84,16 +84,16 @@ class _ConsoleProviderError extends ConsumerWidget {
 }
 
 class _ConsoleDataState extends ConsumerState<_ConsoleData> {
-  final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true);
+  final RefreshController _refreshController = RefreshController();
 
   @override
   void initState() {
     super.initState();
     // Sync UI refresher with Riverpod provider
     ref.listenManual(printerGCodeStoreProvider(widget.machineUUID), (previous, next) {
-      if (next case AsyncData() when _refreshController.headerState?.mode == IndicatorMode.processing) {
+      if (next case AsyncData() when _refreshController.isRefresh) {
         talker.info('Console data refreshed, completing refresher');
-        _refreshController.finishRefresh();
+        _refreshController.refreshCompleted();
       }
     });
   }
@@ -114,15 +114,11 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     talker.error('Rebuilding console list. Count: $count');
 
-    return EasyRefresh(
+    return SmartRefresher(
       scrollController: widget.scrollController,
       header: ClassicHeader(
-        dragText: tr('components.pull_to_refresh.pull_up_idle'),
-        armedText: tr('components.pull_to_refresh.release_to_refresh'),
-        readyText: tr('components.pull_to_refresh.refreshing'),
-        processedText: tr('components.pull_to_refresh.refresh_complete'),
-        failedText: tr('components.pull_to_refresh.refresh_failed'),
-        showMessage: false,
+        idleText: tr('components.pull_to_refresh.pull_up_idle'),
+        idleIcon: Icon(Icons.arrow_upward, color: Colors.grey),
       ),
       controller: _refreshController,
       onRefresh: () => ref.invalidate(printerGCodeStoreProvider),
