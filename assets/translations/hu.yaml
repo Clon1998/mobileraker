@@ -583,6 +583,8 @@ pages:
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Hőmérséklet"
       bed_temp: "@:pages.dashboard.general.temp_card.bed Hőmérséklet"
       new_preset: Új előbeállítás
+      custom_gcode: Egyedi G-kód
+      custom_gcode_helper: A hőmérsékletek beállítása után futtatható opcionális G-kód
     confirm_fcm_reset:
       title: Értesítési eszköz nyilvántartás törlése?
       body: "Most készülsz visszaállítani az eszközregisztert, amely meghatározza, hogy a társ milyen eszközökre küld értesítést.\nA push-értesítések visszaállításához újra kell indítanod az alkalmazást az összes eszközön, és újra csatlakoztatnia kell őket a géphez. \n\nErősítsd meg a műveletet."

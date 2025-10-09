@@ -2,6 +2,7 @@
 general:
   pause: Pauza
   resume: Wznów
+  connect: Połącz
   connected: Połączono
   'off': 'Wyłącz'
   'on': 'Włącz'
@@ -28,7 +29,10 @@ general:
   supported: Wspierane
   unsupported: Niewspierane
   details: Szczegóły
+  google_play: Google Play
   ios_store: AppStore
+  google_play_services: Usługi Google Play
+  apple_services: Usługi Apple
   active: Aktywny
   canceled: Anulowano
   monthly: Comiesięcznie
@@ -66,6 +70,7 @@ general:
   print: Drukuj
   allow: Zezwól
   deny: Zabroń
+  settings: Ustawienia
 pages:
   dashboard:
     title: Panel
@@ -138,6 +143,7 @@ pages:
         ztilt_btn: Z-Tilt
         poff_tooltip:
         poff_btn: Kalibracja Probe
+        zoff_tooltip: Uruchom kalibrację Z offset
         zoff_btn: Kalibracja krańcówki Z
         bsa_tooltip: Uruchom kalibrację regulacji śrub stołu
         bsa_btn: Regulacja śrub stołu
@@ -349,6 +355,7 @@ pages:
       stat_card:
         title: Statystyki
       preheat_dialog:
+        title: "@:pages.files.gcode_file_actions.preheat ?"
         body: |-
           Zadane temperatury
           Ekstruder: {}°C
