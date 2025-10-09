@@ -12,6 +12,7 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -25,7 +26,6 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
-import 'package:pullex/pullex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -63,7 +63,7 @@ class _VendorDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final refreshController = useMemoized(() => PullexRefreshController(), const []);
+    final refreshController = useMemoized(() => EasyRefreshController(controlFinishRefresh: true), const []);
     useEffect(() => refreshController.dispose, const []);
 
     final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
@@ -75,40 +75,43 @@ class _VendorDetailPage extends HookConsumerWidget {
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: PullexRefresh(
-          controller: refreshController,
-          onRefresh: () async {
-            final vendor = ref.read(_vendorProvider);
+      body: EasyRefresh(
+        controller: refreshController,
+        onRefresh: () {
+          final vendor = ref.read(_vendorProvider);
 
-            try {
-              await ref.refresh(vendorProvider(machineUUID, vendor.id).future);
-              refreshController.refreshCompleted();
-            } catch (e) {
-              refreshController.refreshFailed();
-            }
-          },
-          header: BaseHeader(
-          ),
-          child: ListView(
-            addAutomaticKeepAlives: true,
-            children: [
-              _VendorInfo(machineUUID: machineUUID),
-              if (context.isCompact) ...[
-                _VendorFilaments(machineUUID: machineUUID),
-                _VendorSpools(machineUUID: machineUUID),
-              ],
-              if (context.isLargerThanCompact)
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
-                      Flexible(child: _VendorSpools(machineUUID: machineUUID)),
-                    ],
-                  ),
-                ),
+          ref
+              .refresh(vendorProvider(machineUUID, vendor.id).future)
+              .then(
+                (_) {
+                  refreshController.finishRefresh();
+                },
+                onError: (_, _) {
+                  refreshController.finishRefresh(IndicatorResult.fail);
+                },
+              );
+        },
+        child: ListView(
+          addAutomaticKeepAlives: true,
+          children: [
+            _VendorInfo(machineUUID: machineUUID),
+            if (context.isCompact) ...[
+              _VendorFilaments(machineUUID: machineUUID),
+              _VendorSpools(machineUUID: machineUUID),
             ],
-          ),),
+            if (context.isLargerThanCompact)
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
+                    Flexible(child: _VendorSpools(machineUUID: machineUUID)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
       // body: _SpoolTab(),
     );
   }
@@ -122,9 +125,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
-    return AppBar(
-      title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]),
-    );
+    return AppBar(title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]));
   }
 
   @override
@@ -142,18 +143,14 @@ class _VendorInfo extends ConsumerWidget {
     final dateFormatService = ref.watch(dateFormatServiceProvider);
     final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
 
-    final numberFormatDouble =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+    final numberFormatDouble = NumberFormat.decimalPatternDigits(
+      locale: context.locale.toStringWithSeparator(),
+      decimalDigits: 2,
+    );
 
     final props = [
-      PropertyWithTitle.text(
-        title: tr('pages.spoolman.properties.id'),
-        property: vendor.id.toString(),
-      ),
-      PropertyWithTitle.text(
-        title: tr('pages.spoolman.properties.name'),
-        property: vendor.name,
-      ),
+      PropertyWithTitle.text(title: tr('pages.spoolman.properties.id'), property: vendor.id.toString()),
+      PropertyWithTitle.text(title: tr('pages.spoolman.properties.name'), property: vendor.name),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.registered'),
         property: dateFormatGeneral.format(vendor.registered),
@@ -220,24 +217,32 @@ class _VendorFilaments extends HookConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Consumer(builder: (context, ref, _) {
-            final themeData = Theme.of(context);
-            final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
-            final total = ref.watch(filamentListProvider(machineUUID, pageSize: _initial, page: 0, filters: filter)
-                .select((d) => d.valueOrNull?.totalItems));
-            return ListTile(
-              leading: const Icon(Icons.color_lens_outlined),
-              title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
-              trailing: total != null && total > 0
-                  ? Chip(
-                      visualDensity: VisualDensity.compact,
-                      label: Text(numFormat.format(total)),
-                      labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
-                      backgroundColor: themeData.colorScheme.secondary,
-                    )
-                  : null,
-            );
-          }),
+          Consumer(
+            builder: (context, ref, _) {
+              final themeData = Theme.of(context);
+              final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
+              final total = ref.watch(
+                filamentListProvider(
+                  machineUUID,
+                  pageSize: _initial,
+                  page: 0,
+                  filters: filter,
+                ).select((d) => d.valueOrNull?.totalItems),
+              );
+              return ListTile(
+                leading: const Icon(Icons.color_lens_outlined),
+                title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
+                trailing: total != null && total > 0
+                    ? Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text(numFormat.format(total)),
+                        labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                        backgroundColor: themeData.colorScheme.secondary,
+                      )
+                    : null,
+              );
+            },
+          ),
           const Divider(),
           Flexible(
             child: SpoolmanStaticPagination(
@@ -274,24 +279,32 @@ class _VendorSpools extends HookConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Consumer(builder: (context, ref, _) {
-            final themeData = Theme.of(context);
-            final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
-            final total = ref.watch(spoolListProvider(machineUUID, pageSize: _initial, page: 0, filters: filters)
-                .select((d) => d.valueOrNull?.totalItems));
-            return ListTile(
-              leading: const Icon(Icons.spoke_outlined),
-              title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
-              trailing: total != null && total > 0
-                  ? Chip(
-                      visualDensity: VisualDensity.compact,
-                      label: Text(numFormat.format(total)),
-                      labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
-                      backgroundColor: themeData.colorScheme.secondary,
-                    )
-                  : null,
-            );
-          }),
+          Consumer(
+            builder: (context, ref, _) {
+              final themeData = Theme.of(context);
+              final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
+              final total = ref.watch(
+                spoolListProvider(
+                  machineUUID,
+                  pageSize: _initial,
+                  page: 0,
+                  filters: filters,
+                ).select((d) => d.valueOrNull?.totalItems),
+              );
+              return ListTile(
+                leading: const Icon(Icons.spoke_outlined),
+                title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
+                trailing: total != null && total > 0
+                    ? Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text(numFormat.format(total)),
+                        labelStyle: TextStyle(color: themeData.colorScheme.onSecondary),
+                        backgroundColor: themeData.colorScheme.secondary,
+                      )
+                    : null,
+              );
+            },
+          ),
           const Divider(),
           Flexible(
             child: SpoolmanStaticPagination(
@@ -326,31 +339,32 @@ class _VendorDetailPageController extends _$VendorDetailPageController
   }
 
   void onAction(ThemeData themeData) async {
-    final res = await bottomSheetServiceRef.show(BottomSheetConfig(
-      type: SheetType.actions,
-      data: ActionBottomSheetArgs(
-        title: RichText(
-          text: TextSpan(
-            text: '#${state.id} ',
-            style: themeData.textTheme.titleSmall
-                ?.copyWith(fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2)),
-            children: [
-              TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall),
-            ],
+    final res = await bottomSheetServiceRef.show(
+      BottomSheetConfig(
+        type: SheetType.actions,
+        data: ActionBottomSheetArgs(
+          title: RichText(
+            text: TextSpan(
+              text: '#${state.id} ',
+              style: themeData.textTheme.titleSmall?.copyWith(
+                fontSize: themeData.textTheme.titleSmall?.fontSize?.let((it) => it - 2),
+              ),
+              children: [TextSpan(text: '${state.name}', style: themeData.textTheme.titleSmall)],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+          subtitle: Text(tr('pages.spoolman.vendor.one'), maxLines: 1, overflow: TextOverflow.ellipsis),
+          actions: [
+            VendorSpoolmanSheetAction.addFilament,
+            DividerSheetAction.divider,
+            VendorSpoolmanSheetAction.edit,
+            VendorSpoolmanSheetAction.clone,
+            VendorSpoolmanSheetAction.delete,
+          ],
         ),
-        subtitle: Text(tr('pages.spoolman.vendor.one'), maxLines: 1, overflow: TextOverflow.ellipsis),
-        actions: [
-          VendorSpoolmanSheetAction.addFilament,
-          DividerSheetAction.divider,
-          VendorSpoolmanSheetAction.edit,
-          VendorSpoolmanSheetAction.clone,
-          VendorSpoolmanSheetAction.delete,
-        ],
       ),
-    ));
+    );
 
     if (!res.confirmed) return;
     talker.info('[VendorDetailPage] Action: ${res.data}');

@@ -1061,6 +1061,11 @@ components:
     installed_version: 'Installed Version:'
   pull_to_refresh:
     pull_up_idle: Pull up to Refresh
+    pull_down_idle: Pull down to Refresh
+    release_to_refresh: Release to Refresh
+    refreshing: Refreshing…
+    refresh_complete: Refresh Complete
+    refresh_failed: Refresh Failed!
   nav_drawer:
     printer_settings: Printer Settings
     manage_printers: Manage Printers

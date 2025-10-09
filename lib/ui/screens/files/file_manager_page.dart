@@ -47,6 +47,7 @@ import 'package:common/util/path_utils.dart';
 import 'package:common/util/time_util.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -65,7 +66,6 @@ import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
-import 'package:pullex/pullex.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stringr/stringr.dart';
@@ -92,20 +92,14 @@ class FileManagerPage extends HookConsumerWidget {
 
     Widget body = MachineConnectionGuard(
       skipKlipperReady: true,
-      onConnected: (ctx, machineUUID) => _Body(
-        machineUUID: machineUUID,
-        filePath: filePath,
-        scrollController: scrollController,
-      ),
+      onConnected: (ctx, machineUUID) =>
+          _Body(machineUUID: machineUUID, filePath: filePath, scrollController: scrollController),
     );
     final fab = _Fab(filePath: filePath, scrollController: scrollController);
     if (context.isLargerThanCompact && isRoot) {
       body = NavigationRailView(
         // leading: fab,
-        page: Padding(
-          padding: const EdgeInsets.only(left: 2.0),
-          child: body,
-        ),
+        page: Padding(padding: const EdgeInsets.only(left: 2.0), child: body),
       );
     }
 
@@ -140,51 +134,48 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       return AppBar(title: Text(title.capitalize()));
     }
 
-    return Consumer(builder: (context, ref, _) {
-      final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
-      final isSelecting = ref
-          .watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).select((data) => data.selectionMode));
+    return Consumer(
+      builder: (context, ref, _) {
+        final controller = ref.watch(_modernFileManagerControllerProvider(selMachine.uuid, filePath).notifier);
+        final isSelecting = ref.watch(
+          _modernFileManagerControllerProvider(selMachine.uuid, filePath).select((data) => data.selectionMode),
+        );
 
-      final actions = [
-        IconButton(
-          tooltip: tr('pages.files.search_files'),
-          icon: const Icon(Icons.search),
-          onPressed: controller.onClickSearch,
-        ),
-        if (!isRoot)
-          Consumer(builder: (context, ref, _) {
-            final actualFolder = ref.watch(remoteFileProvider(selMachine.uuid, filePath)).valueOrNull ?? folder;
+        final actions = [
+          IconButton(
+            tooltip: tr('pages.files.search_files'),
+            icon: const Icon(Icons.search),
+            onPressed: controller.onClickSearch,
+          ),
+          if (!isRoot)
+            Consumer(
+              builder: (context, ref, _) {
+                final actualFolder = ref.watch(remoteFileProvider(selMachine.uuid, filePath)).valueOrNull ?? folder;
 
-            return IconButton(
-              tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
-              icon: const Icon(Icons.more_vert),
-              onPressed: () {
-                final box = context.findRenderObject() as RenderBox?;
-                final pos = box!.localToGlobal(Offset.zero) & box.size;
+                return IconButton(
+                  tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () {
+                    final box = context.findRenderObject() as RenderBox?;
+                    final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-                controller.onClickFileAction(actualFolder!, pos);
-              }.unless(actualFolder == null),
-            );
-          }),
-      ];
+                    controller.onClickFileAction(actualFolder!, pos);
+                  }.unless(actualFolder == null),
+                );
+              },
+            ),
+        ];
 
-      final defaultBar = isRoot
-          ? SwitchPrinterAppBar(
-              key: const Key('file_manager_app_bar'),
-              title: title.capitalize(),
-              actions: actions,
-            )
-          : AppBar(
-              key: const Key('file_manager_app_bar'),
-              title: Text(title.capitalize()),
-              actions: actions,
-            );
+        final defaultBar = isRoot
+            ? SwitchPrinterAppBar(key: const Key('file_manager_app_bar'), title: title.capitalize(), actions: actions)
+            : AppBar(key: const Key('file_manager_app_bar'), title: Text(title.capitalize()), actions: actions);
 
-      return AnimatedSwitcher(
-        duration: kThemeAnimationDuration,
-        child: isSelecting ? _buildSelectioAppBar(context, controller) : defaultBar,
-      );
-    });
+        return AnimatedSwitcher(
+          duration: kThemeAnimationDuration,
+          child: isSelecting ? _buildSelectioAppBar(context, controller) : defaultBar,
+        );
+      },
+    );
   }
 
   Widget _buildSelectioAppBar(BuildContext context, _ModernFileManagerController controller) {
@@ -243,53 +234,52 @@ class _Fab extends HookConsumerWidget {
     return HookConsumer(
       builder: (context, ref, _) {
         final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
-        final (isUploading, isDownloading, isUpOrDownloadDone, isFilesLoading, isSelecting) =
-            ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
-          return (
-            data.upload != null,
-            data.download != null,
-            data.download is FileDownloadComplete || data.upload is FileUploadComplete,
-            data.folderContent.isLoading,
-            data.selectionMode,
-          );
-        }));
+        final (isUploading, isDownloading, isUpOrDownloadDone, isFilesLoading, isSelecting) = ref.watch(
+          _modernFileManagerControllerProvider(selectedMachine.uuid, filePath).select((data) {
+            return (
+              data.upload != null,
+              data.download != null,
+              data.download is FileDownloadComplete || data.upload is FileUploadComplete,
+              data.folderContent.isLoading,
+              data.selectionMode,
+            );
+          }),
+        );
 
         final isUpOrDownloading = isUploading || isDownloading;
 
-        final connected = ref
-            .watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
+        final connected = ref.watch(
+          jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected),
+        );
 
         final isScrolling = useState(false);
-        useEffect(
-          () {
-            if (isUpOrDownloading) {
-              isScrolling.value = false;
-              return null;
-            }
-
-            double last = scrollController.hasClients ? scrollController.offset : 0;
+        useEffect(() {
+          if (isUpOrDownloading) {
             isScrolling.value = false;
-            listener() {
-              if (!scrollController.hasClients) {
-                isScrolling.value = false;
-                return;
-              }
-              if (scrollController.position.userScrollDirection == ScrollDirection.reverse) {
-                if (!isScrolling.value && scrollController.offset - last > 25) {
-                  isScrolling.value = true;
-                }
-              } else if (scrollController.position.userScrollDirection == ScrollDirection.forward) {
-                // check if delta is gt 10
-                last = scrollController.offset;
-                isScrolling.value = false;
-              }
-            }
+            return null;
+          }
 
-            scrollController.addListener(listener);
-            return () => scrollController.removeListener(listener);
-          },
-          [scrollController, filePath, isSelecting, isUpOrDownloading],
-        );
+          double last = scrollController.hasClients ? scrollController.offset : 0;
+          isScrolling.value = false;
+          listener() {
+            if (!scrollController.hasClients) {
+              isScrolling.value = false;
+              return;
+            }
+            if (scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+              if (!isScrolling.value && scrollController.offset - last > 25) {
+                isScrolling.value = true;
+              }
+            } else if (scrollController.position.userScrollDirection == ScrollDirection.forward) {
+              // check if delta is gt 10
+              last = scrollController.offset;
+              isScrolling.value = false;
+            }
+          }
+
+          scrollController.addListener(listener);
+          return () => scrollController.removeListener(listener);
+        }, [scrollController, filePath, isSelecting, isUpOrDownloading]);
 
         final children = [
           if (filePath == 'gcodes') ...[
@@ -298,10 +288,7 @@ class _Fab extends HookConsumerWidget {
               switchInCurve: Curves.easeInOutCubicEmphasized,
               switchOutCurve: Curves.easeInOutCubicEmphasized,
               // duration: kThemeAnimationDuration,
-              transitionBuilder: (child, animation) => ScaleTransition(
-                scale: animation,
-                child: child,
-              ),
+              transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
               child: JobQueueFab(
                 machineUUID: selectedMachine.uuid,
                 onPressed: controller.onClickJobQueueFab,
@@ -345,10 +332,7 @@ class _Fab extends HookConsumerWidget {
           switchInCurve: Curves.easeInOutCubicEmphasized,
           switchOutCurve: Curves.easeInOutCubicEmphasized,
           // duration: kThemeAnimationDuration,
-          transitionBuilder: (child, animation) => ScaleTransition(
-            scale: animation,
-            child: child,
-          ),
+          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
           child: isScrolling.value || !connected || filePath == 'timelapse' || isSelecting && !isUpOrDownloading
               ? const SizedBox.shrink(key: Key('file_manager_fab-hidden'))
               : fab,
@@ -371,8 +355,9 @@ class _BottomNav extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final connected =
-        ref.watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
+    final connected = ref.watch(
+      jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected),
+    );
     if (!connected) {
       return const SizedBox.shrink();
     }
@@ -380,8 +365,11 @@ class _BottomNav extends ConsumerWidget {
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
     final (inSelectionMode, hasTimelapseComponent) = ref.watch(
-        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath)
-            .select((data) => (data.selectionMode, data.hasTimelapseComponent)));
+      _modernFileManagerControllerProvider(
+        selectedMachine.uuid,
+        filePath,
+      ).select((data) => (data.selectionMode, data.hasTimelapseComponent)),
+    );
 
     // 1 => 'config',
     // 2 => 'timelapse',
@@ -408,10 +396,7 @@ class _BottomNav extends ConsumerWidget {
           label: tr('pages.files.gcode_tab'),
           icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
         ),
-        BottomNavigationBarItem(
-          label: tr('pages.files.config_tab'),
-          icon: const Icon(FlutterIcons.file_code_faw5),
-        ),
+        BottomNavigationBarItem(label: tr('pages.files.config_tab'), icon: const Icon(FlutterIcons.file_code_faw5)),
         if (hasTimelapseComponent)
           BottomNavigationBarItem(
             label: tr('pages.files.timelapse_tab'),
@@ -444,8 +429,9 @@ class _TabbarNav extends HookConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final connected =
-        ref.watch(jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected));
+    final connected = ref.watch(
+      jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected),
+    );
     if (!connected) {
       return const SizedBox.shrink();
     }
@@ -453,8 +439,11 @@ class _TabbarNav extends HookConsumerWidget {
     final controller = ref.watch(_modernFileManagerControllerProvider(selectedMachine.uuid, filePath).notifier);
 
     final (inSelectionMode, hasTimelapseComponent) = ref.watch(
-        _modernFileManagerControllerProvider(selectedMachine.uuid, filePath)
-            .select((data) => (data.selectionMode, data.hasTimelapseComponent)));
+      _modernFileManagerControllerProvider(
+        selectedMachine.uuid,
+        filePath,
+      ).select((data) => (data.selectionMode, data.hasTimelapseComponent)),
+    );
 
     // 1 => 'config',
     // 2 => 'timelapse',
@@ -486,19 +475,10 @@ class _TabbarNav extends HookConsumerWidget {
           onTap: controller.onClickRootNavigation,
           enableFeedback: true,
           tabs: [
-            Tab(
-              text: tr('pages.files.gcode_tab'),
-              icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
-            ),
-            Tab(
-              text: tr('pages.files.config_tab'),
-              icon: const Icon(FlutterIcons.file_code_faw5),
-            ),
+            Tab(text: tr('pages.files.gcode_tab'), icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
+            Tab(text: tr('pages.files.config_tab'), icon: const Icon(FlutterIcons.file_code_faw5)),
             if (hasTimelapseComponent)
-              Tab(
-                text: tr('pages.files.timelapse_tab'),
-                icon: const Icon(Icons.subscriptions_outlined),
-              ),
+              Tab(text: tr('pages.files.timelapse_tab'), icon: const Icon(Icons.subscriptions_outlined)),
           ],
         ),
         if (!themeData.useMaterial3) Divider(height: 1, thickness: 1, color: themeData.colorScheme.primary),
@@ -546,8 +526,12 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).notifier);
-    final (sortCfg, apiLoading, isSelecting) = ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath)
-        .select((data) => (data.sortConfiguration, data.folderContent.isLoading, data.selectionMode)));
+    final (sortCfg, apiLoading, isSelecting) = ref.watch(
+      _modernFileManagerControllerProvider(
+        machineUUID,
+        filePath,
+      ).select((data) => (data.sortConfiguration, data.folderContent.isLoading, data.selectionMode)),
+    );
 
     final themeData = Theme.of(context);
 
@@ -575,24 +559,25 @@ class _FileList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final folderContent =
-        ref.watch(_modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent));
+    final folderContent = ref.watch(
+      _modernFileManagerControllerProvider(machineUUID, filePath).select((data) => data.folderContent),
+    );
 
     final widget = switch (folderContent) {
       AsyncValue(hasValue: true, value: FolderContentWrapper() && final content) => _FileListData(
-          key: Key('$filePath-list'),
-          machineUUID: machineUUID,
-          filePath: filePath,
-          folderContent: content,
-          scrollController: scrollController,
-        ),
+        key: Key('$filePath-list'),
+        machineUUID: machineUUID,
+        filePath: filePath,
+        folderContent: content,
+        scrollController: scrollController,
+      ),
       AsyncError(:final error, :final stackTrace) => _FileListError(
-          key: Key('$filePath-list-error'),
-          machineUUID: machineUUID,
-          filePath: filePath,
-          error: error,
-          stack: stackTrace,
-        ),
+        key: Key('$filePath-list-error'),
+        machineUUID: machineUUID,
+        filePath: filePath,
+        error: error,
+        stack: stackTrace,
+      ),
       _ => const ShimmerFileList(),
     };
 
@@ -606,8 +591,6 @@ class _FileList extends ConsumerWidget {
     );
   }
 }
-
-
 
 class _FileListError extends ConsumerWidget {
   const _FileListError({
@@ -655,16 +638,18 @@ class _FileListError extends ConsumerWidget {
       title: const Text('Unable to fetch files!'),
       body: Column(
         children: [
-          Text(
-            'The following error occued while trying to fetch files:n$error',
-          ),
+          Text('The following error occued while trying to fetch files:n$error'),
           TextButton(
             // onPressed: model.showPrinterFetchingErrorDialog,
-            onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                  type: CommonDialogs.stacktrace,
-                  title: error.runtimeType.toString(),
-                  body: 'Exception:\n$error\n\n$stack',
-                )),
+            onPressed: () => ref
+                .read(dialogServiceProvider)
+                .show(
+                  DialogRequest(
+                    type: CommonDialogs.stacktrace,
+                    title: error.runtimeType.toString(),
+                    body: 'Exception:\n$error\n\n$stack',
+                  ),
+                ),
             child: const Text('Show Full Error'),
           ),
         ],
@@ -695,7 +680,7 @@ class _FileListData extends ConsumerStatefulWidget {
 }
 
 class _FileListState extends ConsumerState<_FileListData> {
-  final PullexRefreshController _refreshController = PullexRefreshController(initialRefresh: false);
+  final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true);
 
   ValueNotifier<bool> _isUserRefresh = ValueNotifier(false);
 
@@ -703,8 +688,12 @@ class _FileListState extends ConsumerState<_FileListData> {
   Widget build(BuildContext context) {
     final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMd(context.deviceLocale.languageCode));
     final controller = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath).notifier);
-    final sortConfiguration = ref.watch(_modernFileManagerControllerProvider(widget.machineUUID, widget.filePath)
-        .select((data) => data.sortConfiguration));
+    final sortConfiguration = ref.watch(
+      _modernFileManagerControllerProvider(
+        widget.machineUUID,
+        widget.filePath,
+      ).select((data) => data.sortConfiguration),
+    );
 
     final int totalItems = widget.folderContent.totalItems;
     final adEvery = ref.watch(remoteConfigIntProvider('files_page_add_density'));
@@ -713,21 +702,24 @@ class _FileListState extends ConsumerState<_FileListData> {
 
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
-    return PullexRefresh(
+    return EasyRefresh(
       // header: const WaterDropMaterialHeader(),
-      header: BaseHeader(),
+      header: OverrideHeader(header: EasyRefresh.defaultHeaderBuilder(), position: IndicatorPosition.locator),
       controller: _refreshController,
       onRefresh: () {
         _isUserRefresh.value = true;
-        controller.refreshApiResponse().then(
-          (_) {
-            _refreshController.refreshCompleted();
-          },
-          onError: (e, s) {
-            talker.error('Error while refreshing FileListState', e, s);
-            _refreshController.refreshFailed();
-          },
-        ).whenComplete(() => _isUserRefresh.value = false);
+        controller
+            .refreshApiResponse()
+            .then(
+              (_) {
+                _refreshController.finishRefresh();
+              },
+              onError: (e, s) {
+                talker.error('Error while refreshing FileListState', e, s);
+                _refreshController.finishRefresh(IndicatorResult.fail);
+              },
+            )
+            .whenComplete(() => _isUserRefresh.value = false);
       },
       child: CustomScrollView(
         key: PageStorageKey('${widget.filePath}:${sortConfiguration.mode}:${sortConfiguration.kind}'),
@@ -747,8 +739,12 @@ class _FileListState extends ConsumerState<_FileListData> {
             initialHeight: 4,
             pinned: true,
             child: _LoadingIndicator(
-                machineUUID: widget.machineUUID, filePath: widget.filePath, isUserRefresh: _isUserRefresh),
+              machineUUID: widget.machineUUID,
+              filePath: widget.filePath,
+              isUserRefresh: _isUserRefresh,
+            ),
           ),
+          const HeaderLocator.sliver(),
           if (widget.folderContent.isEmpty)
             SliverFillRemaining(
               child: Column(
@@ -771,11 +767,7 @@ class _FileListState extends ConsumerState<_FileListData> {
             SliverPadding(
               padding: const EdgeInsets.only(bottom: kFloatingActionButtonMargin * 2 + 48),
               sliver: SliverList.separated(
-                separatorBuilder: (context, index) => const Divider(
-                  height: 0,
-                  indent: 18,
-                  endIndent: 18,
-                ),
+                separatorBuilder: (context, index) => const Divider(height: 0, indent: 18, endIndent: 18),
                 itemCount: widget.folderContent.totalItems + adCount,
                 itemBuilder: (context, index) {
                   if (adEvery > 0 && index > 0 && index % (adEvery + 1) == adEvery) {
@@ -837,17 +829,12 @@ class _LoadingIndicator extends HookConsumerWidget {
 
     double? value = switch (model) {
       _Model(download: FileOperationProgress(:final progress)) ||
-      _Model(upload: FileOperationProgress(:final progress)) =>
-        progress,
+      _Model(upload: FileOperationProgress(:final progress)) => progress,
       _Model(folderContent: AsyncValue(isLoading: true)) ||
-      _Model(download: FileOperationKeepAlive()) when !wasUser =>
-        null,
+      _Model(download: FileOperationKeepAlive()) when !wasUser => null,
       _ => 0,
     };
-    return LinearProgressIndicator(
-      backgroundColor: Colors.transparent,
-      value: value,
-    );
+    return LinearProgressIndicator(backgroundColor: Colors.transparent, value: value);
   }
 }
 
@@ -869,64 +856,72 @@ class _FileItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).notifier);
 
-    final (
-      selected,
-      selectionMode,
-      enabled
-    ) = ref.watch(_modernFileManagerControllerProvider(machineUUID, file.parentPath).select((d) =>
-        (d.selectedFiles.contains(file), d.selectionMode, d.folderContent.isLoading == false && !d.isOperationActive)));
+    final (selected, selectionMode, enabled) = ref.watch(
+      _modernFileManagerControllerProvider(machineUUID, file.parentPath).select(
+        (d) => (
+          d.selectedFiles.contains(file),
+          d.selectionMode,
+          d.folderContent.isLoading == false && !d.isOperationActive,
+        ),
+      ),
+    );
 
-    var numberFormat =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+    var numberFormat = NumberFormat.decimalPatternDigits(
+      locale: context.locale.toStringWithSeparator(),
+      decimalDigits: 1,
+    );
 
     Widget subtitle = switch (sortMode) {
       SortMode.size => Text(numberFormat.formatFileSize(file.size)),
-      SortMode.estimatedPrintTime when file is GCodeFile =>
-        Text((file as GCodeFile).estimatedTime?.let(secondsToDurationText) ?? '--'),
-      SortMode.lastPrinted when file is GCodeFile =>
-        Text((file as GCodeFile).lastPrintDate?.let(dateFormat.format) ?? '--'),
+      SortMode.estimatedPrintTime when file is GCodeFile => Text(
+        (file as GCodeFile).estimatedTime?.let(secondsToDurationText) ?? '--',
+      ),
+      SortMode.lastPrinted when file is GCodeFile => Text(
+        (file as GCodeFile).lastPrintDate?.let(dateFormat.format) ?? '--',
+      ),
       SortMode.lastPrinted => const Text('--'),
       SortMode.lastModified => Text(file.modifiedDate?.let(dateFormat.format) ?? '--'),
       _ => Text('@:pages.files.sort_by.last_modified: ${file.modifiedDate?.let(dateFormat.format) ?? '--'}').tr(),
     };
 
     return RemoteFileListTile(
-        machineUUID: machineUUID,
-        file: file,
-        selected: selected,
-        subtitle: subtitle,
-        showPrintedIndicator: true,
-        trailing: AnimatedSizeAndFade(
-          fadeDuration: kThemeAnimationDuration,
-          sizeDuration: kThemeAnimationDuration,
-          fadeInCurve: Curves.easeInOutCubicEmphasized,
-          fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
-          sizeCurve: Curves.easeInOutCubicEmphasized,
-          child: selectionMode
-              ? const SizedBox.shrink()
-              : IconButton(
-                  key: Key('file_item_more_button_${file.hashCode}'),
-                  icon: const Icon(Icons.more_horiz, size: 22),
-                  onPressed: () {
-                    final box = context.findRenderObject() as RenderBox?;
-                    final pos = box!.localToGlobal(Offset.zero) & box.size;
+      machineUUID: machineUUID,
+      file: file,
+      selected: selected,
+      subtitle: subtitle,
+      showPrintedIndicator: true,
+      trailing: AnimatedSizeAndFade(
+        fadeDuration: kThemeAnimationDuration,
+        sizeDuration: kThemeAnimationDuration,
+        fadeInCurve: Curves.easeInOutCubicEmphasized,
+        fadeOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+        sizeCurve: Curves.easeInOutCubicEmphasized,
+        child: selectionMode
+            ? const SizedBox.shrink()
+            : IconButton(
+                key: Key('file_item_more_button_${file.hashCode}'),
+                icon: const Icon(Icons.more_horiz, size: 22),
+                onPressed: () {
+                  final box = context.findRenderObject() as RenderBox?;
+                  final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-                    controller.onClickFileAction(file, pos);
-                  }.only(enabled),
-                ),
-        ),
-        onTap: () {
-          if (selectionMode) {
-            controller.onLongClickFile(file);
-          } else {
-            final box = context.findRenderObject() as RenderBox?;
-            final pos = box!.localToGlobal(Offset.zero) & box.size;
-            controller.onClickFile(file, pos);
-          }
-        }.only(enabled),
-        onLongPress: () {
+                  controller.onClickFileAction(file, pos);
+                }.only(enabled),
+              ),
+      ),
+      onTap: () {
+        if (selectionMode) {
           controller.onLongClickFile(file);
-        }.only(enabled));
+        } else {
+          final box = context.findRenderObject() as RenderBox?;
+          final pos = box!.localToGlobal(Offset.zero) & box.size;
+          controller.onClickFile(file, pos);
+        }
+      }.only(enabled),
+      onLongPress: () {
+        controller.onLongClickFile(file);
+      }.only(enabled),
+    );
   }
 }
 
@@ -946,7 +941,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   List<SortMode> get _availableSortModes => switch (_root) {
     'gcodes' => SortMode.availableForGCodes(),
     _ => SortMode.availableForFiles(),
-      };
+  };
 
   CompositeKey get _sortModeKey => CompositeKey.keyWithString(UtilityKeys.fileExplorerSortCfg, 'mode:$_root');
 
@@ -976,8 +971,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final sortModeIdx = ref.watch(intSettingProvider(_sortModeKey)).clamp(0, supportedModes.length - 1);
     final sortKindIdx = ref.watch(intSettingProvider(_sortKindKey)).clamp(0, SortKind.values.length - 1);
 
-    final hasTimelapseComponent =
-        ref.watch(klipperProvider(machineUUID).select((d) => d.valueOrNull?.hasTimelapseComponent == true));
+    final hasTimelapseComponent = ref.watch(
+      klipperProvider(machineUUID).select((d) => d.valueOrNull?.hasTimelapseComponent == true),
+    );
 
     // ignore: avoid-unsafe-collection-methods
     final sortConfiguration = SortConfiguration(supportedModes[sortModeIdx], SortKind.values[sortKindIdx]);
@@ -1003,29 +999,43 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickFile(RemoteFile file, Rect origin) {
-    talker
-        .info('[ModernFileManagerController($machineUUID, $filePath)] opening file ${file.name} (${file.runtimeType})');
+    talker.info(
+      '[ModernFileManagerController($machineUUID, $filePath)] opening file ${file.name} (${file.runtimeType})',
+    );
 
     switch (file) {
       case GCodeFile():
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name,
-            pathParameters: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(
+          AppRoute.fileManager_exlorer_gcodeDetail.name,
+          pathParameters: {'path': filePath},
+          extra: file,
+        );
         break;
       case Folder():
-        _goRouter.pushNamed(AppRoute.fileManager_explorer.name,
-            pathParameters: {'path': file.absolutPath}, extra: file);
+        _goRouter.pushNamed(
+          AppRoute.fileManager_explorer.name,
+          pathParameters: {'path': file.absolutPath},
+          extra: file,
+        );
         break;
       case RemoteFile(isVideo: true):
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_videoPlayer.name,
-            pathParameters: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(
+          AppRoute.fileManager_exlorer_videoPlayer.name,
+          pathParameters: {'path': filePath},
+          extra: file,
+        );
         break;
       case RemoteFile(isImage: true):
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name,
-            pathParameters: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(
+          AppRoute.fileManager_exlorer_imageViewer.name,
+          pathParameters: {'path': filePath},
+          extra: file,
+        );
         break;
       case RemoteFile(isArchive: true):
-        var fileAction = _fileInteractionService.downloadFileAction(
-            [file], origin).endWith(FileOperationCompleted(action: FileSheetAction.download, files: [file]));
+        var fileAction = _fileInteractionService
+            .downloadFileAction([file], origin)
+            .endWith(FileOperationCompleted(action: FileSheetAction.download, files: [file]));
         _handleFileInteractionEventStream(fileAction);
         break;
       default:
@@ -1047,8 +1057,14 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   Future<void> onClickFileAction(RemoteFile file, Rect origin) async {
-    await _handleFileInteractionEventStream(_fileInteractionService.showFileActionMenu(
-        file, origin, machineUUID, stateOrNull?.folderContent.requireValue.folderFileNames));
+    await _handleFileInteractionEventStream(
+      _fileInteractionService.showFileActionMenu(
+        file,
+        origin,
+        machineUUID,
+        stateOrNull?.folderContent.requireValue.folderFileNames,
+      ),
+    );
   }
 
   void onClickRootNavigation(int index) {
@@ -1076,10 +1092,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
   Future<void> onClickSortMode() async {
     talker.info('[ModernFileManagerController($machineUUID, $filePath)] sort mode');
-    final args = SortModeSheetArgs(
-      toShow: _availableSortModes,
-      active: state.sortConfiguration,
-    );
+    final args = SortModeSheetArgs(toShow: _availableSortModes, active: state.sortConfiguration);
 
     final res = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.sortMode, data: args));
 
@@ -1097,8 +1110,11 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   void onClickSearch() {
     talker.info('[ModernFileManagerController($machineUUID, $filePath)] search');
 
-    _goRouter.pushNamed(AppRoute.fileManager_exlorer_search.name,
-        pathParameters: {'path': filePath}, queryParameters: {'machineUUID': machineUUID});
+    _goRouter.pushNamed(
+      AppRoute.fileManager_exlorer_search.name,
+      pathParameters: {'path': filePath},
+      queryParameters: {'machineUUID': machineUUID},
+    );
     // _dialogService.show(DialogRequest(type: DialogType.searchFullscreen));
   }
 
@@ -1114,22 +1130,23 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void onClickJobQueueFab() {
-    ref
-        .read(bottomSheetServiceProvider)
-        .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu));
+    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: ProSheetType.jobQueueMenu));
   }
 
   Future<void> onClickAddFileFab(Rect origin) async {
-    final allowedTypes =
-        _root == 'gcodes' ? [...gcodeFileExtensions] : [...configFileExtensions, ...textFileExtensions];
+    final allowedTypes = _root == 'gcodes'
+        ? [...gcodeFileExtensions]
+        : [...configFileExtensions, ...textFileExtensions];
 
-    await _handleFileInteractionEventStream(_fileInteractionService.showNewFileOptionsMenu(
-      filePath,
-      origin,
-      machineUUID,
-      allowedTypes,
-      stateOrNull?.folderContent.requireValue.folderFileNames,
-    ));
+    await _handleFileInteractionEventStream(
+      _fileInteractionService.showNewFileOptionsMenu(
+        filePath,
+        origin,
+        machineUUID,
+        allowedTypes,
+        stateOrNull?.folderContent.requireValue.folderFileNames,
+      ),
+    );
   }
 
   void onClickCancelUpOrDownload() {
@@ -1176,8 +1193,9 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     // talker.warning('[ModernFileManagerController($machineUUID, $filePath)] file interaction menu event: $event');
     switch (event) {
       case FileActionSelected():
-        talker
-            .info('[ModernFileManagerController($machineUUID, $filePath)] multi file action selected: ${event.action}');
+        talker.info(
+          '[ModernFileManagerController($machineUUID, $filePath)] multi file action selected: ${event.action}',
+        );
         break;
       case FileOperationTriggered():
         state = state.copyWith(folderContent: state.folderContent.toLoading(false));
@@ -1219,7 +1237,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     if (_goRouter.state?.uri.path.startsWith('/files/') != true) {
       talker.info(
-          '[ModernFileManagerController($machineUUID, $filePath)] Ignoring notification, not in file manager view');
+        '[ModernFileManagerController($machineUUID, $filePath)] Ignoring notification, not in file manager view',
+      );
       return;
     }
 
@@ -1288,14 +1307,16 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           final closingSegment = activePathSegments[activePathSegments.length - 1 - i];
 
           talker.info(
-              '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $closingSegment, path: $currentlyClosingPath');
+            '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $closingSegment, path: $currentlyClosingPath',
+          );
           _goRouter.pop();
 
           if (currentlyClosingPath == filePath) {
             WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
           } else {
             WidgetsBinding.instance.addPostFrameCallback(
-                (_) => ref.invalidate(_modernFileManagerControllerProvider(machineUUID, currentlyClosingPath)));
+              (_) => ref.invalidate(_modernFileManagerControllerProvider(machineUUID, currentlyClosingPath)),
+            );
           }
         }
 
@@ -1374,7 +1395,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
           final remainingPath = currentUIPathSegments.sublist(0, currentUIPathSegments.length - i).join('/');
 
           talker.info(
-              '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $segmentToClose');
+            '[ModernFileManagerController($machineUUID, $filePath)] Closing view for path segment: $segmentToClose',
+          );
           _goRouter.pop();
 
           // Invalidate references only for affected paths
@@ -1382,7 +1404,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
           } else {
             WidgetsBinding.instance.addPostFrameCallback(
-                (_) => ref.invalidate(_modernFileManagerControllerProvider(machineUUID, remainingPath)));
+              (_) => ref.invalidate(_modernFileManagerControllerProvider(machineUUID, remainingPath)),
+            );
           }
         }
 
@@ -1398,7 +1421,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
               reconstructedPath = '$reconstructedPath/$pathSegment';
 
               talker.info(
-                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath');
+                '[ModernFileManagerController($machineUUID, $filePath)] Opening new Folder view for path: $reconstructedPath',
+              );
 
               _goRouter.pushNamed(
                 AppRoute.fileManager_explorer.name,
@@ -1410,19 +1434,19 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
             case String()
                 when activeViewName == AppRoute.fileManager_exlorer_gcodeDetail.name && activeFileUiExtra is GCodeFile:
               talker.info(
-                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new GCodeDetails view for path: $reconstructedPath');
+                '[ModernFileManagerController($machineUUID, $filePath)] Opening new GCodeDetails view for path: $reconstructedPath',
+              );
 
               _goRouter.pushNamed(
                 AppRoute.fileManager_exlorer_gcodeDetail.name,
                 pathParameters: {'path': reconstructedPath},
-                extra: activeFileUiExtra.copyWith(
-                  parentPath: reconstructedPath,
-                ),
+                extra: activeFileUiExtra.copyWith(parentPath: reconstructedPath),
               );
               break;
             case String() when activeFileUiExtra is GenericFile:
               talker.info(
-                  '[ModernFileManagerController($machineUUID, $filePath)] Opening new $activeViewName view for path: $reconstructedPath');
+                '[ModernFileManagerController($machineUUID, $filePath)] Opening new $activeViewName view for path: $reconstructedPath',
+              );
 
               _goRouter.pushNamed(
                 activeViewName,
@@ -1452,7 +1476,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 
     if (nextState != ClientState.connected) {
       talker.info(
-          '[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode');
+        '[ModernFileManagerController($machineUUID, $filePath)] Client disconnected, will exist selection mode',
+      );
       state = state.copyWith(selectedFiles: []);
     }
   }
@@ -1460,7 +1485,8 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   void _onModelChanged(_Model? prev, _Model next) {
     if (!next.hasTimelapseComponent && filePath.startsWith('timelapse')) {
       talker.info(
-          '[ModernFileManagerController($machineUUID, $filePath)] Timelapse component was removed/not available anymore, will move to gcodes');
+        '[ModernFileManagerController($machineUUID, $filePath)] Timelapse component was removed/not available anymore, will move to gcodes',
+      );
       _goRouter.replaceNamed(AppRoute.fileManager_explorer.name, pathParameters: {'path': 'gcodes'});
     }
   }

@@ -74,10 +74,10 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
 
     // final childs = components.mapIndex(_buildCard).toList();
 
-    var scroll = CustomScrollView(
+     scroll(BuildContext context, ScrollPhysics physics) => CustomScrollView(
       key: PageStorageKey<String>(widget.tab.uuid),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      physics: RangeMaintainingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      physics: RangeMaintainingScrollPhysics(parent: physics),
       slivers: <Widget>[
         if (widget.isEditing)
           SliverPadding(
@@ -179,7 +179,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
     // Only offer pull to refresh when not editing
     return PullToRefreshPrinter(
       enablePullDown: !widget.isEditing,
-      child: scroll,
+      childBuilder: scroll,
     );
   }
 

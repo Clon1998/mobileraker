@@ -78,7 +78,7 @@ dependencies:
   flutter_svg: ^2.0.15
   flutter_svg_provider: ^1.0.7
   progress_indicators: ^1.0.0
-  pullex: ^1.0.0
+  easy_refresh: ^3.4.0
 
   #misc
   talker_flutter: ^4.7.1

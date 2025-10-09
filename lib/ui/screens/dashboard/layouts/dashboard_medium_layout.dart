@@ -181,14 +181,12 @@ class DashboardMediumLayout extends HookConsumerWidget {
     return PullToRefreshPrinter(
       enablePullDown: !isEditing,
       //Maybe that is the reason why autoscroll is broken?
-      child: CustomScrollView(
+      childBuilder: (context, physics) => CustomScrollView(
         key: PageStorageKey<String>('$machineUUID-medium-layout-dashboard'),
         controller: sc,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        physics: RangeMaintainingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: [
-          SliverSafeArea(sliver: SliverToBoxAdapter(child: body))
-        ]
+        physics: RangeMaintainingScrollPhysics(parent: physics),
+        slivers: [SliverSafeArea(sliver: SliverToBoxAdapter(child: body))],
       ),
     );
   }
