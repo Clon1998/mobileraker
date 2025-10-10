@@ -53,8 +53,6 @@ Future<void> main() async {
   talker.info('Starting Mobileraker...');
   talker.info('-----------------------');
 
-
-
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
     ProviderScope(
@@ -154,9 +152,8 @@ class MyApp extends ConsumerWidget {
       },
       child: LocaleSpy(
         child: RefreshConfiguration(
-          headerBuilder: () => ClassicHeader(
-
-          ),
+          springDescription: SpringDescription(mass: 1, stiffness: 364.718677686, damping: 35.2),
+          headerBuilder: () => ClassicHeader(),
           child: ThemeBuilder(
             builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme, ThemeMode? themeMode) {
               return MaterialApp.router(
