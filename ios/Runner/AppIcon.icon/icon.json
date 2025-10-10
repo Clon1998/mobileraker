@@ -11,7 +11,7 @@
           "image-name" : "mr_logo.svg",
           "name" : "mr_logo",
           "position" : {
-            "scale" : 2.3,
+            "scale" : 2,
             "translation-in-points" : [
               0,
               0
