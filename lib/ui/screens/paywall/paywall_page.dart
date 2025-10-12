@@ -23,6 +23,7 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
+import 'package:mobileraker/util/svg/gray_scale_color_mapper.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 import 'components/supporter_benefits.dart';
@@ -34,6 +35,7 @@ class PaywallPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isSupporter = ref.watch(isSupporterProvider);
     Widget body = CustomScrollView(
       physics: const ClampingScrollPhysics().only(context.isCompact),
       slivers: [
@@ -43,11 +45,11 @@ class PaywallPage extends HookConsumerWidget {
             floating: false,
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
-              background: SvgPicture.asset(alignment: Alignment.topCenter, 'assets/vector/mr_logo.svg'),
+              background: SvgPicture.asset(alignment: Alignment.topCenter, 'assets/vector/mr_logo.svg', colorMapper: GrayScaleColorMapper().unless(isSupporter),),
             ),
           ),
         if (context.isLargerThanCompact)
-          SliverToBoxAdapter(child: SvgPicture.asset(height: 210, 'assets/vector/mr_logo.svg')),
+          SliverToBoxAdapter(child: SvgPicture.asset(height: 210, 'assets/vector/mr_logo.svg', colorMapper: GrayScaleColorMapper().unless(isSupporter),)),
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
@@ -278,6 +280,8 @@ class _FetchErrorWidget extends ConsumerWidget {
             textAlign: TextAlign.center,
           ).tr(),
           Gap(32),
+          if (ref.watch(isSupporterProvider))
+            _SubscriptionManagementNotice(),
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -697,3 +701,4 @@ class _SubLifetimeWarning extends StatelessWidget {
     );
   }
 }
+
