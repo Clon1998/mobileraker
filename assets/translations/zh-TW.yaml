@@ -16,7 +16,7 @@ general:
   shutdown: 關機
   firmware: 韌體
   fetching: 擷取
-  loading: 進料中
+  loading: 讀取中
   unknown: 未知
   disabled: 停用
   confirm: 確認
@@ -166,7 +166,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude長度"
         cold_extrude_error: 擠出機尚未達到最低擠出溫度（ {}°C ）
       macro_card:
-        title: GCode－巨集
+        title: Gcode－巨集
         no_macros: 目前在此群組中沒有可見的巨集
         add_grp_hint: 您可建立不同群組來編組您的巨集。只需至列印機設定中並新增群組。
         show_all_tooltip: 顯示所有巨集
@@ -839,8 +839,9 @@ pages:
         title: 線盤已封存
         body: 此線盤已封存，無法用於新的列印。
       alternative_spool:
-        same_filament: 替代線盤(相同線材)
-        same_material: 替代線盤(相同製造商)
+        title: 替代線盤
+        same_filament: 相同線材
+        same_material: 相同製造商
     spool_form:
       create_page_title: 建立線盤
       update_page_title: 編輯線盤
@@ -878,7 +879,6 @@ components:
     fetching_printers: "@:general.fetching 列印機…"
     footer: |-
       由 Patrick Schmidt 用 ❤️ 製作
-      Kayz翻譯
       查看該專案的
   connection_watcher:
     reconnect: 重新連接
