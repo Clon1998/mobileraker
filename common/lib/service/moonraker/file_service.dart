@@ -57,6 +57,10 @@ const videoFileExtensions = {'mp4'};
 
 const archiveFileExtensions = {'zip', 'tar', 'gz', '7z'};
 
+final backupFileExtensionRegex = RegExp('^.*\.(${bakupFileExtensions.join('|')})\$', multiLine: false, caseSensitive: false);
+
+final klipperBackupFileRegex = RegExp('^printer-\d{8}_\d{6}.cfg\$', multiLine: false, caseSensitive: false);
+
 @freezed
 class FolderContentWrapper with _$FolderContentWrapper {
   const FolderContentWrapper._();
@@ -213,16 +217,10 @@ Future<FolderContentWrapper> moonrakerFolderContent(
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(directoryInfoApiResponseProvider(machineUUID, path).future);
 
-
-  final regExp = RegExp('^.*\.(${bakupFileExtensions.join('|')})\$', multiLine: true, caseSensitive: false);
-
   filterHiddenFiles(RemoteFile file) => showHiddenFiles || !file.name.startsWith('.');
   filterBackUpFiles(RemoteFile file) {
     if (!hideBackupFiles) return true;
-    //Todo: match pattern of printer_datestamep for backups of klipper
-    // Todo: Match pattern of moonraker_,,, backups!
-
-    return !regExp.hasMatch(file.name);
+    return !backupFileExtensionRegex.hasMatch(file.name) && !klipperBackupFileRegex.hasMatch(file.name);
   }
 
   List<Folder> folders = apiResponse.folders.where(filterHiddenFiles).where(filterBackUpFiles).toList();
