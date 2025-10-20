@@ -1542,6 +1542,14 @@ bottom_sheets:
     title: Temperature Chart Settings
   select_file:
     title: Select Print Job
+  file_manager_settings:
+    title: File Manager Settings
+    show_hidden_files:
+      title: Show Hidden Files
+      subtitle: Display hidden files and directories
+    hide_backup_files:
+      title: Hide Backup Files
+      subtitle: Do not display backup files
 klipper_state:
   ready: Ready
   shutdown: Shutdown

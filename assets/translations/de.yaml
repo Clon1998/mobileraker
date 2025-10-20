@@ -1429,6 +1429,14 @@ bottom_sheets:
     title: Temperaturverlauf Einstellungen
   select_file:
     title: Druck-Datei auswählen
+  file_manager_settings:
+#    title: Dateiverwaltung Einstellungen
+    show_hidden_files:
+      title: Versteckte Dateien anzeigen
+      subtitle: Zeige Dateien, die mit einem Punkt (.) beginnen
+    hide_backup_files:
+      title: Backup-Dateien ausblenden
+      subtitle: Verstecke alle Backup-Dateien
 klipper_state:
   ready: Bereit
   shutdown: Runtergefahren

@@ -58,6 +58,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/file_interaction_service.dart';
+import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
@@ -541,8 +542,8 @@ class _Header extends ConsumerWidget {
       trailing: IconButton(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-        onPressed: controller.onClickCreateFolder.only(!apiLoading),
-        icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
+        onPressed: controller.onClickSettings,
+        icon: Icon(Icons.settings, size: 18, color: themeData.textTheme.bodySmall?.color),
       ).unless(isSelecting),
     );
   }
@@ -1080,12 +1081,30 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onClickCreateFolder() async {
-    talker.info('[ModernFileManagerController($machineUUID, $filePath)] creating folder');
-
-    final usedNames = state.folderContent.requireValue.folderFileNames;
-
-    _handleFileInteractionEventStream(_fileInteractionService.createEmptyFolderAction(filePath, usedNames));
+  void onClickSettings() {
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] opening settings');
+    _bottomSheetService.show(
+      BottomSheetConfig(
+        type: SheetType.changeSettings,
+        data: SettingsBottomSheetArgs(
+          title: tr('bottom_sheets.file_manager_settings.title'),
+          settings: [
+            SwitchSettingItem(
+              settingKey: AppSettingKeys.hideBackupFiles,
+              title: tr('bottom_sheets.file_manager_settings.hide_backup_files.title'),
+              subtitle: tr('bottom_sheets.file_manager_settings.hide_backup_files.subtitle'),
+              defaultValue: false,
+            ),
+            SwitchSettingItem(
+              settingKey: AppSettingKeys.showHiddenFiles,
+              title: tr('bottom_sheets.file_manager_settings.show_hidden_files.title'),
+              subtitle: tr('bottom_sheets.file_manager_settings.show_hidden_files.subtitle'),
+              defaultValue: false,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> onClickSortMode() async {
