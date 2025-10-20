@@ -961,8 +961,9 @@ pages:
         title: Spool ist archiviert
         body: Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden.
       alternative_spool:
-        same_filament: Alternative Spulen (gleiches Filament)
-        same_material: Alternative Spulen (gleiches Material)
+        title: Alternative Spulen
+        same_filament: Gleiches Filament
+        same_material: Gleiches Material
     spool_form:
       create_page_title: Spule erstellen
       update_page_title: Spule bearbeiten
