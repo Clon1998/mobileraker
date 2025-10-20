@@ -812,8 +812,9 @@ pages:
         title: 料盘已锁定
         body: 这个料盘已锁定，不能用于新的打印。
       alternative_spool:
-        same_filament: 替代料盘（相同耗材）
-        same_material: 替代料盘（相同制造商）
+        title: 替代料盘
+        same_filament: 相同耗材
+        same_material: 相同制造商
     spool_form:
       create_page_title: 创建料盘
       update_page_title: 编辑料盘
