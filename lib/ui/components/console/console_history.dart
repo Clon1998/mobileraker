@@ -7,6 +7,7 @@ import 'package:common/data/dto/console/gcode_store_entry.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -157,8 +158,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
                 subtitleTextStyle: themeData.textTheme.bodySmall,
               ),
             ),
-            // TODO: Allow the user to enable this and decide if wed rather filter early than handle it via shrink
-            ConsoleEntryType.temperatureResponse => SizedBox.shrink(),
+            ConsoleEntryType.temperatureResponse when ref.watch(boolSettingProvider(AppSettingKeys.filterTemperatureResponse)) => SizedBox.shrink(),
             _ => ListTile(
               key: ValueKey(index),
               contentPadding: const EdgeInsets.symmetric(horizontal: 8),

@@ -182,6 +182,10 @@ enum AppSettingKeys implements KeyValueStoreKey {
   useMediumUI('useMediumUI', true),
   keepScreenOn('keepScreenOn', false),
   machineCardStyle('machineCardStyle', true), // true -> modern, false -> classic
+  filterTemperatureResponse('filterTResponse', true),
+  reverseConsole('reverseConsole', false),
+  hideBackupFiles('hBakFiles', false),
+  showHiddenFiles('sHidFiles', false)
   ;
 
   @override

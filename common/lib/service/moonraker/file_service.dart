@@ -36,13 +36,14 @@ import '../../data/model/file_operation.dart';
 import '../../network/http_client_factory.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
+import '../setting_service.dart';
 
 part 'file_service.freezed.dart';
 part 'file_service.g.dart';
 
 typedef FileListChangedListener = Function(Map<String, dynamic> item, Map<String, dynamic>? srcItem);
 
-const bakupFileExtensions = {'bak', 'backup'};
+const bakupFileExtensions = {'bak', 'backup', 'bkp'};
 
 const gcodeFileExtensions = {'gcode', 'g', 'gc', 'gco'};
 
@@ -207,11 +208,25 @@ Future<FolderContentWrapper> moonrakerFolderContent(
     Ref ref, String machineUUID, String path, SortConfiguration sortConfig) async {
   ref.keepAliveFor();
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
+  final hideBackupFiles = ref.watch(boolSettingProvider(AppSettingKeys.hideBackupFiles));
+  final showHiddenFiles = ref.watch(boolSettingProvider(AppSettingKeys.showHiddenFiles));
   // await Future.delayed(const Duration(milliseconds: 5000));
   final apiResponse = await ref.watch(directoryInfoApiResponseProvider(machineUUID, path).future);
 
-  List<Folder> folders = apiResponse.folders.toList();
-  List<RemoteFile> files = apiResponse.files.toList();
+
+  final regExp = RegExp('^.*\.(${bakupFileExtensions.join('|')})\$', multiLine: true, caseSensitive: false);
+
+  filterHiddenFiles(RemoteFile file) => showHiddenFiles || !file.name.startsWith('.');
+  filterBackUpFiles(RemoteFile file) {
+    if (!hideBackupFiles) return true;
+    //Todo: match pattern of printer_datestamep for backups of klipper
+    // Todo: Match pattern of moonraker_,,, backups!
+
+    return !regExp.hasMatch(file.name);
+  }
+
+  List<Folder> folders = apiResponse.folders.where(filterHiddenFiles).where(filterBackUpFiles).toList();
+  List<RemoteFile> files = apiResponse.files.where(filterHiddenFiles).where(filterBackUpFiles).toList();
 
   final comp = sortConfig.comparator;
 
