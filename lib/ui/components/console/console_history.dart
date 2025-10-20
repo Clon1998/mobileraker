@@ -12,6 +12,7 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -42,19 +43,6 @@ class ConsoleHistory extends StatelessWidget {
     );
   }
 }
-
-class _ConsoleData extends ConsumerStatefulWidget {
-  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
-
-  final String machineUUID;
-  final ValueChanged<String>? onCommandTap;
-  final ScrollController? scrollController;
-  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
-
-  @override
-  ConsumerState<_ConsoleData> createState() => _ConsoleDataState();
-}
-
 class _ConsoleProviderError extends ConsumerWidget {
   const _ConsoleProviderError({super.key, required this.error});
 
@@ -82,6 +70,18 @@ class _ConsoleProviderError extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _ConsoleData extends ConsumerStatefulWidget {
+  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
+
+  final String machineUUID;
+  final ValueChanged<String>? onCommandTap;
+  final ScrollController? scrollController;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
+
+  @override
+  ConsumerState<_ConsoleData> createState() => _ConsoleDataState();
 }
 
 class _ConsoleDataState extends ConsumerState<_ConsoleData> {
@@ -115,6 +115,8 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     talker.error('Rebuilding console list. Count: $count');
 
+    final showTimeStamp = ref.watch(boolSettingProvider(AppSettingKeys.consoleShowTimestamp));
+
     return SmartRefresher(
       scrollController: widget.scrollController,
       header: ClassicHeader(
@@ -126,7 +128,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
       child: ListView.builder(
         keyboardDismissBehavior: widget.keyboardDismissBehavior,
         controller: widget.scrollController,
-        reverse: true,
+        reverse: !ref.watch(boolSettingProvider(AppSettingKeys.reverseConsole)),
         itemCount: count,
         itemBuilder: (context, index) {
           if (index >= count) return null; // Prevents index out of bounds error
@@ -151,19 +153,21 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
               child: ListTile(
                 key: ValueKey(index),
                 dense: true,
+                visualDensity: VisualDensity.compact.unless(showTimeStamp),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 title: Text(entry.message, style: _commandTextStyle(themeData, ListTileTheme.of(context))),
                 onTap: () => widget.onCommandTap?.call(entry.message),
-                subtitle: Text(dateFormat.format(entry.timestamp)),
+                subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
                 subtitleTextStyle: themeData.textTheme.bodySmall,
               ),
             ),
             ConsoleEntryType.temperatureResponse when ref.watch(boolSettingProvider(AppSettingKeys.filterTemperatureResponse)) => SizedBox.shrink(),
             _ => ListTile(
               key: ValueKey(index),
+              visualDensity: VisualDensity.compact.unless(showTimeStamp),
               contentPadding: const EdgeInsets.symmetric(horizontal: 8),
               title: Text(entry.message),
-              subtitle: Text(dateFormat.format(entry.timestamp)),
+              subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
               subtitleTextStyle: themeData.textTheme.bodySmall,
             ),
           };

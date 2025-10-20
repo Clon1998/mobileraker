@@ -4,6 +4,8 @@
  */
 
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
@@ -12,6 +14,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/console/command_input.dart';
 import 'package:mobileraker/ui/components/console/command_suggestions.dart';
 import 'package:mobileraker/ui/components/console/console_history.dart';
@@ -82,21 +86,43 @@ class _ConsoleBody extends HookConsumerWidget {
   }
 }
 
-class _CardHeader extends StatelessWidget {
+class _CardHeader extends ConsumerWidget {
   const _CardHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(color: themeData.colorScheme.primary),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-        child: Text(
-          'pages.console.card_title',
-          style: themeData.textTheme.titleMedium?.copyWith(color: themeData.colorScheme.onPrimary),
-        ).tr(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'pages.console.card_title',
+              style: themeData.textTheme.titleMedium?.copyWith(color: themeData.colorScheme.onPrimary),
+            ).tr(),
+            GestureDetector(
+              onTap: () {
+                ref
+                    .read(bottomSheetServiceProvider)
+                    .show(
+                      BottomSheetConfig(
+                        type: SheetType.changeSettings,
+                        data: SettingsBottomSheetArgs(title: tr('bottom_sheets.console_settings.title'), settings: [
+                          SwitchSettingItem(settingKey: AppSettingKeys.reverseConsole, title: tr('bottom_sheets.console_settings.reverse.title'), subtitle: tr('bottom_sheets.console_settings.reverse.subtitle')),
+                          SwitchSettingItem(settingKey: AppSettingKeys.filterTemperatureResponse, title: tr('bottom_sheets.console_settings.filter_temp_responses.title'), subtitle: tr('bottom_sheets.console_settings.filter_temp_responses.subtitle')),
+                          SwitchSettingItem(settingKey: AppSettingKeys.consoleShowTimestamp, title: tr('bottom_sheets.console_settings.show_timestamps.title'), subtitle: tr('bottom_sheets.console_settings.show_timestamps.subtitle')),
+                        ],),
+                      ),
+                    );
+              },
+              child: Icon(Icons.settings, color: themeData.colorScheme.onPrimary, size: 16),
+            ),
+          ],
+        ),
       ),
     );
   }

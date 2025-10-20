@@ -1546,10 +1546,21 @@ bottom_sheets:
     title: File Manager Settings
     show_hidden_files:
       title: Show Hidden Files
-      subtitle: Display hidden files and directories
+      subtitle: Display files and folders that start with a dot (.)
     hide_backup_files:
       title: Hide Backup Files
-      subtitle: Do not display backup files
+      subtitle: Hide all files that are detected as backup files
+  console_settings:
+    title: Console Settings
+    reverse:
+      title: Reverse Order
+      subtitle: Display newest messages first instead of last
+    filter_temp_responses:
+      title: Filter Temperature Responses
+      subtitle: Hide temperature-related diagnostic messages
+    show_timestamps:
+      title: Show Timestamps
+      subtitle: Show when each message was logged
 klipper_state:
   ready: Ready
   shutdown: Shutdown

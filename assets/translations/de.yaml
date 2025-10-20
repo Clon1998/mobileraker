@@ -1430,13 +1430,24 @@ bottom_sheets:
   select_file:
     title: Druck-Datei auswählen
   file_manager_settings:
-#    title: Dateiverwaltung Einstellungen
+    title: Dateiverwaltung Einstellungen
     show_hidden_files:
       title: Versteckte Dateien anzeigen
-      subtitle: Zeige Dateien, die mit einem Punkt (.) beginnen
+      subtitle: Dateien und Ordner anzeigen, die mit einem Punkt (.) beginnen
     hide_backup_files:
       title: Backup-Dateien ausblenden
-      subtitle: Verstecke alle Backup-Dateien
+      subtitle: Verstecke alle erkannten Backup-Dateien
+  console_settings:
+    title: Konsolen Einstellungen
+    reverse:
+      title: Reihenfolge umkehren
+      subtitle: Neueste Nachrichten zuerst statt zuletzt anzeigen
+    filter_temp_responses:
+      title: Temperatur-Antworten filtern
+      subtitle: Temperaturbezogene Diagnosemeldungen ausblenden
+    show_timestamps:
+      title: Zeitstempel anzeigen
+      subtitle: Zeigt Zeitstempel für jede Konsolennachricht an
 klipper_state:
   ready: Bereit
   shutdown: Runtergefahren
