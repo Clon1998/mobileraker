@@ -818,8 +818,9 @@ pages:
         title: 線盤已封存
         body: 此線盤已封存，無法用於新的列印。
       alternative_spool:
-        same_filament: 替代線盤(相同線材)
-        same_material: 替代線盤(相同製造商)
+        title: 替代線盤
+        same_filament: 相同線材
+        same_material: 相同製造商
     spool_form:
       create_page_title: 建立線盤
       update_page_title: 編輯線盤

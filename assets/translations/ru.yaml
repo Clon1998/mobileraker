@@ -963,8 +963,9 @@ pages:
         title: Катушка в архиве
         body: Эта катушка в архиве и не может быть использована для новых печатей.
       alternative_spool:
-        same_filament: Альтернативные катушки (тот же филамент)
-        same_material: Альтернативные катушки (тот же материал)
+        title: Альтернативные катушки
+        same_filament: Тот же филамент
+        same_material: Тот же материал
     spool_form:
       create_page_title: Создать катушку
       update_page_title: Редактировать катушку

@@ -904,8 +904,9 @@ pages:
         title: Carretel arquivado
         body: Este carretel está arquivado e não pode ser usado para novas impressões.
       alternative_spool:
-        same_filament: Carretéis Alternativos (Mesmo Filamento)
-        same_material: Carretéis Alternativos (Mesmo Material)
+        title: Carretéis Alternativos
+        same_filament: Mesmo Filamento
+        same_material: Mesmo Material
     spool_form:
       create_page_title: Criar Carretel
       update_page_title: Editar Carretel

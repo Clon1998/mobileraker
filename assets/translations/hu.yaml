@@ -942,8 +942,9 @@ pages:
         title: Archivált orsó
         body: Ez az orsó archiválva van, és nem használható új nyomtatáshoz.
       alternative_spool:
-        same_filament: Alternatív orsók (ugyanaz a szál)
-        same_material: Alternatív orsók (azonos anyag)
+        title: Alternatív orsók
+        same_filament: Ugyanaz a szál
+        same_material: Azonos anyag
     spool_form:
       create_page_title: Orsó létrehozása
       update_page_title: Orsó szerkesztése
