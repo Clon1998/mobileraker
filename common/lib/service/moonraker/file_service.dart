@@ -59,7 +59,7 @@ const archiveFileExtensions = {'zip', 'tar', 'gz', '7z'};
 
 final backupFileExtensionRegex = RegExp('^.*\.(${bakupFileExtensions.join('|')})\$', multiLine: false, caseSensitive: false);
 
-final klipperBackupFileRegex = RegExp('^printer-\d{8}_\d{6}.cfg\$', multiLine: false, caseSensitive: false);
+final klipperBackupFileRegex = RegExp(r'^printer-\d{8}_\d{6}.cfg$', multiLine: false, caseSensitive: false);
 
 @freezed
 class FolderContentWrapper with _$FolderContentWrapper {
