@@ -21,7 +21,13 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ConsoleHistory extends StatelessWidget {
-  const ConsoleHistory({super.key, required this.machineUUID, this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
+  const ConsoleHistory({
+    super.key,
+    required this.machineUUID,
+    this.onCommandTap,
+    this.scrollController,
+    this.keyboardDismissBehavior,
+  });
 
   final String machineUUID;
   final ValueChanged<String>? onCommandTap;
@@ -43,6 +49,7 @@ class ConsoleHistory extends StatelessWidget {
     );
   }
 }
+
 class _ConsoleProviderError extends ConsumerWidget {
   const _ConsoleProviderError({super.key, required this.error});
 
@@ -73,7 +80,13 @@ class _ConsoleProviderError extends ConsumerWidget {
 }
 
 class _ConsoleData extends ConsumerStatefulWidget {
-  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
+  const _ConsoleData({
+    super.key,
+    required this.machineUUID,
+    required this.onCommandTap,
+    this.scrollController,
+    this.keyboardDismissBehavior,
+  });
 
   final String machineUUID;
   final ValueChanged<String>? onCommandTap;
@@ -117,18 +130,21 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     final showTimeStamp = ref.watch(boolSettingProvider(AppSettingKeys.consoleShowTimestamp));
 
+    var newestAtTop = ref.watch(boolSettingProvider(AppSettingKeys.reverseConsole));
     return SmartRefresher(
       scrollController: widget.scrollController,
       header: ClassicHeader(
-        idleText: tr('components.pull_to_refresh.pull_up_idle'),
-        idleIcon: Icon(Icons.arrow_upward, color: Colors.grey),
+        idleText: tr(
+          newestAtTop ? 'components.pull_to_refresh.pull_down_idle' : 'components.pull_to_refresh.pull_up_idle',
+        ),
+        idleIcon: Icon(newestAtTop ? Icons.arrow_downward : Icons.arrow_upward, color: Colors.grey),
       ),
       controller: _refreshController,
       onRefresh: () => ref.invalidate(printerGCodeStoreProvider),
       child: ListView.builder(
         keyboardDismissBehavior: widget.keyboardDismissBehavior,
         controller: widget.scrollController,
-        reverse: !ref.watch(boolSettingProvider(AppSettingKeys.reverseConsole)),
+        reverse: !newestAtTop,
         itemCount: count,
         itemBuilder: (context, index) {
           if (index >= count) return null; // Prevents index out of bounds error
@@ -161,7 +177,9 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
                 subtitleTextStyle: themeData.textTheme.bodySmall,
               ),
             ),
-            ConsoleEntryType.temperatureResponse when ref.watch(boolSettingProvider(AppSettingKeys.filterTemperatureResponse)) => SizedBox.shrink(),
+            ConsoleEntryType.temperatureResponse
+                when ref.watch(boolSettingProvider(AppSettingKeys.filterTemperatureResponse)) =>
+              SizedBox.shrink(),
             _ => ListTile(
               key: ValueKey(index),
               visualDensity: VisualDensity.compact.unless(showTimeStamp),

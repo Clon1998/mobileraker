@@ -1062,6 +1062,7 @@ components:
     installed_version: 'Installed Version:'
   pull_to_refresh:
     pull_up_idle: Pull up to Refresh
+    pull_down_idle: Pull down to Refresh
   nav_drawer:
     printer_settings: Printer Settings
     manage_printers: Manage Printers
