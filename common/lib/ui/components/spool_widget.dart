@@ -56,7 +56,7 @@ class SpoolWidget extends ConsumerWidget {
           'assets/vector/spool-yellow-small.svg',
           height: height,
           width: width,
-          colorMapper: ref.watch(_spoolColorMapperProvider(color, brightness)),
+          // colorMapper: ref.watch(_spoolColorMapperProvider(color, brightness)),
         ),
       ),
     );
