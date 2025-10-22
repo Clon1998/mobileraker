@@ -1432,6 +1432,25 @@ bottom_sheets:
     title: Настройки графика температуры
   select_file:
     title: Выберите задание на печать
+  file_manager_settings:
+    title: Настройки файлового менеджера
+    show_hidden_files:
+      title: Показывать скрытые файлы
+      subtitle: Показывать файлы и папки, начинающиеся с точки (.)
+    hide_backup_files:
+      title: Скрыть резервные файлы
+      subtitle: Скрыть все файлы, определённые как резервные копии
+  console_settings:
+    title: Настройки консоли
+    reverse:
+      title: Обратный порядок
+      subtitle: Показывать новые сообщения первыми, а не последними
+    filter_temp_responses:
+      title: Фильтровать температурные сообщения
+      subtitle: Скрывать диагностические сообщения, связанные с температурой
+    show_timestamps:
+      title: Показывать метки времени
+      subtitle: Показывать время регистрации каждого сообщения
 klipper_state:
   ready: Готов
   shutdown: Выключен
