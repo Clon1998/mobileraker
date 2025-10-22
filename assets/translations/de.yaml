@@ -995,6 +995,7 @@ components:
     installed_version: 'Installierte Version:'
   pull_to_refresh:
     pull_up_idle: Nach oben wischen, zum aktualisieren
+    pull_down_idle: Nach unten wischen, zum aktualisieren
   nav_drawer:
     printer_settings: Druckereinstellungen
     manage_printers: Drucker verwalten
