@@ -2,6 +2,7 @@
 general:
   pause: Pausar
   resume: Retomar
+  connect: Conectado
   connected: Conectado
   'off': 'Desligado'
   'on': 'Ligado'
@@ -28,7 +29,10 @@ general:
   supported: Suportado
   unsupported: Não suportado
   details: Detalhes
+  google_play: Google Play
   ios_store: App Store
+  google_play_services: Google Play services
+  apple_services: Serviços da Apple
   active: Ativo
   canceled: Cancelado
   monthly: Mensal
@@ -66,6 +70,7 @@ general:
   print: Imprimir
   allow: Permitir
   deny: Negar
+  settings: Configurações
 pages:
   dashboard:
     title: Painel de Controle
@@ -416,6 +421,11 @@ pages:
       medium_ui_hint: Alternar se a interface para tablet deve ser usada em telas maiores ou no modo paisagem
       keep_screen_on: Manter Tela Ativa
       keep_screen_on_hint: Impedir que a tela desligue enquanto o aplicativo estiver ativo
+    ui:
+      machine_card_style:
+        title: Visão geral - Estilo de Cartão de Máquina
+        default: Padrão
+        classic: Compacto
     notification:
       title: Notificação
       progress_label: Notificação de Progresso de Impressão
@@ -446,6 +456,33 @@ pages:
       opt_out_marketing_error: Erro ao carregar preferências de marketing, tente novamente mais tarde.
       use_progressbar_notification: Ativar Notificação com Barra de Progresso
       use_progressbar_notification_helper: Ativa o uso de uma notificação com barra de progresso além das notificações de progresso baseadas em texto
+      snapshot_webcam_label: Webcam Snapshot
+      snapshot_webcam_helper: Selecione a webcam para snapshots.
+      snapshot_webcam_type_unsupported: Tipo de webcam não suportado!
+      snapshot_webcam_disabled: Não incluir snapshots
+      ignore_filament_sensors_label: Excluir sensores de Filamentos
+      ignore_filament_sensors_helper: Selecione sensores de filtragem que não devem disparar notificações quando ativado. Útil para sensores nas configurações MMU.
+      ignore_filament_sensors_empty: Nenhum sensor encontrado
+      global: Configurações de Notificação
+      global_helper: Configure o comportamento de notificação para o seu dispositivo e máquinas.
+      custom_settings_title: Configurações de Notificação
+      custom_settings_helper: Sobrescrever configurações globais com configurações personalizadas para esta máquina específica.
+      enable_custom_settings: Ativar configurações personalizadas
+      enable_custom_settings_helper: Em vez de herdar as configurações globais, use as especificadas aqui.
+      hardware_settings_title: Configurações de Notificação
+      machine_notification_title: "{} - Configurações de Notificação"
+      notification_settings_title: Configurações de Notificação
+      general_settings_title: Configurações de Notificação
+      general_settings_helper: Configurar permissões de notificação ao nível do aplicativo e preferências de notificação gerais.
+      global_settings_title: Configurações globais de notificação
+      global_settings_helper: Configurar quais notificações você recebe de todas as máquinas conectadas.
+      device_specific_title: Configurações de notificação específica do dispositivo
+      device_specific_helper: Exibir e configurar as configurações de notificação para máquinas individuais.
+      error_loading_printers_title: Erro ao carregar as impressoras
+      error_loading_printers_body: Ocorreu um erro inesperado ao carregar e-mails. Por favor tente novamente mais tarde.
+      no_devices_found: Nenhum dispositivo encontrado
+      configure_btn: Configurar
+      not_connected_btn: Não conectado
     developer:
       title: Desenvolvedor
       crashlytics: Ativar relatórios Crashlytics
@@ -549,6 +586,7 @@ pages:
       hotend_temp: "Temperatura do @:pages.dashboard.general.temp_card.hotend"
       bed_temp: "Temperatura do @:pages.dashboard.general.temp_card.bed"
       new_preset: Nova Configuração Predefinida
+      custom_gcode: GCode Personalizado
     confirm_fcm_reset:
       title: Limpar Registro de Dispositivos de Notificação?
       body: "Você está prestes a redefinir o registro de dispositivos, que é usado para determinar os dispositivos para os quais o companion envia notificações.\nPara restabelecer as notificações por push, você precisará reiniciar o aplicativo em todos os dispositivos e conectá-los à máquina novamente. \n\nConfirme sua ação."
@@ -780,6 +818,24 @@ pages:
     trial_disclaimer: Comece seu teste gratuito agora. Você não será cobrado até o término, e pode cancelar a qualquer momento sem obrigação.
     subscription_disclaimer: A assinatura é renovada automaticamente. Você pode cancelar a qualquer momento.
     restore_sign_in: Restaurar / Entrar
+    services_unavailable:
+      title: "{} Login da Conta Indisponível"
+      description: "{} não está instalado ou configurado neste dispositivo. Se você tem uma conta premium, você ainda pode acessá-la usando o login manual."
+      solutions_title: Possíveis Soluções
+      install_services: "Instalar {} da sua loja de aplicativos"
+      update_services: "Atualizar {} se já estiver instalado"
+      manual_signin: Entre manualmente se você adquiriu o status de apoiador em outro lugar
+      signin_btn: Entrar
+      retry_btn: Tentar Conexão Novamente
+      github_btn: Suporte no GitHub
+    fetch_error:
+      title: Não é possível carregar níveis de apoio
+      description: Encontramos um problema ao tentar carregar os níveis de suporte. Isso pode ser devido a conectividade de rede ou problemas com o servidor.
+      what_to_try: O que você pode testar
+      check_connection: Verifique sua conexão com a internet
+      wait_retry: Aguarde um momento e tente novamente
+      try_later: Tente novamente mais tarde, se o problema persistir
+      try_again_btn: Tente novamente
   video_player:
     downloading_for_sharing: Baixando vídeo para compartilhamento… ({})
   tool:
@@ -882,12 +938,14 @@ pages:
       location: Localização
       lot_number: Número do Lote
       color: Cor
+      initial_weight: Peso Inicial
     property_sections:
       basic: Informações Básicas
       usage: Detalhes de Uso
       additional: Informações Adicionais
       physical: Propriedades Físicas
       print_settings: Configurações de Impressão
+      extra_fields: Campo Extra
     vendor_details:
       page_title: Fabricante {}
       info_card: Informações do Fabricante
@@ -938,6 +996,7 @@ components:
     installed_version: 'Versão Instalada:'
   pull_to_refresh:
     pull_up_idle: Puxe para cima para atualizar
+    pull_down_idle: Deslize para baixo para atualizar
   nav_drawer:
     printer_settings: Configurações da Impressora
     manage_printers: Gerenciar Impressoras
@@ -973,6 +1032,7 @@ components:
     full_file_management: Desculpe-nos, gerenciamento completo de arquivos (Download, Upload…) está disponível apenas para Apoiadores.
     gcode_preview: Desculpe-nos, visualização de GCode está disponível apenas para Apoiadores.
     graph_page: Desculpe-nos, a página de Histórico de Temperatura está disponível apenas para Apoiadores.
+    snapshot_webcam: Desculpe, snapshots só estão disponíveis para Apoiadores.
   machine_deletion_warning:
     title: Exclusão de Máquina
     subtitle: Parece que você não é um Apoiador. Apenas apoiadores podem ter mais de {} máquina(s). Você tem {} dias antes que máquinas excedentes sejam removidas.
@@ -1033,6 +1093,29 @@ components:
       subtitle: Exibir movimentos sem impressão
   select_color_sheet:
     title: Selecionar Cor
+  ad_banner:
+    failed:
+      title: Anúncio não disponível
+      subtitle: Apoio anúncios em desenvolvimento
+  machine_card:
+    last_activity:
+      zero: "Última atividade: hoje"
+      one: "Última atividade: Ontem"
+      other: "Última atividade: {} dias atrás"
+    waiting_for_job: Aguardando o próximo trabalho
+    last_job: "Último trabalho: {}"
+    last_seen: Visto pela ultima vez
+    new_print: Novo Trabalho
+    client_state:
+      disconnected: Máquina está desconectada
+    job_error_detected: Erro detectado durante a impressão
+    klippy_state:
+      initializing: Klipper está inicializando…
+      startup: Klipper está inicializando…
+      disconnected: Klipper está desconectado
+      shutdown: Klipper-Desligamento
+      error: Klipper-Erro
+      unauthorized: Acesso Negado
 dialogs:
   rate_my_app:
     title: Avaliar o MobileRaker?
@@ -1192,6 +1275,10 @@ dialogs:
       Você está prestes a cancelar o trabalho de impressão.
 
       Confirme sua ação.
+  confirm_print_pause:
+    title: Pausar Impressão?
+    body: |-
+      Você está prestes a cancelar o trabalho de impressão. Confirme sua ação.
   adjust_spool_filament:
     title: Ajustar Filamento do Carretel
     subtitle: Adicione ou subtraia filamento do carretel. Um valor positivo consumirá filamento, um valor negativo adicionará.
@@ -1223,6 +1310,12 @@ bottom_sheets:
       link: Vincular OctoEverywhere
       unlink: Desvincular OctoEverywhere
       description: OctoEverywhere.com é um projeto comunitário que permite conectar-se à sua impressora com segurança de qualquer lugar. O OctoEverywhere também oferece à comunidade detecção gratuita de falhas de impressão por IA, notificações, streaming ao vivo e mais. A configuração leva apenas 20 segundos!
+    manual:
+      service_name: Conexão Remota Manual
+      tab_name: Manual
+      description: Se você é um usuário avançado, você pode optar por adicionar manualmente uma conexão alternativa. A conexão alternativa entra em vigor quando as tentativas de conexão ao endereço principal não têm sucesso. Isso pode ser útil se você tiver uma conexão de proxy reverso com sua impressora, ou se você tem um endereço IP secundário que você pode usar para se conectar à sua impressora.
+      address_label: Endereço Alternativo
+      address_hint: O endereço de base da conexão remota a ser utilizada
     obico:
       service_name: Obico
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
@@ -1340,6 +1433,27 @@ bottom_sheets:
       subtitle: Tente um termo de pesquisa diferente
   temp_chart_settings:
     title: Configurações do Gráfico de Temperatura
+  select_file:
+    title: Selecionar Tarefa de Impressão
+  file_manager_settings:
+    title: Configurações do Gerenciador de Arquivos
+    show_hidden_files:
+      title: Mostrar arquivos ocultos
+      subtitle: Exibe arquivos e pastas que começam com um ponto (.)
+    hide_backup_files:
+      title: Ocultar Arquivos de Backup
+      subtitle: Ocultar todos os arquivos que foram detectados como arquivos de backup
+  console_settings:
+    title: Definições do console
+    reverse:
+      title: Ordem reversa
+      subtitle: Mostrar mensagens mais recentes primeiro ao invés do último
+    filter_temp_responses:
+      title: Respostas de Temperatura do Filtro
+      subtitle: Ocultar mensagens de diagnóstico relacionadas à temperatura
+    show_timestamps:
+      title: Mostrar timestamps
+      subtitle: Exibir quando cada mensagem foi registrada
 klipper_state:
   ready: Pronto
   shutdown: Desligado
@@ -1349,6 +1463,11 @@ klipper_state:
   unauthorized: Não autorizado
   initializing: Inicializando
   not_connected: O Moonraker não consegue estabelecer uma conexão com o Klipper. Verifique se o Klipper está em execução no seu sistema.
+client_state:
+  connected: Conectado
+  disconnected: Desconectado
+  connecting: Conectando
+  error: Erro
 print_state:
   standby: Em espera
   printing: Imprimindo
@@ -1360,6 +1479,10 @@ theme_mode:
   light: Claro
   dark: Escuro
   system: Sistema
+eta_data_source:
+  file: GCodes
+  slicer: Slicer
+  filament: Filamento
 notifications:
   channel_printer_grp: Impressora {}
   channels:
@@ -1379,6 +1502,7 @@ form_validators:
   simple_url: 'A entrada permite apenas componentes de URL: Nome do Host e Porta'
   disallow_mdns: Endereços mDNS (.local) não são suportados
   file_name_in_use: Nome do arquivo já está em uso
+  min_before_max: O valor mínimo deve ser menor ou igual ao valor máximo
 date:
   year:
     one: Ano
@@ -1392,6 +1516,10 @@ date:
   day:
     one: Dia
     other: Dias
+  reference:
+    today: Hoje
+    yesterday: Ontem
+    tomorrow: Amanhã
 date_periods:
   year:
     one: Anual
@@ -1436,3 +1564,15 @@ products:
     coffee: "Café"
     snack: "Lanche"
     lunch: "Almoço"
+languages:
+  languageCode:
+    cs:
+      nativeName: Česky, čeština
+    fr:
+      nativeName: Francês, língua francesa
+    pl:
+      nativeName: Polonês
+    ro:
+      nativeName: Romeno
+    ru:
+      nativeName: Русский язык
