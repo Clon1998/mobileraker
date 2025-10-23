@@ -9,7 +9,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../util/logger.dart';
-import '../../util/svg/gray_scale_color_mapper.dart';
 
 part 'spool_widget.g.dart';
 
@@ -57,7 +56,7 @@ class SpoolWidget extends ConsumerWidget {
           'assets/vector/spool-yellow-small.svg',
           height: height,
           width: width,
-          colorMapper: GrayScaleColorMapper(),
+          colorMapper: _SpoolColorMapper(Colors.greenAccent, Colors.purple, brightness),
           // colorMapper: ref.watch(_spoolColorMapperProvider(color, brightness)),
         ),
       ),
