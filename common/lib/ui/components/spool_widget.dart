@@ -3,12 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/util/svg/remapping_color_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../util/logger.dart';
 
 part 'spool_widget.g.dart';
 
@@ -26,9 +25,18 @@ ColorMapper? _spoolColorMapper(Ref ref, String hexColor, Brightness brightness) 
 
   final color = Color(hexValue);
   // A color variant of the fill color to ensure the spool is visible on any background
-  final colorVariant = _SpoolColorMapper.getColorVariant(color);
+  final colorVariant = SpoolWidget.getColorVariant(color);
 
-  return _SpoolColorMapper(color, colorVariant, brightness);
+  var isDark = brightness == Brightness.dark;
+  Map<int, int> mappings = {
+    // These colors are for the rims of the spool
+    if (isDark) ...{0xFF282828: 0xFF7A7979, 0XFF1E1E1E: 0xFF4E4E4E},
+    // These are the main body of the spool
+    0xFFFCEE21: color.toARGB32(),
+    0xFFFFCD00: colorVariant.toARGB32(),
+  };
+
+  return RemappingColorMapper(mappings);
 }
 
 class SpoolWidget extends ConsumerWidget {
@@ -56,35 +64,10 @@ class SpoolWidget extends ConsumerWidget {
           'assets/vector/spool-yellow-small.svg',
           height: height,
           width: width,
-          colorMapper: _SpoolColorMapper(Colors.greenAccent, Colors.purple, brightness),
-          // colorMapper: ref.watch(_spoolColorMapperProvider(color, brightness)),
+          colorMapper: ref.watch(_spoolColorMapperProvider(color, brightness)),
         ),
       ),
     );
-  }
-}
-
-class _SpoolColorMapper extends ColorMapper {
-  const _SpoolColorMapper(this.color, this.alternateColor, this.brightness);
-
-  final Color color;
-  final Color alternateColor;
-  final Brightness brightness;
-
-  @override
-  Color substitute(String? id, String elementName, String attributeName, Color elementColor) {
-    final isDark = brightness == Brightness.dark;
-
-    talker.info('Substituting color ${elementColor.toARGB32().toRadixString(16)} ');
-
-    return switch (elementColor.toARGB32()) {
-      0xFF282828 when isDark => Color(0xFF7A7979),
-      0xff1e1e1e when isDark => Color(0xFF4E4E4E),
-      0xFFFCEE21 => color,
-      0xFFFFCD00 => alternateColor,
-
-      _ => elementColor,
-    };
   }
 
   static Color getColorVariant(Color color) {
