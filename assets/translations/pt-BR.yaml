@@ -470,6 +470,7 @@ pages:
       enable_custom_settings: Ativar configurações personalizadas
       enable_custom_settings_helper: Em vez de herdar as configurações globais, use as especificadas aqui.
       hardware_settings_title: Configurações de Notificação
+      hardware_settings_helper: Configurar comportamentos de notificação específicos do hardware.
       machine_notification_title: "{} - Configurações de Notificação"
       notification_settings_title: Configurações de Notificação
       general_settings_title: Configurações de Notificação
@@ -587,6 +588,7 @@ pages:
       bed_temp: "Temperatura do @:pages.dashboard.general.temp_card.bed"
       new_preset: Nova Configuração Predefinida
       custom_gcode: GCode Personalizado
+      custom_gcode_helper: GCode opcional a ser executado após definir a(s) temperatura(s)
     confirm_fcm_reset:
       title: Limpar Registro de Dispositivos de Notificação?
       body: "Você está prestes a redefinir o registro de dispositivos, que é usado para determinar os dispositivos para os quais o companion envia notificações.\nPara restabelecer as notificações por push, você precisará reiniciar o aplicativo em todos os dispositivos e conectá-los à máquina novamente. \n\nConfirme sua ação."
@@ -818,6 +820,8 @@ pages:
     trial_disclaimer: Comece seu teste gratuito agora. Você não será cobrado até o término, e pode cancelar a qualquer momento sem obrigação.
     subscription_disclaimer: A assinatura é renovada automaticamente. Você pode cancelar a qualquer momento.
     restore_sign_in: Restaurar / Entrar
+    loading:
+      title: Carregando apoiadores
     services_unavailable:
       title: "{} Login da Conta Indisponível"
       description: "{} não está instalado ou configurado neste dispositivo. Se você tem uma conta premium, você ainda pode acessá-la usando o login manual."
@@ -1099,7 +1103,7 @@ components:
       subtitle: Apoio anúncios em desenvolvimento
   machine_card:
     last_activity:
-      zero: "Última atividade: hoje"
+      zero: ""
       one: "Última atividade: Ontem"
       other: "Última atividade: {} dias atrás"
     waiting_for_job: Aguardando o próximo trabalho
