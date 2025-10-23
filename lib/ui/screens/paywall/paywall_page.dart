@@ -13,6 +13,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
+import 'package:common/util/svg/gray_scale_color_mapper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +24,6 @@ import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
-import 'package:mobileraker/util/svg/gray_scale_color_mapper.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 import 'components/supporter_benefits.dart';
