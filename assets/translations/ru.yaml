@@ -997,6 +997,7 @@ components:
     installed_version: 'Установленная версия:'
   pull_to_refresh:
     pull_up_idle: Потяните вверх, чтобы обновить
+    pull_down_idle: Потяните вниз, чтобы обновить
   nav_drawer:
     printer_settings: Настройки принтера
     manage_printers: Управление принтерами
