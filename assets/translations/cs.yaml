@@ -948,11 +948,8 @@ pages:
     vendor_details:
       page_title: Výrobce {}
       info_card: Informace o výrobci
-      filaments_card: Filamenty podle výrobce
-      spools_card: Cívky podle výrobce
     filament_details:
       info_card: Informace o filamentu
-      spools_card: Cívky s filamenty
     spool_details:
       page_title: Cívka {}
       info_card: Informace o cívce
