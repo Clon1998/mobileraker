@@ -826,11 +826,8 @@ pages:
     vendor_details:
       page_title: 製造商 {}
       info_card: 製造商資訊
-      filaments_card: 根據製造商的線材
-      spools_card: 根據製造商的線盤
     filament_details:
       info_card: 線材資訊
-      spools_card: 線材線盤
     spool_details:
       page_title: 線盤 {}
       info_card: 線盤資訊
