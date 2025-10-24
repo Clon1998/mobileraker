@@ -1009,11 +1009,8 @@ pages:
     vendor_details:
       page_title: Manufacturer {}
       info_card: Manufacturer Info
-      filaments_card: Filaments by Manufacturer
-      spools_card: Spools by Manufacturer
     filament_details:
       info_card: Filament Info
-      spools_card: Filament Spools
     spool_details:
       page_title: Spool {}
       info_card: Spool Info
