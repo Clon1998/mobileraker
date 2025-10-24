@@ -799,11 +799,8 @@ pages:
     vendor_details:
       page_title: Producent {}
       info_card: Informacje o producencie
-      filaments_card: Filamenty od producenta
-      spools_card: Szpule od producenta
     filament_details:
       info_card: Informacje o filamencie
-      spools_card: Szpule filamentu
     spool_details:
       page_title: Szpula {}
       info_card: Informacje o szpuli
