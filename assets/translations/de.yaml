@@ -946,13 +946,10 @@ pages:
       print_settings: Druckeinstellungen
       extra_fields: Extra Felder
     vendor_details:
-      page_title: Anbieter {}
-      info_card: Anbieter Details
-      filaments_card: Filamente nach Anbieter
-      spools_card: Spulen nach Anbieter
+      page_title: Hersteller {}
+      info_card: Hersteller Details
     filament_details:
       info_card: Filament Details
-      spools_card: Filament Spulen
     spool_details:
       page_title: Spule {}
       info_card: Spulen Details
