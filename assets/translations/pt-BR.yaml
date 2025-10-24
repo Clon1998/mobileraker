@@ -953,11 +953,8 @@ pages:
     vendor_details:
       page_title: Fabricante {}
       info_card: Informações do Fabricante
-      filaments_card: Filamentos por Fabricante
-      spools_card: Carretéis por Fabricante
     filament_details:
       info_card: Informações do Filamento
-      spools_card: Carretéis do Filamento
     spool_details:
       page_title: Carretel {}
       info_card: Informações do Carretel
