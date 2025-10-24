@@ -929,11 +929,8 @@ pages:
     vendor_details:
       page_title: Gyártó {}
       info_card: Gyártói információ
-      filaments_card: Nyomtatószálak gyártó szerint
-      spools_card: Orsók gyártó szerint
     filament_details:
       info_card: Nyomtatószál infó
-      spools_card: Nyomtatószál orsók
     spool_details:
       page_title: Orsó {}
       info_card: Orsó infó
