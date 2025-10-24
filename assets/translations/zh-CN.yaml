@@ -799,11 +799,8 @@ pages:
     vendor_details:
       page_title: 制造商 {}
       info_card: 制造商信息
-      filaments_card: 制造商的耗材
-      spools_card: 制造商的料盘
     filament_details:
       info_card: 耗材信息
-      spools_card: 耗材料盘
     spool_details:
       page_title: 料盘 {}
       info_card: 料盘信息
