@@ -950,11 +950,8 @@ pages:
     vendor_details:
       page_title: Производитель {}
       info_card: Информация о производителе
-      filaments_card: Филаменты по производителю
-      spools_card: Катушки по производителю
     filament_details:
       info_card: Информация о филаменте
-      spools_card: Катушки филамента
     spool_details:
       page_title: Катушка {}
       info_card: Информация о катушке
