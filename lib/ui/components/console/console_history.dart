@@ -169,12 +169,13 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
               child: ListTile(
                 key: ValueKey(index),
                 dense: true,
-                visualDensity: VisualDensity.compact.unless(showTimeStamp),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                visualDensity: VisualDensity.compact,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 title: Text(entry.message, style: _commandTextStyle(themeData, ListTileTheme.of(context))),
                 onTap: () => widget.onCommandTap?.call(entry.message),
                 subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
                 subtitleTextStyle: themeData.textTheme.bodySmall,
+                minTileHeight: 0,
               ),
             ),
             ConsoleEntryType.temperatureResponse
@@ -182,11 +183,13 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
               SizedBox.shrink(),
             _ => ListTile(
               key: ValueKey(index),
-              visualDensity: VisualDensity.compact.unless(showTimeStamp),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               title: Text(entry.message),
+              titleTextStyle: TextStyle(fontFamily: 'monospace'),
               subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
               subtitleTextStyle: themeData.textTheme.bodySmall,
+              minTileHeight: 0,
             ),
           };
         },
@@ -205,7 +208,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
         break;
     }
 
-    return textStyle.copyWith(color: theme.colorScheme.primary);
+    return textStyle.copyWith(color: theme.colorScheme.primary, fontFamily: 'monospace');
   }
 
   @override
