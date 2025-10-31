@@ -66,14 +66,14 @@ class _ConsoleBody extends HookConsumerWidget {
       right: false,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          border: Border.all(color: theme.colorScheme.primary, width: 0.5),
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-        ),
+        // decoration: BoxDecoration(
+        //   color: theme.colorScheme.surface,
+        //   border: Border.all(color: theme.colorScheme.primary, width: 0.5),
+        //   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+        // ),
         child: Column(
           children: [
-            const _CardHeader(),
+            // const _CardHeader(),
             Expanded(
               child: _CardBody(machineUUID: machineUUID, consoleTextEditor: consoleTextEditor),
             ),
@@ -111,11 +111,26 @@ class _CardHeader extends ConsumerWidget {
                     .show(
                       BottomSheetConfig(
                         type: SheetType.changeSettings,
-                        data: SettingsBottomSheetArgs(title: tr('bottom_sheets.console_settings.title'), settings: [
-                          SwitchSettingItem(settingKey: AppSettingKeys.reverseConsole, title: tr('bottom_sheets.console_settings.reverse.title'), subtitle: tr('bottom_sheets.console_settings.reverse.subtitle')),
-                          SwitchSettingItem(settingKey: AppSettingKeys.filterTemperatureResponse, title: tr('bottom_sheets.console_settings.filter_temp_responses.title'), subtitle: tr('bottom_sheets.console_settings.filter_temp_responses.subtitle')),
-                          SwitchSettingItem(settingKey: AppSettingKeys.consoleShowTimestamp, title: tr('bottom_sheets.console_settings.show_timestamps.title'), subtitle: tr('bottom_sheets.console_settings.show_timestamps.subtitle')),
-                        ],),
+                        data: SettingsBottomSheetArgs(
+                          title: tr('bottom_sheets.console_settings.title'),
+                          settings: [
+                            SwitchSettingItem(
+                              settingKey: AppSettingKeys.reverseConsole,
+                              title: tr('bottom_sheets.console_settings.reverse.title'),
+                              subtitle: tr('bottom_sheets.console_settings.reverse.subtitle'),
+                            ),
+                            SwitchSettingItem(
+                              settingKey: AppSettingKeys.filterTemperatureResponse,
+                              title: tr('bottom_sheets.console_settings.filter_temp_responses.title'),
+                              subtitle: tr('bottom_sheets.console_settings.filter_temp_responses.subtitle'),
+                            ),
+                            SwitchSettingItem(
+                              settingKey: AppSettingKeys.consoleShowTimestamp,
+                              title: tr('bottom_sheets.console_settings.show_timestamps.title'),
+                              subtitle: tr('bottom_sheets.console_settings.show_timestamps.subtitle'),
+                            ),
+                          ],
+                        ),
                       ),
                     );
               },
@@ -177,6 +192,39 @@ class _CardFooter extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final consoleSettingBtn = IconButton(
+      icon: Icon(Icons.settings),
+      onPressed: () {
+        ref
+            .read(bottomSheetServiceProvider)
+            .show(
+              BottomSheetConfig(
+                type: SheetType.changeSettings,
+                data: SettingsBottomSheetArgs(
+                  title: tr('bottom_sheets.console_settings.title'),
+                  settings: [
+                    SwitchSettingItem(
+                      settingKey: AppSettingKeys.reverseConsole,
+                      title: tr('bottom_sheets.console_settings.reverse.title'),
+                      subtitle: tr('bottom_sheets.console_settings.reverse.subtitle'),
+                    ),
+                    SwitchSettingItem(
+                      settingKey: AppSettingKeys.filterTemperatureResponse,
+                      title: tr('bottom_sheets.console_settings.filter_temp_responses.title'),
+                      subtitle: tr('bottom_sheets.console_settings.filter_temp_responses.subtitle'),
+                    ),
+                    SwitchSettingItem(
+                      settingKey: AppSettingKeys.consoleShowTimestamp,
+                      title: tr('bottom_sheets.console_settings.show_timestamps.title'),
+                      subtitle: tr('bottom_sheets.console_settings.show_timestamps.subtitle'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+      },
+    );
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -188,7 +236,11 @@ class _CardFooter extends HookConsumerWidget {
           ),
         Padding(
           padding: EdgeInsets.all(8),
-          child: CommandInput(machineUUID: machineUUID, consoleTextEditor: consoleTextEditor),
+          child: CommandInput(
+            machineUUID: machineUUID,
+            consoleTextEditor: consoleTextEditor,
+            emptyInputSuffix: consoleSettingBtn,
+          ),
         ),
       ],
     );
