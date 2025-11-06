@@ -28,6 +28,7 @@ import 'package:mobileraker/util/extensions/text_editing_controller_extension.da
 
 import 'command_input.dart';
 import 'command_suggestions.dart';
+import 'console_settings_button.dart';
 
 class ConsoleCard extends HookWidget {
   const ConsoleCard({super.key, required this.machineUUID});
@@ -55,13 +56,16 @@ class ConsoleCard extends HookWidget {
               // trailing: IconButton(onPressed: () => context.pushNamed(AppRoute.console.name), icon: Icon(Icons.fullscreen)),
               trailing: HookBuilder(
                 builder: (BuildContext context) {
-                  bool hasOffset = useListenableSelector(scrollController, () => scrollController.hasClients && scrollController.offset > 0);
+                  bool hasOffset = useListenableSelector(
+                    scrollController,
+                    () => scrollController.hasClients && scrollController.offset > 0,
+                  );
 
                   return AnimatedSwitcher(
                     duration: kThemeAnimationDuration,
                     child: hasOffset
                         ? IconButton(
-                      key: Key('console_scroll_to_bottom'),
+                            key: Key('console_scroll_to_bottom'),
                             onPressed: () => scrollController.animateTo(
                               0,
                               duration: kThemeAnimationDuration,
@@ -69,7 +73,7 @@ class ConsoleCard extends HookWidget {
                             ),
                             icon: Icon(Icons.arrow_downward),
                           )
-                        : const SizedBox.shrink(key: Key('hide_console_scroll_to_bottom'),),
+                        : const SizedBox.shrink(key: Key('hide_console_scroll_to_bottom')),
                   );
                 },
               ),
@@ -93,7 +97,11 @@ class ConsoleCard extends HookWidget {
             ),
             Padding(
               padding: EdgeInsets.all(8),
-              child: CommandInput(machineUUID: machineUUID, consoleTextEditor: consoleTextEditor),
+              child: CommandInput(
+                machineUUID: machineUUID,
+                consoleTextEditor: consoleTextEditor,
+                emptyInputSuffix: ConsoleSettingsButton(),
+              ),
             ),
           ],
         ),
