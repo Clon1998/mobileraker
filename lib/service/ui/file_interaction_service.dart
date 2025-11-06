@@ -101,13 +101,17 @@ class FileInteractionService {
     List<String>? usedNames,
     bool useHero = true,
   ]) async* {
-    final canStartPrint = _printerService.hasCurrent &&
+    final canStartPrint =
+        _printerService.hasCurrent &&
         _printerService.current.print.state != PrintState.printing &&
         _printerService.current.print.state != PrintState.paused;
     final klippyReady = _klippyService.klippyCanReceiveCommands;
 
     final arg = ActionBottomSheetArgs(
-      title: Tooltip(message: file.name, child: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+      title: Tooltip(
+        message: file.name,
+        child: Text(file.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
       subtitle: switch (file) {
         Folder() => Text('@.upper:general.folder', maxLines: 1, overflow: TextOverflow.ellipsis).tr(),
         RemoteFile(fileExtension: final ext?) => Text(ext.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -135,8 +139,7 @@ class FileInteractionService {
 
     talker.info('[FileInteractionService($_machineUUID)] showing file action menu for ${file.name}');
 
-    final resp =
-    await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: arg));
+    final resp = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: arg));
 
     talker.info('[FileInteractionService($_machineUUID)] file action menu response: $resp');
     if (!resp.confirmed) return;
@@ -147,7 +150,10 @@ class FileInteractionService {
   }
 
   Stream<FileInteractionMenuEvent> showMultiFileActionMenu(
-      List<RemoteFile> files, Rect origin, String machineUUID) async* {
+    List<RemoteFile> files,
+    Rect origin,
+    String machineUUID,
+  ) async* {
     final gcodeFiles = files.whereType<GCodeFile>().toList();
 
     final arg = ActionBottomSheetArgs(
@@ -157,10 +163,7 @@ class FileInteractionService {
         overflow: TextOverflow.ellipsis,
       ),
       actions: [
-        if (gcodeFiles.isNotEmpty) ...[
-          GcodeFileSheetAction.addToQueue,
-          DividerSheetAction.divider,
-        ],
+        if (gcodeFiles.isNotEmpty) ...[GcodeFileSheetAction.addToQueue, DividerSheetAction.divider],
         FileSheetAction.zipFile,
         FileSheetAction.download,
         DividerSheetAction.divider,
@@ -171,8 +174,7 @@ class FileInteractionService {
 
     talker.info('[FileInteractionService($_machineUUID)] showing multi file action menu for ${files.length} files');
 
-    final resp =
-    await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: arg));
+    final resp = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: arg));
 
     talker.info('[FileInteractionService($_machineUUID)] multi file action menu response: $resp');
     if (!resp.confirmed) return;
@@ -189,16 +191,17 @@ class FileInteractionService {
     List<String> allowedTypes = const [],
     List<String>? usedNames,
   ]) async* {
-    const args = ActionBottomSheetArgs(actions: [
-      FileSheetAction.newFolder,
-      FileSheetAction.newFile,
-      DividerSheetAction.divider,
-      FileSheetAction.uploadFile,
-      FileSheetAction.uploadFiles,
-    ]);
+    const args = ActionBottomSheetArgs(
+      actions: [
+        FileSheetAction.newFolder,
+        FileSheetAction.newFile,
+        DividerSheetAction.divider,
+        FileSheetAction.uploadFile,
+        FileSheetAction.uploadFiles,
+      ],
+    );
 
-    final resp = await _bottomSheetService
-        .show(BottomSheetConfig(type: SheetType.actions, data: args));
+    final resp = await _bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: args));
 
     if (!resp.confirmed) return;
 
@@ -241,10 +244,9 @@ class FileInteractionService {
             await _fileService.deleteFile(file.absolutPath);
           }
         } on JRpcError catch (e) {
-          _snackBarService.show(SnackBarConfig(
-            type: SnackbarType.error,
-            message: 'Could not delete ${file.name}.\n${e.message}',
-          ));
+          _snackBarService.show(
+            SnackBarConfig(type: SnackbarType.error, message: 'Could not delete ${file.name}.\n${e.message}'),
+          );
         }
       }
 
@@ -273,10 +275,7 @@ class FileInteractionService {
               RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
-            notContains(
-              usedNames,
-              errorText: tr('form_validators.file_name_in_use'),
-            ),
+            notContains(usedNames, errorText: tr('form_validators.file_name_in_use')),
           ]),
         ),
       ),
@@ -289,16 +288,12 @@ class FileInteractionService {
 
       try {
         yield FileOperationTriggered(action: FileSheetAction.rename, files: [file]);
-        await _fileService.moveFile(
-          file.absolutPath,
-          '${file.parentPath}/$newName',
-        );
+        await _fileService.moveFile(file.absolutPath, '${file.parentPath}/$newName');
       } on JRpcError catch (e) {
         talker.error('Could not perform rename.', e);
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          message: 'Could not rename File.\n${e.message}',
-        ));
+        _snackBarService.show(
+          SnackBarConfig(type: SnackbarType.error, message: 'Could not rename File.\n${e.message}'),
+        );
       }
     }
   }
@@ -325,11 +320,13 @@ class FileInteractionService {
       }
       try {
         await Future.wait(waitFor);
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.info,
-          title: tr('pages.files.file_operation.move_success.title'),
-          message: tr('pages.files.file_operation.move_success.body', args: [newPath]),
-        ));
+        _snackBarService.show(
+          SnackBarConfig(
+            type: SnackbarType.info,
+            title: tr('pages.files.file_operation.move_success.title'),
+            message: tr('pages.files.file_operation.move_success.body', args: [newPath]),
+          ),
+        );
       } catch (e, s) {
         _onOperationError(e, s, 'move');
       }
@@ -374,10 +371,12 @@ class FileInteractionService {
       final copyPath = '$selectedPath/$copyName';
       talker.info('[FileInteractionService($_machineUUID)] creating copy of file ${file.name} at $copyPath');
       await _fileService.copyFile(file.absolutPath, copyPath);
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.files.file_operation.copy_created.title'),
-        message: tr('pages.files.file_operation.copy_created.body', args: [copyPath]),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          title: tr('pages.files.file_operation.copy_created.title'),
+          message: tr('pages.files.file_operation.copy_created.body', args: [copyPath]),
+        ),
+      );
     }
   }
 
@@ -392,12 +391,14 @@ class FileInteractionService {
 
   Stream<FileInteractionMenuEvent> addFilesToQueueAction(List<GCodeFile> files) async* {
     if (!_isSupporter) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.job_queue'),
-        duration: const Duration(seconds: 5),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('components.supporter_only_feature.dialog_title'),
+          message: tr('components.supporter_only_feature.job_queue'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
       return;
     }
     if (files.isEmpty) return;
@@ -406,26 +407,21 @@ class FileInteractionService {
       final futures = files.map((e) => _jobQueueService.enqueueJob(e.pathForPrint));
       await Future.wait(futures);
 
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.files.details.print_queue_snackbar.title'),
-        message: plural(
-          'pages.files.details.print_queue_snackbar.body',
-          files.length,
+      _snackBarService.show(
+        SnackBarConfig(
+          title: tr('pages.files.details.print_queue_snackbar.title'),
+          message: plural('pages.files.details.print_queue_snackbar.body', files.length),
         ),
-      ));
+      );
     } on JRpcError catch (e) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        message: 'Could not add Files to Queue.\n${e.message}',
-      ));
+      _snackBarService.show(
+        SnackBarConfig(type: SnackbarType.error, message: 'Could not add Files to Queue.\n${e.message}'),
+      );
     }
   }
 
   Stream<FileInteractionMenuEvent> preheatAction(GCodeFile file) async* {
-    final tempArgs = [
-      '170',
-      file.firstLayerTempBed?.toStringAsFixed(0) ?? '60',
-    ];
+    final tempArgs = ['170', file.firstLayerTempBed?.toStringAsFixed(0) ?? '60'];
     final resp = await _dialogService.showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
       body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
@@ -435,18 +431,14 @@ class FileInteractionService {
     _printerService.setHeaterTemperature('extruder', 170);
 
     if (_printerService.currentOrNull?.heaterBed != null) {
-      _printerService.setHeaterTemperature(
-        'heater_bed',
-        (file.firstLayerTempBed ?? 60.0).toInt(),
-      );
+      _printerService.setHeaterTemperature('heater_bed', (file.firstLayerTempBed ?? 60.0).toInt());
     }
-    _snackBarService.show(SnackBarConfig(
-      title: tr('pages.files.details.preheat_snackbar.title'),
-      message: tr(
-        'pages.files.details.preheat_snackbar.body',
-        args: tempArgs,
+    _snackBarService.show(
+      SnackBarConfig(
+        title: tr('pages.files.details.preheat_snackbar.title'),
+        message: tr('pages.files.details.preheat_snackbar.body', args: tempArgs),
       ),
-    ));
+    );
   }
 
   Stream<FileInteractionMenuEvent> submitJobAction(GCodeFile file) async* {
@@ -456,12 +448,14 @@ class FileInteractionService {
 
   Stream<FileInteractionMenuEvent> downloadFileAction(List<RemoteFile> files, Rect origin) async* {
     if (!_isSupporter) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.full_file_management'),
-        duration: const Duration(seconds: 5),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('components.supporter_only_feature.dialog_title'),
+          message: tr('components.supporter_only_feature.full_file_management'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
       return;
     }
     if (files.isEmpty) return;
@@ -513,14 +507,14 @@ class FileInteractionService {
       final downloadStream = _fileService
           .downloadFile(filePath: fileToDownload, expectedFileSize: fileToDownloadSize, cancelToken: token)
           .distinct((a, b) {
-        // If both are Download Progress, only update in 0.01 steps:
-        const epsilon = 0.01;
-        if (a is FileOperationProgress && b is FileOperationProgress) {
-          return (b.progress - a.progress) < epsilon;
-        }
+            // If both are Download Progress, only update in 0.01 steps:
+            const epsilon = 0.01;
+            if (a is FileOperationProgress && b is FileOperationProgress) {
+              return (b.progress - a.progress) < epsilon;
+            }
 
-        return a == b;
-      });
+            return a == b;
+          });
 
       FileTransferOperationProgress? last;
       await for (var download in downloadStream) {
@@ -541,10 +535,12 @@ class FileInteractionService {
       final downloadedFilePath = (last?.event as FileDownloadComplete).file.path;
 
       try {
-        await Share.shareXFiles(
-          [XFile(downloadedFilePath, mimeType: mimeType)],
-          subject: subject,
-          sharePositionOrigin: origin,
+        await SharePlus.instance.share(
+          ShareParams(
+            subject: subject,
+            files: [XFile(downloadedFilePath, mimeType: mimeType)],
+            sharePositionOrigin: origin,
+          ),
         );
       } catch (e) {
         talker.error('Could not share file', e);
@@ -607,10 +603,7 @@ class FileInteractionService {
               RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
-            notContains(
-              usedNames!,
-              errorText: tr('form_validators.file_name_in_use'),
-            ),
+            notContains(usedNames!, errorText: tr('form_validators.file_name_in_use')),
           ]),
         ),
       ),
@@ -624,15 +617,20 @@ class FileInteractionService {
     }
   }
 
-  Stream<FileInteractionMenuEvent> uploadFileAction(String parentPath, List<String> allowedFileTypes,
-      [bool multiple = false]) async* {
+  Stream<FileInteractionMenuEvent> uploadFileAction(
+    String parentPath,
+    List<String> allowedFileTypes, [
+    bool multiple = false,
+  ]) async* {
     if (!_isSupporter) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.full_file_management'),
-        duration: const Duration(seconds: 5),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('components.supporter_only_feature.dialog_title'),
+          message: tr('components.supporter_only_feature.full_file_management'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
       return;
     }
 
@@ -656,12 +654,16 @@ class FileInteractionService {
     if (useAny) {
       final invalidFiles = result.files.where((e) => !allowedFileTypes.contains(e.extension));
       if (invalidFiles.isNotEmpty) {
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: tr('pages.files.file_operation.upload_failed.reasons.type_mismatch.title'),
-          message: tr('pages.files.file_operation.upload_failed.reasons.type_mismatch.body',
-              args: [allowedFileTypes.map((e) => '.$e').join(', ')]),
-        ));
+        _snackBarService.show(
+          SnackBarConfig(
+            type: SnackbarType.error,
+            title: tr('pages.files.file_operation.upload_failed.reasons.type_mismatch.title'),
+            message: tr(
+              'pages.files.file_operation.upload_failed.reasons.type_mismatch.body',
+              args: [allowedFileTypes.map((e) => '.$e').join(', ')],
+            ),
+          ),
+        );
         yield const FileActionFailed(action: FileSheetAction.uploadFile, files: [], error: 'Invalid file type');
         return;
       }
@@ -702,10 +704,7 @@ class FileInteractionService {
               RegExp(r'^\w?[\w .-]*[\w-]$'),
               errorText: tr('pages.files.no_matches_file_pattern'),
             ),
-            notContains(
-              usedNames!,
-              errorText: tr('form_validators.file_name_in_use'),
-            ),
+            notContains(usedNames!, errorText: tr('form_validators.file_name_in_use')),
           ]),
         ),
       ),
@@ -729,8 +728,9 @@ class FileInteractionService {
     if (file is GCodeFile) {
       actions.addAll([
         GcodeFileSheetAction.submitPrintJob.let((t) => canStartPrint && klippyReady ? t : t.disable),
-        GcodeFileSheetAction.preheat
-            .let((t) => file.firstLayerTempBed != null && canStartPrint && klippyReady ? t : t.disable),
+        GcodeFileSheetAction.preheat.let(
+          (t) => file.firstLayerTempBed != null && canStartPrint && klippyReady ? t : t.disable,
+        ),
         GcodeFileSheetAction.preview,
         GcodeFileSheetAction.addToQueue,
         DividerSheetAction.divider,
@@ -864,11 +864,13 @@ class FileInteractionService {
       talker.info('[FileInteractionService($_machineUUID)] Files zipped');
 
       if (showSnack) {
-        _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.info,
-          title: tr('pages.files.file_operation.zipping_success.title'),
-          message: tr('pages.files.file_operation.zipping_success.body'),
-        ));
+        _snackBarService.show(
+          SnackBarConfig(
+            type: SnackbarType.info,
+            title: tr('pages.files.file_operation.zipping_success.title'),
+            message: tr('pages.files.file_operation.zipping_success.body'),
+          ),
+        );
       }
       return zipFile;
     } catch (e, s) {
@@ -885,8 +887,12 @@ class FileInteractionService {
 
       FileTransferOperationProgress? last;
       await for (var update in uploadStream) {
-        last =
-            FileTransferOperationProgress(action: FileSheetAction.uploadFile, files: [], event: update, token: token);
+        last = FileTransferOperationProgress(
+          action: FileSheetAction.uploadFile,
+          files: [],
+          event: update,
+          token: token,
+        );
         yield last;
       }
 
@@ -897,11 +903,13 @@ class FileInteractionService {
 
       talker.info('[FileInteractionService($_machineUUID)] File uploaded');
 
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.info,
-        title: tr('pages.files.file_operation.upload_success.title'),
-        message: tr('pages.files.file_operation.upload_success.body'),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.info,
+          title: tr('pages.files.file_operation.upload_success.title'),
+          message: tr('pages.files.file_operation.upload_success.body'),
+        ),
+      );
     } catch (e, s) {
       talker.error('[FileInteractionService($_machineUUID)] Could not upload file.', e, s);
       _onOperationError(e, s, 'upload');
@@ -915,22 +923,26 @@ class FileInteractionService {
 
   void _onOperationCanceled(bool isUpload) {
     final prefix = isUpload ? 'upload' : 'download';
-    _snackBarService.show(SnackBarConfig(
-      type: SnackbarType.warning,
-      title: tr('pages.files.file_operation.${prefix}_canceled.title'),
-      message: tr('pages.files.file_operation.${prefix}_canceled.body'),
-    ));
+    _snackBarService.show(
+      SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('pages.files.file_operation.${prefix}_canceled.title'),
+        message: tr('pages.files.file_operation.${prefix}_canceled.body'),
+      ),
+    );
   }
 
   void _onOperationError(Object error, StackTrace stack, String operation) {
-    _snackBarService.show(SnackBarConfig.stacktraceDialog(
-      dialogService: _dialogService,
-      snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
-      snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
-      exception: error,
-      stack: stack,
-    ));
+    _snackBarService.show(
+      SnackBarConfig.stacktraceDialog(
+        dialogService: _dialogService,
+        snackTitle: tr('pages.files.file_operation.${operation}_failed.title'),
+        snackMessage: tr('pages.files.file_operation.${operation}_failed.body'),
+        exception: error,
+        stack: stack,
+      ),
+    );
   }
 
-//////////////////// END UI-Notificaiton ////////////////////
+  //////////////////// END UI-Notificaiton ////////////////////
 }

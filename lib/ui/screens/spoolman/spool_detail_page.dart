@@ -564,10 +564,12 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
       );
       final bytes = Uint8List.sublistView(qrImageBytes!);
 
-      await Share.shareXFiles(
-        [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
-        subject: 'Spool QR',
-        sharePositionOrigin: origin,
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
+          subject: 'Spool QR',
+          sharePositionOrigin: origin,
+        ),
       );
     } catch (e, s) {
       talker.error('Error while generating and sharing QR Code', e, s);

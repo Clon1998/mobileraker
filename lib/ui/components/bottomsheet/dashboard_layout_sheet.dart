@@ -60,10 +60,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
           ListTile(
             visualDensity: VisualDensity.compact,
             titleAlignment: ListTileTitleAlignment.center,
-            title: Text(
-              'bottom_sheets.dashboard_layout.title',
-              style: themeData.textTheme.titleLarge,
-            ).tr(),
+            title: Text('bottom_sheets.dashboard_layout.title', style: themeData.textTheme.titleLarge).tr(),
             subtitle: Text.rich(
               TextSpan(
                 text: '${tr('bottom_sheets.dashboard_layout.subtitle')} ',
@@ -89,10 +86,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.max,
           children: [
             Expanded(
-              child: OutlinedButton(
-                onPressed: exportLayout,
-                child: AutoSizeText(tr('general.export'), maxLines: 1),
-              ),
+              child: OutlinedButton(onPressed: exportLayout, child: AutoSizeText(tr('general.export'), maxLines: 1)),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -117,15 +111,15 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Gap(8),
-              Text('bottom_sheets.dashboard_layout.available_layouts.label', style: themeData.textTheme.labelLarge)
-                  .tr(),
+              Text(
+                'bottom_sheets.dashboard_layout.available_layouts.label',
+                style: themeData.textTheme.labelLarge,
+              ).tr(),
               Expanded(
                 child: AsyncGuard(
                   debugLabel: 'Available Layouts-list',
                   toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
-                  childOnData: _AvailableLayouts(
-                    currentLayout: currentLayout,
-                  ),
+                  childOnData: _AvailableLayouts(currentLayout: currentLayout),
                 ),
               ),
             ],
@@ -134,9 +128,11 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
         bottomBarVisibility: BottomBarVisibility.always(),
         bottomBar: Theme(
           data: Theme.of(context).copyWith(useMaterial3: false),
-          child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom),
+          child: Theme(
+            data: Theme.of(context).copyWith(useMaterial3: useM3),
+            child: bottom,
+          ),
         ),
-
       ),
     );
   }
@@ -146,7 +142,9 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
     var str = jsonEncode(json);
     // Copy to clipboard
 
-    Share.share(str, subject: '${tr('bottom_sheets.dashboard_layout.title')}: ${currentLayout.name}');
+    SharePlus.instance.share(
+      ShareParams(text: str, subject: '${tr('bottom_sheets.dashboard_layout.title')}: ${currentLayout.name}'),
+    );
   }
 }
 
@@ -185,8 +183,10 @@ class _AvailableLayouts extends ConsumerWidget {
               height: 150,
               width: double.infinity,
               child: Center(
-                child: Text('bottom_sheets.dashboard_layout.available_layouts.empty', style: theme.textTheme.bodySmall)
-                    .tr(),
+                child: Text(
+                  'bottom_sheets.dashboard_layout.available_layouts.empty',
+                  style: theme.textTheme.bodySmall,
+                ).tr(),
               ),
             ),
           ),
@@ -278,37 +278,36 @@ class _LayoutPreview extends HookWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             for (var i = 0; i < max(availableTabs, pagesOnScreen); i++)
-                              Builder(builder: (ctx) {
-                                final tab = layout.tabs.elementAtOrNull(i);
+                              Builder(
+                                builder: (ctx) {
+                                  final tab = layout.tabs.elementAtOrNull(i);
 
-                                Widget child;
-                                if (tab == null || tab.components.isEmpty) {
-                                  child = Padding(
-                                    padding: EdgeInsets.symmetric(vertical: width / 4),
-                                    child: SvgPicture.asset(
-                                      'assets/vector/undraw_taken_re_yn20.svg',
-                                      alignment: Alignment.center,
-                                      width: width * 0.5,
+                                  Widget child;
+                                  if (tab == null || tab.components.isEmpty) {
+                                    child = Padding(
+                                      padding: EdgeInsets.symmetric(vertical: width / 4),
+                                      child: SvgPicture.asset(
+                                        'assets/vector/undraw_taken_re_yn20.svg',
+                                        alignment: Alignment.center,
+                                        width: width * 0.5,
+                                      ),
+                                    );
+                                  } else {
+                                    child = Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        for (var card in tab.components) DasboardCard.preview(type: card.type),
+                                      ],
+                                    );
+                                  }
+                                  return ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
+                                    child: FittedBox(
+                                      child: SizedBox(width: width, child: child),
                                     ),
                                   );
-                                } else {
-                                  child = Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      for (var card in tab.components) DasboardCard.preview(type: card.type),
-                                    ],
-                                  );
-                                }
-                                return ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
-                                  child: FittedBox(
-                                    child: SizedBox(
-                                      width: width,
-                                      child: child,
-                                    ),
-                                  ),
-                                );
-                              }),
+                                },
+                              ),
                           ],
                         ),
                       ),
@@ -459,11 +458,14 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
       var data = await Clipboard.getData('text/plain');
       if (data?.text == null) {
         talker.warning('Clipboard data is null or empty');
-        _snackBarService.show(SnackBarConfig(
-          title: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.title'),
-          message: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.body'),
-          duration: const Duration(seconds: 10),
-        ));
+        _goRouter.pop();
+        _snackBarService.show(
+          SnackBarConfig(
+            title: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.title'),
+            message: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.body'),
+            duration: const Duration(seconds: 10),
+          ),
+        );
         return;
       }
       final json = jsonDecode(data!.text!);
@@ -471,19 +473,23 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
       final layout = ref.read(dashboardLayoutServiceProvider).importFromJson(json);
 
       onLayoutSelected(layout);
-      _snackBarService.show(SnackBarConfig(
-        title: tr('bottom_sheets.dashboard_layout.import_snackbar.title'),
-        message: tr('bottom_sheets.dashboard_layout.import_snackbar.body'),
-        duration: const Duration(seconds: 5),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          title: tr('bottom_sheets.dashboard_layout.import_snackbar.title'),
+          message: tr('bottom_sheets.dashboard_layout.import_snackbar.body'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
     } catch (e, s) {
       talker.error('Error importing layout: $e');
-      _snackBarService.show(SnackBarConfig.stacktraceDialog(
-        dialogService: _dialogService,
-        exception: e,
-        stack: s,
-        snackTitle: 'Error importing layout',
-      ));
+      _snackBarService.show(
+        SnackBarConfig.stacktraceDialog(
+          dialogService: _dialogService,
+          exception: e,
+          stack: s,
+          snackTitle: 'Error importing layout',
+        ),
+      );
     }
   }
 
@@ -493,29 +499,33 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
     var isSupporter = ref.read(isSupporterProvider);
 
     if (!isSupporter) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.custom_dashboard'),
-        duration: const Duration(seconds: 5),
-      ));
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('components.supporter_only_feature.dialog_title'),
+          message: tr('components.supporter_only_feature.custom_dashboard'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
       return;
     }
 
-    final result = await _dialogService.show(DialogRequest(
-      type: DialogType.textInput,
-      actionLabel: tr('general.rename'),
-      title: tr('bottom_sheets.dashboard_layout.rename_layout.title'),
-      data: TextInputDialogArguments(
-        initialValue: layout.name,
-        labelText: tr('bottom_sheets.dashboard_layout.rename_layout.label'),
-        validator: FormBuilderValidators.compose([
-          FormBuilderValidators.required(),
-          FormBuilderValidators.minLength(3),
-          FormBuilderValidators.maxLength(40),
-        ]),
+    final result = await _dialogService.show(
+      DialogRequest(
+        type: DialogType.textInput,
+        actionLabel: tr('general.rename'),
+        title: tr('bottom_sheets.dashboard_layout.rename_layout.title'),
+        data: TextInputDialogArguments(
+          initialValue: layout.name,
+          labelText: tr('bottom_sheets.dashboard_layout.rename_layout.label'),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.minLength(3),
+            FormBuilderValidators.maxLength(40),
+          ]),
+        ),
       ),
-    ));
+    );
 
     if (result case DialogResponse(confirmed: true, data: String newName) when newName != layout.name) {
       layout.name = newName;

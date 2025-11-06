@@ -51,18 +51,18 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     videoPlayerController = CachedVideoPlayerPlusController.networkUrl(fileUri, httpHeaders: headers)
       ..initialize()
           .then(
-        (value) => setState(() {
-          loading = false;
-          videoPlayerController.play();
-        }),
-      )
+            (value) => setState(() {
+              loading = false;
+              videoPlayerController.play();
+            }),
+          )
           .catchError((err) {
-        setState(() {
-          talker.warning('Could not load video File...', err);
-          loading = false;
-          error = err.toString();
-        });
-      });
+            setState(() {
+              talker.warning('Could not load video File...', err);
+              loading = false;
+              error = err.toString();
+            });
+          });
 
     _customVideoPlayerController = CustomVideoPlayerController(
       context: context,
@@ -78,9 +78,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SupporterOnlyFeature(
-              text: const Text('components.supporter_only_feature.timelaps_share').tr(),
-            ),
+            SupporterOnlyFeature(text: const Text('components.supporter_only_feature.timelaps_share').tr()),
             ElevatedButton(
               onPressed: () => setState(() {
                 fileDownloadProgress = null;
@@ -98,9 +96,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: CircularProgressIndicator.adaptive(
-                value: fileDownloadProgress,
-              ),
+              child: CircularProgressIndicator.adaptive(value: fileDownloadProgress),
             ),
             const Text('pages.video_player.downloading_for_sharing').tr(args: [percent]),
           ],
@@ -114,21 +110,21 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         body: Text('Error while loading file: $error'),
       );
     } else {
-      body = CustomVideoPlayer(
-        customVideoPlayerController: _customVideoPlayerController,
-      );
+      body = CustomVideoPlayer(customVideoPlayerController: _customVideoPlayerController);
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.file.name),
         actions: [
-          Builder(builder: (context) {
-            return IconButton(
-              onPressed: loading ? null : () => _startDownload(context),
-              icon: const Icon(Icons.share),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return IconButton(
+                onPressed: loading ? null : () => _startDownload(context),
+                icon: const Icon(Icons.share),
+              );
+            },
+          ),
         ],
       ),
       body: SafeArea(child: SizedBox.expand(child: body)),
@@ -151,49 +147,58 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     }
 
     downloadStreamSub?.cancel();
-    downloadStreamSub = ref.read(fileServiceSelectedProvider).downloadFile(filePath: widget.file.absolutPath).listen(
-      (event) async {
-        if (event is FileOperationProgress) {
-          setState(() {
-            fileDownloadProgress = event.progress;
-          });
-          return;
-        }
-        var downloadFile = event as FileDownloadComplete;
-        // talker.info('File in FS is at ${file.absolute.path}');
-        talker.info(
-          'File in FS is at ${downloadFile.file.absolute.path}, size : ${downloadFile.file.lengthSync()}',
-        );
-        setState(() {
-          fileDownloadProgress = 1;
-        });
+    downloadStreamSub = ref
+        .read(fileServiceSelectedProvider)
+        .downloadFile(filePath: widget.file.absolutPath)
+        .listen(
+          (event) async {
+            if (event is FileOperationProgress) {
+              setState(() {
+                fileDownloadProgress = event.progress;
+              });
+              return;
+            }
+            var downloadFile = event as FileDownloadComplete;
+            // talker.info('File in FS is at ${file.absolute.path}');
+            talker.info(
+              'File in FS is at ${downloadFile.file.absolute.path}, size : ${downloadFile.file.lengthSync()}',
+            );
+            setState(() {
+              fileDownloadProgress = 1;
+            });
 
-        await Share.shareXFiles(
-          [XFile(downloadFile.file.path, mimeType: 'video/mp4')],
-          subject: 'Video ${widget.file.name}',
-          sharePositionOrigin: pos,
+            await SharePlus.instance.share(
+              ShareParams(
+                files: [XFile(downloadFile.file.path, mimeType: 'video/mp4')],
+                subject: 'Video ${widget.file.name}',
+                sharePositionOrigin: pos,
+              ),
+            );
+            talker.info('Done with sharing');
+            setState(() {
+              fileDownloadProgress = null;
+              loading = false;
+            });
+          },
+          onError: (e) {
+            ref
+                .read(snackBarServiceProvider)
+                .show(
+                  SnackBarConfig(
+                    type: SnackbarType.error,
+                    title: 'Error while downloading file for sharing.',
+                    message: e.toString(),
+                  ),
+                );
+            setState(() {
+              fileDownloadProgress = null;
+              loading = false;
+            });
+          },
+          onDone: () {
+            talker.info('File Dowload is completed');
+          },
         );
-        talker.info('Done with sharing');
-        setState(() {
-          fileDownloadProgress = null;
-          loading = false;
-        });
-      },
-      onError: (e) {
-        ref.read(snackBarServiceProvider).show(SnackBarConfig(
-              type: SnackbarType.error,
-              title: 'Error while downloading file for sharing.',
-              message: e.toString(),
-            ));
-        setState(() {
-          fileDownloadProgress = null;
-          loading = false;
-        });
-      },
-      onDone: () {
-        talker.info('File Dowload is completed');
-      },
-    );
 
     // var fileInFs = await downloadFile.copy('${tmpDir.path}/${downloadFile.path}');
   }
