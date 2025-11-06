@@ -20,7 +20,6 @@ import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
-import 'package:common/data/model/hive/temperature_preset.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/device_fcm_settings_sync_service.dart';
@@ -69,10 +68,6 @@ setupBoxes() async {
     Hive.registerAdapter(machineAdapter);
   }
 
-  var temperaturePresetAdapter = TemperaturePresetAdapter();
-  if (!Hive.isAdapterRegistered(temperaturePresetAdapter.typeId)) {
-    Hive.registerAdapter(temperaturePresetAdapter);
-  }
   var macroGrpAdapter = MacroGroupAdapter();
   if (!Hive.isAdapterRegistered(macroGrpAdapter.typeId)) {
     Hive.registerAdapter(macroGrpAdapter);
