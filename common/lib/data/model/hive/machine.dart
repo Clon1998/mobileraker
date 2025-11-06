@@ -4,11 +4,9 @@
  */
 
 import 'package:collection/collection.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../dto/machine/print_state_enum.dart';
 import 'octoeverywhere.dart';
 import 'remote_interface.dart';
 
@@ -32,20 +30,12 @@ class Machine extends HiveObject {
   Map<String, String> httpHeaders;
   @HiveField(23, defaultValue: 6)
   int timeout;
-  @HiveField(14, defaultValue: 0)
-  double? lastPrintProgress;
-  @HiveField(15)
-  String? _lastPrintState;
-  @HiveField(17)
-  String? fcmIdentifier;
   @HiveField(18)
   DateTime? lastModified;
   @HiveField(19, defaultValue: false)
   bool trustUntrustedCertificate;
   @HiveField(20)
   OctoEverywhere? octoEverywhere;
-  @HiveField(21, defaultValue: [])
-  List<String> camOrdering;
   @HiveField(24)
   RemoteInterface? remoteInterface;
   @HiveField(25)
@@ -59,9 +49,6 @@ class Machine extends HiveObject {
   @HiveField(27)
   String? dashboardLayout;
 
-  PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
-
-  set lastPrintState(PrintState? n) => n?.toJson();
 
   String get statusUpdatedChannelKey => '$uuid-statusUpdates';
 
@@ -81,7 +68,6 @@ class Machine extends HiveObject {
     String? apiKey,
     this.trustUntrustedCertificate = false,
     this.octoEverywhere,
-    this.camOrdering = const [],
     this.httpHeaders = const {},
     this.timeout = 10,
     this.localSsids = const [],
@@ -113,9 +99,6 @@ class Machine extends HiveObject {
           (identical(uuid, other.uuid) || uuid == other.uuid) &&
           (identical(apiKey, other.apiKey) || apiKey == other.apiKey) &&
           (identical(httpUri, other.httpUri) || httpUri == other.httpUri) &&
-          (identical(lastPrintProgress, other.lastPrintProgress) || lastPrintProgress == other.lastPrintProgress) &&
-          (identical(_lastPrintState, other._lastPrintState) || _lastPrintState == other._lastPrintState) &&
-          (identical(fcmIdentifier, other.fcmIdentifier) || fcmIdentifier == other.fcmIdentifier) &&
           (identical(lastModified, other.lastModified) || lastModified == other.lastModified) &&
           (identical(octoEverywhere, other.octoEverywhere) || octoEverywhere == other.octoEverywhere) &&
           (identical(remoteInterface, other.remoteInterface) || remoteInterface == other.remoteInterface) &&
@@ -127,7 +110,6 @@ class Machine extends HiveObject {
           (identical(trustUntrustedCertificate, other.trustUntrustedCertificate) ||
               trustUntrustedCertificate == other.trustUntrustedCertificate) &&
           (identical(dashboardLayout, other.dashboardLayout) || dashboardLayout == other.dashboardLayout) &&
-          const DeepCollectionEquality().equals(other.camOrdering, camOrdering) &&
           const DeepCollectionEquality().equals(other.localSsids, localSsids) &&
           const DeepCollectionEquality().equals(other.httpHeaders, httpHeaders);
 
@@ -138,12 +120,8 @@ class Machine extends HiveObject {
         uuid,
         apiKey,
         httpUri,
-        lastPrintProgress,
-        _lastPrintState,
-        fcmIdentifier,
         lastModified,
         octoEverywhere,
-        const DeepCollectionEquality().hash(camOrdering),
         const DeepCollectionEquality().hash(localSsids),
         const DeepCollectionEquality().hash(httpHeaders),
         remoteInterface,
@@ -157,6 +135,6 @@ class Machine extends HiveObject {
 
   @override
   String toString() {
-    return 'Machine{name: $name, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, camOrdering: $camOrdering, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64, dashboardLayout: $dashboardLayout}';
+    return 'Machine{name: $name, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64, dashboardLayout: $dashboardLayout}';
   }
 }
