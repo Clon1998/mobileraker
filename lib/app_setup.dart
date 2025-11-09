@@ -13,9 +13,7 @@ import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
-import 'package:common/data/model/hive/gcode_macro.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/hive/macro_group.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
@@ -68,14 +66,6 @@ setupBoxes() async {
     Hive.registerAdapter(machineAdapter);
   }
 
-  var macroGrpAdapter = MacroGroupAdapter();
-  if (!Hive.isAdapterRegistered(macroGrpAdapter.typeId)) {
-    Hive.registerAdapter(macroGrpAdapter);
-  }
-  var macroAdapter = GCodeMacroAdapter();
-  if (!Hive.isAdapterRegistered(macroAdapter.typeId)) {
-    Hive.registerAdapter(macroAdapter);
-  }
 
   var progressNotifModeAdapter = ProgressNotificationModeAdapter();
   if (!Hive.isAdapterRegistered(progressNotifModeAdapter.typeId)) {
