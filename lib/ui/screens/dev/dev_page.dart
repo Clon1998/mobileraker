@@ -9,9 +9,11 @@
 
 // ignore_for_file: prefer-single-widget-per-file
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/repository/machine_hive_repository.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
@@ -43,6 +45,7 @@ import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../dashboard/components/bed_mesh_card.dart';
 
@@ -53,6 +56,31 @@ class DevPage extends HookConsumerWidget {
 
   String? _bla;
 
+  void exportAPpData(WidgetRef ref) async {
+    var repository = ref.read(machineRepositoryProvider);
+    var list = await repository.fetchAll();
+
+    talker.info('Exporting ${list.length} machines');
+    
+    // Convert machines to JSON-serializable format
+    var exportData = {
+      'version': '1.0.0',
+      'exportDate': DateTime.now().toIso8601String(),
+      'machines': list.map((machine) => jsonEncode(machine)).toList(),
+    };
+    
+    var export = jsonEncode(exportData);
+    talker.info('Export data: $export');
+
+    final tmpDir = await getTemporaryDirectory();
+    final File file = File('${tmpDir.path}/mobileraker_machines_export_${DateTime.now().toIso8601String()}.json');
+    await file.writeAsString(export);
+
+    await SharePlus.instance.share(ShareParams(
+      files: [XFile(file.path)],
+      subject: 'Mobileraker Machines Export',
+    ));
+  }
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('REBUILIDNG DEV PAGE!');

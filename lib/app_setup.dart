@@ -63,7 +63,7 @@ setupBoxes() async {
   // 6 - WebCamMode
   // 9 - WebCamRotation
 
-  var machineAdapter = MachineAdapter();
+  var machineAdapter = MachineImplAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
     Hive.registerAdapter(machineAdapter);
   }
@@ -82,7 +82,7 @@ setupBoxes() async {
     Hive.registerAdapter(progressNotifModeAdapter);
   }
 
-  var octoAdapater = OctoEverywhereAdapter();
+  var octoAdapater = OctoEverywhereImplAdapter();
   if (!Hive.isAdapterRegistered(octoAdapater.typeId)) {
     Hive.registerAdapter(octoAdapater);
   }
@@ -91,7 +91,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
     Hive.registerAdapter(uriAdapter);
   }
-  var riAdapter = RemoteInterfaceAdapter();
+  var riAdapter = RemoteInterfaceImplAdapter();
   if (!Hive.isAdapterRegistered(riAdapter.typeId)) {
     Hive.registerAdapter(riAdapter);
   }

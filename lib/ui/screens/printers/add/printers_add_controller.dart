@@ -42,6 +42,7 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 import '../components/ssl_settings.dart';
 
@@ -112,6 +113,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       }
 
       var machine = Machine(
+        uuid: Uuid().v4(),
         name: infoResult.printerName,
         httpUri: httpUri,
         octoEverywhere: OctoEverywhere.fromDto(appPortalResult),
@@ -146,6 +148,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       }
 
       var machine = Machine(
+        uuid: Uuid().v4(),
         name: platformInfo.name ?? 'Obico Printer',
         httpUri: httpUri,
         obicoTunnel: tunnel,
@@ -231,6 +234,7 @@ class SimpleFormController extends _$SimpleFormController {
     if (!_formState.saveAndValidate()) return;
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
+        uuid: Uuid().v4(),
           name: _displayNameField.transformedValue,
           httpUri: buildMoonrakerHttpUri(
             '${state.scheme}${_urlField.transformedValue}',
@@ -295,6 +299,7 @@ class AdvancedFormController extends _$AdvancedFormController {
         ref.read(sslSettingsControllerProvider(state.pinnedCertificateDER, state.trustUntrustedCertificate));
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
+        uuid: Uuid().v4(),
           name: _displayNameField.transformedValue,
           httpUri: buildMoonrakerHttpUri(httpInput)!,
           apiKey: _apiKeyField.transformedValue,
