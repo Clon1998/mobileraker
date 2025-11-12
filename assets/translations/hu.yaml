@@ -1388,12 +1388,8 @@ bottom_sheets:
     available_layouts:
       label: 'Elérhető elrendezések:'
       empty: Nincs elérhető elrendezés
-      add_empty: Üres elrendezés hozzáadása
     layout_preview:
       not_saved: Nincs mentve
-    rename_layout:
-      title: Elrendezés átnevezése
-      label: Elrendezés neve
     delete_layout:
       title: Elrendezés törlése
       body: |-
