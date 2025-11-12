@@ -245,8 +245,17 @@ pages:
       title: Seite entfernen?
       body: Möchten Sie diese Seite wirklich entfernen?
     editing_card:
-      title: Editiermodus
+      title: Anpassungsmodus
       body: Sie können jetzt Layout Karten und Seiten neu anordnen, hinzufügen und entfernen. Alle Karten zeigen Vorschau-Daten an.
+    rename_layout:
+      title: Layout umbenennen
+      label: Layout Name
+    layout_rename_snack:
+      title: Layout umbenannt!
+      body: Der Layout-Name wurde erfolgreich geändert.
+    layout_reset_snack:
+      title: Layout zurückgesetzt!
+      body: Das Layout wurde auf die Standardeinstellungen zurückgesetzt.
     error_save_snack:
       title: Fehler beim Speichern!
       body: Ihre Änderungen konnten nicht gespeichert werden.
@@ -1404,12 +1413,9 @@ bottom_sheets:
     available_layouts:
       label: 'Verfügbare Layouts:'
       empty: Keine Layouts gefunden
-      add_empty: Leeres Layout hinzufügen
+      add_empty: Neues Layout hinzufügen
     layout_preview:
       not_saved: Nicht gespeichert
-    rename_layout:
-      title: Layout umbenennen
-      label: Layout Name
     delete_layout:
       title: Layout löschen
       body: |-
@@ -1420,6 +1426,11 @@ bottom_sheets:
     falsy_import_snackbar:
       title: Fehler beim Importieren
       body: Das Layout konnte nicht importiert werden. Bitte stellen Sie sicher, dass die Zwischenablage ein gültiges Layout enthält.
+    load_layout_warning:
+      title: Layout laden?
+      body: |-
+        Sie sind dabei, ein Dashboard-Layout zu laden.
+        Dadurch werden alle Änderungen am aktuellen Layout verworfen.
   selections:
     no_selections:
       title: Keine Ergebnisse gefunden
