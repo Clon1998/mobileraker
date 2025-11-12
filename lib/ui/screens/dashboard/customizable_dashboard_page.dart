@@ -717,7 +717,7 @@ class _DashboardPageController extends _$DashboardPageController {
 
     _snackbarService.show(
       SnackBarConfig(
-        title: tr('pages.customizing_dashboard.layout_reset_snack'),
+        title: tr('pages.customizing_dashboard.layout_reset_snack.title'),
         message: tr('pages.customizing_dashboard.layout_reset_snack.body'),
       ),
     );
