@@ -90,17 +90,17 @@ setupBoxes() async {
     Hive.registerAdapter(nAdapter);
   }
 
-  DashboardLayoutAdapter dlAdapter = DashboardLayoutAdapter();
+  var dlAdapter = DashboardLayoutImplAdapter();
   if (!Hive.isAdapterRegistered(dlAdapter.typeId)) {
     Hive.registerAdapter(dlAdapter);
   }
 
-  var dtAdapter = DashboardTabAdapter();
+  var dtAdapter = DashboardTabImplAdapter();
   if (!Hive.isAdapterRegistered(dtAdapter.typeId)) {
     Hive.registerAdapter(dtAdapter);
   }
 
-  var dcAdapter = DashboardComponentAdapter();
+  var dcAdapter = DashboardComponentImplAdapter();
   if (!Hive.isAdapterRegistered(dcAdapter.typeId)) {
     Hive.registerAdapter(dcAdapter);
   }

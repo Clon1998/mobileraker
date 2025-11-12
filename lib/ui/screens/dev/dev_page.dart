@@ -42,6 +42,7 @@ import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/console/console_card.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
+import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -57,8 +58,11 @@ class DevPage extends HookConsumerWidget {
   String? _bla;
 
   void exportAPpData(WidgetRef ref) async {
-    var repository = ref.read(machineRepositoryProvider);
-    var list = await repository.fetchAll();
+    var machineRepository = ref.read(machineRepositoryProvider);
+    var dashboardLayoutService = ref.read(dashboardLayoutServiceProvider);
+    var list = await machineRepository.fetchAll();
+
+    var layouts = await dashboardLayoutService.availableLayouts();
 
     talker.info('Exporting ${list.length} machines');
     
@@ -67,6 +71,7 @@ class DevPage extends HookConsumerWidget {
       'version': '1.0.0',
       'exportDate': DateTime.now().toIso8601String(),
       'machines': list.map((machine) => jsonEncode(machine)).toList(),
+      'layouts': layouts,
     };
     
     var export = jsonEncode(exportData);

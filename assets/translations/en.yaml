@@ -252,6 +252,15 @@ pages:
       title: Editing Mode
       body: You can now reorder, add and remove cards and pages. All cards show preview
         data.
+    rename_layout:
+      title: Rename Layout
+      label: Layout Name
+    layout_rename_snack:
+      title: Layout renamed!
+      body: The layout has been successfully renamed.
+    layout_reset_snack:
+      title: Layout reset!
+      body: The layout has been reset to the default configuration.
     error_save_snack:
       title: Error saving layout!
       body: An error occurred while trying to save the layout.
@@ -1515,12 +1524,9 @@ bottom_sheets:
     available_layouts:
       label: 'Available Layouts:'
       empty: No layouts available
-      add_empty: Add Empty Layout
+      add_empty: Add new Layout
     layout_preview:
       not_saved: Not saved
-    rename_layout:
-      title: Rename Layout
-      label: Layout Name
     delete_layout:
       title: Delete Layout
       body: |-
@@ -1533,6 +1539,11 @@ bottom_sheets:
       title: Error while importing layout!
       body: The layout could not be imported. Please make sure the clipboard contains
         a valid layout.
+    load_layout_warning:
+      title: Load Layout?
+      body: |-
+          Loading a layout will overwrite your current dashboard layout.
+          All unsaved changes will be lost.
   selections:
     no_selections:
       title: No results found

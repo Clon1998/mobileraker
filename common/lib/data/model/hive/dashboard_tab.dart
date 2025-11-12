@@ -3,18 +3,19 @@
  * All rights reserved.
  */
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import 'dashboard_component.dart';
 
+part 'dashboard_tab.freezed.dart';
 part 'dashboard_tab.g.dart';
 
-@HiveType(typeId: 9)
-class DashboardTab extends HiveObject {
+@freezed
+class DashboardTab with _$DashboardTab {
   static Map<String, IconData> availableIcons = {
     'settings': Icons.settings,
     'dashboard': Icons.dashboard,
@@ -28,72 +29,35 @@ class DashboardTab extends HiveObject {
 
   static String defaultIcon = 'dashboard';
 
-  DashboardTab({
-    required this.name,
-    required this.icon,
-    required this.components,
-  });
+  @HiveType(typeId: 9)
+  const factory DashboardTab({
+    @HiveField(0) required String uuid,
+    @HiveField(1) required String name,
+    @HiveField(2) required String icon,
+    @HiveField(3) required List<DashboardComponent> components,
+    @HiveField(4) @Default(1) int version,
+  }) = _DashboardTab;
 
-  DashboardTab._({
-    required this.uuid,
-    required this.name,
-    required this.icon,
-    required this.components,
-  });
+  const DashboardTab._();
 
-  @HiveField(0)
-  String uuid = const Uuid().v4();
-  @HiveField(1)
-  String name;
-  @HiveField(2)
-  String icon;
-  @HiveField(3)
-  List<DashboardComponent> components;
+  factory DashboardTab.fromJson(Map<String, dynamic> json) =>
+      _$DashboardTabFromJson(json);
 
-  IconData get iconData => availableIcons[icon] ?? Icons.dashboard;
-
-  DashboardTab copyWith({
-    String? name,
-    String? icon,
-    List<DashboardComponent>? components,
+  // Factory constructor that generates UUID automatically (for backward compatibility)
+  factory DashboardTab.create({
+    required String name,
+    required String icon,
+    required List<DashboardComponent> components,
   }) {
-    return DashboardTab._(
-      uuid: uuid,
-      name: name ?? this.name,
-      icon: icon ?? this.icon,
-      components: components ?? this.components,
+    return DashboardTab(
+      uuid: const Uuid().v4(),
+      name: name,
+      icon: icon,
+      components: components,
     );
   }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DashboardTab &&
-          runtimeType == other.runtimeType &&
-          (identical(uuid, other.uuid) || uuid == other.uuid) &&
-          (identical(name, other.name) || name == other.name) &&
-          (identical(icon, other.icon) || icon == other.icon) &&
-          const DeepCollectionEquality().equals(components, other.components);
+  // Computed property from original class
+  IconData get iconData => availableIcons[icon] ?? Icons.dashboard;
 
-  @override
-  int get hashCode => Object.hash(
-        uuid,
-        name,
-        icon,
-        const DeepCollectionEquality().hash(components),
-      );
-
-  @override
-  String toString() {
-    return 'DashboardTab{uuid: $uuid, name: $name, components: $components}';
-  }
-
-  Map<String, dynamic> export() {
-    return {
-      'version': 1,
-      'name': name,
-      'icon': icon,
-      'components': components.map((e) => e.export()).toList(),
-    };
-  }
 }
