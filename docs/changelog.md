@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-- **File Sharing Integration**: Improved file sharing functionality with enhanced intent handling for better file sharing between apps and Android ISO compatibility
+- **Customizable Dashboard**: Simplified the operations of the customizable dashboard in terms of layout management.
 - **Console Interface**: Enhanced console page with modernized styling and improved visual density for better user experience
 - **File Management**: Added backup file filtering capabilities for Klipper backup files and improved console settings through dedicated bottom sheet
 - **Spoolman Integration**: Enhanced spool visualization with improved color mapping and filtering system
