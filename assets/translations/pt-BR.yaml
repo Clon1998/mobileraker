@@ -1411,12 +1411,8 @@ bottom_sheets:
     available_layouts:
       label: 'Layouts Disponíveis:'
       empty: Nenhum layout disponível
-      add_empty: Adicionar Layout Vazio
     layout_preview:
       not_saved: Não salvo
-    rename_layout:
-      title: Renomear Layout
-      label: Nome do Layout
     delete_layout:
       title: Excluir Layout
       body: |-
