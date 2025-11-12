@@ -1259,12 +1259,8 @@ bottom_sheets:
     available_layouts:
       label: '可用的佈局：'
       empty: 沒有可用的佈局
-      add_empty: 加入空白佈局
     layout_preview:
       not_saved: 尚未儲存
-    rename_layout:
-      title: 重新命名佈局
-      label: 佈局名稱
     delete_layout:
       title: 刪除佈局
       body: |-
