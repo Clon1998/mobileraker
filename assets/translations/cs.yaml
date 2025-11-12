@@ -1410,12 +1410,8 @@ bottom_sheets:
     available_layouts:
       label: 'Dostupné rozložení:'
       empty: Není k dispozici žádné rozložení
-      add_empty: Přidat prázdné rozložení
     layout_preview:
       not_saved: Neuloženo
-    rename_layout:
-      title: Přejmenovat rozložení
-      label: Jméno rozvržení
     delete_layout:
       title: Odstranit Rozložení
       body: |-
