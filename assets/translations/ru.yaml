@@ -1406,12 +1406,8 @@ bottom_sheets:
     available_layouts:
       label: 'Доступные макеты:'
       empty: Нет доступных макетов
-      add_empty: Добавить пустой макет
     layout_preview:
       not_saved: Не сохранено
-    rename_layout:
-      title: Переименовать макет
-      label: Название макета
     delete_layout:
       title: Удалить макет
       body: |-
