@@ -1087,12 +1087,8 @@ bottom_sheets:
     available_layouts:
       label: 'Dostępne układy:'
       empty: Brak dostępnych układów
-      add_empty: Dodaj pusty układ
     layout_preview:
       not_saved: Nie zapisano
-    rename_layout:
-      title: Zmień nazwę układu
-      label: Nazwa układu
     delete_layout:
       title: Usuń układ
       body: |-
