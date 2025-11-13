@@ -68,7 +68,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
                       return ListTile(
                         tileColor: themeData.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
                         textColor: themeData.colorScheme.onSurfaceVariant,
-                        title: Text(beautifyName(machine.name)),
+                        title: Text(machine.name),
                         subtitle: Text(machine.httpUri.toString()),
                         onTap: () {
                           selected.value = true;
