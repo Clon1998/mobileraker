@@ -950,11 +950,8 @@ pages:
     vendor_details:
       page_title: Производитель {}
       info_card: Информация о производителе
-      filaments_card: Филаменты по производителю
-      spools_card: Катушки по производителю
     filament_details:
       info_card: Информация о филаменте
-      spools_card: Катушки филамента
     spool_details:
       page_title: Катушка {}
       info_card: Информация о катушке
@@ -997,6 +994,7 @@ components:
     installed_version: 'Установленная версия:'
   pull_to_refresh:
     pull_up_idle: Потяните вверх, чтобы обновить
+    pull_down_idle: Потяните вниз, чтобы обновить
   nav_drawer:
     printer_settings: Настройки принтера
     manage_printers: Управление принтерами
@@ -1408,12 +1406,8 @@ bottom_sheets:
     available_layouts:
       label: 'Доступные макеты:'
       empty: Нет доступных макетов
-      add_empty: Добавить пустой макет
     layout_preview:
       not_saved: Не сохранено
-    rename_layout:
-      title: Переименовать макет
-      label: Название макета
     delete_layout:
       title: Удалить макет
       body: |-
@@ -1432,6 +1426,25 @@ bottom_sheets:
     title: Настройки графика температуры
   select_file:
     title: Выберите задание на печать
+  file_manager_settings:
+    title: Настройки файлового менеджера
+    show_hidden_files:
+      title: Показывать скрытые файлы
+      subtitle: Показывать файлы и папки, начинающиеся с точки (.)
+    hide_backup_files:
+      title: Скрыть резервные файлы
+      subtitle: Скрыть все файлы, определённые как резервные копии
+  console_settings:
+    title: Настройки консоли
+    reverse:
+      title: Обратный порядок
+      subtitle: Показывать новые сообщения первыми, а не последними
+    filter_temp_responses:
+      title: Фильтровать температурные сообщения
+      subtitle: Скрывать диагностические сообщения, связанные с температурой
+    show_timestamps:
+      title: Показывать метки времени
+      subtitle: Показывать время регистрации каждого сообщения
 klipper_state:
   ready: Готов
   shutdown: Выключен

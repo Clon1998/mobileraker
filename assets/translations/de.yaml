@@ -1428,7 +1428,6 @@ bottom_sheets:
       add_empty: Neues Layout hinzufügen
     layout_preview:
       not_saved: Nicht gespeichert
-
     delete_layout:
       title: Layout löschen
       body: |-
@@ -1442,7 +1441,7 @@ bottom_sheets:
     load_layout_warning:
       title: Layout laden?
       body: |-
-        Sie sind dabei, ein Dashboard-Layout zu laden. 
+        Sie sind dabei, ein Dashboard-Layout zu laden.
         Dadurch werden alle Änderungen am aktuellen Layout verworfen.
   selections:
     no_selections:

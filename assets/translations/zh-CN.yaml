@@ -799,11 +799,8 @@ pages:
     vendor_details:
       page_title: 制造商 {}
       info_card: 制造商信息
-      filaments_card: 制造商的耗材
-      spools_card: 制造商的料盘
     filament_details:
       info_card: 耗材信息
-      spools_card: 耗材料盘
     spool_details:
       page_title: 料盘 {}
       info_card: 料盘信息
@@ -1226,12 +1223,8 @@ bottom_sheets:
     available_layouts:
       label: '可用布局：'
       empty: 没有可用的布局
-      add_empty: 添加空白布局
     layout_preview:
       not_saved: 尚未保存
-    rename_layout:
-      title: 重命名布局
-      label: 布局名称
     delete_layout:
       title: 删除布局
       body: |-

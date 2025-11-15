@@ -799,11 +799,8 @@ pages:
     vendor_details:
       page_title: Producent {}
       info_card: Informacje o producencie
-      filaments_card: Filamenty od producenta
-      spools_card: Szpule od producenta
     filament_details:
       info_card: Informacje o filamencie
-      spools_card: Szpule filamentu
     spool_details:
       page_title: Szpula {}
       info_card: Informacje o szpuli
@@ -1090,12 +1087,8 @@ bottom_sheets:
     available_layouts:
       label: 'Dostępne układy:'
       empty: Brak dostępnych układów
-      add_empty: Dodaj pusty układ
     layout_preview:
       not_saved: Nie zapisano
-    rename_layout:
-      title: Zmień nazwę układu
-      label: Nazwa układu
     delete_layout:
       title: Usuń układ
       body: |-
