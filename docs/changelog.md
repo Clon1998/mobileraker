@@ -5,11 +5,15 @@
 ### Enhancements
 
 - **Customizable Dashboard**: Simplified the operations of the customizable dashboard in terms of layout management.
-- **Console Interface**: Enhanced console page with modernized styling and improved visual density for better user experience
-- **File Management**: Added backup file filtering capabilities for Klipper backup files and improved console settings through dedicated bottom sheet
+- **Console Interface**: Enhanced console page with modernized styling and improved visual density for better user
+  experience
+- **File Management**: Added backup file filtering capabilities for Klipper backup files and improved console settings
+  through dedicated bottom sheet
 - **Spoolman Integration**: Enhanced spool visualization with improved color mapping and filtering system
 - **Markdown Rendering**: Replaced flutter_markdown with flutter_markdown_plus for better functionality and performance
 - **User Interface**: Updated console input to support optional empty input suffixes and improved overall page styling
+- **Data Import/Export**: Added import/export functionality for app data (Machines & Layouts). Located on the settings
+  page.
 
 ### Bug Fixes
 

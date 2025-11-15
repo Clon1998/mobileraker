@@ -506,6 +506,19 @@ pages:
       no_devices_found: No devices found
       configure_btn: Configure
       not_connected_btn: Not connected
+    data:
+      title: Data Import & Export
+      helper: Backup or transfer your app data
+      export:
+        title: Export App Data
+        helper: Save all your machines, layouts and settings to a file for backup or transfer
+
+      import:
+        title: Import App Data
+        helper: Load machines, layouts and settings from a file
+      snack_imported:
+        title: Data imported!
+        message: Imported {} machines and {} layouts.
     developer:
       title: Developer
       crashlytics: Enable Crashlytics reporting

@@ -490,6 +490,18 @@ pages:
       no_devices_found: Keine Geräte gefunden
       configure_btn: Konfigurieren
       not_connected_btn: Nicht verbunden
+    data:
+      title: Datenimport und -export
+      helper: Sichern oder übertragen Sie Ihre App-Daten
+      export:
+        title: Daten exportieren
+        helper: Speichern Sie alle Ihre Maschinen, Layouts und Einstellungen in einer Datei, um sie zu sichern oder zu übertragen
+      import:
+        title: Daten importieren
+        helper: Stellen Sie Ihre Maschinen, Layouts und Einstellungen aus einer zuvor exportierten Datei wieder her
+      snack_imported:
+        title: Daten importiert!
+        message: '{} Maschinen und {} Layouts importiert.'
     developer:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
