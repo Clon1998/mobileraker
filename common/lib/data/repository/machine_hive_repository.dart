@@ -21,15 +21,13 @@ class MachineHiveRepository implements MachineRepository {
 
   @override
   Future<void> insert(Machine machine) async {
-    machine.lastModified = DateTime.now();
-    await _boxMachines.put(machine.uuid, machine);
+    await _boxMachines.put(machine.uuid, machine.copyWith(lastModified: DateTime.now()));
     return;
   }
 
   @override
   Future<void> update(Machine machine) async {
-    await machine.save();
-
+    _boxMachines.put(machine.uuid, machine);
     return;
   }
 
@@ -47,8 +45,8 @@ class MachineHiveRepository implements MachineRepository {
   Future<Machine> remove(String uuid) async {
     Machine? machine = await get(uuid: uuid);
 
-    machine?.delete();
-    return machine!;
+    _boxMachines.delete(machine!.uuid);
+    return machine;
   }
 
   @override

@@ -15,6 +15,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/console/command_input.dart';
 import 'package:mobileraker/ui/components/console/command_suggestions.dart';
 import 'package:mobileraker/ui/components/console/console_history.dart';
+import 'package:mobileraker/ui/components/console/console_settings_button.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
@@ -62,14 +63,13 @@ class _ConsoleBody extends HookConsumerWidget {
       right: false,
       child: Container(
         margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          border: Border.all(color: theme.colorScheme.primary, width: 0.5),
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-        ),
+        // decoration: BoxDecoration(
+        //   color: theme.colorScheme.surface,
+        //   border: Border.all(color: theme.colorScheme.primary, width: 0.5),
+        //   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+        // ),
         child: Column(
           children: [
-            const _CardHeader(),
             Expanded(
               child: _CardBody(machineUUID: machineUUID, consoleTextEditor: consoleTextEditor),
             ),
@@ -77,26 +77,6 @@ class _ConsoleBody extends HookConsumerWidget {
             _CardFooter(machineUUID: machineUUID, consoleTextEditor: consoleTextEditor),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CardHeader extends StatelessWidget {
-  const _CardHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(color: themeData.colorScheme.primary),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-        child: Text(
-          'pages.console.card_title',
-          style: themeData.textTheme.titleMedium?.copyWith(color: themeData.colorScheme.onPrimary),
-        ).tr(),
       ),
     );
   }
@@ -162,7 +142,11 @@ class _CardFooter extends HookConsumerWidget {
           ),
         Padding(
           padding: EdgeInsets.all(8),
-          child: CommandInput(machineUUID: machineUUID, consoleTextEditor: consoleTextEditor),
+          child: CommandInput(
+            machineUUID: machineUUID,
+            consoleTextEditor: consoleTextEditor,
+            emptyInputSuffix: ConsoleSettingsButton(),
+          ),
         ),
       ],
     );

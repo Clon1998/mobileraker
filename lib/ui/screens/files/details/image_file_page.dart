@@ -45,10 +45,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
         actions: [
           Builder(
             builder: (ctx) {
-              return IconButton(
-                onPressed: downloading ? null : () => shareFile(ctx),
-                icon: const Icon(Icons.share),
-              );
+              return IconButton(onPressed: downloading ? null : () => shareFile(ctx), icon: const Icon(Icons.share));
             },
           ),
         ],
@@ -63,7 +60,9 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
               cacheKey: '${imageUri.hashCode}-${widget.file.hashCode}',
               imageBuilder: (context, imageProvider) => InteractiveViewer(
                 boundaryMargin: EdgeInsets.symmetric(vertical: s.height / 2, horizontal: s.width / 2),
-                child: SizedBox.expand(child: Image(image: imageProvider, semanticLabel: widget.file.name)),
+                child: SizedBox.expand(
+                  child: Image(image: imageProvider, semanticLabel: widget.file.name),
+                ),
               ),
               imageUrl: imageUri.toString(),
               httpHeaders: imageHeaders,
@@ -82,7 +81,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
     );
   }
 
-  shareFile(BuildContext ctx) async {
+  void shareFile(BuildContext ctx) async {
     setState(() {
       downloading = true;
     });
@@ -99,17 +98,25 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
       final box = ctx.findRenderObject() as RenderBox?;
       final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-      Share.shareXFiles(
-        [XFile(downloadFile.file.path, mimeType: mimeType)],
-        subject: 'Image ${widget.file.name}',
-        sharePositionOrigin: pos,
-      ).ignore();
+      SharePlus.instance
+          .share(
+            ShareParams(
+              files: [XFile(downloadFile.file.path, mimeType: mimeType)],
+              subject: 'Image ${widget.file.name}',
+              sharePositionOrigin: pos,
+            ),
+          )
+          .ignore();
     } catch (e) {
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error,
-            title: 'Error while downloading file for sharing.',
-            message: e.toString(),
-          ));
+      ref
+          .read(snackBarServiceProvider)
+          .show(
+            SnackBarConfig(
+              type: SnackbarType.error,
+              title: 'Error while downloading file for sharing.',
+              message: e.toString(),
+            ),
+          );
     } finally {
       if (mounted) {
         setState(() {

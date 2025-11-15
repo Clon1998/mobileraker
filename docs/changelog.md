@@ -1,6 +1,34 @@
 # Mobileraker - Changelog
 
-## [2.9.3] - 2025-10-07
+## [Unreleased] - 2025-11-06
+
+### Enhancements
+
+- **Customizable Dashboard**: Simplified the operations of the customizable dashboard in terms of layout management.
+- **Console Interface**: Enhanced console page with modernized styling and improved visual density for better user
+  experience
+- **File Management**: Added backup file filtering capabilities for Klipper backup files and improved console settings
+  through dedicated bottom sheet
+- **Spoolman Integration**: Enhanced spool visualization with improved color mapping and filtering system
+- **Markdown Rendering**: Replaced flutter_markdown with flutter_markdown_plus for better functionality and performance
+- **User Interface**: Updated console input to support optional empty input suffixes and improved overall page styling
+- **Data Import/Export**: Added import/export functionality for app data (Machines & Layouts). Located on the settings
+  page.
+
+### Bug Fixes
+
+- **File Sharing**: Fixed broken sharing of files and text in ISO 26 compatibility mode
+- **Console Interface**: Resolved console history refresh pull down icon and text display issues
+- **File Operations**: Fixed filtering for Klipper backup files to work correctly
+- **Build System**: Ensured app can always build successfully with improved build configuration
+
+### Development Improvements
+
+- **Color System**: Introduced general RemappingColorMapper for better color handling across the application
+- **Code Organization**: Improved supporter status indicator and moved to version 2.9.5 preparation
+- **Settings Management**: Unified setting bottom sheet design for consistent user experience
+
+## [2.9.4] - 2025-10-07
 
 ### Enhancements
 

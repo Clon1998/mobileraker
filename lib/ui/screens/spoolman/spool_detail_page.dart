@@ -19,7 +19,6 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -39,6 +38,7 @@ import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -76,7 +76,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final refreshController = useMemoized(() => EasyRefreshController(controlFinishRefresh: true), const []);
+    final refreshController = useMemoized(() => RefreshController(), const []);
     useEffect(() => refreshController.dispose, const []);
 
     final numFormat = NumberFormat.compact(locale: context.locale.toStringWithSeparator());
@@ -89,7 +89,9 @@ class _SpoolDetailPage extends HookConsumerWidget {
       machineUUID: machineUUID,
       titleBuilder: (ctx, total) => ListTile(
         leading: const Icon(Icons.color_lens_outlined),
-        title: const Text('pages.spoolman.spool_details.alternative_spool.same_filament').tr(),
+        titleAlignment: ListTileTitleAlignment.center,
+        title: const Text('pages.spoolman.spool_details.alternative_spool.title').tr(),
+        subtitle: const Text('pages.spoolman.spool_details.alternative_spool.same_filament').tr(),
         trailing: total != null && total > 0
             ? Chip(
                 visualDensity: VisualDensity.compact,
@@ -106,7 +108,9 @@ class _SpoolDetailPage extends HookConsumerWidget {
       machineUUID: machineUUID,
       titleBuilder: (ctx, total) => ListTile(
         leading: const Icon(Icons.spoke_outlined),
-        title: const Text('pages.spoolman.spool_details.alternative_spool.same_material').tr(),
+        titleAlignment: ListTileTitleAlignment.center,
+        title: const Text('pages.spoolman.spool_details.alternative_spool.title').tr(),
+        subtitle: const Text('pages.spoolman.spool_details.alternative_spool.same_material').tr(),
         trailing: total != null && total > 0
             ? Chip(
                 visualDensity: VisualDensity.compact,
@@ -130,7 +134,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
         child: const Icon(Icons.more_vert),
       ),
       body: SafeArea(
-        child: EasyRefresh(
+        child: SmartRefresher(
           controller: refreshController,
           onRefresh: () {
             final spool = ref.read(_spoolProvider);
@@ -139,10 +143,10 @@ class _SpoolDetailPage extends HookConsumerWidget {
                 .refresh(spoolProvider(machineUUID, spool.id).future)
                 .then(
                   (_) {
-                    refreshController.finishRefresh();
+                    refreshController.refreshCompleted();
                   },
                   onError: (_, _) {
-                    refreshController.finishRefresh(IndicatorResult.fail);
+                    refreshController.refreshFailed();
                   },
                 );
           },
@@ -560,10 +564,12 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
       );
       final bytes = Uint8List.sublistView(qrImageBytes!);
 
-      await Share.shareXFiles(
-        [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
-        subject: 'Spool QR',
-        sharePositionOrigin: origin,
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
+          subject: 'Spool QR',
+          sharePositionOrigin: origin,
+        ),
       );
     } catch (e, s) {
       talker.error('Error while generating and sharing QR Code', e, s);

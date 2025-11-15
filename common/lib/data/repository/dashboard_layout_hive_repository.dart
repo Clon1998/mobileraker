@@ -38,14 +38,16 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
 
   @override
   Future<void> create(DashboardLayout entity) async {
+    if (entity.uuid == 'default') {
+      throw MobilerakerException('Cannot create dashboard layout with reserved uuid "default"');
+    }
+
     talker.info('[DashboardLayoutHiveRepository] Creating dashboard layout with uuid ${entity.uuid}');
     if (_box.containsKey(entity.uuid)) {
       throw MobilerakerException('DashboardLayout with uuid ${entity.uuid} already exists! Please use update instead.');
     }
-    entity.created = DateTime.now();
-    entity.lastModified = entity.created;
-
-    await _box.put(entity.uuid, entity);
+    final dateTime = DateTime.now();
+    await _box.put(entity.uuid, entity.copyWith(created: dateTime, lastModified: dateTime));
   }
 
   @override
@@ -55,7 +57,10 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
     if (e == null) {
       throw MobilerakerException('DashboardLayout with uuid $uuid not found');
     }
-    return e..delete();
+
+    await _box.delete(uuid);
+
+    return e;
   }
 
   @override
@@ -71,6 +76,9 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
 
   @override
   Future<void> update(DashboardLayout entity) async {
+    if (entity.uuid == 'default') {
+      throw MobilerakerException('Cannot create dashboard layout with reserved uuid "default"');
+    }
     talker.info('[DashboardLayoutHiveRepository] Updating dashboard layout with uuid ${entity.uuid}');
     if (!_box.containsKey(entity.uuid)) {
       throw MobilerakerException('DashboardLayout with uuid ${entity.uuid} does not exist! Please use create instead.');

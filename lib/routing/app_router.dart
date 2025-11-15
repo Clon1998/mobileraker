@@ -39,6 +39,7 @@ import 'package:mobileraker/ui/screens/paywall/perks/supporter_benefits_page.dar
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
 import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
+import 'package:mobileraker/ui/screens/setting/data/data_settings_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/notification/notification_settings_page.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
@@ -78,6 +79,7 @@ enum AppRoute implements RouteDefinitionMixin {
   settings,
   settings_notification,
   settings_notification_device,
+  settings_data,
   imprint,
   dev,
   faq,
@@ -259,6 +261,11 @@ GoRouter goRouterImpl(GoRouterRef ref) {
               ),
             ],
           ),
+          GoRoute(
+            path: 'data',
+            name: AppRoute.settings_data.name,
+            builder: (context, state) => const DataSettingsPage(),
+          )
         ],
       ),
       GoRoute(

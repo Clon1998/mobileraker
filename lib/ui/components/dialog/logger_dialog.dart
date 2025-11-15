@@ -39,11 +39,12 @@ class LoggerDialog extends StatelessWidget {
                   final box = context.findRenderObject() as RenderBox?;
                   final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-                  Share.shareXFiles(
-                    logFiles,
-                    subject: 'Most recent Mobileraker logs',
-                    // text: '',
-                    sharePositionOrigin: pos,
+                  SharePlus.instance.share(
+                    ShareParams(
+                      files: logFiles,
+                      subject: 'Mobileraker Logs',
+                      sharePositionOrigin: pos,
+                    ),
                   );
                 },
                 child: Text(MaterialLocalizations.of(context).shareButtonLabel),

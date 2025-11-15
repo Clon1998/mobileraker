@@ -7,19 +7,27 @@ import 'package:common/data/dto/console/gcode_store_entry.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ConsoleHistory extends StatelessWidget {
-  const ConsoleHistory({super.key, required this.machineUUID, this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
+  const ConsoleHistory({
+    super.key,
+    required this.machineUUID,
+    this.onCommandTap,
+    this.scrollController,
+    this.keyboardDismissBehavior,
+  });
 
   final String machineUUID;
   final ValueChanged<String>? onCommandTap;
@@ -40,18 +48,6 @@ class ConsoleHistory extends StatelessWidget {
       ),
     );
   }
-}
-
-class _ConsoleData extends ConsumerStatefulWidget {
-  const _ConsoleData({super.key, required this.machineUUID, required this.onCommandTap, this.scrollController, this.keyboardDismissBehavior});
-
-  final String machineUUID;
-  final ValueChanged<String>? onCommandTap;
-  final ScrollController? scrollController;
-  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
-
-  @override
-  ConsumerState<_ConsoleData> createState() => _ConsoleDataState();
 }
 
 class _ConsoleProviderError extends ConsumerWidget {
@@ -83,17 +79,35 @@ class _ConsoleProviderError extends ConsumerWidget {
   }
 }
 
+class _ConsoleData extends ConsumerStatefulWidget {
+  const _ConsoleData({
+    super.key,
+    required this.machineUUID,
+    required this.onCommandTap,
+    this.scrollController,
+    this.keyboardDismissBehavior,
+  });
+
+  final String machineUUID;
+  final ValueChanged<String>? onCommandTap;
+  final ScrollController? scrollController;
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
+
+  @override
+  ConsumerState<_ConsoleData> createState() => _ConsoleDataState();
+}
+
 class _ConsoleDataState extends ConsumerState<_ConsoleData> {
-  final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true);
+  final RefreshController _refreshController = RefreshController();
 
   @override
   void initState() {
     super.initState();
     // Sync UI refresher with Riverpod provider
     ref.listenManual(printerGCodeStoreProvider(widget.machineUUID), (previous, next) {
-      if (next case AsyncData() when _refreshController.headerState?.mode == IndicatorMode.processing) {
+      if (next case AsyncData() when _refreshController.isRefresh) {
         talker.info('Console data refreshed, completing refresher');
-        _refreshController.finishRefresh();
+        _refreshController.refreshCompleted();
       }
     });
   }
@@ -114,22 +128,23 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
 
     talker.error('Rebuilding console list. Count: $count');
 
-    return EasyRefresh(
+    final showTimeStamp = ref.watch(boolSettingProvider(AppSettingKeys.consoleShowTimestamp));
+
+    var newestAtTop = ref.watch(boolSettingProvider(AppSettingKeys.reverseConsole));
+    return SmartRefresher(
       scrollController: widget.scrollController,
       header: ClassicHeader(
-        dragText: tr('components.pull_to_refresh.pull_up_idle'),
-        armedText: tr('components.pull_to_refresh.release_to_refresh'),
-        readyText: tr('components.pull_to_refresh.refreshing'),
-        processedText: tr('components.pull_to_refresh.refresh_complete'),
-        failedText: tr('components.pull_to_refresh.refresh_failed'),
-        showMessage: false,
+        idleText: tr(
+          newestAtTop ? 'components.pull_to_refresh.pull_down_idle' : 'components.pull_to_refresh.pull_up_idle',
+        ),
+        idleIcon: Icon(newestAtTop ? Icons.arrow_downward : Icons.arrow_upward, color: Colors.grey),
       ),
       controller: _refreshController,
       onRefresh: () => ref.invalidate(printerGCodeStoreProvider),
       child: ListView.builder(
         keyboardDismissBehavior: widget.keyboardDismissBehavior,
         controller: widget.scrollController,
-        reverse: true,
+        reverse: !newestAtTop,
         itemCount: count,
         itemBuilder: (context, index) {
           if (index >= count) return null; // Prevents index out of bounds error
@@ -154,21 +169,27 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
               child: ListTile(
                 key: ValueKey(index),
                 dense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                visualDensity: VisualDensity.compact,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 title: Text(entry.message, style: _commandTextStyle(themeData, ListTileTheme.of(context))),
                 onTap: () => widget.onCommandTap?.call(entry.message),
-                subtitle: Text(dateFormat.format(entry.timestamp)),
+                subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
                 subtitleTextStyle: themeData.textTheme.bodySmall,
+                minTileHeight: 0,
               ),
             ),
-            // TODO: Allow the user to enable this and decide if wed rather filter early than handle it via shrink
-            ConsoleEntryType.temperatureResponse => SizedBox.shrink(),
+            ConsoleEntryType.temperatureResponse
+                when ref.watch(boolSettingProvider(AppSettingKeys.filterTemperatureResponse)) =>
+              SizedBox.shrink(),
             _ => ListTile(
               key: ValueKey(index),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               title: Text(entry.message),
-              subtitle: Text(dateFormat.format(entry.timestamp)),
+              titleTextStyle: TextStyle(fontFamily: 'monospace'),
+              subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
               subtitleTextStyle: themeData.textTheme.bodySmall,
+              minTileHeight: 0,
             ),
           };
         },
@@ -187,7 +208,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
         break;
     }
 
-    return textStyle.copyWith(color: theme.colorScheme.primary);
+    return textStyle.copyWith(color: theme.colorScheme.primary, fontFamily: 'monospace');
   }
 
   @override

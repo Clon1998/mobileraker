@@ -26,6 +26,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../routing/app_router.dart';
 import '../../../components/webcam/webcam.dart';
@@ -53,8 +54,9 @@ class WebcamCard extends HookConsumerWidget {
     return AsyncGuard(
       debugLabel: 'WebcamCard-$machineUUID',
       animate: true,
-      toGuard: _webcamCardControllerProvider(machineUUID)
-          .selectAs((data) => !data.userRequestedHide && data.allCams.isNotEmpty),
+      toGuard: _webcamCardControllerProvider(
+        machineUUID,
+      ).selectAs((data) => !data.userRequestedHide && data.allCams.isNotEmpty),
       childOnLoading: hadWebcam ? const _WebcamCardLoading(key: Key('wcL')) : const SizedBox.shrink(key: Key('wcL')),
       childOnError: (error, _) => _Card(
         key: const Key('wcE'),
@@ -70,15 +72,11 @@ class WebcamCard extends HookConsumerWidget {
               Text(
                 error.toString(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               TextButton.icon(
                 onPressed: controller.onRetry,
-                icon: const Icon(
-                  Icons.restart_alt_outlined,
-                ),
+                icon: const Icon(Icons.restart_alt_outlined),
                 label: const Text('general.retry').tr(),
               ),
             ],
@@ -111,9 +109,7 @@ class _Preview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _webcamCardControllerProvider(_machineUUID).overrideWith(_WebcamCardPreviewController.new),
-      ],
+      overrides: [_webcamCardControllerProvider(_machineUUID).overrideWith(_WebcamCardPreviewController.new)],
       child: const WebcamCard(machineUUID: _machineUUID),
     );
   }
@@ -138,11 +134,7 @@ class _WebcamCardLoading extends StatelessWidget {
                 padding: EdgeInsets.fromLTRB(8, 8, 8, 10),
                 child: AspectRatio(
                   aspectRatio: 4 / 3,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                 ),
               ),
             ),
@@ -166,10 +158,7 @@ class _Card extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            child: child,
-          ),
+          Padding(padding: const EdgeInsets.fromLTRB(8, 8, 8, 10), child: child),
         ],
       ),
     );
@@ -231,12 +220,11 @@ class _CardBody extends ConsumerWidget {
     // For the preview. This is a bit hacky but it works the best!
     if (model.activeCam.service == WebcamServiceType.preview) {
       return Center(
-          child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 200),
-        child: SvgPicture.asset(
-          'assets/vector/undraw_video_files_fu10.svg',
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: SvgPicture.asset('assets/vector/undraw_video_files_fu10.svg'),
         ),
-      ));
+      );
     }
 
     return Center(
@@ -266,10 +254,7 @@ class _CardBody extends ConsumerWidget {
   }
 
   Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(5)),
-      child: imageTransformed,
-    );
+    return ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(5)), child: imageTransformed);
   }
 }
 
@@ -321,10 +306,9 @@ class _WebcamCardController extends _$WebcamCardController {
   void onFullScreenTap() {
     if (!state.hasValue) return;
     var value = state.requireValue;
-    ref.read(goRouterProvider).pushNamed(
-      AppRoute.fullCam.name,
-      extra: {'machine': value.machine, 'selectedCam': value.activeCam},
-    );
+    ref
+        .read(goRouterProvider)
+        .pushNamed(AppRoute.fullCam.name, extra: {'machine': value.machine, 'selectedCam': value.activeCam});
   }
 
   void onRetry() {
@@ -342,15 +326,19 @@ class _WebcamCardController extends _$WebcamCardController {
 class _WebcamCardPreviewController extends _WebcamCardController {
   @override
   Future<_Model> build(String machineUUID) {
-    final model = _Model(machine: Machine(name: 'Preview Machine', httpUri: Uri()), selected: 0, allCams: [
-      WebcamInfo(
-        uid: 'preview',
-        name: 'Preview Cam',
-        service: WebcamServiceType.preview,
-        streamUrl: Uri(),
-        snapshotUrl: Uri(),
-      ),
-    ]);
+    final model = _Model(
+      machine: Machine(uuid: Uuid().v4(), name: 'Preview Machine', httpUri: Uri()),
+      selected: 0,
+      allCams: [
+        WebcamInfo(
+          uid: 'preview',
+          name: 'Preview Cam',
+          service: WebcamServiceType.preview,
+          streamUrl: Uri(),
+          snapshotUrl: Uri(),
+        ),
+      ],
+    );
 
     state = AsyncValue.data(model);
 

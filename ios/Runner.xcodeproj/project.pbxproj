@@ -20,6 +20,7 @@
 		CD54F7E42C0CD9D000BC3025 /* PrintStatusIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicatorView.swift */; };
 		CD7011492D723A71004E0F5C /* StandardPrintLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7011482D723A68004E0F5C /* StandardPrintLockScreenView.swift */; };
 		CD70114D2D723F20004E0F5C /* SmallPrintLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD70114C2D723F20004E0F5C /* SmallPrintLockScreenView.swift */; };
+		CD8D5C302E997D3C000F093C /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = CD8D5C2F2E997D3C000F093C /* AppIcon.icon */; };
 		CDCC27F52AAB9A0800116FFF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */; };
 		CDCC27F72AAB9A0800116FFF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */; };
 		CDCC28002AAB9A0A00116FFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CDCC27FF2AAB9A0A00116FFF /* Assets.xcassets */; };
@@ -115,6 +116,7 @@
 		CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintStatusIndicatorView.swift; sourceTree = "<group>"; };
 		CD7011482D723A68004E0F5C /* StandardPrintLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandardPrintLockScreenView.swift; sourceTree = "<group>"; };
 		CD70114C2D723F20004E0F5C /* SmallPrintLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallPrintLockScreenView.swift; sourceTree = "<group>"; };
+		CD8D5C2F2E997D3C000F093C /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilrakerLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -233,6 +235,7 @@
 				FB914D1C27C43AD0005E5F80 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
+				CD8D5C2F2E997D3C000F093C /* AppIcon.icon */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -410,6 +413,7 @@
 			files = (
 				CDD3CCE42BB57BFC00DE9A0C /* PrivacyInfo.xcprivacy in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
+				CD8D5C302E997D3C000F093C /* AppIcon.icon in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
@@ -694,6 +698,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
@@ -834,6 +839,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
@@ -868,6 +874,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;

@@ -47,7 +47,6 @@ import 'package:common/util/path_utils.dart';
 import 'package:common/util/time_util.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -59,6 +58,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/file_interaction_service.dart';
+import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
@@ -66,6 +66,7 @@ import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stringr/stringr.dart';
@@ -541,8 +542,8 @@ class _Header extends ConsumerWidget {
       trailing: IconButton(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         // 12 is basis vom icon button + 4 weil list tile hat 14 padding + 1 wegen size 22
-        onPressed: controller.onClickCreateFolder.only(!apiLoading),
-        icon: Icon(Icons.create_new_folder, size: 22, color: themeData.textTheme.bodySmall?.color),
+        onPressed: controller.onClickSettings,
+        icon: Icon(Icons.settings, size: 18, color: themeData.textTheme.bodySmall?.color),
       ).unless(isSelecting),
     );
   }
@@ -680,7 +681,7 @@ class _FileListData extends ConsumerStatefulWidget {
 }
 
 class _FileListState extends ConsumerState<_FileListData> {
-  final EasyRefreshController _refreshController = EasyRefreshController(controlFinishRefresh: true);
+  final RefreshController _refreshController = RefreshController();
 
   ValueNotifier<bool> _isUserRefresh = ValueNotifier(false);
 
@@ -702,9 +703,8 @@ class _FileListState extends ConsumerState<_FileListData> {
 
     final themeData = Theme.of(context);
     // Note Wrapping the listview in the SmartRefresher causes the UI to "Lag" because it renders the entire listview at once rather than making use of the builder???
-    return EasyRefresh(
+    return SmartRefresher(
       // header: const WaterDropMaterialHeader(),
-      header: OverrideHeader(header: EasyRefresh.defaultHeaderBuilder(), position: IndicatorPosition.locator),
       controller: _refreshController,
       onRefresh: () {
         _isUserRefresh.value = true;
@@ -712,11 +712,11 @@ class _FileListState extends ConsumerState<_FileListData> {
             .refreshApiResponse()
             .then(
               (_) {
-                _refreshController.finishRefresh();
+                _refreshController.refreshCompleted();
               },
               onError: (e, s) {
                 talker.error('Error while refreshing FileListState', e, s);
-                _refreshController.finishRefresh(IndicatorResult.fail);
+                _refreshController.refreshFailed();
               },
             )
             .whenComplete(() => _isUserRefresh.value = false);
@@ -744,7 +744,6 @@ class _FileListState extends ConsumerState<_FileListData> {
               isUserRefresh: _isUserRefresh,
             ),
           ),
-          const HeaderLocator.sliver(),
           if (widget.folderContent.isEmpty)
             SliverFillRemaining(
               child: Column(
@@ -1082,12 +1081,30 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     }
   }
 
-  void onClickCreateFolder() async {
-    talker.info('[ModernFileManagerController($machineUUID, $filePath)] creating folder');
-
-    final usedNames = state.folderContent.requireValue.folderFileNames;
-
-    _handleFileInteractionEventStream(_fileInteractionService.createEmptyFolderAction(filePath, usedNames));
+  void onClickSettings() {
+    talker.info('[ModernFileManagerController($machineUUID, $filePath)] opening settings');
+    _bottomSheetService.show(
+      BottomSheetConfig(
+        type: SheetType.changeSettings,
+        data: SettingsBottomSheetArgs(
+          title: tr('bottom_sheets.file_manager_settings.title'),
+          settings: [
+            SwitchSettingItem(
+              settingKey: AppSettingKeys.hideBackupFiles,
+              title: tr('bottom_sheets.file_manager_settings.hide_backup_files.title'),
+              subtitle: tr('bottom_sheets.file_manager_settings.hide_backup_files.subtitle'),
+              defaultValue: false,
+            ),
+            SwitchSettingItem(
+              settingKey: AppSettingKeys.showHiddenFiles,
+              title: tr('bottom_sheets.file_manager_settings.show_hidden_files.title'),
+              subtitle: tr('bottom_sheets.file_manager_settings.show_hidden_files.subtitle'),
+              defaultValue: false,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> onClickSortMode() async {

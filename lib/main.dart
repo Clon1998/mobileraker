@@ -19,7 +19,6 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_localization_loader/easy_localization_loader.dart';
 import 'package:easy_logger/src/enums.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +35,7 @@ import 'package:mobileraker/ui/components/responsive_builder.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker_pro/ads/ui/ad_mobs_consent.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:talker_riverpod_logger/talker_riverpod_logger.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
@@ -52,15 +52,6 @@ Future<void> main() async {
   talker.info('-----------------------');
   talker.info('Starting Mobileraker...');
   talker.info('-----------------------');
-
-  EasyRefresh.defaultHeaderBuilder = () => ClassicHeader(
-    dragText: tr('components.pull_to_refresh.pull_down_idle'),
-    armedText: tr('components.pull_to_refresh.release_to_refresh'),
-    readyText: tr('components.pull_to_refresh.refreshing'),
-    processedText: tr('components.pull_to_refresh.refresh_complete'),
-    failedText: tr('components.pull_to_refresh.refresh_failed'),
-    showMessage: false,
-  );
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(
@@ -160,28 +151,32 @@ class MyApp extends ConsumerWidget {
         );
       },
       child: LocaleSpy(
-        child: ThemeBuilder(
-          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme, ThemeMode? themeMode) {
-            return MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              routerDelegate: goRouter.routerDelegate,
-              routeInformationProvider: goRouter.routeInformationProvider,
-              routeInformationParser: goRouter.routeInformationParser,
-              title: 'Mobileraker',
-              theme: regularTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
-              localizationsDelegates: [
-                ...context.localizationDelegates,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                FormBuilderLocalizations.delegate,
-              ],
-              supportedLocales: context.supportedLocales,
-              locale: context.locale,
-            );
-          },
+        child: RefreshConfiguration(
+          springDescription: SpringDescription(mass: 1, stiffness: 364.718677686, damping: 35.2),
+          headerBuilder: () => ClassicHeader(),
+          child: ThemeBuilder(
+            builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme, ThemeMode? themeMode) {
+              return MaterialApp.router(
+                debugShowCheckedModeBanner: false,
+                routerDelegate: goRouter.routerDelegate,
+                routeInformationProvider: goRouter.routeInformationProvider,
+                routeInformationParser: goRouter.routeInformationParser,
+                title: 'Mobileraker',
+                theme: regularTheme,
+                darkTheme: darkTheme,
+                themeMode: themeMode,
+                localizationsDelegates: [
+                  ...context.localizationDelegates,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                  FormBuilderLocalizations.delegate,
+                ],
+                supportedLocales: context.supportedLocales,
+                locale: context.locale,
+              );
+            },
+          ),
         ),
       ),
     );

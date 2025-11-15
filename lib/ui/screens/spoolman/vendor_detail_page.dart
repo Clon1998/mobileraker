@@ -12,7 +12,6 @@ import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -26,6 +25,7 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -63,7 +63,7 @@ class _VendorDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final refreshController = useMemoized(() => EasyRefreshController(controlFinishRefresh: true), const []);
+    final refreshController = useMemoized(() => RefreshController(), const []);
     useEffect(() => refreshController.dispose, const []);
 
     final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
@@ -75,7 +75,7 @@ class _VendorDetailPage extends HookConsumerWidget {
         onPressed: () => controller.onAction(Theme.of(context)),
         child: const Icon(Icons.more_vert),
       ),
-      body: EasyRefresh(
+      body: SmartRefresher(
         controller: refreshController,
         onRefresh: () {
           final vendor = ref.read(_vendorProvider);
@@ -84,10 +84,10 @@ class _VendorDetailPage extends HookConsumerWidget {
               .refresh(vendorProvider(machineUUID, vendor.id).future)
               .then(
                 (_) {
-                  refreshController.finishRefresh();
+                  refreshController.refreshCompleted();
                 },
                 onError: (_, _) {
-                  refreshController.finishRefresh(IndicatorResult.fail);
+                  refreshController.refreshFailed();
                 },
               );
         },
@@ -231,7 +231,9 @@ class _VendorFilaments extends HookConsumerWidget {
               );
               return ListTile(
                 leading: const Icon(Icons.color_lens_outlined),
-                title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
+                titleAlignment: ListTileTitleAlignment.center,
+                title: const Text('pages.spoolman.filament.other').tr(),
+                subtitle: Text(model.name),
                 trailing: total != null && total > 0
                     ? Chip(
                         visualDensity: VisualDensity.compact,
@@ -293,7 +295,9 @@ class _VendorSpools extends HookConsumerWidget {
               );
               return ListTile(
                 leading: const Icon(Icons.spoke_outlined),
-                title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
+                titleAlignment: ListTileTitleAlignment.center,
+                title: const Text('pages.spoolman.spool.other').tr(),
+                subtitle: Text(model.name),
                 trailing: total != null && total > 0
                     ? Chip(
                         visualDensity: VisualDensity.compact,

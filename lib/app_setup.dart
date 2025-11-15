@@ -13,14 +13,11 @@ import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
-import 'package:common/data/model/hive/gcode_macro.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/hive/macro_group.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
-import 'package:common/data/model/hive/temperature_preset.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/device_fcm_settings_sync_service.dart';
@@ -64,30 +61,18 @@ setupBoxes() async {
   // 6 - WebCamMode
   // 9 - WebCamRotation
 
-  var machineAdapter = MachineAdapter();
+  var machineAdapter = MachineImplAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
     Hive.registerAdapter(machineAdapter);
   }
 
-  var temperaturePresetAdapter = TemperaturePresetAdapter();
-  if (!Hive.isAdapterRegistered(temperaturePresetAdapter.typeId)) {
-    Hive.registerAdapter(temperaturePresetAdapter);
-  }
-  var macroGrpAdapter = MacroGroupAdapter();
-  if (!Hive.isAdapterRegistered(macroGrpAdapter.typeId)) {
-    Hive.registerAdapter(macroGrpAdapter);
-  }
-  var macroAdapter = GCodeMacroAdapter();
-  if (!Hive.isAdapterRegistered(macroAdapter.typeId)) {
-    Hive.registerAdapter(macroAdapter);
-  }
 
   var progressNotifModeAdapter = ProgressNotificationModeAdapter();
   if (!Hive.isAdapterRegistered(progressNotifModeAdapter.typeId)) {
     Hive.registerAdapter(progressNotifModeAdapter);
   }
 
-  var octoAdapater = OctoEverywhereAdapter();
+  var octoAdapater = OctoEverywhereImplAdapter();
   if (!Hive.isAdapterRegistered(octoAdapater.typeId)) {
     Hive.registerAdapter(octoAdapater);
   }
@@ -96,7 +81,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
     Hive.registerAdapter(uriAdapter);
   }
-  var riAdapter = RemoteInterfaceAdapter();
+  var riAdapter = RemoteInterfaceImplAdapter();
   if (!Hive.isAdapterRegistered(riAdapter.typeId)) {
     Hive.registerAdapter(riAdapter);
   }
@@ -105,17 +90,17 @@ setupBoxes() async {
     Hive.registerAdapter(nAdapter);
   }
 
-  DashboardLayoutAdapter dlAdapter = DashboardLayoutAdapter();
+  var dlAdapter = DashboardLayoutImplAdapter();
   if (!Hive.isAdapterRegistered(dlAdapter.typeId)) {
     Hive.registerAdapter(dlAdapter);
   }
 
-  var dtAdapter = DashboardTabAdapter();
+  var dtAdapter = DashboardTabImplAdapter();
   if (!Hive.isAdapterRegistered(dtAdapter.typeId)) {
     Hive.registerAdapter(dtAdapter);
   }
 
-  var dcAdapter = DashboardComponentAdapter();
+  var dcAdapter = DashboardComponentImplAdapter();
   if (!Hive.isAdapterRegistered(dcAdapter.typeId)) {
     Hive.registerAdapter(dcAdapter);
   }
