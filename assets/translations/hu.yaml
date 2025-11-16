@@ -858,6 +858,8 @@ pages:
       what_to_try: Mit próbálhat ki
       check_connection: Ellenőrizd az internetkapcsolatot
       wait_retry: Várj egy pillanatot, majd próbáld újra
+      try_later: Ha a probléma továbbra is fennáll, próbálkozz újra később
+      try_again_btn: Próbáld újra
   video_player:
     downloading_for_sharing: Videó letöltése megosztáshoz… ({})
   tool:
@@ -1015,6 +1017,7 @@ components:
     installed_version: 'Telepített verzió:'
   pull_to_refresh:
     pull_up_idle: Húzza fel a Frissítéshez
+    pull_down_idle: Húzd lefelé a frissítéshez
   nav_drawer:
     printer_settings: Nyomtató beállítások
     manage_printers: Nyomtatók kezelése
@@ -1430,6 +1433,7 @@ bottom_sheets:
     available_layouts:
       label: 'Elérhető elrendezések:'
       empty: Nincs elérhető elrendezés
+      add_empty: Új elrendezés hozzáadása
     layout_preview:
       not_saved: Nincs mentve
     delete_layout:
@@ -1443,6 +1447,11 @@ bottom_sheets:
     falsy_import_snackbar:
       title: Hiba az elrendezés importálásakor!
       body: Az elrendezést nem lehetett importálni. Kérjük, ellenőrizd, hogy a vágólapon van-e érvényes elrendezés.
+    load_layout_warning:
+      title: Terhelés elrendezés?
+      body: |-
+        A sablon betöltése felülírja az aktuális irányítópult sablonját.
+        Minden nem mentett módosítás elveszik.
   selections:
     no_selections:
       title: Nem találtam eredményt
@@ -1451,6 +1460,25 @@ bottom_sheets:
     title: Hőmérséklet diagram beállítások
   select_file:
     title: Nyomtatási feladat kiválasztása
+  file_manager_settings:
+    title: Fájlkezelő beállítások
+    show_hidden_files:
+      title: Rejtett fájlok megjelenítése
+      subtitle: A ponttal (.) kezdődő fájlok és mappák megjelenítése
+    hide_backup_files:
+      title: Biztonsági másolatok elrejtése
+      subtitle: Az összes biztonsági másolatként észlelt fájl elrejtése
+  console_settings:
+    title: Konzol beállítások
+    reverse:
+      title: Fordított sorrend
+      subtitle: A legújabb üzeneteket először, a legutóbbiakat utoljára jelenítsd meg
+    filter_temp_responses:
+      title: Hőmérsékleti reakciók szűrése
+      subtitle: Hőmérséklethez kapcsolódó diagnosztikai üzenetek elrejtése
+    show_timestamps:
+      title: Időbélyegek megjelenítése
+      subtitle: Az egyes üzenetek naplózásának időpontjának megjelenítése
 klipper_state:
   ready: Kész
   shutdown: Leállítás
