@@ -32,6 +32,7 @@ general:
   google_play: Google Play
   ios_store: AppStore
   google_play_services: Google Play szolgáltatások
+  apple_services: Apple szolgáltatások
   active: Aktív
   canceled: Törölve
   monthly: Havi
@@ -247,6 +248,15 @@ pages:
     editing_card:
       title: Szerkesztési mód
       body: Mostantól átrendezheted, hozzáadhatsz és eltávolíthatsz kártyákat és oldalakat. Minden kártya előnézeti adatokat mutat.
+    rename_layout:
+      title: Elrendezés átnevezése
+      label: Elrendezés neve
+    layout_rename_snack:
+      title: Elrendezés átnevezve!
+      body: A elrendezés átnevezése sikeresen megtörtént.
+    layout_reset_snack:
+      title: Elrendezés visszaállítva!
+      body: Az elrendezés visszaállt az alapértelmezett konfigurációra.
     error_save_snack:
       title: Hiba az elrendezés mentése során!
       body: Hiba történt az elrendezés mentése közben.
@@ -482,6 +492,18 @@ pages:
       no_devices_found: Nem találtam eszközt
       configure_btn: Konfigurálás
       not_connected_btn: Nem csatlakozik
+    data:
+      title: Adatok importálása és exportálása
+      helper: Az alkalmazás adatainak biztonsági mentése vagy átvitele
+      export:
+        title: Alkalmazásadatok exportálása
+        helper: Minden gépet, elrendezést és beállítást mentse egy fájlba biztonsági másolat vagy átvitel céljából
+      import:
+        title: Alkalmazásadatok importálása
+        helper: Gépek, elrendezések és beállítások betöltése fájlból
+      snack_imported:
+        title: Adatok importálva!
+        message: Importált {} gépek és {} elrendezések.
     developer:
       title: Fejlesztő
       crashlytics: Crashlytics jelentések engedélyezése
@@ -818,6 +840,24 @@ pages:
     trial_disclaimer: Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést.
     subscription_disclaimer: Az előfizetés automatikusan megújul. Bármikor lemondhatod.
     restore_sign_in: Visszaállítás / Bejelentkezés
+    loading:
+      title: Támogatói szintek betöltése
+    services_unavailable:
+      title: "{} Fiókbejelentkezés nem elérhető"
+      description: "{} nincs telepítve vagy konfigurálva ezen eszközön. Ha prémium fiókkal rendelkezel, akkor is hozzáférhetsz kézi bejelentkezéssel."
+      solutions_title: Lehetséges megoldások
+      install_services: "Telepítsd a {} alkalmazást az alkalmazásboltból"
+      update_services: "Frissítsd a {} fájlt, ha már telepítve van"
+      manual_signin: Ha máshol szerezted meg a támogatói státuszt, jelentkezz be manuálisan
+      signin_btn: Bejelentkezés
+      retry_btn: Csatlakozás újrapróbálása
+      github_btn: Támogatás a GitHub-on
+    fetch_error:
+      title: A támogatói szintek betöltése nem sikerült
+      description: Probléma merült fel a támogatói szintek betöltése közben. Ez hálózati kapcsolat vagy szerverproblémák miatt lehet.
+      what_to_try: Mit próbálhat ki
+      check_connection: Ellenőrizd az internetkapcsolatot
+      wait_retry: Várj egy pillanatot, majd próbáld újra
   video_player:
     downloading_for_sharing: Videó letöltése megosztáshoz… ({})
   tool:
