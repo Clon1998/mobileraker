@@ -29,7 +29,9 @@ general:
   supported: Támogatott
   unsupported: Nem támogatott
   details: Részletek
+  google_play: Google Play
   ios_store: AppStore
+  google_play_services: Google Play szolgáltatások
   active: Aktív
   canceled: Törölve
   monthly: Havi
