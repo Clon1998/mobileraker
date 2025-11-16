@@ -326,7 +326,6 @@ class _DeveloperSection extends ConsumerWidget {
             context.pushNamed(AppRoute.talker_logscreen.name);
           },
         ),
-        TextButton(onPressed: null, child: Text('Backup & Restore')),
       ],
     );
   }
