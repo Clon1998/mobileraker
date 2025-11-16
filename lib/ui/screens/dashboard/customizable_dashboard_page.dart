@@ -14,6 +14,7 @@ import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/enums/consent_entry_type.dart';
+import 'package:common/data/enums/layout_action_sheet_action_enum.dart';
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
@@ -47,6 +48,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
+import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/dialog/text_input/text_input_dialog.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
@@ -545,30 +547,13 @@ class _PrinterAppBar extends ConsumerWidget {
         title: const Text('pages.customizing_dashboard.title').tr(),
         actions: [
           IconButton(onPressed: controller.saveCurrentLayout, icon: Icon(Icons.save), tooltip: tr('general.save')),
-          MenuAnchor(
-            menuChildren: [
-              MenuItemButton(
-                leadingIcon: Icon(Icons.drive_file_rename_outline),
-                onPressed: controller.renameCurrentLayout,
-                child: Text('general.rename').tr(),
-              ),
-              MenuItemButton(
-                leadingIcon: Icon(Icons.restart_alt),
-                onPressed: controller.resetCurrentLayout,
-                child: Text('pages.dashboard.general.print_card.reset').tr(),
-              ),
-              MenuItemButton(
-                leadingIcon: Icon(Icons.share),
-                onPressed: () {
-                  final box = context.findRenderObject() as RenderBox?;
-                  final pos = box!.localToGlobal(Offset.zero) & box.size;
-
-                  controller.exportCurrentLayout(pos);
-                },
-                child: Text('general.export').tr(),
-              ),
-            ],
-            builder: (context, controller, _) => IconButton(onPressed: controller.open, icon: Icon(Icons.more_vert)),
+          IconButton(
+            onPressed: () {
+              final box = context.findRenderObject() as RenderBox?;
+              final pos = box!.localToGlobal(Offset.zero) & box.size;
+              controller.moreLayoutActions(pos);
+            },
+            icon: Icon(Icons.more_vert),
           ),
         ],
       ),
@@ -665,6 +650,31 @@ class _DashboardPageController extends _$DashboardPageController {
     talker.info('Cancel Edit Mode');
 
     state = AsyncValue.data(value.copyWith(activeIndex: 0, isEditing: false, layout: _originalLayout!));
+  }
+
+  void moreLayoutActions(Rect pos) async {
+    var resp = await _bottomSheetService.show(
+      BottomSheetConfig(
+        type: SheetType.actions,
+        data: ActionBottomSheetArgs(
+          actions: [LayoutSheetAction.rename, LayoutSheetAction.reset, LayoutSheetAction.export],
+        ),
+      ),
+    );
+
+    if (resp case BottomSheetResult(confirmed: true, data: LayoutSheetAction action)) {
+      switch (action) {
+        case LayoutSheetAction.rename:
+          renameCurrentLayout();
+          break;
+        case LayoutSheetAction.reset:
+          resetCurrentLayout();
+          break;
+        case LayoutSheetAction.export:
+          exportCurrentLayout(pos);
+          break;
+      }
+    }
   }
 
   void saveCurrentLayout() {

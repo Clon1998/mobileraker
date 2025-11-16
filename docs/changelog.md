@@ -25,7 +25,6 @@
 ### Development Improvements
 
 - **Color System**: Introduced general RemappingColorMapper for better color handling across the application
-- **Code Organization**: Improved supporter status indicator and moved to version 2.9.5 preparation
 - **Settings Management**: Unified setting bottom sheet design for consistent user experience
 
 ## [2.9.4] - 2025-10-07
