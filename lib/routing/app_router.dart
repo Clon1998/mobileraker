@@ -41,6 +41,7 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/data/data_settings_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
+import 'package:mobileraker/ui/screens/setting/log/log_page.dart';
 import 'package:mobileraker/ui/screens/setting/notification/notification_settings_page.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/filament_detail_page.dart';
@@ -54,7 +55,6 @@ import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
@@ -330,10 +330,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       GoRoute(
         path: '/talker',
         name: AppRoute.talker_logscreen.name,
-        builder: (context, state) => TalkerScreen(
-          talker: talker,
-          appBarTitle: 'App-Logs',
-        ),
+        builder: (context, state) => LogPage(),
       ),
       GoRoute(
         path: '/tool',
