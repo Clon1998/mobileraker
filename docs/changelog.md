@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [Unreleased] - 2025-11-06
+## [2.9.5] - 2025-11-22
 
 ### Enhancements
 
