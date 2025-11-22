@@ -46,7 +46,7 @@ String _cardUUID(Ref ref) {
 
 @Riverpod(dependencies: [_cardUUID, _cardType])
 String dashboardCardUUID(Ref ref, String machineUUID) {
-  final dashboard = ref.watch(dashboardLayoutProvider(machineUUID).requireValue());
+  final dashboard = ref.watch(dashboardLayoutForMachineProvider(machineUUID).requireValue());
 
   if (dashboard.created == null) {
     return ref.watch(_cardTypeProvider).name;

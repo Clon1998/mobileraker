@@ -20,6 +20,7 @@ import 'package:common/data/model/model_event.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
@@ -83,11 +84,11 @@ class NotificationService {
   static const String _marketingTopic = 'marketing';
 
   NotificationService(this._ref)
-      : _machineService = _ref.watch(machineServiceProvider),
-        _settingsService = _ref.watch(settingServiceProvider),
-        _notifyAPI = _ref.watch(awesomeNotificationProvider),
-        _liveActivityServicev2 = _ref.watch(v2LiveActivityProvider),
-        _notifyFCM = _ref.watch(awesomeNotificationFcmProvider);
+    : _machineService = _ref.watch(machineServiceProvider),
+      _settingsService = _ref.watch(settingServiceProvider),
+      _notifyAPI = _ref.watch(awesomeNotificationProvider),
+      _liveActivityServicev2 = _ref.watch(v2LiveActivityProvider),
+      _notifyFCM = _ref.watch(awesomeNotificationFcmProvider);
 
   final Ref _ref;
   final MachineService _machineService;
@@ -130,11 +131,7 @@ class NotificationService {
 
       talker.info('Completed NotificationService init');
     } catch (e, s) {
-      FirebaseCrashlytics.instance.recordError(
-        e,
-        s,
-        reason: 'Error while setting up notificationService',
-      );
+      FirebaseCrashlytics.instance.recordError(e, s, reason: 'Error while setting up notificationService');
       talker.warning('Error encountered while trying to setup the Notification Service.', e, s);
     } finally {
       _initialized.complete(true);
@@ -171,9 +168,9 @@ class NotificationService {
   }
 
   Future<bool> isFirebaseAvailable() async => _notifyFCM.isFirebaseAvailable.onError((e, _) {
-        talker.warning('Firebase is not available for FCM...', e);
-        return false;
-      });
+    talker.warning('Firebase is not available for FCM...', e);
+    return false;
+  });
 
   Future<String> requestFirebaseToken() async => _notifyFCM.requestFirebaseAppToken();
 
@@ -235,7 +232,7 @@ class NotificationService {
   Future<void> _initializeNotifyApi(List<Machine> machines) async {
     // Always have a basic channel!
     List<NotificationChannelGroup> groups = [
-      NotificationChannelGroup(channelGroupKey: 'mobileraker_default_grp', channelGroupName: 'Mobileraker')
+      NotificationChannelGroup(channelGroupKey: 'mobileraker_default_grp', channelGroupName: 'Mobileraker'),
     ];
     List<NotificationChannel> channels = [
       NotificationChannel(
@@ -249,7 +246,7 @@ class NotificationService {
         channelName: 'Promotions',
         channelDescription: 'Be the first to know about special promotions and discounts!',
         channelGroupKey: 'mobileraker_default_grp',
-      )
+      ),
     ];
     // Each machine should have its own channel and grp!
     for (Machine setting in machines) {
@@ -258,10 +255,11 @@ class NotificationService {
     }
 
     await _notifyAPI.initialize(
-        // set the icon to null if you want to use the default app icon
-        null,
-        channels,
-        channelGroups: groups);
+      // set the icon to null if you want to use the default app icon
+      null,
+      channels,
+      channelGroups: groups,
+    );
     talker.info('Successfully initialized AwesomeNotifications and created channels and groups!');
   }
 
@@ -309,7 +307,8 @@ class NotificationService {
   Future<void> _onNotificationTapPortMessage(dynamic data) async {
     if (data is! Map<String, dynamic>) {
       talker.warning(
-          'Received object from the onNotificationTap Port is not of type: Map<String, dynamic> it is type:${data.runtimeType}');
+        'Received object from the onNotificationTap Port is not of type: Map<String, dynamic> it is type:${data.runtimeType}',
+      );
       return;
     }
 
@@ -322,7 +321,8 @@ class NotificationService {
       if (machine != null) {
         await _ref.read(selectedMachineServiceProvider).selectMachine(machine);
         talker.info(
-            'Successfully switched to printer ${machine.logName} that was contained in the notification\'s ReceivedAction');
+          'Successfully switched to printer ${machine.logName} that was contained in the notification\'s ReceivedAction',
+        );
         return;
       }
     }
@@ -346,7 +346,8 @@ class NotificationService {
   Future<void> _onFcmTokenUpdatePortMessage(dynamic token) async {
     if (token is! String) {
       talker.warning(
-          'Received object from the fcmTokenUpdatePort is not of type: String it is type:${token.runtimeType}');
+        'Received object from the fcmTokenUpdatePort is not of type: String it is type:${token.runtimeType}',
+      );
       return;
     }
     talker.info('Token from FCM updated $token');
@@ -371,7 +372,8 @@ class NotificationService {
   Future<void> _onNativeTokenUpdatePortMessage(dynamic token) async {
     if (token is! String) {
       talker.warning(
-          'Received object from the onNativeTokenUpdatePort is not of type: String,  it is type:${token.runtimeType}');
+        'Received object from the onNativeTokenUpdatePort is not of type: String,  it is type:${token.runtimeType}',
+      );
       return;
     }
     talker.info('Token from Native updated $token');
@@ -387,25 +389,27 @@ class NotificationService {
   List<NotificationChannel> _channelsForMachine(Machine machine) {
     return [
       NotificationChannel(
-          icon: 'resource://drawable/res_mobileraker_logo',
-          channelKey: machine.statusUpdatedChannelKey,
-          channelName: 'Print Status Updates - ${machine.name}',
-          channelDescription: 'Notifications regarding the print status.',
-          channelGroupKey: machine.uuid,
-          // importance: NotificationImportance.Default,
-          defaultColor: Colors.white,
-          playSound: true,
-          enableVibration: true),
+        icon: 'resource://drawable/res_mobileraker_logo',
+        channelKey: machine.statusUpdatedChannelKey,
+        channelName: 'Print Status Updates - ${machine.name}',
+        channelDescription: 'Notifications regarding the print status.',
+        channelGroupKey: machine.uuid,
+        // importance: NotificationImportance.Default,
+        defaultColor: Colors.white,
+        playSound: true,
+        enableVibration: true,
+      ),
       NotificationChannel(
-          icon: 'resource://drawable/res_mobileraker_logo',
-          channelKey: machine.m117ChannelKey,
-          channelName: 'User M117 Notifications - ${machine.name}',
-          channelDescription: 'Notifications issued by M117 with prefix "\$MR\$:".',
-          channelGroupKey: machine.uuid,
-          // importance: NotificationImportance.Max,
-          defaultColor: Colors.white,
-          playSound: true,
-          enableVibration: true),
+        icon: 'resource://drawable/res_mobileraker_logo',
+        channelKey: machine.m117ChannelKey,
+        channelName: 'User M117 Notifications - ${machine.name}',
+        channelDescription: 'Notifications issued by M117 with prefix "\$MR\$:".',
+        channelGroupKey: machine.uuid,
+        // importance: NotificationImportance.Max,
+        defaultColor: Colors.white,
+        playSound: true,
+        enableVibration: true,
+      ),
       NotificationChannel(
         icon: 'resource://drawable/res_mobileraker_logo',
         channelKey: machine.printProgressChannelKey,
@@ -429,7 +433,7 @@ class NotificationService {
         enableLights: false,
         importance: NotificationImportance.Low,
         defaultColor: Colors.white,
-      )
+      ),
     ];
   }
 
@@ -448,18 +452,26 @@ class NotificationService {
     final regionTimezone = DateTime.now().regionTimezone;
     final topic = '$_marketingTopic.${regionTimezone.name}';
 
-    final sub = _ref.listen(
-      consentEntryProvider(ConsentEntryType.marketingNotifications),
-      (AsyncValue<ConsentEntry?>? previous, AsyncValue<ConsentEntry?> next) {
+    // Here we first listen if the user is a supporter, once we have that info we can setup the marketing notification listener
+    _ref.listen(isSupporterAsyncProvider, (previous, next) {
+      if (!next.hasValue || next.isLoading) return;
+
+      _marketingSubscription?.close();
+      final isSup = next.value == true;
+      talker.info('Setting up marketing notification listener, isSupporter: $isSup');
+      var sub = _ref.listen(consentEntryProvider(ConsentEntryType.marketingNotifications), (
+        AsyncValue<ConsentEntry?>? previous,
+        AsyncValue<ConsentEntry?> next,
+      ) {
         if (next.isLoading) return;
-        if (next.valueOrNull?.status == ConsentStatus.GRANTED) {
+        if (next.valueOrNull?.status == ConsentStatus.GRANTED && !isSup) {
           for (var value in RegionTimezone.values) {
             if (value == regionTimezone) continue;
             _notifyFCM.unsubscribeToTopic('$_marketingTopic.${value.name}').ignore();
           }
           talker.info('Subscribing to marketing topic: $topic');
           _notifyFCM.subscribeToTopic(topic).ignore();
-        } else if (next.valueOrNull?.status == ConsentStatus.DENIED) {
+        } else if (next.valueOrNull?.status == ConsentStatus.DENIED || isSup) {
           talker.info('Unsubscribing from marketing topic');
           for (var value in RegionTimezone.values) {
             _notifyFCM.unsubscribeToTopic('$_marketingTopic.${value.name}').ignore();
@@ -467,13 +479,10 @@ class NotificationService {
         } else {
           talker.info('Consent is not determined yet... will do nothing');
         }
-      },
-      fireImmediately: true,
-    );
-
-    _marketingSubscription = sub;
+      }, fireImmediately: true);
+      _marketingSubscription = sub;
+    }, fireImmediately: true);
   }
-
 
   Future<void> _wipeFCMOnPrinterOnceConnected(Machine machine) async {
     talker.info('Wiping FCM data on ${machine.logNameExtended}');

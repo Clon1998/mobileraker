@@ -538,7 +538,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     state = AsyncValue.data(model.copyWith(movingFilament: true));
 
     final move = min(model.settings.nozzleExtruderDistance, model.extruderConfig.maxExtrudeOnlyDistance);
-    final veloc = min(model.settings.loadingSpeed, model.extruderConfig.maxExtrudeOnlyVelocity);
+    final veloc = min(model.settings.loadingSpeed, model.extruderConfig.maxExtrudeOnlyVelocity??50);
 
     if (args.isLoad) {
       await _printerService.moveExtruder(move, veloc, true);
@@ -554,7 +554,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     if (model == null) return;
     state = AsyncValue.data(model.copyWith(purgingFilament: true));
     final move = min(model.settings.purgeLength, model.extruderConfig.maxExtrudeOnlyDistance);
-    final veloc = min(model.settings.purgeSpeed, model.extruderConfig.maxExtrudeOnlyVelocity);
+    final veloc = min(model.settings.purgeSpeed, model.extruderConfig.maxExtrudeOnlyVelocity??50);
     await _printerService.moveExtruder(move, veloc, true);
 
     state = AsyncValue.data(state.requireValue.copyWith(purgingFilament: false));

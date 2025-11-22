@@ -289,6 +289,7 @@ class _NotificationSection extends ConsumerWidget {
   }
 }
 
+
 class _DeveloperSection extends ConsumerWidget {
   const _DeveloperSection({super.key});
 
@@ -298,6 +299,14 @@ class _DeveloperSection extends ConsumerWidget {
     return Column(
       children: [
         SectionHeader(title: tr('pages.setting.developer.title')),
+        ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          title: Text('pages.setting.data.title').tr(),
+          subtitle: Text('pages.setting.data.helper').tr(),
+          trailing: Icon(Icons.keyboard_arrow_right),
+          onTap: () => context.goNamed(AppRoute.settings_data.name),
+        ),
         FormBuilderSwitch(
           name: 'crashalytics',
           title: const Text('pages.setting.developer.crashlytics').tr(),

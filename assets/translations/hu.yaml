@@ -929,11 +929,8 @@ pages:
     vendor_details:
       page_title: Gyártó {}
       info_card: Gyártói információ
-      filaments_card: Nyomtatószálak gyártó szerint
-      spools_card: Orsók gyártó szerint
     filament_details:
       info_card: Nyomtatószál infó
-      spools_card: Nyomtatószál orsók
     spool_details:
       page_title: Orsó {}
       info_card: Orsó infó
@@ -942,8 +939,9 @@ pages:
         title: Archivált orsó
         body: Ez az orsó archiválva van, és nem használható új nyomtatáshoz.
       alternative_spool:
-        same_filament: Alternatív orsók (ugyanaz a szál)
-        same_material: Alternatív orsók (azonos anyag)
+        title: Alternatív orsók
+        same_filament: Ugyanaz a szál
+        same_material: Azonos anyag
     spool_form:
       create_page_title: Orsó létrehozása
       update_page_title: Orsó szerkesztése
@@ -1390,12 +1388,8 @@ bottom_sheets:
     available_layouts:
       label: 'Elérhető elrendezések:'
       empty: Nincs elérhető elrendezés
-      add_empty: Üres elrendezés hozzáadása
     layout_preview:
       not_saved: Nincs mentve
-    rename_layout:
-      title: Elrendezés átnevezése
-      label: Elrendezés neve
     delete_layout:
       title: Elrendezés törlése
       body: |-

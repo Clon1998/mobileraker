@@ -252,6 +252,15 @@ pages:
       title: Editing Mode
       body: You can now reorder, add and remove cards and pages. All cards show preview
         data.
+    rename_layout:
+      title: Rename Layout
+      label: Layout Name
+    layout_rename_snack:
+      title: Layout renamed!
+      body: The layout has been successfully renamed.
+    layout_reset_snack:
+      title: Layout reset!
+      body: The layout has been reset to the default configuration.
     error_save_snack:
       title: Error saving layout!
       body: An error occurred while trying to save the layout.
@@ -497,6 +506,19 @@ pages:
       no_devices_found: No devices found
       configure_btn: Configure
       not_connected_btn: Not connected
+    data:
+      title: Data Import & Export
+      helper: Backup or transfer your app data
+      export:
+        title: Export App Data
+        helper: Save all your machines, layouts and settings to a file for backup or transfer
+
+      import:
+        title: Import App Data
+        helper: Load machines, layouts and settings from a file
+      snack_imported:
+        title: Data imported!
+        message: Imported {} machines and {} layouts.
     developer:
       title: Developer
       crashlytics: Enable Crashlytics reporting
@@ -1009,11 +1031,8 @@ pages:
     vendor_details:
       page_title: Manufacturer {}
       info_card: Manufacturer Info
-      filaments_card: Filaments by Manufacturer
-      spools_card: Spools by Manufacturer
     filament_details:
       info_card: Filament Info
-      spools_card: Filament Spools
     spool_details:
       page_title: Spool {}
       info_card: Spool Info
@@ -1022,8 +1041,9 @@ pages:
         title: Spool is archived
         body: This spool is archived and can not be used for new prints.
       alternative_spool:
-        same_filament: Alternative Spools (Same Filament)
-        same_material: Alternative Spools (Same Material)
+        title: Alternative Spools
+        same_filament: Same Filament
+        same_material: Same Material
     spool_form:
       create_page_title: Create Spool
       update_page_title: Edit Spool
@@ -1061,6 +1081,7 @@ components:
     installed_version: 'Installed Version:'
   pull_to_refresh:
     pull_up_idle: Pull up to Refresh
+    pull_down_idle: Pull down to Refresh
   nav_drawer:
     printer_settings: Printer Settings
     manage_printers: Manage Printers
@@ -1516,12 +1537,9 @@ bottom_sheets:
     available_layouts:
       label: 'Available Layouts:'
       empty: No layouts available
-      add_empty: Add Empty Layout
+      add_empty: Add new Layout
     layout_preview:
       not_saved: Not saved
-    rename_layout:
-      title: Rename Layout
-      label: Layout Name
     delete_layout:
       title: Delete Layout
       body: |-
@@ -1534,6 +1552,11 @@ bottom_sheets:
       title: Error while importing layout!
       body: The layout could not be imported. Please make sure the clipboard contains
         a valid layout.
+    load_layout_warning:
+      title: Load Layout?
+      body: |-
+          Loading a layout will overwrite your current dashboard layout.
+          All unsaved changes will be lost.
   selections:
     no_selections:
       title: No results found
@@ -1542,6 +1565,25 @@ bottom_sheets:
     title: Temperature Chart Settings
   select_file:
     title: Select Print Job
+  file_manager_settings:
+    title: File Manager Settings
+    show_hidden_files:
+      title: Show Hidden Files
+      subtitle: Display files and folders that start with a dot (.)
+    hide_backup_files:
+      title: Hide Backup Files
+      subtitle: Hide all files that are detected as backup files
+  console_settings:
+    title: Console Settings
+    reverse:
+      title: Reverse Order
+      subtitle: Display newest messages first instead of last
+    filter_temp_responses:
+      title: Filter Temperature Responses
+      subtitle: Hide temperature-related diagnostic messages
+    show_timestamps:
+      title: Show Timestamps
+      subtitle: Show when each message was logged
 klipper_state:
   ready: Ready
   shutdown: Shutdown

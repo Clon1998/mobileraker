@@ -231,7 +231,9 @@ class _VendorFilaments extends HookConsumerWidget {
               );
               return ListTile(
                 leading: const Icon(Icons.color_lens_outlined),
-                title: const Text('pages.spoolman.vendor_details.filaments_card').tr(),
+                titleAlignment: ListTileTitleAlignment.center,
+                title: const Text('pages.spoolman.filament.other').tr(),
+                subtitle: Text(model.name),
                 trailing: total != null && total > 0
                     ? Chip(
                         visualDensity: VisualDensity.compact,
@@ -293,7 +295,9 @@ class _VendorSpools extends HookConsumerWidget {
               );
               return ListTile(
                 leading: const Icon(Icons.spoke_outlined),
-                title: const Text('pages.spoolman.vendor_details.spools_card').tr(),
+                titleAlignment: ListTileTitleAlignment.center,
+                title: const Text('pages.spoolman.spool.other').tr(),
+                subtitle: Text(model.name),
                 trailing: total != null && total > 0
                     ? Chip(
                         visualDensity: VisualDensity.compact,

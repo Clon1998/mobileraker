@@ -245,8 +245,17 @@ pages:
       title: Seite entfernen?
       body: Möchten Sie diese Seite wirklich entfernen?
     editing_card:
-      title: Editiermodus
+      title: Anpassungsmodus
       body: Sie können jetzt Layout Karten und Seiten neu anordnen, hinzufügen und entfernen. Alle Karten zeigen Vorschau-Daten an.
+    rename_layout:
+      title: Layout umbenennen
+      label: Layout Name
+    layout_rename_snack:
+      title: Layout umbenannt!
+      body: Der Layout-Name wurde erfolgreich geändert.
+    layout_reset_snack:
+      title: Layout zurückgesetzt!
+      body: Das Layout wurde auf die Standardeinstellungen zurückgesetzt.
     error_save_snack:
       title: Fehler beim Speichern!
       body: Ihre Änderungen konnten nicht gespeichert werden.
@@ -481,6 +490,18 @@ pages:
       no_devices_found: Keine Geräte gefunden
       configure_btn: Konfigurieren
       not_connected_btn: Nicht verbunden
+    data:
+      title: Datenimport und -export
+      helper: Sichern oder übertragen Sie Ihre App-Daten
+      export:
+        title: Daten exportieren
+        helper: Speichern Sie alle Ihre Maschinen, Layouts und Einstellungen in einer Datei, um sie zu sichern oder zu übertragen
+      import:
+        title: Daten importieren
+        helper: Stellen Sie Ihre Maschinen, Layouts und Einstellungen aus einer zuvor exportierten Datei wieder her
+      snack_imported:
+        title: Daten importiert!
+        message: '{} Maschinen und {} Layouts importiert.'
     developer:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
@@ -946,13 +967,10 @@ pages:
       print_settings: Druckeinstellungen
       extra_fields: Extra Felder
     vendor_details:
-      page_title: Anbieter {}
-      info_card: Anbieter Details
-      filaments_card: Filamente nach Anbieter
-      spools_card: Spulen nach Anbieter
+      page_title: Hersteller {}
+      info_card: Hersteller Details
     filament_details:
       info_card: Filament Details
-      spools_card: Filament Spulen
     spool_details:
       page_title: Spule {}
       info_card: Spulen Details
@@ -961,8 +979,9 @@ pages:
         title: Spool ist archiviert
         body: Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden.
       alternative_spool:
-        same_filament: Alternative Spulen (gleiches Filament)
-        same_material: Alternative Spulen (gleiches Material)
+        title: Alternative Spulen
+        same_filament: Gleiches Filament
+        same_material: Gleiches Material
     spool_form:
       create_page_title: Spule erstellen
       update_page_title: Spule bearbeiten
@@ -994,6 +1013,7 @@ components:
     installed_version: 'Installierte Version:'
   pull_to_refresh:
     pull_up_idle: Nach oben wischen, zum aktualisieren
+    pull_down_idle: Nach unten wischen, zum aktualisieren
   nav_drawer:
     printer_settings: Druckereinstellungen
     manage_printers: Drucker verwalten
@@ -1405,12 +1425,9 @@ bottom_sheets:
     available_layouts:
       label: 'Verfügbare Layouts:'
       empty: Keine Layouts gefunden
-      add_empty: Leeres Layout hinzufügen
+      add_empty: Neues Layout hinzufügen
     layout_preview:
       not_saved: Nicht gespeichert
-    rename_layout:
-      title: Layout umbenennen
-      label: Layout Name
     delete_layout:
       title: Layout löschen
       body: |-
@@ -1421,6 +1438,11 @@ bottom_sheets:
     falsy_import_snackbar:
       title: Fehler beim Importieren
       body: Das Layout konnte nicht importiert werden. Bitte stellen Sie sicher, dass die Zwischenablage ein gültiges Layout enthält.
+    load_layout_warning:
+      title: Layout laden?
+      body: |-
+        Sie sind dabei, ein Dashboard-Layout zu laden.
+        Dadurch werden alle Änderungen am aktuellen Layout verworfen.
   selections:
     no_selections:
       title: Keine Ergebnisse gefunden
@@ -1429,6 +1451,25 @@ bottom_sheets:
     title: Temperaturverlauf Einstellungen
   select_file:
     title: Druck-Datei auswählen
+  file_manager_settings:
+    title: Dateiverwaltung Einstellungen
+    show_hidden_files:
+      title: Versteckte Dateien anzeigen
+      subtitle: Dateien und Ordner anzeigen, die mit einem Punkt (.) beginnen
+    hide_backup_files:
+      title: Backup-Dateien ausblenden
+      subtitle: Verstecke alle erkannten Backup-Dateien
+  console_settings:
+    title: Konsolen Einstellungen
+    reverse:
+      title: Reihenfolge umkehren
+      subtitle: Neueste Nachrichten zuerst statt zuletzt anzeigen
+    filter_temp_responses:
+      title: Temperatur-Antworten filtern
+      subtitle: Temperaturbezogene Diagnosemeldungen ausblenden
+    show_timestamps:
+      title: Zeitstempel anzeigen
+      subtitle: Zeigt Zeitstempel für jede Konsolennachricht an
 klipper_state:
   ready: Bereit
   shutdown: Runtergefahren

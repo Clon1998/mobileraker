@@ -584,6 +584,8 @@ pages:
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend Teplota"
       bed_temp: "@:pages.dashboard.general.temp_card.bed Teplota"
       new_preset: Nové přednastavení
+      custom_gcode: Vlastní G-Kód
+      custom_gcode_helper: Volitelný G-Kód pro spuštění po nastavení teplot(y)
     confirm_fcm_reset:
       title: Vymazat registr oznámení zařízení?
       body: "Chystáte se resetovat registr zařízení, který se používá k určení zařízení, do kterých rozšíření posílá oznámení.\nChcete-li obnovit push oznámení, musíte restartovat aplikaci na všech zařízeních a znovu ji připojit k zařízení. \n\nPotvrďte vaši akci."
@@ -948,11 +950,8 @@ pages:
     vendor_details:
       page_title: Výrobce {}
       info_card: Informace o výrobci
-      filaments_card: Filamenty podle výrobce
-      spools_card: Cívky podle výrobce
     filament_details:
       info_card: Informace o filamentu
-      spools_card: Cívky s filamenty
     spool_details:
       page_title: Cívka {}
       info_card: Informace o cívce
@@ -961,8 +960,9 @@ pages:
         title: Cívka je archivovaná
         body: Tato cívka je archivovaná a nemůže být použita pro nové tisky.
       alternative_spool:
-        same_filament: Alternativní cívky (stejný filament)
-        same_material: Alternativní cívky (stejný materiál)
+        title: Alternativní cívky
+        same_filament: Stejný filament
+        same_material: Stejný materiál
     spool_form:
       create_page_title: Vytvořit cívku
       update_page_title: Upravit cívku
@@ -994,6 +994,7 @@ components:
     installed_version: 'Nainstalovaná verze: '
   pull_to_refresh:
     pull_up_idle: Potažením nahoru obnovíte
+    pull_down_idle: Potažením dolů aktualizovat
   nav_drawer:
     printer_settings: Nastavení tiskárny
     manage_printers: Správa tiskáren
@@ -1409,12 +1410,8 @@ bottom_sheets:
     available_layouts:
       label: 'Dostupné rozložení:'
       empty: Není k dispozici žádné rozložení
-      add_empty: Přidat prázdné rozložení
     layout_preview:
       not_saved: Neuloženo
-    rename_layout:
-      title: Přejmenovat rozložení
-      label: Jméno rozvržení
     delete_layout:
       title: Odstranit Rozložení
       body: |-
@@ -1434,6 +1431,25 @@ bottom_sheets:
     title: Nastavení grafu teploty
   select_file:
     title: Vybrat úlohu pro tisk
+  file_manager_settings:
+    title: Nastavení správce souborů
+    show_hidden_files:
+      title: Zobrazit skryté soubory
+      subtitle: Zobrazit soubory a složky, které začínají tečkou (.)
+    hide_backup_files:
+      title: Skrýt soubory záloh
+      subtitle: Skrýt všechny soubory, které jsou detekovány jako soubory záloh
+  console_settings:
+    title: Nastavení konzole
+    reverse:
+      title: Převrátit pořadí
+      subtitle: Zobrazit nejnovější zprávy jako první namísto poslední
+    filter_temp_responses:
+      title: Filtrovat teplotní hlášení
+      subtitle: Skrýt diagnostické zprávy týkající se teploty
+    show_timestamps:
+      title: Zobrazit časové značky
+      subtitle: Zobrazit, kdy byla každá zpráva zaznamenána
 klipper_state:
   ready: Připraven
   shutdown: Vypnut

@@ -67,14 +67,16 @@ Future<MachineSettings> machineRemoteSettings(Ref ref) {
   return ref.watch(machineSettingsProvider(machine.uuid).future);
 }
 
-@Riverpod(dependencies: [
-  currentlyEditing,
-  machineRemoteSettings,
-  _ObicoTunnel,
-  _OctoEverywhere,
-  _RemoteInterface,
-  WebcamListController
-])
+@Riverpod(
+  dependencies: [
+    currentlyEditing,
+    machineRemoteSettings,
+    _ObicoTunnel,
+    _OctoEverywhere,
+    _RemoteInterface,
+    WebcamListController,
+  ],
+)
 class PrinterEditController extends _$PrinterEditController {
   DeviceFcmSettingsService get _deviceFcmService => ref.read(deviceFcmSettingsServiceProvider);
 
@@ -114,12 +116,16 @@ class PrinterEditController extends _$PrinterEditController {
 
     var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
     if (!formBuilderState.saveAndValidate(autoScrollWhenFocusOnInvalid: true)) {
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.warning,
-            title: 'pages.printer_edit.store_error.title'.tr(),
-            message: 'pages.printer_edit.store_error.message'.tr(),
-            duration: const Duration(seconds: 10),
-          ));
+      ref
+          .read(snackBarServiceProvider)
+          .show(
+            SnackBarConfig(
+              type: SnackbarType.warning,
+              title: 'pages.printer_edit.store_error.title'.tr(),
+              message: 'pages.printer_edit.store_error.message'.tr(),
+              duration: const Duration(seconds: 10),
+            ),
+          );
       talker.warning('Could not save printer, formBuilder reported invalid state!');
       return;
     }
@@ -140,45 +146,48 @@ class PrinterEditController extends _$PrinterEditController {
     } catch (e, s) {
       state = false;
       talker.error('Error while trying to save printer data', e, s);
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error,
-            title: tr('pages.printer_edit.store_error.title'),
-            message: tr('pages.printer_edit.store_error.unexpected_error'),
-            duration: const Duration(seconds: 30),
-            mainButtonTitle: 'Details',
-            closeOnMainButtonTapped: true,
-            onMainButtonTapped: () {
-              ref.read(dialogServiceProvider).show(DialogRequest(
-                    type: CommonDialogs.stacktrace,
-                    title: tr('pages.printer_edit.store_error.title'),
-                    body: 'Exception:\n $e\n\n$s',
-                  ));
-            },
-          ));
+      ref
+          .read(snackBarServiceProvider)
+          .show(
+            SnackBarConfig(
+              type: SnackbarType.error,
+              title: tr('pages.printer_edit.store_error.title'),
+              message: tr('pages.printer_edit.store_error.unexpected_error'),
+              duration: const Duration(seconds: 30),
+              mainButtonTitle: 'Details',
+              closeOnMainButtonTapped: true,
+              onMainButtonTapped: () {
+                ref
+                    .read(dialogServiceProvider)
+                    .show(
+                      DialogRequest(
+                        type: CommonDialogs.stacktrace,
+                        title: tr('pages.printer_edit.store_error.title'),
+                        body: 'Exception:\n $e\n\n$s',
+                      ),
+                    );
+              },
+            ),
+          );
     } finally {
       jrpcStateKeppAliveLink.close();
 
       // TODo remove this and replace with a invalidate of the machineSettings provider that is based on per machine once it is impl
-      var isSelectedMachine =
-          await ref.read(selectedMachineProvider.selectAsync((data) => data?.uuid == _machine.uuid));
+      var isSelectedMachine = await ref.read(
+        selectedMachineProvider.selectAsync((data) => data?.uuid == _machine.uuid),
+      );
       if (isSelectedMachine) ref.invalidate(selectedMachineSettingsProvider);
 
       ref.read(goRouterProvider).pop();
     }
   }
 
-  Future<void> _saveMachineRemoteSettings(
-    Map<String, dynamic> storedValues,
-  ) async {
+  Future<void> _saveMachineRemoteSettings(Map<String, dynamic> storedValues) async {
     AsyncValue<MachineSettings> remoteSettings = ref.read(machineRemoteSettingsProvider);
     if (!remoteSettings.hasValue || remoteSettings.hasError) {
       return;
     }
-    List<bool> inverts = [
-      storedValues['invertX'],
-      storedValues['invertY'],
-      storedValues['invertZ'],
-    ];
+    List<bool> inverts = [storedValues['invertX'], storedValues['invertY'], storedValues['invertZ']];
     final speedXY = storedValues['speedXY'];
     final speedZ = storedValues['speedZ'];
     final extrudeSpeed = storedValues['extrudeSpeed'];
@@ -204,7 +213,7 @@ class PrinterEditController extends _$PrinterEditController {
         ..name = name
         ..extruderTemp = extruderTemp!
         ..bedTemp = bedTemp!
-        ..customGCode= customGCode?.trim()
+        ..customGCode = customGCode?.trim()
         ..lastModified = DateTime.now();
     }
 
@@ -212,7 +221,9 @@ class PrinterEditController extends _$PrinterEditController {
     List<double> babySteps = ref.read(babyStepStateProvider);
     List<int> extSteps = ref.read(extruderStepStateProvider);
 
-    await ref.read(machineServiceProvider).updateSettings(
+    await ref
+        .read(machineServiceProvider)
+        .updateSettings(
           _machine,
           MachineSettings(
             created: remoteSettings.value!.created,
@@ -238,32 +249,35 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
-    _machine.remoteInterface = ref.read(_remoteInterfaceProvider);
-    _machine.octoEverywhere = ref.read(_octoEverywhereProvider);
-    if (_obicoEnabled) {
-      _machine.obicoTunnel = ref.read(_obicoTunnelProvider);
-    }
-    _machine.name = storedValues['printerName'];
-    _machine.apiKey = storedValues['printerApiKey'];
-    _machine.timeout = storedValues['printerLocalTimeout'];
-    if (ref.read(isSupporterProvider)) {
+    final isSupporter = ref.read(isSupporterProvider);
+    final httpUri = buildMoonrakerHttpUri(storedValues['printerUrl']);
+    final sslSettings = ref.read(
+      sslSettingsControllerProvider(_machine.pinnedCertificateDERBase64, _machine.trustUntrustedCertificate),
+    );
+
+    final updatedMachine = _machine.copyWith(
+      name: storedValues['printerName'],
+      apiKey: storedValues['printerApiKey'],
+      timeout: storedValues['printerLocalTimeout'],
+      printerThemePack: isSupporter ? storedValues['printerThemePack'] : _machine.printerThemePack,
+      httpUri: httpUri ?? _machine.httpUri,
+      httpHeaders: ref.read(headersControllerProvider(_machine.httpHeaders)),
+      localSsids: ref.read(ssidPreferenceListControllerProvider(_machine.localSsids)),
+
+      remoteInterface: ref.read(_remoteInterfaceProvider),
+      octoEverywhere: ref.read(_octoEverywhereProvider),
+      obicoTunnel: _obicoEnabled ? ref.read(_obicoTunnelProvider) : _machine.obicoTunnel,
+
+      trustUntrustedCertificate: sslSettings.trustSelfSigned,
+      pinnedCertificateDERBase64: sslSettings.certificateDER,
+    );
+
+    if (isSupporter) {
       // We potentially overwrite the theme so we dont want to go back to the cached one
       activeTheme = null;
-      _machine.printerThemePack = storedValues['printerThemePack'];
-    }
-    var httpUri = buildMoonrakerHttpUri(storedValues['printerUrl']);
-    if (httpUri != null) {
-      _machine.httpUri = httpUri;
     }
 
-    var sslSettings = ref
-        .read(sslSettingsControllerProvider(_machine.pinnedCertificateDERBase64, _machine.trustUntrustedCertificate));
-    _machine.trustUntrustedCertificate = sslSettings.trustSelfSigned;
-    _machine.pinnedCertificateDERBase64 = sslSettings.certificateDER;
-
-    _machine.httpHeaders = ref.read(headersControllerProvider(_machine.httpHeaders));
-    _machine.localSsids = ref.read(ssidPreferenceListControllerProvider(_machine.localSsids));
-    await ref.read(machineServiceProvider).updateMachine(_machine);
+    await ref.read(machineServiceProvider).updateMachine(updatedMachine);
   }
 
   Future<void> _saveWebcamInfos(Map<String, dynamic> storedValues) async {
@@ -285,22 +299,22 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   void printerThemeSupporterDialog() {
-    ref.read(dialogServiceProvider).show(DialogRequest(
-          type: DialogType.supporterOnlyFeature,
-          body: tr('components.supporter_only_feature.printer_theme'),
-        ));
+    ref
+        .read(dialogServiceProvider)
+        .show(
+          DialogRequest(
+            type: DialogType.supporterOnlyFeature,
+            body: tr('components.supporter_only_feature.printer_theme'),
+          ),
+        );
   }
 
   Future<void> resetFcmCache() async {
-    var dialogResponse = await ref.read(dialogServiceProvider).showDangerConfirm(
-          title: tr(
-            'pages.printer_edit.confirm_fcm_reset.title',
-            args: [_machine.name],
-          ),
-          body: tr(
-            'pages.printer_edit.confirm_fcm_reset.body',
-            args: [_machine.name, _machine.httpUri.toString()],
-          ),
+    var dialogResponse = await ref
+        .read(dialogServiceProvider)
+        .showDangerConfirm(
+          title: tr('pages.printer_edit.confirm_fcm_reset.title', args: [_machine.name]),
+          body: tr('pages.printer_edit.confirm_fcm_reset.body', args: [_machine.name, _machine.httpUri.toString()]),
           actionLabel: tr('general.clear'),
         );
 
@@ -311,10 +325,7 @@ class PrinterEditController extends _$PrinterEditController {
         await _deviceFcmService.syncDeviceFcmToMachine(_machine);
       }
     } catch (e) {
-      talker.warning(
-        'Error while resetting FCM cache on machine ${_machine.name}',
-        e,
-      );
+      talker.warning('Error while resetting FCM cache on machine ${_machine.name}', e);
     }
     state = false;
   }
@@ -335,15 +346,11 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   Future<void> deleteIt() async {
-    var dialogResponse = await ref.read(dialogServiceProvider).showDangerConfirm(
-          title: tr(
-            'pages.printer_edit.confirm_deletion.title',
-            args: [_machine.name],
-          ),
-          body: tr(
-            'pages.printer_edit.confirm_deletion.body',
-            args: [_machine.name, _machine.httpUri.toString()],
-          ),
+    var dialogResponse = await ref
+        .read(dialogServiceProvider)
+        .showDangerConfirm(
+          title: tr('pages.printer_edit.confirm_deletion.title', args: [_machine.name]),
+          body: tr('pages.printer_edit.confirm_deletion.body', args: [_machine.name, _machine.httpUri.toString()]),
           actionLabel: tr('general.delete'),
         );
 
@@ -355,10 +362,9 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   Future<void> openImportSettings() async {
-    final res = await ref.read(dialogServiceProvider).show(DialogRequest(
-          type: DialogType.importSettings,
-          data: ref.read(currentlyEditingProvider),
-        ));
+    final res = await ref
+        .read(dialogServiceProvider)
+        .show(DialogRequest(type: DialogType.importSettings, data: ref.read(currentlyEditingProvider)));
     onImportSettingsReturns(res);
   }
 
@@ -423,15 +429,19 @@ class PrinterEditController extends _$PrinterEditController {
     var octoEverywhere = ref.read(_octoEverywhereProvider);
     var remoteInterface = ref.read(_remoteInterfaceProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
-    BottomSheetResult show = await ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
-          type: SheetType.addRemoteCon,
-          data: AddRemoteConnectionSheetArgs(
-            machine: _machine,
-            octoEverywhere: octoEverywhere,
-            remoteInterface: remoteInterface,
-            obicoTunnel: obicoTunnel,
+    BottomSheetResult show = await ref
+        .read(bottomSheetServiceProvider)
+        .show(
+          BottomSheetConfig(
+            type: SheetType.addRemoteCon,
+            data: AddRemoteConnectionSheetArgs(
+              machine: _machine,
+              octoEverywhere: octoEverywhere,
+              remoteInterface: remoteInterface,
+              obicoTunnel: obicoTunnel,
+            ),
           ),
-        ));
+        );
 
     talker.info('Received from Bottom sheet $show');
     if (!show.confirmed) return;
@@ -442,9 +452,7 @@ class PrinterEditController extends _$PrinterEditController {
     //TODO: RI presnet, user adds OE, no error message? (Wtf why?)
 
     if (show.data == null) {
-      talker.info(
-        'BottomSheet result indicates the removal of all remote connecions!',
-      );
+      talker.info('BottomSheet result indicates the removal of all remote connecions!');
 
       _removeRemoteConnections();
     } else if (_canAddRemoteConnection(show.data)) {
@@ -459,15 +467,14 @@ class PrinterEditController extends _$PrinterEditController {
         gender = 'other';
       }
 
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        duration: const Duration(seconds: 10),
-        title: tr('pages.printer_edit.remote_interface_exists.title'),
-        message: tr(
-          'pages.printer_edit.remote_interface_exists.body',
-          gender: gender,
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.error,
+          duration: const Duration(seconds: 10),
+          title: tr('pages.printer_edit.remote_interface_exists.title'),
+          message: tr('pages.printer_edit.remote_interface_exists.body', gender: gender),
         ),
-      ));
+      );
     }
     state = false;
   }
@@ -477,11 +484,13 @@ class PrinterEditController extends _$PrinterEditController {
     ref.read(_octoEverywhereProvider.notifier).update(null);
     ref.read(_obicoTunnelProvider.notifier).update(null);
 
-    _snackBarService.show(SnackBarConfig(
-      duration: const Duration(seconds: 10),
-      title: tr('pages.printer_edit.remote_interface_removed.title'),
-      message: tr('pages.printer_edit.remote_interface_removed.body'),
-    ));
+    _snackBarService.show(
+      SnackBarConfig(
+        duration: const Duration(seconds: 10),
+        title: tr('pages.printer_edit.remote_interface_removed.title'),
+        message: tr('pages.printer_edit.remote_interface_removed.body'),
+      ),
+    );
   }
 
   bool _canAddRemoteConnection(dynamic data) {
@@ -494,12 +503,8 @@ class PrinterEditController extends _$PrinterEditController {
     var octoEverywhere = ref.read(_octoEverywhereProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
 
-    talker.info(
-      'tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface',
-    );
-    talker.info(
-      'tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere',
-    );
+    talker.info('tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface');
+    talker.info('tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere');
     talker.info(
       'tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel, obicoEnabled:$_obicoEnabled',
     );
@@ -525,12 +530,14 @@ class PrinterEditController extends _$PrinterEditController {
     } else {
       gender = 'other';
     }
-    _snackBarService.show(SnackBarConfig(
-      type: SnackbarType.info,
-      duration: const Duration(seconds: 5),
-      title: tr('pages.printer_edit.remote_interface_added.title', gender: gender),
-      message: tr('pages.printer_edit.remote_interface_added.body'),
-    ));
+    _snackBarService.show(
+      SnackBarConfig(
+        type: SnackbarType.info,
+        duration: const Duration(seconds: 5),
+        title: tr('pages.printer_edit.remote_interface_added.title', gender: gender),
+        message: tr('pages.printer_edit.remote_interface_added.body'),
+      ),
+    );
   }
 }
 
@@ -561,9 +568,7 @@ class WebcamListController extends _$WebcamListController {
   addNewWebCam() {
     if (!state.hasValue) return;
 
-    state = AsyncValue.data(
-      List.unmodifiable([...state.value!, WebcamInfo.mjpegDefault()]),
-    );
+    state = AsyncValue.data(List.unmodifiable([...state.value!, WebcamInfo.mjpegDefault()]));
   }
 
   removeWebcam(WebcamInfo webcamInfo) {
@@ -581,29 +586,24 @@ class WebcamListController extends _$WebcamListController {
     formBuilderState.save();
     var tmpCam = _applyWebcamFieldsToWebcam(formBuilderState.value, cam.copyWith());
 
-    ref.read(dialogServiceProvider).show(DialogRequest(
-          type: DialogType.webcamPreview,
-          data: WebcamPreviewDialogArguments(
-            webcamInfo: tmpCam,
-            machine: ref.read(currentlyEditingProvider),
+    ref
+        .read(dialogServiceProvider)
+        .show(
+          DialogRequest(
+            type: DialogType.webcamPreview,
+            data: WebcamPreviewDialogArguments(webcamInfo: tmpCam, machine: ref.read(currentlyEditingProvider)),
           ),
-        ));
+        );
   }
 }
 
 final moveStepStateProvider = StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
-  return DoubleStepSegmentController(
-    ref.watch(machineRemoteSettingsProvider).value!.moveSteps,
-  );
+  return DoubleStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.moveSteps);
 });
 
-final extruderStepStateProvider = StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>(
-  (ref) {
-    return IntStepSegmentController(
-      ref.watch(machineRemoteSettingsProvider).value!.extrudeSteps,
-    );
-  },
-);
+final extruderStepStateProvider = StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>((ref) {
+  return IntStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.extrudeSteps);
+});
 
 class IntStepSegmentController extends StateNotifier<List<int>> {
   IntStepSegmentController(super._state);
@@ -633,9 +633,7 @@ class IntStepSegmentController extends StateNotifier<List<int>> {
 }
 
 final babyStepStateProvider = StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
-  return DoubleStepSegmentController(
-    ref.watch(machineRemoteSettingsProvider).value!.babySteps,
-  );
+  return DoubleStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.babySteps);
 });
 
 class DoubleStepSegmentController extends StateNotifier<List<double>> {
@@ -667,10 +665,8 @@ class DoubleStepSegmentController extends StateNotifier<List<double>> {
 
 final temperaturePresetListControllerProvider =
     StateNotifierProvider.autoDispose<TemperaturePresetListController, List<TemperaturePreset>>((ref) {
-  return TemperaturePresetListController(
-    ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets,
-  );
-});
+      return TemperaturePresetListController(ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets);
+    });
 
 class TemperaturePresetListController extends StateNotifier<List<TemperaturePreset>> {
   TemperaturePresetListController(super._state);
@@ -699,20 +695,13 @@ class TemperaturePresetListController extends StateNotifier<List<TemperaturePres
 
   importPresets(List<TemperaturePreset> presets) {
     // Since these presets are new to this machine, new dates+uuid!
-    var copies = presets.map((e) => TemperaturePreset(
-          name: e.name,
-          bedTemp: e.bedTemp,
-          extruderTemp: e.extruderTemp,
-        ));
+    var copies = presets.map((e) => TemperaturePreset(name: e.name, bedTemp: e.bedTemp, extruderTemp: e.extruderTemp));
 
     state = List.unmodifiable([...state, ...copies]);
   }
 }
 
-WebcamInfo _applyWebcamFieldsToWebcam(
-  Map<String, dynamic> storedValues,
-  WebcamInfo cam,
-) {
+WebcamInfo _applyWebcamFieldsToWebcam(Map<String, dynamic> storedValues, WebcamInfo cam) {
   var name = storedValues['${cam.uid}-camName'];
   String? streamUrl = storedValues['${cam.uid}-streamUrl'];
   String? snapshotUrl = storedValues['${cam.uid}-snapshotUrl'];

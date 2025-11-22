@@ -268,10 +268,17 @@ class _FilamentSpools extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
-    final model = ref.watch(_filamentDetailPageControllerProvider(machineUUID).select((d) => d.id));
+    final model = ref.watch(_filamentDetailPageControllerProvider(machineUUID));
     useAutomaticKeepAlive();
 
-    final filter = SpoolmanFilter({'filament.id': model});
+    var title = [if (model.vendor != null) model.vendor!.name, model.name].join(' – ');
+
+    if (model.material != null) {
+      title += ' (${model.material})';
+    }
+
+
+    final filter = SpoolmanFilter({'filament.id': model.id});
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -290,7 +297,9 @@ class _FilamentSpools extends HookConsumerWidget {
               );
               return ListTile(
                 leading: const Icon(Icons.spoke_outlined),
-                title: const Text('pages.spoolman.filament_details.spools_card').tr(),
+                titleAlignment: ListTileTitleAlignment.center,
+                title: const Text('pages.spoolman.spool.other').tr(),
+                subtitle: Text(title),
                 trailing: total != null && total > 0
                     ? Chip(
                         visualDensity: VisualDensity.compact,

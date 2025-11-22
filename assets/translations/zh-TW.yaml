@@ -28,6 +28,7 @@ general:
   supported: 支援
   unsupported: 未支援
   details: 詳細資料
+  google_play: Google Play
   ios_store: AppStore
   active: 啟用
   canceled: 已取消
@@ -409,6 +410,9 @@ pages:
       medium_ui_hint: 在較大螢幕或橫屏模式下，切換是否使用平板介面
       keep_screen_on: 保持螢幕喚醒
       keep_screen_on_hint: 防止app運行時螢幕自動關閉
+    ui:
+      machine_card_style:
+        default: 預設
     notification:
       title: 通知
       progress_label: 列印進度通知
@@ -439,6 +443,8 @@ pages:
       opt_out_marketing_error: 載入行銷偏好選項時發生錯誤，請稍後再試。
       use_progressbar_notification: 啟用進度條通知
       use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
+      error_loading_printers_title: 載入印表機時發生錯誤
+      error_loading_printers_body: 載入印表機時發生了意外錯誤。請稍後再試。
     developer:
       title: 開發者
       crashlytics: 啟用 Crashlytics 報告
@@ -665,8 +671,15 @@ pages:
     title: 變更紀錄
   paywall:
     benefits:
+      title: 支持者功能
       subtitle: 成為 Mobileraker 支持者，解鎖獨家功能！
       become_supporter: 成為支持者
+      theme_perk:
+        title: 支持者主題
+      contact_perk:
+        title: 聯繫開發者
+      job_queue_perk:
+        title: 任務佇列
       unlimited_printers_perk:
         title: 無限數量的列印機
         detail: 無限擴展您的列印作業－完美適用於管理家用實驗室或列印農場中的多台印表機。
@@ -694,6 +707,14 @@ pages:
     iap_offer: "原價的 {} 折扣"
     trial_disclaimer: 在免費試用結束之前，您不會被收費，並且您可以隨時取消訂閱。
     restore_sign_in: 恢復/登入
+    fetch_error:
+      title: 無法載入支持者等級
+      description: 我們在載入支持者等級時遇到問題。這可能是由於網路連線或伺服器問題造成的。
+      what_to_try: 您可以嘗試的做法
+      check_connection: 請檢查您的網路連線
+      wait_retry: 請稍等片刻後再試一次
+      try_later: 如果問題持續發生，請稍後再試
+      try_again_btn: 重試
   video_player:
     downloading_for_sharing: 正在下載影片以供分享… ({})
   tool:
@@ -805,11 +826,8 @@ pages:
     vendor_details:
       page_title: 製造商 {}
       info_card: 製造商資訊
-      filaments_card: 根據製造商的線材
-      spools_card: 根據製造商的線盤
     filament_details:
       info_card: 線材資訊
-      spools_card: 線材線盤
     spool_details:
       page_title: 線盤 {}
       info_card: 線盤資訊
@@ -818,8 +836,9 @@ pages:
         title: 線盤已封存
         body: 此線盤已封存，無法用於新的列印。
       alternative_spool:
-        same_filament: 替代線盤(相同線材)
-        same_material: 替代線盤(相同製造商)
+        title: 替代線盤
+        same_filament: 相同線材
+        same_material: 相同製造商
     spool_form:
       create_page_title: 建立線盤
       update_page_title: 編輯線盤
@@ -945,6 +964,16 @@ components:
       subtitle: 顯示空打的移動路徑
   select_color_sheet:
     title: 設定顏色
+  machine_card:
+    last_activity:
+      one: "上次活動: 昨天"
+    last_seen: 上次連線
+    job_error_detected: 列印時偵測到錯誤
+    klippy_state:
+      initializing: 正在初始Klipper…
+      startup: 正在啟動Klipper…
+      error: Klipper錯誤
+      unauthorized: 存取遭拒
 dialogs:
   rate_my_app:
     title: 評價Mobileraker？
@@ -1230,12 +1259,8 @@ bottom_sheets:
     available_layouts:
       label: '可用的佈局：'
       empty: 沒有可用的佈局
-      add_empty: 加入空白佈局
     layout_preview:
       not_saved: 尚未儲存
-    rename_layout:
-      title: 重新命名佈局
-      label: 佈局名稱
     delete_layout:
       title: 刪除佈局
       body: |-
@@ -1260,6 +1285,10 @@ klipper_state:
   unauthorized: 未授權
   initializing: 正在初始化
   not_connected: Moonraker 無法與 Klipper 建立連線。請確認 Klipper 是否正在您的系統上運行。
+client_state:
+  connected: 已連線
+  connecting: 連線中
+  error: 錯誤
 print_state:
   standby: 待機
   printing: 列印中
@@ -1303,6 +1332,8 @@ date:
   day:
     one: 日
     other: 日
+  reference:
+    yesterday: 昨天
 date_periods:
   year:
     one: 每年

@@ -799,11 +799,8 @@ pages:
     vendor_details:
       page_title: Producent {}
       info_card: Informacje o producencie
-      filaments_card: Filamenty od producenta
-      spools_card: Szpule od producenta
     filament_details:
       info_card: Informacje o filamencie
-      spools_card: Szpule filamentu
     spool_details:
       page_title: Szpula {}
       info_card: Informacje o szpuli
@@ -812,8 +809,9 @@ pages:
         title: Szpula jest zarchiwizowana
         body: Ta szpula jest zarchiwizowana i nie może być użyta do nowych wydruków.
       alternative_spool:
-        same_filament: Alternatywne szpule (ten sam filament)
-        same_material: Alternatywne szpule (ten sam materiał)
+        title: Alternatywne szpule
+        same_filament: Ten sam filament
+        same_material: Ten sam materiał
     spool_form:
       create_page_title: Utwórz szpulę
       update_page_title: Edytuj szpulę
@@ -1089,12 +1087,8 @@ bottom_sheets:
     available_layouts:
       label: 'Dostępne układy:'
       empty: Brak dostępnych układów
-      add_empty: Dodaj pusty układ
     layout_preview:
       not_saved: Nie zapisano
-    rename_layout:
-      title: Zmień nazwę układu
-      label: Nazwa układu
     delete_layout:
       title: Usuń układ
       body: |-

@@ -18,12 +18,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker_pro/gcode_preview/data/model/gcode_structure.dart';
+import 'package:mobileraker_pro/gcode_preview/data/model/gcode_visualizer_settings_key.dart';
 import 'package:mobileraker_pro/gcode_preview/gcode_layer_renderer.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_downloader_widget.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_layer_visualizer.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_parser_widget.dart';
-import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 
 class GCodePreviewPage extends HookConsumerWidget {
   const GCodePreviewPage({super.key, required this.machineUUID, required this.file, this.live = false});
@@ -36,7 +38,9 @@ class GCodePreviewPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: Text(file.name)),
-      body: SafeArea(child: _Body(machineUUID: machineUUID, file: file, live: live)),
+      body: SafeArea(
+        child: _Body(machineUUID: machineUUID, file: file, live: live),
+      ),
     );
   }
 }
@@ -53,9 +57,7 @@ class _Body extends HookConsumerWidget {
     final isSup = ref.watch(isSupporterProvider);
     if (!isSup) {
       return Center(
-        child: SupporterOnlyFeature(
-          text: const Text('components.supporter_only_feature.gcode_preview').tr(),
-        ),
+        child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.gcode_preview').tr()),
       );
     }
 
@@ -126,24 +128,24 @@ class _StaticPreview extends HookWidget {
         InteractiveViewer(
           maxScale: maxScale,
           child: Center(
-            child: GCodeLayerVisualizer(
-              printerConfig: configFile,
-              currentLayer: currentLayerData,
-            ),
+            child: GCodeLayerVisualizer(printerConfig: configFile, currentLayer: currentLayerData),
           ),
         ),
-        Consumer(builder: (context, ref, child) {
-          return Align(
+        Consumer(
+          builder: (context, ref, child) {
+            return Align(
               alignment: Alignment.bottomRight,
               child: IconButton(
                 onPressed: () {
                   ref
                       .read(bottomSheetServiceProvider)
-                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings));
+                      .show(gCodeVisualizerSettingsSheetConfig());
                 },
                 icon: const Icon(Icons.settings),
-              ));
-        }),
+              ),
+            );
+          },
+        ),
         Positioned(
           top: 8,
           left: 8,
@@ -211,13 +213,11 @@ class _LivePreview extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final renderSupplier = useMemoized(() => GCodeLayerRenderer(structure), [structure]);
 
-    final filePos =
-        ref.watch(printerProvider(machineUUID).selectRequireValue((d) => d.virtualSdCard?.filePosition ?? 0));
-
-    final currentLayerData = useMemoized(
-      () => renderSupplier.createRenderDataForFilePosition(filePos),
-      [filePos],
+    final filePos = ref.watch(
+      printerProvider(machineUUID).selectRequireValue((d) => d.virtualSdCard?.filePosition ?? 0),
     );
+
+    final currentLayerData = useMemoized(() => renderSupplier.createRenderDataForFilePosition(filePos), [filePos]);
 
     final currentLayer = currentLayerData.metaData.layer;
     final maxMove = currentLayerData.metaData.moveEnd - currentLayerData.metaData.moveStart;
@@ -236,10 +236,7 @@ class _LivePreview extends HookConsumerWidget {
         InteractiveViewer(
           maxScale: maxScale,
           child: Center(
-            child: GCodeLayerVisualizer(
-              printerConfig: configFile,
-              currentLayer: currentLayerData,
-            ),
+            child: GCodeLayerVisualizer(printerConfig: configFile, currentLayer: currentLayerData),
           ),
         ),
         Positioned(
@@ -266,24 +263,42 @@ class _LivePreview extends HookConsumerWidget {
             ),
           ),
         ),
-        const Positioned(
-          top: 8,
-          right: 8,
-          child: Chip(label: Text('Live')),
-        ),
-        Consumer(builder: (context, ref, child) {
-          return Align(
+        const Positioned(top: 8, right: 8, child: Chip(label: Text('Live'))),
+        Consumer(
+          builder: (context, ref, child) {
+            return Align(
               alignment: Alignment.bottomRight,
               child: IconButton(
                 onPressed: () {
                   ref
                       .read(bottomSheetServiceProvider)
-                      .show(BottomSheetConfig(type: ProSheetType.gcodeVisualizerSettings));
+                      .show(gCodeVisualizerSettingsSheetConfig());
                 },
                 icon: const Icon(Icons.settings),
-              ));
-        }),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
+}
+
+BottomSheetConfig gCodeVisualizerSettingsSheetConfig() {
+  return BottomSheetConfig(
+    type: SheetType.changeSettings,
+    data: SettingsBottomSheetArgs(title: tr('components.gcode_preview_settings_sheet.title'), settings: [
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showGrid, title: tr('components.gcode_preview_settings_sheet.show_grid.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_travel.subtitle')),
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showAxes, title: tr('components.gcode_preview_settings_sheet.show_axes.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_axes.subtitle')),
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showNextLayer, title: tr('components.gcode_preview_settings_sheet.show_next_layer.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_next_layer.subtitle')),
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showPreviousLayer, title: tr('components.gcode_preview_settings_sheet.show_previous_layer.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_previous_layer.subtitle')),
+      DividerSettingItem(),
+      NumSettingItem(settingKey: GCodeVisualizerSettingsKey.extrusionWidthMultiplier, title: tr('components.gcode_preview_settings_sheet.extrusion_width_multiplier.prefix')),
+      DividerSettingItem(),
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showExtrusion, title: tr('components.gcode_preview_settings_sheet.show_extrusion.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_extrusion.subtitle')),
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showRetraction, title: tr('components.gcode_preview_settings_sheet.show_retraction.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_retraction.subtitle')),
+      SwitchSettingItem(settingKey: GCodeVisualizerSettingsKey.showTravel, title: tr('components.gcode_preview_settings_sheet.show_travel.title'), subtitle: tr('components.gcode_preview_settings_sheet.show_travel.subtitle')),
+
+    ]),
+  );
 }

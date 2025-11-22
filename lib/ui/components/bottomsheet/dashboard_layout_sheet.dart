@@ -6,10 +6,8 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/service/app_router.dart';
-import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -23,20 +21,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/horizontal_scroll_indicator.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../dashboard_card.dart';
-import '../dialog/text_input/text_input_dialog.dart';
 
 part 'dashboard_layout_sheet.g.dart';
 
@@ -60,10 +55,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
           ListTile(
             visualDensity: VisualDensity.compact,
             titleAlignment: ListTileTitleAlignment.center,
-            title: Text(
-              'bottom_sheets.dashboard_layout.title',
-              style: themeData.textTheme.titleLarge,
-            ).tr(),
+            title: Text('bottom_sheets.dashboard_layout.title', style: themeData.textTheme.titleLarge).tr(),
             subtitle: Text.rich(
               TextSpan(
                 text: '${tr('bottom_sheets.dashboard_layout.subtitle')} ',
@@ -88,25 +80,23 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: exportLayout,
-                child: AutoSizeText(tr('general.export'), maxLines: 1),
-              ),
+            IconButton(
+              onPressed: controller.onImportLayout,
+              icon: Icon(FlutterIcons.database_import_mco),
+              tooltip: tr('general.import'),
             ),
-            const SizedBox(width: 8),
+            Gap(8),
             Expanded(
-              child: OutlinedButton(
-                onPressed: controller.onImportLayout,
-                child: AutoSizeText(tr('general.import'), maxLines: 1),
+              child: ElevatedButton.icon(
+                onPressed: controller.onAddEmptyLayout,
+                icon: const Icon(Icons.add),
+                label: const Text('bottom_sheets.dashboard_layout.available_layouts.add_empty').tr(),
               ),
             ),
           ],
         ),
       ),
     );
-
-    final useM3 = themeData.useMaterial3;
 
     return ProviderScope(
       child: SheetContentScaffold(
@@ -117,36 +107,24 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Gap(8),
-              Text('bottom_sheets.dashboard_layout.available_layouts.label', style: themeData.textTheme.labelLarge)
-                  .tr(),
+              Text(
+                'bottom_sheets.dashboard_layout.available_layouts.label',
+                style: themeData.textTheme.labelLarge,
+              ).tr(),
               Expanded(
                 child: AsyncGuard(
                   debugLabel: 'Available Layouts-list',
                   toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
-                  childOnData: _AvailableLayouts(
-                    currentLayout: currentLayout,
-                  ),
+                  childOnData: _AvailableLayouts(currentLayout: currentLayout),
                 ),
               ),
             ],
           ),
         ),
         bottomBarVisibility: BottomBarVisibility.always(),
-        bottomBar: Theme(
-          data: Theme.of(context).copyWith(useMaterial3: false),
-          child: Theme(data: Theme.of(context).copyWith(useMaterial3: useM3), child: bottom),
-        ),
-
+        bottomBar: bottom,
       ),
     );
-  }
-
-  void exportLayout() {
-    var json = currentLayout.export();
-    var str = jsonEncode(json);
-    // Copy to clipboard
-
-    Share.share(str, subject: '${tr('bottom_sheets.dashboard_layout.title')}: ${currentLayout.name}');
   }
 }
 
@@ -174,8 +152,6 @@ class _AvailableLayouts extends ConsumerWidget {
                 isCurrent: layout.uuid == currentLayout.uuid,
                 onTapLoad: controller.onLayoutSelected,
                 onTapDelete: (l) => controller.onDeleteLayout(l),
-                onTapReset: controller.onResetLayout,
-                onTapRename: (l) => controller.onRenameLayout(l),
               ),
           ],
         ),
@@ -185,18 +161,13 @@ class _AvailableLayouts extends ConsumerWidget {
               height: 150,
               width: double.infinity,
               child: Center(
-                child: Text('bottom_sheets.dashboard_layout.available_layouts.empty', style: theme.textTheme.bodySmall)
-                    .tr(),
+                child: Text(
+                  'bottom_sheets.dashboard_layout.available_layouts.empty',
+                  style: theme.textTheme.bodySmall,
+                ).tr(),
               ),
             ),
           ),
-        SliverToBoxAdapter(
-          child: ElevatedButton.icon(
-            onPressed: controller.onAddEmptyLayout,
-            icon: const Icon(Icons.add),
-            label: const Text('bottom_sheets.dashboard_layout.available_layouts.add_empty').tr(),
-          ),
-        ),
       ],
     );
   }
@@ -209,16 +180,12 @@ class _LayoutPreview extends HookWidget {
     required this.isCurrent,
     required this.onTapLoad,
     required this.onTapDelete,
-    required this.onTapReset,
-    required this.onTapRename,
   });
 
   final DashboardLayout layout;
   final bool isCurrent;
   final void Function(DashboardLayout layout) onTapLoad;
   final void Function(DashboardLayout layout) onTapDelete;
-  final void Function(DashboardLayout layout) onTapReset;
-  final void Function(DashboardLayout layout) onTapRename;
   static const int _pagesOnScreenCompact = 3;
   static const int _pagesOnScreenMedium = 2;
 
@@ -278,37 +245,36 @@ class _LayoutPreview extends HookWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             for (var i = 0; i < max(availableTabs, pagesOnScreen); i++)
-                              Builder(builder: (ctx) {
-                                final tab = layout.tabs.elementAtOrNull(i);
+                              Builder(
+                                builder: (ctx) {
+                                  final tab = layout.tabs.elementAtOrNull(i);
 
-                                Widget child;
-                                if (tab == null || tab.components.isEmpty) {
-                                  child = Padding(
-                                    padding: EdgeInsets.symmetric(vertical: width / 4),
-                                    child: SvgPicture.asset(
-                                      'assets/vector/undraw_taken_re_yn20.svg',
-                                      alignment: Alignment.center,
-                                      width: width * 0.5,
+                                  Widget child;
+                                  if (tab == null || tab.components.isEmpty) {
+                                    child = Padding(
+                                      padding: EdgeInsets.symmetric(vertical: width / 4),
+                                      child: SvgPicture.asset(
+                                        'assets/vector/undraw_taken_re_yn20.svg',
+                                        alignment: Alignment.center,
+                                        width: width * 0.5,
+                                      ),
+                                    );
+                                  } else {
+                                    child = Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        for (var card in tab.components) DasboardCard.preview(type: card.type),
+                                      ],
+                                    );
+                                  }
+                                  return ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
+                                    child: FittedBox(
+                                      child: SizedBox(width: width, child: child),
                                     ),
                                   );
-                                } else {
-                                  child = Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      for (var card in tab.components) DasboardCard.preview(type: card.type),
-                                    ],
-                                  );
-                                }
-                                return ConstrainedBox(
-                                  constraints: BoxConstraints(maxWidth: scrollWidth / pagesOnScreen),
-                                  child: FittedBox(
-                                    child: SizedBox(
-                                      width: width,
-                                      child: child,
-                                    ),
-                                  ),
-                                );
-                              }),
+                                },
+                              ),
                           ],
                         ),
                       ),
@@ -354,31 +320,6 @@ class _LayoutPreview extends HookWidget {
                       icon: const Icon(Icons.delete_outline, size: 18),
                       label: const Text('general.delete').tr(),
                     ),
-                  ElevatedButton.icon(
-                    onPressed: () => onTapRename(layout),
-                    style: ElevatedButton.styleFrom(
-                      // elevation: 2,
-                      visualDensity: VisualDensity.compact,
-                      textStyle: themeData.textTheme.bodySmall,
-                      foregroundColor: themeData.colorScheme.onSecondaryContainer,
-                      backgroundColor: themeData.colorScheme.secondaryContainer,
-                    ),
-                    icon: const Icon(Icons.abc, size: 18),
-                    label: const Text('general.rename').tr(),
-                  ),
-                  if (isCurrent)
-                    ElevatedButton.icon(
-                      onPressed: () => onTapReset(layout),
-                      style: ElevatedButton.styleFrom(
-                        // elevation: 2,
-                        visualDensity: VisualDensity.compact,
-                        textStyle: themeData.textTheme.bodySmall,
-                        foregroundColor: themeData.colorScheme.onSecondary,
-                        backgroundColor: themeData.colorScheme.secondary,
-                      ),
-                      icon: const Icon(Icons.restart_alt, size: 18),
-                      label: const Text('pages.dashboard.general.print_card.reset').tr(),
-                    ),
                   if (!isCurrent)
                     ElevatedButton.icon(
                       onPressed: () => onTapLoad(layout),
@@ -413,6 +354,7 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
   @override
   Future<List<DashboardLayout>> build(DashboardLayout layout) async {
     final availableLayouts = [...await _dashboardService.availableLayouts()];
+    // We need to listen to all layout providers to ensure the UI reflects changes
     // Add the current layout to the list, if it is not already there
     if (!availableLayouts.any((element) => element.uuid == layout.uuid)) {
       // do not modify the original layout -> causes issues due to "Provider" changes
@@ -431,26 +373,23 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
     return availableLayouts;
   }
 
-  void onResetLayout(DashboardLayout layout) {
-    final defaultDashboardLayout = _dashboardService.defaultDashboardLayout();
+  void onLayoutSelected(DashboardLayout layout) async {
+    var confirm = await _dialogService.showConfirm(
+      title: tr('bottom_sheets.dashboard_layout.load_layout_warning.title'),
+      body: tr('bottom_sheets.dashboard_layout.load_layout_warning.body'),
+    );
+    if (confirm?.confirmed != true) return;
 
-    // Transfer the UUID to the default to reset the layout
-    defaultDashboardLayout
-      ..name = layout.name
-      ..uuid = layout.uuid
-      ..created = layout.created
-      ..lastModified = layout.lastModified;
-
-    onLayoutSelected(defaultDashboardLayout);
+    returnLayout(layout);
   }
 
-  void onLayoutSelected(DashboardLayout layout) {
+  void returnLayout(DashboardLayout layout) {
     _goRouter.pop(BottomSheetResult.confirmed(layout));
   }
 
   void onAddEmptyLayout() {
     final layout = _dashboardService.emptyDashboardLayout();
-    onLayoutSelected(layout);
+    returnLayout(layout);
   }
 
   Future<void> onImportLayout() async {
@@ -459,69 +398,38 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
       var data = await Clipboard.getData('text/plain');
       if (data?.text == null) {
         talker.warning('Clipboard data is null or empty');
-        _snackBarService.show(SnackBarConfig(
-          title: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.title'),
-          message: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.body'),
-          duration: const Duration(seconds: 10),
-        ));
+        _goRouter.pop();
+        _snackBarService.show(
+          SnackBarConfig(
+            title: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.title'),
+            message: tr('bottom_sheets.dashboard_layout.falsy_import_snackbar.body'),
+            duration: const Duration(seconds: 10),
+          ),
+        );
         return;
       }
       final json = jsonDecode(data!.text!);
 
       final layout = ref.read(dashboardLayoutServiceProvider).importFromJson(json);
 
-      onLayoutSelected(layout);
-      _snackBarService.show(SnackBarConfig(
-        title: tr('bottom_sheets.dashboard_layout.import_snackbar.title'),
-        message: tr('bottom_sheets.dashboard_layout.import_snackbar.body'),
-        duration: const Duration(seconds: 5),
-      ));
+      returnLayout(layout);
+      _snackBarService.show(
+        SnackBarConfig(
+          title: tr('bottom_sheets.dashboard_layout.import_snackbar.title'),
+          message: tr('bottom_sheets.dashboard_layout.import_snackbar.body'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
     } catch (e, s) {
       talker.error('Error importing layout: $e');
-      _snackBarService.show(SnackBarConfig.stacktraceDialog(
-        dialogService: _dialogService,
-        exception: e,
-        stack: s,
-        snackTitle: 'Error importing layout',
-      ));
-    }
-  }
-
-  Future<void> onRenameLayout(DashboardLayout layout) async {
-    talker.info('Renaming layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
-
-    var isSupporter = ref.read(isSupporterProvider);
-
-    if (!isSupporter) {
-      _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.warning,
-        title: tr('components.supporter_only_feature.dialog_title'),
-        message: tr('components.supporter_only_feature.custom_dashboard'),
-        duration: const Duration(seconds: 5),
-      ));
-      return;
-    }
-
-    final result = await _dialogService.show(DialogRequest(
-      type: DialogType.textInput,
-      actionLabel: tr('general.rename'),
-      title: tr('bottom_sheets.dashboard_layout.rename_layout.title'),
-      data: TextInputDialogArguments(
-        initialValue: layout.name,
-        labelText: tr('bottom_sheets.dashboard_layout.rename_layout.label'),
-        validator: FormBuilderValidators.compose([
-          FormBuilderValidators.required(),
-          FormBuilderValidators.minLength(3),
-          FormBuilderValidators.maxLength(40),
-        ]),
-      ),
-    ));
-
-    if (result case DialogResponse(confirmed: true, data: String newName) when newName != layout.name) {
-      layout.name = newName;
-      await _dashboardService.persistLayout(layout);
-      // TODO: This works, but reloads the whole list. Should be optimized to only replace the changed layout
-      ref.invalidateSelf();
+      _snackBarService.show(
+        SnackBarConfig.stacktraceDialog(
+          dialogService: _dialogService,
+          exception: e,
+          stack: s,
+          snackTitle: 'Error importing layout',
+        ),
+      );
     }
   }
 
@@ -536,9 +444,8 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
 
     if (result?.confirmed == true) {
       await _dashboardService.removeLayout(layout);
-      // TODO: This works, but reloads the whole list. Should be optimized to only remove the deleted layout
       if (layout.uuid == this.layout.uuid) {
-        onLayoutSelected(_dashboardService.defaultDashboardLayout());
+        returnLayout(_dashboardService.defaultDashboardLayout());
       } else {
         ref.invalidateSelf();
       }

@@ -27,14 +27,15 @@ GenericFile configFile(Ref ref) => throw UnimplementedError();
 
 final configFileDetailsControllerProvider =
     StateNotifierProvider.autoDispose<ConfigFileDetailsController, ConfigDetailPageState>(
-        (ref) => ConfigFileDetailsController(ref));
+      (ref) => ConfigFileDetailsController(ref),
+    );
 
 class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   ConfigFileDetailsController(this.ref)
-      : fileService = ref.watch(fileServiceSelectedProvider),
-        klippyService = ref.watch(klipperServiceSelectedProvider),
-        snackBarService = ref.watch(snackBarServiceProvider),
-        super(const ConfigDetailPageState()) {
+    : fileService = ref.watch(fileServiceSelectedProvider),
+      klippyService = ref.watch(klipperServiceSelectedProvider),
+      snackBarService = ref.watch(snackBarServiceProvider),
+      super(const ConfigDetailPageState()) {
     _init();
   }
 
@@ -46,10 +47,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   _init() async {
     try {
       var downloadFile = await fileService
-          .downloadFile(
-            filePath: ref.read(configFileProvider).absolutPath,
-            overWriteLocal: true,
-          )
+          .downloadFile(filePath: ref.read(configFileProvider).absolutPath, overWriteLocal: true)
           .firstWhere((element) => element is FileDownloadComplete);
       downloadFile as FileDownloadComplete;
       var content = await downloadFile.file.readAsString();
@@ -76,17 +74,25 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
         final box = ctx.findRenderObject() as RenderBox?;
         final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-        Share.shareXFiles(
-          [XFile(downloadFile.file.path, mimeType: 'text/plain', name: file.name)],
-          subject: 'Config file: ${file.name}',
-          sharePositionOrigin: pos,
-        ).ignore();
+        SharePlus.instance
+            .share(
+              ShareParams(
+                files: [XFile(downloadFile.file.path, mimeType: 'text/plain', name: file.name)],
+                subject: 'Config file: ${file.name}',
+                sharePositionOrigin: pos,
+              ),
+            )
+            .ignore();
       } catch (e) {
-        ref.read(snackBarServiceProvider).show(SnackBarConfig(
-              type: SnackbarType.error,
-              title: 'Error while downloading file for sharing.',
-              message: e.toString(),
-            ));
+        ref
+            .read(snackBarServiceProvider)
+            .show(
+              SnackBarConfig(
+                type: SnackbarType.error,
+                title: 'Error while downloading file for sharing.',
+                message: e.toString(),
+              ),
+            );
       } finally {
         if (mounted) {
           state = state.copyWith(isSharing: false);
@@ -101,19 +107,12 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
       final file = ref.read(configFileProvider);
       final content = MultipartFile.fromString(code, filename: file.relativeToRoot);
 
-      await fileService
-          .uploadFile(
-            file.absolutPath,
-            content,
-          )
-          .last;
+      await fileService.uploadFile(file.absolutPath, content).last;
       ref.read(goRouterProvider).pop();
     } on DioException catch (e) {
-      snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        title: 'Http-Error',
-        message: 'Could not save File:.\n${e.message}',
-      ));
+      snackBarService.show(
+        SnackBarConfig(type: SnackbarType.error, title: 'Http-Error', message: 'Could not save File:.\n${e.message}'),
+      );
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);

@@ -14,8 +14,13 @@ const String logFile = 'mobileraker.log';
 late final Talker talker;
 
 Future<void> setupLogger() async {
+  var mobilerakerLogHistory = MobilerakerLogHistory();
+
+  await mobilerakerLogHistory.init();
+
   talker = Talker(
     settings: TalkerSettings(),
+    history: mobilerakerLogHistory,
     logger: TalkerLogger(
       settings: TalkerLoggerSettings(
         // Set current logging level
@@ -104,6 +109,52 @@ String _logFileTimestamp() {
 //   }
 // }
 
+class MobilerakerLogHistory extends TalkerHistory {
+  MobilerakerLogHistory({this.maxItems = 1000});
+
+  final int maxItems;
+
+  final _history = <TalkerData>[];
+
+  late final IOSink _logFileSink;
+
+  Future<void> init() async {
+    final logDir = await logFileDirectory();
+    final logFiles = logDir.listSync();
+
+    // handle log rotation!
+    if (logFiles.length >= 5) {
+      logFiles.sort((a, b) => a.statSync().modified.compareTo(b.statSync().modified));
+      await Future.wait(logFiles.sublist(0, logFiles.length - 4).map((element) => element.delete()));
+    }
+
+    String timeStamp = _logFileTimestamp();
+    final logFile = await File('${logDir.path}/mobileraker_$timeStamp.log').create();
+
+    _logFileSink = logFile.openWrite();
+  }
+
+  @override
+  void clean() {
+    _history.clear();
+  }
+
+  @override
+  List<TalkerData> get history => _history;
+
+  @override
+  void write(TalkerData data) {
+    if (_history.length >= maxItems) {
+      _history.removeAt(0);
+    }
+    _history.add(data);
+
+
+    _logFileSink.write(data.generateTextMessage());
+    _logFileSink.writeln();
+  }
+}
+
 class MobilerakerRouteObserver extends NavigatorObserver {
   MobilerakerRouteObserver(this.name);
 
@@ -124,15 +175,12 @@ class MobilerakerRouteObserver extends NavigatorObserver {
   }
 
   @override
-  void didStartUserGesture(
-    Route<dynamic> route,
-    Route<dynamic>? previousRoute,
-  ) {
-// Do Nothing
+  void didStartUserGesture(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    // Do Nothing
   }
 
   @override
   void didStopUserGesture() {
-// Do Nothing
+    // Do Nothing
   }
 }

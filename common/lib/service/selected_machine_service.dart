@@ -71,7 +71,7 @@ class SelectedMachineService {
 
     if (!force && machine == _selected) return;
 
-    await _boxUuid.put('selectedPrinter', machine.key);
+    await _boxUuid.put('selectedPrinter', machine.uuid);
     if (!_selectedMachineCtrler.isClosed) {
       _selectedMachineCtrler.add(machine);
       _selected = machine;

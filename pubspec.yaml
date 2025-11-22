@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.9.4+580
+version: 2.9.5+580
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
@@ -64,8 +64,9 @@ dependencies:
   vector_math: ^2.1.4
   enum_to_string: ^2.0.1
   url_launcher: ^6.1.6
-  talker_flutter: ^4.7.1
-  talker_riverpod_logger: ^4.7.1
+  talker_flutter: ^5.0.1
+  talker_riverpod_logger: ^5.0.1
+  uuid: ^4.5.2
 
   permission_handler: ^12.0.0+1
   collection: ^1.19.0
@@ -82,7 +83,7 @@ dependencies:
   #persistent
   hive_ce_flutter: ^2.1.0
   flutter_secure_storage: ^9.0.0
-  share_plus: ^10.0.2
+  share_plus: ^12.0.1
   path_provider: ^2.1.0
 
   #theme
@@ -154,7 +155,7 @@ dependencies:
       git:
         url: https://github.com/Clon1998/touchable.git
   #  touchable: ^1.0.2
-  flutter_markdown: ^0.7.3+1
+  flutter_markdown_plus: ^1.0.5
   flutter_svg: ^2.0.5
   flutter_svg_provider: ^1.0.7
   loader_overlay: ^5.0.0

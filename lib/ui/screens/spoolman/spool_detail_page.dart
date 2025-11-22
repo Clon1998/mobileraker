@@ -89,7 +89,9 @@ class _SpoolDetailPage extends HookConsumerWidget {
       machineUUID: machineUUID,
       titleBuilder: (ctx, total) => ListTile(
         leading: const Icon(Icons.color_lens_outlined),
-        title: const Text('pages.spoolman.spool_details.alternative_spool.same_filament').tr(),
+        titleAlignment: ListTileTitleAlignment.center,
+        title: const Text('pages.spoolman.spool_details.alternative_spool.title').tr(),
+        subtitle: const Text('pages.spoolman.spool_details.alternative_spool.same_filament').tr(),
         trailing: total != null && total > 0
             ? Chip(
                 visualDensity: VisualDensity.compact,
@@ -106,7 +108,9 @@ class _SpoolDetailPage extends HookConsumerWidget {
       machineUUID: machineUUID,
       titleBuilder: (ctx, total) => ListTile(
         leading: const Icon(Icons.spoke_outlined),
-        title: const Text('pages.spoolman.spool_details.alternative_spool.same_material').tr(),
+        titleAlignment: ListTileTitleAlignment.center,
+        title: const Text('pages.spoolman.spool_details.alternative_spool.title').tr(),
+        subtitle: const Text('pages.spoolman.spool_details.alternative_spool.same_material').tr(),
         trailing: total != null && total > 0
             ? Chip(
                 visualDensity: VisualDensity.compact,
@@ -560,10 +564,12 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
       );
       final bytes = Uint8List.sublistView(qrImageBytes!);
 
-      await Share.shareXFiles(
-        [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
-        subject: 'Spool QR',
-        sharePositionOrigin: origin,
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile.fromData(bytes, mimeType: 'image/png', name: 'spoolman-sID_${spool.id}.png')],
+          subject: 'Spool QR',
+          sharePositionOrigin: origin,
+        ),
       );
     } catch (e, s) {
       talker.error('Error while generating and sharing QR Code', e, s);
