@@ -481,6 +481,18 @@ pages:
       no_devices_found: Nebyla nalezena žádná zařízení
       configure_btn: Konfigurace
       not_connected_btn: Nepřipojeno
+    data:
+      title: Import a Export dat
+      helper: Zálohovat nebo přenést data aplikace
+      export:
+        title: Exportovat data aplikace
+        helper: Uložte všechny své stroje, rozložení a nastavení do souboru pro zálohování nebo přenos
+      import:
+        title: Importovat data aplikace
+        helper: Načíst přístroje, rozložení a nastavení ze souboru
+      snack_imported:
+        title: Data byla importována!
+        message: Importováno {} strojů a {} rozložení.
     developer:
       title: Vývojář
       crashlytics: Povolit hlášení Crashlytics
