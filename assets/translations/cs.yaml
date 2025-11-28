@@ -246,6 +246,15 @@ pages:
     editing_card:
       title: Režim úprav
       body: Nyní můžete přeuspořádat, přidat a odebrat karty a stránky. Všechny karty zobrazují náhledy dat.
+    rename_layout:
+      title: Přejmenovat rozložení
+      label: Název Rozložení
+    layout_rename_snack:
+      title: Rozložení přejmenováno!
+      body: Rozložení bylo úspěšně přejmenováno.
+    layout_reset_snack:
+      title: Rozložení resetováno!
+      body: Rozložení bylo obnoveno na výchozí konfiguraci.
     error_save_snack:
       title: Chyba při ukládání rozložení!
       body: Nastala chyba při ukládání rozvržení.
@@ -1422,6 +1431,7 @@ bottom_sheets:
     available_layouts:
       label: 'Dostupné rozložení:'
       empty: Není k dispozici žádné rozložení
+      add_empty: Přidat nové rozložení
     layout_preview:
       not_saved: Neuloženo
     delete_layout:
@@ -1435,6 +1445,11 @@ bottom_sheets:
     falsy_import_snackbar:
       title: Chyba při importu rozložení!
       body: Rozložení nelze importovat. Ujistěte se, že schránka obsahuje platné rozložení.
+    load_layout_warning:
+      title: Načíst rozložení?
+      body: |-
+        Načítání rozložení přepíše aktuální rozložení hlavního panelu.
+        Všechny neuložené změny budou ztraceny.
   selections:
     no_selections:
       title: Nebyly nalezeny žádné výsledky
