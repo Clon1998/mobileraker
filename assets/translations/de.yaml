@@ -574,6 +574,14 @@ pages:
         purge_amount_helper: Filament-Ausstoß zur Reinigung der Düse
         purge_speed: Ausstoß-Geschwindigkeit
         purge_speed_helper: Geschwindigkeit zum Reinigen des Filaments
+        mode:
+          title: Filament Wechsel Modus
+          default: Standard
+          custom: Benutzerdefiniert
+        load_gcode: Filament Lade G-Code
+        load_gcode_helper: G-Code zum Laden des Filaments
+        unload_gcode: Filament Entlade G-Code
+        unload_gcode_helper: G-Code zum Entladen des Filaments
     cams:
       target_fps: Ziel FPS
       new_cam: Neue Webcam
