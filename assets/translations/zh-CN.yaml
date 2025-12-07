@@ -1070,11 +1070,8 @@ dialogs:
           load:
             idle: "将耗材插入挤出机\n"
             processing: "载入耗材中…\n"
-            processed: "喷嘴是否有材料挤出？如果没有，请重复载入操作。\n"
           unload:
-            idle: "将耗材拉出挤出机\n"
             processing: "退料中…\n"
-            processed: "是否已从挤出机中退出耗材？如果没有，请重复操作。\n"
       purge:
         title: "清理耗材\n"
         subtitle:
