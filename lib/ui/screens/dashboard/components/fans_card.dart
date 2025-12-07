@@ -5,6 +5,8 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
+import 'package:common/data/dto/config/fan/config_fan.dart';
+import 'package:common/data/dto/config/fan/config_print_cooling_fan.dart';
 import 'package:common/data/dto/machine/fans/controller_fan.dart';
 import 'package:common/data/dto/machine/fans/fan.dart';
 import 'package:common/data/dto/machine/fans/generic_fan.dart';
@@ -19,7 +21,6 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/horizontal_scroll_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -30,7 +31,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../components/adaptive_horizontal_scroll.dart';
@@ -61,7 +61,7 @@ class FansCard extends HookConsumerWidget {
 
     return AsyncGuard(
       animate: true,
-      debugLabel: 'FansCard-$machineUUID',
+      // debugLabel: 'FansCard-$machineUUID',
       toGuard: _fansCardControllerProvider(machineUUID).selectAs((data) => data.fans.isNotEmpty),
       childOnLoading: const _FansCardLoading(),
       childOnData: Card(
@@ -87,9 +87,7 @@ class _Preview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _fansCardControllerProvider(_machineUUID).overrideWith(_FansCardPreviewController.new),
-      ],
+      overrides: [_fansCardControllerProvider(_machineUUID).overrideWith(_FansCardPreviewController.new)],
       child: const FansCard(machineUUID: _machineUUID),
     );
   }
@@ -110,10 +108,7 @@ class _FansCardLoading extends StatelessWidget {
           children: [
             const CardTitleSkeleton(),
             HorizontalScrollSkeleton(
-              contentTextStyles: [
-                themeData.textTheme.bodySmall,
-                themeData.textTheme.headlineSmall,
-              ],
+              contentTextStyles: [themeData.textTheme.bodySmall, themeData.textTheme.headlineSmall],
             ),
             const SizedBox(height: 8),
           ],
@@ -157,8 +152,19 @@ class _CardBody extends ConsumerWidget {
       children: [
         for (var i = 0; i < fansCount; i++)
           _Fan(
-            // ignore: avoid-unsafe-collection-methods
-            fanProvider: _fansCardControllerProvider(machineUUID).selectRequireValue((value) => value.fans[i]),
+            fanProvider: _fansCardControllerProvider(machineUUID).selectRequireValue((value) {
+              // ignore: avoid-unsafe-collection-methods
+              final fan = value.fans[i];
+              final key = switch (fan) {
+                NamedFan(name: final n) => (fan.kind, n.toLowerCase()),
+                PrintFan() => (ConfigFileObjectIdentifiers.fan, 'print_fan'),
+                _ => (fan.kind, ''),
+              };
+
+              final fanConf = value.fanConfigs[key];
+
+              return (fan, fanConf);
+            }),
             machineUUID: machineUUID,
           ),
       ],
@@ -169,21 +175,23 @@ class _CardBody extends ConsumerWidget {
 class _Fan extends ConsumerWidget {
   const _Fan({super.key, required this.fanProvider, required this.machineUUID});
 
-  final ProviderListenable<Fan?> fanProvider;
+  final ProviderListenable<(Fan, ConfigFan?)?> fanProvider;
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var fan = ref.watch(fanProvider);
+    final data = ref.watch(fanProvider);
 
-    // talker.info('Rebuilding fan card for $fan');
-
-    if (fan == null) {
+    if (data == null) {
       return const SizedBox.shrink();
     }
+    talker.info('Rebuilding fan card for $data');
 
-    var klippyCanReceiveCommands =
-        ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    final (fan, fanConfig) = data;
+
+    var klippyCanReceiveCommands = ref.watch(
+      _fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands),
+    );
     var controller = ref.watch(_fansCardControllerProvider(machineUUID).notifier);
 
     String name = switch (fan) {
@@ -194,18 +202,19 @@ class _Fan extends ConsumerWidget {
     };
 
     VoidCallback? onTap = switch (fan) {
-      GenericFan() when klippyCanReceiveCommands => () => controller.onEditGenericFan(fan),
-      PrintFan() when klippyCanReceiveCommands => () => controller.onEditPartFan(fan),
+      GenericFan() || PrintFan() when klippyCanReceiveCommands => () => controller.onEditFan(fan, fanConfig),
       _ => null,
     };
 
     VoidCallback? onLongTap = switch (fan) {
-      GenericFan() when klippyCanReceiveCommands => () => controller.onToggleFan(fan),
-      PrintFan() when klippyCanReceiveCommands => () => controller.onPrintFan(fan),
+      GenericFan() || PrintFan() when klippyCanReceiveCommands => () => controller.onToggleFan(fan),
       _ => null,
     };
 
-    return _FanCard(name: name, speed: fan.speed, rpm: fan.rpm, onTap: onTap, onLongTap: onLongTap);
+    // The normalized fan value between 0 and 1
+    final normalizedSpeed = fan.speed / (fanConfig?.maxPower ?? 1);
+
+    return _FanCard(name: name, speed: normalizedSpeed, rpm: fan.rpm, onTap: onTap, onLongTap: onLongTap);
   }
 }
 
@@ -218,14 +227,7 @@ class _FanCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongTap;
 
-  const _FanCard({
-    super.key,
-    required this.name,
-    required this.speed,
-    this.rpm,
-    this.onTap,
-    this.onLongTap,
-  });
+  const _FanCard({super.key, required this.name, required this.speed, this.rpm, this.onTap, this.onLongTap});
 
   @override
   Widget build(_) {
@@ -263,15 +265,11 @@ class _FanCard extends StatelessWidget {
                       style: themeData.textTheme.headlineSmall,
                     ),
                     if (rpm != null)
-                      Text(
-                        '${tachFormat.format(rpm)} rpm',
-                        maxLines: 1,
-                        style: themeData.textTheme.bodySmall,
-                      ),
+                      Text('${tachFormat.format(rpm)} rpm', maxLines: 1, style: themeData.textTheme.bodySmall),
                   ],
                 ),
               ),
-              speed > 0 ? const SpinningFan(size: icoSize) : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
+              speed > 0 ? SpinningFan(size: icoSize, speed: speed) : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
             ],
           ),
         );
@@ -291,152 +289,116 @@ class _FansCardController extends _$FansCardController {
   }
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
-    talker.info('Rebuilding fansCardController for $machineUUID');
+  Future<_Model> build(String machineUUID) async {
+    final orderingFuture = ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.fanOrdering));
+    final klippyFuture = ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
+    final printerFuture = ref.watch(
+      printerProvider(machineUUID).selectAsync((data) {
+        final hasPrintFan = data.printFan != null;
+        final hasPrintFanConfig = data.configFile.configPrintCoolingFan != null;
 
-    // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
-    // This means that if the value is the same, the widget will not rebuild.
-    // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
-    var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.fanOrdering));
+        return (
+          <Fan>[if (hasPrintFan) data.printFan!, ...data.fans.values],
+          {
+            if (hasPrintFanConfig)
+              (ConfigFileObjectIdentifiers.fan, 'print_fan'): data.configFile.configPrintCoolingFan!,
+            ...data.configFile.fans,
+          },
+        );
+      }),
+    );
+
+    final (ordering, klippyCanReceive, (fans, fanConfigs)) = await (orderingFuture, klippyFuture, printerFuture).wait;
 
     int getOrderingIndex(Fan fan) {
       return ordering.indexWhere((element) {
         return switch (fan) {
           NamedFan() => element.name == fan.name && element.kind == fan.kind,
           PrintFan() => element.kind == ConfigFileObjectIdentifiers.fan,
-          _ => false
+          _ => false,
         };
       });
     }
 
-    var klippyCanReceiveCommands =
-        ref.watchAsSubject(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    fans.sort((a, b) => getOrderingIndex(a).compareTo(getOrderingIndex(b)));
 
-    var fans = ref
-        .watchAsSubject(printerProvider(machineUUID).selectAs((value) {
-      var printFan = value.printFan;
-      var fans = value.fans;
+    return _Model(klippyCanReceiveCommands: klippyCanReceive, fans: fans, fanConfigs: fanConfigs);
+  }
 
-      return [if (printFan != null) printFan, ...fans.values];
-    }))
-        // Use map here since this prevents to many operations if the original list not changes!
-        .map((fans) {
-      var output = <Fan>[];
+  Future<void> onEditFan(Fan fan, ConfigFan? fanConfig) async {
+    if (!state.hasValue) return;
+    final normalizedSpeed = fan.speed / (fanConfig?.maxPower ?? 1) * 100;
 
-      for (var fan in fans) {
-        if (fan case NamedFan(name: var name) when name.startsWith('_')) continue;
-        output.add(fan);
-      }
-
-      // Sort output by ordering, if ordering is not found it will be placed at the end
-      output.sort((a, b) {
-        var aIndex = getOrderingIndex(a);
-        var bIndex = getOrderingIndex(b);
-
-        if (aIndex == -1) aIndex = output.length;
-        if (bIndex == -1) bIndex = output.length;
-
-        return aIndex.compareTo(bIndex);
-      });
-      return output;
-    });
-
-    yield* Rx.combineLatest2(
-      klippyCanReceiveCommands,
-      fans,
-      (a, b) => _Model(
-        klippyCanReceiveCommands: a,
-        fans: b,
+    var resp = await _dialogService.show(
+      DialogRequest(
+        type: _dialogMode,
+        title: tr('dialogs.fan_speed.title', args: [tr('pages.dashboard.control.fan_card.part_fan')]),
+        dismissLabel: tr('general.cancel'),
+        actionLabel: tr('general.confirm'),
+        data: NumberEditDialogArguments(current: normalizedSpeed.round(), min: 0, max: 100),
       ),
     );
-  }
-
-  Future<void> onEditPartFan(PrintFan fan) async {
-    if (!state.hasValue) return;
-
-    var resp = await _dialogService.show(DialogRequest(
-      type: _dialogMode,
-      title: tr('dialogs.fan_speed.title', args: [tr('pages.dashboard.control.fan_card.part_fan')]),
-      dismissLabel: tr('general.cancel'),
-      actionLabel: tr('general.confirm'),
-      data: NumberEditDialogArguments(
-        current: fan.speed * 100.round(),
-        min: 0,
-        max: 100,
-      ),
-    ));
 
     if (resp != null && resp.confirmed && resp.data != null) {
       num v = resp.data;
-      _printerService.partCoolingFan(v.toDouble() / 100);
+
+      switch (fan) {
+        case GenericFan():
+          _printerService.genericFanFan(fan.name, v.toDouble() / 100);
+          break;
+        case PrintFan():
+          _printerService.partCoolingFan(v.toDouble() / 100);
+          break;
+        default:
+          talker.warning('Unknown fan type: $fan');
+      }
+      ;
     }
   }
 
-  Future<void> onEditGenericFan(GenericFan fan) async {
+  void onToggleFan(Fan fan) {
     if (!state.hasValue) return;
 
-    var resp = await _dialogService.show(DialogRequest(
-      type: _dialogMode,
-      title: tr('dialogs.fan_speed.title', args: [beautifyName(fan.name)]),
-      dismissLabel: tr('general.cancel'),
-      actionLabel: tr('general.confirm'),
-      data: NumberEditDialogArguments(
-        current: fan.speed * 100.round(),
-        min: 0,
-        max: 100,
-      ),
-    ));
+    final value = (fan.speed > 0) ? 0.0 : 1.0;
 
-    if (resp != null && resp.confirmed && resp.data != null) {
-      num v = resp.data;
-      _printerService.genericFanFan(fan.name, v.toDouble() / 100);
-    }
-  }
-
-  void onToggleFan(GenericFan fan) {
-    if (!state.hasValue) return;
-
-    if (fan.speed > 0) {
-      _printerService.genericFanFan(fan.name, 0);
-    } else {
-      _printerService.genericFanFan(fan.name, 1);
-    }
-  }
-
-  void onPrintFan(PrintFan fan) {
-    if (!state.hasValue) return;
-
-    if (fan.speed > 0) {
-      _printerService.partCoolingFan(0);
-    } else {
-      _printerService.partCoolingFan(1);
+    switch (fan) {
+      case GenericFan():
+        _printerService.genericFanFan(fan.name, value);
+        break;
+      case PrintFan():
+        _printerService.partCoolingFan(value);
+        break;
+      default:
+        talker.warning('Unknown fan type: $fan');
     }
   }
 }
 
 class _FansCardPreviewController extends _FansCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    talker.info('Rebuilding fansCardController for $machineUUID');
-
-    state = const AsyncValue.data(_Model(
+  Future<_Model> build(String machineUUID) {
+    final model = _Model(
       klippyCanReceiveCommands: true,
       fans: [
         PrintFan(speed: 0),
         ControllerFan(name: 'Preview Fan', speed: 0),
       ],
-    ));
+      fanConfigs: {
+        (ConfigFileObjectIdentifiers.fan, 'print_fan'): ConfigPrintCoolingFan(pin: 'PA1'),
+        (ConfigFileObjectIdentifiers.controller_fan, 'preview fan'): ConfigPrintCoolingFan(pin: 'PA2'),
+      },
+    );
 
-    return const Stream.empty();
+    state = AsyncValue.data(model);
+    return Future.value(model);
   }
 
   @override
-  Future<void> onEditPartFan(PrintFan fan) async {
+  Future<void> onEditFan(Fan fan, ConfigFan? fanConfig) async {
     // Do nothing preview
   }
 
-  @override
-  Future<void> onEditGenericFan(GenericFan fan) async {
+  void onToggleFan(Fan fan) {
     // Do nothing preview
   }
 }
@@ -448,5 +410,6 @@ class _Model with _$Model {
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required List<Fan> fans,
+    required Map<(ConfigFileObjectIdentifiers, String), ConfigFan> fanConfigs,
   }) = __Model;
 }

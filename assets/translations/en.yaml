@@ -71,6 +71,7 @@ general:
   allow: Allow
   deny: Deny
   settings: Settings
+  run: Run
 pages:
   dashboard:
     title: Dashboard
@@ -587,6 +588,7 @@ pages:
       steps_extrude: Extrude steps
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
+
         loading_distance: Extruder Nozzle Distance
         loading_distance_helper: Distance from the nozzle to the extruder. Used for
           (un)loading filament
@@ -597,6 +599,14 @@ pages:
         purge_amount_helper: Length of filament to purge
         purge_speed: Purge Speed
         purge_speed_helper: Speed for purging filament
+        mode:
+          title: Filament Change Mode
+          default: Default
+          custom: Custom
+        load_gcode: Filament Load G-Code
+        load_gcode_helper: G-Code to load filament
+        unload_gcode: Filament Unload G-Code
+        unload_gcode_helper: G-Code to unload filament
     cams:
       target_fps: Target FPS
       new_cam: New Webcam
@@ -1348,15 +1358,24 @@ dialogs:
         title:
           load: Load Filament
           unload: Unload Filament
+          gcode: Run Custom G-Code
         subtitle:
           load:
             idle: Insert filament into the extruder
             processing: Loading filament...
-            processed: Did the filament reach the nozzle? Repeat if necessary
+            processed: Check filament at nozzle. Adjust and retry if needed
+          load_gcode:
+            idle: Ensure printer is ready for custom load sequence
+            processing: Running load sequence...
+            processed: Confirm filament loaded. Re-run if unsuccessful
           unload:
-            idle: Move filament out of extruder
+            idle: Prepare to remove filament from extruder
             processing: Unloading filament...
-            processed: Did the filament come out of the extruder? Repeat if necessary
+            processed: Check filament removed. Retry if needed
+          unload_gcode:
+            idle: Ensure printer is ready for custom unload sequence
+            processing: Running unload sequence...
+            processed: Confirm filament unloaded. Re-run if unsuccessful
       purge:
         title: Purge Filament
         subtitle:

@@ -583,6 +583,7 @@ pages:
         load_gcode_helper: G-Code zum Laden des Filaments
         unload_gcode: Filament Entlade G-Code
         unload_gcode_helper: G-Code zum Entladen des Filaments
+
     cams:
       target_fps: Ziel FPS
       new_cam: Neue Webcam

@@ -32,6 +32,7 @@ class MachineSettings extends StampedEntity {
     this.miscOrdering = const [],
     this.filamentUnloadGCode,
     this.filamentLoadGCode,
+    this.useCustomFilamentGCode = false,
     this.nozzleExtruderDistance = 100,
     this.loadingSpeed = 5,
     this.purgeLength = 15,
@@ -45,24 +46,9 @@ class MachineSettings extends StampedEntity {
       created: now,
       lastModified: now,
       temperaturePresets: [
-        TemperaturePreset(
-          created: now,
-          name: 'PLA',
-          extruderTemp: 200,
-          bedTemp: 60,
-        ),
-        TemperaturePreset(
-          created: now,
-          name: 'PETG',
-          extruderTemp: 230,
-          bedTemp: 90,
-        ),
-        TemperaturePreset(
-          created: now,
-          name: 'ABS',
-          extruderTemp: 250,
-          bedTemp: 100,
-        ),
+        TemperaturePreset(created: now, name: 'PLA', extruderTemp: 200, bedTemp: 60),
+        TemperaturePreset(created: now, name: 'PETG', extruderTemp: 230, bedTemp: 90),
+        TemperaturePreset(created: now, name: 'ABS', extruderTemp: 250, bedTemp: 100),
       ],
     );
   }
@@ -88,8 +74,8 @@ class MachineSettings extends StampedEntity {
 
   // Filament loading and unloading operations
   String? filamentLoadGCode;
-
   String? filamentUnloadGCode;
+  bool useCustomFilamentGCode;
 
   int nozzleExtruderDistance;
   double loadingSpeed;
@@ -120,37 +106,39 @@ class MachineSettings extends StampedEntity {
           const DeepCollectionEquality().equals(other.miscOrdering, miscOrdering) &&
           other.filamentLoadGCode == filamentLoadGCode &&
           other.filamentUnloadGCode == filamentUnloadGCode &&
+          other.useCustomFilamentGCode == useCustomFilamentGCode &&
           other.nozzleExtruderDistance == nozzleExtruderDistance &&
           other.loadingSpeed == loadingSpeed &&
           other.purgeLength == purgeLength &&
           other.purgeSpeed == purgeSpeed;
 
   @override
-  int get hashCode => Object.hash(
-        super.hashCode,
-        runtimeType,
-        speedXY,
-        speedZ,
-        extrudeFeedrate,
-        const DeepCollectionEquality().hash(inverts),
-        const DeepCollectionEquality().hash(moveSteps),
-        const DeepCollectionEquality().hash(babySteps),
-        const DeepCollectionEquality().hash(extrudeSteps),
-        const DeepCollectionEquality().hash(macroGroups),
-        const DeepCollectionEquality().hash(temperaturePresets),
-        const DeepCollectionEquality().hash(tempOrdering),
-        const DeepCollectionEquality().hash(fanOrdering),
-        const DeepCollectionEquality().hash(miscOrdering),
-        filamentLoadGCode,
-        filamentUnloadGCode,
-        nozzleExtruderDistance,
-        loadingSpeed,
-        purgeLength,
-        purgeSpeed,
-      );
+  int get hashCode => Object.hashAll([
+    super.hashCode,
+    runtimeType,
+    speedXY,
+    speedZ,
+    extrudeFeedrate,
+    const DeepCollectionEquality().hash(inverts),
+    const DeepCollectionEquality().hash(moveSteps),
+    const DeepCollectionEquality().hash(babySteps),
+    const DeepCollectionEquality().hash(extrudeSteps),
+    const DeepCollectionEquality().hash(macroGroups),
+    const DeepCollectionEquality().hash(temperaturePresets),
+    const DeepCollectionEquality().hash(tempOrdering),
+    const DeepCollectionEquality().hash(fanOrdering),
+    const DeepCollectionEquality().hash(miscOrdering),
+    filamentLoadGCode,
+    filamentUnloadGCode,
+    useCustomFilamentGCode,
+    nozzleExtruderDistance,
+    loadingSpeed,
+    purgeLength,
+    purgeSpeed,
+  ]);
 
   @override
   String toString() {
-    return 'MachineSettings{inverts: $inverts, speedXY: $speedXY, speedZ: $speedZ, extrudeFeedrate: $extrudeFeedrate, moveSteps: $moveSteps, babySteps: $babySteps, extrudeSteps: $extrudeSteps, macroGroups: $macroGroups, temperaturePresets: $temperaturePresets, tempOrdering: $tempOrdering, fanOrdering: $fanOrdering, miscOrdering: $miscOrdering, filamentLoadGCode: $filamentLoadGCode, filamentUnloadGCode: $filamentUnloadGCode, nozzleExtruderDistance: $nozzleExtruderDistance, movingSpeed: $loadingSpeed, purgeLength: $purgeLength, purgeSpeed: $purgeSpeed}';
+    return 'MachineSettings{inverts: $inverts, speedXY: $speedXY, speedZ: $speedZ, extrudeFeedrate: $extrudeFeedrate, moveSteps: $moveSteps, babySteps: $babySteps, extrudeSteps: $extrudeSteps, macroGroups: $macroGroups, temperaturePresets: $temperaturePresets, tempOrdering: $tempOrdering, fanOrdering: $fanOrdering, miscOrdering: $miscOrdering, filamentLoadGCode: $filamentLoadGCode, filamentUnloadGCode: $filamentUnloadGCode, useCustomFilamentGCode: $useCustomFilamentGCode, nozzleExtruderDistance: $nozzleExtruderDistance, movingSpeed: $loadingSpeed, purgeLength: $purgeLength, purgeSpeed: $purgeSpeed}';
   }
 }

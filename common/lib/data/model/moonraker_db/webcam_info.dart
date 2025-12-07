@@ -14,8 +14,8 @@ import '../../enums/webcam_service_type.dart';
 part 'webcam_info.freezed.dart';
 part 'webcam_info.g.dart';
 
-final defaultStreamUri = Uri(path: '/webcam', query: 'action=stream');
-final defaultSnapshotUri = Uri(path: '/webcam', query: 'action=snapshot');
+final defaultStreamUri = Uri(path: '/webcam/', query: 'action=stream');
+final defaultSnapshotUri = Uri(path: '/webcam/', query: 'action=snapshot');
 
 // "1dec5e79-a49e-4742-a169-4abb68aee6a3": {
 // "enabled": true, // fluidd only

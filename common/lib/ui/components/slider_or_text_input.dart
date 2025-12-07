@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class SliderOrTextInput extends StatefulWidget {
@@ -122,9 +123,7 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
             child: AnimatedCrossFade(
               firstChild: InputDecorator(
                 decoration: InputDecoration(
-                  label: Text(
-                    '${widget.prefixText}: ${_numberFormat.format(sliderPos)}',
-                  ),
+                  label: Text('${widget.prefixText}: ${_numberFormat.format(sliderPos)}'),
                   isCollapsed: true,
                   border: InputBorder.none,
                 ),
@@ -140,10 +139,7 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
                 decoration: InputDecoration(
                   prefixText: '${widget.prefixText}:',
                   border: InputBorder.none,
-                  suffix: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Text(widget.unit ?? '%'),
-                  ),
+                  suffix: Padding(padding: const EdgeInsets.symmetric(horizontal: 14), child: Text(widget.unit ?? '%')),
                   errorText: !inputValid ? FormBuilderLocalizations.current.numericErrorText : null,
                 ),
                 enabled: widget.onChange != null,
@@ -152,9 +148,7 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
                 controller: textEditingController,
                 textAlign: TextAlign.end,
                 keyboardType: const TextInputType.numberWithOptions(),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-                ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))],
               ),
               duration: kThemeAnimationDuration,
               crossFadeState: fadeState,
@@ -162,21 +156,29 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
           ),
           AnimatedSwitcher(
             duration: kThemeAnimationDuration,
-            child: fadeState == CrossFadeState.showSecond && isTextFieldFocused
-                ? IconButton(
-                    key: const ValueKey('checkmark'),
-                    icon: const Icon(Icons.check),
-                    onPressed: inputValid ? _onCheckmarkClick : null,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-                  )
-                : IconButton(
-                    key: const ValueKey('edit'),
-                    icon: const Icon(Icons.edit),
-                    onPressed: inputValid && widget.onChange != null ? _toggle : null,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-                  ),
+            child: switch (fadeState) {
+              CrossFadeState.showFirst => IconButton(
+                key: const ValueKey('edit'),
+                icon: const Icon(Icons.edit),
+                onPressed: inputValid && widget.onChange != null ? _toggle : null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+              ),
+              CrossFadeState.showSecond when isTextFieldFocused => IconButton(
+                key: const ValueKey('checkmark'),
+                icon: const Icon(Icons.check),
+                onPressed: inputValid ? _onCheckmarkClick : null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+              ),
+              CrossFadeState.showSecond => IconButton(
+                key: const ValueKey('sliders'),
+                icon: const Icon(FlutterIcons.fingerprint_mco),
+                onPressed: inputValid && widget.onChange != null ? _toggle : null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+              ),
+            },
           ),
         ],
       ),

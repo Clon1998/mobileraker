@@ -1,6 +1,24 @@
 # Mobileraker - Changelog
 
-## [Unreleased] - 2025-11-06
+## [2.9.6] - 2025-12-xx
+
+### Enhancements
+
+- **Custom Load/Unload Sequences**: Users can now configure custom G-Code sequences in machine settings to execute
+  during filament loading and unloading operations, replacing Mobileraker's default sequences with their own
+  printer-specific commands when using the filament load/unload wizards.
+
+- **Fab with Keyboard**: The floating action button (FAB) on the dashboard page now hides when the keyboard is open, preventing
+  obstruction of input fields and enhancing user experience during text entry.
+
+### Bug Fixes
+
+- **Fans Card**: Fixed an issue where the fans card would not display fans %-speed correctly when `max_power` was set to
+  a value other than 1.0.
+- **Console History Color**: Fixed an issue where the console history text color for responses was not correctly set in
+  light mode, resulting in poor visibility.
+
+## [2.9.5] - 2025-11-22
 
 ### Enhancements
 

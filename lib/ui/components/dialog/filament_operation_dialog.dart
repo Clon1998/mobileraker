@@ -15,6 +15,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -22,7 +23,6 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -48,24 +48,13 @@ const _unloadingSteps = [
   _FilamentChangeSteps.moveFilament,
 ];
 
-const Map<String, int> _presetMaterials = {
-  'PLA': 210,
-  'PETG': 230,
-  'ABS': 245,
-  'ASA': 260,
-  'Nylon': 270,
-  'PC': 280,
-};
+const Map<String, int> _presetMaterials = {'PLA': 210, 'PETG': 230, 'ABS': 245, 'ASA': 260, 'Nylon': 270, 'PC': 280};
 
 class FilamentOperationDialog extends HookWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const FilamentOperationDialog({
-    super.key,
-    required this.request,
-    required this.completer,
-  });
+  const FilamentOperationDialog({super.key, required this.request, required this.completer});
 
   FilamentOperationDialogArgs get args => request.data as FilamentOperationDialogArgs;
 
@@ -80,6 +69,7 @@ class FilamentOperationDialog extends HookWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -89,7 +79,6 @@ class FilamentOperationDialog extends HookWidget {
               textAlign: TextAlign.center,
             ).tr(gender: args.operation),
           ),
-          const SizedBox(height: 10),
           Flexible(
             child: AsyncGuard(
               animate: true,
@@ -97,10 +86,7 @@ class FilamentOperationDialog extends HookWidget {
               toGuard: _filamentOperationDialogControllerProvider(args, completer).selectAs((_) => true),
               childOnData: _Data(args: args, completer: completer),
               childOnLoading: IntrinsicHeight(
-                child: SpinKitSpinningLines(
-                  size: 80,
-                  color: themeData.colorScheme.secondary,
-                ),
+                child: SpinKitSpinningLines(size: 80, color: themeData.colorScheme.secondary),
               ),
             ),
           ),
@@ -118,87 +104,116 @@ class _Data extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final step =
-        ref.watch(_filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.step));
+    final (step, useCustomGCode) = ref.watch(
+      _filamentOperationDialogControllerProvider(
+        args,
+        completer,
+      ).selectRequireValue((d) => (d.step, d.settings.useCustomFilamentGCode)),
+    );
     final controller = ref.watch(_filamentOperationDialogControllerProvider(args, completer).notifier);
 
-    final lookup = args.isLoad ? _loadingSteps : _unloadingSteps;
+    final List<_FilamentChangeSteps> lookup;
+    if (useCustomGCode) {
+      lookup = [_FilamentChangeSteps.setTemperature, _FilamentChangeSteps.heatUp, _FilamentChangeSteps.moveFilament];
+    } else {
+      lookup = args.isLoad ? _loadingSteps : _unloadingSteps;
+    }
+    talker.info('Building filament dialog, current step: $step, steps: ${lookup.length}');
 
     return Stepper(
       currentStep: lookup.indexOf(step),
       controlsBuilder: (context, details) => _controlsBuilder(context, details, controller),
+      // The footer for each step/actions
       steps: [
-        for (final s in args.isLoad ? _loadingSteps : _unloadingSteps) _stepBuilder(currentStep: step, step: s),
+        for (final s in lookup)
+          _stepBuilder(currentStep: step, step: s, lookup: lookup, useCustomGCode: useCustomGCode),
       ],
     );
   }
 
   Widget _controlsBuilder(
-      BuildContext context, ControlsDetails details, _FilamentOperationDialogController controller) {
+    BuildContext context,
+    ControlsDetails details,
+    _FilamentOperationDialogController controller,
+  ) {
     // Convert the current step to the enum to get the correct footer
     final stepEnum = args.isLoad ? _loadingSteps[details.stepIndex] : _unloadingSteps[details.stepIndex];
 
     return switch (stepEnum) {
       _FilamentChangeSteps.setTemperature => Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-                onPressed: details.isActive ? () => controller.moveToStep(_FilamentChangeSteps.heatUp) : null,
-                child: const Text('dialogs.filament_switch.controls.heat_up').tr()),
-          ],
-        ),
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: details.isActive ? () => controller.moveToStep(_FilamentChangeSteps.heatUp) : null,
+            child: const Text('dialogs.filament_switch.controls.heat_up').tr(),
+          ),
+        ],
+      ),
       _FilamentChangeSteps.heatUp => Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-                onPressed: details.isActive ? () => controller.moveToStep(_FilamentChangeSteps.setTemperature) : null,
-                child: const Text('dialogs.filament_switch.controls.change_temp').tr()),
-          ],
-        ),
-      _FilamentChangeSteps.moveFilament => Consumer(builder: (context, ref, child) {
-          final movingFila = ref.watch(
-              _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.movingFilament));
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: details.isActive ? () => controller.moveToStep(_FilamentChangeSteps.setTemperature) : null,
+            child: const Text('dialogs.filament_switch.controls.change_temp').tr(),
+          ),
+        ],
+      ),
+      _FilamentChangeSteps.moveFilament => Consumer(
+        builder: (context, ref, child) {
+          final (filamentMoving, useCustomGCode) = ref.watch(
+            _filamentOperationDialogControllerProvider(
+              args,
+              completer,
+            ).selectRequireValue((d) => (d.movingFilament, d.settings.useCustomFilamentGCode)),
+          );
 
-          Widget w = switch (movingFila) {
+          Widget w = switch (filamentMoving) {
             false || true => Row(
-                key: const Key('footer-moving-done'),
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
+              key: const Key('footer-moving-done'),
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: controller.moveFilament.only(details.isActive && filamentMoving != true),
+                  child: Text(
+                    args.isLoad
+                        ? 'dialogs.filament_switch.controls.repeat_load'
+                        : 'dialogs.filament_switch.controls.repeat_unload',
+                  ).tr(),
+                ),
+                if (args.isLoad && !useCustomGCode)
                   TextButton(
-                      onPressed: controller.moveFilament.only(details.isActive && movingFila != true),
-                      child: Text(args.isLoad
-                              ? 'dialogs.filament_switch.controls.repeat_load'
-                              : 'dialogs.filament_switch.controls.repeat_unload')
-                          .tr()),
-                  if (args.isLoad)
-                    TextButton(
-                        onPressed: details.isActive && movingFila == false
-                            ? () => controller.moveToStep(_FilamentChangeSteps.purgeFilament)
-                            : null,
-                        child: const Text('dialogs.filament_switch.controls.purge').tr()),
-                  if (!args.isLoad)
-                    TextButton(
-                        onPressed: details.isActive && movingFila == false
-                            ? () => completer(DialogResponse.confirmed())
-                            : null,
-                        child: Text('general.finish').tr()),
-                ],
-              ),
+                    onPressed: details.isActive && filamentMoving == false
+                        ? () => controller.moveToStep(_FilamentChangeSteps.purgeFilament)
+                        : null,
+                    child: const Text('dialogs.filament_switch.controls.purge').tr(),
+                  ),
+                if (!args.isLoad || useCustomGCode)
+                  TextButton(
+                    onPressed: details.isActive && filamentMoving == false
+                        ? () => completer(DialogResponse.confirmed())
+                        : null,
+                    child: Text('general.finish').tr(),
+                  ),
+              ],
+            ),
             _ => Row(
-                key: const Key('footer-moving-init'),
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (args.isLoad)
-                    TextButton(
-                        onPressed: details.isActive && movingFila != true
-                            ? () => controller.moveToStep(_FilamentChangeSteps.setTemperature)
-                            : null,
-                        child: const Text('dialogs.filament_switch.controls.change_temp').tr()),
+              key: const Key('footer-moving-init'),
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (args.isLoad)
                   TextButton(
-                      onPressed: controller.moveFilament.only(details.isActive && movingFila != true),
-                      child: Text('general.${args.operation}').tr()),
-                ],
-              ),
+                    onPressed: details.isActive && filamentMoving != true
+                        ? () => controller.moveToStep(_FilamentChangeSteps.setTemperature)
+                        : null,
+                    child: const Text('dialogs.filament_switch.controls.change_temp').tr(),
+                  ),
+
+                TextButton(
+                  onPressed: controller.moveFilament.only(details.isActive && filamentMoving != true),
+                  child: Text('general.${useCustomGCode ? 'run' : args.operation}').tr(),
+                ),
+              ],
+            ),
           };
 
           return AnimatedSizeAndFade(
@@ -207,24 +222,30 @@ class _Data extends ConsumerWidget {
             sizeDuration: kThemeAnimationDuration,
             child: w,
           );
-        }),
-      _FilamentChangeSteps.purgeFilament => Consumer(builder: (context, ref, child) {
+        },
+      ),
+      _FilamentChangeSteps.purgeFilament => Consumer(
+        builder: (context, ref, child) {
           final purging = ref.watch(
-              _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament));
+            _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament),
+          );
 
           return Row(
             key: const Key('footer-purging-done'),
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                  onPressed: controller.purgeFilament.only(details.isActive && purging != true),
-                  child: const Text('dialogs.filament_switch.controls.repeat_purge').tr()),
+                onPressed: controller.purgeFilament.only(details.isActive && purging != true),
+                child: const Text('dialogs.filament_switch.controls.repeat_purge').tr(),
+              ),
               TextButton(
-                  onPressed: details.isActive && purging == false ? () => completer(DialogResponse.confirmed()) : null,
-                  child: const Text('general.finish').tr()),
+                onPressed: details.isActive && purging == false ? () => completer(DialogResponse.confirmed()) : null,
+                child: const Text('general.finish').tr(),
+              ),
             ],
           );
-        }),
+        },
+      ),
       _FilamentChangeSteps.tipForming => const LinearProgressIndicator(),
       _ => const SizedBox.shrink(),
     };
@@ -233,9 +254,9 @@ class _Data extends ConsumerWidget {
   Step _stepBuilder({
     required _FilamentChangeSteps currentStep,
     required _FilamentChangeSteps step,
+    required List<_FilamentChangeSteps> lookup,
+    required bool useCustomGCode,
   }) {
-    final lookup = args.isLoad ? _loadingSteps : _unloadingSteps;
-
     StepState state;
     if (step == currentStep) {
       state = StepState.editing;
@@ -247,85 +268,96 @@ class _Data extends ConsumerWidget {
 
     return switch (step) {
       _FilamentChangeSteps.setTemperature => Step(
-          title: const Text('dialogs.filament_switch.steps.set_temps.title').tr(),
-          subtitle: const Text('dialogs.filament_switch.steps.set_temps.subtitle').tr(),
-          state: state,
-          content: _StepSetTemperature(args: args, completer: completer),
-        ),
+        title: const Text('dialogs.filament_switch.steps.set_temps.title').tr(),
+        subtitle: const Text('dialogs.filament_switch.steps.set_temps.subtitle').tr(),
+        state: state,
+        content: _StepSetTemperature(args: args, completer: completer),
+      ),
       _FilamentChangeSteps.heatUp => Step(
-          title: const Text('dialogs.filament_switch.steps.heat_up.title').tr(),
-          subtitle: const Text('dialogs.filament_switch.steps.heat_up.subtitle').tr(),
-          state: state,
-          content: _StepWaitHeatup(args: args, completer: completer),
-        ),
+        title: const Text('dialogs.filament_switch.steps.heat_up.title').tr(),
+        subtitle: const Text('dialogs.filament_switch.steps.heat_up.subtitle').tr(),
+        state: state,
+        content: _StepWaitHeatup(args: args, completer: completer),
+      ),
       _FilamentChangeSteps.moveFilament => Step(
-          title: const Text('dialogs.filament_switch.steps.move.title').tr(gender: args.operation),
-          subtitle: _subtitleMoving(),
-          state: state,
-          content: _StepMoveFilament(args: args, completer: completer),
-        ),
+        title: const Text(
+          'dialogs.filament_switch.steps.move.title',
+        ).tr(gender: useCustomGCode ? 'gcode' : args.operation),
+        subtitle: _subtitleMoving(useCustomGCode),
+        state: state,
+        content: _StepMoveFilament(args: args, completer: completer),
+      ),
       _FilamentChangeSteps.purgeFilament => Step(
-          title: const Text('dialogs.filament_switch.steps.purge.title').tr(),
-          subtitle: _subtitlePurging(),
-          state: state,
-          content: _StepPurgeFilament(args: args, completer: completer),
-        ),
+        title: const Text('dialogs.filament_switch.steps.purge.title').tr(),
+        subtitle: _subtitlePurging(),
+        state: state,
+        content: _StepPurgeFilament(args: args, completer: completer),
+      ),
       _FilamentChangeSteps.tipForming => Step(
-          title: const Text('dialogs.filament_switch.steps.tip_form.title').tr(),
-          subtitle: const Text('dialogs.filament_switch.steps.tip_form.subtitle').tr(),
-          state: state,
-          content: const SizedBox(),
-        ),
+        title: const Text('dialogs.filament_switch.steps.tip_form.title').tr(),
+        subtitle: const Text('dialogs.filament_switch.steps.tip_form.subtitle').tr(),
+        state: state,
+        content: const SizedBox(),
+      ),
     };
   }
 
-  Widget _subtitleMoving() {
-    return Consumer(builder: (context, ref, child) {
-      final movingFila = ref.watch(
-          _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.movingFilament));
-      String ops = switch (movingFila) {
-        true => 'processing',
-        false => 'processed',
-        _ => 'idle',
-      };
+  Widget _subtitleMoving(bool useCustomGCode) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final movingFila = ref.watch(
+          _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.movingFilament),
+        );
+        String operationState = switch (movingFila) {
+          true => 'processing',
+          false => 'processed',
+          _ => 'idle',
+        };
+        var operation = args.operation;
+        if (useCustomGCode) {
+          operation = '${operation}_gcode';
+        }
 
-
-      const dur = kThemeAnimationDuration;
-      return AnimatedSizeAndFade(
-        alignment: Alignment.bottomLeft,
-        fadeDuration: dur,
-        sizeDuration: dur,
-        child: SizedBox(
-          key: Key('movFila-$ops'),
-          width: double.infinity,
-          child: const Text('dialogs.filament_switch.steps.move.subtitle').tr(gender: '${args.operation}.$ops'),
-        ),
-      );
-    });
+        const dur = kThemeAnimationDuration;
+        return AnimatedSizeAndFade(
+          alignment: Alignment.bottomLeft,
+          fadeDuration: dur,
+          sizeDuration: dur,
+          child: SizedBox(
+            key: Key('movFila-$operationState'),
+            width: double.infinity,
+            child: const Text('dialogs.filament_switch.steps.move.subtitle').tr(gender: '$operation.$operationState'),
+          ),
+        );
+      },
+    );
   }
 
   Widget _subtitlePurging() {
-    return Consumer(builder: (context, ref, child) {
-      final purgingFilament = ref.watch(
-          _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament));
-      String ops = switch (purgingFilament) {
-        true => 'processing',
-        false => 'processed',
-        _ => 'idle',
-      };
+    return Consumer(
+      builder: (context, ref, child) {
+        final purgingFilament = ref.watch(
+          _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament),
+        );
+        String ops = switch (purgingFilament) {
+          true => 'processing',
+          false => 'processed',
+          _ => 'idle',
+        };
 
-      const dur = kThemeAnimationDuration;
-      return AnimatedSizeAndFade(
-        alignment: Alignment.bottomLeft,
-        fadeDuration: dur,
-        sizeDuration: dur,
-        child: SizedBox(
-          key: Key('purgFila-$ops'),
-          width: double.infinity,
-          child: const Text('dialogs.filament_switch.steps.purge.subtitle').tr(gender: ops),
-        ),
-      );
-    });
+        const dur = kThemeAnimationDuration;
+        return AnimatedSizeAndFade(
+          alignment: Alignment.bottomLeft,
+          fadeDuration: dur,
+          sizeDuration: dur,
+          child: SizedBox(
+            key: Key('purgFila-$ops'),
+            width: double.infinity,
+            child: const Text('dialogs.filament_switch.steps.purge.subtitle').tr(gender: ops),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -340,8 +372,9 @@ class _StepSetTemperature extends HookConsumerWidget {
     final model = ref.watch(_filamentOperationDialogControllerProvider(args, completer).requireValue());
     final controller = ref.watch(_filamentOperationDialogControllerProvider(args, completer).notifier);
 
-    final presets = _presetMaterials.entries
-        .where((e) => e.value >= model.extruderConfig.minExtrudeTemp && e.value <= model.extruderConfig.maxTemp);
+    final presets = _presetMaterials.entries.where(
+      (e) => e.value >= model.extruderConfig.minExtrudeTemp && e.value <= model.extruderConfig.maxTemp,
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -364,8 +397,8 @@ class _StepSetTemperature extends HookConsumerWidget {
                   onPressed: () => controller.updateTargetTemp(material.value),
                   label: Text(material.key),
                 ),
-                if (material != presets.last) const SizedBox(width: 8)
-              ]
+                if (material != presets.last) const SizedBox(width: 8),
+              ],
             ],
           ),
         ),
@@ -388,8 +421,9 @@ class _StepWaitHeatup extends ConsumerWidget {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
+      spacing: 4,
       children: [
-        const Icon(FlutterIcons.printer_3d_nozzle_mco),
+        const Icon(MobilerakerIcons.nozzle_heat),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -397,9 +431,7 @@ class _StepWaitHeatup extends ConsumerWidget {
             children: [
               Text('${numberFormat.format(model.extruderTemp)}/${numberFormat.format(model.targetTemperature)} °C'),
               const SizedBox(height: 2),
-              LinearProgressIndicator(
-                value: model.extruderTemp / model.targetTemperature,
-              )
+              LinearProgressIndicator(value: model.extruderTemp / model.targetTemperature),
             ],
           ),
         ),
@@ -435,7 +467,8 @@ class _StepPurgeFilament extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(
-        _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament));
+      _filamentOperationDialogControllerProvider(args, completer).selectRequireValue((d) => d.purgingFilament),
+    );
 
     return switch (model) {
       true => const LinearProgressIndicator(),
@@ -458,18 +491,15 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     final machineUUID = args.machineUUID;
     final extruderIndex = int.tryParse(args.extruder) ?? 0;
 
-    ref.listen(
-      jrpcClientStateProvider(machineUUID),
-      (previous, next) {
-        if (next.valueOrNull != ClientState.connected && !_closing) {
-          talker.info('Lost connection to machine, will close filament dialog.');
-          _closing = true;
-          completer(DialogResponse.aborted());
-        }
-      },
-    );
+    ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
+      if (next.valueOrNull != ClientState.connected && !_closing) {
+        talker.info('Lost connection to machine, will close filament dialog.');
+        _closing = true;
+        completer(DialogResponse.aborted());
+      }
+    });
 
-    ref.listenSelf((previous, next) {
+    listenSelf((previous, next) {
       final modelPrevious = previous?.valueOrNull;
       final modelNext = next.valueOrNull;
 
@@ -481,7 +511,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       } else if (modelNext.targetReached && modelNext.step == _FilamentChangeSteps.heatUp) {
         talker.info('Target reached, next step');
         moveToStep(_FilamentChangeSteps.moveFilament);
-        // if we unload, we automatically start extruding
+        // if we unload, we automatically start extruding. This triggers the "move aka loading/unloading" step
         if (!args.isLoad) moveFilament();
 
         //TODO: This was used for tip forming. However, tip forming is meh and causes more issues than it solves
@@ -538,12 +568,20 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     state = AsyncValue.data(model.copyWith(movingFilament: true));
 
     final move = min(model.settings.nozzleExtruderDistance, model.extruderConfig.maxExtrudeOnlyDistance);
-    final veloc = min(model.settings.loadingSpeed, model.extruderConfig.maxExtrudeOnlyVelocity??50);
+    final veloc = min(model.settings.loadingSpeed, model.extruderConfig.maxExtrudeOnlyVelocity ?? 50);
 
     if (args.isLoad) {
-      await _printerService.moveExtruder(move, veloc, true);
+      if (model.settings.useCustomFilamentGCode && model.settings.filamentLoadGCode?.isNotEmpty == true) {
+        await _printerService.gCode(model.settings.filamentLoadGCode!);
+      } else {
+        await _printerService.moveExtruder(move, veloc, true);
+      }
     } else {
-      await _printerService.moveExtruder(-move, veloc, true);
+      if (model.settings.useCustomFilamentGCode && model.settings.filamentUnloadGCode?.isNotEmpty == true) {
+        await _printerService.gCode(model.settings.filamentUnloadGCode!);
+      } else {
+        await _printerService.moveExtruder(-move, veloc, true);
+      }
     }
 
     state = AsyncValue.data(state.requireValue.copyWith(movingFilament: false));
@@ -554,7 +592,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     if (model == null) return;
     state = AsyncValue.data(model.copyWith(purgingFilament: true));
     final move = min(model.settings.purgeLength, model.extruderConfig.maxExtrudeOnlyDistance);
-    final veloc = min(model.settings.purgeSpeed, model.extruderConfig.maxExtrudeOnlyVelocity??50);
+    final veloc = min(model.settings.purgeSpeed, model.extruderConfig.maxExtrudeOnlyVelocity ?? 50);
     await _printerService.moveExtruder(move, veloc, true);
 
     state = AsyncValue.data(state.requireValue.copyWith(purgingFilament: false));
@@ -570,7 +608,8 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     //TODO: Speed should be configurable
     final endSpeed = 20 * 60;
 
-    final gcode = '''
+    final gcode =
+        '''
       SAVE_GCODE_STATE NAME=mr_unload_state
       M220 S100
 	    G91

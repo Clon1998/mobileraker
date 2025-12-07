@@ -171,7 +171,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
                 dense: true,
                 visualDensity: VisualDensity.compact,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                title: Text(entry.message, style: _commandTextStyle(themeData, ListTileTheme.of(context))),
+                title: Text(entry.message, style: _commandTextStyle(themeData)),
                 onTap: () => widget.onCommandTap?.call(entry.message),
                 subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
                 subtitleTextStyle: themeData.textTheme.bodySmall,
@@ -186,7 +186,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
               visualDensity: VisualDensity.compact,
               contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               title: Text(entry.message),
-              titleTextStyle: TextStyle(fontFamily: 'monospace'),
+              titleTextStyle: _messageTextStyle(themeData),
               subtitle: Text(dateFormat.format(entry.timestamp)).only(showTimeStamp),
               subtitleTextStyle: themeData.textTheme.bodySmall,
               minTileHeight: 0,
@@ -197,18 +197,47 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
     );
   }
 
-  TextStyle _commandTextStyle(ThemeData theme, ListTileThemeData tileTheme) {
-    final TextStyle textStyle;
-    switch (tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
-      case ListTileStyle.drawer:
-        textStyle = theme.textTheme.bodyLarge!;
-        break;
-      case ListTileStyle.list:
-        textStyle = theme.textTheme.titleMedium!;
-        break;
+  TextStyle _commandTextStyle(ThemeData theme) {
+    TextStyle? textStyle = theme.listTileTheme.titleTextStyle;
+    if (textStyle == null && theme.useMaterial3) {
+      textStyle = theme.textTheme.bodyLarge!.copyWith(color: theme.colorScheme.onSurface);
+    } else if (textStyle == null) {
+      switch (theme.listTileTheme.style ?? ListTileStyle.list) {
+        case ListTileStyle.drawer:
+          textStyle = theme.textTheme.bodyLarge!;
+          break;
+        case ListTileStyle.list:
+          textStyle = theme.textTheme.titleMedium!;
+          break;
+      }
     }
 
     return textStyle.copyWith(color: theme.colorScheme.primary, fontFamily: 'monospace');
+  }
+
+  TextStyle _messageTextStyle(ThemeData theme) {
+    /// The text style for ListTile's [title].
+    ///
+    /// If this property is null, then [ListTileThemeData.titleTextStyle] is used.
+    /// If that is also null and [ThemeData.useMaterial3] is true, [TextTheme.bodyLarge]
+    /// with [ColorScheme.onSurface] will be used. Otherwise, If ListTile style is
+    /// [ListTileStyle.list], [TextTheme.titleMedium] will be used and if ListTile style
+    /// is [ListTileStyle.drawer], [TextTheme.bodyLarge] will be used.
+    TextStyle? textStyle = theme.listTileTheme.titleTextStyle;
+    if (textStyle == null && theme.useMaterial3) {
+      textStyle = theme.textTheme.bodyLarge!.copyWith(color: theme.colorScheme.onSurface);
+    } else if (textStyle == null) {
+      switch (theme.listTileTheme.style ?? ListTileStyle.list) {
+        case ListTileStyle.drawer:
+          textStyle = theme.textTheme.bodyLarge!;
+          break;
+        case ListTileStyle.list:
+          textStyle = theme.textTheme.titleMedium!;
+          break;
+      }
+    }
+
+    return textStyle.copyWith(fontFamily: 'monospace');
   }
 
   @override

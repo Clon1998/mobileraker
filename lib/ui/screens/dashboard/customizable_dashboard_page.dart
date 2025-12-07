@@ -147,7 +147,7 @@ class _DashboardView extends HookConsumerWidget {
     return Scaffold(
       appBar: const _AppBar(),
       body: body,
-      floatingActionButton: fab.unless(context.isLargerThanCompact),
+      floatingActionButton: fab.unless(context.isLargerThanCompact)?.let((it) => _FabHider(child: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: activeMachine?.uuid
           .let((it) => _BottomNavigationBar(machineUUID: it))
@@ -156,6 +156,27 @@ class _DashboardView extends HookConsumerWidget {
     );
   }
 }
+
+class _FabHider extends StatelessWidget {
+  const _FabHider({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final isKeyBoardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+
+    return AnimatedScale(
+      duration: kThemeAnimationDuration,
+      scale: isKeyBoardOpen ? 0.0 : 1.0,
+      child: IgnorePointer(
+        ignoring: isKeyBoardOpen,
+        child: child,
+      ),
+    );
+  }
+}
+
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({super.key, required this.machineUUID});

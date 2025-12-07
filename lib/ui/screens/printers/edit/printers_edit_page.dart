@@ -9,6 +9,7 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/config/config_heater_bed.dart';
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/machine_service.dart';
@@ -16,6 +17,7 @@ import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
@@ -26,6 +28,7 @@ import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -515,80 +518,7 @@ class _RemoteSettings extends ConsumerWidget {
                   ]),
                 ),
                 const ExtruderStepSegmentInput(),
-                FormBuilderTextField(
-                  name: 'loadingDistance',
-                  initialValue: machineSettings.nozzleExtruderDistance.toString(),
-                  valueTransformer: (text) => text?.let(int.tryParse) ?? 100,
-                  decoration: InputDecoration(
-                    labelText: tr('pages.printer_edit.extruders.filament.loading_distance'),
-                    helperText: tr('pages.printer_edit.extruders.filament.loading_distance_helper'),
-                    suffixText: 'mm',
-                    isDense: true,
-                    helperMaxLines: 5,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.min(1),
-                    FormBuilderValidators.integer(),
-                    FormBuilderValidators.numeric(),
-                  ]),
-                ),
-                FormBuilderTextField(
-                  name: 'loadingSpeed',
-                  initialValue: machineSettings.loadingSpeed.toString(),
-                  valueTransformer: (text) => text?.let(double.tryParse)?.toPrecision(1) ?? 5.0,
-                  decoration: InputDecoration(
-                    labelText: tr('pages.printer_edit.extruders.filament.loading_speed'),
-                    helperText: tr('pages.printer_edit.extruders.filament.loading_speed_helper'),
-                    suffixText: 'mm/s',
-                    isDense: true,
-                    helperMaxLines: 5,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.min(1),
-                    FormBuilderValidators.numeric(),
-                  ]),
-                ),
-                FormBuilderTextField(
-                  name: 'purgeLength',
-                  initialValue: machineSettings.purgeLength.toString(),
-                  valueTransformer: (text) => text?.let(int.tryParse) ?? 5,
-                  decoration: InputDecoration(
-                    labelText: tr('pages.printer_edit.extruders.filament.purge_amount'),
-                    helperText: tr('pages.printer_edit.extruders.filament.purge_amount_helper'),
-                    suffixText: 'mm',
-                    isDense: true,
-                    helperMaxLines: 5,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.min(1),
-                    FormBuilderValidators.numeric(),
-                    FormBuilderValidators.integer(),
-                  ]),
-                ),
-                FormBuilderTextField(
-                  name: 'purgeSpeed',
-                  initialValue: machineSettings.purgeSpeed.toString(),
-                  valueTransformer: (text) => text?.let(double.tryParse)?.toPrecision(1) ?? 2.5,
-                  decoration: InputDecoration(
-                    labelText: tr('pages.printer_edit.extruders.filament.purge_speed'),
-                    helperText: tr('pages.printer_edit.extruders.filament.purge_speed_helper'),
-                    suffixText: 'mm/s',
-                    isDense: true,
-                    helperMaxLines: 5,
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.min(1),
-                    FormBuilderValidators.numeric(),
-                  ]),
-                ),
+                ExtruderFilamentOperations(machineSettings: machineSettings),
                 const Divider(),
                 MacroGroupList(machineUUID: machineUUID, enabled: !isSaving),
                 const Divider(),
@@ -709,6 +639,167 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
         ref.read(extruderStepStateProvider.notifier).validate,
       ]),
       inputType: TextInputType.number,
+    );
+  }
+}
+
+class ExtruderFilamentOperations extends HookConsumerWidget {
+  const ExtruderFilamentOperations({super.key, required this.machineSettings});
+
+  final MachineSettings machineSettings;
+
+  final Set<String> defaultOpKeys = const {'loadingDistance', 'loadingSpeed', 'purgeLength', 'purgeSpeed'};
+
+  final Set<String> customOpKeys = const {'filamentLoadGCode', 'filamentUnloadGCode'};
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = useState(machineSettings.useCustomFilamentGCode ? 1 : 0);
+    final formKey = ref.watch(editPrinterFormKeyProvider);
+
+
+    useEffect(() {
+      formKey.currentState?.setInternalFieldValue('useCustomFilamentGCode', mode.value == 1);
+    }, [mode.value]);
+
+    var defaultOps = Column(
+      key: const Key('default_filament_operations'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FormBuilderTextField(
+          name: 'loadingDistance',
+          initialValue: machineSettings.nozzleExtruderDistance.toString(),
+          valueTransformer: (text) => text?.let(int.tryParse) ?? 100,
+          decoration: InputDecoration(
+            labelText: tr('pages.printer_edit.extruders.filament.loading_distance'),
+            helperText: tr('pages.printer_edit.extruders.filament.loading_distance_helper'),
+            suffixText: 'mm',
+            isDense: true,
+            helperMaxLines: 5,
+          ),
+          keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.min(1),
+            FormBuilderValidators.integer(),
+            FormBuilderValidators.numeric(),
+          ]),
+        ),
+        FormBuilderTextField(
+          name: 'loadingSpeed',
+          initialValue: machineSettings.loadingSpeed.toString(),
+          valueTransformer: (text) => text?.let(double.tryParse)?.toPrecision(1) ?? 5.0,
+          decoration: InputDecoration(
+            labelText: tr('pages.printer_edit.extruders.filament.loading_speed'),
+            helperText: tr('pages.printer_edit.extruders.filament.loading_speed_helper'),
+            suffixText: 'mm/s',
+            isDense: true,
+            helperMaxLines: 5,
+          ),
+          keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.min(1),
+            FormBuilderValidators.numeric(),
+          ]),
+        ),
+        FormBuilderTextField(
+          name: 'purgeLength',
+          initialValue: machineSettings.purgeLength.toString(),
+          valueTransformer: (text) => text?.let(int.tryParse) ?? 5,
+          decoration: InputDecoration(
+            labelText: tr('pages.printer_edit.extruders.filament.purge_amount'),
+            helperText: tr('pages.printer_edit.extruders.filament.purge_amount_helper'),
+            suffixText: 'mm',
+            isDense: true,
+            helperMaxLines: 5,
+          ),
+          keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.min(1),
+            FormBuilderValidators.numeric(),
+            FormBuilderValidators.integer(),
+          ]),
+        ),
+        FormBuilderTextField(
+          name: 'purgeSpeed',
+          initialValue: machineSettings.purgeSpeed.toString(),
+          valueTransformer: (text) => text?.let(double.tryParse)?.toPrecision(1) ?? 2.5,
+          decoration: InputDecoration(
+            labelText: tr('pages.printer_edit.extruders.filament.purge_speed'),
+            helperText: tr('pages.printer_edit.extruders.filament.purge_speed_helper'),
+            suffixText: 'mm/s',
+            isDense: true,
+            helperMaxLines: 5,
+          ),
+          keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.min(1),
+            FormBuilderValidators.numeric(),
+          ]),
+        ),
+      ],
+    );
+    var customOps = Column(
+      key: Key('custom_filament_operations'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FormBuilderTextField(
+          decoration: InputDecoration(
+            labelText: tr('pages.printer_edit.extruders.filament.load_gcode'),
+            helperText: tr('pages.printer_edit.extruders.filament.load_gcode_helper'),
+            helperMaxLines: 3,
+          ),
+          name: 'filamentUnloadGCode',
+          initialValue: machineSettings.filamentUnloadGCode,
+          valueTransformer: (text) => text?.trim(),
+          keyboardType: TextInputType.multiline,
+          minLines: 1,
+          maxLines: 5,
+        ),
+        FormBuilderTextField(
+          decoration: InputDecoration(
+            labelText: tr('pages.printer_edit.extruders.filament.unload_gcode_'),
+            helperText: tr('pages.printer_edit.extruders.filament.unload_gcode_helper'),
+            helperMaxLines: 3,
+          ),
+          name: 'filamentLoadGCode',
+          initialValue: machineSettings.filamentLoadGCode,
+          valueTransformer: (text) => text?.trim(),
+          keyboardType: TextInputType.multiline,
+          minLines: 1,
+          maxLines: 5,
+        ),
+      ],
+    );
+
+    var active = mode.value == 1 ? customOps : defaultOps;
+    var inactive = mode.value == 1 ? defaultOps : customOps;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InputDecorator(
+          decoration: InputDecoration(labelText: tr('pages.printer_edit.extruders.filament.mode.title'), border: InputBorder.none),
+          child: CupertinoSlidingSegmentedControl(
+            children: {
+              0: Padding(padding: EdgeInsets.all(16), child: Text('pages.printer_edit.extruders.filament.mode.default').tr()),
+              1: Text('pages.printer_edit.extruders.filament.mode.custom').tr(),
+            },
+            onValueChanged: (int? value) => mode.value = value ?? 0,
+            groupValue: mode.value,
+          ),
+        ),
+        AnimatedSizeAndFade(
+          fadeDuration: kThemeAnimationDuration,
+          sizeDuration: kThemeAnimationDuration,
+          child: active,
+        ),
+
+        Offstage(child: inactive),
+      ],
     );
   }
 }

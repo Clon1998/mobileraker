@@ -136,6 +136,7 @@ class PrinterEditController extends _$PrinterEditController {
 
       Map<String, dynamic> storedValues = Map.unmodifiable(formBuilderState.value);
 
+      talker.info('VALS: $storedValues');
       if (isConnected) {
         talker.info('Can store remoteSettings, machine is connected!');
 
@@ -192,10 +193,17 @@ class PrinterEditController extends _$PrinterEditController {
     final speedZ = storedValues['speedZ'];
     final extrudeSpeed = storedValues['extrudeSpeed'];
 
+    final filamentUnloadGCode = storedValues['filamentUnloadGCode'];
+    final filamentLoadGCode = storedValues['filamentLoadGCode'];
+    final useCustomFilamentGCode = storedValues['useCustomFilamentGCode'] == true;
+
     final loadingDistance = storedValues['loadingDistance'];
     final loadingSpeed = storedValues['loadingSpeed'];
     final purgeLength = storedValues['purgeLength'];
     final purgeSpeed = storedValues['purgeSpeed'];
+
+    talker.info("FilOps: filamentUnloadGCode: $filamentUnloadGCode, filamentLoadGCode: $filamentLoadGCode, loadingDistance: $loadingDistance, loadingSpeed: $loadingSpeed, purgeLength: $purgeLength, purgeSpeed: $purgeSpeed");
+
 
     List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
     List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
@@ -240,6 +248,9 @@ class PrinterEditController extends _$PrinterEditController {
             tempOrdering: tempOrdering,
             fanOrdering: fanOrdering,
             miscOrdering: miscOrdering,
+            filamentLoadGCode: filamentLoadGCode,
+            filamentUnloadGCode: filamentUnloadGCode,
+            useCustomFilamentGCode: useCustomFilamentGCode,
             loadingSpeed: loadingSpeed,
             nozzleExtruderDistance: loadingDistance,
             purgeLength: purgeLength,

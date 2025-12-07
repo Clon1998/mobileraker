@@ -98,6 +98,7 @@ Future<void> main() async {
                     'toolheadInfoProvider',
                     'temperatureStoreProvider',
                     '_controlXYZCardControllerProvider',
+                    '_fansCardControllerProvider',
                   ].contains(provider.name),
                 ),
               ),
