@@ -1254,11 +1254,8 @@ dialogs:
           load:
             idle: Insira o filamento no extrusor
             processing: Carregando filamento...
-            processed: O filamento chegou ao bico? Repita se necessário
           unload:
-            idle: Mova o filamento para fora do extrusor
             processing: Descarregando filamento...
-            processed: O filamento saiu do extrusor? Repita se necessário
       purge:
         title: Purgar Filamento
         subtitle:
