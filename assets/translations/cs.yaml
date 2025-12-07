@@ -1280,11 +1280,8 @@ dialogs:
           load:
             idle: Vložte vlákno do extruderu
             processing: Zavádění filamentu...
-            processed: Dosáhlo vlákno trysky? V případě potřeby opakujte.
           unload:
-            idle: Vytáhněte filament z extruderu
             processing: Vysouvání filamentu...
-            processed: Vyšlo vlákno z extrudéru? V případě potřeby opakujte.
       purge:
         title: Vyčistit filament
         subtitle:
