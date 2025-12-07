@@ -71,6 +71,7 @@ general:
   allow: Erlauben
   deny: Verweigern
   settings: Einstellungen
+  run: Ausführen
 pages:
   dashboard:
     title: Dashboard
@@ -1274,15 +1275,24 @@ dialogs:
         title:
           load: Filament laden
           unload: Filament entladen
+          gcode: Benutzerdefinierten G-Code ausführen
         subtitle:
           load:
             idle: Filament in den Extruder einführen
             processing: Filament wird geladen...
             processed: Hat das Filament die Düse erreicht? Bei Bedarf wiederholen
+          load_gcode:
+            idle: Stelle sicher, dass der Drucker für die benutzerdefinierte Ladesequenz bereit ist.
+            processing: Ladesequenz wird ausgeführt...
+            processed: Überprüfe, ob das Filament geladen wurde. Bei Bedarf erneut ausführen.
           unload:
             idle: Filament aus dem Extruder bewegen
             processing: Filament wird entladen...
             processed: Ist das Filament aus dem Extruder gekommen? Bei Bedarf wiederholen
+          unload_gcode:
+            idle: Stelle sicher, dass der Drucker für die benutzerdefinierte Entladesequenz bereit ist.
+            processing: Entladesequenz wird ausgeführt...
+            processed: Überprüfe, ob das Filament entladen wurde. Bei Bedarf erneut ausführen.
       purge:
         title: Filament Ausstoßen
         subtitle:
