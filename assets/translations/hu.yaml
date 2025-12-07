@@ -1274,11 +1274,8 @@ dialogs:
           load:
             idle: Helyezz nyomtatószálat az adagolóba
             processing: Nyomtatószál betöltése...
-            processed: Elérte a nyomtatószál a fúvókát? Ismételd meg, ha szükséges
           unload:
-            idle: Adja ki a nyomtatószálat az adagolóból
             processing: Nyomtatószál kiadása...
-            processed: Kijött a nyomtatószál az adagolóból? Ismételd meg, ha szükséges
       purge:
         title: Nyomtatószál tisztítás
         subtitle:
