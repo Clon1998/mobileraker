@@ -1107,11 +1107,8 @@ dialogs:
           load:
             idle: 將線材插入擠出機
             processing: 裝載線材中...
-            processed: 已經到達噴嘴嗎？如果需要，請重複操作。
           unload:
-            idle: 將線材移出擠出機
             processing: 退料中...
-            processed: 是否已從擠出機中退出線材？如果需要，請重複操作。
       purge:
         title: 清理線材
         subtitle:
