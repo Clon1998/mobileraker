@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'printer_axis_enum.dart';
@@ -19,6 +20,7 @@ String _homedAxisToJson(Set<PrinterAxis> homed) => homed.map((e) => e.name).join
 class Toolhead with _$Toolhead {
   const Toolhead._();
 
+  @StringDoubleConverter()
   const factory Toolhead({
     @JsonKey(name: 'homed_axes', fromJson: _homedAxisFromJson, toJson: _homedAxisToJson)
     @Default(<PrinterAxis>{})

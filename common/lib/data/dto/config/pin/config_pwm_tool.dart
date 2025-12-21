@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import './config_pin.dart';
@@ -12,6 +13,8 @@ part 'config_pwm_tool.g.dart';
 
 @freezed
 class ConfigPwmTool extends ConfigPin with _$ConfigPwmTool {
+
+  @StringDoubleConverter()
   const factory ConfigPwmTool({
     required String name,
     @Default(1) double scale,

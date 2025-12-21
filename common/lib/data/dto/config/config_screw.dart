@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'config_screw.freezed.dart';
@@ -14,6 +16,8 @@ part 'config_screw.g.dart';
 class ConfigScrew with _$ConfigScrew {
   const ConfigScrew._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   const factory ConfigScrew({
     // NOTE THE INDEX is 1-based (1, 2, 3, ...)
     required int index,

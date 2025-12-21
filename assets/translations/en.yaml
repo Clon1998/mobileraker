@@ -72,6 +72,7 @@ general:
   deny: Deny
   settings: Settings
   run: Run
+  enable: Enable
 pages:
   dashboard:
     title: Dashboard
@@ -156,6 +157,15 @@ pages:
         beacon_models: Beacon Models
         beacon_btn: Beacon
         beacon_tooltip: Select beacon model
+        force_move_btn: Force Move
+        force_move_tooltip: "Toggle 'Force Move' mode"
+        force_move_dialog:
+          title: Enable Force Move?
+          body: |-
+            You are about to enable 'Force Move' mode.
+            This bypasses all safety checks and kinematic constraints, moving individual steppers without updating the printer's position state.
+
+            This is a low-level diagnostic tool. Incorrect use can cause mechanical damage. You must issue G28 to re-home and restore proper kinematics after use.
       baby_step_card:
         title: Micro-Step Z-Axis
         z_offset: Z-Offset
@@ -1574,8 +1584,8 @@ bottom_sheets:
     load_layout_warning:
       title: Load Layout?
       body: |-
-          Loading a layout will overwrite your current dashboard layout.
-          All unsaved changes will be lost.
+        Loading a layout will overwrite your current dashboard layout.
+        All unsaved changes will be lost.
   selections:
     no_selections:
       title: No results found

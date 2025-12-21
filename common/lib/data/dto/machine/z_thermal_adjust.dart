@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../config/config_file_object_identifiers_enum.dart';
@@ -25,6 +26,7 @@ part 'z_thermal_adjust.g.dart';
 class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
   const ZThermalAdjust._();
 
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ZThermalAdjust({
     @Default(false) bool enabled,

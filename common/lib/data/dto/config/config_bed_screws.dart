@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'config_screw.dart';
@@ -27,6 +28,7 @@ part 'config_bed_screws.g.dart';
 
 @freezed
 class ConfigBedScrews with _$ConfigBedScrews {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigBedScrews({
     @Default(5) double horizontalMoveZ,

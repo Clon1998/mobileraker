@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -18,6 +19,7 @@ class GCodeStoreEntry with _$GCodeStoreEntry {
 
   const GCodeStoreEntry._();
 
+  @StringDoubleConverter()
   const factory GCodeStoreEntry({
     required String message,
 

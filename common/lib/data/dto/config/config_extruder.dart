@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'config_extruder.freezed.dart';
@@ -10,6 +11,7 @@ part 'config_extruder.g.dart';
 
 @freezed
 class ConfigExtruder with _$ConfigExtruder {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigExtruder({
     required String name,

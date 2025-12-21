@@ -26,10 +26,8 @@ void main() {
     test('PrinterBuilder.preview initializes all fields correctly', () {
       expect(builder.toolhead, isNotNull);
       expect(builder.gCodeMove, isNotNull);
-      expect(builder.motionReport, isNotNull);
       expect(builder.print, isNotNull);
       expect(builder.configFile, isNotNull);
-      expect(builder.virtualSdCard, isNotNull);
     });
 
     test('Build with missing required fields should throw exception', () {
@@ -43,10 +41,8 @@ void main() {
 
       expect(printer.toolhead, isNotNull);
       expect(printer.gCodeMove, isNotNull);
-      expect(printer.motionReport, isNotNull);
       expect(printer.print, isNotNull);
       expect(printer.configFile, isNotNull);
-      expect(printer.virtualSdCard, isNotNull);
     });
 
     test('PrinterBuilder initializes extruders, heaterBed, and fans correctly', () {
@@ -74,10 +70,6 @@ void main() {
       expect(() => builder.build(), throwsA(isA<MobilerakerException>()));
     });
 
-    test('Build method throws when motionReport is missing', () {
-      final builder = PrinterBuilder.preview()..motionReport = null;
-      expect(() => builder.build(), throwsA(isA<MobilerakerException>()));
-    });
 
     test('Build method throws when print is missing', () {
       final builder = PrinterBuilder.preview()..print = null;
@@ -86,11 +78,6 @@ void main() {
 
     test('Build method throws when configFile is missing', () {
       final builder = PrinterBuilder.preview()..configFile = null;
-      expect(() => builder.build(), throwsA(isA<MobilerakerException>()));
-    });
-
-    test('Build method throws when virtualSdCard is missing', () {
-      final builder = PrinterBuilder.preview()..virtualSdCard = null;
       expect(() => builder.build(), throwsA(isA<MobilerakerException>()));
     });
 

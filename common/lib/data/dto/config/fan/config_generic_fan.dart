@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'config_fan.dart';
@@ -15,6 +16,8 @@ part 'config_generic_fan.g.dart';
 class ConfigGenericFan extends ConfigFan with _$ConfigGenericFan {
   const ConfigGenericFan._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigGenericFan({
     required String name,
@@ -26,7 +29,7 @@ class ConfigGenericFan extends ConfigFan with _$ConfigGenericFan {
     @Default(0.100) double kickStartTime,
     @Default(0) double offBelow,
     String? tachometerPin,
-    @IntegerConverter() @Default(2) int? tachometerPpr,
+    @Default(2) int? tachometerPpr,
     @Default(0.0015) double? tachometerPollInterval,
     String? enablePin,
   }) = _ConfigGenericFan;

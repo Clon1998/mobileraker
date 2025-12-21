@@ -12,6 +12,7 @@
     "time_in_queue": 21.89680004119873
 },
  */
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/converters/unix_datetime_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -20,6 +21,7 @@ part 'job_queue_entry.g.dart';
 
 @freezed
 class JobQueueEntry with _$JobQueueEntry {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   factory JobQueueEntry({
     required String filename,

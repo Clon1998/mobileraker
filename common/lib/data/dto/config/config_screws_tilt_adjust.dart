@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'config_screw.dart';
@@ -25,6 +26,7 @@ part 'config_screws_tilt_adjust.g.dart';
 
 @freezed
 class ConfigScrewsTiltAdjust with _$ConfigScrewsTiltAdjust {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigScrewsTiltAdjust({
     @Default('CW-M3') String screwThread,

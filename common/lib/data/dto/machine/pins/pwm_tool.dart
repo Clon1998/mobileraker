@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/pins/pin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,6 +15,7 @@ part 'pwm_tool.g.dart';
 class PwmTool extends Pin with _$PwmTool {
   const PwmTool._();
 
+  @StringDoubleConverter()
   const factory PwmTool({required String name, @Default(0.0) double value}) = _PwmTool;
 
   factory PwmTool.fromJson(Map<String, dynamic> json, [String? name]) =>

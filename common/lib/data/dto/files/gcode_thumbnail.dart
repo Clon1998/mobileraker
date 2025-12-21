@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -20,10 +21,11 @@ part 'gcode_thumbnail.g.dart';
 class GCodeThumbnail with _$GCodeThumbnail {
   const GCodeThumbnail._();
 
+  @StringIntegerConverter()
   const factory GCodeThumbnail({
-    @IntegerConverter() @JsonKey(readValue: _potentiallyStringifiedIntegerToJson) required int width,
-    @IntegerConverter() @JsonKey(readValue: _potentiallyStringifiedIntegerToJson) required int height,
-    @IntegerConverter() required int size,
+    @JsonKey(readValue: _potentiallyStringifiedIntegerToJson) required int width,
+    @JsonKey(readValue: _potentiallyStringifiedIntegerToJson) required int height,
+    required int size,
     @JsonKey(name: 'relative_path') required String relativePath,
   }) = _GCodeThumbnail;
 

@@ -47,6 +47,7 @@ class ConfigFile {
   Map<(ConfigFileObjectIdentifiers, String), ConfigFan> fans = {};
   Map<String, ConfigHeaterGeneric> genericHeaters = {};
   List<String>? beaconModels;
+  bool? enableForceMove;
 
   ConfigFile();
 
@@ -116,6 +117,8 @@ class ConfigFile {
             objectName!.substring(5).trim(),
           ];
         }
+      } else if (cIdentifier == ConfigFileObjectIdentifiers.force_move) {
+        enableForceMove = jsonChild['enable_force_move'] ?? false;
       }
     }
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
@@ -142,6 +145,8 @@ class ConfigFile {
   bool get hasVirtualZEndstop => steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
 
   bool get hasBeacon => rawConfig.containsKey('beacon');
+
+  bool get hasForceMove => rawConfig.containsKey('force_move');
 
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
 

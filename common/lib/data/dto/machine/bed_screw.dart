@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'bed_screw.freezed.dart';
@@ -20,11 +20,12 @@ enum BedScrewMode { adjust, fine }
 
 @freezed
 class BedScrew with _$BedScrew {
+  @StringIntegerConverter()
   const factory BedScrew({
     @JsonKey(name: 'is_active') @Default(false) bool isActive,
     BedScrewMode? state,
-    @IntegerConverter() @JsonKey(name: 'accepted_screws') @Default(0) int acceptedScrews,
-    @IntegerConverter() @JsonKey(name: 'current_screw') @Default(0) int currentScrew,
+    @JsonKey(name: 'accepted_screws') @Default(0) int acceptedScrews,
+    @JsonKey(name: 'current_screw') @Default(0) int currentScrew,
   }) = _BedScrew;
 
   factory BedScrew.fromJson(Map<String, dynamic> json) => _$BedScrewFromJson(json);

@@ -4,6 +4,7 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -60,6 +61,7 @@ class BedMeshProfile with _$BedMeshProfile {
 
 @freezed
 class BedMeshParams with _$BedMeshParams {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory BedMeshParams({
     required double minX,

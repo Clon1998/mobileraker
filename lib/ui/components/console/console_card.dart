@@ -432,4 +432,9 @@ class _PreviewPrinterService implements PrinterService {
   Future<bool> zTiltAdjust() {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> forceMovePrintHead({required String stepper, required distance, double feedRate = 100}) {
+    throw UnimplementedError();
+  }
 }

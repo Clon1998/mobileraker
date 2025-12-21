@@ -15,12 +15,14 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/single_value_selector.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/ui/components/skeletons/square_elevated_icon_button_skeleton.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -240,17 +242,28 @@ class _ControlXYZLoading extends StatelessWidget {
   }
 }
 
-class _CardTitle extends StatelessWidget {
+class _CardTitle extends ConsumerWidget {
   const _CardTitle({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final forceMoveEnabled = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((d) => d.forceMoveEnabled));
+
+
     return ListTile(
       leading: const Icon(FlutterIcons.axis_arrow_mco),
       title: const Text('pages.dashboard.general.move_card.title').tr(),
-      trailing: HomedAxisChip(machineUUID: machineUUID),
+      trailing: AnimatedSwitcher(
+        duration: kThemeAnimationDuration,
+        layoutBuilder:(child, prevChild) =>  Stack(
+          alignment: Alignment.centerRight,
+          children: [...prevChild, if (child!= null) child],
+        ),
+        child: forceMoveEnabled ? _ForceMoveChip(key: Key('fmoveChip')) : HomedAxisChip(key: Key('homedChip'),machineUUID: machineUUID),
+      ),
     );
   }
 }
@@ -266,7 +279,7 @@ class _CardBody extends ConsumerWidget {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
+          children: [
             _XYMotionWidget(machineUUID: machineUUID),
             _ZMotionWidget(machineUUID: machineUUID),
           ],
@@ -293,22 +306,27 @@ class _XYMotionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref.watch(
-        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
-    var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
+    final (klippyCanReceiveCommands, forceMoveEnabled, xHomed, yHomed) = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => (data.klippyCanReceiveCommands, data.forceMoveEnabled, data.isXAxisHomed, data.isYAxisHomed)));
+    final controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
+    var cc = Theme.of(context).extension<CustomColors>();
+
+    final buttonStyle = ButtonStyle(backgroundColor: WidgetStatePropertyAll(cc?.danger??Colors.red), foregroundColor: WidgetStatePropertyAll(cc?.onDanger?? Colors.white)).only(forceMoveEnabled);
     return Column(
       children: [
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands ? () => controller.onMoveBtn(PrinterAxis.Y) : null,
+          onPressed: klippyCanReceiveCommands && (yHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Y) : null,
+          style: buttonStyle,
           child: const Icon(FlutterIcons.upsquare_ant),
         ),
         Row(
           children: [
             SquareElevatedIconButton(
               margin: _marginForBtns,
-              onPressed: klippyCanReceiveCommands ? () => controller.onMoveBtn(PrinterAxis.X, false) : null,
+              onPressed: klippyCanReceiveCommands && (xHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.X, false) : null,
+              style: buttonStyle,
               child: const Icon(FlutterIcons.leftsquare_ant),
             ),
             Tooltip(
@@ -325,14 +343,16 @@ class _XYMotionWidget extends ConsumerWidget {
             ),
             SquareElevatedIconButton(
               margin: _marginForBtns,
-              onPressed: klippyCanReceiveCommands ? () => controller.onMoveBtn(PrinterAxis.X) : null,
+              onPressed: klippyCanReceiveCommands && (xHomed ||forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.X) : null,
+              style: buttonStyle,
               child: const Icon(FlutterIcons.rightsquare_ant),
             ),
           ],
         ),
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands ? () => controller.onMoveBtn(PrinterAxis.Y, false) : null,
+          onPressed: klippyCanReceiveCommands && (yHomed ||forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Y, false) : null,
+          style: buttonStyle,
           child: const Icon(FlutterIcons.downsquare_ant),
         ),
       ],
@@ -347,15 +367,16 @@ class _ZMotionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref.watch(
-        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
-    var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
+    final (klippyCanReceiveCommands, zHomed) = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => (data.klippyCanReceiveCommands, data.isZAxisHomed)));
+    final controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
+
 
     return Column(
       children: [
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
+          onPressed: klippyCanReceiveCommands && zHomed  ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
           child: const Icon(FlutterIcons.upsquare_ant),
         ),
         Tooltip(
@@ -368,7 +389,7 @@ class _ZMotionWidget extends ConsumerWidget {
         ),
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
+          onPressed: klippyCanReceiveCommands && zHomed ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
           child: const Icon(FlutterIcons.downsquare_ant),
         ),
       ],
@@ -506,6 +527,24 @@ class _StepSelectorWidget extends ConsumerWidget {
   }
 }
 
+class _ForceMoveChip extends StatelessWidget {
+  const _ForceMoveChip({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cc = Theme.of(context).extension<CustomColors>();
+
+    return Chip(
+      side: BorderSide(
+          color: cc?.danger ?? Colors.red,
+          width: 3
+      ),
+      label: Text('FORCE_MOVE'),
+    );
+  }
+}
+
+
 @riverpod
 class _ControlXYZCardController extends _$ControlXYZCardController {
   SettingService get _settingService => ref.read(settingServiceProvider);
@@ -515,6 +554,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.moveStepIndex, machineUUID);
+
+  DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   @override
   Future<_Model> build(String machineUUID) async {
@@ -539,6 +580,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
       directActions: _quickActions(printer.configFile),
       steps: machineSettings.moveSteps,
       selected: min(max(0, idx), machineSettings.moveSteps.length - 1),
+      homedAxis: printer.toolhead.homedAxes,
+      forceMoveEnabled: state.value?.forceMoveEnabled ?? false,
     );
   }
 
@@ -563,26 +606,52 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         true;
     double dirStep = (positive ^ invert) ? step : -1 * step;
 
+    bool forceMove = state.value?.forceMoveEnabled == true;
+
+
     HapticFeedback.selectionClick().ignore();
     await switch (axis) {
-      PrinterAxis.X => _printerService.movePrintHead(
-          x: dirStep,
-          feedRate: machineSettings.speedXY.toDouble(),
-        ),
-      PrinterAxis.Y => _printerService.movePrintHead(
-          y: dirStep,
-          feedRate: machineSettings.speedXY.toDouble(),
-        ),
-      PrinterAxis.Z => _printerService.movePrintHead(
-          z: dirStep,
-          feedRate: machineSettings.speedZ.toDouble(),
-        ),
+      PrinterAxis.X when !forceMove =>
+          _printerService.movePrintHead(
+            x: dirStep,
+            feedRate: machineSettings.speedXY.toDouble(),
+          ),
+      PrinterAxis.X when forceMove =>
+          _printerService.forceMovePrintHead(
+            stepper: 'stepper_x',
+            distance: dirStep,
+            feedRate: machineSettings.speedXY.toDouble(),
+          ),
+      PrinterAxis.Y when !forceMove =>
+          _printerService.movePrintHead(
+            y: dirStep,
+            feedRate: machineSettings.speedXY.toDouble(),
+          ),
+      PrinterAxis.Y when forceMove =>
+          _printerService.forceMovePrintHead(
+            stepper: 'stepper_y',
+            distance: dirStep,
+            feedRate: machineSettings.speedXY.toDouble(),
+          ),
+      PrinterAxis.Z when !forceMove =>
+          _printerService.movePrintHead(
+            z: dirStep,
+            feedRate: machineSettings.speedZ.toDouble(),
+          ),
+      PrinterAxis.Z when forceMove =>
+          _printerService.forceMovePrintHead(
+            stepper: 'stepper_z',
+            distance: dirStep,
+            feedRate: machineSettings.speedZ.toDouble(),
+          ),
       _ => throw ArgumentError('Invalid axis: $axis'),
     };
   }
 
   Future<void> onHomeAxisBtn(Set<PrinterAxis> axis) {
     HapticFeedback.selectionClick().ignore();
+    // Disable force move when homing
+    state = state.whenData((data) => data.copyWith(forceMoveEnabled: false));
     return _printerService.homePrintHead(axis);
   }
 
@@ -635,6 +704,22 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     talker.info('Selected beacon model: ${res.data}');
   }
 
+  Future<void> onForceMoveToggled() async {
+    if (!state.hasValue) return;
+    final model = state.requireValue;
+
+    if (!model.forceMoveEnabled) {
+      final res = await _dialogService.showDangerConfirm(
+        title: tr('pages.dashboard.general.move_card.force_move_dialog.title'),
+        body: tr('pages.dashboard.general.move_card.force_move_dialog.body'),
+        actionLabel: tr('general.enable')
+      );
+      if (res?.confirmed != true) return;
+    }
+
+    state = AsyncValue.data(model.copyWith(forceMoveEnabled: !model.forceMoveEnabled));
+  }
+
   List<_QuickAction> _quickActions(ConfigFile configFile) {
     return [
       _QuickAction(
@@ -679,6 +764,13 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         icon: Icons.near_me_disabled,
         callback: onMotorOff,
       ),
+      if (configFile.hasForceMove == true && configFile.enableForceMove == true)
+        _QuickAction(
+          title: 'pages.dashboard.general.move_card.force_move_btn'.tr(),
+          description: 'pages.dashboard.general.move_card.force_move_tooltip'.tr(),
+          icon: Icons.touch_app,
+          callback: onForceMoveToggled,
+        ),
       if (configFile.hasProbe == true)
         _QuickAction(
           title: 'pages.dashboard.general.move_card.poff_btn'.tr(),
@@ -727,6 +819,7 @@ class _ControlXYZCardPreviewController extends _ControlXYZCardController {
       klippyCanReceiveCommands: true,
       selected: 2,
       steps: [1, 5, 25, 50, 100],
+      homedAxis: {PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z},
       directActions: [
         _QuickAction(
           title: tr('pages.dashboard.general.move_card.home_all_btn'),
@@ -826,13 +919,21 @@ class _ControlXYZCardPreviewController extends _ControlXYZCardController {
 
 @freezed
 class _Model with _$Model {
+  const _Model._();
+
   const factory _Model({
     required bool showCard,
     required bool klippyCanReceiveCommands,
     required int selected,
     required List<double> steps,
+    required Set<PrinterAxis> homedAxis,
     @Default([]) List<_QuickAction> directActions,
+    @Default(false) forceMoveEnabled,
   }) = __Model;
+
+  bool get isXAxisHomed => homedAxis.contains(PrinterAxis.X);
+  bool get isYAxisHomed => homedAxis.contains(PrinterAxis.Y);
+  bool get isZAxisHomed => homedAxis.contains(PrinterAxis.Z);
 }
 
 @freezed

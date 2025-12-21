@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/dto/machine/layer_info.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,6 +16,7 @@ part 'print_stats.g.dart';
 class PrintStats with _$PrintStats {
   const PrintStats._();
 
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory PrintStats({
     @Default(PrintState.error) PrintState state,

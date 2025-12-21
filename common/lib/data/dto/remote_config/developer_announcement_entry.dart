@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hashlib/hashlib.dart';
@@ -16,6 +17,7 @@ part 'developer_announcement_entry.g.dart';
 class DeveloperAnnouncementEntry with _$DeveloperAnnouncementEntry {
   const DeveloperAnnouncementEntry._();
 
+  @StringIntegerConverter()
   const factory DeveloperAnnouncementEntry({
     required bool show,
     @JsonKey(unknownEnumValue: DeveloperAnnouncementEntryType.info) required DeveloperAnnouncementEntryType type,

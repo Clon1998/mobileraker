@@ -54,7 +54,7 @@ class MachineSettings extends StampedEntity {
   }
 
   List<bool> inverts; // [X,Y,Z]
-  int speedXY;
+  int speedXY; // mm/min
   int speedZ;
   int extrudeFeedrate;
   List<double> moveSteps;

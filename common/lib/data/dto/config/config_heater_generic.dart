@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'config_heater_generic.freezed.dart';
@@ -31,6 +32,7 @@ part 'config_heater_generic.g.dart';
 
 @freezed
 class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterGeneric({
     required String name,

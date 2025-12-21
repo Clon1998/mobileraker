@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -16,11 +17,13 @@ part 'generic_file.g.dart';
 class GenericFile with _$GenericFile, RemoteFile {
   const GenericFile._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   const factory GenericFile({
     @JsonKey(name: 'filename') required String name,
     required String parentPath,
     required double modified,
-    @IntegerConverter() required int size,
+    required int size,
     @Default('') String permissions,
   }) = _GenericFile;
 

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../converters/double_precision_converter.dart';
@@ -14,6 +15,7 @@ part 'gcode_move.g.dart';
 class GCodeMove with _$GCodeMove {
   const GCodeMove._();
 
+  @StringDoubleConverter()
   const factory GCodeMove({
     @Double2PrecisionConverter() @JsonKey(name: 'speed_factor')
     @Default(0)

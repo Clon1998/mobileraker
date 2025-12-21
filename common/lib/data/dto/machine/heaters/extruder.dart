@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../config/config_file_object_identifiers_enum.dart';
@@ -20,6 +22,8 @@ class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
 
   const Extruder._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   const factory Extruder({
     required int num,
     @Default(0) double temperature,

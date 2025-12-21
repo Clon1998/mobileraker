@@ -4,13 +4,15 @@
  */
 
 import 'package:collection/collection.dart';
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'gcode_thumbnail.dart';
 import 'remote_file_mixin.dart';
 
 part 'gcode_file.freezed.dart';
+
 part 'gcode_file.g.dart';
 
 // {
@@ -75,21 +77,23 @@ class GCodeFile with _$GCodeFile, RemoteFile {
 
   const GCodeFile._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory GCodeFile({
     @JsonKey(name: 'filename') required String name,
     required String parentPath,
     required double modified,
-    @IntegerConverter() required int size,
+    required int size,
     double?
-        printStartTime, // The most recent start time the gcode file was printed. Will be null if the file has yet to be printed.
+    printStartTime, // The most recent start time the gcode file was printed. Will be null if the file has yet to be printed.
     String?
-        jobId, // The last history job ID associated with the gcode. Will be null if no job has been associated with the file.
+    jobId, // The last history job ID associated with the gcode. Will be null if no job has been associated with the file.
     String? slicer,
     String? slicerVersion,
-    @IntegerConverter() int? gcodeStartByte,
-    @IntegerConverter() int? gcodeEndByte,
-    @IntegerConverter() int? layerCount,
+    int? gcodeStartByte,
+    int? gcodeEndByte,
+    int? layerCount,
     double? objectHeight,
     double? estimatedTime,
     double? nozzleDiameter,

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../config/config_file_object_identifiers_enum.dart';
@@ -23,6 +24,7 @@ part 'temperature_fan.g.dart';
 class TemperatureFan extends NamedFan with _$TemperatureFan, TemperatureSensorMixin {
   const TemperatureFan._();
 
+  @StringDoubleConverter()
   const factory TemperatureFan(
       {required String name,
       @Default(0) double speed,

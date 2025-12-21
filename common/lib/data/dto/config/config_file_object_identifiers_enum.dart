@@ -13,6 +13,7 @@ enum ConfigFileObjectIdentifiers {
   extruder(r'^extruder(\d*)$'),
   fan(null),
   fan_generic(null),
+  force_move(null),
   filament_motion_sensor(null),
   filament_switch_sensor(null),
   firmware_retraction(null),

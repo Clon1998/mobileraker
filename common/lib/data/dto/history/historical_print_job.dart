@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -75,6 +76,7 @@ part 'historical_print_job.g.dart';
 
 @freezed
 class HistoricalPrintJob with _$HistoricalPrintJob {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory HistoricalPrintJob({
     required String jobId,

@@ -291,6 +291,11 @@ class PrinterService {
     return gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
+  Future<void> forceMovePrintHead({required String stepper, required distance, double feedRate = 100}) {
+
+    return gCode('FORCE_MOVE STEPPER=$stepper DISTANCE=$distance VELOCITY=$feedRate');
+  }
+
   Future<void> activateExtruder([int extruderIndex = 0]) async {
     await gCode('ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
   }

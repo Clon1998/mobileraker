@@ -4,6 +4,7 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'bed_mesh_profile.dart';
@@ -15,6 +16,7 @@ part 'bed_mesh.g.dart';
 class BedMesh with _$BedMesh {
   const BedMesh._();
 
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory BedMesh({
     @JsonKey(readValue: _profileName) String? profileName,

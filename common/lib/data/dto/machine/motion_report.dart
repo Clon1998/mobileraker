@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'motion_report.freezed.dart';
@@ -10,6 +11,7 @@ part 'motion_report.g.dart';
 
 @freezed
 class MotionReport with _$MotionReport {
+  @StringDoubleConverter()
   const factory MotionReport({
     @JsonKey(name: 'live_position')
     @Default([0.0, 0.0, 0.0, 0.0])

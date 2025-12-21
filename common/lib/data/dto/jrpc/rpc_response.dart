@@ -5,7 +5,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../converters/integer_converter.dart';
+import '../../converters/string_integer_converter.dart';
 
 part 'rpc_response.freezed.dart';
 part 'rpc_response.g.dart';
@@ -14,9 +14,10 @@ part 'rpc_response.g.dart';
 class RpcResponse with _$RpcResponse {
   const RpcResponse._();
 
+  @StringIntegerConverter()
   const factory RpcResponse({
     required String jsonrpc,
-    @IntegerConverter() required int id,
+    required int id,
     required Map<String, dynamic> result,
   }) = _RpcReponse;
 

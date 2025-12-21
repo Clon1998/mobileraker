@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'config_led.dart';
@@ -15,6 +16,7 @@ part 'config_dumb_led.g.dart';
 class ConfigDumbLed extends ConfigLed with _$ConfigDumbLed {
   const ConfigDumbLed._();
 
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigDumbLed({
     required String name,

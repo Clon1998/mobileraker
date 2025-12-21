@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'gadget_status.freezed.dart';
@@ -10,6 +11,7 @@ part 'gadget_status.g.dart';
 
 @freezed
 class GadgetStatus with _$GadgetStatus {
+  @StringIntegerConverter()
   @JsonSerializable(fieldRename: FieldRename.pascal)
   const factory GadgetStatus({
     required String status,

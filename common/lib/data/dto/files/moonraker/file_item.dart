@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -14,10 +15,11 @@ part 'file_item.g.dart';
 class FileItem with _$FileItem {
   const FileItem._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   const factory FileItem(
       {required String path,
-      required String root,
-      @IntegerConverter() int? size,
+      required String root, int? size,
       double? modified,
       String? permissions}) = _FileItem;
 

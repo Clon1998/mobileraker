@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'firmware_retraction.freezed.dart';
@@ -17,6 +18,7 @@ part 'firmware_retraction.g.dart';
 
 @freezed
 class FirmwareRetraction with _$FirmwareRetraction {
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory FirmwareRetraction({
     required double retractLength,

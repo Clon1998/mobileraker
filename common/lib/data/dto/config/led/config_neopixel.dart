@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'config_led.dart';
@@ -26,6 +28,8 @@ String versionedColorOrder(dynamic e) {
 class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
   const ConfigNeopixel._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigNeopixel({
     required String name,

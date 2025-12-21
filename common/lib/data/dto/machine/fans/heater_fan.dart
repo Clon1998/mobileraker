@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../config/config_file_object_identifiers_enum.dart';
@@ -14,6 +15,7 @@ part 'heater_fan.g.dart';
 @freezed
 class HeaterFan extends NamedFan with _$HeaterFan {
   const HeaterFan._();
+  @StringDoubleConverter()
   const factory HeaterFan({
     required String name,
     @Default(0) double speed,

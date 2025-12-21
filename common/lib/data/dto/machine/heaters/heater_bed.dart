@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -16,6 +17,7 @@ part 'heater_bed.g.dart';
 class HeaterBed with _$HeaterBed, TemperatureSensorMixin, HeaterMixin {
   const HeaterBed._();
 
+  @StringDoubleConverter()
   const factory HeaterBed({
     @Default(0) double temperature,
     @Default(0) double target,

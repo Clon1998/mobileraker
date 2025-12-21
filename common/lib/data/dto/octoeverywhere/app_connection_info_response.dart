@@ -5,7 +5,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../converters/integer_converter.dart';
+import '../../converters/string_integer_converter.dart';
 
 part 'app_connection_info_response.freezed.dart';
 part 'app_connection_info_response.g.dart';
@@ -33,8 +33,9 @@ part 'app_connection_info_response.g.dart';
 
 @freezed
 class AppConnectionInfoResponse with _$AppConnectionInfoResponse {
+  @StringIntegerConverter()
   const factory AppConnectionInfoResponse({
-    @IntegerConverter() @JsonKey(name: 'Status') required int status,
+    @JsonKey(name: 'Status') required int status,
     @JsonKey(name: 'Error') required String error,
     @JsonKey(name: 'IsUserError') required bool isUserError,
     @JsonKey(name: 'Result') required ConnectionInfoResult result,
@@ -61,20 +62,16 @@ class ConnectionInfoResult with _$ConnectionInfoResult {
 
 @freezed
 class PrinterLimits with _$PrinterLimits {
+  @StringIntegerConverter()
   const factory PrinterLimits({
-    @IntegerConverter()
     @JsonKey(name: 'MaxDownloadFileSizeBytes')
     required int maxDownloadFileSizeBytes,
-    @IntegerConverter()
     @JsonKey(name: 'MaxUploadFileSizeBytes')
     required int maxUploadFileSizeBytes,
-    @IntegerConverter()
     @JsonKey(name: 'MaxSingleWebcamStreamLengthSeconds')
     required int maxSingleWebcamStreamLengthSeconds,
-    @IntegerConverter()
     @JsonKey(name: 'MaxTotalWebcamStreamTimePerTimeWindowSeconds')
     required int? maxTotalWebcamStreamTimePerTimeWindowSeconds,
-    @IntegerConverter()
     @JsonKey(name: 'WebcamStreamTimeWindow')
     required int? webcamStreamTimeWindow,
   }) = _PrinterLimits;

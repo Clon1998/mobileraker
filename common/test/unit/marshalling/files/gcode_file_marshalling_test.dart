@@ -54,11 +54,51 @@ void main() {
     expect(obj.thumbnails[2].relativePath,
         '.thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-400x300.png');
   });
+
+  test('GCodeFile fromJson with string-wrapped doubles', () {
+    GCodeFile obj = fileWithStringWrappedDoubles();
+
+    expect(obj, isNotNull);
+    expect(obj.layerHeight, 0.2);
+    expect(obj.nozzleDiameter, 0.4);
+    expect(obj.objectHeight, 16.6);
+    expect(obj.filamentTotal, 7251.81);
+    expect(obj.filamentWeightTotal, 18.84);
+  });
+
+  test('GCodeFile fromJson with string-wrapped integers', () {
+    GCodeFile obj = fileWithStringWrappedIntegers();
+
+    expect(obj, isNotNull);
+    expect(obj.size, 11237514);
+    expect(obj.gcodeStartByte, 65968);
+    expect(obj.gcodeEndByte, 11222275);
+    expect(obj.layerCount, 83);
+    expect(obj.estimatedTime, 5624);
+  });
 }
 
 GCodeFile genericFile() {
   String input =
       '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "2bf26f54-eca6-491e-bfb7-6e65ad220a77", "slicer": "SuperSlicer", "slicer_version": "2.5.59", "gcode_start_byte": 65968, "gcode_end_byte": 11222275, "layer_count": 83, "object_height": 16.6, "estimated_time": 5624, "nozzle_diameter": 0.4, "layer_height": 0.2, "first_layer_height": 0.2, "first_layer_extr_temp": 285.0, "first_layer_bed_temp": 110.0, "chamber_temp": 50.0, "filament_name": "AzurFilm ABS+ @VORON", "filament_type": "ABS", "filament_total": 7251.81, "filament_weight_total": 18.84, "thumbnails": [{"width": 32, "height": 24, "size": 2201, "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-32x32.png"}, {"width": 64, "height": 64, "size": 5495, "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-64x64.png"}, {"width": 400, "height": 300, "size": 40658, "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-400x300.png"}], "print_start_time": null, "job_id": null, "filename": "TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
+GCodeFile fileWithStringWrappedDoubles() {
+  String input =
+      '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "2bf26f54-eca6-491e-bfb7-6e65ad220a77", "slicer": "SuperSlicer", "slicer_version": "2.5.59", "gcode_start_byte": 65968, "gcode_end_byte": 11222275, "layer_count": 83, "object_height": "16.6", "estimated_time": 5624, "nozzle_diameter": "0.4", "layer_height": "0.2", "first_layer_height": 0.2, "first_layer_extr_temp": 285.0, "first_layer_bed_temp": 110.0, "chamber_temp": 50.0, "filament_name": "AzurFilm ABS+ @VORON", "filament_type": "ABS", "filament_total": "7251.81", "filament_weight_total": "18.84", "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_string_doubles.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
+GCodeFile fileWithStringWrappedIntegers() {
+  String input =
+      '{"result": {"size": "11237514", "modified": 1687267390.7120593, "uuid": "2bf26f54-eca6-491e-bfb7-6e65ad220a77", "slicer": "SuperSlicer", "slicer_version": "2.5.59", "gcode_start_byte": "65968", "gcode_end_byte": "11222275", "layer_count": "83", "object_height": 16.6, "estimated_time": "5624", "nozzle_diameter": 0.4, "layer_height": 0.2, "first_layer_height": 0.2, "first_layer_extr_temp": 285.0, "first_layer_bed_temp": 110.0, "chamber_temp": 50.0, "filament_name": "AzurFilm ABS+ @VORON", "filament_type": "ABS", "filament_total": 7251.81, "filament_weight_total": 18.84, "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_string_ints.gcode"}}';
 
   var jsonRaw = jsonDecode(input)['result'];
 

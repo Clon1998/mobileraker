@@ -3,7 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:common/data/converters/integer_converter.dart';
+import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -17,12 +18,14 @@ part 'folder.g.dart';
 class Folder with _$Folder, RemoteFile {
   const Folder._();
 
+  @StringIntegerConverter()
+  @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory Folder({
     required String parentPath,
     required double modified,
     @JsonKey(name: 'dirname') required String name,
-    @IntegerConverter() required int size,
+    required int size,
     @Default('') String permissions,
   }) = _Folder;
 
