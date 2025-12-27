@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2025. Patrick Schmidt.
+  ~ All rights reserved.
+  -->
+
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="PersistedInstallation.*"/>
+        <exclude domain="sharedpref" path="com_revenuecat_purchases_preferences.xml"/>
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="PersistedInstallation.*"/>
+        <exclude domain="sharedpref" path="com_revenuecat_purchases_preferences.xml"/>
+    </device-transfer>
+</data-extraction-rules>
