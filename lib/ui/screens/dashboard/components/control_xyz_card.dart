@@ -367,16 +367,19 @@ class _ZMotionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (klippyCanReceiveCommands, zHomed) = ref.watch(
-        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => (data.klippyCanReceiveCommands, data.isZAxisHomed)));
+    final (klippyCanReceiveCommands, forceMoveEnabled, zHomed) = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => (data.klippyCanReceiveCommands, data.forceMoveEnabled && data.zCanForceMove,data.isZAxisHomed)));
     final controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
+    var cc = Theme.of(context).extension<CustomColors>();
 
+    final buttonStyle = ButtonStyle(backgroundColor: WidgetStatePropertyAll(cc?.danger??Colors.red), foregroundColor: WidgetStatePropertyAll(cc?.onDanger?? Colors.white)).only(forceMoveEnabled);
     return Column(
       children: [
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands && zHomed  ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
+          onPressed: klippyCanReceiveCommands && (zHomed || forceMoveEnabled)  ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
+          style: buttonStyle,
           child: const Icon(FlutterIcons.upsquare_ant),
         ),
         Tooltip(
@@ -389,7 +392,8 @@ class _ZMotionWidget extends ConsumerWidget {
         ),
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands && zHomed ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
+          onPressed: klippyCanReceiveCommands && (zHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
+          style: buttonStyle,
           child: const Icon(FlutterIcons.downsquare_ant),
         ),
       ],
@@ -574,6 +578,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     var idx = state.whenData((value) => value.selected).valueOrNull ??
         initialIndex.clamp(0, machineSettings.moveSteps.length - 1);
 
+    var supportsForceMove = printer.configFile.hasForceMove == true && printer.configFile.enableForceMove == true;
     return _Model(
       showCard: printer.print.state != PrintState.printing && printer.configFile.configPrinter?.kinematics != 'none',
       klippyCanReceiveCommands: klippy.klippyCanReceiveCommands,
@@ -581,7 +586,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
       steps: machineSettings.moveSteps,
       selected: min(max(0, idx), machineSettings.moveSteps.length - 1),
       homedAxis: printer.toolhead.homedAxes,
-      forceMoveEnabled: state.value?.forceMoveEnabled ?? false,
+      forceMoveEnabled: supportsForceMove && (state.value?.forceMoveEnabled ?? false),
+      zCanForceMove: supportsForceMove && printer.configFile.steppers.keys.where((k) => k.startsWith('z')).length == 1,
     );
   }
 
@@ -929,6 +935,7 @@ class _Model with _$Model {
     required Set<PrinterAxis> homedAxis,
     @Default([]) List<_QuickAction> directActions,
     @Default(false) forceMoveEnabled,
+    @Default(false) zCanForceMove,
   }) = __Model;
 
   bool get isXAxisHomed => homedAxis.contains(PrinterAxis.X);
