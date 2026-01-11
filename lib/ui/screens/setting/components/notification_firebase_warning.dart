@@ -1,28 +1,16 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:common/data/enums/consent_entry_type.dart';
-import 'package:common/data/enums/consent_status.dart';
-import 'package:common/service/consent_service.dart';
 import 'package:common/service/notification_service.dart';
-import 'package:common/ui/components/async_button_.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
-import 'package:common/ui/components/responsive_limit.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/screens/setting/components/companion_missing_warning.dart';
-import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'animation_settings.dart';
-import 'section_header.dart';
 
 part 'notification_firebase_warning.g.dart';
 

@@ -1,18 +1,17 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'package:collection/collection.dart';
-import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'gcode_thumbnail.dart';
 import 'remote_file_mixin.dart';
 
 part 'gcode_file.freezed.dart';
-
 part 'gcode_file.g.dart';
 
 // {
