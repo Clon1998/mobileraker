@@ -115,6 +115,7 @@
 }
  */
 
+import 'package:common/data/dto/server/product_info.dart';
 import 'package:common/data/dto/server/service_status.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -132,6 +133,7 @@ class KlipperSystemInfo with _$KlipperSystemInfo {
     @JsonKey(toJson: _serializeServiceStatus, fromJson: _parseServiceStatus)
     @Default(<String, ServiceStatus>{})
     Map<String, ServiceStatus> serviceState,
+    ProductInfo? productInfo,
   }) = _KlipperSystemInfo;
 
   factory KlipperSystemInfo.fromJson(Map<String, dynamic> json) => _$KlipperSystemInfoFromJson(json);
