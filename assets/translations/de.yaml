@@ -184,6 +184,7 @@ pages:
         retract: Rückzug
         extrude_len: "Extrudiere Länge"
         cold_extrude_error: Extruder zu kalt.  min_extrode_temp von {}°C noch nicht erreicht!
+        park_toolhead: Druckkopf parken
       macro_card:
         title: Gcode - Macros
         no_macros: In dieser Gruppe sind derzeit keine Makros sichtbar

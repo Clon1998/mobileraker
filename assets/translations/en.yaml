@@ -185,6 +185,7 @@ pages:
         retract: Retract
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
         cold_extrude_error: Extruder did not reach min_extrude_temp of {}°C yet!
+        park_toolhead: Park Toolhead
       macro_card:
         title: Gcode - Macros
         no_macros: No macros are currently visible in this group

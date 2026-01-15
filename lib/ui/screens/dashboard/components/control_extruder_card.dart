@@ -49,6 +49,7 @@ part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
 RegExp _toolchangeMacroRegex = RegExp(r'^T\d+$');
+RegExp _toolheadParkingMacroRegex = RegExp(r'^PARK_(TOOLHEAD|EXTRUDER)$');
 
 class ControlExtruderCard extends HookConsumerWidget {
   const ControlExtruderCard({super.key, required this.machineUUID});
@@ -217,6 +218,25 @@ class _CardTitle extends ConsumerWidget {
     var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
+    Widget? trailing = null;
+
+    if (model.parkToolheadMacro != null) {
+      trailing = TextButton(
+        onPressed: controller.onParkToolhead.only(model.klippyCanReceiveCommands),
+        child: Text('pages.dashboard.control.extrude_card.park_toolhead').tr(),
+      );
+    } else if (model.extruderCount > 1) {
+      trailing = DropdownButton(
+        value: model.extruderIndex,
+        onChanged: model.klippyCanReceiveCommands ? controller.onExtruderSelected : null,
+        items: List.generate(model.extruderCount, (index) {
+          String name = tr('pages.dashboard.control.extrude_card.title');
+          if (index > 0) name += ' $index';
+          return DropdownMenuItem(value: index, child: Text(name));
+        }),
+      );
+    }
+
     return ListTile(
       leading: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
       title: Row(
@@ -240,17 +260,7 @@ class _CardTitle extends ConsumerWidget {
           ),
         ],
       ),
-      trailing: model.extruderCount <= 1
-          ? null
-          : DropdownButton(
-              value: model.extruderIndex,
-              onChanged: model.klippyCanReceiveCommands ? controller.onExtruderSelected : null,
-              items: List.generate(model.extruderCount, (index) {
-                String name = tr('pages.dashboard.control.extrude_card.title');
-                if (index > 0) name += ' $index';
-                return DropdownMenuItem(value: index, child: Text(name));
-              }),
-            ),
+      trailing: trailing,
     );
   }
 }
@@ -496,7 +506,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
 
-
     final idx =
         state.whenData((value) => value.stepIndex).valueOrNull ??
         initialIndex.clamp(0, machineSettings.extrudeSteps.length - 1);
@@ -509,13 +518,24 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       extruderIndex: activeExtruderIndex,
       stepIndex: min(max(0, idx), machineSettings.extrudeSteps.length - 1),
       steps: machineSettings.extrudeSteps,
-      toolchangeMacros: isSnapmakerU1? u1Macros: printer.gcodeMacros.values
-          .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
-          .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
+      toolchangeMacros: isSnapmakerU1
+          ? u1Macros
+          : printer.gcodeMacros.values
+                .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
+                .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
       extruderVelocity: state.valueOrNull?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
       activeExtruder: activeExtruderIndex?.let(printer.extruders.elementAtOrNull),
       activeExtruderConfig: activeExtruderIndex?.let(printer.configFile.extruderForIndex),
+      parkToolheadMacro: isSnapmakerU1
+          ? 'PARK_EXTRUDER'
+          : printer.gcodeMacros.values.firstWhereOrNull((e) => _toolheadParkingMacroRegex.hasMatch(e.name))?.name,
     );
+  }
+
+  void onParkToolhead() {
+    var macro = state.valueOrNull?.parkToolheadMacro;
+    if (macro == null) return;
+    _printerService.gCode(macro);
   }
 
   void onExtruderSelected(int? idx) {
@@ -647,13 +667,8 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           _printerService.setHeaterTemperature(cur.activeExtruder!.name, v.toInt());
         });
   }
-  List<GcodeMacro> get u1Macros => [
-      for (var i = 0; i < 4; i++)
-        GcodeMacro(
-          name: 'T$i',
-        ),
-    ];
 
+  List<GcodeMacro> get u1Macros => [for (var i = 0; i < 4; i++) GcodeMacro(name: 'T$i')];
 }
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
@@ -739,6 +754,7 @@ class _Model with _$Model {
     required double extruderVelocity,
     required Extruder? activeExtruder,
     required ConfigExtruder? activeExtruderConfig,
+    String? parkToolheadMacro, // this can be used for toolchangers or idex machines!
   }) = __Model;
 
   bool get minExtrudeTempReached =>
