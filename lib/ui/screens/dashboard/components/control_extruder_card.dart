@@ -12,6 +12,7 @@ import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -28,7 +29,6 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -39,7 +39,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -69,7 +68,7 @@ class ControlExtruderCard extends HookConsumerWidget {
 
     return AsyncGuard(
       animate: true,
-      debugLabel: 'ControlExtruderCard-$machineUUID',
+      // debugLabel: 'ControlExtruderCard-$machineUUID',
       toGuard: _controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard),
       childOnLoading: hadExtruder
           ? const _ControlExtruderLoading(key: Key('conExt-load'))
@@ -455,7 +454,6 @@ class _ToolItem extends StatelessWidget {
 
 @Riverpod(dependencies: [])
 class _ControlExtruderCardController extends _$ControlExtruderCardController {
-
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   SettingService get _settingService => ref.read(settingServiceProvider);
@@ -469,57 +467,54 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   CompositeKey get _hadExtruder => CompositeKey.keyWithString(UiKeys.hadExtruder, machineUUID);
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
+
     // await Future.delayed(Duration(seconds: 5));
 
     listenSelf((prev, next) {
       if (prev?.hasValue == true) return;
       if (next.hasValue == false) return;
-      talker.info('Writing...dsa.das.');
       _settingService.writeBool(_hadExtruder, next.requireValue.extruderCount > 0);
     });
 
-    talker.info('Building ControlExtruderCardController for $machineUUID');
+    // talker.info('Building ControlExtruderCardController for $machineUUID');
 
+    final initialIndex = _settingService.readInt(_settingsKey, 0);
+
+    final klipperFuture = ref.watch(klipperProvider(machineUUID).future);
+    final printerFuture = ref.watch(printerProvider(machineUUID).future);
+    final klipperSystemInfoFuture = ref.watch(klippySystemInfoProvider(machineUUID).future);
+    final machineSettingsFuture = ref.watch(machineSettingsProvider(machineUUID).future);
+
+    final (klippy, printer, klipperSystemInfo, machineSettings) = await (
+      klipperFuture,
+      printerFuture,
+      klipperSystemInfoFuture,
+      machineSettingsFuture,
+    ).wait;
+
+    var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
+
+    final idx =
+        state.whenData((value) => value.stepIndex).valueOrNull ??
+        initialIndex.clamp(0, machineSettings.extrudeSteps.length - 1);
     // The active extruder (Set via klipper/moonraker) is watched and based on it, the streams are constructed
-    var activeExtruder = await ref.watch(
-      printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex),
+    var activeExtruderIndex = printer.toolhead.activeExtruderIndex;
+    return _Model(
+      showCard: printer.hasExtruder && printer.print.state != PrintState.printing,
+      klippyCanReceiveCommands: klippy.klippyCanReceiveCommands,
+      extruderCount: printer.extruderCount,
+      extruderIndex: activeExtruderIndex,
+      stepIndex: min(max(0, idx), machineSettings.extrudeSteps.length - 1),
+      steps: machineSettings.extrudeSteps,
+      toolchangeMacros: printer.gcodeMacros.values
+          .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
+          .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
+      extruderVelocity: state.valueOrNull?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
+      activeExtruder: activeExtruderIndex?.let(printer.extruders.elementAtOrNull),
+      activeExtruderConfig: activeExtruderIndex?.let(printer.configFile.extruderForIndex),
     );
-
-    var showCard = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.hasExtruder && data.print.state != PrintState.printing),
-    );
-
-    // Below is stream code to prevent to many controller rebuilds
-    var klippy = ref.watchAsSubject(klipperProvider(machineUUID));
-    var steps = ref.watchAsSubject(machineSettingsProvider(machineUUID).selectAs((data) => data.extrudeSteps));
-    var printer = ref.watchAsSubject(printerProvider(machineUUID));
-
-    var initialIndex = _settingService.readInt(_settingsKey, 0);
-    var initialVelocity = await ref.watch(
-      machineSettingsProvider(machineUUID).selectAsync((data) => data.extrudeFeedrate.toDouble()),
-    );
-
-    yield* Rx.combineLatest4(klippy, printer, steps, showCard, (a, b, c, d) {
-      final velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
-      final idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
-
-      return _Model(
-        showCard: d,
-        klippyCanReceiveCommands: a.klippyCanReceiveCommands,
-        extruderCount: b.extruderCount,
-        extruderIndex: activeExtruder,
-        stepIndex: min(max(0, idx), c.length - 1),
-        steps: c,
-        toolchangeMacros: b.gcodeMacros.values
-            .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
-            .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
-        extruderVelocity: velocity,
-        activeExtruder: activeExtruder?.let(b.extruders.elementAtOrNull),
-        activeExtruderConfig: activeExtruder?.let(b.configFile.extruderForIndex),
-      );
-    });
   }
 
   void onExtruderSelected(int? idx) {
@@ -582,9 +577,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     HapticFeedback.selectionClick().ignore();
     final activeAxtruder = state.requireValue.extruderIndex;
     if (activeAxtruder == null) return;
-    final extruderName = activeAxtruder > 0
-        ? 'extruder$activeAxtruder'
-        : 'extruder';
+    final extruderName = activeAxtruder > 0 ? 'extruder$activeAxtruder' : 'extruder';
 
     _dialogService.show(
       DialogRequest(
@@ -600,9 +593,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     final activeAxtruder = state.requireValue.extruderIndex;
     if (activeAxtruder == null) return;
-    final extruderName = activeAxtruder > 0
-        ? 'extruder$activeAxtruder'
-        : 'extruder';
+    final extruderName = activeAxtruder > 0 ? 'extruder$activeAxtruder' : 'extruder';
 
     _dialogService.show(
       DialogRequest(
@@ -659,33 +650,31 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = AsyncValue.data(
-      _Model(
-        showCard: true,
-        klippyCanReceiveCommands: true,
-        extruderCount: 1,
-        extruderIndex: 0,
-        stepIndex: 0,
-        steps: [1, 5, 10, 20, 50],
-        extruderVelocity: 10,
-        activeExtruder: Extruder.empty(),
-        activeExtruderConfig: const ConfigExtruder(
-          name: 'extruder',
-          nozzleDiameter: 0.4,
-          maxExtrudeOnlyDistance: 100,
-          minTemp: 40,
-          minExtrudeTemp: -1,
-          maxTemp: 340,
-          maxPower: 1,
-          filamentDiameter: 1.75,
-          maxExtrudeOnlyVelocity: 100,
-          maxExtrudeOnlyAccel: 100,
-        ),
+  Future<_Model> build(String machineUUID) {
+    var model = _Model(
+      showCard: true,
+      klippyCanReceiveCommands: true,
+      extruderCount: 1,
+      extruderIndex: 0,
+      stepIndex: 0,
+      steps: [1, 5, 10, 20, 50],
+      extruderVelocity: 10,
+      activeExtruder: Extruder.empty(),
+      activeExtruderConfig: const ConfigExtruder(
+        name: 'extruder',
+        nozzleDiameter: 0.4,
+        maxExtrudeOnlyDistance: 100,
+        minTemp: 40,
+        minExtrudeTemp: -1,
+        maxTemp: 340,
+        maxPower: 1,
+        filamentDiameter: 1.75,
+        maxExtrudeOnlyVelocity: 100,
+        maxExtrudeOnlyAccel: 100,
       ),
     );
-
-    return const Stream.empty();
+    state = AsyncValue.data(model);
+    return Future.value(model);
   }
 
   @override

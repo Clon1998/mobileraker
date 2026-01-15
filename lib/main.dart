@@ -99,6 +99,7 @@ Future<void> main() async {
                     'temperatureStoreProvider',
                     '_controlXYZCardControllerProvider',
                     '_fansCardControllerProvider',
+                    '_controlExtruderCardControllerProvider',
                   ].contains(provider.name),
                 ),
               ),
