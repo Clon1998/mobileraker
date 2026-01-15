@@ -496,6 +496,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
 
+
     final idx =
         state.whenData((value) => value.stepIndex).valueOrNull ??
         initialIndex.clamp(0, machineSettings.extrudeSteps.length - 1);
@@ -508,7 +509,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       extruderIndex: activeExtruderIndex,
       stepIndex: min(max(0, idx), machineSettings.extrudeSteps.length - 1),
       steps: machineSettings.extrudeSteps,
-      toolchangeMacros: printer.gcodeMacros.values
+      toolchangeMacros: isSnapmakerU1? u1Macros: printer.gcodeMacros.values
           .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
           .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
       extruderVelocity: state.valueOrNull?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
@@ -646,6 +647,13 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           _printerService.setHeaterTemperature(cur.activeExtruder!.name, v.toInt());
         });
   }
+  List<GcodeMacro> get u1Macros => [
+      for (var i = 0; i < 4; i++)
+        GcodeMacro(
+          name: 'T$i',
+        ),
+    ];
+
 }
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
