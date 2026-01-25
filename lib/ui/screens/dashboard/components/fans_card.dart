@@ -242,8 +242,7 @@ class _FanCard extends StatelessWidget {
 
         var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
 
-        final tachFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
-
+        final tachFormat = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(),decimalDigits: 0);
         return Tooltip(
           message: name,
           child: Row(
