@@ -27,11 +27,12 @@ enum ConfigFileObjectIdentifiers {
   motion_report(null),
   neopixel(null),
   output_pin(null),
-  pwm_tool(null),
   pca9533(null),
   pca9632(null),
   print_stats(null),
+  print_task_config(null), // CUSTOM Snapmaker U1 object!
   printer(null),
+  pwm_tool(null),
   screws_tilt_adjust(null),
   stepper(null),
   temperature_fan(null),

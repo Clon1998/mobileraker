@@ -9,6 +9,7 @@ import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/pins/pin.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
+import 'package:common/data/dto/machine/print_task_config.dart';
 import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -64,6 +65,7 @@ final Map<ConfigFileObjectIdentifiers, Function?> _partialUpdateMethodMappings =
   ConfigFileObjectIdentifiers.pca9533: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.pca9632: PrinterBuilder._updateLed,
   ConfigFileObjectIdentifiers.print_stats: PrinterBuilder._updatePrintStat,
+  ConfigFileObjectIdentifiers.print_task_config: PrinterBuilder._updatePrintTaskConfig,
   ConfigFileObjectIdentifiers.pwm_tool: PrinterBuilder._updatePin,
   ConfigFileObjectIdentifiers.screws_tilt_adjust: PrinterBuilder._updateScrewsTiltAdjust,
   ConfigFileObjectIdentifiers.temperature_fan: PrinterBuilder._updateNamedFan,
@@ -121,6 +123,7 @@ class PrinterBuilder {
         filamentSensors = printer.filamentSensors,
         zThermalAdjust = printer.zThermalAdjust,
         beacon = printer.beacon,
+        printTaskConfig = printer.printTaskConfig,
         currentFile = printer.currentFile;
 
   Toolhead? toolhead;
@@ -131,6 +134,7 @@ class PrinterBuilder {
   MotionReport? motionReport;
   DisplayStatus? displayStatus;
   PrintStats? print;
+  PrintTaskConfig? printTaskConfig; // CUSTOM Snapmaker U1 object!
   ExcludeObject? excludeObject;
   ConfigFile? configFile;
   VirtualSdCard? virtualSdCard;
@@ -193,6 +197,7 @@ class PrinterBuilder {
       filamentSensors: Map.unmodifiable(filamentSensors),
       zThermalAdjust: zThermalAdjust,
       beacon: beacon,
+      printTaskConfig: printTaskConfig
     );
     return printer;
   }
@@ -343,6 +348,10 @@ class PrinterBuilder {
 
   static PrinterBuilder _updatePrintStat(Map<String, dynamic> json, PrinterBuilder builder) {
     return builder..print = PrintStats.partialUpdate(builder.print, json);
+  }
+
+  static PrinterBuilder _updatePrintTaskConfig(Map<String, dynamic> json, PrinterBuilder builder) {
+    return builder..printTaskConfig = PrintTaskConfig.partialUpdate(builder.printTaskConfig, json);
   }
 
   static PrinterBuilder _updateScrewsTiltAdjust(Map<String, dynamic> json, PrinterBuilder builder) {

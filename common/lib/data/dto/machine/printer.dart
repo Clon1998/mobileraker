@@ -9,6 +9,7 @@ import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/pins/pin.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
+import 'package:common/data/dto/machine/print_task_config.dart';
 import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/z_thermal_adjust.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -60,6 +61,7 @@ class Printer with _$Printer {
     GCodeFile? currentFile,
     ZThermalAdjust? zThermalAdjust,
     Beacon? beacon,
+    PrintTaskConfig? printTaskConfig, // Custom Snapmaker U1 object!
     @Default({}) Map<(ConfigFileObjectIdentifiers, String), NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<(ConfigFileObjectIdentifiers, String), Pin> outputPins,

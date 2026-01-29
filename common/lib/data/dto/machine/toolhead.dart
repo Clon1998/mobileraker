@@ -40,7 +40,7 @@ class Toolhead with _$Toolhead {
       return null;
     }
     // If it matches 'extruder' the active extruder is 0
-    return int.tryParse(activeExtruder.substring(8))??0;
+    return int.tryParse(activeExtruder.substring(8)) ?? 0;
   }
 
   factory Toolhead.fromJson(Map<String, dynamic> json) => _$ToolheadFromJson(json);

@@ -14,6 +14,13 @@ import 'heater_mixin.dart';
 part 'extruder.freezed.dart';
 part 'extruder.g.dart';
 
+@JsonEnum(fieldRename: FieldRename.screamingSnake)
+enum U1ExtruderState {
+  activate,
+  parked,
+  unknown
+}
+
 @freezed
 class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
   static Extruder empty([int num = 0]) {
@@ -31,6 +38,10 @@ class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
     @JsonKey(name: 'pressure_advance') @Default(0) double pressureAdvance,
     @JsonKey(name: 'smooth_time') @Default(0) double smoothTime,
     @Default(0) double power,
+
+    // These fields are only available for the U1 Toolchanger.
+    //TODO: maybe make this an enum. But currently we dont know what states are available...
+    U1ExtruderState? state
   }) = _Extruder;
 
   factory Extruder.fromJson(Map<String, dynamic> json) => _$ExtruderFromJson(json);
