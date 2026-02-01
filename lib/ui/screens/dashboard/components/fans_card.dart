@@ -185,7 +185,7 @@ class _Fan extends ConsumerWidget {
     if (data == null) {
       return const SizedBox.shrink();
     }
-    talker.info('Rebuilding fan card for $data');
+    // talker.info('Rebuilding fan card for $data');
 
     final (fan, fanConfig) = data;
 
