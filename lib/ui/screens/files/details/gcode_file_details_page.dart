@@ -768,7 +768,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required GCodeFile file,
     required bool canStartPrint,

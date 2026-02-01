@@ -428,7 +428,7 @@ class TestConnectionController extends _$TestConnectionController {
 }
 
 @freezed
-class PrinterAddState with _$PrinterAddState {
+sealed class PrinterAddState with _$PrinterAddState {
   const PrinterAddState._();
 
   const factory PrinterAddState({
@@ -442,7 +442,7 @@ class PrinterAddState with _$PrinterAddState {
 }
 
 @freezed
-class SimpleFormState with _$SimpleFormState {
+sealed class SimpleFormState with _$SimpleFormState {
   const SimpleFormState._();
 
   const factory SimpleFormState({
@@ -458,7 +458,7 @@ class SimpleFormState with _$SimpleFormState {
 }
 
 @freezed
-class AdvancedFormState with _$AdvancedFormState {
+sealed class AdvancedFormState with _$AdvancedFormState {
   const AdvancedFormState._();
 
   const factory AdvancedFormState({
@@ -469,7 +469,7 @@ class AdvancedFormState with _$AdvancedFormState {
 }
 
 @freezed
-class TestConnectionState with _$TestConnectionState {
+sealed class TestConnectionState with _$TestConnectionState {
   const TestConnectionState._();
 
   const factory TestConnectionState({

@@ -66,7 +66,7 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
 }
 
 @freezed
-class BedScrewAndConfig with _$BedScrewAndConfig {
+sealed class BedScrewAndConfig with _$BedScrewAndConfig {
   const factory BedScrewAndConfig({
     required BedScrew bedScrew,
     required ConfigFile config,

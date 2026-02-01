@@ -167,7 +167,7 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
 }
 
 @freezed
-class AddRemoteConnectionSheetArgs with _$AddRemoteConnectionSheetArgs {
+sealed class AddRemoteConnectionSheetArgs with _$AddRemoteConnectionSheetArgs {
   const AddRemoteConnectionSheetArgs._();
 
   const factory AddRemoteConnectionSheetArgs({

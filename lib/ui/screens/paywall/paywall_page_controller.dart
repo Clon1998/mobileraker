@@ -152,7 +152,7 @@ class PaywallPageController extends _$PaywallPageController {
 }
 
 @freezed
-class PaywallPageState with _$PaywallPageState {
+sealed class PaywallPageState with _$PaywallPageState {
   const PaywallPageState._();
 
   const factory PaywallPageState({

@@ -35,7 +35,7 @@ final dialogArgsProvider = Provider.autoDispose<LedRGBWDialogArgument>(
 );
 
 @freezed
-class LedRGBWDialogState with _$LedRGBWDialogState {
+sealed class LedRGBWDialogState with _$LedRGBWDialogState {
   const LedRGBWDialogState._();
 
   const factory LedRGBWDialogState({

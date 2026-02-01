@@ -9,7 +9,6 @@ import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
-import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
@@ -325,7 +324,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

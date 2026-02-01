@@ -324,6 +324,6 @@ class _MjpegController extends _$MjpegController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({required MemoryImage image, required double fps}) = __Model;
 }

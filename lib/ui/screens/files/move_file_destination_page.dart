@@ -10,7 +10,6 @@ import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/file_destination_selection_result.dart';
 import 'package:common/data/model/sort_configuration.dart';
-import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
@@ -357,7 +356,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required FolderContentWrapper folderContent,
     required SortConfiguration sortConfig,

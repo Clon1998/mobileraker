@@ -157,7 +157,7 @@ class SslSettingsController extends _$SslSettingsController {
 }
 
 @freezed
-class SslSettingsModel with _$SslSettingsModel {
+sealed class SslSettingsModel with _$SslSettingsModel {
   const factory SslSettingsModel({
     required String? certificateDER,
     required String? fingerprintSHA256,

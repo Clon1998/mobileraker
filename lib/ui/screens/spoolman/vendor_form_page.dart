@@ -350,7 +350,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required _FormMode mode,
     required GetVendor? source,

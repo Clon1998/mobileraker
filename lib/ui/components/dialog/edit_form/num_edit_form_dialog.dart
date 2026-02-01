@@ -259,7 +259,7 @@ class _NumField extends StatelessWidget {
 }
 
 @freezed
-class NumberEditDialogArguments with _$NumberEditDialogArguments {
+sealed class NumberEditDialogArguments with _$NumberEditDialogArguments {
   const factory NumberEditDialogArguments({
     @Default(0) num min,
     num? max,

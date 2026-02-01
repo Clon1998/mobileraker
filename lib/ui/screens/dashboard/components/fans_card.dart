@@ -403,7 +403,7 @@ class _FansCardPreviewController extends _FansCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

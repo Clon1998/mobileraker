@@ -187,7 +187,7 @@ Color? _getColorFromMacro(GcodeMacro macro) {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required List<GcodeMacro> availableTools,

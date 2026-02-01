@@ -315,7 +315,7 @@ class _ZOffsetCardPreviewController extends _ZOffsetCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required bool showCard,
     required bool klippyCanReceiveCommands,

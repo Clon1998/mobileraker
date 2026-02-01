@@ -924,7 +924,7 @@ class _ControlXYZCardPreviewController extends _ControlXYZCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
@@ -944,7 +944,7 @@ class _Model with _$Model {
 }
 
 @freezed
-class _QuickAction with _$QuickAction {
+sealed class _QuickAction with _$QuickAction {
   const factory _QuickAction({
     required String title,
     required String description,

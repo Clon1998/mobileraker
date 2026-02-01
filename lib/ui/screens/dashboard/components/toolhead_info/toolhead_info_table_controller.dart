@@ -14,7 +14,6 @@ import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'toolhead_info_table_controller.freezed.dart';
@@ -22,7 +21,7 @@ part 'toolhead_info_table_controller.g.dart';
 
 //TODO: This can be removed and merged into the main printer class as getters since all components required for this info are now merged into the printer object
 @freezed
-class ToolheadInfo with _$ToolheadInfo {
+sealed class ToolheadInfo with _$ToolheadInfo {
   const factory ToolheadInfo({
     required List<double> postion,
     required int mmSpeed,

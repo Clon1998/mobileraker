@@ -7,7 +7,6 @@ import 'dart:math';
 
 import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
-import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -637,7 +636,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
 }
 
 @freezed
-class FilamentOperationDialogArgs with _$FilamentOperationDialogArgs {
+sealed class FilamentOperationDialogArgs with _$FilamentOperationDialogArgs {
   const FilamentOperationDialogArgs._();
 
   const factory FilamentOperationDialogArgs({
@@ -650,7 +649,7 @@ class FilamentOperationDialogArgs with _$FilamentOperationDialogArgs {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

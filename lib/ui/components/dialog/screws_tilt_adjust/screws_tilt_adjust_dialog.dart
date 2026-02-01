@@ -211,7 +211,7 @@ class _ScrewsTiltAdjustDialogController extends _$ScrewsTiltAdjustDialogControll
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required ScrewsTiltAdjust screwsTiltAdjust,
     required ConfigFile config,

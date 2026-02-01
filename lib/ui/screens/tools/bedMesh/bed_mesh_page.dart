@@ -22,7 +22,7 @@ import '../../../components/bed_mesh/bed_mesh_legend.dart';
 part 'bed_mesh_page.freezed.dart';
 
 @freezed
-class BedMeshPageArgs with _$BedMeshPageArgs {
+sealed class BedMeshPageArgs with _$BedMeshPageArgs {
   const factory BedMeshPageArgs({
     required BedMesh bedMesh,
     required (double, double) bedMin,

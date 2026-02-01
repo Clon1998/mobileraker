@@ -627,7 +627,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

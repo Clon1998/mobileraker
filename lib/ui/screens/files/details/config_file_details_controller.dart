@@ -127,7 +127,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 }
 
 @freezed
-class ConfigDetailPageState with _$ConfigDetailPageState {
+sealed class ConfigDetailPageState with _$ConfigDetailPageState {
   const factory ConfigDetailPageState({
     @Default(AsyncValue.loading()) AsyncValue<String> config,
     @Default(false) bool isUploading,

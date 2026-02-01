@@ -18,7 +18,6 @@ import 'package:common/data/model/file_interaction_menu_event.dart';
 import 'package:common/data/model/file_operation.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
-import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
@@ -1510,7 +1509,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
