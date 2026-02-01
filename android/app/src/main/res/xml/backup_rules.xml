@@ -6,10 +6,10 @@
 
 <full-backup-content>
     <!-- Exclude Firebase Installation ID -->
-    <exclude domain="file" path="PersistedInstallation.*"/>
+    <exclude domain="database" path="PersistedInstallation"/>
 
     <!-- Exclude RevenueCat user identification (optional but recommended) -->
-    <exclude domain="sharedpref" path="com_revenuecat_purchases_preferences.xml"/>
+    <exclude domain="sharedpref" path="com_revenuecat_purchases_preferences"/>
 
     <!-- Include everything else -->
     <include domain="root" path="."/>
