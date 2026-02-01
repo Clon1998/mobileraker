@@ -51,10 +51,10 @@ dependencies:
   go_router: ^16.2.4
 
   #architecture
-  freezed_annotation: ^2.4.1
+  freezed_annotation: ^3.1.0
   flutter_hooks: ^0.21.2
-  hooks_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  hooks_riverpod: 3.1.0
+  riverpod_annotation: ^4.0.0
   json_annotation: ^4.8.1
 
   #i18n
@@ -100,17 +100,15 @@ dependencies:
 
 
 dev_dependencies:
-  analyzer: 7.3.0
   flutter_test:
     sdk: flutter
   mockito: ^5.4.5
   flutter_lints: ^6.0.0
-  riverpod_lint: ^2.6.3
-  custom_lint: ^0.7.0
-  build_runner: 2.4.15
-  freezed: ^2.5.2
+  # riverpod_lint and custom_lint removed: requires Dart 3.10+ for compatibility with riverpod 3.2+
+  build_runner: ^2.6.0
+  freezed: ^3.2.0
   json_serializable: ^6.9.5
-  riverpod_generator: ^2.6.3
+  riverpod_generator: 4.0.0+1
   hive_ce_generator: ^1.8.0
 
 flutter:

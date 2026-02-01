@@ -48,10 +48,10 @@ dependencies:
   firebase_auth: ^5.3.3
 
   #architecture
-  freezed_annotation: ^2.4.1
+  freezed_annotation: ^3.1.0
   flutter_hooks: ^0.21.2
-  hooks_riverpod: ^2.6.1
-  riverpod_annotation: ^2.6.1
+  hooks_riverpod: 3.1.0
+  riverpod_annotation: ^4.0.0
   json_annotation: ^4.7.0
 
   #routing
@@ -170,19 +170,17 @@ dependencies:
   dotted_border: ^3.0.1
 
 dev_dependencies:
-  analyzer: 7.3.0
   flutter_test:
     sdk: flutter
-  build_runner: 2.4.15
+  build_runner: ^2.6.0
   flutter_lints: ^6.0.0
-  freezed: ^2.5.2
+  freezed: ^3.2.0
   mockito: ^5.4.5
   json_serializable: ^6.9.0
-  riverpod_generator: ^2.6.3
+  riverpod_generator: 4.0.0+1
   # riverpod_lint makes it easier to work with Riverpod
-  riverpod_lint: ^2.6.3
-  # import custom_lint too as riverpod_lint depends on it
-  custom_lint: ^0.7.3
+  # riverpod_lint and custom_lint removed: requires Dart 3.10+ for compatibility with riverpod 3.2+
+  # Re-add riverpod_lint: ^3.1.1 and custom_lint: ^0.8.1 when upgrading to Dart 3.10+
   flutter_native_splash: ^2.4.6
   flutter_launcher_icons: ^0.14.1
   dart_code_metrics_presets: ^2.5.0
