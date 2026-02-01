@@ -110,7 +110,7 @@ dependencies:
   easy_localization_loader: ^2.0.2
 
   #purchases
-  purchases_flutter: ^8.11.0
+  purchases_flutter: ^9.10.7
 
   #rating
   rate_my_app: ^2.0.0
@@ -167,6 +167,7 @@ dependencies:
   file_picker: ^10.1.9
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
+  dotted_border: ^3.0.1
 
 dev_dependencies:
   analyzer: 7.3.0
