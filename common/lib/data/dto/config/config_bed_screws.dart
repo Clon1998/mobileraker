@@ -27,7 +27,7 @@ part 'config_bed_screws.g.dart';
 // }
 
 @freezed
-class ConfigBedScrews with _$ConfigBedScrews {
+sealed class ConfigBedScrews with _$ConfigBedScrews {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigBedScrews({

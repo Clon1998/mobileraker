@@ -13,7 +13,7 @@ part 'heater_fan.freezed.dart';
 part 'heater_fan.g.dart';
 
 @freezed
-class HeaterFan extends NamedFan with _$HeaterFan {
+sealed class HeaterFan extends NamedFan with _$HeaterFan {
   const HeaterFan._();
   @StringDoubleConverter()
   const factory HeaterFan({

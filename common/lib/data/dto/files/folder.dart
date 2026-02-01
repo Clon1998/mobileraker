@@ -15,7 +15,7 @@ part 'folder.freezed.dart';
 part 'folder.g.dart';
 
 @freezed
-class Folder with _$Folder, RemoteFile {
+sealed class Folder with _$Folder, RemoteFile {
   const Folder._();
 
   @StringIntegerConverter()

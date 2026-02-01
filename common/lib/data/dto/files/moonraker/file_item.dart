@@ -12,7 +12,7 @@ part 'file_item.freezed.dart';
 part 'file_item.g.dart';
 
 @freezed
-class FileItem with _$FileItem {
+sealed class FileItem with _$FileItem {
   const FileItem._();
 
   @StringIntegerConverter()

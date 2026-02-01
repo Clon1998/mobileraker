@@ -32,7 +32,7 @@ part 'device_fcm_settings.g.dart';
  */
 
 @freezed
-class DeviceFcmSettings with _$DeviceFcmSettings {
+sealed class DeviceFcmSettings with _$DeviceFcmSettings {
   const DeviceFcmSettings._();
 
   @JsonSerializable(explicitToJson: true)

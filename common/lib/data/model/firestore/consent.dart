@@ -13,7 +13,7 @@ part 'consent.freezed.dart';
 part 'consent.g.dart';
 
 @freezed
-class Consent with _$Consent {
+sealed class Consent with _$Consent {
   const Consent._();
 
   @JsonSerializable(explicitToJson: true)

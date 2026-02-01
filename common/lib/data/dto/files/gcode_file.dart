@@ -61,7 +61,7 @@ part 'gcode_file.g.dart';
 // }
 
 @freezed
-class GCodeFile with _$GCodeFile, RemoteFile {
+sealed class GCodeFile with _$GCodeFile, RemoteFile {
   static int lastPrintedComparator(RemoteFile a, RemoteFile b) {
     if (a is! GCodeFile || b is! GCodeFile) return 0;
 

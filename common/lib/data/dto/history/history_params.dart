@@ -13,7 +13,7 @@ part 'history_params.freezed.dart';
 part 'history_params.g.dart';
 
 @freezed
-class HistoryParams with _$HistoryParams {
+sealed class HistoryParams with _$HistoryParams {
   @StringIntegerConverter()
   const factory HistoryParams({
     required int start, // Record number to start from (i.e. 10 would start at the 10th print)

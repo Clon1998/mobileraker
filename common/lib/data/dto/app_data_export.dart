@@ -12,7 +12,7 @@ part 'app_data_export.freezed.dart';
 part 'app_data_export.g.dart';
 
 @freezed
-class AppDataExport with _$AppDataExport {
+sealed class AppDataExport with _$AppDataExport {
   const factory AppDataExport({
     required String version,
     required DateTime exportDate,

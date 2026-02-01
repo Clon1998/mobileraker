@@ -18,7 +18,7 @@ part 'manual_probe.g.dart';
 // }
 
 @freezed
-class ManualProbe with _$ManualProbe {
+sealed class ManualProbe with _$ManualProbe {
   const factory ManualProbe({
     @JsonKey(name: 'is_active') @Default(false) bool isActive,
     @Double3PrecisionConverter() @JsonKey(name: 'z_position') double? zPosition,

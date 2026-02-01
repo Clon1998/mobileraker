@@ -11,7 +11,7 @@ part 'virtual_sd_card.freezed.dart';
 part 'virtual_sd_card.g.dart';
 
 @freezed
-class VirtualSdCard with _$VirtualSdCard {
+sealed class VirtualSdCard with _$VirtualSdCard {
   @StringIntegerConverter()
   @StringDoubleConverter()
   const factory VirtualSdCard({

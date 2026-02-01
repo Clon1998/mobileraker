@@ -134,7 +134,7 @@ class NavWidgetController extends _$NavWidgetController {
 }
 
 @freezed
-class NavWidgetModel with _$NavWidgetModel {
+sealed class NavWidgetModel with _$NavWidgetModel {
   const NavWidgetModel._();
 
   const factory NavWidgetModel({
@@ -144,7 +144,7 @@ class NavWidgetModel with _$NavWidgetModel {
 }
 
 @freezed
-class NavEntry with _$NavEntry {
+sealed class NavEntry with _$NavEntry {
   const NavEntry._();
 
   factory NavEntry.divider() {

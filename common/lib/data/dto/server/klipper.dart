@@ -26,7 +26,7 @@ enum KlipperState {
 }
 
 @freezed
-class KlipperInstance with _$KlipperInstance {
+sealed class KlipperInstance with _$KlipperInstance {
   const KlipperInstance._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

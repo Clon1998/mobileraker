@@ -17,7 +17,7 @@ Set<PrinterAxis> _homedAxisFromJson(String haxis) =>
 String _homedAxisToJson(Set<PrinterAxis> homed) => homed.map((e) => e.name).join();
 
 @freezed
-class Toolhead with _$Toolhead {
+sealed class Toolhead with _$Toolhead {
   const Toolhead._();
 
   @StringDoubleConverter()

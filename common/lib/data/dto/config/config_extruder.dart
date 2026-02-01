@@ -10,7 +10,7 @@ part 'config_extruder.freezed.dart';
 part 'config_extruder.g.dart';
 
 @freezed
-class ConfigExtruder with _$ConfigExtruder {
+sealed class ConfigExtruder with _$ConfigExtruder {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigExtruder({

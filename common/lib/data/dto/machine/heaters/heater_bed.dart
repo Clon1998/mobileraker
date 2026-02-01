@@ -14,7 +14,7 @@ part 'heater_bed.freezed.dart';
 part 'heater_bed.g.dart';
 
 @freezed
-class HeaterBed with _$HeaterBed, TemperatureSensorMixin, HeaterMixin {
+sealed class HeaterBed with _$HeaterBed, TemperatureSensorMixin, HeaterMixin {
   const HeaterBed._();
 
   @StringDoubleConverter()

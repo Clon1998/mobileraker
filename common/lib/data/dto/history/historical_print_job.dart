@@ -75,7 +75,7 @@ part 'historical_print_job.g.dart';
  */
 
 @freezed
-class HistoricalPrintJob with _$HistoricalPrintJob {
+sealed class HistoricalPrintJob with _$HistoricalPrintJob {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory HistoricalPrintJob({

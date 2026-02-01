@@ -31,7 +31,7 @@ part 'config_heater_generic.g.dart';
 // },
 
 @freezed
-class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
+sealed class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterGeneric({

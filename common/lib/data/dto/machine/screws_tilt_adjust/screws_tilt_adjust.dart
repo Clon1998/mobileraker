@@ -49,7 +49,7 @@ part 'screws_tilt_adjust.g.dart';
  */
 
 @freezed
-class ScrewsTiltAdjust with _$ScrewsTiltAdjust {
+sealed class ScrewsTiltAdjust with _$ScrewsTiltAdjust {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ScrewsTiltAdjust({
     @Default(false) bool error,

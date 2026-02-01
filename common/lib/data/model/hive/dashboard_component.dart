@@ -12,7 +12,7 @@ part 'dashboard_component.freezed.dart';
 part 'dashboard_component.g.dart';
 
 @freezed
-class DashboardComponent with _$DashboardComponent {
+sealed class DashboardComponent with _$DashboardComponent {
   @HiveType(typeId: 10)
   const factory DashboardComponent({
     @HiveField(0) required String uuid,

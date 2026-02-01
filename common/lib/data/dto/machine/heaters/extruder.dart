@@ -25,7 +25,7 @@ enum U1ExtruderState {
 }
 
 @freezed
-class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
+sealed class Extruder with _$Extruder, TemperatureSensorMixin, HeaterMixin {
   static Extruder empty([int num = 0]) {
     return Extruder(num: num);
   }

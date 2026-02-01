@@ -88,7 +88,7 @@ final defaultSnapshotUri = Uri(path: '/webcam/', query: 'action=snapshot');
  */
 
 @freezed
-class WebcamInfo with _$WebcamInfo {
+sealed class WebcamInfo with _$WebcamInfo {
   const WebcamInfo._();
 
   @JsonSerializable(

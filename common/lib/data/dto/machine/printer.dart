@@ -38,7 +38,7 @@ import 'virtual_sd_card.dart';
 part 'printer.freezed.dart';
 
 @freezed
-class Printer with _$Printer {
+sealed class Printer with _$Printer {
   const Printer._();
 
   const factory Printer({

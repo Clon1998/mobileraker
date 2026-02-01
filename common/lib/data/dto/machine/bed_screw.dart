@@ -19,7 +19,7 @@ part 'bed_screw.g.dart';
 enum BedScrewMode { adjust, fine }
 
 @freezed
-class BedScrew with _$BedScrew {
+sealed class BedScrew with _$BedScrew {
   @StringIntegerConverter()
   const factory BedScrew({
     @JsonKey(name: 'is_active') @Default(false) bool isActive,

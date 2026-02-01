@@ -12,7 +12,7 @@ part 'exclude_object.freezed.dart';
 part 'exclude_object.g.dart';
 
 @freezed
-class ExcludeObject with _$ExcludeObject {
+sealed class ExcludeObject with _$ExcludeObject {
   const ExcludeObject._();
 
   @JsonSerializable(explicitToJson: true)
@@ -43,7 +43,7 @@ class ExcludeObject with _$ExcludeObject {
 }
 
 @freezed
-class ParsedObject with _$ParsedObject {
+sealed class ParsedObject with _$ParsedObject {
   const factory ParsedObject({
     required String name,
     @Vector2Converter() required Vector2 center,

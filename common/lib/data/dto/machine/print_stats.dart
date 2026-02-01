@@ -13,7 +13,7 @@ part 'print_stats.freezed.dart';
 part 'print_stats.g.dart';
 
 @freezed
-class PrintStats with _$PrintStats {
+sealed class PrintStats with _$PrintStats {
   const PrintStats._();
 
   @StringDoubleConverter()

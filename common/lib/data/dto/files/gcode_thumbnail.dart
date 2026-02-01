@@ -17,7 +17,7 @@ part 'gcode_thumbnail.g.dart';
 // "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-32x32.png"
 // },
 @freezed
-class GCodeThumbnail with _$GCodeThumbnail {
+sealed class GCodeThumbnail with _$GCodeThumbnail {
   const GCodeThumbnail._();
 
   @StringIntegerConverter()

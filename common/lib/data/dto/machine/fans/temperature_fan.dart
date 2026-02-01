@@ -21,7 +21,7 @@ part 'temperature_fan.g.dart';
 // }
 
 @freezed
-class TemperatureFan extends NamedFan with _$TemperatureFan, TemperatureSensorMixin {
+sealed class TemperatureFan extends NamedFan with _$TemperatureFan, TemperatureSensorMixin {
   const TemperatureFan._();
 
   @StringDoubleConverter()

@@ -10,7 +10,7 @@ part 'print_task_config.freezed.dart';
 part 'print_task_config.g.dart';
 
 @freezed
-class PrintTaskConfig with _$PrintTaskConfig {
+sealed class PrintTaskConfig with _$PrintTaskConfig {
   const PrintTaskConfig._();
 
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)

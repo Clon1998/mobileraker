@@ -13,7 +13,7 @@ part 'config_pca_led.g.dart';
 
 //  pca9533, pca9632
 @freezed
-class ConfigPcaLed extends ConfigLed with _$ConfigPcaLed {
+sealed class ConfigPcaLed extends ConfigLed with _$ConfigPcaLed {
   const ConfigPcaLed._();
 
   @StringDoubleConverter()

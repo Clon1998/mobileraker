@@ -24,7 +24,7 @@ part 'notification_settings.g.dart';
  */
 
 @freezed
-class NotificationSettings with _$NotificationSettings {
+sealed class NotificationSettings with _$NotificationSettings {
   const NotificationSettings._();
 
   @JsonSerializable(explicitToJson: true)

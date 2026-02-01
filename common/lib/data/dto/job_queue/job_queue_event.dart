@@ -31,7 +31,7 @@ queue_state: paused
 enum JobQueueAction { jobs_removed, jobs_added, job_loaded, state_changed }
 
 @freezed
-class JobQueueEvent with _$JobQueueEvent {
+sealed class JobQueueEvent with _$JobQueueEvent {
   @JsonSerializable(fieldRename: FieldRename.snake)
   factory JobQueueEvent({
     required QueueState queueState,

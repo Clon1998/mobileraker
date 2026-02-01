@@ -20,7 +20,7 @@ part 'beacon.g.dart';
 // }
 
 @freezed
-class Beacon with _$Beacon {
+sealed class Beacon with _$Beacon {
   //TODO: Add all fields if I ever need them!
   const factory Beacon({
     String? model, // The active model

@@ -11,7 +11,7 @@ part 'config_heater_bed.freezed.dart';
 part 'config_heater_bed.g.dart';
 
 @freezed
-class ConfigHeaterBed with _$ConfigHeaterBed {
+sealed class ConfigHeaterBed with _$ConfigHeaterBed {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterBed({

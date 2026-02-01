@@ -12,7 +12,7 @@ part 'gcode_store_entry.freezed.dart';
 part 'gcode_store_entry.g.dart';
 
 @freezed
-class GCodeStoreEntry with _$GCodeStoreEntry {
+sealed class GCodeStoreEntry with _$GCodeStoreEntry {
   static RegExp temperatureResponsePattern = RegExp(r'^(?:ok\s+)?(B|C|T\d*):', caseSensitive: false);
 
   static RegExp batchCommandPattern = RegExp(r'\n.+', dotAll: true);

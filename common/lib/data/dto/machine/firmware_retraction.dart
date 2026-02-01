@@ -17,7 +17,7 @@ part 'firmware_retraction.g.dart';
 // }
 
 @freezed
-class FirmwareRetraction with _$FirmwareRetraction {
+sealed class FirmwareRetraction with _$FirmwareRetraction {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory FirmwareRetraction({

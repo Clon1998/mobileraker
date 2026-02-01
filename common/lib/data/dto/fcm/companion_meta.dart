@@ -9,7 +9,7 @@ part 'companion_meta.freezed.dart';
 part 'companion_meta.g.dart';
 
 @freezed
-class CompanionMetaData with _$CompanionMetaData {
+sealed class CompanionMetaData with _$CompanionMetaData {
   const factory CompanionMetaData({
     required String version,
     required DateTime lastSeen,

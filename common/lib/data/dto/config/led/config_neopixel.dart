@@ -25,7 +25,7 @@ String versionedColorOrder(dynamic e) {
 }
 
 @freezed
-class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
+sealed class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
   const ConfigNeopixel._();
 
   @StringIntegerConverter()

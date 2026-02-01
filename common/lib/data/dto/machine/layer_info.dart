@@ -12,7 +12,7 @@ part 'layer_info.freezed.dart';
 part 'layer_info.g.dart';
 
 @freezed
-class LayerInfo with _$LayerInfo {
+sealed class LayerInfo with _$LayerInfo {
   @StringIntegerConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory LayerInfo({

@@ -23,7 +23,7 @@ part 'z_thermal_adjust.g.dart';
 // }
 
 @freezed
-class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
+sealed class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
   const ZThermalAdjust._();
 
   @StringDoubleConverter()

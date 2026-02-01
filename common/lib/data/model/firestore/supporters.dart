@@ -10,7 +10,7 @@ part 'supporters.freezed.dart';
 part 'supporters.g.dart';
 
 @freezed
-class Supporter with _$Supporter {
+sealed class Supporter with _$Supporter {
   const Supporter._();
 
   const factory Supporter(

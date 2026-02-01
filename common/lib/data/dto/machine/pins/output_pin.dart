@@ -12,7 +12,7 @@ part 'output_pin.freezed.dart';
 part 'output_pin.g.dart';
 
 @freezed
-class OutputPin extends Pin with _$OutputPin {
+sealed class OutputPin extends Pin with _$OutputPin {
   const OutputPin._();
 
   @StringDoubleConverter()

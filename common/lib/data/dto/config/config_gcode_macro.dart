@@ -11,7 +11,7 @@ part 'config_gcode_macro.freezed.dart';
 part 'config_gcode_macro.g.dart';
 
 @freezed
-class ConfigGcodeMacro with _$ConfigGcodeMacro {
+sealed class ConfigGcodeMacro with _$ConfigGcodeMacro {
   const factory ConfigGcodeMacro({
     @JsonKey(name: 'name') required String macroName,
     required String gcode,

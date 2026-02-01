@@ -88,7 +88,7 @@ class ConfirmationBottomSheet extends ConsumerWidget {
 }
 
 @freezed
-class ConfirmationBottomSheetArgs with _$ConfirmationBottomSheetArgs {
+sealed class ConfirmationBottomSheetArgs with _$ConfirmationBottomSheetArgs {
   const factory ConfirmationBottomSheetArgs({
     required String title,
     required String description,

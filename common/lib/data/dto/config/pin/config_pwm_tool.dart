@@ -12,7 +12,8 @@ part 'config_pwm_tool.freezed.dart';
 part 'config_pwm_tool.g.dart';
 
 @freezed
-class ConfigPwmTool extends ConfigPin with _$ConfigPwmTool {
+sealed class ConfigPwmTool extends ConfigPin with _$ConfigPwmTool {
+  const ConfigPwmTool._();
 
   @StringDoubleConverter()
   const factory ConfigPwmTool({

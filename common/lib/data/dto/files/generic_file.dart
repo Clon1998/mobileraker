@@ -14,7 +14,7 @@ part 'generic_file.freezed.dart';
 part 'generic_file.g.dart';
 
 @freezed
-class GenericFile with _$GenericFile, RemoteFile {
+sealed class GenericFile with _$GenericFile, RemoteFile {
   const GenericFile._();
 
   @StringIntegerConverter()

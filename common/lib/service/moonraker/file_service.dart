@@ -62,7 +62,7 @@ final backupFileExtensionRegex = RegExp('^.*\.(${bakupFileExtensions.join('|')})
 final klipperBackupFileRegex = RegExp(r'^printer-\d{8}_\d{6}.cfg$', multiLine: false, caseSensitive: false);
 
 @freezed
-class FolderContentWrapper with _$FolderContentWrapper {
+sealed class FolderContentWrapper with _$FolderContentWrapper {
   const FolderContentWrapper._();
 
   const factory FolderContentWrapper(

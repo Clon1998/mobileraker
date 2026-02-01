@@ -27,7 +27,7 @@ part 'product_info.g.dart';
 // }
 
 @freezed
-class ProductInfo with _$ProductInfo {
+sealed class ProductInfo with _$ProductInfo {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ProductInfo({
     required String machineType,

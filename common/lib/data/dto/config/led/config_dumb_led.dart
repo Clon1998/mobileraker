@@ -13,7 +13,7 @@ part 'config_dumb_led.g.dart';
 
 // led
 @freezed
-class ConfigDumbLed extends ConfigLed with _$ConfigDumbLed {
+sealed class ConfigDumbLed extends ConfigLed with _$ConfigDumbLed {
   const ConfigDumbLed._();
 
   @StringDoubleConverter()

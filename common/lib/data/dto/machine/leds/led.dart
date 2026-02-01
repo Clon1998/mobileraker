@@ -12,7 +12,7 @@ import 'dumb_led.dart';
 part 'led.freezed.dart';
 
 @freezed
-class Pixel with _$Pixel {
+sealed class Pixel with _$Pixel {
   const Pixel._();
 
   const factory Pixel({

@@ -18,7 +18,7 @@ part 'apns.g.dart';
  */
 
 @freezed
-class APNs with _$APNs {
+sealed class APNs with _$APNs {
   const APNs._();
 
   const factory APNs({

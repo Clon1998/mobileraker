@@ -17,7 +17,7 @@ part 'service_status.g.dart';
 enum ServiceState { active, deactivating, inactive, unknown }
 
 @freezed
-class ServiceStatus with _$ServiceStatus {
+sealed class ServiceStatus with _$ServiceStatus {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ServiceStatus({
     @JsonKey(includeToJson: false) required String name,

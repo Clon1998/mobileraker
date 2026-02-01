@@ -20,7 +20,7 @@ part 'job_queue_entry.freezed.dart';
 part 'job_queue_entry.g.dart';
 
 @freezed
-class JobQueueEntry with _$JobQueueEntry {
+sealed class JobQueueEntry with _$JobQueueEntry {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   factory JobQueueEntry({

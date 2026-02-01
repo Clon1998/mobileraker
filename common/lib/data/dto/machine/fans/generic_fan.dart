@@ -13,7 +13,7 @@ part 'generic_fan.freezed.dart';
 part 'generic_fan.g.dart';
 
 @freezed
-class GenericFan extends NamedFan with _$GenericFan {
+sealed class GenericFan extends NamedFan with _$GenericFan {
   const GenericFan._();
   @StringDoubleConverter()
   const factory GenericFan({

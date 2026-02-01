@@ -27,7 +27,7 @@ enum PowerDeviceType {
 }
 
 @freezed
-class PowerDevice with _$PowerDevice {
+sealed class PowerDevice with _$PowerDevice {
   const factory PowerDevice({
     @JsonKey(name: 'device')  required String name,
     required PowerState status,

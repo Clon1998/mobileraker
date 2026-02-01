@@ -21,7 +21,7 @@ part 'filament_switch_sensor.g.dart';
  */
 
 @freezed
-class FilamentSwitchSensor with _$FilamentSwitchSensor implements FilamentSensor {
+sealed class FilamentSwitchSensor with _$FilamentSwitchSensor implements FilamentSensor {
   const FilamentSwitchSensor._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

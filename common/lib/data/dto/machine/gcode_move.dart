@@ -12,7 +12,7 @@ part 'gcode_move.freezed.dart';
 part 'gcode_move.g.dart';
 
 @freezed
-class GCodeMove with _$GCodeMove {
+sealed class GCodeMove with _$GCodeMove {
   const GCodeMove._();
 
   @StringDoubleConverter()

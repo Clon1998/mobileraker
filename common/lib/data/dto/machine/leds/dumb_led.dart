@@ -13,7 +13,7 @@ part 'dumb_led.freezed.dart';
 part 'dumb_led.g.dart';
 
 @freezed
-class DumbLed extends Led with _$DumbLed {
+sealed class DumbLed extends Led with _$DumbLed {
   const DumbLed._();
 
   const factory DumbLed({

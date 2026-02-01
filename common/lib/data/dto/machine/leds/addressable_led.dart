@@ -13,7 +13,7 @@ part 'addressable_led.freezed.dart';
 part 'addressable_led.g.dart';
 
 @freezed
-class AddressableLed extends Led with _$AddressableLed {
+sealed class AddressableLed extends Led with _$AddressableLed {
   const AddressableLed._();
   const factory AddressableLed({
     required String name,

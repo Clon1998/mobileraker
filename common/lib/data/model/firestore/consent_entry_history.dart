@@ -14,7 +14,7 @@ part 'consent_entry_history.freezed.dart';
 part 'consent_entry_history.g.dart';
 
 @freezed
-class ConsentEntryHistory with _$ConsentEntryHistory {
+sealed class ConsentEntryHistory with _$ConsentEntryHistory {
   const ConsentEntryHistory._();
 
   const factory ConsentEntryHistory({

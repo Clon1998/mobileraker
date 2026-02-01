@@ -10,7 +10,7 @@ part 'gadget_status.freezed.dart';
 part 'gadget_status.g.dart';
 
 @freezed
-class GadgetStatus with _$GadgetStatus {
+sealed class GadgetStatus with _$GadgetStatus {
   @StringIntegerConverter()
   @JsonSerializable(fieldRename: FieldRename.pascal)
   const factory GadgetStatus({

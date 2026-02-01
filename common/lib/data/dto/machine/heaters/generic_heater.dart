@@ -14,7 +14,7 @@ part 'generic_heater.freezed.dart';
 part 'generic_heater.g.dart';
 
 @freezed
-class GenericHeater with _$GenericHeater, TemperatureSensorMixin, HeaterMixin {
+sealed class GenericHeater with _$GenericHeater, TemperatureSensorMixin, HeaterMixin {
   const GenericHeater._();
 
   @StringDoubleConverter()

@@ -124,7 +124,7 @@ part 'klipper_system_info.freezed.dart';
 part 'klipper_system_info.g.dart';
 
 @freezed
-class KlipperSystemInfo with _$KlipperSystemInfo {
+sealed class KlipperSystemInfo with _$KlipperSystemInfo {
   const KlipperSystemInfo._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

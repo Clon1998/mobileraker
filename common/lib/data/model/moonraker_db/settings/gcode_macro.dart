@@ -12,31 +12,21 @@ part 'gcode_macro.freezed.dart';
 part 'gcode_macro.g.dart';
 
 @freezed
-class GCodeMacro with _$GCodeMacro {
-  const GCodeMacro._();
+sealed class GCodeMacro with _$GCodeMacro {
+  GCodeMacro._({String? uuid}): uuid = uuid ?? Uuid().v4();
 
-  const factory GCodeMacro.__({
-    required String uuid,
+  factory GCodeMacro({
+    String? uuid,
     required String name,
     @Default(true) bool visible,
     @Default({...PrintState.values}) Set<PrintState> showForState,
     DateTime? forRemoval,
   }) = _GCodeMacro;
 
-  factory GCodeMacro({
-    required String name,
-    bool visible = true,
-    Set<PrintState> showForState = const {...PrintState.values},
-  }) {
-    return GCodeMacro.__(
-      uuid: const Uuid().v4(),
-      name: name,
-      visible: visible,
-      showForState: showForState,
-    );
-  }
-
   factory GCodeMacro.fromJson(Map<String, dynamic> json) => _$GCodeMacroFromJson(json);
+
+  @override
+  final String uuid;
 
   String get beautifiedName => name.replaceAll('_', ' ');
 

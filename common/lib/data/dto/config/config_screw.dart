@@ -13,7 +13,7 @@ part 'config_screw.g.dart';
 /// Models a "screw" that is part of a configuration.
 /// This can be a bed screw or an actual screw.
 @freezed
-class ConfigScrew with _$ConfigScrew {
+sealed class ConfigScrew with _$ConfigScrew {
   const ConfigScrew._();
 
   @StringIntegerConverter()

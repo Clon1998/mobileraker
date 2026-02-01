@@ -13,7 +13,7 @@ part 'config_temperature_fan.freezed.dart';
 part 'config_temperature_fan.g.dart';
 
 @freezed
-class ConfigTemperatureFan extends ConfigFan with _$ConfigTemperatureFan {
+sealed class ConfigTemperatureFan extends ConfigFan with _$ConfigTemperatureFan {
   const ConfigTemperatureFan._();
 
   @StringIntegerConverter()

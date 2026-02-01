@@ -16,7 +16,7 @@ part 'file_roots.g.dart';
 // },
 
 @freezed
-class FileRoot with _$FileRoot {
+sealed class FileRoot with _$FileRoot {
   const factory FileRoot({
     required String name,
     required String path,

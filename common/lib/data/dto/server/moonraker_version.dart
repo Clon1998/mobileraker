@@ -8,7 +8,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'moonraker_version.freezed.dart';
 
 @freezed
-class MoonrakerVersion with _$MoonrakerVersion {
+sealed class MoonrakerVersion with _$MoonrakerVersion {
   const MoonrakerVersion._();
 
   const factory MoonrakerVersion({

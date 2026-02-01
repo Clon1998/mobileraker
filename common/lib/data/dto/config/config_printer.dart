@@ -10,7 +10,7 @@ part 'config_printer.freezed.dart';
 part 'config_printer.g.dart';
 
 @freezed
-class ConfigPrinter with _$ConfigPrinter {
+sealed class ConfigPrinter with _$ConfigPrinter {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigPrinter(

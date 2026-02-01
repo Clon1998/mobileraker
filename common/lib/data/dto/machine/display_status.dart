@@ -10,7 +10,7 @@ part 'display_status.freezed.dart';
 part 'display_status.g.dart';
 
 @freezed
-class DisplayStatus with _$DisplayStatus {
+sealed class DisplayStatus with _$DisplayStatus {
   @StringDoubleConverter()
   const factory DisplayStatus({
     @Default(0) double progress,

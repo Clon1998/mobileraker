@@ -14,7 +14,7 @@ part 'octoeverywhere.freezed.dart';
 part 'octoeverywhere.g.dart';
 
 @freezed
-class OctoEverywhere with _$OctoEverywhere {
+sealed class OctoEverywhere with _$OctoEverywhere {
   @HiveType(typeId: 8)
   const factory OctoEverywhere({
     @HiveField(0) required String appApiToken,

@@ -10,7 +10,7 @@ part 'remote_interface.freezed.dart';
 part 'remote_interface.g.dart';
 
 @freezed
-class RemoteInterface with _$RemoteInterface {
+sealed class RemoteInterface with _$RemoteInterface {
   @HiveType(typeId: 2)
   const factory RemoteInterface({
     @HiveField(0) required Uri remoteUri,
