@@ -16,6 +16,8 @@ extension ScopeFunctions<R> on R {
   @pragma('vm:prefer-inline')
   R? only(bool cond) => cond ? this : null;
 
+  R? onlyLet(bool Function(R) cond) => cond(this) ? this : null;
+
   /// Returns this [R] object if [cond] is false, otherwise returns null.
   ///
   /// This can be used to perform an operation on [R] only if a certain condition is false.

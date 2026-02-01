@@ -5,6 +5,7 @@
 
 import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/converters/string_integer_converter.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../config/config_file_object_identifiers_enum.dart';
@@ -18,7 +19,9 @@ part 'extruder.g.dart';
 enum U1ExtruderState {
   activate,
   parked,
-  unknown
+  unknown;
+
+  String get displayName => tr('extruder_state.$name');
 }
 
 @freezed

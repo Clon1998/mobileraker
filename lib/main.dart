@@ -100,6 +100,8 @@ Future<void> main() async {
                     '_controlXYZCardControllerProvider',
                     '_fansCardControllerProvider',
                     '_controlExtruderCardControllerProvider',
+                    '_macroToolSelectorControllerProvider',
+                    '_u1ToolSelectorControllerProvider'
                   ].contains(provider.name),
                 ),
               ),

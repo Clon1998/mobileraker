@@ -184,7 +184,6 @@ pages:
         retract: Rückzug
         extrude_len: "Extrudiere Länge"
         cold_extrude_error: Extruder zu kalt.  min_extrode_temp von {}°C noch nicht erreicht!
-        park_toolhead: Druckkopf parken
       macro_card:
         title: Gcode - Macros
         no_macros: In dieser Gruppe sind derzeit keine Makros sichtbar
@@ -1153,6 +1152,18 @@ components:
       shutdown: Klipper-Abgeschaltet
       error: Klipper-Error
       unauthorized: Autorisierung fehlgeschlagen
+  tool_channel_selector:
+    active_toolhead: Aktiver Werkzeugkopf
+    no_tool:
+      subtitle: Kein Werkzeug ausgewählt
+      action: Tippe, um Werkzeug auszuwählen
+    operating:
+      picking_toolhead: Wähle Werkzeug…
+      parking_toolhead: Parke Werkzeug…
+    sheet:
+      select_toolhead: Werkzeugkopf auswählen
+      park_toolhead: Werkzeugkopf parken
+      park_toolhead_desc: Parke den aktuellen Werkzeugkopf
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
@@ -1578,6 +1589,10 @@ date_periods:
   day:
     one: Täglich
     other: Tage
+extruder_state:
+  activate: Aktiv
+  parked: Geparkt
+  unknown: Unbekannt
 consent_cards:
   marketing_notifications:
     title: 'Bleiben Sie informiert!'

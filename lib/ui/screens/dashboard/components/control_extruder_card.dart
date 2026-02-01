@@ -37,7 +37,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/tool_channel_selector/machine_tool_channel_selector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -49,7 +51,6 @@ part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
 RegExp _toolchangeMacroRegex = RegExp(r'^T\d+$');
-RegExp _toolheadParkingMacroRegex = RegExp(r'^PARK_(TOOLHEAD|EXTRUDER)$');
 
 class ControlExtruderCard extends HookConsumerWidget {
   const ControlExtruderCard({super.key, required this.machineUUID});
@@ -220,12 +221,7 @@ class _CardTitle extends ConsumerWidget {
 
     Widget? trailing = null;
 
-    if (model.parkToolheadMacro != null) {
-      trailing = TextButton(
-        onPressed: controller.onParkToolhead.only(model.klippyCanReceiveCommands),
-        child: Text('pages.dashboard.control.extrude_card.park_toolhead').tr(),
-      );
-    } else if (model.extruderCount > 1) {
+    if (model.extruderCount > 1 && !model.isSnapmakerU1) {
       trailing = DropdownButton(
         value: model.extruderIndex,
         onChanged: model.klippyCanReceiveCommands ? controller.onExtruderSelected : null,
@@ -281,7 +277,8 @@ class _CardBody extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (model.toolchangeMacros.isNotEmpty) _ToolSelector(machineUUID: machineUUID),
+        MachineToolChannelSelector(machineUUID: machineUUID),
+        Gap(8),
         LayoutBuilder(
           builder: (context, constraints) {
             final theme = Theme.of(context);
@@ -332,13 +329,13 @@ class _CardBody extends ConsumerWidget {
           },
         ),
         Text('${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
-        const SizedBox(height: 8),
+        Gap(8),
         SingleValueSelector(
           selectedIndex: model.stepIndex,
           onSelected: controller.onSelectedStepChanged,
           values: [for (var step in model.steps) step.toString()],
         ),
-        const SizedBox(height: 8),
+        Gap(8),
         const Divider(),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -385,54 +382,9 @@ class _CardBody extends ConsumerWidget {
             );
           },
         ),
+
+
       ],
-    );
-  }
-}
-
-class _ToolSelector extends ConsumerWidget {
-  const _ToolSelector({super.key, required this.machineUUID});
-
-  final String machineUUID;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).requireValue());
-    final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
-
-    final theme = Theme.of(context);
-
-    final sel = theme.useMaterial3
-        ? SegmentedButton<GcodeMacro>(
-            showSelectedIcon: false,
-            segments: [for (var tool in model.toolchangeMacros) _buildButtonSegment((tool))],
-            selected: model.toolchangeMacros.where((e) => e.vars['active'] == true).toSet(),
-            onSelectionChanged: model.klippyCanReceiveCommands ? controller.onToolSetSelected : null,
-          )
-        : ToggleButtons(
-            isSelected: [for (var tool in model.toolchangeMacros) tool.vars['active'] == true],
-            onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
-            children: [for (var tool in model.toolchangeMacros) _ToolItem(tool: tool)],
-          );
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(),
-        child: sel,
-      ),
-    );
-  }
-
-  ButtonSegment<GcodeMacro> _buildButtonSegment(GcodeMacro tool) {
-    final Object? val = tool.vars['color'] ?? tool.vars['colour'];
-    final color = val?.let((v) => int.tryParse(v.toString(), radix: 16))?.let((i) => Color(i | 0xFF000000));
-
-    return ButtonSegment(
-      value: tool,
-      label: Text(tool.name),
-      icon: Icon(Icons.circle, color: color, size: 12).only(color != null),
     );
   }
 }
@@ -518,25 +470,13 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       extruderIndex: activeExtruderIndex,
       stepIndex: min(max(0, idx), machineSettings.extrudeSteps.length - 1),
       steps: machineSettings.extrudeSteps,
-      toolchangeMacros: isSnapmakerU1
-          ? u1Macros
-          : printer.gcodeMacros.values
-                .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
-                .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
+      isSnapmakerU1: isSnapmakerU1,
       extruderVelocity: state.valueOrNull?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
       activeExtruder: activeExtruderIndex?.let(printer.extruders.elementAtOrNull),
       activeExtruderConfig: activeExtruderIndex?.let(printer.configFile.extruderForIndex),
-      parkToolheadMacro: isSnapmakerU1
-          ? 'PARK_EXTRUDER'
-          : printer.gcodeMacros.values.firstWhereOrNull((e) => _toolheadParkingMacroRegex.hasMatch(e.name))?.name,
     );
   }
 
-  void onParkToolhead() {
-    var macro = state.valueOrNull?.parkToolheadMacro;
-    if (macro == null) return;
-    _printerService.gCode(macro);
-  }
 
   void onExtruderSelected(int? idx) {
     state = state.toLoading();
@@ -623,13 +563,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
         data: FilamentOperationDialogArgs(machineUUID: machineUUID, isLoad: true, extruder: extruderName),
       ),
     );
-  }
-
-  void onToolSelected(int toolIdx) {
-    final tool = state.requireValue.toolchangeMacros.elementAtOrNull(toolIdx);
-    if (tool == null) return;
-    HapticFeedback.selectionClick().ignore();
-    _printerService.gCode(tool.name);
   }
 
   void onToolSetSelected(Set<GcodeMacro> selected) {
@@ -731,11 +664,6 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
   }
 
   @override
-  void onToolSelected(int toolIdx) {
-    // Do nothing preview
-  }
-
-  @override
   void onHeatingButtonPressed() {}
 }
 
@@ -750,11 +678,10 @@ class _Model with _$Model {
     required int? extruderIndex,
     required int stepIndex,
     required List<int> steps,
-    @Default([]) List<GcodeMacro> toolchangeMacros,
     required double extruderVelocity,
     required Extruder? activeExtruder,
     required ConfigExtruder? activeExtruderConfig,
-    String? parkToolheadMacro, // this can be used for toolchangers or idex machines!
+    @Default(false) bool isSnapmakerU1,
   }) = __Model;
 
   bool get minExtrudeTempReached =>

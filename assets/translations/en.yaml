@@ -185,7 +185,6 @@ pages:
         retract: Retract
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
         cold_extrude_error: Extruder did not reach min_extrude_temp of {}°C yet!
-        park_toolhead: Park Toolhead
       macro_card:
         title: Gcode - Macros
         no_macros: No macros are currently visible in this group
@@ -1228,7 +1227,18 @@ components:
       shutdown: Klipper-Shutdown
       error: Klipper-Error
       unauthorized: Access Denied
-
+  tool_channel_selector:
+    active_toolhead: Active Toolhead
+    no_tool:
+      subtitle: No toolhead selected
+      action: Tap to select a toolhead
+    operating:
+      picking_toolhead: Picking toolhead…
+      parking_toolhead: Parking toolhead…
+    sheet:
+      select_toolhead: Select toolhead
+      park_toolhead: Park toolhead
+      park_toolhead_desc: Park the selected toolhead
 
 dialogs:
   rate_my_app:
@@ -1694,6 +1704,10 @@ date_periods:
   day:
     one: Daily
     other: Days
+extruder_state:
+  activate: Active
+  parked: Parked
+  unknown: Unknown
 consent_cards:
   marketing_notifications:
     title: 'Stay Connected with Notifications'

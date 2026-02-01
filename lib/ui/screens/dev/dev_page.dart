@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -18,7 +18,6 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/consent_service.dart';
 // import 'package:common/service/firebase/admobs.dart';
 import 'package:common/service/live_activity_service_v2.dart';
-import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -39,7 +38,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iabtcf_consent_info/iabtcf_consent_info.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/console/console_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
@@ -47,8 +46,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
-
-import '../dashboard/components/bed_mesh_card.dart';
 
 part 'dev_page.g.dart';
 
@@ -100,29 +97,30 @@ class DevPage extends HookConsumerWidget {
 
     Widget body = ListView(
       children: [
+        ControlExtruderCard(machineUUID: selMachine.uuid),
         // GCodePreviewCard.preview(),
         // const _StlPreview(),
-        ElevatedButton(
-          onPressed: () {
-            ref.watch(fileServiceSelectedProvider).getGCodeMetadata('noti/v_2_small_test_noti.gcode').then((v) {
-              talker.info('Receivef meta: $v');
-            });
-          },
-          child: Text('GcodeMetaRequest'),
-        ),
-        const _Consent(),
-        _IabTCTSTATUS(),
+        // ElevatedButton(
+        //   onPressed: () {
+        //     ref.watch(fileServiceSelectedProvider).getGCodeMetadata('noti/v_2_small_test_noti.gcode').then((v) {
+        //       talker.info('Receivef meta: $v');
+        //     });
+        //   },
+        //   child: Text('GcodeMetaRequest'),
+        // ),
+        // const _Consent(),
+        // _IabTCTSTATUS(),
 
         // ControlExtruderCard(machineUUID: selMachine.uuid),
         // ControlExtruderLoading(),
         // PowerApiCardLoading(),
-        ConsoleCard.preview(),
-        ConsoleCard(machineUUID: selMachine.uuid),
+        // ConsoleCard.preview(),
+        // ConsoleCard(machineUUID: selMachine.uuid),
 
         // BedMeshCard(machineUUID: selMachine!.uuid),
         // FirmwareRetractionCard(machineUUID: selMachine!.uuid),
         // MachineStatusCardLoading(),
-        BedMeshCard(machineUUID: selMachine!.uuid),
+        // BedMeshCard(machineUUID: selMachine!.uuid),
 
         // SpoolmanCardLoading(),
 
