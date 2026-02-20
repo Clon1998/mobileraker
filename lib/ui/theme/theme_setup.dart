@@ -711,7 +711,7 @@ ThemePack _mobilerakerOLEDPack() {
 }
 
 List<ThemePack> themePacks(Ref ref) {
-  var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrNull;
+  var isSupporter = ref.watch(isSupporterAsyncProvider).value;
   return [
     _mobilerakerPack(),
     _voronPack(),

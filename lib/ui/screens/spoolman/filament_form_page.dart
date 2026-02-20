@@ -105,9 +105,9 @@ class _FilamentFormPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_FilamentFormPageControllerProvider(machineUUID).notifier);
+    final controller = ref.watch(_filamentFormPageControllerProvider(machineUUID).notifier);
     final (selectedVendor, sourceFilament, saving) = ref.watch(
-        _FilamentFormPageControllerProvider(machineUUID).select((d) => (d.selectedVendor, d.source, d.isSaving)));
+        _filamentFormPageControllerProvider(machineUUID).select((d) => (d.selectedVendor, d.source, d.isSaving)));
 
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
 
@@ -382,10 +382,10 @@ class _Fab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_FilamentFormPageControllerProvider(machineUUID).notifier);
+    final controller = ref.watch(_filamentFormPageControllerProvider(machineUUID).notifier);
 
     final (isSaving, selectedVendor) = ref.watch(
-        _FilamentFormPageControllerProvider(machineUUID).select((model) => (model.isSaving, model.selectedVendor)));
+        _filamentFormPageControllerProvider(machineUUID).select((model) => (model.isSaving, model.selectedVendor)));
 
     final themeData = Theme.of(context);
 
@@ -442,7 +442,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     ref.keepAliveExternally(spoolmanServiceProvider(machineUUID));
     final vendors = ref.watch(vendorListProvider(machineUUID).selectAs((d) => d.items));
 
-    ref.listenSelf((prev, next) {
+    listenSelf((prev, next) {
       talker.info('[FilamentFormPageController($machineUUID)] State changed: $next');
     });
 
@@ -479,7 +479,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
   }
 
   void onTapVendorSelection() async {
-    if (state.vendors.valueOrNull == null) return;
+    if (state.vendors.value == null) return;
     final vendors = state.vendors.requireValue;
 
     final res = await _bottomSheetService.show(

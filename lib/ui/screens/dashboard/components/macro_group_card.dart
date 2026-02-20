@@ -176,7 +176,7 @@ class _SelectedGroup extends HookConsumerWidget {
         ref.watch(_macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
     var groupProvider = _macroGroupCardControllerProvider(machineUUID)
         .selectAs((value) => value.groups.elementAtOrNull(value.selected));
-    var group = ref.watch(groupProvider).valueOrNull;
+    var group = ref.watch(groupProvider).value;
 
     if (group == null) return const Text('No group found');
 
@@ -401,7 +401,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
     var initialIndex = _settingService.readInt(_settingsKey, 0);
 
     yield* Rx.combineLatest4(klippyCanReceiveCommands, groups, configMacros, printState, (a, b, c, d) {
-      var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex;
+      var idx = state.whenData((value) => value.selected).value ?? initialIndex;
       return _Model(
         klippyCanReceiveCommands: a,
         printState: d,

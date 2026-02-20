@@ -29,7 +29,7 @@ class GroupedSlidersCard extends HookConsumerWidget {
     useAutomaticKeepAlive();
 
     var showFwRetract =
-        ref.watch(printerProvider(machineUUID).selectAs((data) => data.firmwareRetraction != null)).valueOrNull == true;
+        ref.watch(printerProvider(machineUUID).selectAs((data) => data.firmwareRetraction != null)).value == true;
 
     var childs = [
       MultipliersSlidersOrTexts(machineUUID: machineUUID),

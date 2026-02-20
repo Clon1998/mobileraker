@@ -23,7 +23,6 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/jrpc/rpc_response.dart';
@@ -89,11 +88,11 @@ TemperatureStoreService temperatureStoreService(Ref ref, String machineUUID) {
   ref.listen(
     jrpcClientStateProvider(machineUUID),
     (previous, next) {
-      switch (next.valueOrNull) {
+      switch (next.value) {
         case ClientState.connected:
           tempStore.initStores();
           break;
-        case ClientState.error || ClientState.disconnected when previous?.valueOrNull == ClientState.connected:
+        case ClientState.error || ClientState.disconnected when previous?.value == ClientState.connected:
           ref.invalidateSelf();
           break;
         default:

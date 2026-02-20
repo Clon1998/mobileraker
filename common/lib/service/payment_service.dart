@@ -14,7 +14,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -25,9 +24,6 @@ import 'setting_service.dart';
 import 'ui/snackbar_service_interface.dart';
 
 part 'payment_service.g.dart';
-
-@ProviderFor(CustomerInfoNotifier)
-final customerInfoProvider = customerInfoNotifierProvider;
 
 @Riverpod(keepAlive: true)
 class CustomerInfoNotifier extends _$CustomerInfoNotifier {
@@ -71,7 +67,7 @@ class CustomerInfoNotifier extends _$CustomerInfoNotifier {
 @Riverpod(keepAlive: true)
 bool isSupporter(Ref ref) {
   if (kDebugMode) return true;
-  return ref.watch(isSupporterAsyncProvider).valueOrNull == true;
+  return ref.watch(isSupporterAsyncProvider).value == true;
 }
 
 @Riverpod(keepAlive: true)
@@ -84,7 +80,7 @@ FutureOr<bool> isSupporterAsync(Ref ref) async {
 /// Returns the platform, if any, where the user bought the supporter package
 @Riverpod(keepAlive: true)
 bool? supportBoughtOnThisPlatform(Ref ref) {
-  var customerInfo = ref.watch(customerInfoProvider).valueOrNull;
+  var customerInfo = ref.watch(customerInfoProvider).value;
 
   if (customerInfo?.entitlements.active.containsKey('Supporter') != true) return null;
 
@@ -98,7 +94,7 @@ bool? supportBoughtOnThisPlatform(Ref ref) {
 
 @Riverpod(keepAlive: true)
 bool hasSubscriptionAndLifetime(Ref ref) {
-  CustomerInfo? customerInfo = ref.watch(customerInfoProvider).valueOrNull;
+  CustomerInfo? customerInfo = ref.watch(customerInfoProvider).value;
 
   if (customerInfo == null) return false;
 
@@ -277,10 +273,10 @@ class PaymentService {
     _ref.listen(
       firebaseUserProvider,
       (previous, next) async {
-        var isLogin = previous?.valueOrNull == null && next.valueOrNull != null ||
-            previous?.valueOrNull?.isAnonymous == true && next.valueOrNull?.isAnonymous == false;
-        var isLogout = previous?.valueOrNull != null && next.valueOrNull == null ||
-            previous?.valueOrNull?.isAnonymous == false && next.valueOrNull?.isAnonymous == true;
+        var isLogin = previous?.value == null && next.value != null ||
+            previous?.value?.isAnonymous == true && next.value?.isAnonymous == false;
+        var isLogout = previous?.value != null && next.value == null ||
+            previous?.value?.isAnonymous == false && next.value?.isAnonymous == true;
 
         talker.info('[PaymentService] User changed. isLogin: $isLogin, isLogout: $isLogout');
 

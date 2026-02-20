@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -15,6 +16,7 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -223,7 +225,7 @@ class _Cam extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // talker.info('Rebuilding _Cam for ${machine.logName}');
-    final model = ref.watch(_printerCardControllerProvider(machine)).valueOrNull;
+    final model = ref.watch(_printerCardControllerProvider(machine)).value;
     final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
     if (model == null || model.previewCam == null) return const SizedBox.shrink();
 
@@ -336,7 +338,7 @@ class _PrinterCardController extends _$PrinterCardController {
 
     final loadingTransition = (wasLoading || isLoading) && wasLoading != isLoading;
     final progressEpsilon =
-        previous.valueOrNull?.printProgress.closeTo(next.valueOrNull?.printProgress ?? 0, 0.01) != false;
+        previous.value?.printProgress.closeTo(next.value?.printProgress ?? 0, 0.01) != false;
 
     return loadingTransition && progressEpsilon;
   }

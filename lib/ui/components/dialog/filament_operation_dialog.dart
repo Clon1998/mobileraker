@@ -7,6 +7,7 @@ import 'dart:math';
 
 import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -491,7 +492,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     final extruderIndex = int.tryParse(args.extruder) ?? 0;
 
     ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
-      if (next.valueOrNull != ClientState.connected && !_closing) {
+      if (next.value != ClientState.connected && !_closing) {
         talker.info('Lost connection to machine, will close filament dialog.');
         _closing = true;
         completer(DialogResponse.aborted());
@@ -499,14 +500,14 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     });
 
     listenSelf((previous, next) {
-      final modelPrevious = previous?.valueOrNull;
-      final modelNext = next.valueOrNull;
+      final modelPrevious = previous?.value;
+      final modelNext = next.value;
 
       if (modelNext == null) return;
 
       if (modelPrevious?.step != modelNext.step && modelNext.step == _FilamentChangeSteps.heatUp) {
-        talker.info('Set target temperature to ${next.valueOrNull!.targetTemperature}');
-        _printerService.setHeaterTemperature(args.extruder, next.valueOrNull!.targetTemperature);
+        talker.info('Set target temperature to ${next.value!.targetTemperature}');
+        _printerService.setHeaterTemperature(args.extruder, next.value!.targetTemperature);
       } else if (modelNext.targetReached && modelNext.step == _FilamentChangeSteps.heatUp) {
         talker.info('Target reached, next step');
         moveToStep(_FilamentChangeSteps.moveFilament);
@@ -537,7 +538,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       final extruderConfig = printer.configFile.extruders[args.extruder];
       final extruderTemp = printer.extruders[extruderIndex].temperature;
 
-      final model = state.valueOrNull;
+      final model = state.value;
 
       if (model == null) {
         yield _Model(extruderConfig: extruderConfig!, extruderTemp: extruderTemp, settings: settings);
@@ -548,7 +549,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
   }
 
   void moveToStep(_FilamentChangeSteps step) {
-    final model = state.valueOrNull;
+    final model = state.value;
     if (model == null) return;
     state = AsyncValue.data(model.copyWith(step: step));
 
@@ -556,13 +557,13 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
   }
 
   void updateTargetTemp(num temp) {
-    final model = state.valueOrNull;
+    final model = state.value;
     if (model == null) return;
     state = AsyncValue.data(model.copyWith(targetTemperature: temp.toInt()));
   }
 
   void moveFilament() async {
-    final model = state.valueOrNull;
+    final model = state.value;
     if (model == null) return;
     state = AsyncValue.data(model.copyWith(movingFilament: true));
 
@@ -587,7 +588,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
   }
 
   void purgeFilament() async {
-    final model = state.valueOrNull;
+    final model = state.value;
     if (model == null) return;
     state = AsyncValue.data(model.copyWith(purgingFilament: true));
     final move = min(model.settings.purgeLength, model.extruderConfig.maxExtrudeOnlyDistance);
@@ -598,7 +599,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
   }
 
   Future<void> formTip() async {
-    final model = state.valueOrNull;
+    final model = state.value;
     if (model == null) return;
     talker.info('Forming tip');
 

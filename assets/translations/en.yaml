@@ -539,6 +539,7 @@ pages:
     title: Edit {}
     import_settings: Import Settings
     remove_printer: Remove Printer
+    reset_notifications: Reset Notifications DB
     no_values_found: No values Found!
     fetching_additional_settings: "@:general.fetching additional settings from network…"
     could_not_fetch_additional: Could not fetch additional settings!
@@ -593,8 +594,8 @@ pages:
       steps_baby_short: Z-Steps
     extruders:
       title: Extruder(s)
-      feedrate: Extruder velocity
-      feedrate_short: Velocity
+      feedrate: Extruder feedrate
+      feedrate_short: Feedrate
       steps_extrude: Extrude steps
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
@@ -629,6 +630,7 @@ pages:
       cam_mode: Cam Mode
       cam_rotate: Rotation
       read_only: Webcam is read-only
+      cam_name_already_present: A webcam with this name already exists!
     macros:
       default_grp: Default
       new_macro_grp: New Macro - Group
@@ -718,6 +720,9 @@ pages:
       title: Misc Element UI-Ordering
       helper: Change the order of the miscellaneous elements on the dashboard.
       no_controls: No misc elements found!
+    settings_imported:
+      title: Settings imported!
+      message: Applied selected settings. Remember to save the form.
   printer_add:
     steps:
       mode: Mode
@@ -1239,7 +1244,8 @@ components:
       select_toolhead: Select toolhead
       park_toolhead: Park toolhead
       park_toolhead_desc: Park the selected toolhead
-
+  segment_form_field:
+    duplicate_error: Value already present.
 dialogs:
   rate_my_app:
     title: Rate Mobileraker?
@@ -1250,6 +1256,7 @@ dialogs:
     fetching_error_title: Unable to fetch settings!
     fetching_error_sub: Ensure other machines are connected.
     select_source: Select Source
+    select_source_hint: Source
   create_folder:
     title: Create Folder
     label: Folder Name
@@ -1674,6 +1681,8 @@ form_validators:
   disallow_mdns: mDNS (.local) addresses are not supported
   file_name_in_use: File name already in use
   min_before_max: Minimum value must be less or equal to the maximum value
+  heater_min: Value is below the minimum allowed temperature of {}°C
+  heater_max: Value is above the maximum allowed temperature of {}°C
 date:
   year:
     one: Year

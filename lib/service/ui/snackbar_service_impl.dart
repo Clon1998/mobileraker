@@ -28,7 +28,7 @@ class SnackBarServiceImpl implements SnackBarService {
 
   @override
   void showForMachine(String machineUUID, SnackBarConfig config) {
-    var activeMachine = ref.read(selectedMachineProvider).valueOrNull;
+    var activeMachine = ref.read(selectedMachineProvider).value;
     if (activeMachine?.uuid != machineUUID) return;
     show(config);
   }

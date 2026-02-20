@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
@@ -37,7 +36,7 @@ import 'package:mobileraker/ui/screens/overview/overview_page.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
 import 'package:mobileraker/ui/screens/paywall/perks/supporter_benefits_page.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
-import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
+import 'package:mobileraker/ui/screens/printers/edit/printer_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/data/data_settings_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
@@ -116,7 +115,7 @@ Future<String> initialRoute(Ref ref) async {
   return '/';
 }
 
-GoRouter goRouterImpl(GoRouterRef ref) {
+GoRouter goRouterImpl(Ref ref) {
   return GoRouter(
     initialLocation: ref.watch(initialRouteProvider).requireValue,
     debugLogDiagnostics: false,
@@ -169,7 +168,8 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: 'edit',
             name: AppRoute.printerEdit.name,
             builder: (context, state) {
-              return PrinterEditPage(machine: state.extra! as Machine);
+              return PrinterEditPage(machine: state.extra as Machine);
+              // return PrinterEditPage(machine: state.extra! as Machine);
             },
           ),
           GoRoute(
@@ -229,7 +229,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: 'editor',
             name: AppRoute.fileManager_exlorer_editor.name,
-            builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
+            builder: (context, state) => ConfigFileDetailPage(machineUUID: state.uri.queryParameters['machineUUID']!, file: state.extra! as GenericFile),
           ),
           GoRoute(
             path: 'video-player',

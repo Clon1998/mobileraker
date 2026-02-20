@@ -13,7 +13,6 @@ import 'package:common/service/firebase/auth.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hashlib/hashlib.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/model/firestore/consent.dart';
@@ -66,7 +65,7 @@ class ConsentService {
   }
 
   void onFirebaseUserChanged(AsyncValue<User?>? prev, AsyncValue<User?> next) {
-    if (next.valueOrNull == null) return;
+    if (next.value == null) return;
 
     _updateConsentDataIfNecessary(next.value!.uid);
   }

@@ -464,14 +464,14 @@ class NotificationService {
         AsyncValue<ConsentEntry?> next,
       ) {
         if (next.isLoading) return;
-        if (next.valueOrNull?.status == ConsentStatus.GRANTED && !isSup) {
+        if (next.value?.status == ConsentStatus.GRANTED && !isSup) {
           for (var value in RegionTimezone.values) {
             if (value == regionTimezone) continue;
             _notifyFCM.unsubscribeToTopic('$_marketingTopic.${value.name}').ignore();
           }
           talker.info('Subscribing to marketing topic: $topic');
           _notifyFCM.subscribeToTopic(topic).ignore();
-        } else if (next.valueOrNull?.status == ConsentStatus.DENIED || isSup) {
+        } else if (next.value?.status == ConsentStatus.DENIED || isSup) {
           talker.info('Unsubscribing from marketing topic');
           for (var value in RegionTimezone.values) {
             _notifyFCM.unsubscribeToTopic('$_marketingTopic.${value.name}').ignore();

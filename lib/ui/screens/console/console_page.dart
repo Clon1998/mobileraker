@@ -40,7 +40,7 @@ class ConsolePage extends ConsumerWidget {
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
-        actions: [MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull), const EmergencyStopButton()],
+        actions: [MachineStateIndicator(ref.watch(selectedMachineProvider).value), const EmergencyStopButton()],
       ),
       drawer: const NavigationDrawerWidget(),
       body: body,

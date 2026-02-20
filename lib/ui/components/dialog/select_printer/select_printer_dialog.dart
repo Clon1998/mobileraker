@@ -33,7 +33,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
 
     if (selected.value) return const Center(child: CircularProgressIndicator.adaptive());
 
-    var activeName = ref.watch(selectedMachineProvider.selectAs((data) => data?.name)).valueOrNull;
+    var activeName = ref.watch(selectedMachineProvider.selectAs((data) => data?.name)).value;
     var themeData = Theme.of(context);
     return MobilerakerDialog(
       padding: const EdgeInsets.symmetric(vertical: 8.0),

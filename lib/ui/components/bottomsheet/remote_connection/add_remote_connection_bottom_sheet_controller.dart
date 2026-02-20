@@ -20,16 +20,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../../screens/printers/components/http_headers.dart';
 
 part 'add_remote_connection_bottom_sheet_controller.freezed.dart';
 part 'add_remote_connection_bottom_sheet_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> formKey(FormKeyRef _) {
+GlobalKey<FormBuilderState> formKey(Ref _) {
   return GlobalKey<FormBuilderState>();
 }
 
@@ -109,14 +106,15 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
   saveManual() {
     if (!_formState.saveAndValidate()) return;
 
-    var headers = ref.read(
-      headersControllerProvider(_remoteInterface?.httpHeaders ?? const {}),
-    );
+    //TODO
+    // var headers = ref.read(
+    //   headersControllerProvider(_remoteInterface?.httpHeaders ?? const {}),
+    // );
     var httpUri = buildMoonrakerHttpUri(_uri.transformedValue);
 
     ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(RemoteInterface(
           remoteUri: httpUri!,
-          httpHeaders: headers,
+          // httpHeaders: headers,
           timeout: _timeout.transformedValue,
         )));
   }

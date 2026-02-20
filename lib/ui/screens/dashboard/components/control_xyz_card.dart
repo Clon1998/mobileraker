@@ -575,7 +575,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 
     final (klippy, printer, machineSettings) = await (klipperFuture, printerFuture, machineSettingsFuture).wait;
 
-    var idx = state.whenData((value) => value.selected).valueOrNull ??
+    var idx = state.whenData((value) => value.selected).value ??
         initialIndex.clamp(0, machineSettings.moveSteps.length - 1);
 
     var supportsForceMove = printer.configFile.hasForceMove == true && printer.configFile.enableForceMove == true;
@@ -598,7 +598,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   }
 
   Future<void> onMoveBtn(PrinterAxis axis, [bool positive = true]) async {
-    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).valueOrNull;
+    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).value;
     if (machineSettings == null) return;
 
     var step = state.value?.let((it) => it.steps.elementAtOrNull(it.selected));
@@ -680,7 +680,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   Future<void> onBedScrewAdjust() => _printerService.bedScrewsAdjust();
 
   Future<void> onSelectBeaconModel() async {
-    var printer = ref.read(printerProvider(machineUUID)).valueOrNull;
+    var printer = ref.read(printerProvider(machineUUID)).value;
     if (printer?.beacon == null) return;
     final beaconModels = printer!.configFile.beaconModels ?? [];
 

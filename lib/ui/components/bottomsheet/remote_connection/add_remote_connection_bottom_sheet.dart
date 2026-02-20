@@ -20,7 +20,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
-import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../../screens/printers/components/section_header.dart';
@@ -265,7 +264,7 @@ class _ManualTab extends ConsumerWidget {
                   FormBuilderValidators.integer(),
                 ]),
               ),
-              HttpHeaders(initialValue: model.remoteInterface?.httpHeaders ?? const {}),
+              // HttpHeadersFormField(initialValue: model.remoteInterface?.httpHeaders ?? const {}),
               if (model.activeClientType == ClientType.manual)
                 TextButton.icon(
                   onPressed: () => controller.removeRemoteConnection(false),

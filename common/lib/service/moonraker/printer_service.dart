@@ -22,7 +22,6 @@ import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -43,9 +42,6 @@ PrinterService printerService(Ref ref, String machineUUID) {
   return PrinterService(ref, machineUUID);
 }
 
-// Kinda "hacky" but the only way to keep the name PrinterProvider without a conflict of the Printer name..
-@ProviderFor(PrinterNotifier)
-const printerProvider = printerNotifierProvider;
 
 @riverpod
 class PrinterNotifier extends _$PrinterNotifier {
@@ -54,8 +50,8 @@ class PrinterNotifier extends _$PrinterNotifier {
     // ref.keepAlive();
     var printerService = ref.watch(printerServiceProvider(machineUUID));
     listenSelf((previous, next) {
-      final previousFileName = previous?.valueOrNull?.print.filename;
-      final nextFileName = next.valueOrNull?.print.filename;
+      final previousFileName = previous?.value?.print.filename;
+      final nextFileName = next.value?.print.filename;
       // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
       if (previousFileName != nextFileName ||
           next.hasValue &&
@@ -65,8 +61,8 @@ class PrinterNotifier extends _$PrinterNotifier {
         printerService.updateCurrentFile(nextFileName).ignore();
       }
 
-      final prevMessage = previous?.valueOrNull?.print.message;
-      final nextMessage = next.valueOrNull?.print.message;
+      final prevMessage = previous?.value?.print.message;
+      final nextMessage = next.value?.print.message;
       if (prevMessage != nextMessage && nextMessage?.isNotEmpty == true) {
         ref
             .read(snackBarServiceProvider)

@@ -1,278 +1,289 @@
 /*
- * Copyright (c) 2023-2026. Patrick Schmidt.
+ * Copyright (c) 2026. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
-import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
-import 'package:progress_indicators/progress_indicators.dart';
 
-class ImportSettingsDialog extends ConsumerWidget {
+typedef SettingReference = (ImportableSettingType id, String? uuid);
+
+enum ImportableSettingType {
+  invertX,
+  invertY,
+  invertZ,
+  speedXY,
+  speedZ,
+  moveSteps,
+  babySteps,
+  extruderFeedrate,
+  extruderSteps,
+  loadingDistance,
+  loadingSpeed,
+  purgeLength,
+  purgeSpeed,
+  tempPreset,
+}
+
+Map<ImportableSettingType, Function> _settingExtractor = {
+  ImportableSettingType.invertX: (MachineSettings s) => s.inverts[0],
+  ImportableSettingType.invertY: (MachineSettings s) => s.inverts[1],
+  ImportableSettingType.invertZ: (MachineSettings s) => s.inverts[2],
+  ImportableSettingType.speedXY: (MachineSettings s) => s.speedXY,
+  ImportableSettingType.speedZ: (MachineSettings s) => s.speedZ,
+  ImportableSettingType.moveSteps: (MachineSettings s) => s.moveSteps,
+  ImportableSettingType.babySteps: (MachineSettings s) => s.babySteps,
+  ImportableSettingType.extruderFeedrate: (MachineSettings s) => s.extrudeFeedrate,
+  ImportableSettingType.extruderSteps: (MachineSettings s) => s.extrudeSteps,
+  ImportableSettingType.loadingDistance: (MachineSettings s) => s.nozzleExtruderDistance,
+  ImportableSettingType.loadingSpeed: (MachineSettings s) => s.loadingSpeed,
+  ImportableSettingType.purgeLength: (MachineSettings s) => s.purgeLength,
+  ImportableSettingType.purgeSpeed: (MachineSettings s) => s.purgeSpeed,
+  ImportableSettingType.tempPreset: (MachineSettings s, String k) =>
+      s.temperaturePresets.firstWhere((p) => p.uuid == k),
+};
+
+
+Map<ImportableSettingType, MachineSettings Function(MachineSettings, SettingReference, dynamic)> _settingApplier = {
+  ImportableSettingType.invertX: (s, _, v) => s.copyWith(inverts: List.unmodifiable([v, ...s.inverts.skip(1)])),
+  ImportableSettingType.invertY: (s, _, v) => s.copyWith(inverts: List.unmodifiable([s.inverts[0], v, s.inverts[2]])),
+  ImportableSettingType.invertZ: (s, _, v) => s.copyWith(inverts: List.unmodifiable([s.inverts[0], s.inverts[1], v])),
+  ImportableSettingType.speedXY: (s, _, v) => s.copyWith(speedXY: v),
+  ImportableSettingType.speedZ: (s, _, v) => s.copyWith(speedZ: v),
+  ImportableSettingType.moveSteps: (s, _, v) => s.copyWith(moveSteps: v),
+  ImportableSettingType.babySteps: (s, _, v) => s.copyWith(babySteps: v),
+  ImportableSettingType.extruderFeedrate: (s, _, v) => s.copyWith(extrudeFeedrate: v),
+  ImportableSettingType.extruderSteps: (s, _, v) => s.copyWith(extrudeSteps: v),
+  ImportableSettingType.loadingDistance: (s, _, v) => s.copyWith(nozzleExtruderDistance: v),
+  ImportableSettingType.loadingSpeed: (s, _, v) => s.copyWith(loadingSpeed: v),
+  ImportableSettingType.purgeLength: (s, _, v) => s.copyWith(purgeLength: v),
+  ImportableSettingType.purgeSpeed: (s, _, v) => s.copyWith(purgeSpeed: v),
+  ImportableSettingType.tempPreset: (s, r, v) {
+    final TemperaturePreset src = v as TemperaturePreset;
+    final newPreset = TemperaturePreset(
+        name: src.name, bedTemp: src.bedTemp, extruderTemp: src.extruderTemp, customGCode: src.customGCode);
+
+    return s.copyWith(temperaturePresets: List.unmodifiable([...s.temperaturePresets, newPreset]));
+  }
+};
+
+
+MachineSettings applyImportedSettings(MachineSettings target, Map<SettingReference, dynamic> imported) {
+  var result = target;
+  for (var entry in imported.entries) {
+    final key = entry.key;
+    final value = entry.value;
+    final applier = _settingApplier[key.$1];
+    if (applier == null) {
+      talker.warning('No applier found for setting ${key}, skipping import of this setting');
+      continue;
+    }
+    result = applier(result, key, value);
+  }
+  return result;
+}
+
+
+class ImportSettingsDialog extends HookConsumerWidget {
+  const ImportSettingsDialog({super.key, required this.request, required this.completer});
+
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const ImportSettingsDialog({
-    super.key,
-    required this.request,
-    required this.completer,
-  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(
-      overrides: [
-        importTarget.overrideWithValue(request.data as Machine),
-        dialogCompleter.overrideWithValue(completer),
-        importSources,
-        importSettingsDialogController,
-      ],
-      child: const _ImportSettingsDialog(),
-    );
-  }
-}
+    final target = request.data! as Machine;
 
-class _ImportSettingsDialog extends ConsumerWidget {
-  const _ImportSettingsDialog({super.key});
+    final selectedSource = useState<Machine?>(null);
+    final selectedSettingsToImport = useState(<SettingReference>{});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
     return MobilerakerDialog(
-      actionText: MaterialLocalizations.of(context).copyButtonLabel,
-      onAction: ref.watch(importSources.select((value) => value.valueOrNull?.isNotEmpty == true))
-          ? ref.read(importSettingsDialogController.notifier).onFormConfirm
-          : null,
-      dismissText: MaterialLocalizations.of(context).cancelButtonLabel,
-      onDismiss: () {
-        ref.read(dialogCompleter)(DialogResponse.aborted());
-      },
-      child: FormBuilder(
-        key: ref.watch(importSettingsFormKeyProvider),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // To make the card compact
-          children: [
-            Text(
-              'Import Settings',
-              style: Theme.of(context).textTheme.headlineSmall,
+      dismissText: MaterialLocalizations
+          .of(context)
+          .cancelButtonLabel,
+      onDismiss: () => completer(DialogResponse.aborted()),
+      actionText: tr('general.import'),
+      onAction: (() =>
+          onImport(
+            selectedSettingsToImport.value,
+            ref
+                .read(machineSettingsProvider(selectedSource.value!.uuid))
+                .requireValue,
+          )).only(selectedSettingsToImport.value.isNotEmpty),
+      child: AsyncValueWidget(
+        value: ref.watch(allMachinesProvider),
+        data: (machines) =>
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'pages.printer_edit.import_settings', // Todo localize
+                  style: themeData.textTheme.headlineSmall,
+                ).tr(),
+                InputDecorator(
+                  decoration: InputDecoration(labelText: 'dialogs.import_setting.select_source'.tr()),
+                  child: DropdownButton<Machine?>(
+                    isExpanded: true,
+                    hint: Text('dialogs.import_setting.select_source_hint').tr(),
+                    value: selectedSource.value,
+                    onChanged: (obj) => selectedSource.value = obj,
+                    items: [
+                      for (var m in machines)
+                        if (m.uuid != target.uuid)
+                          DropdownMenuItem<Machine>(value: m, child: Text('${m.name} (${m.httpUri.host}')),
+                    ],
+                  ),
+                ),
+                AnimatedSize(
+                  alignment: Alignment.topCenter,
+                  duration: kThemeAnimationDuration,
+                  child: selectedSource.value == null
+                      ? SizedBox(height: 0, width: double.infinity)
+                      : _Body(source: selectedSource.value!, selected: selectedSettingsToImport),
+                ),
+              ],
             ),
-            ref.watch(importSources).when<Widget>(
-              data: (data) {
-                // ref.watch(footerControllerProvider.notifier).state = true;
-                return const _DialogBody();
-              },
-              error: (e, s) {
-                talker.error('Error in importSettings', e, s);
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(
-                        Icons.warning_amber_outlined,
-                        size: 36,
-                      ),
-                      title: const Text(
-                        'dialogs.import_setting.fetching_error_title',
-                      ).tr(),
-                      subtitle: const Text(
-                        'dialogs.import_setting.fetching_error_sub',
-                      ).tr(),
-                      iconColor: Theme.of(context).colorScheme.error,
-                    ),
-                  ],
-                );
-              },
-              loading: () {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: SpinKitRipple(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                    FadingText(tr('dialogs.import_setting.fetching')),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
+
+  void onImport(Set<SettingReference> selectedSettings, MachineSettings sourceSettings) {
+    final keyWithValue = selectedSettings.map((key) {
+      // Map the key to the extracted value
+      if (key.$1 == ImportableSettingType.tempPreset) {
+        final preset = _settingExtractor[ImportableSettingType.tempPreset]!(sourceSettings, key.$2!);
+        return MapEntry(key, preset);
+      } else {
+        final value = _settingExtractor[key.$1]!(sourceSettings);
+        return MapEntry(key, value);
+      }
+    });
+
+    completer(DialogResponse.confirmed(Map.fromEntries(keyWithValue)));
+  }
 }
 
-class _DialogBody extends ConsumerWidget {
-  const _DialogBody({super.key});
+class _Body extends HookConsumerWidget {
+  const _Body({super.key, required this.source, required this.selected});
+
+  final Machine source;
+
+  final ValueNotifier<Set<SettingReference>> selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var selectedSource = ref.watch(importSettingsDialogController);
-    return AsyncValueWidget<ImportMachineSettingsResult>(
-      value: selectedSource,
-      data: (data) => Flexible(
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // To make the card compact
+    onValueChanged(SettingReference key, bool isSelected) {
+      if (isSelected) {
+        selected.value = {...selected.value, key};
+      } else {
+        selected.value = selected.value.where((k) => k != key).toSet();
+      }
+    }
+
+    return AsyncValueWidget(
+      value: ref.watch(machineSettingsProvider(source.uuid)),
+      data: (machineSettings) {
+        return ListView(
+          shrinkWrap: true,
           children: [
-            FormBuilderDropdown<ImportMachineSettingsResult>(
-              name: 'source',
-              initialValue: data,
-              decoration: InputDecoration(
-                labelText: tr('dialogs.import_setting.select_source'),
-              ),
-              items: ref
-                  .watch(importSources)
-                  .requireValue
-                  .map(
-                    (e) => DropdownMenuItem<ImportMachineSettingsResult>(
-                      value: e,
-                      child: Text('${e.machine.name} (${e.machine.httpUri.host})'),
-                    ),
-                  )
-                  .toList(growable: false),
-              onChanged: ref.read(importSettingsDialogController.notifier).onSourceChanged,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-              ]),
+            _SettingsGroup(
+              label: tr('pages.printer_edit.motion_system.title'),
+              options: transform([
+                ((ImportableSettingType.invertX, null), tr('pages.printer_edit.motion_system.invert_x_short')),
+                ((ImportableSettingType.invertY, null), tr('pages.printer_edit.motion_system.invert_y_short')),
+                ((ImportableSettingType.invertZ, null), tr('pages.printer_edit.motion_system.invert_z_short')),
+                ((ImportableSettingType.speedXY, null), tr('pages.printer_edit.motion_system.speed_xy_short')),
+                ((ImportableSettingType.speedZ, null), tr('pages.printer_edit.motion_system.speed_z_short')),
+                ((ImportableSettingType.moveSteps, null), tr('pages.printer_edit.motion_system.steps_move_short')),
+                ((ImportableSettingType.babySteps, null), tr('pages.printer_edit.motion_system.steps_baby_short')),
+              ], selected.value),
+              onChanged: onValueChanged,
             ),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  FormBuilderCheckboxGroup<String>(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: tr('pages.printer_edit.motion_system.title'),
-                    ),
-                    name: 'motionsysFields',
-                    // initialValue: const ['Dart'],
-                    options: [
-                      FormBuilderFieldOption(
-                        value: 'invertX',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.invert_x_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'invertY',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.invert_y_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'invertZ',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.invert_z_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'speedXY',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.speed_xy_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'speedZ',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.speed_z_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'moveSteps',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.steps_move_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'babySteps',
-                        child: const Text(
-                          'pages.printer_edit.motion_system.steps_baby_short',
-                        ).tr(),
-                      ),
-                    ],
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  FormBuilderCheckboxGroup<String>(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: tr('pages.printer_edit.extruders.title'),
-                    ),
-                    name: 'extrudersFields',
-                    options: [
-                      FormBuilderFieldOption(
-                        value: 'extrudeSpeed',
-                        child: const Text(
-                          'pages.printer_edit.extruders.feedrate_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'extrudeSteps',
-                        child: const Text(
-                          'pages.printer_edit.extruders.steps_extrude_short',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'loadingDistance',
-                        child: const Text(
-                          'pages.printer_edit.extruders.filament.loading_distance',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'loadingSpeed',
-                        child: const Text(
-                          'pages.printer_edit.extruders.filament.loading_speed',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'purgeLength',
-                        child: const Text(
-                          'pages.printer_edit.extruders.filament.purge_amount',
-                        ).tr(),
-                      ),
-                      FormBuilderFieldOption(
-                        value: 'purgeSpeed',
-                        child: const Text(
-                          'pages.printer_edit.extruders.filament.purge_speed',
-                        ).tr(),
-                      ),
-                    ],
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  if (data.machineSettings.temperaturePresets.isNotEmpty)
-                    FormBuilderCheckboxGroup<TemperaturePreset>(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        labelText: tr(
-                          'pages.dashboard.general.temp_card.temp_presets',
-                        ),
-                      ),
-                      name: 'temp_presets',
-                      // initialValue: const ['Dart'],
-                      options: data.machineSettings.temperaturePresets
-                          .map((e) => FormBuilderFieldOption(
-                                value: e,
-                                child: Text(
-                                  '${e.name} (N:${e.extruderTemp}°C, B:${e.bedTemp}°C)',
-                                ),
-                              ))
-                          .toList(),
-                      activeColor: Theme.of(context).colorScheme.primary,
-                    ),
-                ],
-              ),
+
+            _SettingsGroup(
+              label: tr('pages.printer_edit.extruders.title'),
+              options: transform([
+                ((ImportableSettingType.extruderFeedrate, null), tr('pages.printer_edit.extruders.feedrate_short')),
+                ((ImportableSettingType.extruderSteps, null), tr('pages.printer_edit.extruders.steps_extrude_short')),
+                (
+                (ImportableSettingType.loadingDistance, null),
+                tr('pages.printer_edit.extruders.filament.loading_distance'),
+                ),
+                ((ImportableSettingType.loadingSpeed, null), tr('pages.printer_edit.extruders.filament.loading_speed')),
+                ((ImportableSettingType.purgeLength, null), tr('pages.printer_edit.extruders.filament.purge_amount')),
+                ((ImportableSettingType.purgeSpeed, null), tr('pages.printer_edit.extruders.filament.purge_speed')),
+              ], selected.value),
+              onChanged: onValueChanged,
             ),
+            if (machineSettings.temperaturePresets.isNotEmpty)
+              _SettingsGroup(
+                label: tr('pages.printer_edit.temperature_presets.title'),
+                options: transform([
+                  for (var preset in machineSettings.temperaturePresets)
+                    (
+                    (ImportableSettingType.tempPreset, preset.uuid),
+                    '${preset.name} (N:${preset.extruderTemp}°C, B:${preset.bedTemp}°C)',
+                    ),
+                ], selected.value),
+                onChanged: onValueChanged,
+              ),
           ],
-        ),
+        );
+      },
+    );
+  }
+
+  List<(SettingReference, String, bool)> transform(List<(SettingReference, String)> options,
+      Set<SettingReference> selected,) {
+    return [for (var option in options) (option.$1, option.$2, selected.contains(option.$1))];
+  }
+}
+
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({super.key, required this.label, required this.options, required this.onChanged});
+
+  final String label;
+  final List<(SettingReference, String, bool)> options;
+  final Function(SettingReference, bool) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return InputDecorator(
+      decoration: InputDecoration(labelText: tr('pages.printer_edit.motion_system.title')),
+      child: GroupedCheckbox<SettingReference>(
+        options: [for (var option in options) FormBuilderFieldOption(value: option.$1, child: Text(option.$2))],
+        value: [
+          for (var option in options)
+            if (option.$3) option.$1,
+        ],
+        orientation: OptionsOrientation.wrap,
+        onChanged: (v) => transformOnChanged(v).also((it) => onChanged(it.$1, it.$2)),
       ),
     );
+  }
+
+  (SettingReference, bool) transformOnChanged(List<SettingReference> selected) {
+    // We need to find out which option was changed, and return the new value for that option
+    for (var option in options) {
+      final isSelected = selected.contains(option.$1);
+      if (isSelected != option.$3) {
+        return (option.$1, isSelected);
+      }
+    }
+    throw ArgumentError('No option was changed');
   }
 }

@@ -37,7 +37,7 @@ sealed class ExcludeObject with _$ExcludeObject {
 
   bool get available => objects.isNotEmpty;
 
-  List<ParsedObject> get canBeExcluded => objects
+  List<ParsedObject> get excludableObjects => objects
       .where((element) => !excludedObjects.contains(element.name))
       .toList();
 }

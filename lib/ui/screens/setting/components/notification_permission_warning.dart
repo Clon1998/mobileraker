@@ -27,7 +27,7 @@ class NotificationPermissionWarning extends ConsumerWidget {
           child: FadeTransition(opacity: anim, child: child),
         ),
         duration: kSettingPageWarningDuration,
-        child: (ref.watch(_hasNotifcationPermissionProvider).valueOrNull != false)
+        child: (ref.watch(_hasNotifcationPermissionProvider).value != false)
             ? const SizedBox.shrink(key: Key('notiWarnEmpty'))
             : Padding(
                 key: Key('notiWarn'),

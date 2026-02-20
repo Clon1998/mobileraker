@@ -10,12 +10,12 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/model/moonraker_db/webcam_info.dart';
 import '../../data/repository/webcam_info_repository.dart';
 import '../../network/jrpc_client_provider.dart';
+import '../machine_service.dart';
 import '../payment_service.dart';
 import '../setting_service.dart';
 
@@ -35,14 +35,25 @@ Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
   final webcamInfos = await ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
   ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_webcams_changed'), (previous, next) => ref.invalidateSelf());
 
-  yield webcamInfos;
+  var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.webcamOrdering));
+
+  yield webcamInfos.sorted((a, b) {
+    // Yes name is correct because element.uuid is the UUID of the ORDERING-ENTRY!
+    var aIndex = ordering.indexWhere((element) => element == (a.uid ?? a.name));
+    var bIndex = ordering.indexWhere((element) => element == (b.uid ?? a.name));
+
+    if (aIndex == -1) aIndex = webcamInfos.length;
+    if (bIndex == -1) bIndex = webcamInfos.length;
+
+    return aIndex.compareTo(bIndex);
+  });
 }
 
 @riverpod
 Future<List<WebcamInfo>> allSupportedWebcamInfos(Ref ref, String machineUUID) async {
-  return (await ref.watch(allWebcamInfosProvider(machineUUID).future))
-      .where((element) => element.service.supported)
-      .toList(growable: false);
+  return (await ref.watch(
+    allWebcamInfosProvider(machineUUID).future,
+  )).where((element) => element.service.supported).toList(growable: false);
 }
 
 @riverpod
@@ -73,7 +84,7 @@ Future<WebcamInfo?> activeWebcamInfoForMachine(Ref ref, String machineUUID) asyn
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#webcam-apis
 class WebcamService {
   WebcamService(this.ref, this.machineUUID)
-      : _webcamInfoRepository = ref.watch(webcamInfoRepositoryProvider(machineUUID));
+    : _webcamInfoRepository = ref.watch(webcamInfoRepositoryProvider(machineUUID));
 
   final String machineUUID;
   final Ref ref;
@@ -92,14 +103,17 @@ class WebcamService {
     }
   }
 
-  Future<void> addOrModifyWebcamInfoInBulk(List<WebcamInfo> cams) async {
+  Future<List<WebcamInfo>> addOrModifyWebcamInfoInBulk(List<WebcamInfo> cams) async {
     talker.info('BULK ADD/MODIFY Webcams "${cams.length}" request...');
     try {
-      await Future.wait(cams.map((e) => addOrModifyWebcamInfo(e)));
+      return await Future.wait(cams.map((e) => addOrModifyWebcamInfo(e)));
     } catch (e, s) {
       talker.error('Error while saving cams as in Bulk', e, s);
-      throw MobilerakerException('Error while trying to add or modify webcams in bulk!',
-          parentException: e, parentStack: s);
+      throw MobilerakerException(
+        'Error while trying to add or modify webcams in bulk!',
+        parentException: e,
+        parentStack: s,
+      );
     }
   }
 
@@ -113,15 +127,15 @@ class WebcamService {
     }
   }
 
-  Future<void> addOrModifyWebcamInfo(WebcamInfo cam) async {
+  Future<WebcamInfo> addOrModifyWebcamInfo(WebcamInfo cam) async {
     talker.info('ADD/MODIFY Webcam "${cam.name}" request...');
     if (cam.isReadOnly) {
       talker.warning('Webcam "${cam.name}" is a config webcam. Skipping...');
-      return;
+      return cam;
     }
 
     try {
-      await _webcamInfoRepository.addOrUpdate(cam);
+      return await _webcamInfoRepository.addOrUpdate(cam);
     } catch (e) {
       talker.error('Error while saving cam', e);
       throw MobilerakerException('Unable to add/update webcam info for ${cam.uid}', parentException: e);

@@ -150,7 +150,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var zOffset = ref.watch(_ZOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
+    var zOffset = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
     var numberFormat = NumberFormat('#0.000mm', context.locale.toStringWithSeparator());
     return ListTile(
       leading: const Icon(FlutterIcons.align_vertical_middle_ent),
@@ -257,7 +257,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
       steps,
       isPrintingOrPaused,
       (a, b, c, d) {
-        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
+        var idx = state.whenData((value) => value.selected).value ?? initialIndex.clamp(0, c.length - 1);
 
         return _Model(
           showCard: d || alwaysShowSetting,

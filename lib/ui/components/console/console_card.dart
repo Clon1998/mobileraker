@@ -330,7 +330,7 @@ class _PreviewPrinterService implements PrinterService {
   }
 
   @override
-  Ref<Object?> get ref => throw UnimplementedError();
+  Ref get ref => throw UnimplementedError();
 
   @override
   Future<void> refreshPrinter() {

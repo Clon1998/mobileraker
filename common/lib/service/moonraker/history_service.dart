@@ -11,7 +11,6 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/history/historical_print_job.dart';
@@ -54,7 +53,7 @@ class HistoryService {
     ref.onDispose(dispose);
     // _jRpcClient.addMethodListener(_onPowerChanged, 'notify_power_changed');
     // ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
-    //   switch (next.valueOrNull) {
+    //   switch (next.value) {
     //     case ClientState.connected:
     //       _init();
     //       break;

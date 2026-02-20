@@ -423,7 +423,7 @@ void dummyDownload() async {
 }
 
 @riverpod
-Stream<(int, int)> caseA(CaseARef ref) {
+Stream<(int, int)> caseA(Ref ref) {
   talker.info('Creating caseA stream');
   return Stream.periodic(const Duration(seconds: 1), (x) => (x, x * 2));
 }
@@ -433,7 +433,7 @@ class CaseB extends _$CaseB {
   @override
   int build() {
     talker.info('Building caseB');
-    var v = ref.watch(caseAProvider.select((d) => d.valueOrNull?.$1));
+    var v = ref.watch(caseAProvider.select((d) => d.value?.$1));
 
     return v ?? -1;
   }

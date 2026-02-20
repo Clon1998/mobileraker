@@ -459,7 +459,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
 
     final idx =
-        state.whenData((value) => value.stepIndex).valueOrNull ??
+        state.whenData((value) => value.stepIndex).value ??
         initialIndex.clamp(0, machineSettings.extrudeSteps.length - 1);
     // The active extruder (Set via klipper/moonraker) is watched and based on it, the streams are constructed
     var activeExtruderIndex = printer.toolhead.activeExtruderIndex;
@@ -471,7 +471,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       stepIndex: min(max(0, idx), machineSettings.extrudeSteps.length - 1),
       steps: machineSettings.extrudeSteps,
       isSnapmakerU1: isSnapmakerU1,
-      extruderVelocity: state.valueOrNull?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
+      extruderVelocity: state.value?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
       activeExtruder: activeExtruderIndex?.let(printer.extruders.elementAtOrNull),
       activeExtruderConfig: activeExtruderIndex?.let(printer.configFile.extruderForIndex),
     );
@@ -484,7 +484,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   }
 
   Future<void> onMoveE([bool isRetract = false]) async {
-    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).valueOrNull;
+    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).value;
     if (machineSettings == null) return;
 
     var step = state.value?.let((it) => it.steps.elementAtOrNull(it.stepIndex));
@@ -508,7 +508,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     var maxVelocity = ref
         .read(printerProvider(machineUUID).selectAs((data) => data.configFile.primaryExtruder?.maxExtrudeOnlyVelocity))
-        .valueOrNull
+        .value
         ?.floorToDouble();
 
     _dialogService

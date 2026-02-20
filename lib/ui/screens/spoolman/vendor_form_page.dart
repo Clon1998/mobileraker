@@ -196,8 +196,8 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_VendorFormPageControllerProvider(machineUUID).notifier);
-    final isSaving = ref.watch(_VendorFormPageControllerProvider(machineUUID).select((model) => model.isSaving));
+    final controller = ref.watch(_vendorFormPageControllerProvider(machineUUID).notifier);
+    final isSaving = ref.watch(_vendorFormPageControllerProvider(machineUUID).select((model) => model.isSaving));
 
     final themeData = Theme.of(context);
 

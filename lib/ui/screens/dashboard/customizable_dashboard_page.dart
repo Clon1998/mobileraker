@@ -115,7 +115,7 @@ class _DashboardView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Check if the selected machine has changed and reset the page controller to the first page
 
-    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    var activeMachine = ref.watch(selectedMachineProvider).value;
 
     Widget body = MachineConnectionGuard(
       onConnected: (ctx, machineUUID) => PrinterProviderGuard(
@@ -140,7 +140,7 @@ class _DashboardView extends HookConsumerWidget {
 
     var isEditing =
         activeMachine?.let(
-          (it) => ref.watch(_dashboardPageControllerProvider(it.uuid).selectAs((d) => d.isEditing)).valueOrNull == true,
+          (it) => ref.watch(_dashboardPageControllerProvider(it.uuid).selectAs((d) => d.isEditing)).value == true,
         ) ==
         true;
 
@@ -296,17 +296,17 @@ class _BodyState extends ConsumerState<_Body> {
     _subscription?.close();
     // Move Controller event to the UI
     _subscription = ref.listenManual(_dashboardPageControllerProvider(machineUUID), (previous, next) {
-      // logger.wtf('previous: ${previous?.valueOrNull?.activeIndex}, next: ${next.valueOrNull?.activeIndex}');
+      // logger.wtf('previous: ${previous?.value?.activeIndex}, next: ${next.value?.activeIndex}');
       // logger.wtf('pageController.hasClients: ${pageController.hasClients}, _lastPage: $_lastPage');
-      if (next.valueOrNull != null &&
-          previous?.valueOrNull?.activeIndex != next.value!.activeIndex &&
+      if (next.value != null &&
+          previous?.value?.activeIndex != next.value!.activeIndex &&
           _lastPage != next.value!.activeIndex) {
         /// We need to use the post frame because otherwise the pageController will not be ready
         // ignore: avoid-passing-async-when-sync-expected
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
           talker.info('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
           if (pageController.hasClients && pageController.positions.isNotEmpty) {
-            if (previous?.valueOrNull?.activeIndex == null) {
+            if (previous?.value?.activeIndex == null) {
               talker.info('[Controller->UI] Jumping to: ${next.value!.activeIndex}');
               pageController.jumpToPage(next.value!.activeIndex);
               _lastPage = next.value!.activeIndex;
@@ -437,14 +437,14 @@ class _PrintingFAB extends ConsumerWidget {
             label: tr('general.pause'),
             onTap: printerService.pausePrint,
           ),
-        if (jobQueueState.valueOrNull?.queuedJobs.isNotEmpty ?? false)
+        if (jobQueueState.value?.queuedJobs.isNotEmpty ?? false)
           SpeedDialChild(
             child: badges.Badge(
               badgeStyle: badges.BadgeStyle(badgeColor: themeData.colorScheme.onSecondary),
               badgeAnimation: const badges.BadgeAnimation.rotation(),
               position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
               badgeContent: Text(
-                '${jobQueueState.valueOrNull?.queuedJobs.length ?? 0}',
+                '${jobQueueState.value?.queuedJobs.length ?? 0}',
                 style: TextStyle(color: themeData.colorScheme.secondary),
               ),
               child: const Icon(Icons.content_paste),
@@ -536,7 +536,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    var activeMachine = ref.watch(selectedMachineProvider).value;
 
     if (activeMachine == null) {
       return AppBar(
@@ -615,13 +615,13 @@ class _DashboardPageController extends _$DashboardPageController {
     ref.keepAliveFor();
     listenSelf((previous, next) {
       talker.info(
-        'DashboardPageController: (aIdx: ${previous?.valueOrNull?.activeIndex}, l:  ${previous?.valueOrNull?.layout.tabs.length}) -> (aIdx: ${next?.valueOrNull?.activeIndex}, l:  ${next?.valueOrNull?.layout.tabs.length})',
+        'DashboardPageController: (aIdx: ${previous?.value?.activeIndex}, l:  ${previous?.value?.layout.tabs.length}) -> (aIdx: ${next?.value?.activeIndex}, l:  ${next?.value?.layout.tabs.length})',
       );
 
-      if (previous?.valueOrNull?.isEditing != true && next.valueOrNull?.isEditing == true) {
+      if (previous?.value?.isEditing != true && next.value?.isEditing == true) {
         talker.info('Disable NavWidget');
         ref.read(navWidgetControllerProvider.notifier).disable();
-      } else if (previous?.valueOrNull?.isEditing == true && next.valueOrNull?.isEditing != true) {
+      } else if (previous?.value?.isEditing == true && next.value?.isEditing != true) {
         talker.info('Enable NavWidget');
         ref.read(navWidgetControllerProvider.notifier).enable();
       }

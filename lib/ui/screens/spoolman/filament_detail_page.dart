@@ -293,7 +293,7 @@ class _FilamentSpools extends HookConsumerWidget {
                   pageSize: _initial,
                   page: 0,
                   filters: filter,
-                ).select((d) => d.valueOrNull?.totalItems),
+                ).select((d) => d.value?.totalItems),
               );
               return ListTile(
                 leading: const Icon(Icons.spoke_outlined),
@@ -336,7 +336,7 @@ class _FilamentDetailPageController extends _$FilamentDetailPageController
     final initial = ref.watch(_filamentProvider);
     final fetched = ref.watch(filamentProvider(machineUUID, initial.id));
 
-    return fetched.valueOrNull ?? initial;
+    return fetched.value ?? initial;
   }
 
   @override

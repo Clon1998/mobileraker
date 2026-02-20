@@ -26,7 +26,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
 
   // output builder function
   final Widget Function(T) data;
-  final Widget Function()? loading;
+  final Widget Function(num?)? loading;
   final Widget Function(Object error, StackTrace stackTrace)? error;
 
   final bool skipLoadingOnRefresh;
@@ -48,7 +48,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
       skipLoadingOnReload: this.skipLoadingOnReload,
       skipError: this.skipError,
       data: data,
-      loading: loading ?? () => const Center(child: CircularProgressIndicator.adaptive()),
+      loading: () => loading?.call(value.progress) ?? const Center(child: CircularProgressIndicator.adaptive()),
       error: (e, s) {
         if (error != null) {
           return error!(e, s);

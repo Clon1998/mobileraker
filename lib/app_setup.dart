@@ -40,7 +40,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -61,7 +60,7 @@ setupBoxes() async {
   // 6 - WebCamMode
   // 9 - WebCamRotation
 
-  var machineAdapter = MachineImplAdapter();
+  var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
     Hive.registerAdapter(machineAdapter);
   }
@@ -72,7 +71,7 @@ setupBoxes() async {
     Hive.registerAdapter(progressNotifModeAdapter);
   }
 
-  var octoAdapater = OctoEverywhereImplAdapter();
+  var octoAdapater = OctoEverywhereAdapter();
   if (!Hive.isAdapterRegistered(octoAdapater.typeId)) {
     Hive.registerAdapter(octoAdapater);
   }
@@ -81,7 +80,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
     Hive.registerAdapter(uriAdapter);
   }
-  var riAdapter = RemoteInterfaceImplAdapter();
+  var riAdapter = RemoteInterfaceAdapter();
   if (!Hive.isAdapterRegistered(riAdapter.typeId)) {
     Hive.registerAdapter(riAdapter);
   }
@@ -90,17 +89,17 @@ setupBoxes() async {
     Hive.registerAdapter(nAdapter);
   }
 
-  var dlAdapter = DashboardLayoutImplAdapter();
+  var dlAdapter = DashboardLayoutAdapter();
   if (!Hive.isAdapterRegistered(dlAdapter.typeId)) {
     Hive.registerAdapter(dlAdapter);
   }
 
-  var dtAdapter = DashboardTabImplAdapter();
+  var dtAdapter = DashboardTabAdapter();
   if (!Hive.isAdapterRegistered(dtAdapter.typeId)) {
     Hive.registerAdapter(dtAdapter);
   }
 
-  var dcAdapter = DashboardComponentImplAdapter();
+  var dcAdapter = DashboardComponentAdapter();
   if (!Hive.isAdapterRegistered(dcAdapter.typeId)) {
     Hive.registerAdapter(dcAdapter);
   }
@@ -256,7 +255,7 @@ class Warmup extends _$Warmup {
     // only start listening after Firebase is initialized
     listenSelf((previous, next) {
       if (next.hasValue) {
-        talker.info('Warmup provider changed from ${previous?.valueOrNull} to ${next?.valueOrNull}');
+        talker.info('Warmup provider changed from ${previous?.value} to ${next?.value}');
       } else if (next.hasError) {
         var error = next.asError!;
         talker.error('Received a warmup error', error.error, error.stackTrace);

@@ -66,7 +66,7 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
     _manualProbeSubscription = ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.manualProbe?.isActive),
       (previous, next) {
-        if (next.valueOrNull == true && !_dialogService.isDialogOpen) {
+        if (next.value == true && !_dialogService.isDialogOpen) {
           talker.info('Detected manualProbe... opening Dialog');
           _dialogService.show(DialogRequest(
             barrierDismissible: false,
@@ -81,7 +81,7 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
     _bedScrewSubscription = ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.bedScrew?.isActive),
       (previous, next) {
-        if (next.valueOrNull == true && !_dialogService.isDialogOpen) {
+        if (next.value == true && !_dialogService.isDialogOpen) {
           talker.info('Detected bedScrew... opening Dialog');
           _dialogService.show(DialogRequest(
             barrierDismissible: false,

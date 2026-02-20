@@ -188,7 +188,7 @@ class _Trailing extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
-    var model = ref.watch(_webcamCardControllerProvider(machineUUID)).valueOrNull;
+    var model = ref.watch(_webcamCardControllerProvider(machineUUID)).value;
 
     if (model == null || model.allCams.length <= 1) {
       return const SizedBox.shrink();
@@ -279,7 +279,7 @@ class _WebcamCardController extends _$WebcamCardController {
     var allWebcams = await ref.watch(allWebcamInfosProvider(machineUUID).future);
 
     var readInt = _settingService.readInt(_settingsKey, 0);
-    var idx = (state.whenData((value) => value.selected).valueOrNull ?? readInt);
+    var idx = (state.whenData((value) => value.selected).value ?? readInt);
 
     if (allWebcams.isEmpty) {
       idx = 0;

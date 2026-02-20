@@ -64,6 +64,7 @@ Future<void> main() async {
         themePackProvider.overrideWith(themePacks),
         goRouterProvider.overrideWith(goRouterImpl),
       ],
+      retry: (_, _) => null,
       observers: kDebugMode
           ? [
               TalkerRiverpodObserver(settings: TalkerRiverpodLoggerSettings(printProviderUpdated: false)),
@@ -101,7 +102,7 @@ Future<void> main() async {
                     '_fansCardControllerProvider',
                     '_controlExtruderCardControllerProvider',
                     '_macroToolSelectorControllerProvider',
-                    '_u1ToolSelectorControllerProvider'
+                    '_u1ToolSelectorControllerProvider',
                   ].contains(provider.name),
                 ),
               ),
@@ -337,7 +338,7 @@ class _EmojiIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var step = ref.watch(warmupProvider).valueOrNull;
+    var step = ref.watch(warmupProvider).value;
     if (step == null) return const SizedBox.shrink();
     return Text(step.emoji);
   }

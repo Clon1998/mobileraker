@@ -18,6 +18,7 @@ import 'package:common/data/model/file_interaction_menu_event.dart';
 import 'package:common/data/model/file_operation.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
@@ -128,7 +129,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final split = filePath.split('/');
     final isRoot = split.length == 1;
     final title = split.last;
-    final selMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final selMachine = ref.watch(selectedMachineProvider).value;
 
     if (selMachine == null) {
       return AppBar(title: Text(title.capitalize()));
@@ -150,7 +151,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           if (!isRoot)
             Consumer(
               builder: (context, ref, _) {
-                final actualFolder = ref.watch(remoteFileProvider(selMachine.uuid, filePath)).valueOrNull ?? folder;
+                final actualFolder = ref.watch(remoteFileProvider(selMachine.uuid, filePath)).value ?? folder;
 
                 return IconButton(
                   tooltip: MaterialLocalizations.of(context).moreButtonTooltip,
@@ -225,7 +226,7 @@ class _Fab extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final selectedMachine = ref.watch(selectedMachineProvider).value;
 
     if (selectedMachine == null) {
       return const SizedBox.shrink();
@@ -249,7 +250,7 @@ class _Fab extends HookConsumerWidget {
         final isUpOrDownloading = isUploading || isDownloading;
 
         final connected = ref.watch(
-          jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected),
+          jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.value == ClientState.connected),
         );
 
         final isScrolling = useState(false);
@@ -349,14 +350,14 @@ class _BottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final selectedMachine = ref.watch(selectedMachineProvider).value;
 
     if (selectedMachine == null || filePath.split('/').length > 1) {
       return const SizedBox.shrink();
     }
 
     final connected = ref.watch(
-      jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected),
+      jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.value == ClientState.connected),
     );
     if (!connected) {
       return const SizedBox.shrink();
@@ -423,14 +424,14 @@ class _TabbarNav extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final selectedMachine = ref.watch(selectedMachineProvider).value;
 
     if (selectedMachine == null || filePath.split('/').length > 1) {
       return const SizedBox.shrink();
     }
 
     final connected = ref.watch(
-      jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.valueOrNull == ClientState.connected),
+      jrpcClientStateProvider(selectedMachine.uuid).select((d) => d.value == ClientState.connected),
     );
     if (!connected) {
       return const SizedBox.shrink();
@@ -970,7 +971,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
     final sortKindIdx = ref.watch(intSettingProvider(_sortKindKey)).clamp(0, SortKind.values.length - 1);
 
     final hasTimelapseComponent = ref.watch(
-      klipperProvider(machineUUID).select((d) => d.valueOrNull?.hasTimelapseComponent == true),
+      klipperProvider(machineUUID).select((d) => d.value?.hasTimelapseComponent == true),
     );
 
     // ignore: avoid-unsafe-collection-methods
@@ -1037,7 +1038,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
         _handleFileInteractionEventStream(fileAction);
         break;
       default:
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': filePath}, queryParameters: {'machineUUID': machineUUID}, extra: file);
     }
   }
 
@@ -1240,7 +1241,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
-    final notification = next.valueOrNull;
+    final notification = next.value;
     if (notification == null) return;
     if (notification == _lastResponse) return;
     _lastResponse = notification;
@@ -1487,7 +1488,7 @@ class _ModernFileManagerController extends _$ModernFileManagerController {
   }
 
   void _onJrpcStateNotification(AsyncValue<ClientState>? prev, AsyncValue<ClientState> next) {
-    var nextState = next.valueOrNull;
+    var nextState = next.value;
     if (nextState == null) return;
 
     if (nextState != ClientState.connected) {

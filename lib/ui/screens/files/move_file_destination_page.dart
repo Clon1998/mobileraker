@@ -10,6 +10,7 @@ import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/file_destination_selection_result.dart';
 import 'package:common/data/model/sort_configuration.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
@@ -81,7 +82,7 @@ class _Body extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
+      if (next.value == ClientState.error || next.value == ClientState.disconnected) {
         if (context.canPop()) context.pop(FileDestinationSelectionResult.cancel());
         talker.info('Closing search screen due to client state change');
       }

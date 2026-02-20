@@ -75,8 +75,8 @@ class PaywallPageController extends _$PaywallPageController {
   }
 
   onTippingPressed() async {
-    // var tipPacket = state.valueOrNull?.tipPackage;
-    if (state.valueOrNull?.tipAvailable != true) {
+    // var tipPacket = state.value?.tipPackage;
+    if (state.value?.tipAvailable != true) {
       talker.warning('Tip package is not available');
       return;
     }
@@ -84,7 +84,7 @@ class PaywallPageController extends _$PaywallPageController {
     var dialogResponse = await ref.read(dialogServiceProvider).show(
           DialogRequest(
             type: DialogType.tipping,
-            data: state.valueOrNull?.tipPackages ?? [],
+            data: state.value?.tipPackages ?? [],
           ),
         );
     if (dialogResponse?.confirmed == true) {
@@ -94,7 +94,7 @@ class PaywallPageController extends _$PaywallPageController {
   }
 
   copyRCatIdToClipboard() {
-    var customerInfo = ref.read(customerInfoProvider).valueOrNull;
+    var customerInfo = ref.read(customerInfoProvider).value;
     Clipboard.setData(
       ClipboardData(text: customerInfo?.originalAppUserId ?? ''),
     );
@@ -126,7 +126,7 @@ class PaywallPageController extends _$PaywallPageController {
   }
 
   openManagement() async {
-    var managementUrl = ref.read(customerInfoProvider.selectAs((data) => data.managementURL)).valueOrNull;
+    var managementUrl = ref.read(customerInfoProvider.selectAs((data) => data.managementURL)).value;
     // logger.wtf(managementUrl);
     if (managementUrl == null) return;
 

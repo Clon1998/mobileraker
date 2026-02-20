@@ -35,9 +35,9 @@ class _SwitchPrinterAppBarState extends ConsumerState<SwitchPrinterAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    final selectedMachine = ref.watch(selectedMachineProvider).value;
     final multipleMachinesAvailable =
-        ref.watch(allMachinesProvider.selectAs((data) => data.length > 1)).valueOrNull == true;
+        ref.watch(allMachinesProvider.selectAs((data) => data.length > 1)).value == true;
 
     return AppBar(
       centerTitle: widget.centerTitle ?? context.isLargerThanCompact,

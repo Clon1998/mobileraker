@@ -21,7 +21,7 @@ class JobQueueFab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final queueState = ref.watch(jobQueueProvider(machineUUID)).valueOrNull;
+    final queueState = ref.watch(jobQueueProvider(machineUUID)).value;
 
     final position = mini
         ? badges.BadgePosition.bottomEnd(end: -2, bottom: -8)

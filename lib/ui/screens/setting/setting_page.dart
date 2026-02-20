@@ -358,7 +358,7 @@ class _Footer extends ConsumerWidget {
                 overflowAlignment: OverflowBarAlignment.center,
                 spacing: 4,
                 children: [
-                  if (isFormAvailable.valueOrNull == true) const DataAndPrivacyTextButton(),
+                  if (isFormAvailable.value == true) const DataAndPrivacyTextButton(),
                   if (Platform.isIOS)
                     TextButton(
                       child: const Text('EULA'),
@@ -529,7 +529,7 @@ class _ThemeSelector extends ConsumerWidget {
     var systemThemeIdx = ref.read(intSettingProvider(AppSettingKeys.themePack)).clamp(0, themePackList.length - 1);
     var currentSystemThemePack = themePackList[systemThemeIdx];
 
-    var activeTheme = ref.read(activeThemeProvider).valueOrNull!;
+    var activeTheme = ref.read(activeThemeProvider).value!;
 
     var usesSystemTheme = currentSystemThemePack == activeTheme.themePack;
 

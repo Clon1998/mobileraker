@@ -18,7 +18,6 @@ import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:hashlib/hashlib.dart';
 import 'package:hashlib_codecs/hashlib_codecs.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../exceptions/mobileraker_exception.dart';
@@ -49,7 +48,7 @@ Dio dioClient(Ref ref, String machineUUID) {
 
 @riverpod
 BaseOptions baseOptions(Ref ref, String machineUUID, ClientType clientType) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
+  var machine = ref.watch(machineProvider(machineUUID)).value;
 
   if (machine == null) {
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');

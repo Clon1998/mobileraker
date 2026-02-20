@@ -20,7 +20,7 @@ import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 
 mixin CommonSpoolmanDetailPagesController<State> {
   @protected
-  AutoDisposeNotifierProviderRef<State> get ref;
+  Ref get ref;
 
   @protected
   String get machineUUID;

@@ -144,6 +144,6 @@ class _OverviewPageController extends _$OverviewPageController {
         previous.hasValue != next.hasValue ||
         previous.error != next.error ||
         previous.stackTrace != next.stackTrace ||
-        previous.valueOrNull?.length != next.valueOrNull?.length;
+        previous.value?.length != next.value?.length;
   }
 }

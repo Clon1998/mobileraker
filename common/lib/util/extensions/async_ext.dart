@@ -6,6 +6,7 @@
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 /// - [skipLoadingOnReload] (false by default) customizes whether [loading]
 ///   should be invoked if a provider rebuilds because of [Ref.watch].

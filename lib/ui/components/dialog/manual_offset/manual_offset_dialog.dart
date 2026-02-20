@@ -159,7 +159,7 @@ class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = manualOffsetDialogControllerProvider(dialogCompleter);
-    var manualProbe = ref.watch(controller).valueOrNull;
+    var manualProbe = ref.watch(controller).value;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

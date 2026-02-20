@@ -9,6 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
@@ -221,13 +222,13 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   _Model build(String machineUUID, String path) {
     talker.info('[FileManagerSearchController] initializing for $path');
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
+      if (next.value == ClientState.error || next.value == ClientState.disconnected) {
         if (_goRouter.canPop()) _goRouter.pop();
         talker.info('[FileManagerSearchController] Client disconnected. Popping search page');
       }
     });
 
-    ref.listenSelf((previous, next) {
+    listenSelf((previous, next) {
       if (previous?.searchTerm != next.searchTerm) {
         talker.info('[FileManagerSearchController] Search term changed, refreshing results');
         _refreshResults();
@@ -258,7 +259,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name, pathParameters: {'path': path}, extra: file);
         break;
       default:
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': path}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': path}, queryParameters: {'machineUUID': machineUUID}, extra: file);
     }
   }
 

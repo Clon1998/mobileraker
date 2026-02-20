@@ -26,7 +26,7 @@ part 'jrpc_client_provider.g.dart';
 
 @riverpod
 JsonRpcClient _jsonRpcClient(Ref ref, String machineUUID, ClientType type) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
+  var machine = ref.watch(machineProvider(machineUUID)).value;
   if (machine == null) {
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
@@ -67,8 +67,8 @@ JsonRpcClient jrpcClient(Ref ref, String machineUUID) {
 @riverpod
 class JrpcClientManager extends _$JrpcClientManager {
   @override
-  AutoDisposeProvider<JsonRpcClient> build(String machineUUID) {
-    var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
+  ProviderListenable<JsonRpcClient> build(String machineUUID) {
+    var machine = ref.watch(machineProvider(machineUUID)).value;
     if (machine == null) {
       throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
     }

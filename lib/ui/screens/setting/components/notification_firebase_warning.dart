@@ -29,7 +29,7 @@ class NotificationFirebaseWarning extends ConsumerWidget {
           child: FadeTransition(opacity: anim, child: child),
         ),
         duration: kSettingPageWarningDuration,
-        child: (ref.watch(notificationFirebaseAvailableProvider).valueOrNull != false)
+        child: (ref.watch(notificationFirebaseAvailableProvider).value != false)
             ? const SizedBox.shrink()
             : Padding(
                 key: UniqueKey(),

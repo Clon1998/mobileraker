@@ -90,7 +90,7 @@ class HeaterSensorPresetCardTitle extends ConsumerWidget {
                     data.heaterBed?.target ??
                     0) >
                 0))
-            .valueOrNull ==
+            .value ==
         true;
 
     return ListTile(

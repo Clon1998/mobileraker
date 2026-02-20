@@ -250,7 +250,7 @@ class _PowerApiCardController extends _$PowerApiCardController {
     if (hasPowerAPI) {
       // We are using the sync version because we do not want to wait for the printer state -> Power Api Card should work even if printer/klipper is not connected
       isPrinting =
-          ref.watch(printerProvider(machineUUID).select((d) => d.valueOrNull?.print.state == PrintState.printing));
+          ref.watch(printerProvider(machineUUID).select((d) => d.value?.print.state == PrintState.printing));
       devices = await ref
           .watch(powerDevicesProvider(machineUUID).future)
           .then((value) => value.where((element) => !element.name.startsWith('_')).toList());

@@ -180,7 +180,7 @@ class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // var controller = manualOffsetDialogControllerProvider(dialogCompleter);
-    var bedScrewAndConfig = ref.watch(bedScrewAdjustDialogControllerProvider).valueOrNull;
+    var bedScrewAndConfig = ref.watch(bedScrewAdjustDialogControllerProvider).value;
 
     var themeData = Theme.of(context);
 

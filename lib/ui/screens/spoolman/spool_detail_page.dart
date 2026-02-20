@@ -417,7 +417,7 @@ class _SpoolList extends ConsumerWidget {
         pageSize: _initial,
         page: 0,
         filters: filters,
-      ).select((d) => d.valueOrNull?.totalItems?.let((d) => max(d - 1, 0))),
+      ).select((d) => d.value?.totalItems?.let((d) => max(d - 1, 0))),
     );
 
     return Card(
@@ -455,7 +455,7 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     return _Model(
       initialSpool: initialSpool,
       fetchedSpool: fetchedSpool,
-      spoolIsActive: activeSpool.valueOrNull?.id == (fetchedSpool.valueOrNull?.id ?? initialSpool.id),
+      spoolIsActive: activeSpool.value?.id == (fetchedSpool.value?.id ?? initialSpool.id),
     );
   }
 
@@ -636,5 +636,5 @@ sealed class _Model with _$Model {
     @Default(false) bool spoolIsActive,
   }) = __Model;
 
-  GetSpool get spool => fetchedSpool.valueOrNull ?? initialSpool;
+  GetSpool get spool => fetchedSpool.value ?? initialSpool;
 }

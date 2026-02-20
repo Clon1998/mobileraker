@@ -95,7 +95,7 @@ class _BottomNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedMachine = ref.watch(selectedMachineProvider);
 
-    if (ref.watch(selectedMachineProvider).valueOrNull == null) {
+    if (ref.watch(selectedMachineProvider).value == null) {
       return const SizedBox.shrink();
     }
 
@@ -334,7 +334,7 @@ class _Fab extends ConsumerWidget {
         final conState = ref.watch(jrpcClientStateProvider(machineUUID));
         final hasSpoolman = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent));
 
-        if (hasSpoolman.valueOrNull != true || conState.valueOrNull != ClientState.connected) {
+        if (hasSpoolman.value != true || conState.value != ClientState.connected) {
           fab = const SizedBox.shrink();
         }
 

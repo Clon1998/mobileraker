@@ -65,7 +65,7 @@ class DeviceFcmSettingsSyncService {
 
   void _setupFcmTokenListener() {
     ref.listen(fcmTokenProvider, (prev, next) {
-      if (prev == next || next.valueOrNull == null) return;
+      if (prev == next || next.value == null) return;
 
       talker.info('[SettingsSyncService] FCM token changed, marking for sync $prev -> $next');
       _syncToConnectedMachines();
@@ -167,7 +167,7 @@ class DeviceFcmSettingsSyncService {
     _machineSubscriptions[machine.uuid]?.close();
     final sub = ref.listen(jrpcClientStateProvider(machine.uuid), (prev, next) {
       // Only care about transitions to connected state
-      if (prev?.valueOrNull != ClientState.connected && next.valueOrNull == ClientState.connected) {
+      if (prev?.value != ClientState.connected && next.value == ClientState.connected) {
         talker.info('[SettingsSyncService] ${machine.logTagExtended} Machine connected, syncing settings');
         _syncDataToMachine(machine, true);
       }

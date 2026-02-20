@@ -27,7 +27,7 @@ class _MachineDeletionWarningController extends _$MachineDeletionWarningControll
   int build() {
     var isSupporter = ref.watch(isSupporterProvider);
     var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
-    var machineCount = ref.watch(allMachinesProvider.selectAs((d) => d.length)).valueOrNull ?? 0;
+    var machineCount = ref.watch(allMachinesProvider.selectAs((d) => d.length)).value ?? 0;
     talker.info(
       'Max allowed machines for non Supporters is $maxNonSupporterMachines',
     );
