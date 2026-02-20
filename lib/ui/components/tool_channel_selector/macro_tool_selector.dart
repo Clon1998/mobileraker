@@ -126,8 +126,8 @@ class _MacroToolSelectorController extends _$MacroToolSelectorController {
             if (model.parkMacro != null)
               SelectionOption(
                 value: null,
-                label: tr('components.tool_channel_selector.park_toolhead'),
-                subtitle: tr('components.tool_channel_selector.park_toolhead_desc'),
+                label: tr('components.tool_channel_selector.sheet.park_toolhead'),
+                subtitle: tr('components.tool_channel_selector.sheet.park_toolhead_desc'),
               ),
             for (final (macro, tempProvider) in pairs)
               SelectionOption(
@@ -155,7 +155,7 @@ class _MacroToolSelectorController extends _$MacroToolSelectorController {
                 ),
               ),
           ],
-          title: const Text('components.tool_channel_selector.select_toolhead').tr(),
+          title: const Text('components.tool_channel_selector.sheet.select_toolhead').tr(),
         ),
       ),
     );
