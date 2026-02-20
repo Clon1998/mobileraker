@@ -50,7 +50,7 @@ dependencies:
   #architecture
   freezed_annotation: ^3.1.0
   flutter_hooks: ^0.21.2
-  hooks_riverpod: 3.1.0
+  hooks_riverpod: ^3.2.1
   riverpod_annotation: ^4.0.0
   json_annotation: ^4.7.0
 
@@ -177,7 +177,7 @@ dev_dependencies:
   freezed: ^3.2.0
   mockito: ^5.4.5
   json_serializable: ^6.9.0
-  riverpod_generator: 4.0.0+1
+  riverpod_generator: 4.0.3
   # riverpod_lint makes it easier to work with Riverpod
   # riverpod_lint and custom_lint removed: requires Dart 3.10+ for compatibility with riverpod 3.2+
   # Re-add riverpod_lint: ^3.1.1 and custom_lint: ^0.8.1 when upgrading to Dart 3.10+
