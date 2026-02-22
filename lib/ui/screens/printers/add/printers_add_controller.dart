@@ -167,7 +167,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   }
 
   void onPopInvoked(bool isPop, Object? _) {
-    if (!isPop) ref.read(printerAddViewControllerProvider.notifier).previousStep();
+    if (!isPop) previousStep();
   }
 
   selectMode(bool isExpert) {
