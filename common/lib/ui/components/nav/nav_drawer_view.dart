@@ -320,11 +320,13 @@ class _MachineTile extends ConsumerWidget {
 
     return ListTile(
       title: Text(machine.name, maxLines: 1),
+      subtitle: Text(machine.httpUri.host, maxLines: 1),
       trailing: Icon(isSelected ? Icons.check : Icons.arrow_forward_ios_sharp, size: baseIconSize),
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onBackground,
       iconColor: themeData.colorScheme.onBackground,
+      dense: true,
       contentPadding: basePadding,
       selected: isSelected,
       onTap: isSelected
