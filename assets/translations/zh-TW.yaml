@@ -974,6 +974,9 @@ components:
       startup: 正在啟動Klipper…
       error: Klipper錯誤
       unauthorized: 存取遭拒
+  tool_channel_selector:
+    no_tool:
+      action: 點選並選擇一個噴頭
 dialogs:
   rate_my_app:
     title: 評價Mobileraker？
