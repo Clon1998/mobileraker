@@ -5,24 +5,23 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/printer.dart';
-import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 
-import '../../../components/async_value_widget.dart';
 import 'orderding_form_field.dart';
 
 typedef ElementsFinder = List<ReordableElement> Function(Printer printerData);
 typedef OnOrderingChanged = void Function(List<ReordableElement> ordering);
 
-class PrinterElementOrderingWidget extends ConsumerWidget {
+class PrinterElementOrderingWidget extends HookConsumerWidget {
   const PrinterElementOrderingWidget({
     super.key,
     required this.machineUUID,
-    required this.machineSettings,
+    required this.initialOrdering,
     required this.title,
     required this.helperText,
     required this.emptyMessage,
@@ -32,7 +31,7 @@ class PrinterElementOrderingWidget extends ConsumerWidget {
   });
 
   final String machineUUID;
-  final MachineSettings machineSettings;
+  final List<ReordableElement> initialOrdering;
   final String title;
   final String helperText;
   final String emptyMessage;
@@ -42,6 +41,15 @@ class PrinterElementOrderingWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final future = useMemoized(() => ref.read(printerProvider(machineUUID).future));
+    final AsyncSnapshot<Printer> printerData = useFuture(future, preserveState: false);
+
+    final elements = useMemoized(() {
+      if (!printerData.hasData) return initialOrdering;
+
+      return normalizedElements(printerData.data!);
+    }, [printerData.hasData, printerData.connectionState]);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -54,36 +62,25 @@ class PrinterElementOrderingWidget extends ConsumerWidget {
               message: helperText,
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
               triggerMode: TooltipTriggerMode.tap,
-              child: Icon(
-                Icons.help_outline,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              child: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
             ),
           ),
         ),
-        AsyncValueWidget(
-          value: ref.watch(printerProvider(machineUUID)),
-          skipLoadingOnReload: true,
-          data: (printer) {
-            final elements = normalizedElements(printer);
-
-            if (elements.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(emptyMessage),
-              );
-            }
-
-            return OrderdingFormField(
-              name: formFieldName,
-              initialValue: elements,
-              onChanged: (ordering) {
-                if (ordering == null) return;
-                onOrderingChanged(ordering);
-              },
-            );
-          },
-        ),
+        switch (printerData) {
+          AsyncSnapshot(connectionState: ConnectionState.done) when elements.isEmpty => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(emptyMessage),
+          ),
+          AsyncSnapshot(connectionState: ConnectionState.done) => OrderdingFormField(
+            name: formFieldName,
+            initialValue: elements,
+            onChanged: (ordering) {
+              if (ordering == null) return;
+              onOrderingChanged(ordering);
+            },
+          ),
+          _ => Padding(padding: const EdgeInsets.all(8.0), child: CircularProgressIndicator.adaptive()),
+        },
       ],
     );
   }
@@ -91,11 +88,10 @@ class PrinterElementOrderingWidget extends ConsumerWidget {
   /// Normalizes the settings to only include elements that are available in the printer and add missing elements
   List<ReordableElement> normalizedElements(Printer printerData) {
     final availableElements = elementsFinder(printerData);
-    final settings = machineSettings.tempOrdering;
     final normalizedSettings = <ReordableElement>[];
 
     // Only include elements that are available in the printer
-    for (var setting in settings) {
+    for (var setting in initialOrdering) {
       if (availableElements.any((e) => e.kind == setting.kind && e.name == setting.name)) {
         normalizedSettings.add(setting);
       }

@@ -451,7 +451,7 @@ class _TempSensorOrdering extends StatelessWidget {
   Widget build(BuildContext context) {
     return PrinterElementOrderingWidget(
       machineUUID: machineUUID,
-      machineSettings: machineSettings,
+      initialOrdering: machineSettings.tempOrdering,
       title: tr('pages.printer_edit.temp_ordering.title'),
       helperText: tr('pages.printer_edit.temp_ordering.helper'),
       emptyMessage: tr('pages.printer_edit.temp_ordering.no_sensors'),
@@ -504,7 +504,7 @@ class _FansOrdering extends StatelessWidget {
   Widget build(BuildContext context) {
     return PrinterElementOrderingWidget(
       machineUUID: machineUUID,
-      machineSettings: machineSettings,
+      initialOrdering: machineSettings.fanOrdering,
       title: tr('pages.printer_edit.fan_ordering.title'),
       helperText: tr('pages.printer_edit.fan_ordering.helper'),
       emptyMessage: tr('pages.printer_edit.fan_ordering.no_sensors'),
@@ -539,7 +539,7 @@ class _MiscOrdering extends StatelessWidget {
   Widget build(BuildContext context) {
     return PrinterElementOrderingWidget(
       machineUUID: machineUUID,
-      machineSettings: machineSettings,
+      initialOrdering: machineSettings.miscOrdering,
       title: tr('pages.printer_edit.misc_ordering.title'),
       helperText: tr('pages.printer_edit.misc_ordering.helper'),
       emptyMessage: tr('pages.printer_edit.misc_ordering.no_controls'),
