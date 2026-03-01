@@ -249,11 +249,14 @@ class _MacroGroup extends HookConsumerWidget {
               ),
               onChanged: (s) => s?.let((d) => onChanged?.call(macroGroup.copyWith(name: d))),
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: MobilerakerFormBuilderValidator.sideEffect(FormBuilderValidators.required(), sideEffect: (e) {
-                if (e != null && !controller.isExpanded) {
-                  Future(() => controller.expand());
-                }
-              }),
+              validator: MobilerakerFormBuilderValidator.sideEffect(
+                FormBuilderValidators.required(),
+                sideEffect: (e) {
+                  if (e != null && !controller.isExpanded) {
+                    Future(() => controller.expand());
+                  }
+                },
+              ),
             ),
           const SizedBox(height: 8),
           SectionHeader(title: tr('pages.printer_edit.macros.macros')),
@@ -290,13 +293,28 @@ class _MacroGroup extends HookConsumerWidget {
                   );
                 }
 
-                return Chip(
-                  avatar: Icon(Icons.visibility_outlined.only(m.visible) ?? Icons.visibility_off_outlined),
+                return ActionChip(
+                  avatar: AnimatedSwitcher(
+                    duration: kThemeAnimationDuration,
+                    child: Icon(key: ValueKey((macroGroup.uuid,m.uuid,m.visible)),Icons.visibility_outlined.only(m.visible) ?? Icons.visibility_off_outlined),
+                  ),
                   label: Text(m.beautifiedName),
+                  onPressed: () => onChangeVisibility(m, !m.visible),
                 );
               }).toList(),
             ),
         ],
+      ),
+    );
+  }
+
+  void onChangeVisibility(GCodeMacro m, bool visible) {
+    onChanged?.call(
+      macroGroup.copyWith(
+        macros: List.unmodifiable([
+          for (final macro in macroGroup.macros)
+            if (macro.uuid == m.uuid) macro.copyWith(visible: visible) else macro,
+        ]),
       ),
     );
   }
