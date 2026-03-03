@@ -32,12 +32,12 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -58,6 +58,8 @@ import '../components/section_header.dart';
 import '../components/ssl_settings_form_field.dart';
 
 final _formKey = GlobalKey<FormBuilderState>();
+
+final _isSaving = Mutation();
 
 enum _FormFields {
   printerName,
@@ -80,27 +82,7 @@ class PrinterEditPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sheetService = ref.watch(bottomSheetServiceProvider);
-    final snackBarService = ref.watch(snackBarServiceProvider);
-    final dialogService = ref.watch(dialogServiceProvider);
-    final machineService = ref.watch(machineServiceProvider);
-    final webcamService = ref.watch(webcamServiceProvider(machine.uuid));
-    final deviceFcmSettingsService = ref.watch(deviceFcmSettingsServiceProvider);
-    final goRouter = ref.watch(goRouterProvider);
-
-    final isSaving = useState(false);
-
-    final retryToken = useState(Object());
-    final future = useMemoized<Future<MachineSettings>>(() => ref.read(machineSettingsProvider(machine.uuid).future), [
-      machine.uuid,
-      retryToken.value,
-    ]);
-    final remoteSettings = useFuture(future, preserveState: false);
-    final VoidCallback retryFuture = useCallback(() {
-      ref.invalidate(machineSettingsProvider(machine.uuid));
-      retryToken.value = Object();
-    }, [retryToken]);
-
+    final isSaving = ref.watch(_isSaving).isPending;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -112,49 +94,30 @@ class PrinterEditPage extends HookConsumerWidget {
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
-              onMoreActionsTap(
-                sheetService,
-                snackBarService,
-                dialogService,
-                machineService,
-                deviceFcmSettingsService,
-                goRouter,
-                remoteSettings.data,
-              );
+              onMoreActionsTap(ref, machine);
             },
           ),
         ],
       ),
-      body: _Body(
-        machine: machine,
-        remoteSettings: remoteSettings,
-        retryFetchingSettings: retryFuture,
-        isSaving: isSaving.value,
-      ),
+      body: _Body(machine: machine),
       floatingActionButton: FloatingActionButton(
         onPressed: (() {
-          isSaving.value = true;
-          saveForm(
-            dialogService,
-            snackBarService,
-            machineService,
-            webcamService,
-          ).then((success) => success?goRouter.pop():null).whenComplete(() => isSaving.value = false);
-        }).unless(isSaving.value),
-        child: const Icon(Icons.save_outlined),
+          _isSaving.run(ref, (tsx) async {
+            final saved = await saveForm(
+              tsx.get(dialogServiceProvider),
+              tsx.get(snackBarServiceProvider),
+              tsx.get(machineServiceProvider),
+              tsx.get(webcamServiceProvider(machine.uuid)),
+            );
+            if (saved) tsx.get(goRouterProvider).pop();
+          });
+        }).unless(isSaving),
+        child: isSaving? CircularProgressIndicator.adaptive() :const Icon(Icons.save_outlined),
       ),
     );
   }
 
-  void onMoreActionsTap(
-    BottomSheetService sheetService,
-    SnackBarService snackBarService,
-    DialogService dialogService,
-    MachineService machineService,
-    DeviceFcmSettingsService deviceFcmSettingsService,
-    GoRouter goRouter,
-    MachineSettings? remoteSettings,
-  ) async {
+  Future<void> onMoreActionsTap(MutationTarget scope, Machine machine) async {
     talker.info('More actions tapped, showing bottom sheet');
 
     var machineName = _formKey.currentState?.fields[_FormFields.printerName.name]?.value as String?;
@@ -162,59 +125,69 @@ class PrinterEditPage extends HookConsumerWidget {
     var machineAdd = _formKey.currentState?.fields[_FormFields.printerAddress.name]?.value as String?;
     if (machineAdd?.isNotEmpty != true) machineAdd = machine.httpUri.toString();
 
-    final res = await sheetService.show(
-      BottomSheetConfig(
-        type: SheetType.actions,
-        data: ActionBottomSheetArgs(
-          title: Text(machineName!),
-          subtitle: Text(machineAdd!, maxLines: 1, overflow: TextOverflow.ellipsis),
-          actions: [
-            if (remoteSettings != null) MachineAction.import,
-            MachineAction.reset_token,
-            DividerSheetAction.divider,
-            MachineAction.delete,
-          ],
+    await BottomSheetService.showSheetMutation.run(scope, (tsx) async {
+      final BottomSheetService sheetService = tsx.get(bottomSheetServiceProvider);
+      final SnackBarService snackBarService = tsx.get(snackBarServiceProvider);
+      final DialogService dialogService = tsx.get(dialogServiceProvider);
+      final MachineService machineService = tsx.get(machineServiceProvider);
+      final DeviceFcmSettingsService deviceFcmSettingsService = tsx.get(deviceFcmSettingsServiceProvider);
+      final GoRouter goRouter = tsx.get(goRouterProvider);
+
+      final remoteSettings = tsx.get(machineSettingsProvider(machine.uuid));
+
+      final res = await sheetService.show(
+        BottomSheetConfig(
+          type: SheetType.actions,
+          data: ActionBottomSheetArgs(
+            title: Text(machineName!),
+            subtitle: Text(machineAdd!, maxLines: 1, overflow: TextOverflow.ellipsis),
+            actions: [
+              if (remoteSettings.hasValue) MachineAction.import,
+              MachineAction.reset_token,
+              DividerSheetAction.divider,
+              MachineAction.delete,
+            ],
+          ),
         ),
-      ),
-    );
+      );
 
-    // Wait for the bottom sheet to close
-    await Future.delayed(kThemeAnimationDuration);
+      // Wait for the bottom sheet to close
+      await Future.delayed(kThemeAnimationDuration);
 
-    if (res case BottomSheetResult(confirmed: true, data: MachineAction action)) {
-      talker.info('[PrinterEditPage] Bottom sheet confirmed with data: $action');
+      if (res case BottomSheetResult(confirmed: true, data: MachineAction action)) {
+        talker.info('[PrinterEditPage] Bottom sheet confirmed with data: $action');
 
-      switch (action) {
-        case MachineAction.import:
-          final dRes = await dialogService.show(DialogRequest(type: DialogType.importSettings, data: machine));
-          onImportSettingsReturns(snackBarService, dRes, remoteSettings!);
+        switch (action) {
+          case MachineAction.import:
+            final dRes = await dialogService.show(DialogRequest(type: DialogType.importSettings, data: machine));
+            onImportSettingsReturns(snackBarService, dRes, remoteSettings.value!);
+            break;
+          case MachineAction.reset_token:
+            final dRes = await dialogService.showDangerConfirm(
+              title: tr('pages.printer_edit.confirm_fcm_reset.title', args: [machineName]),
+              body: tr('pages.printer_edit.confirm_fcm_reset.body', args: [machineName, machineAdd]),
+              actionLabel: tr('general.clear'),
+            );
+            if (dRes?.confirmed != true) return;
+            await deviceFcmSettingsService.clearAllDeviceFcm(machine);
+            await deviceFcmSettingsService.syncDeviceFcmToMachine(machine);
 
-          break;
-        case MachineAction.reset_token:
-          final dRes = await dialogService.showDangerConfirm(
-            title: tr('pages.printer_edit.confirm_fcm_reset.title', args: [machineName]),
-            body: tr('pages.printer_edit.confirm_fcm_reset.body', args: [machineName, machineAdd]),
-            actionLabel: tr('general.clear'),
-          );
-          if (dRes?.confirmed != true) return;
-          await deviceFcmSettingsService.clearAllDeviceFcm(machine);
-          await deviceFcmSettingsService.syncDeviceFcmToMachine(machine);
+            break;
+          case MachineAction.delete:
+            final dRes = await dialogService.showDangerConfirm(
+              title: tr('pages.printer_edit.confirm_deletion.title', args: [machineName]),
+              body: tr('pages.printer_edit.confirm_deletion.body', args: [machineName, machineAdd]),
+              actionLabel: tr('general.delete'),
+            );
 
-          break;
-        case MachineAction.delete:
-          final dRes = await dialogService.showDangerConfirm(
-            title: tr('pages.printer_edit.confirm_deletion.title', args: [machineName]),
-            body: tr('pages.printer_edit.confirm_deletion.body', args: [machineName, machineAdd]),
-            actionLabel: tr('general.delete'),
-          );
-
-          if (dRes?.confirmed != true) return;
-          talker.info('User confirmed deletion of  machine ${machine.uuid}, proceeding with delete');
-          await machineService.removeMachine(machine);
-          goRouter.pop();
-          break;
+            if (dRes?.confirmed != true) return;
+            talker.info('User confirmed deletion of  machine ${machine.uuid}, proceeding with delete');
+            await machineService.removeMachine(machine);
+            goRouter.pop();
+            break;
+        }
       }
-    }
+    });
   }
 
   void onImportSettingsReturns(
@@ -268,11 +241,7 @@ class PrinterEditPage extends HookConsumerWidget {
           formBuilderState.fields[_FormFields.printerWebcams.name]?.initialValue as List<WebcamInfo>? ?? [];
       final updatedWebcams = storedValues[_FormFields.printerWebcams.name] as List<WebcamInfo>? ?? [];
 
-      talker.warning('Updated webcams: ${updatedWebcams.map((e) => (e.uid, e.name)).toList()}');
-
       final webcams = await _saveWebcamInfos(originalWebcams, updatedWebcams, webcamService);
-      talker.warning('Api returned webcams: ${webcams.map((e) => (e.uid, e.name)).toList()}');
-
       final remoteSettings = storedValues[_FormFields.printerRemoteSettings.name] as MachineSettings?;
       if (remoteSettings != null) {
         final camsOrdering = webcams.map((e) => e.uid ?? e.name).toList();
@@ -338,18 +307,9 @@ class PrinterEditPage extends HookConsumerWidget {
 typedef _RemoteCons = (OctoEverywhere?, RemoteInterface?, Uri?);
 
 class _Body extends ConsumerWidget {
-  const _Body({
-    super.key,
-    required this.machine,
-    required this.remoteSettings,
-    required this.retryFetchingSettings,
-    required this.isSaving,
-  });
+  const _Body({super.key, required this.machine});
 
   final Machine machine;
-  final AsyncSnapshot<MachineSettings> remoteSettings;
-  final VoidCallback retryFetchingSettings;
-  final bool isSaving;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -358,7 +318,7 @@ class _Body extends ConsumerWidget {
     final snackBarService = ref.watch(snackBarServiceProvider);
 
     return FormBuilder(
-      enabled: !isSaving,
+      enabled: !ref.watch(_isSaving).isPending,
       key: _formKey,
       child: Center(
         child: ResponsiveLimit(
@@ -483,11 +443,7 @@ class _Body extends ConsumerWidget {
                 const Divider(),
                 _WebcamsFormField(machine: machine),
                 const Divider(),
-                _RemoteSettingsFormField(
-                  machine: machine,
-                  remoteSettings: remoteSettings,
-                  retryFetchingSettings: retryFetchingSettings,
-                ),
+                _RemoteSettingsFormField(machine: machine),
               ],
             ),
           ),
@@ -727,35 +683,44 @@ class _WebcamsFormField extends ConsumerWidget {
 }
 
 class _RemoteSettingsFormField extends ConsumerWidget {
-  const _RemoteSettingsFormField({
-    super.key,
-    required this.machine,
-    required this.remoteSettings,
-    required this.retryFetchingSettings,
-  });
+  const _RemoteSettingsFormField({super.key, required this.machine});
 
   final Machine machine;
-  final AsyncSnapshot<MachineSettings> remoteSettings;
-  final VoidCallback retryFetchingSettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final remoteSettings = ref.watch(machineSettingsProvider(machine.uuid));
+    final themeData = Theme.of(context);
     return switch (remoteSettings) {
-      AsyncSnapshot(hasError: true, :final error) => SimpleErrorWidget(
+      AsyncValue(hasError: true, :final error) => SimpleErrorWidget(
         title: const Text('pages.printer_edit.could_not_fetch_additional').tr(),
-        body: const Text('pages.printer_edit.fetch_error_hint').tr(),
+        body:Text.rich(
+          TextSpan(
+            text: '\nError Details:\n',
+            style: themeData.textTheme.bodySmall,
+            children: [
+              TextSpan(
+                text: error.toString(),
+                style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.error),
+              ),
+            ],
+          ),
+          style: themeData.textTheme.bodySmall,
+          textAlign: TextAlign.justify,
+        ),
         action: TextButton.icon(
-          onPressed: retryFetchingSettings,
+          onPressed: () => ref.invalidate(machineSettingsProvider(machine.uuid)),
           icon: const Icon(Icons.restart_alt_outlined),
           label: const Text('general.retry').tr(),
         ),
       ),
-      AsyncSnapshot(:final data?) => RemoteMachineSettingsFormField(
+
+      AsyncValue(:final value?) => RemoteMachineSettingsFormField(
         name: _FormFields.printerRemoteSettings.name,
         machineUUID: machine.uuid,
-        initialValue: data,
+        initialValue: value,
       ),
-      AsyncSnapshot(connectionState: ConnectionState.waiting) || _ => Column(
+      _ => Column(
         mainAxisSize: MainAxisSize.min,
         spacing: 16,
         children: [

@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
@@ -167,26 +168,49 @@ Future<List<Machine>> machinesWithoutCompanion(Ref ref) async {
 Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
 
+  ref.listen(printerProvider(machineUUID), (AsyncValue<Printer>? prev, next) {
+    // We do not want to invalidate if the printerData is available for the first time since we await that anyway!
+    if (prev?.hasValue == true && prev?.value?.gcodeMacros.length != next.value?.gcodeMacros.length) {
+      talker.info(
+        'Detected macro count change for machine $machineUUID, refreshing settings provider to adjust default macros!',
+      );
+      ref.invalidateSelf(asReload: true);
+    }
+  });
+
   // Just ensure we have a machine to prevent errors while we dispose the machine/on remove the machine.
   final machine = await ref.watch(machineProvider(machineUUID).future);
   if (machine == null) return;
 
-  // We listen to macro count changes to trigger a provider rebuild, allowing us to migrate the setting's macros
-  var macroCnt = await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.gcodeMacros.length));
+  final klippyState = await ref.watch(klipperProvider(machineUUID).selectAsync((d) => d.klippyState));
 
-  // Converts Klippy ready state to a stream of settings -> Emits new settings each time the Klippy state is transitioning to ready
-  yield* ref
-      .watchAsSubject(klipperProvider(machineUUID))
-      .where((event) => event.klippyState == KlipperState.ready)
-      .distinct()
-      .asyncMap((event) async {
-        var printerData = await ref.read(printerProvider(machineUUID).future);
+  if (!ref.mounted) {
+    talker.warning('[machineSettingsProvider] Not mounted anymore, returning early for machine $machineUUID');
+    return;
+  }
 
-        // We need to use read to prevent circular dependencies
-        return await ref
-            .read(machineServiceProvider)
-            .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
-      });
+  if (klippyState == KlipperState.ready) {
+    // We can safely use read here since we have a listen that will trigger a refresh of this provider if the printer data changes and thus also when the macros change.
+    final printerData = await ref.read(printerProvider(machineUUID).future);
+
+    if (!ref.mounted) {
+      talker.warning('[machineSettingsProvider] Not mounted anymore, returning early for machine $machineUUID');
+      return;
+    }
+    yield await ref
+        .read(machineServiceProvider)
+        .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
+    return;
+  } else if (klippyState case KlipperState.error || KlipperState.unauthorized) {
+    talker.error(
+      'Klipper is in state $klippyState, which means there is likely an issue with the connection or authentication. Throwing an error to prevent further issues!',
+    );
+    throw MobilerakerException(
+      'Klipper is in state $klippyState, which means there is likely an issue with the connection or authentication. Please check your connection and authentication settings!',
+    );
+    return;
+  }
+  // We just do nothing/wait for a rebuild -> new data is available!
 }
 
 @riverpod
