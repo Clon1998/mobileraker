@@ -2,6 +2,7 @@
 general:
   pause: 暫停
   resume: 恢復
+  connect: 連線
   connected: 已連線
   'off': '關閉'
   'on': '開啟'
@@ -67,6 +68,9 @@ general:
   print: 列印
   allow: 允許
   deny: 拒絕
+  settings: 設定
+  run: 執行
+  enable: 啟用
 pages:
   dashboard:
     title: 儀表板
@@ -443,6 +447,16 @@ pages:
       opt_out_marketing_error: 載入行銷偏好選項時發生錯誤，請稍後再試。
       use_progressbar_notification: 啟用進度條通知
       use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
+      ignore_filament_sensors_helper: 請選擇在觸發時『不需』發送通知的耗材感測器。這對於多色換料系統（MMU）的感測器配置非常實用。
+      global: 通知設定
+      custom_settings_title: 自訂通知設定
+      custom_settings_helper: 以自訂組態取代此機器的全域設定。
+      enable_custom_settings: 啟用自訂設定
+      enable_custom_settings_helper: 取消繼承全域設定，並套用此處定義之特定組態。
+      hardware_settings_title: 硬體通知設定
+      hardware_settings_helper: 配置硬體專屬的通知行為。
+      notification_settings_title: 通知 - 設定
+      general_settings_title: 一般通知設定
       error_loading_printers_title: 載入印表機時發生錯誤
       error_loading_printers_body: 載入印表機時發生了意外錯誤。請稍後再試。
     developer:
