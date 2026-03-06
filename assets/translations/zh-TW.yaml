@@ -150,6 +150,18 @@ pages:
         save_btn: 儲存設定
         more_btn: 更多
         homed: 已歸位的軸
+        beacon_btn:
+        beacon_tooltip: 選擇 Beacon 型號
+        force_move_btn: 強制移動
+        force_move_tooltip: "切換「強制移動」模式"
+        force_move_dialog:
+          title: 啟用強制移動？
+          body: |-
+            您即將啟用「強制移動」模式。
+            此操作將跳過所有安全檢查與運動學限制，直接驅動個別步進馬達，且不會更新印表機的位置狀態。
+            這是一項底層診斷工具，使用不當可能會造成機械損壞。
+
+            使用後必須執行 G28 指令重新歸位（Homing），以恢復正確的運動學邏輯。
       baby_step_card:
         title: 微調Z軸距離
         z_offset: Z偏移
@@ -244,6 +256,15 @@ pages:
     editing_card:
       title: 編輯模式
       body: 現在您可重新排序、新增和刪除卡片及頁面。所有卡片顯示預覽資料。
+    rename_layout:
+      title: 重新命名佈局
+      label: 佈局名稱
+    layout_rename_snack:
+      title: 佈局已重新命名！
+      body: 佈局已成功重新命名。
+    layout_reset_snack:
+      title: 佈局已重設！
+      body: 佈局已重設為預設配置。
     error_save_snack:
       title: 儲存佈局時發生錯誤！
       body: 嘗試儲存佈局時發生錯誤。
@@ -397,6 +418,7 @@ pages:
       lcFullCam: 全螢幕攝影機畫面
       lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
+      companion: "是否要接收遠端通知？\n了解如何在此處設定 Mobileraker Companion："
       companion_link: 官方GitHub頁面
       sliders_grouping: 編組滑桿卡片
       sliders_grouping_hint: 編組所有滑桿在一張卡片中
@@ -416,7 +438,9 @@ pages:
       keep_screen_on_hint: 防止app運行時螢幕自動關閉
     ui:
       machine_card_style:
+        title: 概覽 - 機器卡片樣式
         default: 預設
+        classic: 精簡
     notification:
       title: 通知
       progress_label: 列印進度通知
@@ -447,22 +471,51 @@ pages:
       opt_out_marketing_error: 載入行銷偏好選項時發生錯誤，請稍後再試。
       use_progressbar_notification: 啟用進度條通知
       use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
+      snapshot_webcam_label: 快照攝影機
+      snapshot_webcam_helper: 選擇用於通知快照的攝影機。
+      snapshot_webcam_type_unsupported: 不支援此攝影機類型！
+      snapshot_webcam_disabled: 不包含攝影機快照
+      ignore_filament_sensors_label: 排除耗材感測器
       ignore_filament_sensors_helper: 請選擇在觸發時『不需』發送通知的耗材感測器。這對於多色換料系統（MMU）的感測器配置非常實用。
+      ignore_filament_sensors_empty: 未發現感測器
       global: 通知設定
+      global_helper: 設定您的裝置與機器的通知行為。
       custom_settings_title: 自訂通知設定
-      custom_settings_helper: 以自訂組態取代此機器的全域設定。
+      custom_settings_helper: "覆蓋全域設定，針對此機器使用自訂配置。\n"
       enable_custom_settings: 啟用自訂設定
-      enable_custom_settings_helper: 取消繼承全域設定，並套用此處定義之特定組態。
+      enable_custom_settings_helper: 不繼承全域設定，改用此處指定的設定。
       hardware_settings_title: 硬體通知設定
       hardware_settings_helper: 配置硬體專屬的通知行為。
+      machine_notification_title: "{} - 通知 - 設定"
       notification_settings_title: 通知 - 設定
       general_settings_title: 一般通知設定
+      general_settings_helper: 設定應用程式通知權限與一般通知偏好。
+      global_settings_title: 全域通知設定
+      global_settings_helper: 設定從所有連線機器接收的通知。
+      device_specific_title: 各裝置通知設定
+      device_specific_helper: 檢視並設定各別機器的通知設定。
       error_loading_printers_title: 載入印表機時發生錯誤
       error_loading_printers_body: 載入印表機時發生了意外錯誤。請稍後再試。
+      no_devices_found: 未發現裝置
+      configure_btn: 設定
+      not_connected_btn: 未連線
+    data:
+      title: 資料匯入與匯出
+      helper: 備份或轉移您的 App 資料
+      export:
+        title: 匯出 App 資料
+        helper: 將所有機器、佈局與設定儲存至檔案，以便備份或轉移
+      import:
+        title: 匯入 App 資料
+        helper: 從檔案載入機器、佈局與設定
+      snack_imported:
+        title: 資料已匯入！
+        message: 已匯入 {} 台機器與 {} 個佈局。
     developer:
       title: 開發者
       crashlytics: 啟用 Crashlytics 報告
     imprint: 隱私權政策 / 法律聲明
+    ump_dialog: 隱私權與同意設定
   printer_edit:
     title: 編輯 {}
     import_settings: 匯入設定
@@ -530,6 +583,14 @@ pages:
         purge_amount_helper: 清理的線材長度
         purge_speed: 清理速度
         purge_speed_helper: 清理線材的速度
+        mode:
+          title: 更換耗材模式
+          default: 預設
+          custom: 自訂
+        load_gcode: 耗材進料 G-Code
+        load_gcode_helper: 用於進料的 G-Code 指令
+        unload_gcode: 耗材退料 G-Code
+        unload_gcode_helper: 用於退料的 G-Code 指令
     cams:
       target_fps: 目標幀率
       new_cam: 新增網路攝影機
@@ -561,6 +622,8 @@ pages:
       hotend_temp: "@:pages.dashboard.general.temp_card.hotend溫度"
       bed_temp: "@:pages.dashboard.general.temp_card.bed溫度"
       new_preset: 新增預設集
+      custom_gcode: 自訂 G-Code
+      custom_gcode_helper: 設定溫度後執行的選用 G-Code 指令
     confirm_fcm_reset:
       title: 清除通知設備註冊嗎？
       body: "您即將重置設備註冊，該註冊用於確定Companion 應用程式將通知發送到哪些設備。 要重新建立推送通知，您需要在所有設備上重新啟動應用程式並再次將它們連接到機器。"
@@ -648,6 +711,8 @@ pages:
       empty_headers: 未加入標頭！
     test_connection:
       section_connection: 連線資料
+      ws_url_label: 生成的 WebSocket URL
+      http_url_label: 生成的 HTTP URL
       section_test: 連線測試
       http_label: Http端點－測試
       ws_label: Webscoket端點－測試
@@ -663,6 +728,7 @@ pages:
     title: 控制台
     card_title: GCode控制台
     no_entries: 找不到緩存的命令
+    fetching_console: "@:general.fetching 控制台項目…"
     macro_suggestions: G-Code建議
     no_suggestions: 找不到建議
     command_input:
@@ -688,6 +754,7 @@ pages:
       title: 支持者功能
       subtitle: 成為 Mobileraker 支持者，解鎖獨家功能！
       become_supporter: 成為支持者
+      discover_all: 探索所有贊助者功能
       theme_perk:
         title: 支持者主題
       contact_perk:
@@ -703,9 +770,12 @@ pages:
         subtitle: 使用Spoolman管理您的線捲
     manage_view:
       title: 感謝您的支持！
+      offering_title: 更改您的贊助者方案
       cancel_btn: 取消訂閱
     subscribe_view:
       title: 成為Mobileraker支持者！
+      subtitle: Mobileraker 受到創客社群的啟發，為 Klipper 提供快速且可靠的行動裝置使用者介面。雖然核心功能維持免費使用，但贊助者可享有進階功能與無廣告的體驗。
+      offering_title: 選擇您的贊助方案
     supporter_tier_list:
       error_title: 載入支持者等級時發生錯誤！
       error_body: 抱歉，發生了意外錯誤。無法載入支持者等級。請稍後再試！
@@ -717,10 +787,24 @@ pages:
     title: 支持開發者！
     calling_store: 處理請求中...
     promo_title: 促銷方案
+    free_phase: 前 {} 免費
     intro_phase: "享受 {} {} 的折扣"
     iap_offer: "原價的 {} 折扣"
     trial_disclaimer: 在免費試用結束之前，您不會被收費，並且您可以隨時取消訂閱。
+    subscription_disclaimer: 訂閱將自動續訂，您可以隨時取消。
     restore_sign_in: 恢復/登入
+    loading:
+      title: 正在載入贊助方案
+    services_unavailable:
+      title: "{} 帳號登入功能無法使用"
+      description: "此裝置尚未安裝或設定 {}。如果您擁有進階帳號，仍可透過手動登入進行存取。"
+      solutions_title: 可能的解決方案
+      install_services: "從您的應用程式商店安裝 {}"
+      update_services: "若已安裝，請更新 {}"
+      manual_signin: 若您在其他地方取得贊助者資格，請手動登入
+      signin_btn: 登入
+      retry_btn: 重試連線
+      github_btn: 在 GitHub 上提供支援
     fetch_error:
       title: 無法載入支持者等級
       description: 我們在載入支持者等級時遇到問題。這可能是由於網路連線或伺服器問題造成的。
@@ -831,12 +915,14 @@ pages:
       location: 位置
       lot_number: 批號
       color: 顏色
+      initial_weight: 初始重量
     property_sections:
       basic: 基本資訊
       usage: 用量細節
       additional: 附加資訊
       physical: 實體屬性
       print_settings: 列印設定
+      extra_fields: 額外欄位
     vendor_details:
       page_title: 製造商 {}
       info_card: 製造商資訊
@@ -884,6 +970,7 @@ components:
     installed_version: '已安裝版本：'
   pull_to_refresh:
     pull_up_idle: 向下拉以重新整理
+    pull_down_idle: 下拉以重新整理
   nav_drawer:
     printer_settings: 列印機設定
     manage_printers: 管理列印機
@@ -918,6 +1005,8 @@ components:
     custom_dashboard: 抱歉，自訂儀表板功能僅對支持者開放。
     full_file_management: 抱歉，完整檔案管理功能(下載、上傳...) 僅對支持者開放。
     gcode_preview: 抱歉，GCode預覽功能僅對支持者開放。
+    graph_page: 抱歉，溫度紀錄頁面僅限贊助者使用。
+    snapshot_webcam: 抱歉，通知快照功能僅限贊助者使用。
   machine_deletion_warning:
     title: 刪除機器
     subtitle: 看起來您不是支持者。只有支持者才能擁有超過 {} 台機器。您還有 {} 天，超過數量的機器將會被刪除。
@@ -978,19 +1067,41 @@ components:
       subtitle: 顯示空打的移動路徑
   select_color_sheet:
     title: 設定顏色
+  ad_banner:
+    failed:
+      title: 廣告無法播放
+      subtitle: 廣告收入將支持我們的持續開發
   machine_card:
     last_activity:
+      zero: "最後活動：今天"
       one: "上次活動: 昨天"
+      other: "最後活動：{} 天前"
+    waiting_for_job: 正在等待下一個列印工作
+    last_job: "上次工作：{}"
     last_seen: 上次連線
+    new_print: 新工作
+    client_state:
+      disconnected: 機器已斷線
     job_error_detected: 列印時偵測到錯誤
     klippy_state:
       initializing: 正在初始Klipper…
       startup: 正在啟動Klipper…
+      disconnected: Klipper 已斷線
+      shutdown: Klipper 已關機
       error: Klipper錯誤
       unauthorized: 存取遭拒
   tool_channel_selector:
+    active_toolhead: 使用中的工具頭
     no_tool:
+      subtitle: 未選擇工具頭
       action: 點選並選擇一個噴頭
+    operating:
+      picking_toolhead: 正在取用工具頭…
+      parking_toolhead: 正在停放工具頭…
+    sheet:
+      select_toolhead: 選擇工具頭
+      park_toolhead: 停放工具頭
+      park_toolhead_desc: 將選取的工具頭停放至原位
 dialogs:
   rate_my_app:
     title: 評價Mobileraker？
@@ -1062,6 +1173,7 @@ dialogs:
     xy_plane: '列印機X/Y平面：'
     active_screw_title: '使用中的調整螺絲：'
     accept_screw_title: '已接受的調整螺絲：'
+    accept_screw_value: "{} / {}"
     hint: 如果需要對目前螺絲進行重大調整，請點擊「調整」；否則，請點擊「接受」以繼續。
     adjusted_btn: 已調整
   manual_offset:
@@ -1120,12 +1232,24 @@ dialogs:
         title:
           load: 裝載線材
           unload: 退料
+          gcode: 執行自訂 G-Code
         subtitle:
           load:
             idle: 將線材插入擠出機
             processing: 裝載線材中...
+            processed: 檢查噴嘴處的耗材。如有需要請進行調整並重試
+          load_gcode:
+            idle: 請確認印表機已準備好執行自訂進料程序
+            processing: 正在執行進料程序……
+            processed: 確認耗材已成功載入。若未成功請重新執行
           unload:
+            idle: 準備從擠出機移除耗材
             processing: 退料中...
+            processed: 檢查耗材是否已移除。如有需要請重試
+          unload_gcode:
+            idle: 請確認印表機已準備好執行自訂退料程序
+            processing: 正在執行退料程序……
+            processed: 確認耗材已成功退出。若未成功請重新執行
       purge:
         title: 清理線材
         subtitle:
@@ -1134,6 +1258,7 @@ dialogs:
           processed: 確認清理過的線材是否乾淨。如有需要，請重複操作。
       tip_form:
         title: 尖端成形
+        subtitle: 正在成型耗材末端 (Tip)
   heater_temperature:
     title: "{} 溫度 [°C]"
   confirm_print_cancelation:
@@ -1142,6 +1267,12 @@ dialogs:
       您即將取消列印工作。
 
       確認您的操作。
+  confirm_print_pause:
+    title: 暫停列印？
+    body: |-
+      您即將暫停列印工作。
+
+      請確認您的操作。
   adjust_spool_filament:
     title: 調整線捲線材
     subtitle: 從線盤中增加或減少線材。正值會消耗線材，負值會增加線材。
@@ -1273,6 +1404,7 @@ bottom_sheets:
     available_layouts:
       label: '可用的佈局：'
       empty: 沒有可用的佈局
+      add_empty: 新增佈局
     layout_preview:
       not_saved: 尚未儲存
     delete_layout:
@@ -1286,6 +1418,11 @@ bottom_sheets:
     falsy_import_snackbar:
       title: 匯入佈局時發生錯誤！
       body: 無法匯入佈局。請確保剪貼簿中包含有效的佈局。
+    load_layout_warning:
+      title: 是否載入佈局？
+      body: |-
+        載入佈局將會覆蓋您目前的儀表板佈局。
+        所有未儲存的變更將會遺失。
   selections:
     no_selections:
       title: 未找到結果
@@ -1361,6 +1498,23 @@ date_periods:
   day:
     one: 每日
     other: 日
+consent_cards:
+  marketing_notifications:
+    disclaimer: 您可以隨時透過 App 設定撤回您的同意。如需了解我們如何處理您的資料，請參閱我們的《隱私權政策》。
+products:
+  sixMonth:
+    title: 6個月贊助者
+  threeMonth:
+    title: 3個月贊助者
+  monthly:
+    title: 每月贊助者
+    subtitle: 每月支持
+  weekly:
+    title: 每週贊助者
+  tip:
+    coffee: "咖啡"
+    snack: "點心"
+    lunch: "午餐"
 languages:
   countryCode:
     TW:
