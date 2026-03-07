@@ -419,7 +419,7 @@ class _Body extends ConsumerWidget {
                   builder: (context, ref, _) {
                     final status = ref.watch(permissionStatusProvider(Permission.location)).value;
                     return WarningCard(
-                      show: status?.isGranted != true,
+                      show: status?.isGranted == false, // We use false here because if true or loading (null) we don't want to show the warning
                       title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
                       subtitle: const Text('pages.printer_edit.wifi_access_warning.subtitle').tr(),
                       leadingIcon: const Icon(Icons.wifi_off_outlined),
