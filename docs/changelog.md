@@ -13,21 +13,35 @@
   printer-specific commands when using the filament load/unload wizards.
 
 - **Fab with Keyboard**: The floating action button (FAB) on the dashboard page now hides when the keyboard is open,
-  preventing
-  obstruction of input fields and enhancing user experience during text entry.
+  preventing obstruction of input fields and enhancing user experience during text entry.
 
 - **Config Editor Improvements**: The configuration file editor now also uses the monospaced font for better readability
-  and
-  alignment of code, making it easier to edit configuration files directly within the app.
+  and alignment of code, making it easier to edit configuration files directly within the app.
+
+- **Improved Tool Selector**: Revamped tool selector for IDEX and Toolchanger printers with proper localization for
+  titles and the park entry, making multi-tool workflows more intuitive.
+
+- **Snapmaker U1 Support**: Added support for the Snapmaker U1, including dedicated toolchange macros, parking toolhead
+  support, and Klipper system info display within the app.
+
+- **Force Move – Homing Integration**: Homing operations now automatically disable force move mode, preventing
+  accidental low-level moves after the printer has been homed.
+
+- **Navigation Drawer**: Added a subtitle to the navigation drawer and adjusted list tile density for a cleaner
+  appearance.
 
 ### Bug Fixes
 
 - **Fans Card**: Fixed an issue where the fans card would not display fans %-speed correctly when `max_power` was set to
   a value other than 1.0.
+- **Fans Card**: Fixed tachometer speed formatting to correctly apply decimal digit precision.
 - **Console History Color**: Fixed an issue where the console history text color for responses was not correctly set in
   light mode, resulting in poor visibility.
 - **Missing Characters**: Unified font styles across themes to prevent missing characters in certain languages, ensuring
   all text is displayed correctly regardless of the selected language.
+- **Add Printer – Back Button**: Fixed a regression where the back button was non-functional when adding a new printer.
+- **Android Backup**: Fixed incorrect exclusion paths for Firebase and RevenueCat preferences to reliably prevent
+  device-specific IDs from being restored across devices.
 
 ## [2.9.5] - 2025-11-22
 
