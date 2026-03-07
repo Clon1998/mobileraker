@@ -528,6 +528,10 @@ pages:
     fetch_error_hint: Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker damit verbunden ist.
     reset_notification_registry: Setzte Geräte für Push-Mitteilungen zurück
     configure_remote_connection: Konfiguriere Fernzugriff
+    webcams_and_remote_settings: Webcams & Remote-Einstellungen
+    printer_not_reachable: Drucker nicht erreichbar
+    printer_not_reachable_message: Webcam-Liste und Druckereinstellungen konnten nicht geladen werden. Verbinden Sie den Drucker, um diese Bereiche zu konfigurieren.
+    remote_settings: Remote-Einstellungen
     store_error:
       title: Speichern fehlgeschlagen!
       message: |-
@@ -549,6 +553,7 @@ pages:
       theme: UI-Design
       theme_helper: Drucker UI-Design
       theme_unavailable: Drucker UI-Design ist nur für Supporter verfügbar
+      app_theme: App-Design
     ssl:
       title: SSL - Einstellungen
       pin_certificate_label: Certificate Fingerprint Pinning
@@ -605,6 +610,7 @@ pages:
       cam_mode: Cam Modus
       cam_rotate: Drehung
       read_only: Webcam ist schreibgeschützt
+      error_fetching: Fehler beim Laden der Webcams
     macros:
       default_grp: Standard
       new_macro_grp: Neue Makro - Gruppe

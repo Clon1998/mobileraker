@@ -547,6 +547,10 @@ pages:
       to it.
     reset_notification_registry: Clear Notification Device Registry
     configure_remote_connection: Configure Remote Connection
+    webcams_and_remote_settings: Webcams & Remote Settings
+    printer_not_reachable: Printer not reachable
+    printer_not_reachable_message: Webcam list and printer settings couldn't be loaded. Connect the printer to configure these sections.
+    remote_settings: Remote Settings
     store_error:
       title: Saving failed!
       message: |-
@@ -571,6 +575,7 @@ pages:
       theme: UI Theme
       theme_helper: UI theme for printer
       theme_unavailable: UI theme for printer, only available for Supporters
+      app_theme: App Theme
     ssl:
       title: SSL - Settings
       pin_certificate_label: Certificate Fingerprint Pinning
@@ -631,6 +636,7 @@ pages:
       cam_rotate: Rotation
       read_only: Webcam is read-only
       cam_name_already_present: A webcam with this name already exists!
+      error_fetching: Error fetching webcams
     macros:
       default_grp: Default
       new_macro_grp: New Macro - Group

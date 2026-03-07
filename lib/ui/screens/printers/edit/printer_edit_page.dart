@@ -12,11 +12,13 @@ import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/device_fcm_settings_service.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -26,6 +28,7 @@ import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -50,6 +53,7 @@ import 'package:mobileraker/ui/screens/printers/components/remote_machine_settin
 import 'package:mobileraker/ui/screens/printers/components/webcams_form_field.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../components/async_value_widget.dart';
 import '../components/home_network_list_form_field.dart';
@@ -100,20 +104,20 @@ class PrinterEditPage extends HookConsumerWidget {
         ],
       ),
       body: _Body(machine: machine),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (() {
-          _isSaving.run(ref, (tsx) async {
-            final saved = await saveForm(
-              tsx.get(dialogServiceProvider),
-              tsx.get(snackBarServiceProvider),
-              tsx.get(machineServiceProvider),
-              tsx.get(webcamServiceProvider(machine.uuid)),
-            );
-            if (saved) tsx.get(goRouterProvider).pop();
-          });
-        }).unless(isSaving),
-        child: isSaving? CircularProgressIndicator.adaptive() :const Icon(Icons.save_outlined),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: (() {
+      //     _isSaving.run(ref, (tsx) async {
+      //       final saved = await saveForm(
+      //         tsx.get(dialogServiceProvider),
+      //         tsx.get(snackBarServiceProvider),
+      //         tsx.get(machineServiceProvider),
+      //         tsx.get(webcamServiceProvider(machine.uuid)),
+      //       );
+      //       if (saved) tsx.get(goRouterProvider).pop();
+      //     });
+      //   }).unless(isSaving),
+      //   child: isSaving ? CircularProgressIndicator.adaptive() : const Icon(Icons.save_outlined),
+      // ),
     );
   }
 
@@ -441,9 +445,7 @@ class _Body extends ConsumerWidget {
                   },
                 ),
                 const Divider(),
-                _WebcamsFormField(machine: machine),
-                const Divider(),
-                _RemoteSettingsFormField(machine: machine),
+                _ConnectionGuard(machine: machine),
               ],
             ),
           ),
@@ -570,7 +572,7 @@ class _ThemeSelector extends ConsumerWidget {
       initialValue: machine.printerThemePack,
       name: _FormFields.printerThemePack.name,
       items: [
-        const DropdownMenuItem(value: -1, child: Text('App Theme')),
+        DropdownMenuItem(value: -1, child: const Text('pages.printer_edit.general.app_theme').tr()),
         ...themeList.mapIndexed((idx, theme) {
           final brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
           return DropdownMenuItem(
@@ -607,6 +609,109 @@ class _ThemeSelector extends ConsumerWidget {
         } else {
           themeService.selectThemePack(themeList[index], false);
         }
+      },
+    );
+  }
+}
+
+class _ConnectionGuard extends ConsumerWidget {
+  const _ConnectionGuard({super.key, required this.machine});
+
+  final Machine machine;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final model = ref.watch(klipperProvider(machine.uuid).selectAs((d) => (d.klippyCanReceiveCommands, d.klippyState)));
+    final themeData = Theme.of(context);
+    return AsyncValueWidget(
+      value: model,
+      data: (data) {
+        final (canReceiveCommands, klippyState) = data;
+
+        if (!canReceiveCommands) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SectionHeader(title: 'pages.printer_edit.webcams_and_remote_settings'.tr()),
+              Gap(8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: const Icon(Icons.warning_amber_outlined, color: Colors.orange),
+                  ),
+
+                  Flexible(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('pages.printer_edit.printer_not_reachable', style: themeData.textTheme.titleMedium).tr(),
+                        Text(
+                          'pages.printer_edit.printer_not_reachable_message',
+                          style: themeData.textTheme.bodySmall,
+                        ).tr(),
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Chip(
+                              visualDensity: VisualDensity.compact,
+                              backgroundColor: themeData.colorScheme.errorContainer.withAlpha(180),
+                              label: Text(
+                                'components.machine_card.klippy_state.${klippyState.name}',
+                                style: TextStyle(color: themeData.colorScheme.onErrorContainer),
+                              ).tr(),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                ref.invalidate(klipperProvider(machine.uuid));
+                                ref.read(jrpcClientProvider(machine.uuid)).openChannel();
+                              },
+                              label: Text('general.retry').tr(),
+                              icon: const Icon(Icons.restart_alt_outlined),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Shimmer.fromColors(
+                baseColor: Colors.grey,
+                highlightColor: themeData.colorScheme.background,
+                child: Column(
+                  spacing: 4,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Divider(color: themeData.disabledColor),
+                    SectionHeader(title: 'pages.dashboard.general.cam_card.webcam'.tr(), padding: EdgeInsets.zero),
+                    _TextShimmer(widthFactor: 0.7),
+                    _TextShimmer(widthFactor: 0.42),
+                    SectionHeader(title: 'pages.printer_edit.remote_settings'.tr()),
+                    _TextShimmer(widthFactor: 0.6),
+                    _TextShimmer(widthFactor: 0.42),
+                    _TextShimmer(widthFactor: 0.72),
+                    Divider(color: themeData.disabledColor),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _WebcamsFormField(machine: machine),
+            const Divider(),
+            _RemoteSettingsFormField(machineUUID: machine.uuid),
+          ],
+        );
       },
     );
   }
@@ -654,7 +759,7 @@ class _WebcamsFormField extends ConsumerWidget {
           children: [
             headerBuilder(context, null),
             SimpleErrorWidget(
-              title: Text('Error fetching webcams'),
+              title: const Text('pages.printer_edit.cams.error_fetching').tr(),
               body: Text.rich(
                 TextSpan(
                   text: '\nError Details:\n',
@@ -683,24 +788,24 @@ class _WebcamsFormField extends ConsumerWidget {
 }
 
 class _RemoteSettingsFormField extends ConsumerWidget {
-  const _RemoteSettingsFormField({super.key, required this.machine});
+  const _RemoteSettingsFormField({super.key, required this.machineUUID});
 
-  final Machine machine;
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final remoteSettings = ref.watch(machineSettingsProvider(machine.uuid));
+    final remoteSettings = ref.watch(machineSettingsProvider(machineUUID));
     final themeData = Theme.of(context);
     return switch (remoteSettings) {
       AsyncValue(hasError: true, :final error) => SimpleErrorWidget(
         title: const Text('pages.printer_edit.could_not_fetch_additional').tr(),
-        body:Text.rich(
+        body: Text.rich(
           TextSpan(
             text: '\nError Details:\n',
             style: themeData.textTheme.bodySmall,
             children: [
               TextSpan(
-                text: error.toString(),
+                text: error?.toString(),
                 style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.error),
               ),
             ],
@@ -709,7 +814,7 @@ class _RemoteSettingsFormField extends ConsumerWidget {
           textAlign: TextAlign.justify,
         ),
         action: TextButton.icon(
-          onPressed: () => ref.invalidate(machineSettingsProvider(machine.uuid)),
+          onPressed: () => ref.invalidate(machineSettingsProvider(machineUUID)),
           icon: const Icon(Icons.restart_alt_outlined),
           label: const Text('general.retry').tr(),
         ),
@@ -717,7 +822,7 @@ class _RemoteSettingsFormField extends ConsumerWidget {
 
       AsyncValue(:final value?) => RemoteMachineSettingsFormField(
         name: _FormFields.printerRemoteSettings.name,
-        machineUUID: machine.uuid,
+        machineUUID: machineUUID,
         initialValue: value,
       ),
       _ => Column(
@@ -729,5 +834,24 @@ class _RemoteSettingsFormField extends ConsumerWidget {
         ],
       ),
     };
+  }
+}
+
+class _TextShimmer extends StatelessWidget {
+  const _TextShimmer({super.key, this.widthFactor = 0.7});
+
+  final double widthFactor;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: widthFactor,
+      child: SizedBox(
+        height: 14,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        ),
+      ),
+    );
   }
 }
