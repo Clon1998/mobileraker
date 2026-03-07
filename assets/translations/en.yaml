@@ -1130,6 +1130,20 @@ components:
       Hey there,
       I am excited to see you here!
       To kickstart your experience, kindly add a printer to Mobileraker. Once you've completed this step, you'll be able to take direct control of your printer right from within Mobileraker.
+    error_selecting_machine: Error selecting active machine
+    lost_connection: Lost connection to {} ({}).
+    machine_not_reachable: Machine is not reachable!
+    could_not_connect: |-
+      Could not connect to {} ({}).
+      Make sure the printer is on and reachable on your network.
+    edit_machine_settings: Edit machine settings
+    connection_error_details: Connection Error Details
+    timeout_error: A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...
+    octoeverywhere_returned: 'OctoEverywhere returned: {}'
+    general_connection_error: Error while trying to connect. Please retry later.
+    connection_timeout: Connection timeout
+    octoeverywhere_error: 'OctoEverywhere error: {}'
+    unknown_error: Unknown connection error
   octo_indicator:
     tooltip: Using OctoEveryWhere!
   supporter_add:

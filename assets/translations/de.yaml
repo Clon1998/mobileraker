@@ -1056,6 +1056,20 @@ components:
       Hallo du!
       Ich freue mich, dich hier zu sehen!
       Um mit Mobileraker loszulegen, fügen Sie bitte einen Drucker hinzu. Danach wirst du in der Lage sein, deinen Drucker direkt von Mobileraker aus zu steuern.
+    error_selecting_machine: Fehler beim Auswählen der aktiven Maschine
+    lost_connection: Verbindung zu {} ({}) verloren.
+    machine_not_reachable: Maschine ist nicht erreichbar!
+    could_not_connect: |-
+      Konnte keine Verbindung zu {} ({}) herstellen.
+      Stellen Sie sicher, dass der Drucker eingeschaltet und in Ihrem Netzwerk erreichbar ist.
+    edit_machine_settings: Maschineneinstellungen bearbeiten
+    connection_error_details: Verbindungsfehler Details
+    timeout_error: Beim Verbindungsversuch ist eine Zeitüberschreitung aufgetreten! Stellen Sie sicher, dass die Maschine von Ihrem aktuellen Netzwerk aus erreichbar ist...
+    octoeverywhere_returned: 'OctoEverywhere antwortete: {}'
+    general_connection_error: Fehler beim Verbindungsversuch. Bitte versuchen Sie es später erneut.
+    connection_timeout: Verbindungszeitüberschreitung
+    octoeverywhere_error: 'OctoEverywhere Fehler: {}'
+    unknown_error: Unbekannter Verbindungsfehler
   octo_indicator:
     tooltip: Nutze OctoEveryWhere!
   supporter_add:
