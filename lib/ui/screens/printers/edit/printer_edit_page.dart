@@ -13,6 +13,7 @@ import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/device_fcm_settings_service.dart';
 import 'package:common/service/firebase/remote_config.dart';
@@ -49,6 +50,7 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_dialog.dart';
+import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/printers/components/remote_machine_settings_form_field.dart';
 import 'package:mobileraker/ui/screens/printers/components/webcams_form_field.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -140,15 +142,18 @@ class PrinterEditPage extends HookConsumerWidget {
 
       final remoteSettings = tsx.get(machineSettingsProvider(machine.uuid));
 
+      final jrpcState = tsx.get(jrpcClientStateProvider(machine.uuid));
+
       final res = await sheetService.show(
         BottomSheetConfig(
           type: SheetType.actions,
           data: ActionBottomSheetArgs(
             title: Text(machineName!),
             subtitle: Text(machineAdd!, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: MachineStateIndicator(machine),
             actions: [
               if (remoteSettings.hasValue) MachineAction.import,
-              MachineAction.reset_token,
+              MachineAction.reset_token.let((it) => jrpcState.value == ClientState.connected ? it : it.disable),
               DividerSheetAction.divider,
               MachineAction.delete,
             ],
@@ -589,7 +594,9 @@ class _ThemeSelector extends HookConsumerWidget {
         items: [
           DropdownMenuItem(value: -1, child: const Text('pages.printer_edit.general.app_theme').tr()),
           ...themeList.mapIndexed((idx, theme) {
-            final brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
+            final brandingIcon = (themeData.brightness == Brightness.light)
+                ? theme.brandingIcon
+                : theme.brandingIconDark;
             return DropdownMenuItem(
               value: idx,
               child: Row(
