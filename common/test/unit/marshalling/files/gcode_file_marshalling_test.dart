@@ -26,7 +26,7 @@ void main() {
     expect(obj.layerCount, 83);
     expect(obj.objectHeight, 16.6);
     expect(obj.estimatedTime, 5624);
-    expect(obj.nozzleDiameter, 0.4);
+    expect(obj.nozzleDiameter, [0.4]);
     expect(obj.layerHeight, 0.2);
     expect(obj.firstLayerHeight, 0.2);
     expect(obj.firstLayerTempBed, 110);
@@ -60,7 +60,7 @@ void main() {
 
     expect(obj, isNotNull);
     expect(obj.layerHeight, 0.2);
-    expect(obj.nozzleDiameter, 0.4);
+    expect(obj.nozzleDiameter, [0.4]);
     expect(obj.objectHeight, 16.6);
     expect(obj.filamentTotal, 7251.81);
     expect(obj.filamentWeightTotal, 18.84);
@@ -75,6 +75,41 @@ void main() {
     expect(obj.gcodeEndByte, 11222275);
     expect(obj.layerCount, 83);
     expect(obj.estimatedTime, 5624);
+  });
+
+  test('GCodeFile fromJson with nozzle_diameter as single number', () {
+    GCodeFile obj = fileWithSingleNozzleDiameter();
+
+    expect(obj, isNotNull);
+    expect(obj.nozzleDiameter, [0.4]);
+  });
+
+  test('GCodeFile fromJson with nozzle_diameter as single string', () {
+    GCodeFile obj = fileWithSingleStringNozzleDiameter();
+
+    expect(obj, isNotNull);
+    expect(obj.nozzleDiameter, [0.6]);
+  });
+
+  test('GCodeFile fromJson with nozzle_diameter as list of numbers', () {
+    GCodeFile obj = fileWithNozzleDiameterList();
+
+    expect(obj, isNotNull);
+    expect(obj.nozzleDiameter, [0.4, 0.6, 0.8]);
+  });
+
+  test('GCodeFile fromJson with nozzle_diameter as list of strings', () {
+    GCodeFile obj = fileWithStringNozzleDiameterList();
+
+    expect(obj, isNotNull);
+    expect(obj.nozzleDiameter, [0.4, 0.6, 0.8]);
+  });
+
+  test('GCodeFile fromJson with nozzle_diameter as list of mixed types', () {
+    GCodeFile obj = fileWithMixedNozzleDiameterList();
+
+    expect(obj, isNotNull);
+    expect(obj.nozzleDiameter, [0.4, 0.6, 0.8]);
   });
 }
 
@@ -104,3 +139,49 @@ GCodeFile fileWithStringWrappedIntegers() {
 
   return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
 }
+
+GCodeFile fileWithSingleNozzleDiameter() {
+  String input =
+      '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "test-uuid-1", "slicer": "PrusaSlicer", "slicer_version": "2.6.0", "nozzle_diameter": 0.4, "layer_height": 0.2, "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_single_nozzle.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
+GCodeFile fileWithSingleStringNozzleDiameter() {
+  String input =
+      '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "test-uuid-2", "slicer": "PrusaSlicer", "slicer_version": "2.6.0", "nozzle_diameter": "0.6", "layer_height": 0.2, "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_single_string_nozzle.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
+GCodeFile fileWithNozzleDiameterList() {
+  String input =
+      '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "test-uuid-3", "slicer": "PrusaSlicer", "slicer_version": "2.6.0", "nozzle_diameter": [0.4, 0.6, 0.8], "layer_height": 0.2, "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_nozzle_list.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
+GCodeFile fileWithStringNozzleDiameterList() {
+  String input =
+      '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "test-uuid-4", "slicer": "PrusaSlicer", "slicer_version": "2.6.0", "nozzle_diameter": ["0.4", "0.6", "0.8"], "layer_height": 0.2, "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_string_nozzle_list.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
+GCodeFile fileWithMixedNozzleDiameterList() {
+  String input =
+      '{"result": {"size": 11237514, "modified": 1687267390.7120593, "uuid": "test-uuid-5", "slicer": "PrusaSlicer", "slicer_version": "2.6.0", "nozzle_diameter": [0.4, "0.6", 0.8], "layer_height": 0.2, "thumbnails": [], "print_start_time": null, "job_id": null, "filename": "test_mixed_nozzle_list.gcode"}}';
+
+  var jsonRaw = jsonDecode(input)['result'];
+
+  return GCodeFile.fromJson(jsonRaw, '/path/to/parent');
+}
+
