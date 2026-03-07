@@ -104,20 +104,20 @@ class PrinterEditPage extends HookConsumerWidget {
         ],
       ),
       body: _Body(machine: machine),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: (() {
-      //     _isSaving.run(ref, (tsx) async {
-      //       final saved = await saveForm(
-      //         tsx.get(dialogServiceProvider),
-      //         tsx.get(snackBarServiceProvider),
-      //         tsx.get(machineServiceProvider),
-      //         tsx.get(webcamServiceProvider(machine.uuid)),
-      //       );
-      //       if (saved) tsx.get(goRouterProvider).pop();
-      //     });
-      //   }).unless(isSaving),
-      //   child: isSaving ? CircularProgressIndicator.adaptive() : const Icon(Icons.save_outlined),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (() {
+          _isSaving.run(ref, (tsx) async {
+            final saved = await saveForm(
+              tsx.get(dialogServiceProvider),
+              tsx.get(snackBarServiceProvider),
+              tsx.get(machineServiceProvider),
+              tsx.get(webcamServiceProvider(machine.uuid)),
+            );
+            if (saved) tsx.get(goRouterProvider).pop();
+          });
+        }).unless(isSaving),
+        child: isSaving ? CircularProgressIndicator.adaptive() : const Icon(Icons.save_outlined),
+      ),
     );
   }
 
