@@ -95,6 +95,7 @@ class PrinterEditPage extends HookConsumerWidget {
           overflow: TextOverflow.ellipsis,
         ).tr(args: [machine.name]),
         actions: [
+          MachineStateIndicator(machine),
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
