@@ -113,7 +113,7 @@ class PrinterEditPage extends HookConsumerWidget {
               tsx.get(machineServiceProvider),
               tsx.get(webcamServiceProvider(machine.uuid)),
             );
-            if (saved) tsx.get(goRouterProvider).pop();
+            if (saved) tsx.get(goRouterProvider).pop(true);
           });
         }).unless(isSaving),
         child: isSaving ? CircularProgressIndicator.adaptive() : const Icon(Icons.save_outlined),
@@ -291,6 +291,9 @@ class PrinterEditPage extends HookConsumerWidget {
       remoteInterface: remoteCons.$2,
       obicoTunnel: remoteCons.$3,
     );
+
+    talker.info('MAchien has theme: ${updatedMachine.printerThemePack}');
+
     return machineService.updateMachine(updatedMachine);
   }
 
@@ -555,7 +558,7 @@ class _Body extends ConsumerWidget {
   }
 }
 
-class _ThemeSelector extends ConsumerWidget {
+class _ThemeSelector extends HookConsumerWidget {
   const _ThemeSelector({super.key, required this.machine});
 
   final Machine machine;
@@ -568,48 +571,60 @@ class _ThemeSelector extends ConsumerWidget {
     final isSupporter = ref.watch(isSupporterProvider);
 
     final themeData = Theme.of(context);
-    return FormBuilderDropdown<int>(
-      initialValue: machine.printerThemePack,
-      name: _FormFields.printerThemePack.name,
-      items: [
-        DropdownMenuItem(value: -1, child: const Text('pages.printer_edit.general.app_theme').tr()),
-        ...themeList.mapIndexed((idx, theme) {
-          final brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
-          return DropdownMenuItem(
-            value: idx,
-            child: Row(
-              spacing: 8,
-              children: [
-                Image(height: 32, width: 32, image: brandingIcon ?? Svg('assets/vector/mr_logo.svg')),
-                Flexible(child: Text(theme.name)),
-              ],
-            ),
-          );
-        }),
-      ],
-      decoration: InputDecoration(
-        labelStyle: themeData.textTheme.labelLarge,
-        labelText: tr('pages.printer_edit.general.theme'),
-        helperText: isSupporter ? tr('pages.printer_edit.general.theme_helper') : null,
-        suffix: IconButton(
-          constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
-          icon: const Icon(FlutterIcons.hand_holding_heart_faw5s),
-          onPressed: () => dialogService.show(
-            DialogRequest(
-              type: DialogType.supporterOnlyFeature,
-              body: tr('components.supporter_only_feature.printer_theme'),
-            ),
-          ),
-        ).unless(isSupporter),
-      ),
-      enabled: isSupporter,
-      onChanged: (int? index) {
-        if (index == null || index < 0 || index >= themeList.length) {
+    return PopScope(
+      // Reset to the original theme when popping back without saving, otherwise the user might end up in a theme they can't see properly and get stuck
+      onPopInvokedWithResult: (didPop, result) {
+        talker.info('Pop invoked on ThemeSelector, didPop: $didPop, result: $result');
+        if (didPop && result != true) {
+          if (machine.printerThemePack >= 0 && machine.printerThemePack < themeList.length) {
+            themeService.selectThemeIndex(machine.printerThemePack);
+          }
           themeService.selectSystemThemePack();
-        } else {
-          themeService.selectThemePack(themeList[index], false);
         }
       },
+      child: FormBuilderDropdown<int>(
+        initialValue: machine.printerThemePack,
+        name: _FormFields.printerThemePack.name,
+        items: [
+          DropdownMenuItem(value: -1, child: const Text('pages.printer_edit.general.app_theme').tr()),
+          ...themeList.mapIndexed((idx, theme) {
+            final brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
+            return DropdownMenuItem(
+              value: idx,
+              child: Row(
+                spacing: 8,
+                children: [
+                  Image(height: 32, width: 32, image: brandingIcon ?? Svg('assets/vector/mr_logo.svg')),
+                  Flexible(child: Text(theme.name)),
+                ],
+              ),
+            );
+          }),
+        ],
+        decoration: InputDecoration(
+          labelStyle: themeData.textTheme.labelLarge,
+          labelText: tr('pages.printer_edit.general.theme'),
+          helperText: isSupporter ? tr('pages.printer_edit.general.theme_helper') : null,
+          suffix: IconButton(
+            constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
+            icon: const Icon(FlutterIcons.hand_holding_heart_faw5s),
+            onPressed: () => dialogService.show(
+              DialogRequest(
+                type: DialogType.supporterOnlyFeature,
+                body: tr('components.supporter_only_feature.printer_theme'),
+              ),
+            ),
+          ).unless(isSupporter),
+        ),
+        enabled: isSupporter,
+        onChanged: (int? index) {
+          if (index == null || index < 0 || index >= themeList.length) {
+            themeService.selectSystemThemePack();
+          } else {
+            themeService.selectThemePack(themeList[index], false);
+          }
+        },
+      ),
     );
   }
 }
