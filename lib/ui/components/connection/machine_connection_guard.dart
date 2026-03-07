@@ -22,6 +22,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -93,7 +94,6 @@ class _WebsocketStateWidget extends ConsumerWidget {
       value: model,
       data: (data) {
         final (clientState, clientType) = data;
-
         switch (clientState) {
           case ClientState.connected:
             return KlippyProviderGuard(
@@ -257,18 +257,17 @@ class _ConnectionErrorWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  DefaultTextStyle(
-                    style: themeData.textTheme.headlineSmall ?? const TextStyle(),
-                    child: title,
-                  ),
+                  DefaultTextStyle(style: themeData.textTheme.headlineSmall ?? const TextStyle(), child: title),
                   message,
+                  Gap(8),
                   ?errorChip,
                   actionButton,
-                  if (showEditAction) TextButton.icon(
-                    onPressed: () => context.pushNamed(AppRoute.printerEdit.name, extra: machine),
-                    icon: const Icon(Icons.edit),
-                    label: const Text('components.connection_watcher.edit_machine_settings').tr(),
-                  ),
+                  if (showEditAction)
+                    TextButton.icon(
+                      onPressed: () => context.pushNamed(AppRoute.printerEdit.name, extra: machine),
+                      icon: const Icon(Icons.edit),
+                      label: const Text('components.connection_watcher.edit_machine_settings').tr(),
+                    ),
                 ],
               ),
             ),
@@ -302,13 +301,13 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
   void onErrorDetailsPressed() {
     final dialogService = ref.read(dialogServiceProvider);
 
-      dialogService.show(
-        DialogRequest(
-          type: CommonDialogs.stacktrace,
-          title: tr('components.connection_watcher.connection_error_details'),
-          body: clientErrorMessage,
-        ),
-      );
+    dialogService.show(
+      DialogRequest(
+        type: CommonDialogs.stacktrace,
+        title: tr('components.connection_watcher.connection_error_details'),
+        body: clientErrorMessage,
+      ),
+    );
   }
 
   @override
