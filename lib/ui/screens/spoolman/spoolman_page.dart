@@ -149,7 +149,7 @@ class _Body extends ConsumerWidget {
           ref.keepAliveExternally(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.vendor));
 
           final hasSpoolman =
-              ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value!;
+              ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value == true;
           final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
           final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
           final scrollController = useScrollController(keys: [machineUUID, page]);
