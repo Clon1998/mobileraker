@@ -14,21 +14,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
-part 'non_printing_bottom_sheet.g.dart';
+final _actions = Mutation();
 
 class NonPrintingBottomSheet extends ConsumerWidget {
   const NonPrintingBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(_nonPrintingBottomSheetControllerProvider.notifier);
-
     var themeData = Theme.of(context);
     return SheetContentScaffold(
       body: Padding(
@@ -45,8 +43,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () => controller.onPressButton('pi_shutdown'),
-                      onLongPress: () => controller.onPressButton('pi_shutdown', false),
+                      onPressed: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_shutdown')),
+                      onLongPress: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_shutdown', false)),
                       style: OutlinedButton.styleFrom(
                         backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
                         foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
@@ -68,8 +66,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                         backgroundColor: themeData.extension<CustomColors>()?.warning ?? Colors.red,
                         foregroundColor: themeData.extension<CustomColors>()?.onWarning ?? Colors.white,
                       ),
-                      onPressed: () => controller.onPressButton('pi_restart'),
-                      onLongPress: () => controller.onPressButton('pi_restart', false),
+                      onPressed: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_restart')),
+                      onLongPress: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_restart', false)),
                       child: AutoSizeText(tr('general.restart'), maxLines: 1),
                     ),
                   ),
@@ -78,8 +76,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 5),
             OutlinedButton(
-              onPressed: () => controller.onPressButton('fw_restart'),
-              onLongPress: () => controller.onPressButton('fw_restart', false),
+              onPressed: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'fw_restart')),
+              onLongPress: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'fw_restart', false)),
               child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
             ),
             OutlinedButton(
@@ -113,19 +111,12 @@ class NonPrintingBottomSheet extends ConsumerWidget {
       ),
     );
   }
-}
 
-@riverpod
-class _NonPrintingBottomSheetController extends _$NonPrintingBottomSheetController {
-  GoRouter get router => ref.read(goRouterProvider);
-
-  KlippyService get klippyService => ref.read(klipperServiceSelectedProvider);
-
-  @override
-  void build() {}
-
-  void onPressButton(String type, [bool requireConfirm = true]) async {
+  Future<void> onPressButton(MutationTransaction tsx, String type, [bool requireConfirm = true]) async {
+    final router = tsx.get(goRouterProvider);
+    final klippyService = tsx.get(klipperServiceSelectedProvider);
     var performAction = !requireConfirm;
+
     if (requireConfirm) {
       final confirmed = await router.pushNamed(
         SheetType.confirm.name,
