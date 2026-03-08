@@ -1,5 +1,28 @@
 # Mobileraker - Changelog
 
+## [2.9.7] - 2026-xx-xx
+
+### Enhancements
+
+- **Improved Tool Selector**: Revamped tool selector for IDEX and Toolchanger printers with proper localization for
+  titles and the park entry, making multi-tool workflows more intuitive.
+
+- **Snapmaker U1 Support**: Added support for the Snapmaker U1, including dedicated toolchange macros, parking toolhead
+  support, and Klipper system info display within the app.
+
+- **Force Move – Homing Integration**: Homing operations now automatically disable force move mode, preventing
+  accidental low-level moves after the printer has been homed.
+
+- **Navigation Drawer**: Added a subtitle to the navigation drawer and adjusted list tile density for a cleaner
+  appearance.
+
+### Bug Fixes
+
+- **Fans Card**: Fixed tachometer speed formatting to correctly apply decimal digit precision.
+- **Add Printer – Back Button**: Fixed a regression where the back button was non-functional when adding a new printer.
+- **Android Backup**: Fixed incorrect exclusion paths for Firebase and RevenueCat preferences to reliably prevent
+  device-specific IDs from being restored across devices.
+
 ## [2.9.6] - 2025-12-xx
 
 ### Enhancements
