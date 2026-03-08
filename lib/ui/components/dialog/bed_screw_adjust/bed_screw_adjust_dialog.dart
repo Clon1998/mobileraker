@@ -197,13 +197,13 @@ class _Footer extends ConsumerWidget {
           OverflowBar(
             children: [
               TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: themeData.colorScheme.secondary,
+                ),
                 onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
                 child: const Text('dialogs.bed_screw_adjust.adjusted_btn').tr(),
               ),
               TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: themeData.colorScheme.secondary,
-                ),
                 onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
                 child: const Text('general.accept').tr(),
               ),

@@ -126,7 +126,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
     final themeData = Theme.of(context);
     final dateFormatService = ref.read(dateFormatServiceProvider);
 
-    talker.error('Rebuilding console list. Count: $count');
+    // talker.error('Rebuilding console list. Count: $count');
 
     final showTimeStamp = ref.watch(boolSettingProvider(AppSettingKeys.consoleShowTimestamp));
 
