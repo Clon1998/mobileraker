@@ -35,7 +35,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -738,6 +737,7 @@ class FileInteractionService {
     }
 
     actions.addAll([
+      if (!file.isArchive)
       FileSheetAction.zipFile,
       FileSheetAction.download,
       DividerSheetAction.divider,
