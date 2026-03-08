@@ -11,6 +11,10 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/machine/printer_builder.dart';
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/dto/server/klipper_system_info.dart';
+import 'package:common/data/dto/server/moonraker_version.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -103,6 +107,9 @@ class _Preview extends HookWidget {
     return ProviderScope(
       overrides: [
         _controlExtruderCardControllerProvider(_machineUUID).overrideWith(_ControlExtruderCardPreviewController.new),
+        klippySystemInfoProvider(_machineUUID).overrideWithBuild((_,_) => KlipperSystemInfo()),
+        printerProvider(_machineUUID).overrideWithBuild((_,_) => Stream.value(PrinterBuilder.preview().build())),
+        klipperProvider(_machineUUID).overrideWithValue(AsyncValue.data(KlipperInstance(moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),))),
       ],
       child: const ControlExtruderCard(machineUUID: _machineUUID),
     );
@@ -563,14 +570,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
         data: FilamentOperationDialogArgs(machineUUID: machineUUID, isLoad: true, extruder: extruderName),
       ),
     );
-  }
-
-  void onToolSetSelected(Set<GcodeMacro> selected) {
-    if (selected.isEmpty || selected.length > 1) return;
-    final tool = selected.firstOrNull;
-    if (tool == null) return;
-    HapticFeedback.selectionClick().ignore();
-    _printerService.gCode(tool.name);
   }
 
   void onHeatingButtonPressed() {
