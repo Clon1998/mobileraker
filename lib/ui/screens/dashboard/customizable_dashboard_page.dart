@@ -169,14 +169,10 @@ class _FabHider extends StatelessWidget {
     return AnimatedScale(
       duration: kThemeAnimationDuration,
       scale: isKeyBoardOpen ? 0.0 : 1.0,
-      child: IgnorePointer(
-        ignoring: isKeyBoardOpen,
-        child: child,
-      ),
+      child: IgnorePointer(ignoring: isKeyBoardOpen, child: child),
     );
   }
 }
-
 
 class _Body extends ConsumerStatefulWidget {
   const _Body({super.key, required this.machineUUID});
