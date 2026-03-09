@@ -575,8 +575,6 @@ pages:
       steps_baby_short: Z-Шаги
     extruders:
       title: Экструдер(ы)
-      feedrate: Extruder feed rate
-      feedrate_short: Feed rate
       steps_extrude: Шаги экс труда
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
