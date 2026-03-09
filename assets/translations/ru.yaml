@@ -72,6 +72,7 @@ general:
   deny: Запретить
   settings: Настройки
   run: Запустить
+  enable: Включить
 pages:
   dashboard:
     title: Панель
@@ -155,6 +156,15 @@ pages:
         beacon_models: Модели Beacon
         beacon_btn: Beacon
         beacon_tooltip: Выберите модель Beacon
+        force_move_btn: Принудительное перемещение
+        force_move_tooltip: "Включить / выключить режим «Принудительное перемещение»"
+        force_move_dialog:
+          title: Включить режим принудительного перемещения?
+          body: |-
+            Вы собираетесь включить режим «Принудительное перемещение».
+            Он обходит все проверки безопасности и кинематические ограничения, перемещая отдельные шаговые двигатели без обновления состояния позиции принтера.
+
+            Это низкоуровневый диагностический инструмент. Неправильное использование может привести к механическим повреждениям. После использования необходимо выполнить команду G28 для повторного позиционирования по концевым выключателям и восстановления корректной кинематики.
       baby_step_card:
         title: Микро-шаг по Z
         z_offset: Z-оффсет
@@ -565,8 +575,6 @@ pages:
       steps_baby_short: Z-Шаги
     extruders:
       title: Экструдер(ы)
-      feedrate: Extruder feed rate
-      feedrate_short: Feed rate
       steps_extrude: Шаги экс труда
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
@@ -1142,6 +1150,18 @@ components:
       shutdown: Klipper — завершение работы
       error: Klipper — ошибка
       unauthorized: Доступ запрещён
+  tool_channel_selector:
+    active_toolhead: Активный инструмент
+    no_tool:
+      subtitle: Инструмент не выбран
+      action: Нажмите, чтобы выбрать инструмент
+    operating:
+      picking_toolhead: Захват инструмента…
+      parking_toolhead: Парковка инструмента…
+    sheet:
+      select_toolhead: Выбрать инструмент
+      park_toolhead: Припарковать инструмент
+      park_toolhead_desc: Припарковать выбранный инструмент
 dialogs:
   rate_my_app:
     title: Оцените Mobileraker?
@@ -1569,6 +1589,10 @@ date_periods:
   day:
     one: Ежедневный
     other: Дни
+extruder_state:
+  activate: Активен
+  parked: Припаркован
+  unknown: Неизвестно
 consent_cards:
   marketing_notifications:
     title: 'Оставайтесь на связи с уведомлениями'

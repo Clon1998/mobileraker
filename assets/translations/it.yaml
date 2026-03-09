@@ -219,8 +219,6 @@ pages:
       steps_move: Muovi step
     extruders:
       title: Estrusore/i
-      feedrate: Velocità Avanzamento Estrusore
-      feedrate_short: Velocità di Avanzamento
       steps_extrude: Estrudi step
     cams:
       target_fps: Obbiettivo FPS

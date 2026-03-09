@@ -224,8 +224,6 @@ pages:
       steps_baby_short: Babastappe
     extruders:
       title: Ekstruder(s)
-      feedrate: Ekstruder voertempe
-      feedrate_short: Voertempo
       steps_extrude: Ekstrusiestappe
     cams:
       target_fps: Teiken FPS

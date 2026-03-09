@@ -316,8 +316,6 @@ pages:
       steps_baby_short: Micro step
     extruders:
       title: Extrudeur(s)
-      feedrate: Vitesse d'alimentation de l'extrudeuse
-      feedrate_short: Vitesse d'alimentation
       steps_extrude: Extruder
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
     cams:
