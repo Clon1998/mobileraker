@@ -484,8 +484,6 @@ pages:
       steps_move_short: "@:pages.printer_edit.motion_system.steps_move"
     extruders:
       title: Ekstruder(y)
-      feedrate: Prędkość ekstruzji
-      feedrate_short: Prędkość
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
         loading_distance: Odległość dyszy ekstrudera
