@@ -256,8 +256,6 @@ pages:
       steps_baby_short: Z-Adımları
     extruders:
       title: Ekstruder(ler)
-      feedrate: Ekstruder besleme hızı
-      feedrate_short: İlerleme hızı
       steps_extrude: Ekstrüzyon adımları
     cams:
       target_fps: Hedef FPS
