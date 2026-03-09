@@ -573,8 +573,6 @@ pages:
       steps_baby_short: Z距離
     extruders:
       title: 擠出機
-      feedrate: 擠出速度
-      feedrate_short: 速度
       steps_extrude: 擠出長度
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
