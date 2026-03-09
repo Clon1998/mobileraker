@@ -1059,6 +1059,10 @@ components:
     add_printer: |-
       Привет! Рад видеть тебя здесь! Чтобы начать работу, пожалуйста, добавь принтер в Mobileraker. После этого ты сможешь управлять принтером напрямую из Mobileraker.
     lost_connection: Потеряно соединение с {} ({}).
+    machine_not_reachable: Машина недоступна!
+    could_not_connect: |-
+      Не удалось подключиться к {} ({}). Удостоверьтесь, что принтер включен и доступен в вашей сети.
+    connection_error_details: Подробности об ошибке соединения
     octoeverywhere_returned: 'OctoEverywhere вернул: {}'
     octoeverywhere_error: 'Ошибка OctoEverywhere: {}'
     unknown_error: Неизвестная ошибка соединения
