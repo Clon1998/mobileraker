@@ -543,8 +543,6 @@ pages:
       steps_baby_short: Passos Z
     extruders:
       title: Extrusoras
-      feedrate: Taxa de Alimentação da Extrusora
-      feedrate_short: Taxa de Alimentação
       steps_extrude: Passos de Extrusão
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
