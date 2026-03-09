@@ -563,8 +563,6 @@ pages:
       steps_baby_short: Z lépések
     extruders:
       title: Adagolók
-      feedrate: Adagoló előtolási sebesség
-      feedrate_short: Adagolási sebesség
       steps_extrude: Adagolási hossz
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
