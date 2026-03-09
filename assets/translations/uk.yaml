@@ -180,8 +180,6 @@ pages:
       steps_move: Кроки переміщення
     extruders:
       title: Екструдер(и)
-      feedrate: Швидкість подачі екструдера
-      feedrate_short: Швидкість подачі
       steps_extrude: Кроки екструзії
     cams:
       target_fps: Встановлений FPS
