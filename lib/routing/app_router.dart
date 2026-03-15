@@ -442,16 +442,19 @@ GoRouter goRouterImpl(Ref ref) {
             name: 'BottomSheetModalSheet',
             // transitionDuration: const Duration(milliseconds: 3000),
             swipeDismissible: true,
-            viewportPadding: EdgeInsets.only(
-              // Add the top padding to avoid the status bar.
-              top: MediaQuery
-                  .viewPaddingOf(context)
-                  .top,
-            ),
+            viewportBuilder: (context, child) {
+              return SheetViewport(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.viewPaddingOf(context).top,
+                ),
+                // The child is the widget built by the builder callback.
+                child: child,
+              );
+            },
             child: PagedSheet(
               decoration: MaterialSheetDecoration(
                 size: SheetSize.stretch,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius:  BorderRadius.vertical(top: Radius.circular(16)),
                   clipBehavior: Clip.antiAlias,
               ),
               navigator: ConstrainedBox(

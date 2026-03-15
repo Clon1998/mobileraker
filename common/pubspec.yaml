@@ -22,25 +22,25 @@ dependencies:
   http: ^1.2.1
 
   #firebase
-  firebase_core_platform_interface: ^6.0.0
-  firebase_core: ^3.6.0
-  firebase_analytics: ^11.3.5
-  firebase_app_check: ^0.3.1+6
-  firebase_crashlytics: ^4.1.5
-  firebase_remote_config: ^5.1.5
-  cloud_firestore: ^5.5.0
-  firebase_auth: ^5.3.3
+  firebase_core_platform_interface: ^6.0.2
+  firebase_core: ^4.5.0
+  firebase_analytics: ^12.1.3
+  firebase_app_check: ^0.4.1+5
+  firebase_crashlytics: ^5.0.8
+  firebase_remote_config: ^6.2.0
+  cloud_firestore: ^6.1.3
+  firebase_auth: ^6.2.0
 
   #ads
-  google_mobile_ads: ^6.0.0
+  google_mobile_ads: ^7.0.0
 
   #purchases
-  purchases_flutter: ^9.10.7
+  purchases_flutter: ^9.14.0
 
   #notification
-  awesome_notifications_core: ^0.10.1
-  awesome_notifications: ^0.10.1
-  awesome_notifications_fcm: ^0.10.1
+#  awesome_notifications_core: ^0.11.0
+  awesome_notifications: ^0.11.0
+  awesome_notifications_fcm: ^0.11.0
   live_activities: ^2.4.1
   #        ref: main
   #      ref: feature/multi-state-req
@@ -70,7 +70,7 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #bottomsheet:
-  smooth_sheets: ^0.14.0
+  smooth_sheets: ^0.17.0
 
   #ui
   flutter_icons:
