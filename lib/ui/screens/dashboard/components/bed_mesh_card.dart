@@ -299,6 +299,7 @@ class _CardBody extends ConsumerWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: controller.onPlotTap,
+                    onLongPress: controller.onPlotTap,// Just to prevent users from
                     behavior: HitTestBehavior.translucent,
                     child: Hero(
                       tag: 'bed_mesh_plot',
