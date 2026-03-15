@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,28 +13,19 @@ part 'reordable_element.freezed.dart';
 part 'reordable_element.g.dart';
 
 @freezed
-class ReordableElement with _$ReordableElement {
-  const ReordableElement._();
-
-  const factory ReordableElement.__({
-    required String uuid,
-    required ConfigFileObjectIdentifiers kind,
-    required String name,
-    // @Default(true) bool visible,
-  }) = _ReordableElement;
+sealed class ReordableElement with _$ReordableElement {
+  ReordableElement._({String? uuid}): uuid = uuid ?? Uuid().v4();
 
   factory ReordableElement({
+    String? uuid,
     required String name,
     required ConfigFileObjectIdentifiers kind,
-  }) {
-    return ReordableElement.__(
-      uuid: const Uuid().v4(),
-      name: name,
-      kind: kind,
-    );
-  }
+  }) = _ReordableElement;
 
   factory ReordableElement.fromJson(Map<String, dynamic> json) => _$ReordableElementFromJson(json);
+
+  @override
+  final String uuid;
 
   String get beautifiedName => beautifyName(name);
 }

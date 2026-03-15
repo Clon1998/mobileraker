@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -20,7 +20,7 @@ part 'job_queue_entry.freezed.dart';
 part 'job_queue_entry.g.dart';
 
 @freezed
-class JobQueueEntry with _$JobQueueEntry {
+sealed class JobQueueEntry with _$JobQueueEntry {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   factory JobQueueEntry({

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -32,7 +32,7 @@ part 'app_connection_info_response.g.dart';
 // }
 
 @freezed
-class AppConnectionInfoResponse with _$AppConnectionInfoResponse {
+sealed class AppConnectionInfoResponse with _$AppConnectionInfoResponse {
   @StringIntegerConverter()
   const factory AppConnectionInfoResponse({
     @JsonKey(name: 'Status') required int status,
@@ -46,7 +46,7 @@ class AppConnectionInfoResponse with _$AppConnectionInfoResponse {
 }
 
 @freezed
-class ConnectionInfoResult with _$ConnectionInfoResult {
+sealed class ConnectionInfoResult with _$ConnectionInfoResult {
   const factory ConnectionInfoResult({
     @JsonKey(name: 'LastConnectionTimeUtc') required DateTime lastConnectionTimeUtc,
     @JsonKey(name: 'LastDisconnectTimeUtc') required DateTime lastDisconnectTimeUtc,
@@ -61,7 +61,7 @@ class ConnectionInfoResult with _$ConnectionInfoResult {
 }
 
 @freezed
-class PrinterLimits with _$PrinterLimits {
+sealed class PrinterLimits with _$PrinterLimits {
   @StringIntegerConverter()
   const factory PrinterLimits({
     @JsonKey(name: 'MaxDownloadFileSizeBytes')

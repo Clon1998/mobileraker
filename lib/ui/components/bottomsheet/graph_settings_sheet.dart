@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -42,7 +42,7 @@ class _OptionsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stores = ref.read(temperatureStoresProvider(machineUUID)).valueOrNull ?? {};
+    final stores = ref.read(temperatureStoresProvider(machineUUID)).value ?? {};
 
     if (stores.isEmpty) {
       return const ListTile(title: Text('No temperature stores found'));

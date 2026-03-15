@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -82,7 +82,7 @@ class _Body extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
+      if (next.value == ClientState.error || next.value == ClientState.disconnected) {
         if (context.canPop()) context.pop(FileDestinationSelectionResult.cancel());
         talker.info('Closing search screen due to client state change');
       }
@@ -357,7 +357,7 @@ class _FileManagerMovePageController extends _$FileManagerMovePageController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required FolderContentWrapper folderContent,
     required SortConfiguration sortConfig,

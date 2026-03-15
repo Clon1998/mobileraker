@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'package:flutter/material.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'bottom_sheet_service_interface.g.dart';
@@ -16,7 +16,11 @@ mixin BottomSheetIdentifierMixin implements Enum {
 @Riverpod(keepAlive: true)
 BottomSheetService bottomSheetService(Ref ref) => throw UnimplementedError();
 
+
+
 abstract interface class BottomSheetService {
+  static final showSheetMutation = Mutation();
+
   Map<BottomSheetIdentifierMixin, Widget Function(BuildContext, Object?)> get availableSheets;
 
   Future<BottomSheetResult> show(BottomSheetConfig config);

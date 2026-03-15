@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -17,7 +17,7 @@ part 'service_status.g.dart';
 enum ServiceState { active, deactivating, inactive, unknown }
 
 @freezed
-class ServiceStatus with _$ServiceStatus {
+sealed class ServiceStatus with _$ServiceStatus {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ServiceStatus({
     @JsonKey(includeToJson: false) required String name,

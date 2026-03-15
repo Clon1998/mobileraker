@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -21,7 +21,7 @@ part 'filament_switch_sensor.g.dart';
  */
 
 @freezed
-class FilamentSwitchSensor with _$FilamentSwitchSensor implements FilamentSensor {
+sealed class FilamentSwitchSensor with _$FilamentSwitchSensor implements FilamentSensor {
   const FilamentSwitchSensor._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

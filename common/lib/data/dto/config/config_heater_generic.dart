@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -31,7 +31,7 @@ part 'config_heater_generic.g.dart';
 // },
 
 @freezed
-class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
+sealed class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterGeneric({

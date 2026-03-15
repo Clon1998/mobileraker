@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -23,8 +23,8 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
   Future<BedScrewAndConfig> build() async {
     // make sure we close the dialog once its resolved externally
     // also prevents opening the dialog by mistake!
-    ref.listenSelf((previous, next) {
-      if (next.valueOrNull?.bedScrew.isActive == false && !_completed) {
+    listenSelf((previous, next) {
+      if (next.value?.bedScrew.isActive == false && !_completed) {
         _complete(DialogResponse.aborted());
       }
     });
@@ -66,7 +66,7 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
 }
 
 @freezed
-class BedScrewAndConfig with _$BedScrewAndConfig {
+sealed class BedScrewAndConfig with _$BedScrewAndConfig {
   const factory BedScrewAndConfig({
     required BedScrew bedScrew,
     required ConfigFile config,

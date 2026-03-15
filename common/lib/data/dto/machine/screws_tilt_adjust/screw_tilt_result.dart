@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -21,7 +21,7 @@ part 'screw_tilt_result.g.dart';
  */
 
 @freezed
-class ScrewTiltResult with _$ScrewTiltResult {
+sealed class ScrewTiltResult with _$ScrewTiltResult {
   const ScrewTiltResult._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

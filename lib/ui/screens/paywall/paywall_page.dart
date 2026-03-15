@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -90,7 +90,7 @@ class _PaywallPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(paywallPageControllerProvider.selectAs((value) => value.makingPurchase), (previous, next) {
-      if (next.valueOrNull == true) {
+      if (next.value == true) {
         context.loaderOverlay.show();
       } else {
         context.loaderOverlay.hide();
@@ -579,7 +579,7 @@ class _Footer extends ConsumerWidget {
     final controller = ref.read(paywallPageControllerProvider.notifier);
     final isSupporter = ref.watch(isSupporterProvider);
     final canCancel =
-        (ref.watch(customerInfoProvider.selectAs((data) => data.managementURL != null)).valueOrNull == true);
+        (ref.watch(customerInfoProvider.selectAs((data) => data.managementURL != null)).value == true);
 
     return Theme(
       data: Theme.of(context).copyWith(

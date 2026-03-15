@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -39,18 +39,18 @@ import 'package:hashlib/hashlib.dart';
 import 'package:hashlib_codecs/hashlib_codecs.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
+// import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../components/ssl_settings.dart';
+// import '../components/ssl_settings.dart';
 
 part 'printers_add_controller.freezed.dart';
 part 'printers_add_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> formKey(FormKeyRef _) {
+GlobalKey<FormBuilderState> formKey(Ref _) {
   return GlobalKey<FormBuilderState>();
 }
 
@@ -167,7 +167,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   }
 
   void onPopInvoked(bool isPop, Object? _) {
-    if (!isPop) ref.read(printerAddViewControllerProvider.notifier).previousStep();
+    if (!isPop) previousStep();
   }
 
   selectMode(bool isExpert) {
@@ -294,9 +294,9 @@ class AdvancedFormController extends _$AdvancedFormController {
     if (!_formState.saveAndValidate()) return;
     var httpInput = _httpField.transformedValue;
 
-    var headers = ref.read(headersControllerProvider(state.headers));
-    var sslSettings =
-        ref.read(sslSettingsControllerProvider(state.pinnedCertificateDER, state.trustUntrustedCertificate));
+    // var headers = ref.read(headersControllerProvider(state.headers));
+    // var sslSettings =
+    //     ref.read(sslSettingsControllerProvider(state.pinnedCertificateDER, state.trustUntrustedCertificate));
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
         uuid: Uuid().v4(),
@@ -304,9 +304,9 @@ class AdvancedFormController extends _$AdvancedFormController {
           httpUri: buildMoonrakerHttpUri(httpInput)!,
           apiKey: _apiKeyField.transformedValue,
           timeout: _localTimeoutField.transformedValue,
-          httpHeaders: headers,
-          trustUntrustedCertificate: sslSettings.trustSelfSigned,
-          pinnedCertificateDERBase64: sslSettings.certificateDER,
+          // httpHeaders: headers,
+          // trustUntrustedCertificate: sslSettings.trustSelfSigned,
+          // pinnedCertificateDERBase64: sslSettings.certificateDER,
         ));
   }
 
@@ -428,7 +428,7 @@ class TestConnectionController extends _$TestConnectionController {
 }
 
 @freezed
-class PrinterAddState with _$PrinterAddState {
+sealed class PrinterAddState with _$PrinterAddState {
   const PrinterAddState._();
 
   const factory PrinterAddState({
@@ -442,7 +442,7 @@ class PrinterAddState with _$PrinterAddState {
 }
 
 @freezed
-class SimpleFormState with _$SimpleFormState {
+sealed class SimpleFormState with _$SimpleFormState {
   const SimpleFormState._();
 
   const factory SimpleFormState({
@@ -458,7 +458,7 @@ class SimpleFormState with _$SimpleFormState {
 }
 
 @freezed
-class AdvancedFormState with _$AdvancedFormState {
+sealed class AdvancedFormState with _$AdvancedFormState {
   const AdvancedFormState._();
 
   const factory AdvancedFormState({
@@ -469,7 +469,7 @@ class AdvancedFormState with _$AdvancedFormState {
 }
 
 @freezed
-class TestConnectionState with _$TestConnectionState {
+sealed class TestConnectionState with _$TestConnectionState {
   const TestConnectionState._();
 
   const factory TestConnectionState({

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -15,6 +15,8 @@ extension ScopeFunctions<R> on R {
   /// Opposite of [unless].
   @pragma('vm:prefer-inline')
   R? only(bool cond) => cond ? this : null;
+
+  R? onlyLet(bool Function(R) cond) => cond(this) ? this : null;
 
   /// Returns this [R] object if [cond] is false, otherwise returns null.
   ///

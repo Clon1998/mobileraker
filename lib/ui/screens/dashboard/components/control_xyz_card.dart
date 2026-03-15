@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -367,16 +367,19 @@ class _ZMotionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final (klippyCanReceiveCommands, zHomed) = ref.watch(
-        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => (data.klippyCanReceiveCommands, data.isZAxisHomed)));
+    final (klippyCanReceiveCommands, forceMoveEnabled, zHomed) = ref.watch(
+        _controlXYZCardControllerProvider(machineUUID).selectRequireValue((data) => (data.klippyCanReceiveCommands, data.forceMoveEnabled && data.zCanForceMove,data.isZAxisHomed)));
     final controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
+    var cc = Theme.of(context).extension<CustomColors>();
 
+    final buttonStyle = ButtonStyle(backgroundColor: WidgetStatePropertyAll(cc?.danger??Colors.red), foregroundColor: WidgetStatePropertyAll(cc?.onDanger?? Colors.white)).only(forceMoveEnabled);
     return Column(
       children: [
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands && zHomed  ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
+          onPressed: klippyCanReceiveCommands && (zHomed || forceMoveEnabled)  ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
+          style: buttonStyle,
           child: const Icon(FlutterIcons.upsquare_ant),
         ),
         Tooltip(
@@ -389,7 +392,8 @@ class _ZMotionWidget extends ConsumerWidget {
         ),
         SquareElevatedIconButton(
           margin: _marginForBtns,
-          onPressed: klippyCanReceiveCommands && zHomed ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
+          onPressed: klippyCanReceiveCommands && (zHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
+          style: buttonStyle,
           child: const Icon(FlutterIcons.downsquare_ant),
         ),
       ],
@@ -571,9 +575,10 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 
     final (klippy, printer, machineSettings) = await (klipperFuture, printerFuture, machineSettingsFuture).wait;
 
-    var idx = state.whenData((value) => value.selected).valueOrNull ??
+    var idx = state.whenData((value) => value.selected).value ??
         initialIndex.clamp(0, machineSettings.moveSteps.length - 1);
 
+    var supportsForceMove = printer.configFile.hasForceMove == true && printer.configFile.enableForceMove == true;
     return _Model(
       showCard: printer.print.state != PrintState.printing && printer.configFile.configPrinter?.kinematics != 'none',
       klippyCanReceiveCommands: klippy.klippyCanReceiveCommands,
@@ -581,7 +586,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
       steps: machineSettings.moveSteps,
       selected: min(max(0, idx), machineSettings.moveSteps.length - 1),
       homedAxis: printer.toolhead.homedAxes,
-      forceMoveEnabled: state.value?.forceMoveEnabled ?? false,
+      forceMoveEnabled: supportsForceMove && (state.value?.forceMoveEnabled ?? false),
+      zCanForceMove: supportsForceMove && printer.configFile.steppers.keys.where((k) => k.startsWith('z')).length == 1,
     );
   }
 
@@ -592,7 +598,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   }
 
   Future<void> onMoveBtn(PrinterAxis axis, [bool positive = true]) async {
-    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).valueOrNull;
+    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).value;
     if (machineSettings == null) return;
 
     var step = state.value?.let((it) => it.steps.elementAtOrNull(it.selected));
@@ -674,7 +680,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   Future<void> onBedScrewAdjust() => _printerService.bedScrewsAdjust();
 
   Future<void> onSelectBeaconModel() async {
-    var printer = ref.read(printerProvider(machineUUID)).valueOrNull;
+    var printer = ref.read(printerProvider(machineUUID)).value;
     if (printer?.beacon == null) return;
     final beaconModels = printer!.configFile.beaconModels ?? [];
 
@@ -918,7 +924,7 @@ class _ControlXYZCardPreviewController extends _ControlXYZCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
@@ -929,6 +935,7 @@ class _Model with _$Model {
     required Set<PrinterAxis> homedAxis,
     @Default([]) List<_QuickAction> directActions,
     @Default(false) forceMoveEnabled,
+    @Default(false) zCanForceMove,
   }) = __Model;
 
   bool get isXAxisHomed => homedAxis.contains(PrinterAxis.X);
@@ -937,7 +944,7 @@ class _Model with _$Model {
 }
 
 @freezed
-class _QuickAction with _$QuickAction {
+sealed class _QuickAction with _$QuickAction {
   const factory _QuickAction({
     required String title,
     required String description,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -21,7 +21,7 @@ class EmergencyStopButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     KlipperState klippyState = ref.watch(klipperSelectedProvider.select(
-      (value) => value.valueOrNull?.klippyState ?? KlipperState.disconnected,
+      (value) => value.value?.klippyState ?? KlipperState.disconnected,
     ));
 
     return IconButton(

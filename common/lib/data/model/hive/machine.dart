@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'machine.freezed.dart';
 part 'machine.g.dart';
 
 @freezed
-class Machine with _$Machine {
+sealed class Machine with _$Machine {
   @HiveType(typeId: 1)
   const factory Machine({
     @HiveField(0) required String name,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -21,7 +21,7 @@ class JobQueueFab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-    final queueState = ref.watch(jobQueueProvider(machineUUID)).valueOrNull;
+    final queueState = ref.watch(jobQueueProvider(machineUUID)).value;
 
     final position = mini
         ? badges.BadgePosition.bottomEnd(end: -2, bottom: -8)

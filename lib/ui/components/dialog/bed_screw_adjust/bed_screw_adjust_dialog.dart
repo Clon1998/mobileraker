@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -180,7 +180,7 @@ class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // var controller = manualOffsetDialogControllerProvider(dialogCompleter);
-    var bedScrewAndConfig = ref.watch(bedScrewAdjustDialogControllerProvider).valueOrNull;
+    var bedScrewAndConfig = ref.watch(bedScrewAdjustDialogControllerProvider).value;
 
     var themeData = Theme.of(context);
 
@@ -197,13 +197,13 @@ class _Footer extends ConsumerWidget {
           OverflowBar(
             children: [
               TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: themeData.colorScheme.secondary,
+                ),
                 onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
                 child: const Text('dialogs.bed_screw_adjust.adjusted_btn').tr(),
               ),
               TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: themeData.colorScheme.secondary,
-                ),
                 onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
                 child: const Text('general.accept').tr(),
               ),

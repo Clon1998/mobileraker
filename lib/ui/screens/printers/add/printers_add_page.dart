@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -20,9 +20,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
-import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
-import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
@@ -477,13 +475,13 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             ),
           ],
         ),
-        Flexible(
-          child: SslSettings(
-            initialCertificateDER: advancedFormState.pinnedCertificateDER,
-            initialTrustSelfSigned: advancedFormState.trustUntrustedCertificate,
-          ),
-        ),
-        HttpHeaders(initialValue: advancedFormState.headers),
+        // Flexible(
+        //   child: SslSettings(
+        //     initialCertificateDER: advancedFormState.pinnedCertificateDER,
+        //     initialTrustSelfSigned: advancedFormState.trustUntrustedCertificate,
+        //   ),
+        // ),
+        // HttpHeadersFormField(initialValue: advancedFormState.headers),
       ],
     );
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -330,7 +330,7 @@ class _PreviewPrinterService implements PrinterService {
   }
 
   @override
-  Ref<Object?> get ref => throw UnimplementedError();
+  Ref get ref => throw UnimplementedError();
 
   @override
   Future<void> refreshPrinter() {

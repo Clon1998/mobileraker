@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -14,32 +14,23 @@ part 'macro_group.freezed.dart';
 part 'macro_group.g.dart';
 
 @freezed
-class MacroGroup with _$MacroGroup {
-  const MacroGroup._();
+sealed class MacroGroup with _$MacroGroup {
+  MacroGroup._({String? uuid}) : uuid = uuid ?? Uuid().v4();
 
   @JsonSerializable(explicitToJson: true)
-  const factory MacroGroup.__({
-    required String uuid,
+  factory MacroGroup({
+    String? uuid,
     required String name,
     @Default([]) List<GCodeMacro> macros,
   }) = _MacroGroup;
 
-  factory MacroGroup({
-    required String name,
-    List<GCodeMacro> macros = const [],
-  }) {
-    return MacroGroup.__(
-      uuid: const Uuid().v4(),
-      name: name,
-      macros: macros,
-    );
-  }
+
 
   factory MacroGroup.defaultGroup({
     required String name,
     List<GCodeMacro> macros = const [],
   }) {
-    return MacroGroup.__(
+    return MacroGroup(
       uuid: 'default',
       name: name,
       macros: macros,
@@ -47,6 +38,9 @@ class MacroGroup with _$MacroGroup {
   }
 
   factory MacroGroup.fromJson(Map<String, dynamic> json) => _$MacroGroupFromJson(json);
+
+  @override
+  final String uuid;
 
   bool get isDefaultGroup => uuid == 'default';
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -491,7 +491,7 @@ class _Actions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('Rebuilding _ActionsWidget for ${machine.logName}');
     final printState =
-        ref.watch(_printerJobHandlerControllerProvider(machine).select((d) => d.valueOrNull?.printState));
+        ref.watch(_printerJobHandlerControllerProvider(machine).select((d) => d.value?.printState));
     final controller = ref.watch(_printerJobHandlerControllerProvider(machine).notifier);
 
     final themeData = Theme.of(context);
@@ -694,35 +694,35 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
   @override
   bool updateShouldNotify(AsyncValue<_Model> previous, AsyncValue<_Model> next) {
     // For doubles we use epsilon comparison to avoid updating to often even if the value is jsut changed very slightly
-    final progressIsEpsilonEqual = _lastUpdate?.progress.closeTo(next.valueOrNull?.progress ?? 0, 0.01) == true;
-    final durationIsEpsilonEqual = _lastUpdate?.totalDuration?.closeTo(next.valueOrNull?.totalDuration ?? 0, 1) == true;
+    final progressIsEpsilonEqual = _lastUpdate?.progress.closeTo(next.value?.progress ?? 0, 0.01) == true;
+    final durationIsEpsilonEqual = _lastUpdate?.totalDuration?.closeTo(next.value?.totalDuration ?? 0, 1) == true;
 
     // For the eta we check if the difference is less than 2s to evaluate if the eta is the same
-    final etaIsEpsilonEqual = _lastUpdate?.eta == next.valueOrNull?.eta ||
+    final etaIsEpsilonEqual = _lastUpdate?.eta == next.value?.eta ||
         _lastUpdate?.eta != null &&
-            next.valueOrNull?.eta != null &&
+            next.value?.eta != null &&
             _lastUpdate!.eta!.difference(next.value!.eta!).abs().inSeconds < 2;
 
     // For remaining we also have 2 seconds epsilon
-    final remainingIsEpsilonEqual = _lastUpdate?.remaining == next.valueOrNull?.remaining ||
+    final remainingIsEpsilonEqual = _lastUpdate?.remaining == next.value?.remaining ||
         _lastUpdate?.remaining != null &&
-            next.valueOrNull?.remaining != null &&
+            next.value?.remaining != null &&
             (_lastUpdate!.remaining! - next.value!.remaining!).abs() < 2;
 
     var shouldN = !progressIsEpsilonEqual ||
-        _lastUpdate?.printState != next.valueOrNull?.printState ||
-        _lastUpdate?.job != next.valueOrNull?.job ||
+        _lastUpdate?.printState != next.value?.printState ||
+        _lastUpdate?.job != next.value?.job ||
         !etaIsEpsilonEqual ||
         !durationIsEpsilonEqual ||
         !remainingIsEpsilonEqual ||
-        _lastUpdate?.message != next.valueOrNull?.message ||
-        _lastUpdate?.lastJob != next.valueOrNull?.lastJob;
+        _lastUpdate?.message != next.value?.message ||
+        _lastUpdate?.lastJob != next.value?.lastJob;
 
     if (shouldN) {
       // talker.info('UpdateShouldNotify: $shouldN');
       // talker.info('progress: ${_lastUpdate?.progress} vs ${next.value?.progress} Trig: ${!progressIsEpsilonEqual}');
       // talker.info(
-      //     'printState: ${_lastUpdate?.printState} vs ${next.value?.printState} Trig: ${_lastUpdate?.printState != next.valueOrNull?.printState}');
+      //     'printState: ${_lastUpdate?.printState} vs ${next.value?.printState} Trig: ${_lastUpdate?.printState != next.value?.printState}');
       // talker.info(
       //     'TotalDur: ${_lastUpdate?.totalDuration} vs ${next.value?.totalDuration} Trig: ${!durationIsEpsilonEqual}');
       // talker.info(
@@ -730,11 +730,11 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
       // talker.info(
       //     'eta: ${_lastUpdate?.eta} vs ${next.value?.eta} Trig: ${!etaIsEpsilonEqual}');
       // talker.info(
-      //     'job: ${_lastUpdate?.job} vs ${next.value?.job} Trig: ${_lastUpdate?.job != next.valueOrNull?.job}');
+      //     'job: ${_lastUpdate?.job} vs ${next.value?.job} Trig: ${_lastUpdate?.job != next.value?.job}');
       // talker.info(
-      //     'message: ${_lastUpdate?.message} vs ${next.value?.message} Trig: ${_lastUpdate?.message != next.valueOrNull?.message}');
+      //     'message: ${_lastUpdate?.message} vs ${next.value?.message} Trig: ${_lastUpdate?.message != next.value?.message}');
       // talker.info(
-      //     'lastJob: ${_lastUpdate?.lastJob} vs ${next.value?.lastJob} Trig: ${_lastUpdate?.lastJob != next.valueOrNull?.lastJob}');
+      //     'lastJob: ${_lastUpdate?.lastJob} vs ${next.value?.lastJob} Trig: ${_lastUpdate?.lastJob != next.value?.lastJob}');
       _lastUpdate = next.value;
     }
 
@@ -813,7 +813,7 @@ class _PrinterJobHandlerController extends _$PrinterJobHandlerController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

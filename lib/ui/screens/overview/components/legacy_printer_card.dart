@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -225,7 +225,7 @@ class _Cam extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // talker.info('Rebuilding _Cam for ${machine.logName}');
-    final model = ref.watch(_printerCardControllerProvider(machine)).valueOrNull;
+    final model = ref.watch(_printerCardControllerProvider(machine)).value;
     final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
     if (model == null || model.previewCam == null) return const SizedBox.shrink();
 
@@ -338,14 +338,14 @@ class _PrinterCardController extends _$PrinterCardController {
 
     final loadingTransition = (wasLoading || isLoading) && wasLoading != isLoading;
     final progressEpsilon =
-        previous.valueOrNull?.printProgress.closeTo(next.valueOrNull?.printProgress ?? 0, 0.01) != false;
+        previous.value?.printProgress.closeTo(next.value?.printProgress ?? 0, 0.01) != false;
 
     return loadingTransition && progressEpsilon;
   }
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     WebcamInfo? previewCam,
     required ClientState jrpcClientState,

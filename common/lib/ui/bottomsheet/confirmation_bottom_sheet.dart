@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -88,7 +88,7 @@ class ConfirmationBottomSheet extends ConsumerWidget {
 }
 
 @freezed
-class ConfirmationBottomSheetArgs with _$ConfirmationBottomSheetArgs {
+sealed class ConfirmationBottomSheetArgs with _$ConfirmationBottomSheetArgs {
   const factory ConfirmationBottomSheetArgs({
     required String title,
     required String description,

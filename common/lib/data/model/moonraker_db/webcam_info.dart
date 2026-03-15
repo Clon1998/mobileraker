@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -88,7 +88,7 @@ final defaultSnapshotUri = Uri(path: '/webcam/', query: 'action=snapshot');
  */
 
 @freezed
-class WebcamInfo with _$WebcamInfo {
+sealed class WebcamInfo with _$WebcamInfo {
   const WebcamInfo._();
 
   @JsonSerializable(

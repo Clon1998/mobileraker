@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -23,7 +23,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 part 'mark_down_page.g.dart';
 
 @riverpod
-Future<String> _markdownData(_MarkdownDataRef _, Uri mdRoot) async {
+Future<String> _markdownData(Ref _, Uri mdRoot) async {
   http.Response res = await http.get(mdRoot);
 
   if (res.statusCode != 200) {

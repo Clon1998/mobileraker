@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'pwm_tool.freezed.dart';
 part 'pwm_tool.g.dart';
 
 @freezed
-class PwmTool extends Pin with _$PwmTool {
+sealed class PwmTool extends Pin with _$PwmTool {
   const PwmTool._();
 
   @StringDoubleConverter()

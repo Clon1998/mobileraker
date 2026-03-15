@@ -497,8 +497,6 @@ pages:
       steps_baby_short: Z Offset
     extruders:
       title: 默认挤出机设置
-      feedrate: 默认挤出速度
-      feedrate_short: 挤出速度
       steps_extrude: 默认挤出距离
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:

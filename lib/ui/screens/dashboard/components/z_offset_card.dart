@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -150,7 +150,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var zOffset = ref.watch(_ZOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
+    var zOffset = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
     var numberFormat = NumberFormat('#0.000mm', context.locale.toStringWithSeparator());
     return ListTile(
       leading: const Icon(FlutterIcons.align_vertical_middle_ent),
@@ -257,7 +257,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
       steps,
       isPrintingOrPaused,
       (a, b, c, d) {
-        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
+        var idx = state.whenData((value) => value.selected).value ?? initialIndex.clamp(0, c.length - 1);
 
         return _Model(
           showCard: d || alwaysShowSetting,
@@ -315,7 +315,7 @@ class _ZOffsetCardPreviewController extends _ZOffsetCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required bool showCard,
     required bool klippyCanReceiveCommands,

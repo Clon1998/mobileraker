@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'config_controller_fan.freezed.dart';
 part 'config_controller_fan.g.dart';
 
 @freezed
-class ConfigControllerFan extends ConfigFan with _$ConfigControllerFan {
+sealed class ConfigControllerFan extends ConfigFan with _$ConfigControllerFan {
   const ConfigControllerFan._();
 
   @StringIntegerConverter()

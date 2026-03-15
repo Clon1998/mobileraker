@@ -180,8 +180,6 @@ pages:
       steps_baby_short: Reglaj fin
     extruders:
       title: Extruder(e)
-      feedrate: Rată alimentare Extruder
-      feedrate_short: Rată alimentare
       steps_extrude: Pași Extruder
     cams:
       target_fps: Țintă FPS

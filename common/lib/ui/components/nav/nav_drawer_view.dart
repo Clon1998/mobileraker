@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -164,14 +164,14 @@ class _NavHeader extends HookConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  selectedMachine.valueOrNull?.name ?? 'Mobileraker',
+                                  selectedMachine.value?.name ?? 'Mobileraker',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  selectedMachine.valueOrNull?.httpUri.host ?? 'Add printer first',
+                                  selectedMachine.value?.httpUri.host ?? 'Add printer first',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: themeData.textTheme.titleSmall?.copyWith(color: onBackground),
@@ -269,11 +269,11 @@ class _PrinterSelection extends HookConsumerWidget {
       child: (isExpanded.value)
           ? Column(
               children: [
-                if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.requireValue!, isSelected: true),
+                if (selMachine.value != null) _MachineTile(machine: selMachine.requireValue!, isSelected: true),
                 ...ref
                     .watch(
                       allMachinesProvider.selectAs(
-                        (data) => data.where((element) => element.uuid != selMachine.valueOrNull?.uuid),
+                        (data) => data.where((element) => element.uuid != selMachine.value?.uuid),
                       ),
                     )
                     .maybeWhen(
@@ -320,11 +320,13 @@ class _MachineTile extends ConsumerWidget {
 
     return ListTile(
       title: Text(machine.name, maxLines: 1),
+      subtitle: Text(machine.httpUri.host, maxLines: 1),
       trailing: Icon(isSelected ? Icons.check : Icons.arrow_forward_ios_sharp, size: baseIconSize),
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onBackground,
       iconColor: themeData.colorScheme.onBackground,
+      dense: true,
       contentPadding: basePadding,
       selected: isSelected,
       onTap: isSelected

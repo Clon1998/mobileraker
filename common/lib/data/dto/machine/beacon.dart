@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -20,7 +20,7 @@ part 'beacon.g.dart';
 // }
 
 @freezed
-class Beacon with _$Beacon {
+sealed class Beacon with _$Beacon {
   //TODO: Add all fields if I ever need them!
   const factory Beacon({
     String? model, // The active model

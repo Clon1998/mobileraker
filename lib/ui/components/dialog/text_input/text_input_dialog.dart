@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -15,7 +15,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'text_input_dialog.freezed.dart';
 
 @freezed
-class TextInputDialogArguments with _$TextInputDialogArguments {
+sealed class TextInputDialogArguments with _$TextInputDialogArguments {
   const factory TextInputDialogArguments({
     required String initialValue,
     FormFieldValidator<String>? validator,

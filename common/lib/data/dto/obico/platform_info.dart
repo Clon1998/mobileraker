@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -11,7 +11,7 @@ part 'platform_info.freezed.dart';
 part 'platform_info.g.dart';
 
 @freezed
-class PlatformInfo with _$PlatformInfo {
+sealed class PlatformInfo with _$PlatformInfo {
   @StringIntegerConverter()
   const factory PlatformInfo({
     @JsonKey(name: 'server_ip') required String host,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -14,7 +14,7 @@ part 'octoeverywhere.freezed.dart';
 part 'octoeverywhere.g.dart';
 
 @freezed
-class OctoEverywhere with _$OctoEverywhere {
+sealed class OctoEverywhere with _$OctoEverywhere {
   @HiveType(typeId: 8)
   const factory OctoEverywhere({
     @HiveField(0) required String appApiToken,

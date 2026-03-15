@@ -1,62 +1,43 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../stamped_entity.dart';
 
+part 'temperature_preset.freezed.dart';
 part 'temperature_preset.g.dart';
 
-@JsonSerializable()
-class TemperaturePreset extends StampedEntity {
-  TemperaturePreset({
+@freezed
+sealed class TemperaturePreset extends StampedEntity with _$TemperaturePreset {
+  TemperaturePreset._({DateTime? created, DateTime? lastModified, String? uuid})
+    : uuid = uuid ?? const Uuid().v4(),
+      created = created ?? DateTime.now(),
+      lastModified = lastModified ?? DateTime.now(),
+      super(created ?? DateTime.now(), lastModified ?? DateTime.now());
+
+  factory TemperaturePreset({
     DateTime? created,
     DateTime? lastModified,
-    required this.name,
+    required String name,
     String? uuid,
-    this.bedTemp = 60,
-    this.extruderTemp = 170,
-    this.customGCode,
-  })  : uuid = uuid ?? const Uuid().v4(),
-        super(created, lastModified ?? DateTime.now());
+    @Default(60) int bedTemp,
+    @Default(170) int extruderTemp,
+    String? customGCode,
+  }) = _TemperaturePreset;
 
-  String name;
+  @override
+  final DateTime created;
+
+  @override
+  final DateTime lastModified;
+
+  @override
   final String uuid;
-  int bedTemp; // Safe values
-  int extruderTemp; // Safe values
-  String? customGCode;
 
   factory TemperaturePreset.fromJson(Map<String, dynamic> json) => _$TemperaturePresetFromJson(json);
-
-  Map<String, dynamic> toJson() => _$TemperaturePresetToJson(this);
-
-  @override
-  String toString() {
-    return 'TemperatureTemplate{name: $name, uuid: $uuid, bedTemp: $bedTemp, extruderTemp: $extruderTemp, customGCode: $customGCode}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TemperaturePreset &&
-          runtimeType == other.runtimeType &&
-          (identical(other.name, name) || name == other.name) &&
-          (identical(other.uuid, uuid) || uuid == other.uuid) &&
-          (identical(other.bedTemp, bedTemp) || bedTemp == other.bedTemp) &&
-          (identical(other.extruderTemp, extruderTemp) || extruderTemp == other.extruderTemp) &&
-          (identical(other.customGCode, customGCode) || customGCode == other.customGCode)
-  ;
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        name,
-        uuid,
-        bedTemp,
-        extruderTemp,
-        customGCode,
-      );
 }

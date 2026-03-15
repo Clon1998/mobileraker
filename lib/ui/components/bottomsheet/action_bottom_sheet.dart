@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -33,6 +33,7 @@ class ActionBottomSheet extends ConsumerWidget {
               visualDensity: VisualDensity.compact,
               titleAlignment: ListTileTitleAlignment.center,
               leading: arguments.leading,
+              trailing: arguments.trailing,
               iconColor: themeData.colorScheme.primary,
               // leading: arguments.leading,
               horizontalTitleGap: 8,
@@ -90,11 +91,12 @@ class _Entry extends StatelessWidget {
 }
 
 class ActionBottomSheetArgs {
-  const ActionBottomSheetArgs({this.title, required this.actions, this.leading, this.subtitle});
+  const ActionBottomSheetArgs({this.title, required this.actions, this.leading, this.subtitle, this.trailing});
 
   final Widget? title;
   final Widget? subtitle;
   final Widget? leading;
+  final Widget? trailing;
   final List<BottomSheetAction> actions;
 
   @override

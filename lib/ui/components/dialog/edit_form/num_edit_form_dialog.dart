@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -259,7 +259,7 @@ class _NumField extends StatelessWidget {
 }
 
 @freezed
-class NumberEditDialogArguments with _$NumberEditDialogArguments {
+sealed class NumberEditDialogArguments with _$NumberEditDialogArguments {
   const factory NumberEditDialogArguments({
     @Default(0) num min,
     num? max,

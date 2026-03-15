@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'gcode_store_entry.freezed.dart';
 part 'gcode_store_entry.g.dart';
 
 @freezed
-class GCodeStoreEntry with _$GCodeStoreEntry {
+sealed class GCodeStoreEntry with _$GCodeStoreEntry {
   static RegExp temperatureResponsePattern = RegExp(r'^(?:ok\s+)?(B|C|T\d*):', caseSensitive: false);
 
   static RegExp batchCommandPattern = RegExp(r'\n.+', dotAll: true);

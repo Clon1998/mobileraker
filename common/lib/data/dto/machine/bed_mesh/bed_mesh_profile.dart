@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'bed_mesh_profile.freezed.dart';
 part 'bed_mesh_profile.g.dart';
 
 @freezed
-class BedMeshProfile with _$BedMeshProfile {
+sealed class BedMeshProfile with _$BedMeshProfile {
   const BedMeshProfile._();
 
   @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
@@ -60,7 +60,7 @@ class BedMeshProfile with _$BedMeshProfile {
 // }
 
 @freezed
-class BedMeshParams with _$BedMeshParams {
+sealed class BedMeshParams with _$BedMeshParams {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory BedMeshParams({

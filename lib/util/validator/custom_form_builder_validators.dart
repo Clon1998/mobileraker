@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -25,12 +25,24 @@ final class MobilerakerFormBuilderValidator {
       if (valueCandidate != null) {
         assert(valueCandidate is String);
 
-        if (RegExp(r'^(?:\w+://)?[\w.-]+.local(?:$|[#?][\w=]+|/[\w.-/#?=]*$)')
-            .hasMatch(valueCandidate as String)) {
+        if (RegExp(r'^(?:\w+://)?[\w.-]+.local(?:$|[#?][\w=]+|/[\w.-/#?=]*$)').hasMatch(valueCandidate as String)) {
           return errorText ?? tr('form_validators.disallow_mdns');
         }
       }
       return null;
+    };
+  }
+
+  static FormFieldValidator<T> sideEffect<T>(
+    FormFieldValidator<T> validator, {
+    required Function(String? errors) sideEffect,
+  }) {
+    return (T? valueCandidate) {
+      final res = validator.call(valueCandidate);
+
+      sideEffect(res);
+
+      return res;
     };
   }
 }

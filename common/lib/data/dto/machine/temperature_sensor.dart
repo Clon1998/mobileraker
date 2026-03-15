@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'temperature_sensor.freezed.dart';
 part 'temperature_sensor.g.dart';
 
 @freezed
-class TemperatureSensor with _$TemperatureSensor, TemperatureSensorMixin {
+sealed class TemperatureSensor with _$TemperatureSensor, TemperatureSensorMixin {
   const TemperatureSensor._();
 
   @StringDoubleConverter()

@@ -522,12 +522,17 @@ pages:
     title: Bearbeiten {}
     import_settings: Importeinstellungen
     remove_printer: Drucker entfernen
+    reset_notifications: Benachrichtigungs-DB zurücksetzen
     no_values_found: Keine Werte gefunden!
     fetching_additional_settings: "@:general.fetching zusätzliche Einstellungen aus dem Netzwerk…"
     could_not_fetch_additional: Konnte keine zusätzlichen Einstellungen holen!
     fetch_error_hint: Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker damit verbunden ist.
     reset_notification_registry: Setzte Geräte für Push-Mitteilungen zurück
     configure_remote_connection: Konfiguriere Fernzugriff
+    webcams_and_remote_settings: Webcams & Remote-Einstellungen
+    printer_not_reachable: Drucker nicht erreichbar
+    printer_not_reachable_message: Webcam-Liste und Druckereinstellungen konnten nicht geladen werden. Verbinden Sie den Drucker, um diese Bereiche zu konfigurieren.
+    remote_settings: Remote-Einstellungen
     store_error:
       title: Speichern fehlgeschlagen!
       message: |-
@@ -549,6 +554,7 @@ pages:
       theme: UI-Design
       theme_helper: Drucker UI-Design
       theme_unavailable: Drucker UI-Design ist nur für Supporter verfügbar
+      app_theme: App-Design
     ssl:
       title: SSL - Einstellungen
       pin_certificate_label: Certificate Fingerprint Pinning
@@ -605,6 +611,8 @@ pages:
       cam_mode: Cam Modus
       cam_rotate: Drehung
       read_only: Webcam ist schreibgeschützt
+      cam_name_already_present: Eine Webcam mit diesem Namen existiert bereits!
+      error_fetching: Fehler beim Laden der Webcams
     macros:
       default_grp: Standard
       new_macro_grp: Neue Makro - Gruppe
@@ -684,6 +692,9 @@ pages:
       title: Verschiedenes Reihenfolge
       helper: Ändern Sie die Reihenfolge der verschiedenen Elemente, die auf dem Dashboard angezeigt werden.
       no_controls: Keine Elemente gefunden!
+    settings_imported:
+      title: Einstellungen importiert!
+      message: Ausgewählte Einstellungen übernommen. Denken Sie daran, zu speichern.
   printer_add:
     steps:
       mode: Modus
@@ -1050,6 +1061,20 @@ components:
       Hallo du!
       Ich freue mich, dich hier zu sehen!
       Um mit Mobileraker loszulegen, fügen Sie bitte einen Drucker hinzu. Danach wirst du in der Lage sein, deinen Drucker direkt von Mobileraker aus zu steuern.
+    error_selecting_machine: Fehler beim Auswählen der aktiven Maschine
+    lost_connection: Verbindung zu {} ({}) verloren.
+    machine_not_reachable: Maschine ist nicht erreichbar!
+    could_not_connect: |-
+      Konnte keine Verbindung zu {} ({}) herstellen.
+      Stellen Sie sicher, dass der Drucker eingeschaltet und in Ihrem Netzwerk erreichbar ist.
+    edit_machine_settings: Maschineneinstellungen bearbeiten
+    connection_error_details: Verbindungsfehler Details
+    timeout_error: Beim Verbindungsversuch ist eine Zeitüberschreitung aufgetreten! Stellen Sie sicher, dass die Maschine von Ihrem aktuellen Netzwerk aus erreichbar ist...
+    octoeverywhere_returned: 'OctoEverywhere antwortete: {}'
+    general_connection_error: Fehler beim Verbindungsversuch. Bitte versuchen Sie es später erneut.
+    connection_timeout: Verbindungszeitüberschreitung
+    octoeverywhere_error: 'OctoEverywhere Fehler: {}'
+    unknown_error: Unbekannter Verbindungsfehler
   octo_indicator:
     tooltip: Nutze OctoEveryWhere!
   supporter_add:
@@ -1152,6 +1177,20 @@ components:
       shutdown: Klipper-Abgeschaltet
       error: Klipper-Error
       unauthorized: Autorisierung fehlgeschlagen
+  tool_channel_selector:
+    active_toolhead: Aktiver Werkzeugkopf
+    no_tool:
+      subtitle: Kein Werkzeug ausgewählt
+      action: Tippe, um Werkzeug auszuwählen
+    operating:
+      picking_toolhead: Wähle Werkzeug…
+      parking_toolhead: Parke Werkzeug…
+    sheet:
+      select_toolhead: Werkzeugkopf auswählen
+      park_toolhead: Werkzeugkopf parken
+      park_toolhead_desc: Parke den aktuellen Werkzeugkopf
+  segment_form_field:
+    duplicate_error: Wert bereits vorhanden.
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
@@ -1161,6 +1200,7 @@ dialogs:
     fetching_error_title: Einstellungen können nicht abgerufen werden!
     fetching_error_sub: Stellen Sie sicher, dass andere Maschinen verbunden sind.
     select_source: Kandidat auswählen
+    select_source_hint: Quelle
   create_folder:
     title: Ordner erstellen
     label: Ordnername
@@ -1547,6 +1587,8 @@ form_validators:
   disallow_mdns: mDNS (.local) Adressen werden nicht unterstützt
   file_name_in_use: Dateiname wird bereits verwendet
   min_before_max: Der Wert muss kleiner oder gleich dem Maximalwert sein
+  heater_min: Der Wert liegt unter der zulässigen minimalen Temperatur von {}°C
+  heater_max: Wert liegt über der maximal zulässigen Temperatur von {}°C
 date:
   year:
     one: Jahr
@@ -1577,6 +1619,10 @@ date_periods:
   day:
     one: Täglich
     other: Tage
+extruder_state:
+  activate: Aktiv
+  parked: Geparkt
+  unknown: Unbekannt
 consent_cards:
   marketing_notifications:
     title: 'Bleiben Sie informiert!'

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -174,7 +174,7 @@ class _PeakFrequency extends HookConsumerWidget {
         WarningCard(
           show: ref
                   .watch(permissionStatusProvider(Permission.microphone).selectAs((data) => !data.isGranted))
-                  .valueOrNull ==
+                  .value ==
               true,
           title: const Text('pages.beltTuner.permissionWarning.title').tr(),
           subtitle: const Text('pages.beltTuner.permissionWarning.subtitle').tr(),

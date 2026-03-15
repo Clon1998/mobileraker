@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -14,7 +14,7 @@ part 'developer_announcement_entry.freezed.dart';
 part 'developer_announcement_entry.g.dart';
 
 @freezed
-class DeveloperAnnouncementEntry with _$DeveloperAnnouncementEntry {
+sealed class DeveloperAnnouncementEntry with _$DeveloperAnnouncementEntry {
   const DeveloperAnnouncementEntry._();
 
   @StringIntegerConverter()

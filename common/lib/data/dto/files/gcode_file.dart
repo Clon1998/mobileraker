@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'package:collection/collection.dart';
-import 'package:common/data/converters/string_integer_converter.dart';
+import 'package:common/data/converters/double_list_converter.dart';
 import 'package:common/data/converters/string_double_converter.dart';
+import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'gcode_thumbnail.dart';
 import 'remote_file_mixin.dart';
 
 part 'gcode_file.freezed.dart';
-
 part 'gcode_file.g.dart';
 
 // {
@@ -62,7 +62,7 @@ part 'gcode_file.g.dart';
 // }
 
 @freezed
-class GCodeFile with _$GCodeFile, RemoteFile {
+sealed class GCodeFile with _$GCodeFile, RemoteFile {
   static int lastPrintedComparator(RemoteFile a, RemoteFile b) {
     if (a is! GCodeFile || b is! GCodeFile) return 0;
 
@@ -96,7 +96,7 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     int? layerCount,
     double? objectHeight,
     double? estimatedTime,
-    double? nozzleDiameter,
+    @DoubleListConverter() @Default([]) List<double>  nozzleDiameter, // This CAN be a list now. I assume for multi toolheads!
     double? layerHeight,
     double? firstLayerHeight,
     @JsonKey(name: 'first_layer_bed_temp') double? firstLayerTempBed,

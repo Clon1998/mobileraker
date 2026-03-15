@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -113,8 +113,8 @@ class _SpoolFormPage extends HookConsumerWidget {
     // This formatter is NOT using decimal (thousands) separator e.g. 1000.00
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
 
-    final controller = ref.watch(_SpoolFormPageControllerProvider(machineUUID).notifier);
-    final (sourceSpool, selectedFilament, mode, saving) = ref.watch(_SpoolFormPageControllerProvider(machineUUID)
+    final controller = ref.watch(_spoolFormPageControllerProvider(machineUUID).notifier);
+    final (sourceSpool, selectedFilament, mode, saving) = ref.watch(_spoolFormPageControllerProvider(machineUUID)
         .select((model) => (model.source, model.selectedFilament, model.mode, model.isSaving)));
 
     final allLocationsFuture = useMemoized(() => ref.read(spoolmanServiceProvider(machineUUID)).allLocations());
@@ -437,9 +437,9 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_SpoolFormPageControllerProvider(machineUUID).notifier);
+    final controller = ref.watch(_spoolFormPageControllerProvider(machineUUID).notifier);
     final (isSaving, selectedFilament) = ref.watch(
-        _SpoolFormPageControllerProvider(machineUUID).select((model) => (model.isSaving, model.selectedFilament)));
+        _spoolFormPageControllerProvider(machineUUID).select((model) => (model.isSaving, model.selectedFilament)));
 
     final themeData = Theme.of(context);
 
@@ -474,7 +474,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
   @override
   _Model build(String machineUUID) {
     ref.keepAliveExternally(spoolmanServiceProvider(machineUUID));
-    ref.listenSelf((prev, next) {
+    listenSelf((prev, next) {
       talker.info('[SpoolFormPageController($machineUUID)] State changed: $next');
     });
 
@@ -512,7 +512,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
   }
 
   void onTapFilamentSelection() async {
-    if (state.filaments.valueOrNull == null) return;
+    if (state.filaments.value == null) return;
     final filaments = state.filaments.requireValue;
     final locale = ref.read(activeLocaleProvider);
     final numberFormat = NumberFormat.decimalPattern(locale.toStringWithSeparator());
@@ -677,7 +677,7 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required _FormMode mode,
     required GetSpool? source,

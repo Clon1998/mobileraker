@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod/src/framework.dart';
 
 extension MobilerakerAutoDispose on Ref {
   // Returns a stream that alwways issues the latest/cached value of the provider

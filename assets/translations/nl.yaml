@@ -193,8 +193,6 @@ pages:
       moonraker_api_desc: Alleen nodig als je vertrouwde clients gebruikt. FluiddPI verplicht dit!
       full_url: Volledige URL
     extruders:
-      feedrate: Extruder feed rate
-      feedrate_short: Feed rate
       steps_extrude: Extrudeerstappen
     cams:
       target_fps: FPS Doel

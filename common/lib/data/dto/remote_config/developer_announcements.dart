@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'developer_announcements.freezed.dart';
 part 'developer_announcements.g.dart';
 
 @freezed
-class DeveloperAnnouncement with _$DeveloperAnnouncement {
+sealed class DeveloperAnnouncement with _$DeveloperAnnouncement {
   const factory DeveloperAnnouncement({
     required bool enabled,
     required List<DeveloperAnnouncementEntry> messages,

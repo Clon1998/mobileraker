@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -11,7 +11,12 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/machine/printer_builder.dart';
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/dto/server/klipper_system_info.dart';
+import 'package:common/data/dto/server/moonraker_version.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -28,7 +33,6 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -37,9 +41,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/tool_channel_selector/machine_tool_channel_selector.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -69,7 +74,7 @@ class ControlExtruderCard extends HookConsumerWidget {
 
     return AsyncGuard(
       animate: true,
-      debugLabel: 'ControlExtruderCard-$machineUUID',
+      // debugLabel: 'ControlExtruderCard-$machineUUID',
       toGuard: _controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard),
       childOnLoading: hadExtruder
           ? const _ControlExtruderLoading(key: Key('conExt-load'))
@@ -102,6 +107,9 @@ class _Preview extends HookWidget {
     return ProviderScope(
       overrides: [
         _controlExtruderCardControllerProvider(_machineUUID).overrideWith(_ControlExtruderCardPreviewController.new),
+        klippySystemInfoProvider(_machineUUID).overrideWithBuild((_,_) => KlipperSystemInfo()),
+        printerProvider(_machineUUID).overrideWithBuild((_,_) => Stream.value(PrinterBuilder.preview().build())),
+        klipperProvider(_machineUUID).overrideWithValue(AsyncValue.data(KlipperInstance(moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),))),
       ],
       child: const ControlExtruderCard(machineUUID: _machineUUID),
     );
@@ -218,6 +226,20 @@ class _CardTitle extends ConsumerWidget {
     var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
+    Widget? trailing = null;
+
+    if (model.extruderCount > 1 && !model.isSnapmakerU1) {
+      trailing = DropdownButton(
+        value: model.extruderIndex,
+        onChanged: model.klippyCanReceiveCommands ? controller.onExtruderSelected : null,
+        items: List.generate(model.extruderCount, (index) {
+          String name = tr('pages.dashboard.control.extrude_card.title');
+          if (index > 0) name += ' $index';
+          return DropdownMenuItem(value: index, child: Text(name));
+        }),
+      );
+    }
+
     return ListTile(
       leading: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
       title: Row(
@@ -241,17 +263,7 @@ class _CardTitle extends ConsumerWidget {
           ),
         ],
       ),
-      trailing: model.extruderCount <= 1
-          ? null
-          : DropdownButton(
-              value: model.extruderIndex,
-              onChanged: model.klippyCanReceiveCommands ? controller.onExtruderSelected : null,
-              items: List.generate(model.extruderCount, (index) {
-                String name = tr('pages.dashboard.control.extrude_card.title');
-                if (index > 0) name += ' $index';
-                return DropdownMenuItem(value: index, child: Text(name));
-              }),
-            ),
+      trailing: trailing,
     );
   }
 }
@@ -272,7 +284,8 @@ class _CardBody extends ConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (model.toolchangeMacros.isNotEmpty) _ToolSelector(machineUUID: machineUUID),
+        MachineToolChannelSelector(machineUUID: machineUUID),
+        Gap(8),
         LayoutBuilder(
           builder: (context, constraints) {
             final theme = Theme.of(context);
@@ -323,13 +336,13 @@ class _CardBody extends ConsumerWidget {
           },
         ),
         Text('${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
-        const SizedBox(height: 8),
+        Gap(8),
         SingleValueSelector(
           selectedIndex: model.stepIndex,
           onSelected: controller.onSelectedStepChanged,
           values: [for (var step in model.steps) step.toString()],
         ),
-        const SizedBox(height: 8),
+        Gap(8),
         const Divider(),
         LayoutBuilder(
           builder: (context, constraints) {
@@ -376,54 +389,9 @@ class _CardBody extends ConsumerWidget {
             );
           },
         ),
+
+
       ],
-    );
-  }
-}
-
-class _ToolSelector extends ConsumerWidget {
-  const _ToolSelector({super.key, required this.machineUUID});
-
-  final String machineUUID;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).requireValue());
-    final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
-
-    final theme = Theme.of(context);
-
-    final sel = theme.useMaterial3
-        ? SegmentedButton<GcodeMacro>(
-            showSelectedIcon: false,
-            segments: [for (var tool in model.toolchangeMacros) _buildButtonSegment((tool))],
-            selected: model.toolchangeMacros.where((e) => e.vars['active'] == true).toSet(),
-            onSelectionChanged: model.klippyCanReceiveCommands ? controller.onToolSetSelected : null,
-          )
-        : ToggleButtons(
-            isSelected: [for (var tool in model.toolchangeMacros) tool.vars['active'] == true],
-            onPressed: model.klippyCanReceiveCommands ? (i) => controller.onToolSelected(i) : null,
-            children: [for (var tool in model.toolchangeMacros) _ToolItem(tool: tool)],
-          );
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(),
-        child: sel,
-      ),
-    );
-  }
-
-  ButtonSegment<GcodeMacro> _buildButtonSegment(GcodeMacro tool) {
-    final Object? val = tool.vars['color'] ?? tool.vars['colour'];
-    final color = val?.let((v) => int.tryParse(v.toString(), radix: 16))?.let((i) => Color(i | 0xFF000000));
-
-    return ButtonSegment(
-      value: tool,
-      label: Text(tool.name),
-      icon: Icon(Icons.circle, color: color, size: 12).only(color != null),
     );
   }
 }
@@ -455,7 +423,6 @@ class _ToolItem extends StatelessWidget {
 
 @Riverpod(dependencies: [])
 class _ControlExtruderCardController extends _$ControlExtruderCardController {
-
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   SettingService get _settingService => ref.read(settingServiceProvider);
@@ -469,58 +436,54 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   CompositeKey get _hadExtruder => CompositeKey.keyWithString(UiKeys.hadExtruder, machineUUID);
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
+
     // await Future.delayed(Duration(seconds: 5));
 
     listenSelf((prev, next) {
       if (prev?.hasValue == true) return;
       if (next.hasValue == false) return;
-      talker.info('Writing...dsa.das.');
       _settingService.writeBool(_hadExtruder, next.requireValue.extruderCount > 0);
     });
 
-    talker.info('Building ControlExtruderCardController for $machineUUID');
+    // talker.info('Building ControlExtruderCardController for $machineUUID');
 
+    final initialIndex = _settingService.readInt(_settingsKey, 0);
+
+    final klipperFuture = ref.watch(klipperProvider(machineUUID).future);
+    final printerFuture = ref.watch(printerProvider(machineUUID).future);
+    final klipperSystemInfoFuture = ref.watch(klippySystemInfoProvider(machineUUID).future);
+    final machineSettingsFuture = ref.watch(machineSettingsProvider(machineUUID).future);
+
+    final (klippy, printer, klipperSystemInfo, machineSettings) = await (
+      klipperFuture,
+      printerFuture,
+      klipperSystemInfoFuture,
+      machineSettingsFuture,
+    ).wait;
+
+    var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
+
+    final idx =
+        state.whenData((value) => value.stepIndex).value ??
+        initialIndex.clamp(0, machineSettings.extrudeSteps.length - 1);
     // The active extruder (Set via klipper/moonraker) is watched and based on it, the streams are constructed
-    var activeExtruder = await ref.watch(
-      printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex),
+    var activeExtruderIndex = printer.toolhead.activeExtruderIndex;
+    return _Model(
+      showCard: printer.hasExtruder && printer.print.state != PrintState.printing,
+      klippyCanReceiveCommands: klippy.klippyCanReceiveCommands,
+      extruderCount: printer.extruderCount,
+      extruderIndex: activeExtruderIndex,
+      stepIndex: min(max(0, idx), machineSettings.extrudeSteps.length - 1),
+      steps: machineSettings.extrudeSteps,
+      isSnapmakerU1: isSnapmakerU1,
+      extruderVelocity: state.value?.extruderVelocity ?? machineSettings.extrudeFeedrate.toDouble(),
+      activeExtruder: activeExtruderIndex?.let(printer.extruders.elementAtOrNull),
+      activeExtruderConfig: activeExtruderIndex?.let(printer.configFile.extruderForIndex),
     );
-
-    var showCard = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.hasExtruder && data.print.state != PrintState.printing),
-    );
-
-    // Below is stream code to prevent to many controller rebuilds
-    var klippy = ref.watchAsSubject(klipperProvider(machineUUID));
-    var steps = ref.watchAsSubject(machineSettingsProvider(machineUUID).selectAs((data) => data.extrudeSteps));
-    var printer = ref.watchAsSubject(printerProvider(machineUUID));
-
-    var initialIndex = _settingService.readInt(_settingsKey, 0);
-    var initialVelocity = await ref.watch(
-      machineSettingsProvider(machineUUID).selectAsync((data) => data.extrudeFeedrate.toDouble()),
-    );
-
-    yield* Rx.combineLatest4(klippy, printer, steps, showCard, (a, b, c, d) {
-      final velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
-      final idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
-
-      return _Model(
-        showCard: d,
-        klippyCanReceiveCommands: a.klippyCanReceiveCommands,
-        extruderCount: b.extruderCount,
-        extruderIndex: activeExtruder,
-        stepIndex: min(max(0, idx), c.length - 1),
-        steps: c,
-        toolchangeMacros: b.gcodeMacros.values
-            .where((e) => _toolchangeMacroRegex.hasMatch(e.name))
-            .sortedByCompare((e) => int.tryParse(e.name.substring(1)) ?? 0, (i, j) => i.compareTo(j)),
-        extruderVelocity: velocity,
-        activeExtruder: activeExtruder?.let(b.extruders.elementAtOrNull),
-        activeExtruderConfig: activeExtruder?.let(b.configFile.extruderForIndex),
-      );
-    });
   }
+
 
   void onExtruderSelected(int? idx) {
     state = state.toLoading();
@@ -528,7 +491,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   }
 
   Future<void> onMoveE([bool isRetract = false]) async {
-    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).valueOrNull;
+    var machineSettings = ref.read(machineSettingsProvider(machineUUID)).value;
     if (machineSettings == null) return;
 
     var step = state.value?.let((it) => it.steps.elementAtOrNull(it.stepIndex));
@@ -552,7 +515,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     var maxVelocity = ref
         .read(printerProvider(machineUUID).selectAs((data) => data.configFile.primaryExtruder?.maxExtrudeOnlyVelocity))
-        .valueOrNull
+        .value
         ?.floorToDouble();
 
     _dialogService
@@ -582,9 +545,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     HapticFeedback.selectionClick().ignore();
     final activeAxtruder = state.requireValue.extruderIndex;
     if (activeAxtruder == null) return;
-    final extruderName = activeAxtruder > 0
-        ? 'extruder$activeAxtruder'
-        : 'extruder';
+    final extruderName = activeAxtruder > 0 ? 'extruder$activeAxtruder' : 'extruder';
 
     _dialogService.show(
       DialogRequest(
@@ -600,9 +561,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     final activeAxtruder = state.requireValue.extruderIndex;
     if (activeAxtruder == null) return;
-    final extruderName = activeAxtruder > 0
-        ? 'extruder$activeAxtruder'
-        : 'extruder';
+    final extruderName = activeAxtruder > 0 ? 'extruder$activeAxtruder' : 'extruder';
 
     _dialogService.show(
       DialogRequest(
@@ -611,21 +570,6 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
         data: FilamentOperationDialogArgs(machineUUID: machineUUID, isLoad: true, extruder: extruderName),
       ),
     );
-  }
-
-  void onToolSelected(int toolIdx) {
-    final tool = state.requireValue.toolchangeMacros.elementAtOrNull(toolIdx);
-    if (tool == null) return;
-    HapticFeedback.selectionClick().ignore();
-    _printerService.gCode(tool.name);
-  }
-
-  void onToolSetSelected(Set<GcodeMacro> selected) {
-    if (selected.isEmpty || selected.length > 1) return;
-    final tool = selected.firstOrNull;
-    if (tool == null) return;
-    HapticFeedback.selectionClick().ignore();
-    _printerService.gCode(tool.name);
   }
 
   void onHeatingButtonPressed() {
@@ -655,37 +599,37 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           _printerService.setHeaterTemperature(cur.activeExtruder!.name, v.toInt());
         });
   }
+
+  List<GcodeMacro> get u1Macros => [for (var i = 0; i < 4; i++) GcodeMacro(name: 'T$i')];
 }
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = AsyncValue.data(
-      _Model(
-        showCard: true,
-        klippyCanReceiveCommands: true,
-        extruderCount: 1,
-        extruderIndex: 0,
-        stepIndex: 0,
-        steps: [1, 5, 10, 20, 50],
-        extruderVelocity: 10,
-        activeExtruder: Extruder.empty(),
-        activeExtruderConfig: const ConfigExtruder(
-          name: 'extruder',
-          nozzleDiameter: 0.4,
-          maxExtrudeOnlyDistance: 100,
-          minTemp: 40,
-          minExtrudeTemp: -1,
-          maxTemp: 340,
-          maxPower: 1,
-          filamentDiameter: 1.75,
-          maxExtrudeOnlyVelocity: 100,
-          maxExtrudeOnlyAccel: 100,
-        ),
+  Future<_Model> build(String machineUUID) {
+    var model = _Model(
+      showCard: true,
+      klippyCanReceiveCommands: true,
+      extruderCount: 1,
+      extruderIndex: 0,
+      stepIndex: 0,
+      steps: [1, 5, 10, 20, 50],
+      extruderVelocity: 10,
+      activeExtruder: Extruder.empty(),
+      activeExtruderConfig: const ConfigExtruder(
+        name: 'extruder',
+        nozzleDiameter: 0.4,
+        maxExtrudeOnlyDistance: 100,
+        minTemp: 40,
+        minExtrudeTemp: -1,
+        maxTemp: 340,
+        maxPower: 1,
+        filamentDiameter: 1.75,
+        maxExtrudeOnlyVelocity: 100,
+        maxExtrudeOnlyAccel: 100,
       ),
     );
-
-    return const Stream.empty();
+    state = AsyncValue.data(model);
+    return Future.value(model);
   }
 
   @override
@@ -719,16 +663,11 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
   }
 
   @override
-  void onToolSelected(int toolIdx) {
-    // Do nothing preview
-  }
-
-  @override
   void onHeatingButtonPressed() {}
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
@@ -738,10 +677,10 @@ class _Model with _$Model {
     required int? extruderIndex,
     required int stepIndex,
     required List<int> steps,
-    @Default([]) List<GcodeMacro> toolchangeMacros,
     required double extruderVelocity,
     required Extruder? activeExtruder,
     required ConfigExtruder? activeExtruderConfig,
+    @Default(false) bool isSnapmakerU1,
   }) = __Model;
 
   bool get minExtrudeTempReached =>

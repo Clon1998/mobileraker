@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
@@ -25,7 +26,6 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
@@ -121,7 +121,8 @@ class AllMachines extends _$AllMachines {
       var oLen = machines.length;
       machines = machines.sublist(0, maxNonSupporterMachines);
       talker.info(
-          'Hiding machines from user since he is not a supporter! Original len was $oLen, new length is ${machines.length}');
+        'Hiding machines from user since he is not a supporter! Original len was $oLen, new length is ${machines.length}',
+      );
       return machines;
     }
 
@@ -167,26 +168,49 @@ Future<List<Machine>> machinesWithoutCompanion(Ref ref) async {
 Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
   ref.keepAliveFor();
 
+  ref.listen(printerProvider(machineUUID), (AsyncValue<Printer>? prev, next) {
+    // We do not want to invalidate if the printerData is available for the first time since we await that anyway!
+    if (prev?.hasValue == true && prev?.value?.gcodeMacros.length != next.value?.gcodeMacros.length) {
+      talker.info(
+        'Detected macro count change for machine $machineUUID, refreshing settings provider to adjust default macros!',
+      );
+      ref.invalidateSelf(asReload: true);
+    }
+  });
+
   // Just ensure we have a machine to prevent errors while we dispose the machine/on remove the machine.
   final machine = await ref.watch(machineProvider(machineUUID).future);
   if (machine == null) return;
 
-  // We listen to macro count changes to trigger a provider rebuild, allowing us to migrate the setting's macros
-  var macroCnt = await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.gcodeMacros.length));
+  final klippyState = await ref.watch(klipperProvider(machineUUID).selectAsync((d) => d.klippyState));
 
-  // Converts Klippy ready state to a stream of settings -> Emits new settings each time the Klippy state is transitioning to ready
-  yield* ref
-      .watchAsSubject(klipperProvider(machineUUID))
-      .where((event) => event.klippyState == KlipperState.ready)
-      .distinct()
-      .asyncMap((event) async {
-    var printerData = await ref.read(printerProvider(machineUUID).future);
+  if (!ref.mounted) {
+    talker.warning('[machineSettingsProvider] Not mounted anymore, returning early for machine $machineUUID');
+    return;
+  }
 
-    // We need to use read to prevent circular dependencies
-    return await ref
+  if (klippyState == KlipperState.ready) {
+    // We can safely use read here since we have a listen that will trigger a refresh of this provider if the printer data changes and thus also when the macros change.
+    final printerData = await ref.read(printerProvider(machineUUID).future);
+
+    if (!ref.mounted) {
+      talker.warning('[machineSettingsProvider] Not mounted anymore, returning early for machine $machineUUID');
+      return;
+    }
+    yield await ref
         .read(machineServiceProvider)
         .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
-  });
+    return;
+  } else if (klippyState case KlipperState.error || KlipperState.unauthorized) {
+    talker.error(
+      'Klipper is in state $klippyState, which means there is likely an issue with the connection or authentication. Throwing an error to prevent further issues!',
+    );
+    throw MobilerakerException(
+      'Klipper is in state $klippyState, which means there is likely an issue with the connection or authentication. Please check your connection and authentication settings!',
+    );
+    return;
+  }
+  // We just do nothing/wait for a rebuild -> new data is available!
 }
 
 @riverpod
@@ -204,10 +228,10 @@ Stream<MachineSettings> selectedMachineSettings(Ref ref) async* {
 /// Service handling the management of a machine
 class MachineService {
   MachineService(this.ref)
-      : _machineRepo = ref.watch(machineRepositoryProvider),
-        _selectedMachineService = ref.watch(selectedMachineServiceProvider),
-        _settingService = ref.watch(settingServiceProvider),
-        _appConnectionService = ref.watch(appConnectionServiceProvider) {
+    : _machineRepo = ref.watch(machineRepositoryProvider),
+      _selectedMachineService = ref.watch(selectedMachineServiceProvider),
+      _settingService = ref.watch(settingServiceProvider),
+      _appConnectionService = ref.watch(appConnectionServiceProvider) {
     // ref.listen(provider, listener)
 
     ref.onDispose(dispose);
@@ -282,33 +306,33 @@ class MachineService {
     /// It automatically invalidates itself after that if not used anymore.
 
     // await Future.delayed(Duration(seconds: 4));
-// DANGER!! It is really important to invalidate in the correct order!
-//     // Announcements API
-//     ref.invalidate(announcementProvider(machine.uuid));
-//     ref.invalidate(announcementServiceProvider(machine.uuid));
-//     // Files API
-//     ref.invalidate(fileNotificationsProvider(machine.uuid));
-//     ref.invalidate(fileServiceProvider(machine.uuid));
-//     // Webcam API
-//     ref.invalidate(webcamServiceProvider(machine.uuid));
-//
-//     // Settings
-//     // ref.invalidate(machineSettingsProvider(machine.uuid));
-//     // Printer API
-//     ref.invalidate(printerProvider(machine.uuid));
-//     ref.invalidate(printerServiceProvider(machine.uuid));
-//     // Klippy API
-//     ref.invalidate(klipperProvider(machine.uuid));
-//     ref.invalidate(klipperServiceProvider(machine.uuid));
-//     // I/O
-//     ref.invalidate(baseOptionsProvider);
-//     ref.invalidate(httpClientProvider);
-//     ref.invalidate(jrpcClientManagerProvider(machine.uuid));
-//     ref.invalidate(dioClientProvider(machine.uuid));
-//     ref.invalidate(jrpcClientStateProvider(machine.uuid));
-//     ref.invalidate(jrpcClientProvider(machine.uuid));
-//     // Actual machine
-//     ref.invalidate(machineProvider(machine.uuid));
+    // DANGER!! It is really important to invalidate in the correct order!
+    //     // Announcements API
+    //     ref.invalidate(announcementProvider(machine.uuid));
+    //     ref.invalidate(announcementServiceProvider(machine.uuid));
+    //     // Files API
+    //     ref.invalidate(fileNotificationsProvider(machine.uuid));
+    //     ref.invalidate(fileServiceProvider(machine.uuid));
+    //     // Webcam API
+    //     ref.invalidate(webcamServiceProvider(machine.uuid));
+    //
+    //     // Settings
+    //     // ref.invalidate(machineSettingsProvider(machine.uuid));
+    //     // Printer API
+    //     ref.invalidate(printerProvider(machine.uuid));
+    //     ref.invalidate(printerServiceProvider(machine.uuid));
+    //     // Klippy API
+    //     ref.invalidate(klipperProvider(machine.uuid));
+    //     ref.invalidate(klipperServiceProvider(machine.uuid));
+    //     // I/O
+    //     ref.invalidate(baseOptionsProvider);
+    //     ref.invalidate(httpClientProvider);
+    //     ref.invalidate(jrpcClientManagerProvider(machine.uuid));
+    //     ref.invalidate(dioClientProvider(machine.uuid));
+    //     ref.invalidate(jrpcClientStateProvider(machine.uuid));
+    //     ref.invalidate(jrpcClientProvider(machine.uuid));
+    //     // Actual machine
+    //     ref.invalidate(machineProvider(machine.uuid));
     // ref.invalidate(selectedMachineProvider);
     ref.invalidate(allMachinesProvider);
     talker.info('Removed machine ${machine.uuid}');
@@ -343,7 +367,8 @@ class MachineService {
 
     if (machineSettings == null) {
       talker.info(
-          'No settings found for ${machine?.logName ?? machineUUID}, falling back to default and writing it to database!');
+        'No settings found for ${machine?.logName ?? machineUUID}, falling back to default and writing it to database!',
+      );
       machineSettings = MachineSettings.fallback();
       ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).update(machineSettings);
     } else {
@@ -354,24 +379,27 @@ class MachineService {
   }
 
   Future<void> updateSettings(Machine machine, MachineSettings machineSettings) {
-    return ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
+    return ref
+        .read(machineSettingsRepositoryProvider(machine.uuid))
+        .update(machineSettings)
+        .whenComplete(() => ref.refresh(machineSettingsProvider(machine.uuid)));
   }
 
-  Future<void> updateMachineFcmLiveActivity({
-    required Machine machine,
-    String? liveActivityPushToken,
-  }) async {
+  Future<void> updateMachineFcmLiveActivity({required Machine machine, String? liveActivityPushToken}) async {
     var keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machine.uuid));
     try {
       var repo = ref.read(apnsRepositoryProvider(machine.uuid));
 
       talker.info('Updating live activity in FCM for machine ${machine.logName}');
 
-      var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
-          (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
+      var connectionResult = await ref.readWhere(
+        jrpcClientStateProvider(machine.uuid),
+        (state) => ![ClientState.connecting, ClientState.disconnected].contains(state),
+      );
       if (connectionResult != ClientState.connected) {
         talker.warning(
-            '${machine.logTagExtended} Unable to Propagated live activity in FCM because JRPC was not connected!');
+          '${machine.logTagExtended} Unable to Propagated live activity in FCM because JRPC was not connected!',
+        );
         return;
       }
       if (liveActivityPushToken == null) {
@@ -385,21 +413,21 @@ class MachineService {
     }
   }
 
-  Future<void> updateApplePushNotificationToken(
-    String machineUUID,
-    String? liveActivityPushToken,
-  ) async {
+  Future<void> updateApplePushNotificationToken(String machineUUID, String? liveActivityPushToken) async {
     final keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machineUUID));
     try {
       talker.info('Trying to update Apple Push Notification Token for machine $machineUUID');
       final repo = ref.read(apnsRepositoryProvider(machineUUID));
 
-      final connectionResult = await ref.readWhere(jrpcClientStateProvider(machineUUID),
-          (state) => state == ClientState.connected || state == ClientState.connecting);
+      final connectionResult = await ref.readWhere(
+        jrpcClientStateProvider(machineUUID),
+        (state) => state == ClientState.connected || state == ClientState.connecting,
+      );
 
       if (connectionResult != ClientState.connected) {
         talker.warning(
-            'Unable to update Apple Push Notification Token because JRPC was not connected for machine $machineUUID');
+          'Unable to update Apple Push Notification Token because JRPC was not connected for machine $machineUUID',
+        );
         return;
       }
 
@@ -411,7 +439,9 @@ class MachineService {
       talker.info('Successfully updated Apple Push Notification Token for machine $machineUUID');
     } catch (e) {
       talker.warning(
-          'Error while trying to update Apple Push Notification Token for machine $machineUUID. Rethrowing...', e);
+        'Error while trying to update Apple Push Notification Token for machine $machineUUID. Rethrowing...',
+        e,
+      );
       rethrow;
     } finally {
       keepAliveExternally.close();
@@ -429,11 +459,14 @@ class MachineService {
   Future<CompanionMetaData?> fetchCompanionMetaData(Machine machine) async {
     var machineUUID = machine.uuid;
 
-    var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
-        (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
+    var connectionResult = await ref.readWhere(
+      jrpcClientStateProvider(machine.uuid),
+      (state) => ![ClientState.connecting, ClientState.disconnected].contains(state),
+    );
     if (connectionResult != ClientState.connected) {
       talker.warning(
-          '${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
+        '${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!',
+      );
       throw const MobilerakerException('Machine not connected');
     }
 
@@ -465,7 +498,9 @@ class MachineService {
   ///
   /// Returns the updated [MachineSettings] for the machine.
   Future<MachineSettings> fetchSettingsAndAdjustDefaultMacros(
-      String machineUUID, Map<String, GcodeMacro> macros) async {
+    String machineUUID,
+    Map<String, GcodeMacro> macros,
+  ) async {
     // Get the machine with the provided UUID
     final machine = await _machineRepo.get(uuid: machineUUID);
 
@@ -478,7 +513,7 @@ class MachineService {
     talker.info('Updating Default Macros for "${machine.logNameExtended})"!');
 
     // Fetch the machine settings
-    final machineSettings = await fetchSettings(machineUUID: machineUUID);
+    var machineSettings = await fetchSettings(machineUUID: machineUUID);
 
     // Filter out macros that start with '_'
     final filteredRawMacros = macros.values.where((element) => element.isVisible).toList();
@@ -502,7 +537,7 @@ class MachineService {
                 talker.info('Marking macro "${macro.name}" for removal in 12 hr(s)!');
               }
             }),
-          )
+          ),
       ];
 
       modifiableMacroGrps[i] = grp.copyWith(macros: mMacros);
@@ -513,20 +548,25 @@ class MachineService {
 
     bool hasLegacyDefaultGroup = false;
     // Find the default macro group or create it if it doesn't exist
-    final defaultGroup = modifiableMacroGrps.firstWhere((element) => element.isDefaultGroup, orElse: () {
-      final legacyDefaultGrp = modifiableMacroGrps.firstWhereOrNull((element) => element.name == 'Default');
+    final defaultGroup = modifiableMacroGrps.firstWhere(
+      (element) => element.isDefaultGroup,
+      orElse: () {
+        final legacyDefaultGrp = modifiableMacroGrps.firstWhereOrNull((element) => element.name == 'Default');
 
-      if (legacyDefaultGrp != null) {
-        hasLegacyDefaultGroup = true;
-        talker.info('Found legacy default group, migrating it to the new default group format!');
-        modifiableMacroGrps.remove(legacyDefaultGrp);
+        if (legacyDefaultGrp != null) {
+          hasLegacyDefaultGroup = true;
+          talker.info('Found legacy default group, migrating it to the new default group format!');
+          modifiableMacroGrps.remove(legacyDefaultGrp);
 
-        return MacroGroup.defaultGroup(
-            name: tr('pages.printer_edit.macros.default_grp'), macros: legacyDefaultGrp.macros);
-      }
+          return MacroGroup.defaultGroup(
+            name: tr('pages.printer_edit.macros.default_grp'),
+            macros: legacyDefaultGrp.macros,
+          );
+        }
 
-      return MacroGroup.defaultGroup(name: tr('pages.printer_edit.macros.default_grp'));
-    });
+        return MacroGroup.defaultGroup(name: tr('pages.printer_edit.macros.default_grp'));
+      },
+    );
 
     // If there's no legacy group and no new macros to add, return early
     if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty && !hasMarkedForRemoval)
@@ -558,7 +598,7 @@ class MachineService {
     }
 
     // Update the machine settings and save
-    machineSettings.macroGroups = modifiableMacroGrps;
+    machineSettings = machineSettings.copyWith(macroGroups: List.unmodifiable(modifiableMacroGrps));
     await ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
     return machineSettings;
   }

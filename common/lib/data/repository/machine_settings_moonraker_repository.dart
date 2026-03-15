@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../network/moonraker_database_client.dart';
@@ -14,8 +13,7 @@ part 'machine_settings_moonraker_repository.g.dart';
 
 @riverpod
 MachineSettingsRepository machineSettingsRepository(Ref ref, String machineUUID) {
-  return MachineSettingsMoonrakerRepository(
-      ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
+  return MachineSettingsMoonrakerRepository(ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
 }
 
 class MachineSettingsMoonrakerRepository implements MachineSettingsRepository {
@@ -25,16 +23,20 @@ class MachineSettingsMoonrakerRepository implements MachineSettingsRepository {
 
   @override
   Future<void> update(MachineSettings machineSettings) async {
-    machineSettings.lastModified = DateTime.now();
-
     await _databaseService.addDatabaseItem(
-        MachineSettingsRepository.namespace, MachineSettingsRepository.key, machineSettings);
+      MachineSettingsRepository.namespace,
+      MachineSettingsRepository.key,
+      machineSettings.copyWith(lastModified: DateTime.now()),
+    );
   }
 
   @override
   Future<MachineSettings?> get() async {
-    var json = await _databaseService.getDatabaseItem(MachineSettingsRepository.namespace,
-        key: MachineSettingsRepository.key, throwOnError: true);
+    var json = await _databaseService.getDatabaseItem(
+      MachineSettingsRepository.namespace,
+      key: MachineSettingsRepository.key,
+      throwOnError: true,
+    );
     if (json == null) return null;
     return MachineSettings.fromJson(json);
   }

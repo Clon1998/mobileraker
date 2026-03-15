@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -15,7 +15,7 @@ part 'dashboard_tab.freezed.dart';
 part 'dashboard_tab.g.dart';
 
 @freezed
-class DashboardTab with _$DashboardTab {
+sealed class DashboardTab with _$DashboardTab {
   static Map<String, IconData> availableIcons = {
     'settings': Icons.settings,
     'dashboard': Icons.dashboard,

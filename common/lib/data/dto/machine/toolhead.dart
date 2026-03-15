@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -17,7 +17,7 @@ Set<PrinterAxis> _homedAxisFromJson(String haxis) =>
 String _homedAxisToJson(Set<PrinterAxis> homed) => homed.map((e) => e.name).join();
 
 @freezed
-class Toolhead with _$Toolhead {
+sealed class Toolhead with _$Toolhead {
   const Toolhead._();
 
   @StringDoubleConverter()
@@ -40,7 +40,7 @@ class Toolhead with _$Toolhead {
       return null;
     }
     // If it matches 'extruder' the active extruder is 0
-    return int.tryParse(activeExtruder.substring(8))??0;
+    return int.tryParse(activeExtruder.substring(8)) ?? 0;
   }
 
   factory Toolhead.fromJson(Map<String, dynamic> json) => _$ToolheadFromJson(json);

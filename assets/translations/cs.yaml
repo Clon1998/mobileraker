@@ -561,8 +561,6 @@ pages:
       steps_baby_short: Z-Kroky
     extruders:
       title: Extruder(y)
-      feedrate: Rychlost vytlačování
-      feedrate_short: Rychlost
       steps_extrude: Kroky extruze
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'print_stats.freezed.dart';
 part 'print_stats.g.dart';
 
 @freezed
-class PrintStats with _$PrintStats {
+sealed class PrintStats with _$PrintStats {
   const PrintStats._();
 
   @StringDoubleConverter()

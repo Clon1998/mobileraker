@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -23,7 +23,7 @@ part 'z_thermal_adjust.g.dart';
 // }
 
 @freezed
-class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
+sealed class ZThermalAdjust with _$ZThermalAdjust, TemperatureSensorMixin {
   const ZThermalAdjust._();
 
   @StringDoubleConverter()

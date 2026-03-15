@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -299,6 +299,7 @@ class _CardBody extends ConsumerWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: controller.onPlotTap,
+                    onLongPress: controller.onPlotTap,// Just to prevent users from
                     behavior: HitTestBehavior.translucent,
                     child: Hero(
                       tag: 'bed_mesh_plot',
@@ -585,7 +586,7 @@ class _PreviewController extends _Controller {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

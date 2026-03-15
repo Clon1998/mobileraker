@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -199,7 +199,7 @@ class JsonRpcClient {
   }
 
   /// add a method listener for all(all=*) or given [method]
-  addMethodListener(RpcMethodListener callback, [String method = WILDCARD_METHOD]) {
+  void addMethodListener(RpcMethodListener callback, [String method = WILDCARD_METHOD]) {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 

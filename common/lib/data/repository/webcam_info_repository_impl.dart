@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -32,13 +32,14 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   }
 
   @override
-  Future<void> addOrUpdate(WebcamInfo webcamInfo) async {
+  Future<WebcamInfo> addOrUpdate(WebcamInfo webcamInfo) async {
     try {
       talker.info('Trying to update or add webcam ${webcamInfo.name} with uuid:"${webcamInfo.uid}".');
 
       talker.warning('I AM JSON : --- ${webcamInfo.toJson()}');
 
-      await _rpcClient.sendJRpcMethod('server.webcams.post_item', params: webcamInfo.toJson());
+      final response = await _rpcClient.sendJRpcMethod('server.webcams.post_item', params: webcamInfo.toJson());
+      return WebcamInfo.fromJson(response.result['webcam']);
     } on JRpcError catch (e) {
       throw MobilerakerException('Unable to add or update webcam with uuid:${webcamInfo.uid}', parentException: e);
     }

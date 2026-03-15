@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -33,10 +33,11 @@ class WebcamInfoRepositoryLegacy extends WebcamInfoRepository {
   }
 
   @override
-  Future<void> addOrUpdate(WebcamInfo webcamInfo) async {
+  Future<WebcamInfo> addOrUpdate(WebcamInfo webcamInfo) async {
     var uuid = (webcamInfo.uid?.isEmpty == true) ? const Uuid().v4() : webcamInfo.uid;
 
     await _databaseService.addDatabaseItem('mobileraker', 'webcams.$uuid', webcamInfo);
+    return webcamInfo.copyWith(uid: uuid);
   }
 
   @override

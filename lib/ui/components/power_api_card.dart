@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -250,7 +250,7 @@ class _PowerApiCardController extends _$PowerApiCardController {
     if (hasPowerAPI) {
       // We are using the sync version because we do not want to wait for the printer state -> Power Api Card should work even if printer/klipper is not connected
       isPrinting =
-          ref.watch(printerProvider(machineUUID).select((d) => d.valueOrNull?.print.state == PrintState.printing));
+          ref.watch(printerProvider(machineUUID).select((d) => d.value?.print.state == PrintState.printing));
       devices = await ref
           .watch(powerDevicesProvider(machineUUID).future)
           .then((value) => value.where((element) => !element.name.startsWith('_')).toList());
@@ -302,7 +302,7 @@ class _PowerApiCardPreviewController extends _PowerApiCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

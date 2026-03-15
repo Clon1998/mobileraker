@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -26,7 +26,7 @@ enum KlipperState {
 }
 
 @freezed
-class KlipperInstance with _$KlipperInstance {
+sealed class KlipperInstance with _$KlipperInstance {
   const KlipperInstance._();
 
   @JsonSerializable(fieldRename: FieldRename.snake)

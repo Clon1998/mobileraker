@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -76,7 +76,7 @@ class _ProductPackage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     EntitlementInfo? activeEntitlement = ref.watch(customerInfoProvider.select((asyncData) {
-      CustomerInfo? customerInfo = asyncData.valueOrNull;
+      CustomerInfo? customerInfo = asyncData.value;
 
       // talker.warning('CustomerInfo:');
       // talker.warning('\tActive: ${customerInfo?.entitlements.active}');

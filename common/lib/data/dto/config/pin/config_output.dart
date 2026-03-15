@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,9 @@ part 'config_output.freezed.dart';
 part 'config_output.g.dart';
 
 @freezed
-class ConfigOutput extends ConfigPin with _$ConfigOutput {
+sealed class ConfigOutput extends ConfigPin with _$ConfigOutput {
+  const ConfigOutput._();
+
   @StringDoubleConverter()
   const factory ConfigOutput({
     required String name,

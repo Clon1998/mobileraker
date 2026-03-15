@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -185,7 +185,7 @@ class _Fan extends ConsumerWidget {
     if (data == null) {
       return const SizedBox.shrink();
     }
-    talker.info('Rebuilding fan card for $data');
+    // talker.info('Rebuilding fan card for $data');
 
     final (fan, fanConfig) = data;
 
@@ -242,8 +242,7 @@ class _FanCard extends StatelessWidget {
 
         var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
 
-        final tachFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
-
+        final tachFormat = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(),decimalDigits: 0);
         return Tooltip(
           message: name,
           child: Row(
@@ -404,7 +403,7 @@ class _FansCardPreviewController extends _FansCardController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

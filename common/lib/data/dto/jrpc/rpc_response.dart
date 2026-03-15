@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -11,7 +11,7 @@ part 'rpc_response.freezed.dart';
 part 'rpc_response.g.dart';
 
 @freezed
-class RpcResponse with _$RpcResponse {
+sealed class RpcResponse with _$RpcResponse {
   const RpcResponse._();
 
   @StringIntegerConverter()

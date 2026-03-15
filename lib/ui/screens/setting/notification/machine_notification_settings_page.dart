@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -255,14 +255,14 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
 
 // Small hack because of the iterable so we can be sure to rebuild only if it changes due to how riverpod works with iterables!
 @freezed
-class _Hack with _$Hack {
+sealed class _Hack with _$Hack {
   const factory _Hack(
     Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> sensors,
   ) = __Hack;
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required DeviceFcmSettings deviceFcmSettings,
     required List<WebcamInfo> webcams,

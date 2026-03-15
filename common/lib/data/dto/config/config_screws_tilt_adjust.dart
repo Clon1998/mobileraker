@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -25,7 +25,7 @@ part 'config_screws_tilt_adjust.g.dart';
 // }
 
 @freezed
-class ConfigScrewsTiltAdjust with _$ConfigScrewsTiltAdjust {
+sealed class ConfigScrewsTiltAdjust with _$ConfigScrewsTiltAdjust {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigScrewsTiltAdjust({

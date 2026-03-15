@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -10,7 +10,7 @@ part 'config_gcode_macro_param.freezed.dart';
 part 'config_gcode_macro_param.g.dart';
 
 @freezed
-class ConfigGcodeMacroParam with _$ConfigGcodeMacroParam {
+sealed class ConfigGcodeMacroParam with _$ConfigGcodeMacroParam {
   const factory ConfigGcodeMacroParam({
     final String? type,
     final String? defaultValue,

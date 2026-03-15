@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -26,7 +26,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../../../../service/ui/dialog_service_impl.dart';
-import '../../../../components/TextSelectionToolbar.dart';
 import '../../../../components/async_value_widget.dart';
 import '../../../../components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
 import '../../components/section_header.dart';
@@ -46,7 +45,7 @@ class MacroGroupList extends ConsumerWidget {
     var groupCount = ref.watch(controllerProvider.selectAs((v) => v.length));
     // Listen to the list hashCode to react to list position changes!
     var hash = ref.watch(controllerProvider
-        .select((v) => v.valueOrNull?.let((e) => const DeepCollectionEquality().hash(e.map((g) => g.uuid)))));
+        .select((v) => v.value?.let((e) => const DeepCollectionEquality().hash(e.map((g) => g.uuid)))));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -158,7 +157,7 @@ class _MacroGroup extends HookConsumerWidget {
             TextFormField(
               focusNode: focusNode,
               initialValue: macroGroup.name,
-              contextMenuBuilder: defaultContextMenuBuilder,
+              
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 labelText: 'pages.printer_edit.general.displayname'.tr(),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,7 +9,7 @@ part 'app_portal_result.freezed.dart';
 part 'app_portal_result.g.dart';
 
 @freezed
-class AppPortalResult with _$AppPortalResult {
+sealed class AppPortalResult with _$AppPortalResult {
   const factory AppPortalResult({
     required String appApiToken,
     @JsonKey(name: 'authbasichttpuser') required String authBasicHttpUser,

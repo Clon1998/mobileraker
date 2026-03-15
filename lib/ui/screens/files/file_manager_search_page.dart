@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -222,13 +222,13 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   _Model build(String machineUUID, String path) {
     talker.info('[FileManagerSearchController] initializing for $path');
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
+      if (next.value == ClientState.error || next.value == ClientState.disconnected) {
         if (_goRouter.canPop()) _goRouter.pop();
         talker.info('[FileManagerSearchController] Client disconnected. Popping search page');
       }
     });
 
-    ref.listenSelf((previous, next) {
+    listenSelf((previous, next) {
       if (previous?.searchTerm != next.searchTerm) {
         talker.info('[FileManagerSearchController] Search term changed, refreshing results');
         _refreshResults();
@@ -259,7 +259,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
         _goRouter.pushNamed(AppRoute.fileManager_exlorer_imageViewer.name, pathParameters: {'path': path}, extra: file);
         break;
       default:
-        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': path}, extra: file);
+        _goRouter.pushNamed(AppRoute.fileManager_exlorer_editor.name, pathParameters: {'path': path}, queryParameters: {'machineUUID': machineUUID}, extra: file);
     }
   }
 
@@ -325,7 +325,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -33,7 +33,7 @@ class ActiveLocale extends _$ActiveLocale {
 
   @override
   Locale build() {
-    ref.listenSelf((previous, next) {
+    listenSelf((previous, next) {
       talker.info('Active locale changed from $previous to $next');
       _settingService.writeString(UtilityKeys.lastLocale, next.toString());
     });

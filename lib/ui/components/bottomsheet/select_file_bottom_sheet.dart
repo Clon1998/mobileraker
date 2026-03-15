@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -302,7 +302,7 @@ class _SelectFileBottomSheetController extends _$SelectFileBottomSheetController
     );
 
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
-      if (next.valueOrNull == ClientState.error || next.valueOrNull == ClientState.disconnected) {
+      if (next.value == ClientState.error || next.value == ClientState.disconnected) {
         if (_goRouter.canPop()) _goRouter.pop(BottomSheetResult.dismissed());
         talker.info(
           '[_SelectFileBottomSheetController($machineUUID, $filePath)] JRPC Client is in error state, will pop files bottom sheet',
@@ -388,12 +388,12 @@ class _SelectFileBottomSheetController extends _$SelectFileBottomSheetController
 }
 
 @freezed
-class SelectFileBottomSheetArgs with _$SelectFileBottomSheetArgs {
+sealed class SelectFileBottomSheetArgs with _$SelectFileBottomSheetArgs {
   const factory SelectFileBottomSheetArgs(String machineUUID, [@Default('gcodes') String path]) =
       __SelectFileBottomSheetArgs;
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({required FolderContentWrapper folderContent, required SortConfiguration sortConfig}) = __Model;
 }

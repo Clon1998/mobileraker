@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -597,11 +597,11 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
     talker.info('Buildign GCodeFileDetailsController');
     canPrintCalc(PrintState? d) => d != null && (d != PrintState.printing || d != PrintState.paused);
     final gCodeFile = ref.watch(_gcodeProvider);
-    final klippy = ref.watch(klipperProvider(machineUUID)).valueOrNull;
-    final printer = ref.read(printerProvider(machineUUID)).valueOrNull;
+    final klippy = ref.watch(klipperProvider(machineUUID)).value;
+    final printer = ref.read(printerProvider(machineUUID)).value;
     ref.listen(printerProvider(machineUUID), (previous, next) {
-      if (previous?.valueOrNull?.print.state != next.valueOrNull?.print.state) {
-        state = state.copyWith(canStartPrint: canPrintCalc(next.valueOrNull?.print.state));
+      if (previous?.value?.print.state != next.value?.print.state) {
+        state = state.copyWith(canStartPrint: canPrintCalc(next.value?.print.state));
       }
     });
 
@@ -628,11 +628,11 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
     double? insufficientFilament;
     String? materialMissmatch;
     if (klippy?.hasSpoolmanComponent == true) {
-      final spool = ref.read(activeSpoolProvider(machineUUID)).valueOrNull;
+      final spool = ref.read(activeSpoolProvider(machineUUID)).value;
 
       ref.listen(activeSpoolProvider(machineUUID), (previous, next) {
-        if (previous?.valueOrNull != next.valueOrNull) {
-          final res = spoolCalc(next.valueOrNull!);
+        if (previous?.value != next.value) {
+          final res = spoolCalc(next.value!);
           state = state.copyWith(
             insufficientFilament: res.$1,
             materialMissmatch: res.$2,
@@ -678,7 +678,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   }
 
   void _onFileNotification(AsyncValue<FileActionResponse>? prev, AsyncValue<FileActionResponse> next) {
-    final notification = next.valueOrNull;
+    final notification = next.value;
     if (notification == null) return;
     talker.info('[GCodeFileDetailsController] File-notification: $notification');
 
@@ -768,7 +768,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required GCodeFile file,
     required bool canStartPrint,

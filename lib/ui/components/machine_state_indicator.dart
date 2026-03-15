@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -24,8 +24,8 @@ class MachineStateIndicator extends ConsumerWidget {
     ClientState? clientState;
     if (machine != null) {
       var machineUUID = machine!.uuid;
-      klippyData = ref.watch(klipperProvider(machineUUID)).valueOrNull;
-      clientState = ref.watch(jrpcClientStateProvider(machineUUID)).valueOrNull;
+      klippyData = ref.watch(klipperProvider(machineUUID)).value;
+      clientState = ref.watch(jrpcClientStateProvider(machineUUID)).value;
     }
     clientState ??= ClientState.disconnected;
 

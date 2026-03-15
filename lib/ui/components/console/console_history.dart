@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -126,7 +126,7 @@ class _ConsoleDataState extends ConsumerState<_ConsoleData> {
     final themeData = Theme.of(context);
     final dateFormatService = ref.read(dateFormatServiceProvider);
 
-    talker.error('Rebuilding console list. Count: $count');
+    // talker.error('Rebuilding console list. Count: $count');
 
     final showTimeStamp = ref.watch(boolSettingProvider(AppSettingKeys.consoleShowTimestamp));
 

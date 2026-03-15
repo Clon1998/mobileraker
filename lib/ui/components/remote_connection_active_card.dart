@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,8 +9,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final dismissiedRemoteInfoProvider = StateProvider<bool>((ref) => false);
+part 'remote_connection_active_card.g.dart';
+
 
 class RemoteConnectionActiveCard extends ConsumerWidget {
   const RemoteConnectionActiveCard({super.key, required this.machineId});
@@ -19,7 +21,9 @@ class RemoteConnectionActiveCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var clientType = ref.watch(jrpcClientTypeProvider(machineId)) ?? ClientType.local;
+    final clientType = ref.watch(jrpcClientTypeProvider(machineId));
+    final dismissed = ref.watch(_controllerProvider);
+    final controller = ref.read(_controllerProvider.notifier);
 
     return AnimatedSwitcher(
       duration: kThemeAnimationDuration,
@@ -29,7 +33,7 @@ class RemoteConnectionActiveCard extends ConsumerWidget {
         sizeFactor: anim,
         child: FadeTransition(opacity: anim, child: child),
       ),
-      child: (clientType == ClientType.local || ref.watch(dismissiedRemoteInfoProvider))
+      child: (clientType == ClientType.local || dismissed)
           ? const SizedBox.shrink()
           : Card(
               child: Column(
@@ -44,7 +48,7 @@ class RemoteConnectionActiveCard extends ConsumerWidget {
                       'components.remote_connection_indicator.title',
                     ).tr(),
                     trailing: IconButton(
-                      onPressed: () => ref.read(dismissiedRemoteInfoProvider.notifier).state = true,
+                      onPressed: controller.dismiss,
                       icon: const Icon(Icons.close),
                     ),
                   ),
@@ -52,5 +56,16 @@ class RemoteConnectionActiveCard extends ConsumerWidget {
               ),
             ),
     );
+  }
+}
+
+
+@Riverpod(keepAlive: true)
+class _Controller extends _$Controller {
+  @override
+  bool build() => false;
+
+  void dismiss() {
+    state = true;
   }
 }

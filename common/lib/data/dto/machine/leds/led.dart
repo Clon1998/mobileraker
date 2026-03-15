@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ import 'dumb_led.dart';
 part 'led.freezed.dart';
 
 @freezed
-class Pixel with _$Pixel {
+sealed class Pixel with _$Pixel {
   const Pixel._();
 
   const factory Pixel({

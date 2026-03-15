@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'config_dotstar.freezed.dart';
 part 'config_dotstar.g.dart';
 
 @freezed
-class ConfigDotstar extends ConfigLed with _$ConfigDotstar {
+sealed class ConfigDotstar extends ConfigLed with _$ConfigDotstar {
   const ConfigDotstar._();
 
   @StringIntegerConverter()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -196,8 +196,8 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_VendorFormPageControllerProvider(machineUUID).notifier);
-    final isSaving = ref.watch(_VendorFormPageControllerProvider(machineUUID).select((model) => model.isSaving));
+    final controller = ref.watch(_vendorFormPageControllerProvider(machineUUID).notifier);
+    final isSaving = ref.watch(_vendorFormPageControllerProvider(machineUUID).select((model) => model.isSaving));
 
     final themeData = Theme.of(context);
 
@@ -350,7 +350,7 @@ class _VendorFormPageController extends _$VendorFormPageController {
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const factory _Model({
     required _FormMode mode,
     required GetVendor? source,

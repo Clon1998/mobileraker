@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -10,7 +10,7 @@ part 'supporters.freezed.dart';
 part 'supporters.g.dart';
 
 @freezed
-class Supporter with _$Supporter {
+sealed class Supporter with _$Supporter {
   const Supporter._();
 
   const factory Supporter(

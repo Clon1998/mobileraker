@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 part 'setting_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> settingPageFormKey(SettingPageFormKeyRef _) => GlobalKey<FormBuilderState>();
+GlobalKey<FormBuilderState> settingPageFormKey(Ref _) => GlobalKey<FormBuilderState>();
 
 @riverpod
 class SettingPageController extends _$SettingPageController {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -7,7 +7,6 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/logger.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../network/json_rpc_client.dart';
@@ -42,7 +41,7 @@ class MachineLastSeenService {
       try {
         talker.info(
             'machineLastSeenService($machineUUID): machine with UUID $machineUUID changed state: $previous ${next}');
-        if (next.valueOrNull == ClientState.connected || next.valueOrNull == ClientState.connected) {
+        if (next.value == ClientState.connected || next.value == ClientState.connected) {
           talker.info(
               'machineLastSeenService($machineUUID): machine with UUID $machineUUID is connected, will update lastSeen');
           updateLastSeen(DateTime.now());

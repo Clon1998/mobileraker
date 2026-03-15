@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -144,6 +144,6 @@ class _OverviewPageController extends _$OverviewPageController {
         previous.hasValue != next.hasValue ||
         previous.error != next.error ||
         previous.stackTrace != next.stackTrace ||
-        previous.valueOrNull?.length != next.valueOrNull?.length;
+        previous.value?.length != next.value?.length;
   }
 }

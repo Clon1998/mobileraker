@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'print_fan.freezed.dart';
 part 'print_fan.g.dart';
 
 @freezed
-class PrintFan with _$PrintFan implements Fan {
+sealed class PrintFan with _$PrintFan implements Fan {
   const PrintFan._();
   @StringDoubleConverter()
   const factory PrintFan({

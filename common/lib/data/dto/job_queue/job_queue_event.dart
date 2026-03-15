@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -31,7 +31,7 @@ queue_state: paused
 enum JobQueueAction { jobs_removed, jobs_added, job_loaded, state_changed }
 
 @freezed
-class JobQueueEvent with _$JobQueueEvent {
+sealed class JobQueueEvent with _$JobQueueEvent {
   @JsonSerializable(fieldRename: FieldRename.snake)
   factory JobQueueEvent({
     required QueueState queueState,

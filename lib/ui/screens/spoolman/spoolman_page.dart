@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -95,7 +95,7 @@ class _BottomNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedMachine = ref.watch(selectedMachineProvider);
 
-    if (ref.watch(selectedMachineProvider).valueOrNull == null) {
+    if (ref.watch(selectedMachineProvider).value == null) {
       return const SizedBox.shrink();
     }
 
@@ -149,7 +149,7 @@ class _Body extends ConsumerWidget {
           ref.keepAliveExternally(spoolmanExtraFieldsProvider(machineUUID, SpoolmanEntityType.vendor));
 
           final hasSpoolman =
-              ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value!;
+              ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value == true;
           final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
           final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
           final scrollController = useScrollController(keys: [machineUUID, page]);
@@ -334,7 +334,7 @@ class _Fab extends ConsumerWidget {
         final conState = ref.watch(jrpcClientStateProvider(machineUUID));
         final hasSpoolman = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent));
 
-        if (hasSpoolman.valueOrNull != true || conState.valueOrNull != ClientState.connected) {
+        if (hasSpoolman.value != true || conState.value != ClientState.connected) {
           fab = const SizedBox.shrink();
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -25,7 +25,7 @@ String versionedColorOrder(dynamic e) {
 }
 
 @freezed
-class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
+sealed class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
   const ConfigNeopixel._();
 
   @StringIntegerConverter()

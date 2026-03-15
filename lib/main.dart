@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -64,6 +64,7 @@ Future<void> main() async {
         themePackProvider.overrideWith(themePacks),
         goRouterProvider.overrideWith(goRouterImpl),
       ],
+      retry: (_, _) => null,
       observers: kDebugMode
           ? [
               TalkerRiverpodObserver(settings: TalkerRiverpodLoggerSettings(printProviderUpdated: false)),
@@ -99,6 +100,9 @@ Future<void> main() async {
                     'temperatureStoreProvider',
                     '_controlXYZCardControllerProvider',
                     '_fansCardControllerProvider',
+                    '_controlExtruderCardControllerProvider',
+                    '_macroToolSelectorControllerProvider',
+                    '_u1ToolSelectorControllerProvider',
                   ].contains(provider.name),
                 ),
               ),
@@ -334,7 +338,7 @@ class _EmojiIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var step = ref.watch(warmupProvider).valueOrNull;
+    var step = ref.watch(warmupProvider).value;
     if (step == null) return const SizedBox.shrink();
     return Text(step.emoji);
   }

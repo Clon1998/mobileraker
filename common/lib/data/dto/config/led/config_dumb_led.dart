@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'config_dumb_led.g.dart';
 
 // led
 @freezed
-class ConfigDumbLed extends ConfigLed with _$ConfigDumbLed {
+sealed class ConfigDumbLed extends ConfigLed with _$ConfigDumbLed {
   const ConfigDumbLed._();
 
   @StringDoubleConverter()

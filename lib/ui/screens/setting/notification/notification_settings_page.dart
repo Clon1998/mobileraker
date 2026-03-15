@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -236,10 +236,10 @@ class _DeviceSetting extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final machineConnected =
-        ref.watch(jrpcClientStateProvider(machine.uuid).select((v) => v.valueOrNull == ClientState.connected));
+        ref.watch(jrpcClientStateProvider(machine.uuid).select((v) => v.value == ClientState.connected));
     final deviceFcmReady = ref.watch(deviceFcmSettingsProvider(machine.uuid).select((v) => v.hasValue));
     final inheritGlobalSettings = ref.watch(
-        deviceFcmSettingsProvider(machine.uuid).select((v) => v.valueOrNull?.settings.inheritGlobalSettings == true));
+        deviceFcmSettingsProvider(machine.uuid).select((v) => v.value?.settings.inheritGlobalSettings == true));
 
     final themeData = Theme.of(context);
     final canConfigure = machineConnected && deviceFcmReady;

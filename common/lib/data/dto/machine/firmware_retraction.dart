@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -17,7 +17,7 @@ part 'firmware_retraction.g.dart';
 // }
 
 @freezed
-class FirmwareRetraction with _$FirmwareRetraction {
+sealed class FirmwareRetraction with _$FirmwareRetraction {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory FirmwareRetraction({

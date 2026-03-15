@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -186,7 +186,7 @@ class _CamSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(fullCamMachineProvider);
 
-    var webcams = ref.watch(allSupportedWebcamInfosProvider(machine.uuid)).valueOrNull ?? [];
+    var webcams = ref.watch(allSupportedWebcamInfosProvider(machine.uuid)).value ?? [];
 
     if (webcams.length <= 1) return const SizedBox.shrink();
 

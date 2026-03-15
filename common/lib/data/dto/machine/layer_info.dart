@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'layer_info.freezed.dart';
 part 'layer_info.g.dart';
 
 @freezed
-class LayerInfo with _$LayerInfo {
+sealed class LayerInfo with _$LayerInfo {
   @StringIntegerConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory LayerInfo({

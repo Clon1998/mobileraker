@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'exclude_object.freezed.dart';
 part 'exclude_object.g.dart';
 
 @freezed
-class ExcludeObject with _$ExcludeObject {
+sealed class ExcludeObject with _$ExcludeObject {
   const ExcludeObject._();
 
   @JsonSerializable(explicitToJson: true)
@@ -37,13 +37,13 @@ class ExcludeObject with _$ExcludeObject {
 
   bool get available => objects.isNotEmpty;
 
-  List<ParsedObject> get canBeExcluded => objects
+  List<ParsedObject> get excludableObjects => objects
       .where((element) => !excludedObjects.contains(element.name))
       .toList();
 }
 
 @freezed
-class ParsedObject with _$ParsedObject {
+sealed class ParsedObject with _$ParsedObject {
   const factory ParsedObject({
     required String name,
     @Vector2Converter() required Vector2 center,

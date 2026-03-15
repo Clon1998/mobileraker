@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'dashboard_layout.freezed.dart';
 part 'dashboard_layout.g.dart';
 
 @freezed
-class DashboardLayout with _$DashboardLayout {
+sealed class DashboardLayout with _$DashboardLayout {
   @HiveType(typeId: 12)
   const factory DashboardLayout({
     @HiveField(0) required String uuid,

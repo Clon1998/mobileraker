@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:common/data/converters/string_double_converter.dart';
 import 'package:common/data/converters/string_integer_converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -18,7 +17,7 @@ part 'gcode_thumbnail.g.dart';
 // "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-32x32.png"
 // },
 @freezed
-class GCodeThumbnail with _$GCodeThumbnail {
+sealed class GCodeThumbnail with _$GCodeThumbnail {
   const GCodeThumbnail._();
 
   @StringIntegerConverter()

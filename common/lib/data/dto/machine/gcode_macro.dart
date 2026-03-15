@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,7 +9,7 @@ part 'gcode_macro.freezed.dart';
 part 'gcode_macro.g.dart';
 
 @Freezed(toJson: false)
-class GcodeMacro with _$GcodeMacro {
+sealed class GcodeMacro with _$GcodeMacro {
   const GcodeMacro._();
 
   const factory GcodeMacro({

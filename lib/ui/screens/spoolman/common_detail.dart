@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -20,7 +20,7 @@ import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 
 mixin CommonSpoolmanDetailPagesController<State> {
   @protected
-  AutoDisposeNotifierProviderRef<State> get ref;
+  Ref get ref;
 
   @protected
   String get machineUUID;

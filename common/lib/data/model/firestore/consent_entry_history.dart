@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025. Patrick Schmidt.
+ * Copyright (c) 2025-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -14,7 +14,7 @@ part 'consent_entry_history.freezed.dart';
 part 'consent_entry_history.g.dart';
 
 @freezed
-class ConsentEntryHistory with _$ConsentEntryHistory {
+sealed class ConsentEntryHistory with _$ConsentEntryHistory {
   const ConsentEntryHistory._();
 
   const factory ConsentEntryHistory({

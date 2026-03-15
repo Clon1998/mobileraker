@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'heater_fan.freezed.dart';
 part 'heater_fan.g.dart';
 
 @freezed
-class HeaterFan extends NamedFan with _$HeaterFan {
+sealed class HeaterFan extends NamedFan with _$HeaterFan {
   const HeaterFan._();
   @StringDoubleConverter()
   const factory HeaterFan({

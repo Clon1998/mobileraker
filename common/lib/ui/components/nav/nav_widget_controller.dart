@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -28,7 +28,7 @@ class NavWidgetController extends _$NavWidgetController {
   NavWidgetModel build() {
     // final current = ref.watch(goRouterProvider).location;
 
-    final showOverview = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
+    final showOverview = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).value ?? false;
     final showSpoolman = ref.watch(remoteConfigBoolProvider('spoolman_page'));
 
     final navTargets = <NavEntry>[
@@ -134,7 +134,7 @@ class NavWidgetController extends _$NavWidgetController {
 }
 
 @freezed
-class NavWidgetModel with _$NavWidgetModel {
+sealed class NavWidgetModel with _$NavWidgetModel {
   const NavWidgetModel._();
 
   const factory NavWidgetModel({
@@ -144,7 +144,7 @@ class NavWidgetModel with _$NavWidgetModel {
 }
 
 @freezed
-class NavEntry with _$NavEntry {
+sealed class NavEntry with _$NavEntry {
   const NavEntry._();
 
   factory NavEntry.divider() {

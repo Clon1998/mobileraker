@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,7 +9,7 @@ part 'auxiliary_data.freezed.dart';
 part 'auxiliary_data.g.dart';
 
 @freezed
-class AuxiliaryData with _$AuxiliaryData {
+sealed class AuxiliaryData with _$AuxiliaryData {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory AuxiliaryData({
     required String provider,

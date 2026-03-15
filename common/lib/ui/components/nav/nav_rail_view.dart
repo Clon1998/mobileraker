@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -255,7 +255,7 @@ class _Footer extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8).add(safeAreaPadding),
       child: Consumer(
         builder: (context, ref, child) {
-          final enable = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
+          final enable = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).value ?? false;
 
           return GestureDetector(
             onTap: (() => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine))).only(

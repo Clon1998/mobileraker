@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -86,7 +86,7 @@ class _Login extends HookConsumerWidget {
     final mode = useState(_LoginAction.signIn);
     final stillLoading = ref.watch(_userBottomSheetControllerProvider.select((d) => d.isLoading));
     final controller = ref.watch(_userBottomSheetControllerProvider.notifier);
-    final errorText = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.errorText)).valueOrNull;
+    final errorText = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.errorText)).value;
 
     final String title;
     final String hint;
@@ -328,7 +328,7 @@ class _InfoText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.infoText)).valueOrNull;
+    var model = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.infoText)).value;
 
     var themeData = Theme.of(context);
 
@@ -613,7 +613,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   }
 
   Future<void> deleteAccount() async {
-    var usr = state.valueOrNull?.user;
+    var usr = state.value?.user;
     if (usr == null) return;
 
     var result = await _dialogService.showDangerConfirm(
@@ -652,14 +652,14 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   }
 
   clearErrorText() {
-    if (state.valueOrNull?.errorText != null) {
+    if (state.value?.errorText != null) {
       state = state.whenData((value) => value.copyWith(errorText: null));
     }
   }
 }
 
 @freezed
-class _Model with _$Model {
+sealed class _Model with _$Model {
   const _Model._();
 
   const factory _Model({

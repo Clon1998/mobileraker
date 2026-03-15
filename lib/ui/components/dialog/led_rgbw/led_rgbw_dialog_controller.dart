@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,6 +13,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -35,7 +36,7 @@ final dialogArgsProvider = Provider.autoDispose<LedRGBWDialogArgument>(
 );
 
 @freezed
-class LedRGBWDialogState with _$LedRGBWDialogState {
+sealed class LedRGBWDialogState with _$LedRGBWDialogState {
   const LedRGBWDialogState._();
 
   const factory LedRGBWDialogState({

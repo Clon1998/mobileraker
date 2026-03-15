@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Patrick Schmidt.
+ * Copyright (c) 2024-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -75,7 +75,7 @@ part 'historical_print_job.g.dart';
  */
 
 @freezed
-class HistoricalPrintJob with _$HistoricalPrintJob {
+sealed class HistoricalPrintJob with _$HistoricalPrintJob {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory HistoricalPrintJob({

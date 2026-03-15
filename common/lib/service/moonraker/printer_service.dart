@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 import 'dart:async';
@@ -22,7 +22,6 @@ import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -43,10 +42,6 @@ PrinterService printerService(Ref ref, String machineUUID) {
   return PrinterService(ref, machineUUID);
 }
 
-// Kinda "hacky" but the only way to keep the name PrinterProvider without a conflict of the Printer name..
-@ProviderFor(PrinterNotifier)
-const printerProvider = printerNotifierProvider;
-
 @riverpod
 class PrinterNotifier extends _$PrinterNotifier {
   @override
@@ -54,8 +49,8 @@ class PrinterNotifier extends _$PrinterNotifier {
     // ref.keepAlive();
     var printerService = ref.watch(printerServiceProvider(machineUUID));
     listenSelf((previous, next) {
-      final previousFileName = previous?.valueOrNull?.print.filename;
-      final nextFileName = next.valueOrNull?.print.filename;
+      final previousFileName = previous?.value?.print.filename;
+      final nextFileName = next.value?.print.filename;
       // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
       if (previousFileName != nextFileName ||
           next.hasValue &&
@@ -65,8 +60,8 @@ class PrinterNotifier extends _$PrinterNotifier {
         printerService.updateCurrentFile(nextFileName).ignore();
       }
 
-      final prevMessage = previous?.valueOrNull?.print.message;
-      final nextMessage = next.valueOrNull?.print.message;
+      final prevMessage = previous?.value?.print.message;
+      final nextMessage = next.value?.print.message;
       if (prevMessage != nextMessage && nextMessage?.isNotEmpty == true) {
         ref
             .read(snackBarServiceProvider)
@@ -112,19 +107,37 @@ Stream<Printer> printerSelected(Ref ref) async* {
 class PrinterGCodeStore extends _$PrinterGCodeStore {
   @override
   FutureOr<List<GCodeStoreEntry>> build(String machineUUID) async {
-    final printerService = ref.watch(printerServiceProvider(machineUUID));
-    final gcodeStore = await printerService.gcodeStore();
+    ref.keepAliveFor(Duration(minutes: 5));// Lets keep it alive!
+    final jrpcClient = ref.watch(jrpcClientProvider(machineUUID));
+    // Listen to incoming gcode responses to update the store
+    jrpcClient.addMethodListener(_onNotifyGcodeResponse, 'notify_gcode_response');
+    ref.onDispose(() => jrpcClient.removeMethodListener(_onNotifyGcodeResponse, 'notify_gcode_response'));
 
-    final subscription = printerService.gCodeResponseStream.listen((data) {
-      state = state.whenData((store) => [...store, GCodeStoreEntry.response(data)]);
-    });
-    ref.onDispose(subscription.cancel);
-
-    return gcodeStore;
+    // Fetch the cached gcode commands from the printer to populate the store initially
+    return await _cached(jrpcClient);
   }
 
   void appendCommand(String command) {
     state = state.whenData((store) => [...store, GCodeStoreEntry.command(command)]);
+  }
+
+  Future<List<GCodeStoreEntry>> _cached(JsonRpcClient jrpcClient) async {
+    talker.info('Fetching cached GCode commands');
+    try {
+      RpcResponse blockingResponse = await jrpcClient.sendJRpcMethod('server.gcode_store');
+
+      List<dynamic> raw = blockingResponse.result['gcode_store'];
+      talker.info('Received cached GCode commands');
+      return List.generate(raw.length, (index) => GCodeStoreEntry.fromJson(raw[index]));
+    } on JRpcError catch (e) {
+      talker.error('Error while fetching cached GCode commands: $e');
+    }
+    return List.empty();
+  }
+
+  void _onNotifyGcodeResponse(Map<String, dynamic> rawMessage) {
+    String message = rawMessage['params'][0];
+    state = state.whenData((store) => [...store, GCodeStoreEntry.response(message)]);
   }
 }
 
@@ -172,11 +185,7 @@ class PrinterService {
 
   Stream<Printer> get printerStream => _printerStreamCtler.stream;
 
-  final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
-
   bool _queriedForSession = false;
-
-  Stream<String> get gCodeResponseStream => _gCodeResponseStreamController.stream;
 
   Printer? _current;
 
@@ -292,7 +301,6 @@ class PrinterService {
   }
 
   Future<void> forceMovePrintHead({required String stepper, required distance, double feedRate = 100}) {
-
     return gCode('FORCE_MOVE STEPPER=$stepper DISTANCE=$distance VELOCITY=$feedRate');
   }
 
@@ -467,20 +475,6 @@ class PrinterService {
     );
   }
 
-  Future<List<GCodeStoreEntry>> gcodeStore() async {
-    talker.info('Fetching cached GCode commands');
-    try {
-      RpcResponse blockingResponse = await _jRpcClient.sendJRpcMethod('server.gcode_store');
-
-      List<dynamic> raw = blockingResponse.result['gcode_store'];
-      talker.info('Received cached GCode commands');
-      return List.generate(raw.length, (index) => GCodeStoreEntry.fromJson(raw[index]));
-    } on JRpcError catch (e) {
-      talker.error('Error while fetching cached GCode commands: $e');
-    }
-    return List.empty();
-  }
-
   Future<List<Command>> gcodeHelp() async {
     talker.info('Fetching available GCode commands');
     try {
@@ -556,11 +550,6 @@ class PrinterService {
   /// Method Handler for registered in the Websocket wrapper.
   /// Handles all incoming messages and maps the correct method to it!
 
-  void _onNotifyGcodeResponse(Map<String, dynamic> rawMessage) {
-    String message = rawMessage['params'][0];
-    _gCodeResponseStreamController.add(message);
-  }
-
   void _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
     if (!hasCurrent) {
@@ -631,14 +620,10 @@ class PrinterService {
 
   void _removeJrpcHandlers() {
     _jRpcClient.removeMethodListener(_onStatusUpdateHandler, 'notify_status_update');
-
-    _jRpcClient.removeMethodListener(_onNotifyGcodeResponse, 'notify_gcode_response');
   }
 
   void _registerJrpcHandlers() {
     _jRpcClient.addMethodListener(_onStatusUpdateHandler, 'notify_status_update');
-
-    _jRpcClient.addMethodListener(_onNotifyGcodeResponse, 'notify_gcode_response');
   }
 
   /// This method registeres every printer object for websocket updates!
@@ -692,6 +677,5 @@ class PrinterService {
   void dispose() {
     _removeJrpcHandlers();
     _printerStreamCtler.close();
-    _gCodeResponseStreamController.close();
   }
 }

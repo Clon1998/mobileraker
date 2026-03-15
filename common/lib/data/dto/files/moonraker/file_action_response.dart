@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,7 @@ part 'file_action_response.freezed.dart';
 part 'file_action_response.g.dart';
 
 @freezed
-class FileActionResponse with _$FileActionResponse {
+sealed class FileActionResponse with _$FileActionResponse {
   @JsonSerializable(
     fieldRename: FieldRename.snake,
   )

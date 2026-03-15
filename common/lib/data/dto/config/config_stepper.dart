@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Patrick Schmidt.
+ * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -13,7 +13,7 @@ part 'config_stepper.freezed.dart';
 part 'config_stepper.g.dart';
 
 @freezed
-class ConfigStepper with _$ConfigStepper {
+sealed class ConfigStepper with _$ConfigStepper {
   @StringIntegerConverter()
   @StringDoubleConverter()
   @JsonSerializable(
