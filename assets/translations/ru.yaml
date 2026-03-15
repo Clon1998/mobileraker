@@ -525,12 +525,15 @@ pages:
     title: Редактировать {}
     import_settings: Импорт настроек
     remove_printer: Удалить принтер
+    reset_notifications: Сбросить БД уведомлений
     no_values_found: Значения не найдены!
     fetching_additional_settings: "@:general.fetching additional settings from network..."
     could_not_fetch_additional: Не удалось получить дополнительные настройки!
     fetch_error_hint: Убедитесь, что машина доступна и к ней подключен Mobileraker.
     reset_notification_registry: Очистить реестр устройств уведомлений
     configure_remote_connection: Настроить удалённое подключение
+    printer_not_reachable: Принтер недоступен
+    printer_not_reachable_message: Не получилось загрузить список веб-камер и настройки принтера. Подключите принтер, чтобы настроить эти разделы.
     store_error:
       title: Ошибка сохранения!
       message: |-
@@ -552,6 +555,7 @@ pages:
       theme: Тема интерфейса
       theme_helper: Тема интерфейса для принтера
       theme_unavailable: Тема интерфейса для принтера, доступна только для подписчиков
+      app_theme: Тема приложения
     ssl:
       title: SSL - Настройки
       pin_certificate_label: Привязка отпечатка сертификата
@@ -575,6 +579,8 @@ pages:
       steps_baby_short: Z-Шаги
     extruders:
       title: Экструдер(ы)
+      feedrate: Подача экструдера
+      feedrate_short: Подача
       steps_extrude: Шаги экс труда
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
@@ -606,6 +612,8 @@ pages:
       cam_mode: Режим камеры
       cam_rotate: Поворот
       read_only: Веб-камера доступна только для просмотра
+      cam_name_already_present: Веб-камера с таким именем уже существует!
+      error_fetching: Ошибка получения веб-камер
     macros:
       default_grp: По умолчанию
       new_macro_grp: Новая группа макросов
@@ -683,6 +691,8 @@ pages:
       title: Упорядочивание прочих элементов интерфейса
       helper: Измените порядок прочих элементов на панели управления.
       no_controls: Прочие элементы не найдены!
+    settings_imported:
+      title: Настройки импортированы!
   printer_add:
     steps:
       mode: Режим
@@ -1048,6 +1058,14 @@ components:
     more_details: Дополнительные сведения
     add_printer: |-
       Привет! Рад видеть тебя здесь! Чтобы начать работу, пожалуйста, добавь принтер в Mobileraker. После этого ты сможешь управлять принтером напрямую из Mobileraker.
+    lost_connection: Потеряно соединение с {} ({}).
+    machine_not_reachable: Машина недоступна!
+    could_not_connect: |-
+      Не удалось подключиться к {} ({}). Удостоверьтесь, что принтер включен и доступен в вашей сети.
+    connection_error_details: Подробности об ошибке соединения
+    octoeverywhere_returned: 'OctoEverywhere вернул: {}'
+    octoeverywhere_error: 'Ошибка OctoEverywhere: {}'
+    unknown_error: Неизвестная ошибка соединения
   octo_indicator:
     tooltip: Используется OctoEveryWhere!
   supporter_add:
@@ -1171,6 +1189,7 @@ dialogs:
     fetching_error_title: Не удалось получить настройки!
     fetching_error_sub: Убедитесь, что другие машины подключены.
     select_source: Выберите источник
+    select_source_hint: Источник
   create_folder:
     title: Создать папку
     label: Имя папки
@@ -1559,6 +1578,8 @@ form_validators:
   disallow_mdns: Адреса mDNS (.local) не поддерживаются
   file_name_in_use: Имя файла уже используется
   min_before_max: Минимальное значение должно быть меньше или равно максимальному
+  heater_min: Значение ниже минимально разрешённого значения {}°C
+  heater_max: Значение выше максимально разрешённого {}°C
 date:
   year:
     one: Год

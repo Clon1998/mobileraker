@@ -522,6 +522,7 @@ pages:
     title: Bearbeiten {}
     import_settings: Importeinstellungen
     remove_printer: Drucker entfernen
+    reset_notifications: Benachrichtigungs-DB zurücksetzen
     no_values_found: Keine Werte gefunden!
     fetching_additional_settings: "@:general.fetching zusätzliche Einstellungen aus dem Netzwerk…"
     could_not_fetch_additional: Konnte keine zusätzlichen Einstellungen holen!
@@ -610,6 +611,7 @@ pages:
       cam_mode: Cam Modus
       cam_rotate: Drehung
       read_only: Webcam ist schreibgeschützt
+      cam_name_already_present: Eine Webcam mit diesem Namen existiert bereits!
       error_fetching: Fehler beim Laden der Webcams
     macros:
       default_grp: Standard
@@ -690,6 +692,9 @@ pages:
       title: Verschiedenes Reihenfolge
       helper: Ändern Sie die Reihenfolge der verschiedenen Elemente, die auf dem Dashboard angezeigt werden.
       no_controls: Keine Elemente gefunden!
+    settings_imported:
+      title: Einstellungen importiert!
+      message: Ausgewählte Einstellungen übernommen. Denken Sie daran, zu speichern.
   printer_add:
     steps:
       mode: Modus
@@ -1184,6 +1189,8 @@ components:
       select_toolhead: Werkzeugkopf auswählen
       park_toolhead: Werkzeugkopf parken
       park_toolhead_desc: Parke den aktuellen Werkzeugkopf
+  segment_form_field:
+    duplicate_error: Wert bereits vorhanden.
 dialogs:
   rate_my_app:
     title: Mobileraker bewerten?
@@ -1193,6 +1200,7 @@ dialogs:
     fetching_error_title: Einstellungen können nicht abgerufen werden!
     fetching_error_sub: Stellen Sie sicher, dass andere Maschinen verbunden sind.
     select_source: Kandidat auswählen
+    select_source_hint: Quelle
   create_folder:
     title: Ordner erstellen
     label: Ordnername
@@ -1579,6 +1587,8 @@ form_validators:
   disallow_mdns: mDNS (.local) Adressen werden nicht unterstützt
   file_name_in_use: Dateiname wird bereits verwendet
   min_before_max: Der Wert muss kleiner oder gleich dem Maximalwert sein
+  heater_min: Der Wert liegt unter der zulässigen minimalen Temperatur von {}°C
+  heater_max: Wert liegt über der maximal zulässigen Temperatur von {}°C
 date:
   year:
     one: Jahr
