@@ -75,7 +75,7 @@ general:
   enable: 啟用
 pages:
   dashboard:
-    title: 個性化儀表板
+    title: 儀表板
     ems_btn: 緊急停止
     ems_confirmation:
       title: 確認緊急停止
@@ -107,10 +107,10 @@ pages:
         remaining: 剩餘
         print_time: 列印時間
       cam_card:
-        webcam: 攝影機
+        webcam: 網路攝影機
         fullscreen: 全螢幕
         error_connecting: |-
-          連接至 {} 錯誤。請檢查連線設定並確認攝影機已連線。
+          連接至 {} 錯誤。請檢查連線設定並確認網路攝影機已連線。
       temp_card:
         title: 溫度控制
         presets_btn: 預設集
@@ -400,10 +400,12 @@ pages:
       spoolman_warnings:
         insufficient_filament_title: 耗材不足
         insufficient_filament_body: |-
-          正在使用中的線盤只剩下 {} 線材，這對列印此檔案來說是不足的。點選以變更要使用的線盤。
-        material_mismatch_title: 材料不相符
+          當前料盤僅剩 {} 耗材，不足以完成此檔案。
+          點擊以更換當前料盤。
+        material_mismatch_title: 材質不相符
         material_mismatch_body: |-
-          此檔案使用材料 {} 與使用中的線盤材料 {} 不相符，點選來更換要使用的線材。
+          檔案要求的材質 {} 與目前料盤的材質 {} 不符。
+          點擊以更換當前料盤。
   setting:
     title: App 設定
     general:
@@ -418,7 +420,7 @@ pages:
       start_with_overview_hint: 啟動app時顯示總覽頁面，而非啟動列印機的儀表板
       use_offset_pos: 位置偏移
       use_offset_pos_hint: 增加一個偏移到所顯示的座標軸
-      lcFullCam: 全螢幕攝影機畫面
+      lcFullCam: 全螢幕時鏡頭方向
       lcFullCam_hint: 在全螢幕模式下將攝影機切換為橫向模式。
       language: 語言
       companion: "是否要接收遠端通知？\n了解如何在此處設定 Mobileraker Companion："
@@ -475,9 +477,9 @@ pages:
       use_progressbar_notification: 啟用進度條通知
       use_progressbar_notification_helper: 啟用進度條通知，並且除了預設的文字型進度通知外，還能使用進度條通知。
       snapshot_webcam_label: 快照攝影機
-      snapshot_webcam_helper: 選擇用於通知快照的攝影機。
-      snapshot_webcam_type_unsupported: 不支援此攝影機類型！
-      snapshot_webcam_disabled: 不包含攝影機快照
+      snapshot_webcam_helper: 選擇用於通知快照的網路攝影機。
+      snapshot_webcam_type_unsupported: 不支援此網路攝影機類型！
+      snapshot_webcam_disabled: 不包含網路攝影機快照
       ignore_filament_sensors_label: 排除耗材感測器
       ignore_filament_sensors_helper: 請選擇觸發時「不需要」發送通知的感測器。適用於多色換料系統（MMU/ERCF）。
       ignore_filament_sensors_empty: 未發現感測器
@@ -548,7 +550,7 @@ pages:
       printer_addr: 印表機位址 (IP/Host)
       ws_addr: WebSocket 位址
       moonraker_api_key: Moonraker API 金鑰
-      moonraker_api_desc: 僅在使用受信任的使用端時需要。FluiddPI 強制執行此設定！
+      moonraker_api_desc: 僅在使用受信任的使用端時才需要。FluiddPI 會強制執行此項要求！
       full_url: 完整URL
       timeout_label: 使用端逾時設定
       timeout_helper: 使用端連線的逾時秒數
@@ -588,10 +590,10 @@ pages:
         loading_distance_helper: 從噴嘴到擠出機的距離，用於裝載或卸載線材
         loading_speed: "進退料速度"
         loading_speed_helper: 從噴嘴到擠出機的進料和退料速度
-        purge_amount: 清理量 (Purge)
-        purge_amount_helper: 清理的耗材長度
-        purge_speed: 清理速度
-        purge_speed_helper: 清理耗材的速度
+        purge_amount: 沖刷長度
+        purge_amount_helper: 沖刷耗材的長度
+        purge_speed: 沖刷速度
+        purge_speed_helper: 沖刷耗材的速度
         mode:
           title: 換料模式
           default: 預設
@@ -603,7 +605,7 @@ pages:
     cams:
       target_fps: 目標幀率
       new_cam: 新增網路攝影機
-      no_webcams: 未加入網絡攝影機！
+      no_webcams: 未加入網路攝影機！
       stream_url: 串流 URL
       snapshot_url: 快照 URL
       default_url: 預設URL
@@ -641,7 +643,7 @@ pages:
     confirm_remote_interface_removal:
       title:
         oe: 解除連結 {}？
-        other: 刪除連線？
+        other: 移除連線？
       body:
         oe: 請確認解除將列印機 {} 與 OctoEverywhere 的連結。
         other: 請確認移除列印機 {} 的遠端連線。
@@ -649,7 +651,7 @@ pages:
         oe: "@:general.unlink"
         other: "@:general.remove"
     remote_interface_exists:
-      title: 發現遠端連線
+      title: 已偵測到遠端連線
       body:
         oe: 這台列印機已經與 OctoEverywhere 連結以進行遠端存取。請先解除連結後再繼續。
         obico: 這台列印機已經與 Obico 連結以進行遠端存取。請先解除連結後再繼續。
@@ -659,14 +661,14 @@ pages:
       body: 請確保儲存列表機設置以套用變更。
     remote_interface_added:
       title:
-        oe: 連線至OctoEverywhere。
-        obico: 連線至Obico。
+        oe: 已與 OctoEverywhere 連結。
+        obico: 已與 Obico連結。
         other: 遠端連線已增加。
       body: 請確認儲存列表機設置以套用變更。
     wifi_access_warning:
       title: WiFi資訊不可用
       subtitle: |-
-        要確保Mobileraker是否應使用遠程連接，請授予位置存取權限。這樣app可以獲取目前WiFi網路的名稱。
+        若要判斷 Mobileraker 是否應使用遠端連線，請授予位置存取權限。這能讓應用程式獲取目前 Wi-Fi 網路的名稱。
 
         點擊以授予權限。
     local_ssid:
@@ -815,7 +817,7 @@ pages:
       spoolman_perk:
         title: Spoolman 介面
         subtitle: 使用 Spoolman 管理您的耗材捲
-        detail: 透過整合的 Spoolman 支援完美追蹤耗材庫存 — 在列印時監控每個線捲的用量、成本與剩餘量，讓材料管理變得毫不費力。
+        detail: 透過整合的 Spoolman 支援，完美追蹤您的耗材庫存——在列印時同步監測每捲耗材的使用量、成本及剩餘量，讓材質管理變得輕鬆省力。
       advanced_perk:
         title: 進階控制
         short: 完整功能
@@ -853,7 +855,7 @@ pages:
       offering_title: 選擇您的贊助方案
     supporter_tier_list:
       error_title: 載入支持者等級時發生錯誤！
-      error_body: 抱歉，發生了意外錯誤。無法載入支持者等級。請稍後再試！
+      error_body: 抱歉，發生非預期的錯誤。無法載入贊助者等級資訊。請稍後再試！
     contact_dialog:
       title: 聯繫開發者
       body: |-
@@ -881,8 +883,8 @@ pages:
       retry_btn: 重試連線
       github_btn: 在 GitHub 上提供支援
     fetch_error:
-      title: 無法載入支持者等級
-      description: 我們在載入支持者等級時遇到問題。這可能是由於網路連線或伺服器問題造成的。
+      title: 無法載入贊助者等級資訊
+      description: 我們在載入贊助者等級資訊時遇到問題。這可能是由於網路連線或伺服器問題造成的。
       what_to_try: 您可以嘗試的做法
       check_connection: 請檢查您的網路連線
       wait_retry: 請稍等片刻後再試一次
@@ -908,10 +910,10 @@ pages:
     not_available: "Spoolman 在這台列印機上不可用。\n請確保 Spoolman 已經安裝並啟用在您的列印機上。"
     learn_more: 若要了解更多關於 Spoolman 及如何安裝，請造訪該專案的
     learn_more_link: GitHub頁面。
-    no_spools: 未找到線盤！
-    no_filaments: 未找到耗材！
+    no_spools: 找不到料盤！
+    no_filaments: 找不到耗材！
     no_vendors: 未找到製造商！
-    error_loading_spools: 載入線盤時發生錯誤
+    error_loading_spools: 載入料盤資料錯誤
     error_loading_filaments: 進料時發生錯誤
     spoolman_actions:
       activate: "@:general.activate"
@@ -974,7 +976,7 @@ pages:
       name: 名稱
       registered: 登記於
       comment: 備註
-      material: 材料
+      material: 材質
       price: 價格
       density: 密度
       diameter: 線徑
@@ -1083,22 +1085,22 @@ components:
     title: 喜歡Mobileraker嗎？
     subtitle: 點擊我！了解如何支持開發！
   supporter_only_feature:
-    dialog_title: 僅限支持者功能
-    button: 成為Mobileraker支持者
-    webcam: 抱歉，類型為 {} 的攝影機僅對支持者可用。作為替代，Mjpeg 攝影機對所有使用者開放。
-    printer_add: 您已達到機器上限。只有 Mobileraker 支持者才能加入超過 {} 台機器。
-    job_queue: 抱歉，工作佇列僅對支持者開放。
-    timelaps_share: 抱歉，縮時攝影分享僅對支持者開放。
-    printer_theme: 抱歉，列印機特有主題僅對支持者開放。
-    spoolman_page: 抱歉，Spoolman頁面僅對支持者開放。
-    custom_dashboard: 抱歉，自訂儀表板功能僅對支持者開放。
-    full_file_management: 抱歉，完整檔案管理功能(下載、上傳...) 僅對支持者開放。
-    gcode_preview: 抱歉，GCode預覽功能僅對支持者開放。
+    dialog_title: 贊助者專屬功能
+    button: 成為Mobileraker贊助者
+    webcam: 抱歉，{} 類型的攝影機僅限贊助者使用。作為替代方案，所有使用者皆可使用 Mjpeg 攝影機。
+    printer_add: 您已達到機器上限。只有 Mobileraker 贊助者才能加入超過 {} 台機器。
+    job_queue: 抱歉，工作佇列為贊助者專屬功能。
+    timelaps_share: 抱歉，縮時攝影分享為贊助者專屬功能。
+    printer_theme: 抱歉，印表機特有主題為贊助者專屬功能。
+    spoolman_page: 抱歉，Spoolman頁面為贊助者專屬功能。
+    custom_dashboard: 抱歉，自訂儀表板功能為贊助者專屬功能。
+    full_file_management: 抱歉，完整檔案管理功能(下載、上傳...) 為贊助者專屬功能。
+    gcode_preview: 抱歉，GCode預覽功能為贊助者專屬功能。
     graph_page: 抱歉，溫度紀錄頁面僅限贊助者使用。
     snapshot_webcam: 抱歉，通知快照功能僅限贊助者使用。
   machine_deletion_warning:
     title: 刪除機器
-    subtitle: 看起來您不是支持者。只有支持者才能擁有超過 {} 台機器。您還有 {} 天，超過數量的機器將會被刪除。
+    subtitle: 您似乎不是贊助者。只有贊助者可以擁有超過 {} 台機器。在多餘的機器被移除前，您還有 {} 天的時間。
   remote_connection_indicator:
     title: 使用遠端連線！
   web_rtc:
@@ -1310,10 +1312,10 @@ dialogs:
     controls:
       heat_up: 加熱
       change_temp: 變更溫度
-      purge: 清理
+      purge: 沖刷
       repeat_load: 重複裝載
       repeat_unload: 重複退料操作
-      repeat_purge: 重複清理
+      repeat_purge: 重複沖刷
     steps:
       set_temps:
         title: 耗材溫度
@@ -1408,7 +1410,7 @@ bottom_sheets:
       tab_name: "@:bottom_sheets.add_remote_con.obico.service_name"
       link: 連結Obico
       unlink: 取消連結Obico
-      description: Obico 是一款由社群驅動的完全開源 3D 列印軟體。它讓您可以隨時隨地控制和監控您的 Klipper 列印機，且完全免費。作為 AI 基於失敗檢測的先驅解決方案之一，Obico 僅使用您的列印機網路攝影機進行檢測。
+      description: Obico 是一款由社群驅動、完全開源的 3D 列印軟體。它讓您能從任何地方免費控制並監控您的 Klipper 印表機。它是 AI 故障偵測領域的先驅解決方案之一，僅需使用印表機的網路攝影機即可實現。
       self_hosted:
         title: 自架服務
         description: 預設情況下，Mobileraker 將使用官方的 Obico 實例。然而，如果您正在管理自己的實例，您可以在此指定其 URL。
@@ -1441,7 +1443,7 @@ bottom_sheets:
       error: 密碼不相符！
   profile:
     title: 您已登入
-    description: 歡迎回來！您的使用者帳號是提升任何行動裝置體驗的關鍵。輕鬆分享您的支持者身份，無論您使用手機、平板或其他裝置，都能輕鬆享受專屬權益。
+    description: 歡迎回來！您的使用者帳號是在任何行動裝置上獲得進階體驗的關鍵。無論您使用手機、平板或其他裝置，都能輕鬆分享您的贊助者狀態，隨時隨地享有專屬權限。
     restore_purchases: 恢復購買紀錄
     restore_success: 已成功恢復購買紀錄！
     sign_out: 登出
