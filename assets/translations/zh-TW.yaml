@@ -103,7 +103,7 @@ pages:
           平均： {avg}
           切片軟體： {slicer}
           檔案： {file}
-          線材： {filament}
+          耗材： {filament}
         remaining: 剩餘
         print_time: 列印時間
       cam_card:
@@ -398,7 +398,7 @@ pages:
           1: 檔案已成功加入至列印佇列
           other: 檔案已成功加入至列印佇列
       spoolman_warnings:
-        insufficient_filament_title: 線材不足
+        insufficient_filament_title: 耗材不足
         insufficient_filament_body: |-
           正在使用中的線盤只剩下 {} 線材，這對列印此檔案來說是不足的。點選以變更要使用的線盤。
         material_mismatch_title: 材料不相符
@@ -429,8 +429,8 @@ pages:
       system_theme: 介面主題
       system_theme_mode: 主題亮度
       printer_theme_warning: 您目前正在使用與列印機相關的主題。若要修改，請前往列印機的設定。
-      filament_sensor_dialog: 顯示線材感測器警告
-      filament_sensor_dialog_hint: 當線材感測器被觸發時顯示對話框
+      filament_sensor_dialog: 顯示耗材感測器警報
+      filament_sensor_dialog_hint: 當耗材感測器觸發時顯示對話視窗
       confirm_gcode: 巨集執行確認
       confirm_gcode_hint: 在儀表板上執行 GCode 巨集前，始終顯示確認對話框
       eta_sources: 預計完成時間計算
@@ -587,11 +587,11 @@ pages:
         loading_distance: 擠出機噴嘴距離
         loading_distance_helper: 從噴嘴到擠出機的距離，用於裝載或卸載線材
         loading_speed: "進退料速度"
-        loading_speed_helper: 從噴嘴到擠出機的線材裝載和卸載速度
+        loading_speed_helper: 從噴嘴到擠出機的進料和退料速度
         purge_amount: 清理量 (Purge)
-        purge_amount_helper: 清理的線材長度
+        purge_amount_helper: 清理的耗材長度
         purge_speed: 清理速度
-        purge_speed_helper: 清理線材的速度
+        purge_speed_helper: 清理耗材的速度
         mode:
           title: 換料模式
           default: 預設
@@ -909,10 +909,10 @@ pages:
     learn_more: 若要了解更多關於 Spoolman 及如何安裝，請造訪該專案的
     learn_more_link: GitHub頁面。
     no_spools: 未找到線盤！
-    no_filaments: 未找到線材！
+    no_filaments: 未找到耗材！
     no_vendors: 未找到製造商！
     error_loading_spools: 載入線盤時發生錯誤
-    error_loading_filaments: 載入線材時發生錯誤
+    error_loading_filaments: 進料時發生錯誤
     spoolman_actions:
       activate: "@:general.activate"
       deactivate: 未使用
@@ -920,7 +920,7 @@ pages:
       edit: "@:general.edit"
       archive: 封存
       unarchive: 解除封存
-      adjust: 調整線材量
+      adjust: 調整耗材量
       share_qr: 分享QR碼
       delete: "@:general.delete"
       add_spool: 新增線盤
@@ -964,8 +964,8 @@ pages:
       one: 線盤
       other: 線盤
     filament:
-      one: 線材
-      other: 線材
+      one: 耗材
+      other: 耗材
     vendor:
       one: 製造商
       other: 製造商
@@ -1002,7 +1002,7 @@ pages:
       page_title: 製造商 {}
       info_card: 製造商資訊
     filament_details:
-      info_card: 線材資訊
+      info_card: 耗材資訊
     spool_details:
       page_title: 線盤 {}
       info_card: 線盤資訊
@@ -1012,7 +1012,7 @@ pages:
         body: 此線盤已封存，無法用於新的列印。
       alternative_spool:
         title: 替代線盤
-        same_filament: 相同線材
+        same_filament: 相同耗材
         same_material: 相同製造商
     spool_form:
       create_page_title: 建立線盤
@@ -1020,16 +1020,16 @@ pages:
       helper:
         price: "@:pages.spoolman.filament_form.helper.price 如果未設定，則預設為線材的價格。"
         initial_weight: "@:pages.spoolman.filament_form.helper.initial_weight 如果未設定，則預設為線材的重量。"
-        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight 如果未設定，則預設為線材或製造商的線捲重量。"
-        used_weight: 已使用的線材重量。若為 0 克，則表示該線盤尚未使用。
+        empty_weight: "@:pages.spoolman.filament_form.helper.empty_weight 如果未設定，則預設為耗材或製造商的料盤重量"
+        used_weight: 已使用的耗材重量。若為 0 克，則表示該料盤尚未使用
         location: 您存放此線盤的位置。
         lot_number: 批次編號。用於確保大量列印時顏色一致。
     filament_form:
       create_page_title: 建立耗材
       update_page_title: 編輯耗材
       helper:
-        price: 整捲線材的價格。
-        initial_weight: 這是整捲線材的淨重，排除線盤的重量。通常會標示在包裝上。
+        price: 整捲耗材的價格。
+        initial_weight: 這是整捲耗材的淨重，排除料盤的重量。通常會標示在包裝上。
         empty_weight: 空線盤的重量。
     vendor_form:
       create_page_title: 建立製造商
@@ -1150,7 +1150,7 @@ components:
       subtitle: 亮顯材料擠出移動
     show_retraction:
       title: 顯示回抽路徑
-      subtitle: 亮顯線材回抽移動
+      subtitle: 凸顯耗材回抽路徑
     show_travel:
       title: 顯示空打移動
       subtitle: 顯示空打的移動路徑
@@ -1293,7 +1293,7 @@ dialogs:
   fan_speed:
     title: 編輯 {} %
   filament_sensor_triggered:
-    title: 線材感測器已觸發
+    title: 耗材感測器已觸發
     body: |-
       感測器 {} 已被觸發。
   screws_tilt_adjust:
@@ -1316,7 +1316,7 @@ dialogs:
       repeat_purge: 重複清理
     steps:
       set_temps:
-        title: 線材溫度
+        title: 耗材溫度
         subtitle: 選擇目標溫度
       heat_up:
         title: 工具頭加熱中
@@ -1328,8 +1328,8 @@ dialogs:
           gcode: 執行自訂 G-Code
         subtitle:
           load:
-            idle: 將線材插入擠出機
-            processing: 裝載線材中...
+            idle: 將耗材插入擠出機
+            processing: 進料中……
             processed: 檢查噴嘴處的耗材。如有需要請進行調整並重試
           load_gcode:
             idle: 請確認印表機已準備好執行自訂進料程序
@@ -1337,17 +1337,17 @@ dialogs:
             processed: 確認耗材已成功載入。若未成功請重新執行
           unload:
             idle: 準備從擠出機移除耗材
-            processing: 退料中...
+            processing: 退料中……
             processed: 檢查耗材是否已移除。如有需要請重試
           unload_gcode:
             idle: 請確認印表機已準備好執行自訂退料程序
             processing: 正在執行退料程序……
             processed: 確認耗材已成功退出。若未成功請重新執行
       purge:
-        title: 清理線材
+        title: 換料沖刷
         subtitle:
-          idle: 裝載線材至噴嘴中
-          processing: 清理線材中...
+          idle: 將耗材載入至噴嘴
+          processing: 換料沖刷中……
           processed: 確認清理過的線材是否乾淨。如有需要，請重複操作。
       tip_form:
         title: 尖端成形
@@ -1367,8 +1367,8 @@ dialogs:
 
       請確認您的操作。
   adjust_spool_filament:
-    title: 調整線捲線材
-    subtitle: 從線盤中增加或減少線材。正值會消耗線材，負值會增加線材。
+    title: 調整料盤耗材
+    subtitle: 增加或減少料盤上的耗材數值。正值代表消耗耗材，負值代表增加耗材。
     input_label: 調整數量
     submit_label: 調整
     tooltip:
