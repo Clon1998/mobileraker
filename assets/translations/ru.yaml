@@ -532,8 +532,10 @@ pages:
     fetch_error_hint: Убедитесь, что машина доступна и к ней подключен Mobileraker.
     reset_notification_registry: Очистить реестр устройств уведомлений
     configure_remote_connection: Настроить удалённое подключение
+    webcams_and_remote_settings: Камеры и удалённые настройки
     printer_not_reachable: Принтер недоступен
     printer_not_reachable_message: Не получилось загрузить список веб-камер и настройки принтера. Подключите принтер, чтобы настроить эти разделы.
+    remote_settings: Настройки удалённого доступа
     store_error:
       title: Ошибка сохранения!
       message: |-
@@ -693,6 +695,7 @@ pages:
       no_controls: Прочие элементы не найдены!
     settings_imported:
       title: Настройки импортированы!
+      message: Применены выбранные настройки. Не забудьте сохранить форму.
   printer_add:
     steps:
       mode: Режим
@@ -1058,12 +1061,17 @@ components:
     more_details: Дополнительные сведения
     add_printer: |-
       Привет! Рад видеть тебя здесь! Чтобы начать работу, пожалуйста, добавь принтер в Mobileraker. После этого ты сможешь управлять принтером напрямую из Mobileraker.
+    error_selecting_machine: Ошибка при выборе активного устройства
     lost_connection: Потеряно соединение с {} ({}).
     machine_not_reachable: Машина недоступна!
     could_not_connect: |-
       Не удалось подключиться к {} ({}). Удостоверьтесь, что принтер включен и доступен в вашей сети.
+    edit_machine_settings: Изменить настройки устройства
     connection_error_details: Подробности об ошибке соединения
+    timeout_error: Произошла задержка при попытке подключиться к устройству! Убедитесь, что к нему можно получить доступ из вашей текущей сети…
     octoeverywhere_returned: 'OctoEverywhere вернул: {}'
+    general_connection_error: Ошибка при попытке подключения. Повторите попытку позже.
+    connection_timeout: Время ожидания подключения истекло
     octoeverywhere_error: 'Ошибка OctoEverywhere: {}'
     unknown_error: Неизвестная ошибка соединения
   octo_indicator:
@@ -1180,6 +1188,8 @@ components:
       select_toolhead: Выбрать инструмент
       park_toolhead: Припарковать инструмент
       park_toolhead_desc: Припарковать выбранный инструмент
+  segment_form_field:
+    duplicate_error: Значение уже существует.
 dialogs:
   rate_my_app:
     title: Оцените Mobileraker?
