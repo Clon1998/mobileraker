@@ -523,12 +523,17 @@ pages:
     title: 編輯 {}
     import_settings: 匯入設定
     remove_printer: 移除印表機
+    reset_notifications: 重置通知資料庫
     no_values_found: 未找到任何值！
     fetching_additional_settings: "正在取得附加設定..."
     could_not_fetch_additional: 無法獲取附加設置！
     fetch_error_hint: 請確保機器是可連接的，並且Mobileraker已成功連接到它。
     reset_notification_registry: 清除通知裝置註冊
     configure_remote_connection: 配置遠端連線
+    webcams_and_remote_settings: 網路攝影機與遠端連線設定
+    printer_not_reachable: 無法連線至印表機
+    printer_not_reachable_message: 無法載入網路攝影機清單與印表機設定。請先連線至印表機以進行設定。
+    remote_settings: 遠端連線設定
     store_error:
       title: 儲存失敗！
       message: |-
@@ -550,6 +555,7 @@ pages:
       theme: 介面主題
       theme_helper: 列印機的介面主題
       theme_unavailable: 印表機專屬主題（僅限贊助者使用）
+      app_theme: App主題
     ssl:
       title: SSL－設定
       pin_certificate_label: 憑證綁定
@@ -573,6 +579,8 @@ pages:
       steps_baby_short: Z距離
     extruders:
       title: 擠出機
+      feedrate: 擠出機進給率
+      feedrate_short: 進給率
       steps_extrude: 擠出長度
       steps_extrude_short: "@:pages.printer_edit.extruders.steps_extrude"
       filament:
@@ -604,6 +612,8 @@ pages:
       cam_mode: 攝影模式
       cam_rotate: 旋轉
       read_only: 網路攝影機為唯讀
+      cam_name_already_present: 已有相同名稱的網路攝影機！
+      error_fetching: 讀取網路攝影機時發生錯誤
     macros:
       default_grp: 預設
       new_macro_grp: 新增巨集－群組
@@ -683,6 +693,9 @@ pages:
       title: 雜項元素界面順序
       helper: 更改儀表板上雜項元素的順序。
       no_controls: 未找到雜項元素！
+    settings_imported:
+      title: 設定已匯入！
+      message: 已套用所選設定。請記得儲存變更。
   printer_add:
     steps:
       mode: 模式
@@ -1050,6 +1063,20 @@ components:
       您好，
       很高興見到您！
       為了開始使用，請將一台列印機新增到 Mobileraker。完成這一步後，您就能直接在 Mobileraker 內控制你的列印機了。
+    error_selecting_machine: 切換使用中機器時發生錯誤
+    lost_connection: 與 {} ({}) 的連線中斷。
+    machine_not_reachable: 無法連線至機器！
+    could_not_connect: |-
+      無法連線至 {} ({})。
+      請檢查印表機是否已開啟，並確認網路連線是否正常。
+    edit_machine_settings: 編輯機器設定
+    connection_error_details: 連線錯誤詳細資訊
+    timeout_error: 嘗試連線至機器時發生逾時！請確保您目前的網路環境可以正常存取該機器……
+    octoeverywhere_returned: 'OctoEverywhere 回傳：{}'
+    general_connection_error: 連線時發生錯誤，請稍後再試。
+    connection_timeout: 連線逾時
+    octoeverywhere_error: 'OctoEverywhere 發生錯誤：{}'
+    unknown_error: 未知的連線錯誤
   octo_indicator:
     tooltip: 使用OctoEveryWhere！
   supporter_add:
@@ -1164,6 +1191,8 @@ components:
       select_toolhead: 選擇工具頭
       park_toolhead: 停放工具頭
       park_toolhead_desc: 將選取的工具頭停放至原位
+  segment_form_field:
+    duplicate_error: 已有相同設定值。
 dialogs:
   rate_my_app:
     title: 評價Mobileraker？
@@ -1173,6 +1202,7 @@ dialogs:
     fetching_error_title: 無法獲取設定
     fetching_error_sub: 確保其他機器已連接。
     select_source: 選擇來源
+    select_source_hint: 來源
   create_folder:
     title: 建立資料夾
     label: 資料夾名稱
@@ -1275,7 +1305,7 @@ dialogs:
     icon_label: '為此頁面選擇一個圖示：'
   filament_switch:
     title:
-      load: 線材裝載精靈
+      load: 進料精靈
       unload: 退料精靈
     controls:
       heat_up: 加熱
@@ -1562,6 +1592,8 @@ form_validators:
   disallow_mdns: 不支援 mDNS (.local) 位址
   file_name_in_use: 檔案名稱已經在使用中
   min_before_max: 最小值必須小於或等於最大值
+  heater_min: 數值低於允許的最低溫度 {}°C
+  heater_max: 數值高於允許的最高溫度 {}°C
 date:
   year:
     one: 年
