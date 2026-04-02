@@ -18,7 +18,7 @@ dependencies:
   web_socket_channel: ^3.0.3
   dio: ^5.8.0+1
   dio_smart_retry: ^7.0.1
-  flutter_web_auth_2: ^4.1.0
+  flutter_web_auth_2: ^5.0.1
   http: ^1.2.1
 
   #firebase
