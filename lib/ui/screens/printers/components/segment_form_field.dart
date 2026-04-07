@@ -125,8 +125,7 @@ class _AddValue extends HookWidget {
               onEditingComplete: () => onAdded(num.parse(textController.text) as num),
               onChanged: (val) => error.value = validator(val),
               decoration: decoration.copyWith(errorText: error.value),
-              // TODO Pass that again from parent!
-              keyboardType: TextInputType.number,
+              keyboardType: keyboardType,
             ),
           ),
           HookBuilder(
