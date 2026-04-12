@@ -2,6 +2,9 @@
 
 ## [2.9.8] - 2026-04-xx
 
+### Enhancements
+- **Kalico MPC** Added support for Kalico's MPC in the temp-wait filter for the console output.
+
 ### Bug Fixes
 
 - **Printer Settings**: Decimal number fields in printer settings (e.g. Baby-Steps) now show a full keyboard allowing
