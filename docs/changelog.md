@@ -1,5 +1,13 @@
 # Mobileraker - Changelog
 
+## [2.9.8] - 2026-04-xx
+
+### Bug Fixes
+
+- **Printer Settings**: Decimal number fields in printer settings (e.g. Baby-Steps) now show a full keyboard allowing
+  all users to enter decimal values, instead of a number-only keyboard that prevented some users from entering decimal
+  points due to their locale settings.
+
 ## [2.9.7] - 2026-03-16
 
 ### Enhancements
