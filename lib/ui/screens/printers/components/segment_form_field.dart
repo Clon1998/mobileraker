@@ -125,7 +125,8 @@ class _AddValue extends HookWidget {
               onEditingComplete: () => onAdded(num.parse(textController.text) as num),
               onChanged: (val) => error.value = validator(val),
               decoration: decoration.copyWith(errorText: error.value),
-              keyboardType: keyboardType,
+              // TODO: we can not use keyboard type number here/the passed one. Simply because for localization some countries use "." while others use "," as decimal separator. We need to find a way to support both. Maybe we can use the passed keyboard type for non-number types and for number types we can use a custom keyboard that supports both separators.
+              // keyboardType: keyboardType,
             ),
           ),
           HookBuilder(
