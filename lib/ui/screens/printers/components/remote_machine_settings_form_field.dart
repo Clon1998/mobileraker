@@ -390,7 +390,8 @@ class _ExtruderFilamentOperations extends HookConsumerWidget {
           isDense: true,
           helperMaxLines: 5,
         ),
-        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+        //TODO: Can not use "decimal: true" because localization of decimal separator is not working properly in that case (e.g. german locale expects "," as decimal separator but TextInputType.numberWithOptions with decimal: true always uses "." as decimal separator)
+        // keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
         validator: FormBuilderValidators.compose([
           FormBuilderValidators.required(),
           FormBuilderValidators.min(1),
@@ -428,7 +429,8 @@ class _ExtruderFilamentOperations extends HookConsumerWidget {
           isDense: true,
           helperMaxLines: 5,
         ),
-        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
+        //TODO: Can not use "decimal: true" because localization of decimal separator is not working properly in that case (e.g. german locale expects "," as decimal separator but TextInputType.numberWithOptions with decimal: true always uses "." as decimal separator)
+        // keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: true),
         validator: FormBuilderValidators.compose([
           FormBuilderValidators.required(),
           FormBuilderValidators.min(1),
