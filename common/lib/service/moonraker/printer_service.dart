@@ -156,13 +156,14 @@ class PrinterService {
 
       // IS Klippy connected?
       //TODO: Investigage/Simplify. We have the prev state so do we really need the _queriedForSession?
-      if (next.valueOrFullNull == true) {
-        if (!_queriedForSession) {
-          _queriedForSession = true;
+      // 1. If klippy was not connected and now is connected -> Refresh printer
+      // 2. If klippy was reloading (no matter if it was connected) and now its done and connected -> Refresh printer.
+
+      var condOne = previous?.value != true && next.value == true;
+      var condTwo = previous?.isReloading == true && !next.isReloading && next.value == true;
+      if (condOne || condTwo) {
+          talker.info('$_logTag Klippy connection state changed in a way that requires a printer refresh! condOne: $condOne, condTwo: $condTwo. Previous: $previous, Next: $next');
           refreshPrinter();
-        }
-      } else {
-        _queriedForSession = false;
       }
     }, fireImmediately: true);
   }
@@ -184,8 +185,6 @@ class PrinterService {
   bool get disposed => _printerStreamCtler.isClosed;
 
   Stream<Printer> get printerStream => _printerStreamCtler.stream;
-
-  bool _queriedForSession = false;
 
   Printer? _current;
 
