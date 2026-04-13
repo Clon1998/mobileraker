@@ -210,7 +210,8 @@ Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
     );
     return;
   }
-  // We just do nothing/wait for a rebuild -> new data is available!
+  // If we have no printer data we can still safely fetch the settings from moonraker!
+  yield await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
 }
 
 @riverpod
