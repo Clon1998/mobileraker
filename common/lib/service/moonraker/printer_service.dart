@@ -122,15 +122,15 @@ class PrinterGCodeStore extends _$PrinterGCodeStore {
   }
 
   Future<List<GCodeStoreEntry>> _cached(JsonRpcClient jrpcClient) async {
-    talker.info('Fetching cached GCode commands');
+    talker.info('[GcodeStore@${machineUUID} ${jrpcClient.clientType}@${jrpcClient.uri.obfuscate()}] Fetching cached GCode commands');
     try {
       RpcResponse blockingResponse = await jrpcClient.sendJRpcMethod('server.gcode_store');
 
       List<dynamic> raw = blockingResponse.result['gcode_store'];
-      talker.info('Received cached GCode commands');
+      talker.info('[GcodeStore@${machineUUID} ${jrpcClient.clientType}@${jrpcClient.uri.obfuscate()}] Received cached GCode commands');
       return List.generate(raw.length, (index) => GCodeStoreEntry.fromJson(raw[index]));
     } on JRpcError catch (e) {
-      talker.error('Error while fetching cached GCode commands: $e');
+      talker.error('[GcodeStore@${machineUUID} ${jrpcClient.clientType}@${jrpcClient.uri.obfuscate()}] Error while fetching cached GCode commands: $e');
     }
     return List.empty();
   }
@@ -151,7 +151,7 @@ class PrinterService {
 
     ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyConnected), (previous, next) {
       talker.info(
-        '[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new Klippy.IsConnected: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}',
+        '$_logTag Received new Klippy.IsConnected: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}',
       );
 
       // IS Klippy connected?
@@ -192,7 +192,7 @@ class PrinterService {
   set current(Printer nI) {
     if (disposed) {
       talker.warning(
-        'Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
+        '$_logTag Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
         null,
         StackTrace.current,
       );
@@ -215,7 +215,7 @@ class PrinterService {
       _removeJrpcHandlers();
       ref.invalidate(signalingHelperProvider('printer-$ownerUUID'));
 
-      talker.info('Refreshing printer for uuid: $ownerUUID');
+      talker.info('$_logTag Refreshing printer for uuid: $ownerUUID');
       PrinterBuilder printerBuilder = await _printerObjectsList();
       await _printerObjectsQuery(printerBuilder);
       // It can happen that the service disposed. Make sure to not proceed.
@@ -227,7 +227,7 @@ class PrinterService {
       _makeSubscribeRequest(printerObj.queryableObjects);
       current = printerObj;
     } on JRpcTimeoutError catch (e, s) {
-      talker.error('Timeout while refreshing printer $ownerUUID...', e);
+      talker.error('$_logTag Timeout while refreshing printer $ownerUUID...', e);
       _printerStreamCtler.addError(
         MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s),
         s,
@@ -245,7 +245,7 @@ class PrinterService {
         ),
       );
     } on JRpcError catch (e, s) {
-      talker.error('Unable to refresh Printer $ownerUUID...', e, s);
+      talker.error('$_logTag Unable to refresh Printer $ownerUUID...', e, s);
 
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(
@@ -254,13 +254,13 @@ class PrinterService {
       );
       FirebaseCrashlytics.instance.recordError(e, s, reason: 'JRpcError thrown during printer refresh');
     } catch (e, s) {
-      talker.error('Unexpected exception thrown during refresh $ownerUUID...', e, s);
+      talker.error('$_logTag Unexpected exception thrown during refresh $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(e, s);
       if (e is Future) {
         e.then(
-          (value) => talker.error('Error was a Future: Data. $value'),
-          onError: (e, s) => talker.error('Error was a Future: Error. $e', e, s),
+          (value) => talker.error('$_logTag Error was a Future: Data. $value'),
+          onError: (e, s) => talker.error('$_logTag Error was a Future: Error. $e', e, s),
         );
       }
       FirebaseCrashlytics.instance.recordError(e, s, reason: 'Error thrown during printer refresh');
@@ -390,11 +390,11 @@ class PrinterService {
       // Append the command to the store
       ref.read(printerGCodeStoreProvider(ownerUUID).notifier).appendCommand(script);
       await _jRpcClient.sendJRpcMethod('printer.gcode.script', params: {'script': script}, timeout: Duration.zero);
-      talker.info('GCode "$script" executed successfully!');
+      talker.info('$_logTag GCode "$script" executed successfully!');
       return true;
     } on JRpcError catch (e, s) {
       var gCodeException = GCodeException.fromJrpcError(e, parentStack: s);
-      talker.info('GCode execution failed: ${gCodeException.message}');
+      talker.info('$_logTag GCode execution failed: ${gCodeException.message}');
 
       if (showSnackOnErr) {
         _snackBarService.show(
@@ -454,7 +454,7 @@ class PrinterService {
   }
 
   startPrintFile(GCodeFile file) {
-    talker.info('Starting print for file: ${file.pathForPrint}');
+    talker.info('$_logTag Starting print for file: ${file.pathForPrint}');
     _jRpcClient.sendJRpcMethod('printer.print.start', params: {'filename': file.pathForPrint}).ignore();
   }
 
@@ -476,14 +476,14 @@ class PrinterService {
   }
 
   Future<List<Command>> gcodeHelp() async {
-    talker.info('Fetching available GCode commands');
+    talker.info('$_logTag Fetching available GCode commands');
     try {
       RpcResponse blockingResponse = await _jRpcClient.sendJRpcMethod('printer.gcode.help');
       Map<dynamic, dynamic> raw = blockingResponse.result;
-      talker.info('Received ${raw.length} available GCode commands');
+      talker.info('$_logTag Received ${raw.length} available GCode commands');
       return raw.entries.map((e) => Command(e.key, e.value)).toList();
     } on JRpcError catch (e) {
-      talker.error('Error while fetching cached GCode commands: $e');
+      talker.error('$_logTag Error while fetching cached GCode commands: $e');
     }
     return List.empty();
   }
@@ -493,17 +493,17 @@ class PrinterService {
   }
 
   Future<void> updateCurrentFile(String? file) async {
-    talker.info('Also requesting an update for current_file: $file');
+    talker.info('$_logTag Also requesting an update for current_file: $file');
 
     try {
       var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
 
       if (hasCurrent) {
-        talker.info('UPDATED current_file: $gCodeMeta');
+        talker.info('$_logTag UPDATED current_file: $gCodeMeta');
         current = current.copyWith(currentFile: gCodeMeta);
       }
     } catch (e, s) {
-      talker.error('Error while updating current_file', e, s);
+      talker.error('$_logTag Error while updating current_file', e, s);
       current = current.copyWith(currentFile: null);
     }
   }
@@ -537,12 +537,12 @@ class PrinterService {
 
   Future<PrinterBuilder> _printerObjectsList() async {
     // printerStream.value = Printer();
-    talker.info('>>>Querying printers object list');
+    talker.info('$_logTag >>>Querying printers object list');
     RpcResponse resp = await _jRpcClient.sendJRpcMethod('printer.objects.list');
     final result = resp.result;
 
-    talker.info('<<<Received printer objects list!');
-    talker.verbose('PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
+    talker.info('$_logTag <<<Received printer objects list!');
+    talker.verbose('$_logTag PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
 
     return PrinterBuilder()..queryableObjects = List.unmodifiable(result['objects'].cast<String>());
   }
@@ -553,7 +553,7 @@ class PrinterService {
   void _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
     if (!hasCurrent) {
-      talker.warning('Received statusUpdate before a printer was parsed initially!');
+      talker.warning('$_logTag Received statusUpdate before a printer was parsed initially!');
       return;
     }
 
@@ -571,7 +571,7 @@ class PrinterService {
     try {
       builder.partialUpdateField(key, json);
     } catch (e, s) {
-      talker.error('Error while parsing $key object', e, s);
+      talker.error('$_logTag Error while parsing $key object', e, s);
       _printerStreamCtler.addError(e, s);
       _showParsingExceptionSnackbar(e, s, key, json);
       FirebaseCrashlytics.instance.recordError(
@@ -585,8 +585,8 @@ class PrinterService {
   }
 
   void _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
-    talker.info('<<<Received queried printer objects');
-    talker.verbose('PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
+    talker.info('$_logTag <<<Received queried printer objects');
+    talker.verbose('$_logTag PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
     Map<String, dynamic> data = response['status'];
 
     data.forEach((key, value) {
@@ -607,7 +607,7 @@ class PrinterService {
   /// Query the state of queryable printer objects once!
   Future<void> _printerObjectsQuery(PrinterBuilder printer) async {
     if (disposed) return;
-    talker.info('>>>Querying Printer Objects!');
+    talker.info('$_logTag >>>Querying Printer Objects!');
     Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer.queryableObjects);
 
     RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
@@ -628,7 +628,7 @@ class PrinterService {
 
   /// This method registeres every printer object for websocket updates!
   void _makeSubscribeRequest(List<String> queryableObjects) {
-    talker.info('Subscribing printer objects for ws-updates!');
+    talker.info('$_logTag Subscribing printer objects for ws-updates!');
     Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(queryableObjects);
 
     _jRpcClient.sendJRpcMethod('printer.objects.subscribe', params: {'objects': queryObjects}).ignore();
@@ -678,4 +678,6 @@ class PrinterService {
     _removeJrpcHandlers();
     _printerStreamCtler.close();
   }
+
+  String get _logTag => 'PrinterService@$ownerUUID ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}';
 }
