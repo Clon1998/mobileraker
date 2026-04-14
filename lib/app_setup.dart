@@ -226,9 +226,6 @@ initializeAvailableMachines(Ref ref) async {
   List<Machine> machines = await ref.read(allMachinesProvider.future);
   talker.info('Received all machines');
 
-  await Future.wait(
-    machines.map((e) => ref.read(machineProvider(e.uuid).future)),
-  );
   talker.info('initialized all machineProviders');
 
   //   talker.info('Init for ${machine.name}(${machine.uuid})');
