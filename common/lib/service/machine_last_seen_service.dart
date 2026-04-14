@@ -24,7 +24,7 @@ DateTime? machineLastSeen(Ref ref, String machineUUID) =>
     ref.watch(machineLastSeenServiceProvider(machineUUID)).getLastSeen();
 
 class MachineLastSeenService {
-  const MachineLastSeenService(this.ref, this.machineUUID);
+  MachineLastSeenService(this.ref, this.machineUUID);
 
   final Ref ref;
   final String machineUUID;
