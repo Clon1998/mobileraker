@@ -52,6 +52,10 @@ Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
 
 @riverpod
 Stream<TemperatureStore> temperatureStores(Ref ref, String machineUUID) async* {
+  if (!ref.mounted) {
+    talker.warning('[temperatureStoresProvider($machineUUID)] Ref is not mounted, cannot watch temperature stores');
+    return;
+  }
   ref.keepAliveFor();
   final tempStore = ref.watch(temperatureStoreServiceProvider(machineUUID));
 

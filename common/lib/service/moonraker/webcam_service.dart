@@ -27,6 +27,10 @@ WebcamService webcamService(Ref ref, String machineUUID) {
 
 @riverpod
 Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
+  if (!ref.mounted) {
+    talker.warning('Ref is not mounted. Not fetching webcam infos for machine $machineUUID');
+    return;
+  }
   ref.keepAliveFor();
   // final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
   // if (jrpcState != ClientState.connected) return;
