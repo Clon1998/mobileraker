@@ -28,6 +28,7 @@ class MachineLastSeenService {
 
   final Ref ref;
   final String machineUUID;
+  bool _isTracking = false;
 
   MachineService get machineService => ref.read(machineServiceProvider);
 
@@ -36,12 +37,17 @@ class MachineLastSeenService {
   KeyValueStoreKey get lastSeenKey => CompositeKey.keyWithString(UtilityKeys.machineLastSeen, machineUUID);
 
   void trackLastSeen() {
+    if (_isTracking) {
+      talker.warning('machineLastSeenService($machineUUID): machine with UUID $machineUUID is already tracking last seen, skipping');
+      return;
+    }
+    _isTracking = true;
     talker.info('machineLastSeenService($machineUUID): machine with UUID $machineUUID is tracking last seen');
     ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) async {
       try {
         talker.info(
             'machineLastSeenService($machineUUID): machine with UUID $machineUUID changed state: $previous ${next}');
-        if (next.value == ClientState.connected || next.value == ClientState.connected) {
+        if (next.value == ClientState.connected) {
           talker.info(
               'machineLastSeenService($machineUUID): machine with UUID $machineUUID is connected, will update lastSeen');
           updateLastSeen(DateTime.now());
