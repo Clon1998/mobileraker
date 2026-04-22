@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.9.8] - 2026-04-xx
+## [2.9.8] - 2026-04-22
 
 ### Enhancements
 
@@ -11,8 +11,10 @@
 - **Printer Settings**: Decimal number fields in printer settings (e.g. Baby-Steps) now show a full keyboard allowing
   all users to enter decimal values, instead of a number-only keyboard that prevented some users from entering decimal
   points due to their locale settings.
-- **Webcam on Overview Page** Fixed an issue that prevented the webcam from showing on the overview page when klippy
+- **Webcam on Overview Page**: Fixed an issue that prevented the webcam from showing on the overview page when klippy
   reported any other state than ready.
+- **Supporter Status reset**: Fixed an issue on android that could cause the app to forget the supporter status after
+  the user migrated from one android device to a new one.This was caused by a bug in the underlying firebase_auth lib.
 
 ## [2.9.7] - 2026-03-16
 
