@@ -18,29 +18,29 @@ dependencies:
   web_socket_channel: ^3.0.3
   dio: ^5.8.0+1
   dio_smart_retry: ^7.0.1
-  flutter_web_auth_2: ^4.1.0
+  flutter_web_auth_2: ^5.0.1
   http: ^1.2.1
 
   #firebase
-  firebase_core_platform_interface: ^6.0.0
-  firebase_core: ^3.6.0
-  firebase_analytics: ^11.3.5
-  firebase_app_check: ^0.3.1+6
-  firebase_crashlytics: ^4.1.5
-  firebase_remote_config: ^5.1.5
-  cloud_firestore: ^5.5.0
-  firebase_auth: ^5.3.3
+  firebase_core_platform_interface: ^6.0.2
+  firebase_core: ^4.5.0
+  firebase_analytics: ^12.2.0
+  firebase_app_check: ^0.4.2
+  firebase_crashlytics: ^5.1.0
+  firebase_remote_config: ^6.3.0
+  cloud_firestore: ^6.2.0
+  firebase_auth: ^6.3.0
 
   #ads
-  google_mobile_ads: ^6.0.0
+  google_mobile_ads: ^7.0.0
 
   #purchases
-  purchases_flutter: ^9.10.7
+  purchases_flutter: ^9.16.0
 
   #notification
-  awesome_notifications_core: ^0.10.1
-  awesome_notifications: ^0.10.1
-  awesome_notifications_fcm: ^0.10.1
+#  awesome_notifications_core: ^0.11.0
+  awesome_notifications: ^0.11.0
+  awesome_notifications_fcm: ^0.11.0
   live_activities: ^2.4.1
   #        ref: main
   #      ref: feature/multi-state-req
@@ -53,7 +53,7 @@ dependencies:
   #architecture
   freezed_annotation: ^3.1.0
   flutter_hooks: ^0.21.2
-  hooks_riverpod: ^3.2.1
+  hooks_riverpod: ^3.3.1
   riverpod_annotation: ^4.0.0
   json_annotation: ^4.8.1
 
@@ -70,33 +70,33 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #bottomsheet:
-  smooth_sheets: ^0.14.0
+  smooth_sheets: ^0.17.0
 
   #ui
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git
-  flutter_svg: ^2.0.15
+  flutter_svg: ^2.2.4
   flutter_svg_provider: ^1.0.7
   progress_indicators: ^1.0.0
   pull_to_refresh_flutter3: ^2.0.2
 
   #misc
-  talker_flutter: ^5.0.1
+  talker_flutter: ^5.1.16
   rxdart: ^0.28.0
-  stringr: ^1.0.0
+  stringr: ^1.2.1
   collection: ^1.19.0
   uuid: ^4.5.2
-  network_info_plus: ^6.1.1
+  network_info_plus: ^7.0.0
   permission_handler: ^12.0.0+1
   url_launcher: ^6.3.1
-  package_info_plus: ^8.1.1
+  package_info_plus: ^9.0.1
   vector_math: ^2.1.4
   form_builder_validators: ^11.0.0
-  keep_screen_on: ^4.0.0
+  keep_screen_on: ^5.0.0
 
   #crypto
-  hashlib_codecs: ^2.2.0
-  hashlib: ^1.21.1
+  hashlib_codecs: ^3.0.1
+  hashlib: ^2.3.0
 
 
 dev_dependencies:

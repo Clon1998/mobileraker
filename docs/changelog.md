@@ -1,5 +1,19 @@
 # Mobileraker - Changelog
 
+## [2.9.8] - 2026-04-xx
+
+### Enhancements
+
+- **Kalico MPC** Added support for Kalico's MPC in the temp-wait filter for the console output.
+
+### Bug Fixes
+
+- **Printer Settings**: Decimal number fields in printer settings (e.g. Baby-Steps) now show a full keyboard allowing
+  all users to enter decimal values, instead of a number-only keyboard that prevented some users from entering decimal
+  points due to their locale settings.
+- **Webcam on Overview Page** Fixed an issue that prevented the webcam from showing on the overview page when klippy
+  reported any other state than ready.
+
 ## [2.9.7] - 2026-03-16
 
 ### Enhancements

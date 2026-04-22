@@ -37,6 +37,7 @@ typedef TemperatureStore = Map<(ConfigFileObjectIdentifiers, String), List<Tempe
 Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
     Ref ref, String machineUUID, ConfigFileObjectIdentifiers cIdentifier, String objectName,
     [int? limit]) async* {
+  if (!ref.mounted) return;
   ref.keepAliveFor();
 
   if (limit != null) {
@@ -52,6 +53,10 @@ Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
 
 @riverpod
 Stream<TemperatureStore> temperatureStores(Ref ref, String machineUUID) async* {
+  if (!ref.mounted) {
+    talker.warning('[temperatureStoresProvider($machineUUID)] Ref is not mounted, cannot watch temperature stores');
+    return;
+  }
   ref.keepAliveFor();
   final tempStore = ref.watch(temperatureStoreServiceProvider(machineUUID));
 

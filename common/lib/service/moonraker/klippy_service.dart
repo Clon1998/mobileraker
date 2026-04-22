@@ -15,7 +15,6 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/server/klipper.dart';
@@ -65,7 +64,7 @@ class KlippyService {
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       talker.info(
-          '[Klippy Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new JRpcClientState: $previous -> $next');
+          '$_logTag Received new JRpcClientState: $previous -> $next');
       switch (next.valueOrFullNull) {
         case ClientState.connected:
           refreshKlippy().ignore();
@@ -146,7 +145,7 @@ class KlippyService {
 
       _checkKlippyConnected();
     } on JRpcError catch (e, s) {
-      talker.warning('Jrpc Error while refreshing KlippyObject: ${e.message}');
+      talker.warning('$_logTag Jrpc Error while refreshing KlippyObject: ${e.message}');
 
       _updateError(MobilerakerException('Error while refreshing KlippyObject', parentException: e), s);
     }
@@ -160,69 +159,69 @@ class KlippyService {
 
   void _startKlippyConnectedTimer() {
     if (_checkKlippyConnectedTimer != null && _checkKlippyConnectedTimer!.isActive) {
-      talker.warning('Klippy connection timer is already active and running! Skipping new timer creation.');
+      talker.warning('$_logTag Klippy connection timer is already active and running! Skipping new timer creation.');
       return;
     }
 
     // For safety, still cancel any existing timer
     _checkKlippyConnectedTimer?.cancel();
     _checkKlippyConnectedTimer = Timer(Duration(seconds: 2), _checkKlippyConnected);
-    talker.info('Started Klippy connection check timer (will check again in 2s)');
+    talker.info('$_logTag Started Klippy connection check timer (will check again in 2s)');
   }
 
   void _checkKlippyConnected() async {
     try {
-      talker.info('Checking if Klippy is connected...');
+      talker.info('$_logTag Checking if Klippy is connected...');
       var instance = await _fetchServerInfo();
       _current = instance;
-      talker.info('Klippy connection status: ${instance.klippyConnected ? "Connected" : "Disconnected"}');
+      talker.info('$_logTag Klippy connection status: ${instance.klippyConnected ? "Connected" : "Disconnected"}');
 
       // We can only fetch the printer info if klippy reported ready (So klippy domain is connected to moonraker)
       if (instance.klippyConnected) {
-        talker.info('Klippy is connected, proceeding to request printer.info');
+        talker.info('$_logTag Klippy is connected, proceeding to request printer.info');
         _checkKlippyState();
       } else {
-        talker.info('Klippy is not connected, scheduling another connection check');
+        talker.info('$_logTag Klippy is not connected, scheduling another connection check');
         // This is done to update the klippy state!
         _startKlippyConnectedTimer();
       }
     } on JRpcError catch (e, s) {
-      talker.warning('Jrpc Error while checking Klippy connection: ${e.message}');
+      talker.warning('$_logTag Jrpc Error while checking Klippy connection: ${e.message}');
       _updateError(MobilerakerException('Error while checking Klippy connection', parentException: e), s);
     }
   }
 
   void _startKlippyStateTimer() {
     if (_checkKlippyStateTimer != null && _checkKlippyStateTimer!.isActive) {
-      talker.warning('Klippy state timer is already active and running! Skipping new timer creation.');
+      talker.warning('$_logTag Klippy state timer is already active and running! Skipping new timer creation.');
       return;
     }
 
     // For safety, still cancel any existing timer
     _checkKlippyStateTimer?.cancel();
     _checkKlippyStateTimer = Timer(Duration(seconds: 2), _checkKlippyState);
-    talker.info('Started Klippy state check timer (will check again in 2s)');
+    talker.info('$_logTag Started Klippy state check timer (will check again in 2s)');
   }
 
   void _checkKlippyState() async {
     try {
-      talker.info('Checking Klippy state...');
+      talker.info('$_logTag Checking Klippy state...');
       // Printer info is the second request and should therfore update the KlipperInstance
       final instance = await _fetchPrinterInfo();
       _current = instance;
 
-      talker.info('Current Klippy state: ${instance.klippyState}');
+      talker.info('$_logTag Current Klippy state: ${instance.klippyState}');
 
       if (instance.klippyState != KlipperState.ready) {
-        talker.info('Klippy not in ready state yet (current: ${instance.klippyState}), scheduling another state check');
+        talker.info('$_logTag Klippy not in ready state yet (current: ${instance.klippyState}), scheduling another state check');
         // We need to keep asking for the klippy state until it is ready because not all state transitions
         // are notification based (only ready, shutdown, error)
         _startKlippyStateTimer();
       } else {
-        talker.info('Klippy is in ready state! All systems operational.');
+        talker.info('$_logTag Klippy is in ready state! All systems operational.');
       }
     } on JRpcError catch (e, s) {
-      talker.warning('Jrpc Error while checking Klippy state: ${e.message}');
+      talker.warning('$_logTag Jrpc Error while checking Klippy state: ${e.message}');
       _updateError(MobilerakerException('Error while checking Klippy state', parentException: e), s);
     }
   }
@@ -232,10 +231,10 @@ class KlippyService {
   /// Deserializes the response into a [KlipperInstance], updates [_current], and
   /// returns the Klippy server connection status.
   Future<KlipperInstance> _fetchServerInfo() async {
-    talker.info('>>>Fetching Server.Info');
+    talker.info('$_logTag >>>Fetching Server.Info');
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.info');
-    talker.info('<<<Received Server.Info');
-    talker.verbose('ServerInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
+    talker.info('$_logTag <<<Received Server.Info');
+    talker.verbose('$_logTag ServerInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
 
     // Server info is the first request and should therfore initialize the KlipperInstance
     var instance = KlipperInstance.fromJson(rpcResponse.result);
@@ -243,16 +242,16 @@ class KlippyService {
   }
 
   Future<KlipperInstance> _fetchPrinterInfo() async {
-    talker.info('>>>Fetching Printer.Info');
+    talker.info('$_logTag >>>Fetching Printer.Info');
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('printer.info');
-    talker.info('<<<Received Printer.Info');
-    talker.verbose('PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
+    talker.info('$_logTag <<<Received Printer.Info');
+    talker.verbose('$_logTag PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
 
     // Log the state mapping for better debugging
     if (rpcResponse.result.containsKey('state')) {
-      talker.info('Mapping printer.info "state" (${rpcResponse.result['state']}) to "klippy_state"');
+      talker.info('$_logTag Mapping printer.info "state" (${rpcResponse.result['state']}) to "klippy_state"');
     } else {
-      talker.warning('printer.info response does not contain "state" field');
+      talker.warning('$_logTag printer.info response does not contain "state" field');
     }
 
     var instance = KlipperInstance.partialUpdate(_current, {
@@ -273,14 +272,14 @@ class KlippyService {
 
   _onNotifyKlippyReady(Map<String, dynamic> m) {
     _current = _current.copyWith(klippyState: KlipperState.ready, klippyConnected: true, klippyStateMessage: null);
-    talker.info('State: notify_klippy_ready');
+    talker.info('$_logTag State: notify_klippy_ready');
     // Just to be sure, fetch all klippy info again
     refreshKlippy().ignore();
   }
 
   _onNotifyKlippyShutdown(Map<String, dynamic> m) async {
     _current = _current.copyWith(klippyState: KlipperState.shutdown, klippyStateMessage: null);
-    talker.info('State: notify_klippy_shutdown');
+    talker.info('$_logTag State: notify_klippy_shutdown');
     // Just to be sure, fetch all klippy info again (Also fetches the statusMessage that contains the shutdown reason)
     refreshKlippy().ignore();
   }
@@ -288,7 +287,7 @@ class KlippyService {
   _onNotifyKlippyDisconnected(Map<String, dynamic> m) {
     _current =
         _current.copyWith(klippyConnected: false, klippyState: KlipperState.disconnected, klippyStateMessage: null);
-    talker.info('State: notify_klippy_disconnected: $m');
+    talker.info('$_logTag State: notify_klippy_disconnected: $m');
     refreshKlippy().ignore();
   }
 
@@ -299,4 +298,6 @@ class KlippyService {
 
     _klipperStreamCtler.close();
   }
+
+  String get _logTag => '[Klippy Service@$ownerUUID ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}]';
 }

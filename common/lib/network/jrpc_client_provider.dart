@@ -160,10 +160,10 @@ class JrpcClientManager extends _$JrpcClientManager {
 }
 
 @riverpod
-Stream<ClientState> jrpcClientState(Ref ref, String machineUUID) {
+Future<ClientState> jrpcClientState(Ref ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
-  return ref.watchAsSubject(_jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType));
+  return ref.watch(_jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType).future);
 }
 
 @riverpod

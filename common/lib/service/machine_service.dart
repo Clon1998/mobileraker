@@ -77,12 +77,19 @@ class AllMachines extends _$AllMachines {
     });
 
     talker.info('Received fetchAll');
-
+    var isSupporter = ref.watch(isSupporterProvider);
     var settingService = ref.watch(settingServiceProvider);
     var machines = await ref.watch(machineRepositoryProvider).fetchAll();
     final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
-
     talker.info('Received ordering $ordering');
+
+
+    // We must ensure that all machines are loaded before we can apply the ordering, otherwise we might end up in a situation where a machine is not loaded yet and thus not included in the ordering and gets pushed to the end of the list even though it should be in the middle!
+    await Future.wait(
+      machines.map((e) => ref.read(machineProvider(e.uuid).future)),
+    );
+
+
     machines = machines.sorted((a, b) {
       final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
       final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
@@ -91,10 +98,9 @@ class AllMachines extends _$AllMachines {
 
     // This makes sure that we have the last seen time for all machines and that if a machine is removed, the respective service is also destoryed!
     for (var machine in machines) {
-      ref.watch(machineLastSeenServiceProvider(machine.uuid)).trackLastSeen();
+      ref.watch(machineLastSeenServiceProvider(machine.uuid));
     }
 
-    var isSupporter = ref.watch(isSupporterProvider);
     talker.info('Received isSupporter $isSupporter');
     var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
     talker.info('Max allowed machines for non Supporters is $maxNonSupporterMachines');
@@ -210,7 +216,8 @@ Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
     );
     return;
   }
-  // We just do nothing/wait for a rebuild -> new data is available!
+  // If we have no printer data we can still safely fetch the settings from moonraker!
+  yield await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
 }
 
 @riverpod

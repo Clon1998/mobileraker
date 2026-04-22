@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
-import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -28,6 +27,10 @@ WebcamService webcamService(Ref ref, String machineUUID) {
 
 @riverpod
 Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
+  if (!ref.mounted) {
+    talker.warning('Ref is not mounted. Not fetching webcam infos for machine $machineUUID');
+    return;
+  }
   ref.keepAliveFor();
   // final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
   // if (jrpcState != ClientState.connected) return;
@@ -91,24 +94,24 @@ class WebcamService {
   final WebcamInfoRepository _webcamInfoRepository;
 
   Future<List<WebcamInfo>> listWebcamInfos() async {
-    talker.info('List Webcams request...');
+    talker.info('$_logTag List Webcams request...');
     try {
       var cams = await _webcamInfoRepository.fetchAll();
-      talker.info('Got ${cams.length} webcams');
+      talker.info('$_logTag Got ${cams.length} webcams');
 
       return cams;
     } catch (e, s) {
-      talker.error('Error while listing cams', e, s);
+      talker.error('$_logTag Error while listing cams', e, s);
       throw MobilerakerException('Unable to list all webcams', parentException: e);
     }
   }
 
   Future<List<WebcamInfo>> addOrModifyWebcamInfoInBulk(List<WebcamInfo> cams) async {
-    talker.info('BULK ADD/MODIFY Webcams "${cams.length}" request...');
+    talker.info('$_logTag BULK ADD/MODIFY Webcams "${cams.length}" request...');
     try {
       return await Future.wait(cams.map((e) => addOrModifyWebcamInfo(e)));
     } catch (e, s) {
-      talker.error('Error while saving cams as in Bulk', e, s);
+      talker.error('$_logTag Error while saving cams as in Bulk', e, s);
       throw MobilerakerException(
         'Error while trying to add or modify webcams in bulk!',
         parentException: e,
@@ -128,22 +131,22 @@ class WebcamService {
   }
 
   Future<WebcamInfo> addOrModifyWebcamInfo(WebcamInfo cam) async {
-    talker.info('ADD/MODIFY Webcam "${cam.name}" request...');
+    talker.info('$_logTag ADD/MODIFY Webcam "${cam.name}" request...');
     if (cam.isReadOnly) {
-      talker.warning('Webcam "${cam.name}" is a config webcam. Skipping...');
+      talker.warning('$_logTag Webcam "${cam.name}" is a config webcam. Skipping...');
       return cam;
     }
 
     try {
       return await _webcamInfoRepository.addOrUpdate(cam);
     } catch (e) {
-      talker.error('Error while saving cam', e);
+      talker.error('$_logTag Error while saving cam', e);
       throw MobilerakerException('Unable to add/update webcam info for ${cam.uid}', parentException: e);
     }
   }
 
   Future<List<WebcamInfo>> deleteWebcamInfoInBulk(List<WebcamInfo> cams) {
-    talker.info('BULK REMOVE Webcams "${cams.length}" request...');
+    talker.info('$_logTag BULK REMOVE Webcams "${cams.length}" request...');
     try {
       return Future.wait(cams.map((e) => deleteWebcamInfo(e)));
     } catch (e) {
@@ -152,11 +155,13 @@ class WebcamService {
   }
 
   Future<WebcamInfo> deleteWebcamInfo(WebcamInfo cam) async {
-    talker.info('DELETE Webcam "${cam.name}" request...');
+    talker.info('$_logTag DELETE Webcam "${cam.name}" request...');
     try {
       return await _webcamInfoRepository.remove(cam.uid ?? cam.name);
     } catch (e) {
       throw MobilerakerException('Unable to delete webcam info for ${cam.uid}', parentException: e);
     }
   }
+
+  String get _logTag => '[WebcamService - $machineUUID]';
 }
