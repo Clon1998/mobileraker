@@ -44,8 +44,8 @@ void main() {
 
     var container = ProviderContainer(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
-      jrpcClientStateProvider(uuid).overrideWith((ref) async* {
-        yield ClientState.connected;
+      jrpcClientStateProvider(uuid).overrideWith((ref) async {
+        return ClientState.connected;
       })
     ]);
 
