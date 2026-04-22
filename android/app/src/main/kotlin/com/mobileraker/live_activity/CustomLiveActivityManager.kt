@@ -7,7 +7,7 @@ package com.mobileraker.live_activity
 
 import android.app.Notification
 import android.content.Context
-import com.example.live_activities.LiveActivityManager
+import com.istornz.live_activities.LiveActivityManager
 
 class CustomLiveActivityManager(context: Context) :
     LiveActivityManager(context) {
