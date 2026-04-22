@@ -37,6 +37,7 @@ typedef TemperatureStore = Map<(ConfigFileObjectIdentifiers, String), List<Tempe
 Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
     Ref ref, String machineUUID, ConfigFileObjectIdentifiers cIdentifier, String objectName,
     [int? limit]) async* {
+  if (!ref.mounted) return;
   ref.keepAliveFor();
 
   if (limit != null) {

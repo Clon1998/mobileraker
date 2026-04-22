@@ -26,7 +26,6 @@ import 'package:common/util/path_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -187,6 +186,7 @@ FileService fileServiceSelected(Ref ref) {
 
 @riverpod
 Stream<FileActionResponse> fileNotificationsSelected(Ref ref) async* {
+  if (!ref.mounted) return;
   ref.keepAliveFor();
   try {
     var machine = await ref.watch(selectedMachineProvider.future);
