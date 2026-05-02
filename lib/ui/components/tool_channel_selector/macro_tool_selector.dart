@@ -58,6 +58,11 @@ class _DataMacroToolSelector extends ConsumerWidget {
 
     final NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
 
+    if (model.availableTools.isEmpty) {
+      // No tool change macros defined, so we cant do anything here
+      return SizedBox.shrink();
+    }
+
     // Btw for idex (Rat 4) this wont happen. We always have one that is active!
     if (model.activeTool == null) {
       return NoToolSelected(onTap: controller.onSelectTool.only(model.klippyCanReceiveCommands));
