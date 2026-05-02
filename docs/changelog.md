@@ -2,6 +2,11 @@
 
 ## [2.9.9] - 2026-05-xx
 
+### Bug Fixes
+
+- **Toolhead Selection**: Fixed a bug that displayed the toolhead selector on single-tool printers — the selector is now
+  hidden for single-tool setups to avoid user confusion.
+
 ## [2.9.8] - 2026-04-22
 
 ### Enhancements
