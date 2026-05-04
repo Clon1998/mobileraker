@@ -11,7 +11,6 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/dto/server/klipper_system_info.dart';
 import 'package:common/data/dto/server/moonraker_version.dart';
@@ -108,10 +107,19 @@ class _Preview extends HookWidget {
       overrides: [
         _controlExtruderCardControllerProvider(_machineUUID).overrideWith(_ControlExtruderCardPreviewController.new),
         klippySystemInfoProvider(_machineUUID).overrideWithBuild((_,_) => KlipperSystemInfo()),
-        printerProvider(_machineUUID).overrideWithBuild((_,_) => Stream.value(PrinterBuilder.preview().build())),
-        klipperProvider(_machineUUID).overrideWithValue(AsyncValue.data(KlipperInstance(moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),))),
+        printerProvider(_machineUUID).overrideWith(PrinterPreviewNotifier.new),
+        klipperProvider(_machineUUID).overrideWith(() => _PreviewKlipperNotifier()),
       ],
       child: const ControlExtruderCard(machineUUID: _machineUUID),
+    );
+  }
+}
+
+class _PreviewKlipperNotifier extends Klipper {
+  @override
+  Future<KlipperInstance> build(String machineUUID) async {
+    return KlipperInstance(
+      moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),
     );
   }
 }

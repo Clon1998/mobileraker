@@ -30,7 +30,7 @@ class PrinterProviderGuard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final (hasError, error) = ref.watch(printerProvider(machineUUID).select((it) => (it is AsyncError, it.error)));
     // Just initialize the temperature store provider to have it available if needed
-    ref.read(temperatureStoreServiceProvider(machineUUID));
+    ref.read(temperatureStoreManagerProvider(machineUUID));
 
     talker.info('PrinterProviderGuard($machineUUID): hasError: $hasError, error: $error');
 
@@ -70,8 +70,8 @@ class _ProviderError extends ConsumerWidget {
           body: Text(message),
           action: TextButton.icon(
             onPressed: () {
-              talker.info('Invalidating printer service provider, to retry printer fetching');
-              ref.invalidate(printerServiceProvider(machineUUID));
+              talker.info('Invalidating printer provider, to retry printer fetching');
+              ref.invalidate(printerProvider(machineUUID));
             },
             icon: const Icon(Icons.restart_alt_outlined),
             label: const Text('general.retry').tr(),

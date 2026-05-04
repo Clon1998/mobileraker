@@ -70,22 +70,22 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
     talker.info('Refreshing $clientType was PULL to REFRESH');
 
-    ProviderSubscription<PrinterService>? printerServiceKeepAlive;
-    ProviderSubscription<KlippyService>? klippyServiceKeepAlive;
-    ProviderSubscription<TemperatureStoreService>? temperatureStoreServiceKeepAlive;
+    ProviderSubscription? printerKeepAlive;
+    ProviderSubscription<AsyncValue<KlipperInstance>>? klipperKeepAlive;
+    ProviderSubscription? temperatureStoreServiceKeepAlive;
     try {
-      printerServiceKeepAlive = ref.keepAliveExternally(printerServiceProvider(selMachine.uuid));
-      klippyServiceKeepAlive = ref.keepAliveExternally(klipperServiceProvider(selMachine.uuid));
+      printerKeepAlive = ref.keepAliveExternally(printerProvider(selMachine.uuid));
+      klipperKeepAlive = ref.keepAliveExternally(klipperProvider(selMachine.uuid));
 
-      await klippyServiceKeepAlive.read().refreshKlippy();
+      await ref.read(klipperProvider(selMachine.uuid).notifier).refreshKlippy();
       var read = ref.read(klipperProvider(selMachine.uuid));
       if (read
           case AsyncData(hasError: false, hasValue: true, value: KlipperInstance(klippyCanReceiveCommands: true))) {
         talker.info(
           'Klippy reported ready and connected, will try to refresh printer',
         );
-        await printerServiceKeepAlive.read().refreshPrinter();
-        ref.invalidate(temperatureStoreServiceProvider(selMachine.uuid));
+        await ref.read(printerProvider(selMachine.uuid).notifier).refreshPrinter();
+        ref.invalidate(temperatureStoreManagerProvider(selMachine.uuid));
       }
       // throw MobilerakerException('Klippy is not ready to receive commands');
       refreshController.refreshCompleted();
@@ -101,8 +101,8 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
         dialogTitle: 'Printer refresh failed',
       ));
     } finally {
-      printerServiceKeepAlive?.close();
-      klippyServiceKeepAlive?.close();
+      printerKeepAlive?.close();
+      klipperKeepAlive?.close();
     }
   }
 

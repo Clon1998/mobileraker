@@ -55,7 +55,7 @@ void main() {
     StreamController<Map<String, dynamic>>? dismissedCtrl,
     StreamController<Map<String, dynamic>>? wakeCtrl,
   }) {
-    final container = ProviderContainer(overrides: [
+    final container = ProviderContainer.test(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
       jrpcMethodEventProvider(uuid, 'notify_announcement_update')
           .overrideWith((ref) => (updateCtrl ?? StreamController<Map<String, dynamic>>.broadcast()).stream),
@@ -64,7 +64,6 @@ void main() {
       jrpcMethodEventProvider(uuid, 'notify_announcement_wake')
           .overrideWith((ref) => (wakeCtrl ?? StreamController<Map<String, dynamic>>.broadcast()).stream),
     ]);
-    addTearDown(container.dispose);
     return container;
   }
 

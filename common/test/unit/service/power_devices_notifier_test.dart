@@ -59,14 +59,13 @@ void main() {
     MockJsonRpcClient mockRpc, {
     StreamController<Map<String, dynamic>>? powerChangedCtrl,
   }) {
-    final container = ProviderContainer(overrides: [
+    final container = ProviderContainer.test(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
       jrpcClientStateProvider(uuid).overrideWith((ref) async => ClientState.connected),
       jrpcMethodEventProvider(uuid, 'notify_power_changed')
           .overrideWith(
               (ref) => (powerChangedCtrl ?? StreamController<Map<String, dynamic>>.broadcast()).stream),
     ]);
-    addTearDown(container.dispose);
     return container;
   }
 

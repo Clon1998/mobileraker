@@ -55,13 +55,13 @@ final _zipDateFormat = DateFormat('yyyy-MM-dd_HH-mm-ss');
 FileInteractionService fileInteractionService(Ref ref, String machineUUID) {
   return FileInteractionService(
     machineUUID,
+    ref,
     ref.watch(bottomSheetServiceProvider),
     ref.watch(dialogServiceProvider),
     ref.watch(snackBarServiceProvider),
     ref.watch(fileServiceProvider(machineUUID)),
     ref.watch(jobQueueServiceProvider(machineUUID)),
     ref.watch(printerServiceProvider(machineUUID)),
-    ref.watch(klipperServiceProvider(machineUUID)),
     ref.watch(goRouterProvider),
     ref.watch(isSupporterProvider),
   );
@@ -69,26 +69,26 @@ FileInteractionService fileInteractionService(Ref ref, String machineUUID) {
 
 class FileInteractionService {
   final String _machineUUID;
+  final Ref _ref;
   final BottomSheetService _bottomSheetService;
   final DialogService _dialogService;
   final SnackBarService _snackBarService;
   final FileService _fileService;
   final JobQueueService _jobQueueService;
   final PrinterService _printerService;
-  final KlippyService _klippyService;
   final GoRouter _goRouter;
 
   final bool _isSupporter;
 
   const FileInteractionService(
     this._machineUUID,
+    this._ref,
     this._bottomSheetService,
     this._dialogService,
     this._snackBarService,
     this._fileService,
     this._jobQueueService,
     this._printerService,
-    this._klippyService,
     this._goRouter,
     this._isSupporter,
   );
@@ -100,11 +100,12 @@ class FileInteractionService {
     List<String>? usedNames,
     bool useHero = true,
   ]) async* {
+    final printer = _ref.read(printerProvider(_machineUUID)).value;
     final canStartPrint =
-        _printerService.hasCurrent &&
-        _printerService.current.print.state != PrintState.printing &&
-        _printerService.current.print.state != PrintState.paused;
-    final klippyReady = _klippyService.klippyCanReceiveCommands;
+        printer != null &&
+        printer.print.state != PrintState.printing &&
+        printer.print.state != PrintState.paused;
+    final klippyReady = _ref.read(klipperProvider(_machineUUID)).value?.klippyCanReceiveCommands == true;
 
     final arg = ActionBottomSheetArgs(
       title: Tooltip(
@@ -429,7 +430,7 @@ class FileInteractionService {
     if (resp?.confirmed != true) return;
     _printerService.setHeaterTemperature('extruder', 170);
 
-    if (_printerService.currentOrNull?.heaterBed != null) {
+    if (_ref.read(printerProvider(_machineUUID)).value?.heaterBed != null) {
       _printerService.setHeaterTemperature('heater_bed', (file.firstLayerTempBed ?? 60.0).toInt());
     }
     _snackBarService.show(

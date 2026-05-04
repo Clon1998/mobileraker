@@ -16,7 +16,6 @@ import 'package:common/data/dto/machine/printer_axis_enum.dart';
 import 'package:common/exceptions/gcode_exception.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
@@ -28,7 +27,6 @@ import 'package:stringr/stringr.dart';
 import '../../data/dto/console/command.dart';
 import '../../data/dto/machine/printer_builder.dart';
 import '../../network/jrpc_client_provider.dart';
-import '../misc_providers.dart';
 import '../selected_machine_service.dart';
 import '../ui/dialog_service_interface.dart';
 import '../ui/snackbar_service_interface.dart';
@@ -44,20 +42,38 @@ PrinterService printerService(Ref ref, String machineUUID) {
 
 @riverpod
 class PrinterNotifier extends _$PrinterNotifier {
+  JsonRpcClient get _jrpcClient => ref.read(jrpcClientProvider(machineUUID));
+
   @override
-  Stream<Printer> build(String machineUUID) {
-    // ref.keepAlive();
-    var printerService = ref.watch(printerServiceProvider(machineUUID));
+  Future<Printer> build(String machineUUID) async {
+    // Await klippy state; ref.watch registers the dependency so Riverpod
+    // rebuilds this notifier whenever klipperProvider emits a new value.
+    // Using .future (not .select/.selectAs) avoids the _ProviderSelector
+    // disposal cascade that occurs in test environments.
+    final klippy = await ref.watch(klipperProvider(machineUUID).future);
+
+    if (!klippy.klippyConnected) {
+      // Stay in loading state until klippy is connected.
+      return Completer<Printer>().future;
+    }
+
+    // Register incremental status-update listener BEFORE any async ops so
+    // it survives a build() error path and doesn't miss early updates.
+    ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_status_update'), (_, next) {
+      if (!next.hasValue) return;
+      _applyStatusUpdate(next.requireValue);
+    });
+
+    // Side-effect: watch own state for filename changes and klippy messages.
     listenSelf((previous, next) {
-      final previousFileName = previous?.value?.print.filename;
+      final prevFileName = previous?.value?.print.filename;
       final nextFileName = next.value?.print.filename;
-      // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
-      if (previousFileName != nextFileName ||
+      if (prevFileName != nextFileName ||
           next.hasValue &&
               !next.hasError &&
               (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
                   nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
-        printerService.updateCurrentFile(nextFileName).ignore();
+        _updateCurrentFile(nextFileName).ignore();
       }
 
       final prevMessage = previous?.value?.print.message;
@@ -69,15 +85,165 @@ class PrinterNotifier extends _$PrinterNotifier {
       }
     });
 
-    ref.watch(signalingHelperProvider('printer-$machineUUID'));
-    return printerService.printerStream;
+    try {
+      final builder = await _printerObjectsList();
+      if (!ref.mounted) return Completer<Printer>().future;
+      await _printerObjectsQuery(builder);
+      if (!ref.mounted) return Completer<Printer>().future;
+      _makeSubscribeRequest(builder.queryableObjects);
+      return builder.build();
+    } on JRpcTimeoutError catch (e, s) {
+      talker.error('$_logTag Timeout while refreshing printer $machineUUID...', e);
+      _showExceptionSnackbar(
+        e,
+        s,
+        title: 'Refresh Printer Error',
+        message: 'Timeout while trying to refresh printer',
+      );
+      throw MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s);
+    } on JRpcError catch (e, s) {
+      talker.error('$_logTag Unable to refresh Printer $machineUUID...', e, s);
+      _showExceptionSnackbar(e, s, title: 'Refresh Printer Error', message: 'Could not fetch printer...');
+      FirebaseCrashlytics.instance.recordError(e, s, reason: 'JRpcError thrown during printer refresh');
+      throw MobilerakerException('Could not fetch printer...', parentException: e, parentStack: s);
+    } catch (e, s) {
+      talker.error('$_logTag Unexpected exception during refresh $machineUUID...', e, s);
+      _showExceptionSnackbar(e, s, title: 'Refresh Printer Error', message: 'Could not parse: $e');
+      FirebaseCrashlytics.instance.recordError(e, s, reason: 'Error thrown during printer refresh');
+      rethrow;
+    }
   }
+
+  /// Triggers a full re-fetch and waits until it completes.
+  Future<void> refreshPrinter() async {
+    state = AsyncLoading();
+    ref.invalidateSelf();
+    await future;
+  }
+
+  void _applyStatusUpdate(Map<String, dynamic> rawMessage) {
+    final params = rawMessage['params'][0] as Map<String, dynamic>;
+    state = state.whenData((current) {
+      final builder = PrinterBuilder.fromPrinter(current);
+      params.forEach((key, _) => _parseObjectType(key, params, builder));
+      return builder.build();
+    });
+  }
+
+  Future<void> _updateCurrentFile(String? file) async {
+    talker.info('$_logTag Also requesting an update for current_file: $file');
+    try {
+      final fileService = ref.read(fileServiceProvider(machineUUID));
+      final gCodeMeta = (file?.isNotEmpty == true) ? await fileService.getGCodeMetadata(file!) : null;
+      talker.info('$_logTag UPDATED current_file: $gCodeMeta');
+      state = state.whenData((p) => p.copyWith(currentFile: gCodeMeta));
+    } catch (e, s) {
+      talker.error('$_logTag Error while updating current_file', e, s);
+      state = state.whenData((p) => p.copyWith(currentFile: null));
+    }
+  }
+
+  Future<PrinterBuilder> _printerObjectsList() async {
+    talker.info('$_logTag >>>Querying printers object list');
+    final resp = await _jrpcClient.sendJRpcMethod('printer.objects.list');
+    talker.info('$_logTag <<<Received printer objects list!');
+    talker.verbose('$_logTag PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(resp.result)}');
+    return PrinterBuilder()..queryableObjects = List.unmodifiable(resp.result['objects'].cast<String>());
+  }
+
+  Future<void> _printerObjectsQuery(PrinterBuilder printer) async {
+    talker.info('$_logTag >>>Querying Printer Objects!');
+    final queryObjects = _queryPrinterObjectJson(printer.queryableObjects);
+    final jRpcResponse = await _jrpcClient.sendJRpcMethod(
+      'printer.objects.query',
+      params: {'objects': queryObjects},
+    );
+    _parseQueriedObjects(jRpcResponse.result, printer);
+  }
+
+  void _parseQueriedObjects(dynamic response, PrinterBuilder printer) {
+    talker.info('$_logTag <<<Received queried printer objects');
+    talker.verbose('$_logTag PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
+    final data = response['status'] as Map<String, dynamic>;
+    data.forEach((key, _) => _parseObjectType(key, data, printer));
+  }
+
+  void _parseObjectType(String key, Map<String, dynamic> json, PrinterBuilder builder) {
+    try {
+      builder.partialUpdateField(key, json);
+    } catch (e, s) {
+      talker.error('$_logTag Error while parsing $key object', e, s);
+      _showParsingExceptionSnackbar(e, s, key, json);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        s,
+        reason: 'Error while parsing $key object from JSON',
+        information: [json],
+        fatal: true,
+      );
+    }
+  }
+
+  void _makeSubscribeRequest(List<String> queryableObjects) {
+    talker.info('$_logTag Subscribing printer objects for ws-updates!');
+    final queryObjects = _queryPrinterObjectJson(queryableObjects);
+    _jrpcClient.sendJRpcMethod('printer.objects.subscribe', params: {'objects': queryObjects}).ignore();
+  }
+
+  Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {
+    final queryObjects = <String, List<String>?>{};
+    for (final obj in queryableObjects) {
+      final (cIdentifier, _) = obj.toKlipperObjectIdentifier();
+      if (cIdentifier == null) continue;
+      queryObjects[obj] = null;
+    }
+    return queryObjects;
+  }
+
+  void _showExceptionSnackbar(Object e, StackTrace s, {required String title, required String message}) {
+    ref.read(snackBarServiceProvider).showForMachine(
+          machineUUID,
+          SnackBarConfig.stacktraceDialog(
+            dialogService: ref.read(dialogServiceProvider),
+            exception: e,
+            stack: s,
+            snackTitle: title,
+            snackMessage: message,
+          ),
+        );
+  }
+
+  void _showParsingExceptionSnackbar(Object e, StackTrace s, String key, Map<String, dynamic> json) {
+    ref.read(snackBarServiceProvider).showForMachine(
+          machineUUID,
+          SnackBarConfig(
+            type: SnackbarType.error,
+            title: 'Refreshing Printer failed',
+            message: 'Parsing of $key failed:\n$e',
+            duration: const Duration(seconds: 30),
+            mainButtonTitle: 'Details',
+            closeOnMainButtonTapped: true,
+            onMainButtonTapped: () {
+              ref.read(dialogServiceProvider).show(
+                    DialogRequest(
+                      type: CommonDialogs.stacktrace,
+                      title: 'Parsing "${key.titleCase()}" failed',
+                      body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}',
+                    ),
+                  );
+            },
+          ),
+        );
+  }
+
+  String get _logTag =>
+      'PrinterService@$machineUUID ${_jrpcClient.clientType}@${_jrpcClient.uri.obfuscate()}';
 }
 
 final class PrinterPreviewNotifier extends PrinterNotifier {
   @override
-  Stream<Printer> build(String machineUUID) async* {
-    yield PrinterBuilder.preview().build();
+  Future<Printer> build(String machineUUID) async {
+    return PrinterBuilder.preview().build();
   }
 }
 
@@ -107,13 +273,10 @@ Stream<Printer> printerSelected(Ref ref) async* {
 class PrinterGCodeStore extends _$PrinterGCodeStore {
   @override
   FutureOr<List<GCodeStoreEntry>> build(String machineUUID) async {
-    ref.keepAliveFor(Duration(minutes: 5));// Lets keep it alive!
+    ref.keepAliveFor(Duration(minutes: 5));
     final jrpcClient = ref.watch(jrpcClientProvider(machineUUID));
-    // Listen to incoming gcode responses to update the store
     jrpcClient.addMethodListener(_onNotifyGcodeResponse, 'notify_gcode_response');
     ref.onDispose(() => jrpcClient.removeMethodListener(_onNotifyGcodeResponse, 'notify_gcode_response'));
-
-    // Fetch the cached gcode commands from the printer to populate the store initially
     return await _cached(jrpcClient);
   }
 
@@ -125,7 +288,6 @@ class PrinterGCodeStore extends _$PrinterGCodeStore {
     talker.info('[GcodeStore@${machineUUID} ${jrpcClient.clientType}@${jrpcClient.uri.obfuscate()}] Fetching cached GCode commands');
     try {
       RpcResponse blockingResponse = await jrpcClient.sendJRpcMethod('server.gcode_store');
-
       List<dynamic> raw = blockingResponse.result['gcode_store'];
       talker.info('[GcodeStore@${machineUUID} ${jrpcClient.clientType}@${jrpcClient.uri.obfuscate()}] Received cached GCode commands');
       return List.generate(raw.length, (index) => GCodeStoreEntry.fromJson(raw[index]));
@@ -141,130 +303,16 @@ class PrinterGCodeStore extends _$PrinterGCodeStore {
   }
 }
 
+/// Command facade for printer operations. State is owned by [printerProvider].
 class PrinterService {
   PrinterService(this.ref, this.ownerUUID)
-    : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
-      _fileService = ref.watch(fileServiceProvider(ownerUUID)),
-      _snackBarService = ref.watch(snackBarServiceProvider),
-      _dialogService = ref.watch(dialogServiceProvider) {
-    ref.onDispose(dispose);
-
-    ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyConnected), (previous, next) {
-      talker.info(
-        '$_logTag Received new Klippy.IsConnected: $previous -> $next: ${previous?.valueOrFullNull} -> ${next.valueOrFullNull}',
-      );
-
-      // IS Klippy connected?
-      //TODO: Investigage/Simplify. We have the prev state so do we really need the _queriedForSession?
-      // 1. If klippy was not connected and now is connected -> Refresh printer
-      // 2. If klippy was reloading (no matter if it was connected) and now its done and connected -> Refresh printer.
-
-      var condOne = previous?.value != true && next.value == true;
-      var condTwo = previous?.isReloading == true && !next.isReloading && next.value == true;
-      if (condOne || condTwo) {
-          talker.info('$_logTag Klippy connection state changed in a way that requires a printer refresh! condOne: $condOne, condTwo: $condTwo. Previous: $previous, Next: $next');
-          refreshPrinter();
-      }
-    }, fireImmediately: true);
-  }
+      : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
+        _snackBarService = ref.watch(snackBarServiceProvider);
 
   final Ref ref;
-
   final String ownerUUID;
-
   final SnackBarService _snackBarService;
-
-  final DialogService _dialogService;
-
   final JsonRpcClient _jRpcClient;
-
-  final FileService _fileService;
-
-  final StreamController<Printer> _printerStreamCtler = StreamController.broadcast();
-
-  bool get disposed => _printerStreamCtler.isClosed;
-
-  Stream<Printer> get printerStream => _printerStreamCtler.stream;
-
-  Printer? _current;
-
-  set current(Printer nI) {
-    if (disposed) {
-      talker.warning(
-        '$_logTag Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
-        null,
-        StackTrace.current,
-      );
-      return;
-    }
-    _current = nI;
-    _printerStreamCtler.add(nI);
-  }
-
-  Printer get current => _current!;
-
-  Printer? get currentOrNull => _current;
-
-  bool get hasCurrent => _current != null;
-
-  Future<void> refreshPrinter() async {
-    try {
-      // await Future.delayed(Duration(seconds:15));
-      // Remove Handerls to prevent updates
-      _removeJrpcHandlers();
-      ref.invalidate(signalingHelperProvider('printer-$ownerUUID'));
-
-      talker.info('$_logTag Refreshing printer for uuid: $ownerUUID');
-      PrinterBuilder printerBuilder = await _printerObjectsList();
-      await _printerObjectsQuery(printerBuilder);
-      // It can happen that the service disposed. Make sure to not proceed.
-      if (disposed) return;
-      // I need this temp variable since in some edge cases the updateSettings otherwise throws?
-      var printerObj = printerBuilder.build();
-      // _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros).ignore();
-      _registerJrpcHandlers();
-      _makeSubscribeRequest(printerObj.queryableObjects);
-      current = printerObj;
-    } on JRpcTimeoutError catch (e, s) {
-      talker.error('$_logTag Timeout while refreshing printer $ownerUUID...', e);
-      _printerStreamCtler.addError(
-        MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s),
-        s,
-      );
-
-      //TODO only show snack if printer is active/selected!
-      _snackBarService.showForMachine(
-        ownerUUID,
-        SnackBarConfig.stacktraceDialog(
-          dialogService: _dialogService,
-          exception: e,
-          stack: s,
-          snackTitle: 'Refresh Printer Error',
-          snackMessage: 'Timeout while trying to refresh printer',
-        ),
-      );
-    } on JRpcError catch (e, s) {
-      talker.error('$_logTag Unable to refresh Printer $ownerUUID...', e, s);
-
-      _showExceptionSnackbar(e, s);
-      _printerStreamCtler.addError(
-        MobilerakerException('Could not fetch printer...', parentException: e, parentStack: s),
-        s,
-      );
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'JRpcError thrown during printer refresh');
-    } catch (e, s) {
-      talker.error('$_logTag Unexpected exception thrown during refresh $ownerUUID...', e, s);
-      _showExceptionSnackbar(e, s);
-      _printerStreamCtler.addError(e, s);
-      if (e is Future) {
-        e.then(
-          (value) => talker.error('$_logTag Error was a Future: Data. $value'),
-          onError: (e, s) => talker.error('$_logTag Error was a Future: Error. $e', e, s),
-        );
-      }
-      FirebaseCrashlytics.instance.recordError(e, s, reason: 'Error thrown during printer refresh');
-    }
-  }
 
   resumePrint() {
     _jRpcClient.sendJRpcMethod('printer.print.resume', timeout: Duration.zero).ignore();
@@ -283,10 +331,8 @@ class PrinterService {
     if (x != null) moves.add('X_ADJUST=$x');
     if (y != null) moves.add('Y_ADJUST=$y');
     if (z != null) moves.add('Z_ADJUST=$z');
-
     String gcode = 'SET_GCODE_OFFSET ${moves.join(' ')}';
     if (move != null) gcode += ' MOVE=$move';
-
     gCode(gcode);
   }
 
@@ -295,7 +341,6 @@ class PrinterService {
     if (x != null) moves.add(_gcodeMoveCode('X', x));
     if (y != null) moves.add(_gcodeMoveCode('Y', y));
     if (z != null) moves.add(_gcodeMoveCode('Z', z));
-
     return gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
@@ -323,49 +368,27 @@ class PrinterService {
     return gCode(gcode);
   }
 
-  Future<bool> quadGantryLevel() {
-    return gCode('QUAD_GANTRY_LEVEL');
-  }
+  Future<bool> quadGantryLevel() => gCode('QUAD_GANTRY_LEVEL');
 
-  Future<bool> m84() {
-    return gCode('M84');
-  }
+  Future<bool> m84() => gCode('M84');
 
-  Future<bool> bedMeshLevel() {
-    return gCode('BED_MESH_CALIBRATE');
-  }
+  Future<bool> bedMeshLevel() => gCode('BED_MESH_CALIBRATE');
 
-  Future<bool> zTiltAdjust() {
-    return gCode('Z_TILT_ADJUST');
-  }
+  Future<bool> zTiltAdjust() => gCode('Z_TILT_ADJUST');
 
-  Future<bool> screwsTiltCalculate() {
-    return gCode('SCREWS_TILT_CALCULATE');
-  }
+  Future<bool> screwsTiltCalculate() => gCode('SCREWS_TILT_CALCULATE');
 
-  Future<bool> probeCalibrate() {
-    return gCode('PROBE_CALIBRATE');
-  }
+  Future<bool> probeCalibrate() => gCode('PROBE_CALIBRATE');
 
-  Future<bool> zEndstopCalibrate() {
-    return gCode('Z_ENDSTOP_CALIBRATE');
-  }
+  Future<bool> zEndstopCalibrate() => gCode('Z_ENDSTOP_CALIBRATE');
 
-  Future<bool> bedScrewsAdjust() {
-    return gCode('BED_SCREWS_ADJUST');
-  }
+  Future<bool> bedScrewsAdjust() => gCode('BED_SCREWS_ADJUST');
 
-  Future<bool> selectBeaconModel(String model) {
-    return gCode('BEACON_MODEL_SELECT NAME="$model"');
-  }
+  Future<bool> selectBeaconModel(String model) => gCode('BEACON_MODEL_SELECT NAME="$model"');
 
-  Future<bool> saveConfig() {
-    return gCode('SAVE_CONFIG');
-  }
+  Future<bool> saveConfig() => gCode('SAVE_CONFIG');
 
-  Future<bool> m117([String? msg]) {
-    return gCode('M117 ${msg ?? ''}');
-  }
+  Future<bool> m117([String? msg]) => gCode('M117 ${msg ?? ''}');
 
   partCoolingFan(double perc) {
     gCode('M106 S${min(255, 255 * perc).toInt()}');
@@ -380,13 +403,11 @@ class PrinterService {
   }
 
   Future<void> filamentSensor(String sensorName, bool enable) async {
-    // SET_FILAMENT_SENSOR SENSOR=<sensor_name> ENABLE=[0|1]
     await gCode('SET_FILAMENT_SENSOR SENSOR=$sensorName ENABLE=${enable ? 1 : 0}');
   }
 
   Future<bool> gCode(String script, {bool throwOnError = false, bool showSnackOnErr = true}) async {
     try {
-      // Append the command to the store
       ref.read(printerGCodeStoreProvider(ownerUUID).notifier).appendCommand(script);
       await _jRpcClient.sendJRpcMethod('printer.gcode.script', params: {'script': script}, timeout: Duration.zero);
       talker.info('$_logTag GCode "$script" executed successfully!');
@@ -394,16 +415,12 @@ class PrinterService {
     } on JRpcError catch (e, s) {
       var gCodeException = GCodeException.fromJrpcError(e, parentStack: s);
       talker.info('$_logTag GCode execution failed: ${gCodeException.message}');
-
       if (showSnackOnErr) {
         _snackBarService.show(
           SnackBarConfig(type: SnackbarType.warning, title: 'GCode-Error', message: gCodeException.message),
         );
       }
-
-      if (throwOnError) {
-        throw gCodeException;
-      }
+      if (throwOnError) throw gCodeException;
       return false;
     }
   }
@@ -462,7 +479,7 @@ class PrinterService {
   }
 
   reprintCurrentFile() {
-    var lastPrinted = _current?.print.filename;
+    var lastPrinted = ref.read(printerProvider(ownerUUID)).value?.print.filename;
     if (lastPrinted?.isNotEmpty == true) {
       _jRpcClient.sendJRpcMethod('printer.print.start', params: {'filename': lastPrinted}).ignore();
     }
@@ -491,29 +508,12 @@ class PrinterService {
     gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
   }
 
-  Future<void> updateCurrentFile(String? file) async {
-    talker.info('$_logTag Also requesting an update for current_file: $file');
-
-    try {
-      var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
-
-      if (hasCurrent) {
-        talker.info('$_logTag UPDATED current_file: $gCodeMeta');
-        current = current.copyWith(currentFile: gCodeMeta);
-      }
-    } catch (e, s) {
-      talker.error('$_logTag Error while updating current_file', e, s);
-      current = current.copyWith(currentFile: null);
-    }
-  }
-
   firmwareRetraction({
     double? retractLength,
     double? retractSpeed,
     double? unretractExtraLength,
     double? unretractSpeed,
   }) {
-    // SET_RETRACTION [RETRACT_LENGTH=<mm>] [RETRACT_SPEED=<mm/s>] [UNRETRACT_EXTRA_LENGTH=<mm>] [UNRETRACT_SPEED=<mm/s>]
     List<String> args = [];
     if (retractLength != null) args.add('RETRACT_LENGTH=$retractLength');
     if (retractSpeed != null) args.add('RETRACT_SPEED=$retractSpeed');
@@ -526,7 +526,6 @@ class PrinterService {
 
   Future<void> loadBedMeshProfile(String profileName) async {
     assert(profileName.isNotEmpty);
-    // BED_MESH_PROFILE LOAD="VW-Plate(Probe)"
     await gCode('BED_MESH_PROFILE LOAD="$profileName"');
   }
 
@@ -534,148 +533,8 @@ class PrinterService {
     await gCode('BED_MESH_CLEAR');
   }
 
-  Future<PrinterBuilder> _printerObjectsList() async {
-    // printerStream.value = Printer();
-    talker.info('$_logTag >>>Querying printers object list');
-    RpcResponse resp = await _jRpcClient.sendJRpcMethod('printer.objects.list');
-    final result = resp.result;
-
-    talker.info('$_logTag <<<Received printer objects list!');
-    talker.verbose('$_logTag PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
-
-    return PrinterBuilder()..queryableObjects = List.unmodifiable(result['objects'].cast<String>());
-  }
-
-  /// Method Handler for registered in the Websocket wrapper.
-  /// Handles all incoming messages and maps the correct method to it!
-
-  void _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
-    Map<String, dynamic> params = rawMessage['params'][0];
-    if (!hasCurrent) {
-      talker.warning('$_logTag Received statusUpdate before a printer was parsed initially!');
-      return;
-    }
-
-    PrinterBuilder printerBuilder = PrinterBuilder.fromPrinter(current);
-
-    params.forEach((key, value) {
-      _parseObjectType(key, params, printerBuilder);
-    });
-    current = printerBuilder.build();
-  }
-
-  void _parseObjectType(String key, Map<String, dynamic> json, PrinterBuilder builder) {
-    // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-
-    try {
-      builder.partialUpdateField(key, json);
-    } catch (e, s) {
-      talker.error('$_logTag Error while parsing $key object', e, s);
-      _printerStreamCtler.addError(e, s);
-      _showParsingExceptionSnackbar(e, s, key, json);
-      FirebaseCrashlytics.instance.recordError(
-        e,
-        s,
-        reason: 'Error while parsing $key object from JSON',
-        information: [json],
-        fatal: true,
-      );
-    }
-  }
-
-  void _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
-    talker.info('$_logTag <<<Received queried printer objects');
-    talker.verbose('$_logTag PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
-    Map<String, dynamic> data = response['status'];
-
-    data.forEach((key, value) {
-      _parseObjectType(key, data, printer);
-    });
-  }
-
-  Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {
-    final Map<String, List<String>?> queryObjects = {};
-    for (String obj in queryableObjects) {
-      final (cIdentifier, _) = obj.toKlipperObjectIdentifier();
-      if (cIdentifier == null) continue;
-      queryObjects[obj] = null;
-    }
-    return queryObjects;
-  }
-
-  /// Query the state of queryable printer objects once!
-  Future<void> _printerObjectsQuery(PrinterBuilder printer) async {
-    if (disposed) return;
-    talker.info('$_logTag >>>Querying Printer Objects!');
-    Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer.queryableObjects);
-
-    RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
-      'printer.objects.query',
-      params: {'objects': queryObjects},
-    );
-
-    _parseQueriedObjects(jRpcResponse.result, printer);
-  }
-
-  void _removeJrpcHandlers() {
-    _jRpcClient.removeMethodListener(_onStatusUpdateHandler, 'notify_status_update');
-  }
-
-  void _registerJrpcHandlers() {
-    _jRpcClient.addMethodListener(_onStatusUpdateHandler, 'notify_status_update');
-  }
-
-  /// This method registeres every printer object for websocket updates!
-  void _makeSubscribeRequest(List<String> queryableObjects) {
-    talker.info('$_logTag Subscribing printer objects for ws-updates!');
-    Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(queryableObjects);
-
-    _jRpcClient.sendJRpcMethod('printer.objects.subscribe', params: {'objects': queryObjects}).ignore();
-  }
-
   String _gcodeMoveCode(String axis, double value) {
     return '$axis${value <= 0 ? '' : '+'}${value.toStringAsFixed(2)}';
-  }
-
-  void _showExceptionSnackbar(Object e, StackTrace s) {
-    _snackBarService.showForMachine(
-      ownerUUID,
-      SnackBarConfig.stacktraceDialog(
-        dialogService: _dialogService,
-        exception: e,
-        stack: s,
-        snackTitle: 'Refresh Printer Error',
-        snackMessage: 'Could not parse: $e',
-      ),
-    );
-  }
-
-  void _showParsingExceptionSnackbar(Object e, StackTrace s, String key, Map<String, dynamic> json) {
-    _snackBarService.showForMachine(
-      ownerUUID,
-      SnackBarConfig(
-        type: SnackbarType.error,
-        title: 'Refreshing Printer failed',
-        message: 'Parsing of $key failed:\n$e',
-        duration: const Duration(seconds: 30),
-        mainButtonTitle: 'Details',
-        closeOnMainButtonTapped: true,
-        onMainButtonTapped: () {
-          _dialogService.show(
-            DialogRequest(
-              type: CommonDialogs.stacktrace,
-              title: 'Parsing "${key.titleCase()}" failed',
-              body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}',
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  void dispose() {
-    _removeJrpcHandlers();
-    _printerStreamCtler.close();
   }
 
   String get _logTag => 'PrinterService@$ownerUUID ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}';

@@ -199,8 +199,8 @@ class _ProviderError extends ConsumerWidget {
           body: Text(message),
           action: TextButton.icon(
             onPressed: () {
-              talker.info('Invalidating klipper service provider, to retry klippy fetching');
-              ref.invalidate(klipperServiceProvider(machineUUID));
+              talker.info('Invalidating klipper provider, to retry klippy fetching');
+              ref.invalidate(klipperProvider(machineUUID));
             },
             icon: const Icon(Icons.restart_alt_outlined),
             label: const Text('general.retry').tr(),

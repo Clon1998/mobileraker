@@ -307,9 +307,9 @@ class _GraphPageController extends _$GraphPageController {
       if (toAdd.isEmpty || dataSeries == null) continue;
 
       int removed = 0;
-      if ((dataSeries.length + toAdd.length) > TemperatureStoreService.maxStoreSize) {
+      if ((dataSeries.length + toAdd.length) > TemperatureStoreManager.maxStoreSize) {
         // Calc how many we need to remove to make space for the new ones
-        final toRemove = (dataSeries.length + toAdd.length) - TemperatureStoreService.maxStoreSize;
+        final toRemove = (dataSeries.length + toAdd.length) - TemperatureStoreManager.maxStoreSize;
         dataSeries.removeRange(0, toRemove);
         removed = toRemove;
       }
