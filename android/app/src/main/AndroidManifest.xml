@@ -96,7 +96,7 @@
         </activity>
 
         <service
-                android:name="ccom.istornz.live_activities.LiveActivityFirebaseMessagingService"
+                android:name="com.istornz.live_activities.LiveActivityFirebaseMessagingService"
                 android:enabled="false"
         />
     </application>
