@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.9.9] - 2026-05-06
+
+### Bug Fixes
+
+- **Notifications**: Fixed a bug that caused the app to not properly show notifications on Android.
+
 ## [2.9.8] - 2026-04-22
 
 ### Enhancements
