@@ -3,7 +3,6 @@
  * All rights reserved.
  */
 
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -42,7 +41,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:stringr/stringr.dart';
 
 import '../../../../../service/ui/dialog_service_impl.dart';
@@ -70,8 +68,8 @@ class HeaterSensorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AsyncGuard(
       animate: true,
-      debugLabel: 'HeaterSensorCard-$machineUUID',
-      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      // debugLabel: 'HeaterSensorCard-$machineUUID',
+      toGuard: _heaterSensorCardControllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const HeaterSensorPresetCardLoading(),
       childOnData: Card(
         child: Padding(
@@ -109,7 +107,7 @@ class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
     super.initState();
     s = ProviderScope(
       overrides: [
-        _controllerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(() {
+        _heaterSensorCardControllerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(() {
           return _PreviewController();
         }),
         printerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(PrinterPreviewNotifier.new),
@@ -148,7 +146,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sensorCount = ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.sensors.length));
+    final sensorCount = ref.watch(_heaterSensorCardControllerProvider(machineUUID).selectRequireValue((value) => value.sensors.length));
 
     return AdaptiveHorizontalScroll(
       snap: true,
@@ -157,7 +155,7 @@ class _CardBody extends ConsumerWidget {
         for (var i = 0; i < sensorCount; i++)
           _SensorMixinTile(
             machineUUID: machineUUID,
-            sensorProvider: _controllerProvider(machineUUID).selectRequireValue((value) {
+            sensorProvider: _heaterSensorCardControllerProvider(machineUUID).selectRequireValue((value) {
               return value.sensors[i];
             }),
           ),
@@ -212,8 +210,8 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    final (klippyCanReceiveCommands, tempStore) = ref.watch(_controllerProvider(machineUUID)
+    final controller = ref.watch(_heaterSensorCardControllerProvider(machineUUID).notifier);
+    final (klippyCanReceiveCommands, tempStore) = ref.watch(_heaterSensorCardControllerProvider(machineUUID)
         .selectRequireValue((value) => (value.klippyCanReceiveCommands, value.storeForSensor(heater))));
 
     final NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
@@ -315,7 +313,7 @@ class _TemperatureSensorTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tempStore =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)));
+        ref.watch(_heaterSensorCardControllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(temperatureSensor)));
     final beautifiedNamed = beautifyName(temperatureSensor.name);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
@@ -372,8 +370,8 @@ class _TemperatureFanTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.watch(_controllerProvider(machineUUID).notifier);
-    final (klippyCanReceiveCommands, tempStore) = ref.watch(_controllerProvider(machineUUID)
+    final controller = ref.watch(_heaterSensorCardControllerProvider(machineUUID).notifier);
+    final (klippyCanReceiveCommands, tempStore) = ref.watch(_heaterSensorCardControllerProvider(machineUUID)
         .selectRequireValue((value) => (value.klippyCanReceiveCommands, value.storeForSensor(temperatureFan))));
     final beautifiedNamed = beautifyName(temperatureFan.name);
     final numberFormat =
@@ -444,7 +442,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tempStore =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(zThermalAdjust)));
+        ref.watch(_heaterSensorCardControllerProvider(machineUUID).selectRequireValue((d) => d.storeForSensor(zThermalAdjust)));
     final beautifiedNamed = beautifyName(zThermalAdjust.name);
     final numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
@@ -489,7 +487,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
 }
 
 @riverpod
-class _Controller extends _$Controller {
+class _HeaterSensorCardController extends _$HeaterSensorCardController {
   final int tempStoreLimit = 300;
 
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
@@ -498,44 +496,31 @@ class _Controller extends _$Controller {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    talker.info('Rebuilding HeaterSensorCard for machine $machineUUID');
     ref.keepAliveFor();
 
     final printerProviderr = printerProvider(machineUUID);
     final klipperProviderr = klipperProvider(machineUUID);
+    final machineSettingsProviderr = machineSettingsProvider(machineUUID);
+    final temperatureStoresProviderr = temperatureStoresProvider(machineUUID);
 
-    // temperatureStoreProvider(machineUUID, heater.kind, heater.name, 300)
 
-    var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.tempOrdering));
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    // Kinda overkill to use a stream for each value, I am pretty sure I could just use printer directly too !
-    // Pro:
-    // - Pontentially less updates since only specifc values are listened to
-    // Con:
-    // - More boilerPlate
-    // - Potentially more updates since more streams are listened to?
+    final orderingF =  ref.watch(machineSettingsProviderr.selectAsync((value) => value.tempOrdering));
+    final klippyCanReceiveCommandsF =  ref.watch(klipperProviderr.selectAsync((value) => value.klippyCanReceiveCommands));
+    final rawSensorsF =  ref.watch(printerProviderr.selectAsync((value) => value.allTemperatureSensors));
+    final rawTempStoresF =  ref.watch(temperatureStoresProviderr.future);
 
-    final senors = ref
-        .watchAsSubject(printerProviderr.selectAs((value) => value.allTemperatureSensors))
-        // Use map here since this prevents to many operations if the original list (Stream) not changes!
-        .map((sensors) => CombinedSensorExtension.filterAndSortSensors(sensors, ordering));
+    final (ordering, klippyCanReceiveCommands, rawSensors, rawTempStores) = await (orderingF, klippyCanReceiveCommandsF, rawSensorsF, rawTempStoresF).wait;
+    if (!ref.mounted) return;
 
-    final tempStores = ref.watchAsSubject(temperatureStoresProvider(machineUUID)).map((entry) {
-      TemperatureStore limited = LinkedHashMap();
-      for (var e in entry.entries) {
-        limited[e.key] = e.value.sublist(max(0, e.value.length - tempStoreLimit));
-      }
-      return limited;
-    });
+    final sensors = CombinedSensorExtension.filterAndSortSensors(rawSensors, ordering);
 
-    yield* Rx.combineLatest3(
-      klippyCanReceiveCommands,
-      senors,
-      tempStores,
-      (a, b, c) => _Model(klippyCanReceiveCommands: a, sensors: b, temperatureStores: c),
-    );
+    final TemperatureStore tempStores = {
+      for (var e in rawTempStores.entries)
+        e.key: e.value.sublist(max(0, e.value.length - tempStoreLimit)),
+    };
+
+
+    yield _Model(klippyCanReceiveCommands: klippyCanReceiveCommands, sensors: sensors, temperatureStores: tempStores);
   }
 
   void adjustHeater(HeaterMixin heater) {
@@ -604,7 +589,7 @@ class _Controller extends _$Controller {
   }
 }
 
-class _PreviewController extends _Controller {
+class _PreviewController extends _HeaterSensorCardController {
   static final List<TemperatureSensorSeriesEntry> _extruderEntries = <double>[300, 100, 120, 150]
       .mapIndex((e, i) => HeaterSeriesEntry(time: DateTime(1990, 1, i), temperature: e, target: 0, power: 0))
       .toList();
