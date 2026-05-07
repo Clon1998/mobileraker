@@ -4,12 +4,14 @@
  */
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
+import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/data/model/time_series_entry.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -39,7 +41,7 @@ Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
   if (!ref.mounted) return;
   ref.keepAliveFor();
 
-  final asyncStore = ref.watch(temperatureStoreManagerProvider(machineUUID));
+  final asyncStore = ref.watch(temperatureStoresProvider(machineUUID));
   if (!asyncStore.hasValue) return;
 
   final sensorData = asyncStore.requireValue[(cIdentifier, objectName)] ?? const [];
@@ -51,41 +53,14 @@ Stream<List<TemperatureSensorSeriesEntry>> temperatureStore(
   }
 }
 
-/// Streams all temperature stores ordered by user-defined ordering.
-/// Re-emits when the manager snapshot or the ordering changes.
-@riverpod
-Stream<TemperatureStore> temperatureStores(Ref ref, String machineUUID) async* {
-  if (!ref.mounted) {
-    talker.warning('[temperatureStoresProvider($machineUUID)] Ref is not mounted, cannot watch temperature stores');
-    return;
-  }
-  ref.keepAliveFor();
-
-  // Resolve ordering first so the subsequent sync watch is not interrupted by an async gap.
-  final ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((s) => s.tempOrdering));
-
-  final asyncStore = ref.watch(temperatureStoreManagerProvider(machineUUID));
-  if (!asyncStore.hasValue) return;
-
-  final stores = asyncStore.requireValue;
-  final TemperatureStore ordered = {};
-  for (final entry in ordering) {
-    final key = (entry.kind, entry.name);
-    stores[key]?.let((it) => ordered[key] = it);
-  }
-  for (final entry in stores.entries) {
-    ordered.putIfAbsent(entry.key, () => entry.value);
-  }
-  yield ordered;
-}
 
 /// Owns all temperature ring-buffer state. Replaces the old TemperatureStoreService class.
 /// Rebuilds on JRPC reconnect; a 1-second timer drives incremental updates via [state] mutations.
 @Riverpod(keepAlive: true)
-class TemperatureStoreManager extends _$TemperatureStoreManager {
+class TemperatureStores extends _$TemperatureStores {
   static const int maxStoreSize = 20 * 60; // 20 minutes
 
-  final Map<(ConfigFileObjectIdentifiers, String), QueueList<TemperatureSensorSeriesEntry>> _data = {};
+  final Map<(ConfigFileObjectIdentifiers, String), QueueList<TemperatureSensorSeriesEntry>> _data = LinkedHashMap();
   Timer? _timer;
   DateTime? _pausedAt;
 
@@ -112,8 +87,13 @@ class TemperatureStoreManager extends _$TemperatureStoreManager {
     if (clientState != ClientState.connected) {
       return const {};
     }
+    if (!ref.mounted) return const {};
+    final ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((s) => s.tempOrdering));
+    if (!ref.mounted) return const {};
+    await _fetchAndPopulate(ordering);
+    if (!ref.mounted) return const {};
 
-    await _fetchAndPopulate();
+
     _startSyncTimer();
     return _snapshot();
   }
@@ -179,7 +159,7 @@ class TemperatureStoreManager extends _$TemperatureStoreManager {
     queue.add(point);
   }
 
-  Future<void> _fetchAndPopulate() async {
+  Future<void> _fetchAndPopulate(List<ReordableElement> ordering) async {
     talker.info('$_tag Fetching temperature store from server');
     _timer?.cancel();
 
@@ -188,6 +168,8 @@ class TemperatureStoreManager extends _$TemperatureStoreManager {
 
     final raw = response.result;
     final now = DateTime.now();
+
+    final tmpMap = <(ConfigFileObjectIdentifiers, String), QueueList<TemperatureSensorSeriesEntry>>{};
 
     for (final storeEntry in raw.entries) {
       final key = storeEntry.key;
@@ -211,7 +193,15 @@ class TemperatureStoreManager extends _$TemperatureStoreManager {
       }
 
       talker.info('$_tag Parsing store for $cIdentifier $objectName');
-      _data[(cIdentifier, objectName)] = _parseServerStoreData(now, cIdentifier, data);
+      tmpMap[(cIdentifier, objectName)] = _parseServerStoreData(now, cIdentifier, data);
+    }
+    // Reorder tmpMap according to ordering, entries not in ordering will be placed at the end in arbitrary order
+    for (final entry in ordering) {
+      final key = (entry.kind, entry.name);
+      tmpMap[key]?.let((it) => _data[key] = it);
+    }
+    for (final entry in tmpMap.entries) {
+      _data.putIfAbsent(entry.key, () => entry.value);
     }
   }
 

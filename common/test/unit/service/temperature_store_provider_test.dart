@@ -7,9 +7,12 @@ import 'dart:convert';
 
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
+import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/data/model/time_series_entry.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -17,7 +20,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../test_utils.dart';
-import 'temperature_store_manager_test.mocks.dart';
+import 'temperature_store_provider_test.mocks.dart';
 
 @GenerateMocks([JsonRpcClient])
 void main() {
@@ -34,10 +37,14 @@ void main() {
   ProviderContainer makeContainer(
     MockJsonRpcClient mockRpc, {
     ClientState clientState = ClientState.connected,
+    List<ReordableElement> ordering = const [],
   }) {
     return ProviderContainer.test(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
       jrpcClientStateProvider(uuid).overrideWith((ref) async => clientState),
+      machineSettingsProvider(uuid).overrideWith((ref) async* {
+        yield MachineSettings(tempOrdering: ordering);
+      }),
     ]);
   }
 
@@ -45,7 +52,7 @@ void main() {
     final mockRpc = MockJsonRpcClient();
 
     final container = makeContainer(mockRpc, clientState: ClientState.disconnected);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     expect(store, isEmpty);
     verifyNever(mockRpc.sendJRpcMethod(any));
@@ -61,7 +68,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     expect(store, hasLength(1));
     final key = (ConfigFileObjectIdentifiers.temperature_sensor, 'chamber');
@@ -80,7 +87,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     final entries = store[(ConfigFileObjectIdentifiers.temperature_sensor, 'chamber')]!;
     expect(entries, hasLength(2));
@@ -102,7 +109,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     final key = (ConfigFileObjectIdentifiers.extruder, 'extruder');
     final entries = store[key]!;
@@ -125,7 +132,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     final key = (ConfigFileObjectIdentifiers.heater_bed, 'heater_bed');
     final entries = store[key]!;
@@ -148,7 +155,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     final key = (ConfigFileObjectIdentifiers.heater_generic, 'chamber_heater');
     final entries = store[key]!;
@@ -158,7 +165,7 @@ void main() {
 
   test('history longer than maxStoreSize is capped', () async {
     final mockRpc = MockJsonRpcClient();
-    final maxSize = TemperatureStoreManager.maxStoreSize;
+    final maxSize = TemperatureStores.maxStoreSize;
     final overflowCount = maxSize + 100;
 
     when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer((_) async => storeResponse({
@@ -168,7 +175,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     final entries = store[(ConfigFileObjectIdentifiers.temperature_sensor, 'chamber')]!;
     expect(entries.length, maxSize);
@@ -187,7 +194,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     // Unknown key is dropped; valid one is still parsed
     expect(store, hasLength(1));
@@ -214,7 +221,7 @@ void main() {
         }));
 
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
 
     expect(store, hasLength(3));
     expect(store.containsKey((ConfigFileObjectIdentifiers.extruder, 'extruder')), isTrue);
@@ -233,7 +240,7 @@ void main() {
 
     final before = DateTime.now();
     final container = makeContainer(mockRpc);
-    final store = await container.read(temperatureStoreManagerProvider(uuid).future);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
     final after = DateTime.now();
 
     final entries = store[(ConfigFileObjectIdentifiers.temperature_sensor, 'chamber')]!;
@@ -248,6 +255,29 @@ void main() {
     expect(entries.last.time.isBefore(after.add(const Duration(seconds: 1))), isTrue);
   });
 
+  test('tempOrdering is applied: ordered sensors come first', () async {
+    final mockRpc = MockJsonRpcClient();
+
+    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer((_) async => storeResponse({
+          'temperature_sensor chamber': {'temperatures': [30.0]},
+          'extruder': {'temperatures': [200.0], 'targets': [200.0], 'powers': [0.5]},
+          'heater_bed': {'temperatures': [60.0], 'targets': [60.0], 'powers': [0.3]},
+        }));
+
+    final ordering = [
+      ReordableElement(kind: ConfigFileObjectIdentifiers.heater_bed, name: 'heater_bed'),
+      ReordableElement(kind: ConfigFileObjectIdentifiers.extruder, name: 'extruder'),
+    ];
+
+    final container = makeContainer(mockRpc, ordering: ordering);
+    final store = await container.read(temperatureStoresProvider(uuid).future);
+
+    final keys = store.keys.toList();
+    expect(keys[0], (ConfigFileObjectIdentifiers.heater_bed, 'heater_bed'));
+    expect(keys[1], (ConfigFileObjectIdentifiers.extruder, 'extruder'));
+    expect(keys[2], (ConfigFileObjectIdentifiers.temperature_sensor, 'chamber'));
+  });
+
   test('provider rebuilds and re-fetches on invalidation', () async {
     final mockRpc = MockJsonRpcClient();
     var callCount = 0;
@@ -258,14 +288,14 @@ void main() {
     });
 
     final container = makeContainer(mockRpc);
-    final sub = container.listen(temperatureStoreManagerProvider(uuid), (_, __) {});
+    final sub = container.listen(temperatureStoresProvider(uuid), (_, __) {});
     addTearDown(sub.close);
 
-    await container.read(temperatureStoreManagerProvider(uuid).future);
+    await container.read(temperatureStoresProvider(uuid).future);
     expect(callCount, 1);
 
-    container.invalidate(temperatureStoreManagerProvider(uuid));
-    await container.read(temperatureStoreManagerProvider(uuid).future);
+    container.invalidate(temperatureStoresProvider(uuid));
+    await container.read(temperatureStoresProvider(uuid).future);
     expect(callCount, 2);
   });
 }
