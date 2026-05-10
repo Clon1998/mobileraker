@@ -85,7 +85,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
           'Klippy reported ready and connected, will try to refresh printer',
         );
         await ref.read(printerProvider(selMachine.uuid).notifier).refreshPrinter();
-        ref.invalidate(temperatureStoreManagerProvider(selMachine.uuid));
+        ref.invalidate(temperatureStoresProvider(selMachine.uuid));
       }
       // throw MobilerakerException('Klippy is not ready to receive commands');
       refreshController.refreshCompleted();

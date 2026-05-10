@@ -30,7 +30,7 @@ class PrinterProviderGuard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final (hasError, error) = ref.watch(printerProvider(machineUUID).select((it) => (it is AsyncError, it.error)));
     // Just initialize the temperature store provider to have it available if needed
-    ref.read(temperatureStoreManagerProvider(machineUUID));
+    ref.read(temperatureStoresProvider(machineUUID));
 
     talker.info('PrinterProviderGuard($machineUUID): hasError: $hasError, error: $error');
 
