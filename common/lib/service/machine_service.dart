@@ -220,17 +220,6 @@ Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
   yield await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
 }
 
-@riverpod
-Stream<MachineSettings> selectedMachineSettings(Ref ref) async* {
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-
-    yield* ref.watchAsSubject(machineSettingsProvider(machine.uuid));
-  } on StateError catch (_) {
-    // Just catch it. It is expected that the future/where might not complete!
-  }
-}
 
 /// Service handling the management of a machine
 class MachineService {

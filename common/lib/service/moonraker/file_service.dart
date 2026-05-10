@@ -184,18 +184,6 @@ FileService fileServiceSelected(Ref ref) {
   return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
-@riverpod
-Stream<FileActionResponse> fileNotificationsSelected(Ref ref) async* {
-  if (!ref.mounted) return;
-  ref.keepAliveFor();
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-    yield* ref.watchAsSubject(fileNotificationsProvider(machine.uuid));
-  } on StateError catch (_) {
-// Just catch it. It is expected that the future/where might not complete!
-  }
-}
 
 @riverpod
 Future<FolderContentWrapper> directoryInfoApiResponse(Ref ref, String machineUUID, String path) async {

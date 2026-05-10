@@ -52,7 +52,7 @@ class PrinterNotifier extends _$PrinterNotifier {
     // disposal cascade that occurs in test environments.
     final klippy = await ref.watch(klipperProvider(machineUUID).future);
 
-    if (!klippy.klippyConnected) {
+    if (!klippy.klippyConnected || !ref.mounted) {
       // Stay in loading state until klippy is connected.
       return Completer<Printer>().future;
     }
@@ -258,15 +258,25 @@ PrinterService printerServiceSelected(Ref ref) {
 }
 
 @riverpod
-Stream<Printer> printerSelected(Ref ref) async* {
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
+FutureOr<Printer> printerSelected(Ref ref) {
+  final selectedAsync = ref.watch(selectedMachineProvider);
+  if (!selectedAsync.hasValue) return Completer<Printer>().future;
 
-    yield* ref.watchAsSubject(printerProvider(machine.uuid));
-  } on StateError catch (_) {
-    // Just catch it. It is expected that the future/where might not complete!
-  }
+  final selected = selectedAsync.requireValue;
+  if (selected == null) return Completer<Printer>().future;
+
+  // Directly forward printerProvider state. Incremental updates via
+  // state.whenData(...) always produce AsyncData→AsyncData transitions and
+  // return synchronously here, so callers never see a spurious loading flash.
+  // Full reloads (klippy disconnect, refreshPrinter) go through AsyncLoading
+  // and correctly fall through to the future, propagating the loading state.
+  final printerAsync = ref.watch(printerProvider(selected.uuid));
+  return switch (printerAsync) {
+    AsyncData(:final value) => value,
+    AsyncError(:final error, :final stackTrace) =>
+      Error.throwWithStackTrace(error, stackTrace),
+    _ => ref.watch(printerProvider(selected.uuid).future),
+  };
 }
 
 @riverpod

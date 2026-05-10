@@ -10,7 +10,6 @@ import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
-import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -133,14 +132,19 @@ KlippyService klipperServiceSelected(Ref ref) {
 }
 
 @riverpod
-Stream<KlipperInstance> klipperSelected(Ref ref) async* {
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-    yield* ref.watchAsSubject(klipperProvider(machine.uuid));
-  } on StateError catch (_) {
-    // Just catch it. It is expected that the future/where might not complete!
-  }
+FutureOr<KlipperInstance> klipperSelected(Ref ref) {
+  final selectedAsync = ref.watch(selectedMachineProvider);
+  if (!selectedAsync.hasValue) return Completer<KlipperInstance>().future;
+
+  final selected = selectedAsync.requireValue;
+  if (selected == null) return Completer<KlipperInstance>().future;
+
+  final klipperAsync = ref.watch(klipperProvider(selected.uuid));
+  return switch (klipperAsync) {
+    AsyncData(:final value) => value,
+    AsyncError(:final error, :final stackTrace) => Error.throwWithStackTrace(error, stackTrace),
+    _ => ref.watch(klipperProvider(selected.uuid).future),
+  };
 }
 
 /// Provides klippy command methods. State is owned by [klipperProvider].

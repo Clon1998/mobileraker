@@ -196,17 +196,6 @@ JsonRpcClient jrpcClientSelected(Ref ref) {
   return ref.watch(jrpcClientProvider(machine.uuid));
 }
 
-@riverpod
-Stream<ClientState> jrpcClientStateSelected(Ref ref) async* {
-  try {
-    Machine? machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-
-    yield* ref.watchAsSubject(jrpcClientStateProvider(machine.uuid));
-  } on StateError catch (_) {
-// Just catch it. It is expected that the future/where might not complete!
-  }
-}
 
 @riverpod
 Stream<Map<String, dynamic>> jrpcMethodEvent(Ref ref, String machineUUID, [String method = WILDCARD_METHOD]) {
