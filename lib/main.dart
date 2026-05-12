@@ -103,7 +103,10 @@ Future<void> main() async {
                     '_controlExtruderCardControllerProvider',
                     '_macroToolSelectorControllerProvider',
                     '_u1ToolSelectorControllerProvider',
-                    '_heaterSensorCardControllerProvider'
+                    '_heaterSensorCardControllerProvider',
+                    '_machineStatusCardControllerProvider',
+                    '_pinsCardControllerProvider',
+                    '_multipliersCardControllerProvider',
                   ].contains(provider.name),
                 ),
               ),

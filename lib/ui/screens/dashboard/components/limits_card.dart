@@ -21,7 +21,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 part 'limits_card.freezed.dart';
@@ -211,26 +210,21 @@ class _Body extends HookConsumerWidget {
 @riverpod
 class _Controller extends _$Controller {
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    var toohlhead = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((value) => value.toolhead),
-    );
+    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
+    final toolheadF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.toolhead));
 
-    yield* Rx.combineLatest2(
-      klippyCanReceiveCommands,
-      toohlhead,
-      (a, b) => _Model(
-        klippyCanReceiveCommands: a,
-        maxVelocity: b.maxVelocity,
-        maxAccel: b.maxAccel,
-        squareCornerVelocity: b.squareCornerVelocity,
-        maxAccelToDecel: b.maxAccelToDecel,
-      ),
+    final (klippyCanReceiveCommands, toolhead) = await (klippyF, toolheadF).wait;
+    if (!ref.mounted) return throw Exception('Controller for $machineUUID was disposed while initializing');
+
+    return _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      maxVelocity: toolhead.maxVelocity,
+      maxAccel: toolhead.maxAccel,
+      squareCornerVelocity: toolhead.squareCornerVelocity,
+      maxAccelToDecel: toolhead.maxAccelToDecel,
     );
   }
 
@@ -255,16 +249,17 @@ class _Controller extends _$Controller {
 
 class _PreviewController extends _Controller {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    const model = _Model(
       klippyCanReceiveCommands: true,
       maxVelocity: 250,
       maxAccel: 4000,
       squareCornerVelocity: 5,
       maxAccelToDecel: 2000,
-    ));
+    );
+    state = const AsyncValue.data(model);
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

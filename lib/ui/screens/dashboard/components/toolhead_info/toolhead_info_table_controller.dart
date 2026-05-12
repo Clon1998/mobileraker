@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:common/data/dto/files/gcode_file.dart';
@@ -120,19 +121,16 @@ sealed class ToolheadInfo with _$ToolheadInfo {
     return max(0, min(totalLayers, layer));
   }
 }
-
 @riverpod
-Stream<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) async* {
+Future<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) async {
   ref.keepAliveFor();
   final applyOffsetSettings = ref.watch(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion));
-
   final etaSourceSettings = ref
       .watch(listSettingProvider(AppSettingKeys.etaSources,
           AppSettingKeys.etaSources.defaultValue as List<ETADataSource>, ETADataSource.fromJson))
       .cast<ETADataSource>()
       .toSet();
 
-  yield* ref
-      .watchAsSubject(printerProvider(machineUUID))
-      .map((event) => ToolheadInfo.byComponents(event, applyOffsetSettings, etaSourceSettings));
+  final printer = await ref.watch(printerProvider(machineUUID).future);
+  return ToolheadInfo.byComponents(printer, applyOffsetSettings, etaSourceSettings);
 }

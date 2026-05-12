@@ -100,7 +100,7 @@ class _Preview extends HookWidget {
         _controlXYZCardControllerProvider(_machineUUID).overrideWith(_ControlXYZCardPreviewController.new),
         printerProvider(_machineUUID).overrideWith(PrinterPreviewNotifier.new),
         toolheadInfoProvider(_machineUUID).overrideWith(
-          (provider) => Stream.value(
+          (provider) => Future.value(
             const ToolheadInfo(
               postion: [5, 5, 10],
               mmSpeed: 200,

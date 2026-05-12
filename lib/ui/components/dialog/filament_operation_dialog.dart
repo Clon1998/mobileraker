@@ -18,7 +18,6 @@ import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -504,6 +503,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       final modelNext = next.value;
 
       if (modelNext == null) return;
+      if (!ref.mounted) return;
 
       if (modelPrevious?.step != modelNext.step && modelNext.step == _FilamentChangeSteps.heatUp) {
         talker.info('Set target temperature to ${next.value!.targetTemperature}');
@@ -530,21 +530,20 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
 
     // await Future.delayed(Duration(seconds: 5));
 
-    final settings = await ref.watch(machineSettingsProvider(machineUUID).future);
+    final settingsF = ref.watch(machineSettingsProvider(machineUUID).future);
+    final printerF = ref.watch(printerProvider(machineUUID).future);
 
-    final printerStream = ref.watchAsSubject(printerProvider(machineUUID));
+    final (settings, printer) = await (settingsF, printerF).wait;
+    if (!ref.mounted) return;
 
-    await for (final printer in printerStream) {
-      final extruderConfig = printer.configFile.extruders[args.extruder];
-      final extruderTemp = printer.extruders[extruderIndex].temperature;
+    final extruderConfig = printer.configFile.extruders[args.extruder];
+    final extruderTemp = printer.extruders[extruderIndex].temperature;
 
-      final model = state.value;
-
-      if (model == null) {
-        yield _Model(extruderConfig: extruderConfig!, extruderTemp: extruderTemp, settings: settings);
-      } else {
-        yield model.copyWith(extruderConfig: extruderConfig!, extruderTemp: extruderTemp);
-      }
+    final model = state.value;
+    if (model == null) {
+      yield _Model(extruderConfig: extruderConfig!, extruderTemp: extruderTemp, settings: settings);
+    } else {
+      yield model.copyWith(extruderConfig: extruderConfig!, extruderTemp: extruderTemp);
     }
   }
 

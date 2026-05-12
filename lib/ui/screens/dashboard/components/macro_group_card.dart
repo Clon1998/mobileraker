@@ -32,7 +32,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -383,33 +382,25 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
     // Keep the printerService alive while this controller is alive
     ref.keepAliveExternally(printerServiceProvider(machineUUID));
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    var printState = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.print.state),
-    );
+    final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    var groups = ref.watchAsSubject(
-      machineSettingsProvider(machineUUID).selectAs((data) => data.macroGroups),
+    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
+    final printStateF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.print.state));
+    final groupsF = ref.watch(machineSettingsProvider(machineUUID).selectAsync((data) => data.macroGroups));
+    final configMacrosF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.configFile.gcodeMacros));
+
+    final (klippyCanReceiveCommands, printState, groups, configMacros) =
+        await (klippyF, printStateF, groupsF, configMacrosF).wait;
+    if (!ref.mounted) return;
+
+    final idx = state.whenData((value) => value.selected).value ?? initialIndex;
+    yield _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      printState: printState,
+      groups: groups,
+      selected: min(groups.length - 1, max(0, idx)),
+      configMacros: configMacros,
     );
-
-    var configMacros = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.configFile.gcodeMacros),
-    );
-
-    var initialIndex = _settingService.readInt(_settingsKey, 0);
-
-    yield* Rx.combineLatest4(klippyCanReceiveCommands, groups, configMacros, printState, (a, b, c, d) {
-      var idx = state.whenData((value) => value.selected).value ?? initialIndex;
-      return _Model(
-        klippyCanReceiveCommands: a,
-        printState: d,
-        groups: b,
-        selected: min(b.length - 1, max(0, idx)),
-        configMacros: c,
-      );
-    });
   }
 
   void onDropDownChanged(int? index) {

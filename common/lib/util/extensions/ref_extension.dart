@@ -11,39 +11,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod/src/framework.dart';
 
 extension MobilerakerAutoDispose on Ref {
-  // Returns a stream that alwways issues the latest/cached value of the provider
-  // if the provider has one, even if multiple listeners listen to the stream!
-  Stream<T> watchAsSubject<T>(ProviderListenable<AsyncValue<T>> provider,
-      {bool skipLoadingOnReload = false, bool skipLoadingOnRefresh = true, bool asSubject = true}) {
-    final ctrler = StreamController<T>();
-    onDispose(() {
-      ctrler.close();
-    });
-
-    listen<AsyncValue<T>>(provider, (prev, next) {
-      if (next.isRefreshing) {
-        talker.error('isRefreshing SKIPPED');
-        return;
-      }
-      next.when(
-        skipLoadingOnReload: skipLoadingOnReload,
-        skipLoadingOnRefresh: skipLoadingOnRefresh,
-        data: (d) {
-          ctrler.add(d);
-        },
-        error: (e, s) {
-          ctrler.addError(e, s);
-        },
-        // This does not work with all usage rn!...
-        loading: () {
-          if (prev != null) invalidateSelf();
-        },
-      );
-      // loading: () => null);
-    }, fireImmediately: asSubject);
-    return ctrler.stream;
-  }
-
   /// Watches and listens to a provider for changes that satisfy the given condition.
   ///
   /// This method returns a future that completes when the condition specified by [evaluatePredicate] is met.

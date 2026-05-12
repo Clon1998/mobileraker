@@ -27,7 +27,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -52,7 +51,7 @@ class MachineStatusCard extends HookConsumerWidget {
 
     return AsyncGuard(
       animate: true,
-      debugLabel: 'MachineStatusCard-$machineUUID',
+      // debugLabel: 'MachineStatusCard-$machineUUID',
       toGuard: _machineStatusCardControllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _MachineStatusCardLoading(),
       childOnData: Card(
@@ -486,23 +485,22 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
 
-    var printer = ref.watchAsSubject(printerProviderr);
-    var klipper = ref.watchAsSubject(klipperProviderr);
+    final printerF = ref.watch(printerProviderr.future);
+    final klipperF = ref.watch(klipperProviderr.future);
 
-    yield* Rx.combineLatest2(
-      printer,
-      klipper,
-      (a, b) => _Model(
-        klippyConnected: b.klippyConnected,
-        klippyStatusMessage: b.statusMessage,
-        klipperState: b.klippyState,
-        printState: a.print.state,
-        filename: a.print.filename,
-        message: a.print.message,
-        progress: a.printProgress,
-        m117: a.displayStatus?.message,
-        excludeObject: a.excludeObject,
-      ),
+    final (printer, klipper) = await (printerF, klipperF).wait;
+    if (!ref.mounted) return;
+
+    yield _Model(
+      klippyConnected: klipper.klippyConnected,
+      klippyStatusMessage: klipper.statusMessage,
+      klipperState: klipper.klippyState,
+      printState: printer.print.state,
+      filename: printer.print.filename,
+      message: printer.print.message,
+      progress: printer.printProgress,
+      m117: printer.displayStatus?.message,
+      excludeObject: printer.excludeObject,
     );
   }
 

@@ -28,7 +28,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../components/IconElevatedButton.dart';
@@ -236,37 +235,26 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
   Stream<_Model> build(String machineUUID) async* {
     ref.keepAliveFor();
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
+    final alwaysShowSetting = ref.watch(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping));
+    final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    var zOffset = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.zOffset));
+    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
+    final zOffsetF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.zOffset));
+    final isPrintingOrPausedF = ref.watch(printerProvider(machineUUID)
+        .selectAsync((data) => const {PrintState.printing, PrintState.paused}.contains(data.print.state)));
+    final stepsF = ref.watch(machineSettingsProvider(machineUUID).selectAsync((data) => data.babySteps));
 
-    var isPrintingOrPaused = ref.watchAsSubject(printerProvider(machineUUID)
-        .selectAs((data) => const {PrintState.printing, PrintState.paused}.contains(data.print.state)));
+    final (klippyCanReceiveCommands, zOffset, isPrintingOrPaused, steps) =
+        await (klippyF, zOffsetF, isPrintingOrPausedF, stepsF).wait;
+    if (!ref.mounted) return;
 
-    var alwaysShowSetting = ref.watch(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping));
-
-    var steps = ref.watchAsSubject(machineSettingsProvider(machineUUID).selectAs((data) => data.babySteps));
-
-    var initialIndex = _settingService.readInt(_settingsKey, 0);
-
-    yield* Rx.combineLatest4(
-      klippyCanReceiveCommands,
-      zOffset,
-      steps,
-      isPrintingOrPaused,
-      (a, b, c, d) {
-        var idx = state.whenData((value) => value.selected).value ?? initialIndex.clamp(0, c.length - 1);
-
-        return _Model(
-          showCard: d || alwaysShowSetting,
-          klippyCanReceiveCommands: a,
-          zOffset: b,
-          steps: c,
-          selected: min(max(0, idx), c.length - 1),
-        );
-      },
+    final idx = state.whenData((value) => value.selected).value ?? initialIndex.clamp(0, steps.length - 1);
+    yield _Model(
+      showCard: isPrintingOrPaused || alwaysShowSetting,
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      zOffset: zOffset,
+      steps: steps,
+      selected: min(max(0, idx), steps.length - 1),
     );
   }
 
