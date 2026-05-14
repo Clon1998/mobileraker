@@ -19,6 +19,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -97,16 +98,10 @@ class _BodyData extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           children: <Widget>[
             SectionHeader(title: 'pages.setting.notification.custom_settings_title'.tr()),
-            Text(
-              'pages.setting.notification.custom_settings_helper'.tr(),
-              style: themeData.textTheme.bodySmall,
-            ),
+            Text('pages.setting.notification.custom_settings_helper'.tr(), style: themeData.textTheme.bodySmall),
             Gap(8),
             InputDecorator(
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                isCollapsed: true,
-              ),
+              decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
               child: SwitchListTile(
                 title: Text('pages.setting.notification.enable_custom_settings'.tr()),
                 subtitle: Text('pages.setting.notification.enable_custom_settings_helper'.tr()),
@@ -119,10 +114,7 @@ class _BodyData extends ConsumerWidget {
             ),
             if (Platform.isAndroid)
               InputDecorator(
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
+                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
                 child: SwitchListTile(
                   title: const Text('pages.setting.notification.use_progressbar_notification').tr(),
                   subtitle: const Text('pages.setting.notification.use_progressbar_notification_helper').tr(),
@@ -146,8 +138,9 @@ class _BodyData extends ConsumerWidget {
             Text('pages.setting.notification.hardware_settings_helper'.tr(), style: themeData.textTheme.bodySmall),
             SnapshotWebcamSetting(
               availableWebcams: model.webcams,
-              selectedWebcam:
-                  model.webcams.where((e) => e.uid == model.deviceFcmSettings.settings.snapshotWebcam).firstOrNull,
+              selectedWebcam: model.webcams
+                  .where((e) => e.uid == model.deviceFcmSettings.settings.snapshotWebcam)
+                  .firstOrNull,
               onChanged: controller.onSnapshotWebcamChanged,
             ),
             IgnoreFilamentSensorsNotificationSetting(
@@ -167,15 +160,16 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
   MachineFcmSettingsService get _machineFcmSettingsService => ref.read(machineFcmSettingsServiceProvider(machine.uuid));
 
   @override
-  Future<_Model> build(Machine machine) async {
+  FutureOr<_Model> build(Machine machine) {
     ref.keepAliveFor();
     ref.keepAliveExternally(machineFcmSettingsServiceProvider(machine.uuid));
-    final Future<DeviceFcmSettings?> deviceFcmFuture = ref.watch(deviceFcmSettingsProvider(machine.uuid).future);
-    final Future<List<WebcamInfo>> webcamsFuture = ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
-    final sensorsFuture =
-        ref.watch(printerProvider(machine.uuid).selectAsync((printer) => _Hack(printer.filamentSensors)));
+    final deviceFcmAsync = ref.watch(deviceFcmSettingsProvider(machine.uuid));
+    final webcamsAsync = ref.watch(allSupportedWebcamInfosProvider(machine.uuid));
+    final sensorsAsync = ref.watch(printerProvider(machine.uuid).selectAs((printer) => _Hack(printer.filamentSensors)));
 
-    final (deviceFcm, webcams, hack) = await (deviceFcmFuture, webcamsFuture, sensorsFuture).wait;
+    final deviceFcm = deviceFcmAsync.requireValue;
+    final webcams = webcamsAsync.requireValue;
+    final hack = sensorsAsync.requireValue;
 
     return _Model(deviceFcmSettings: deviceFcm!, webcams: webcams, sensors: hack.sensors.values.toList());
   }
@@ -191,10 +185,7 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
 
   void onAndroidProgressbarChanged(bool value) {
     _machineFcmSettingsService
-        .updateNotificationSettings(
-          currentSettings: state.requireValue.deviceFcmSettings,
-          androidProgressbar: value,
-        )
+        .updateNotificationSettings(currentSettings: state.requireValue.deviceFcmSettings, androidProgressbar: value)
         .ignore();
   }
 
@@ -203,10 +194,7 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
 
     if (value.value == state.requireValue.deviceFcmSettings.settings.progress) return;
     _machineFcmSettingsService
-        .updateNotificationSettings(
-          currentSettings: state.requireValue.deviceFcmSettings,
-          progress: value.value,
-        )
+        .updateNotificationSettings(currentSettings: state.requireValue.deviceFcmSettings, progress: value.value)
         .ignore();
   }
 
@@ -218,10 +206,7 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
       states.remove(printState);
     }
     _machineFcmSettingsService
-        .updateNotificationSettings(
-          currentSettings: state.requireValue.deviceFcmSettings,
-          states: states.toSet(),
-        )
+        .updateNotificationSettings(currentSettings: state.requireValue.deviceFcmSettings, states: states.toSet())
         .ignore();
   }
 
@@ -256,9 +241,7 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
 // Small hack because of the iterable so we can be sure to rebuild only if it changes due to how riverpod works with iterables!
 @freezed
 sealed class _Hack with _$Hack {
-  const factory _Hack(
-    Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> sensors,
-  ) = __Hack;
+  const factory _Hack(Map<(ConfigFileObjectIdentifiers, String), FilamentSensor> sensors) = __Hack;
 }
 
 @freezed

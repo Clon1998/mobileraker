@@ -80,9 +80,7 @@ class _ZOffsetCardPreview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _zOffsetCardControllerProvider(_machineUUID).overrideWith(_ZOffsetCardPreviewController.new),
-      ],
+      overrides: [_zOffsetCardControllerProvider(_machineUUID).overrideWith(_ZOffsetCardPreviewController.new)],
       child: const ZOffsetCard(machineUUID: _machineUUID),
     );
   }
@@ -102,10 +100,7 @@ class _ZOffsetLoading extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CardTitleSkeleton(
-              trailing: Chip(
-                label: SizedBox(width: 90),
-                backgroundColor: Colors.white,
-              ),
+              trailing: Chip(label: SizedBox(width: 90), backgroundColor: Colors.white),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 15),
@@ -118,19 +113,19 @@ class _ZOffsetLoading extends StatelessWidget {
                       SquareElevatedIconButtonSkeleton(margin: EdgeInsets.all(10)),
                     ],
                   ),
-                  Column(children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: SizedBox(
-                        width: 100,
-                        height: 19,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(color: Colors.white),
+                  Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: SizedBox(
+                          width: 100,
+                          height: 19,
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
                         ),
                       ),
-                    ),
-                    RangeSelectorSkeleton(itemCount: 4),
-                  ]),
+                      RangeSelectorSkeleton(itemCount: 4),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -157,11 +152,7 @@ class _CardTitle extends ConsumerWidget {
       trailing: Tooltip(
         message: 'pages.dashboard.general.baby_step_card.z_offset'.tr(),
         child: Chip(
-          avatar: Icon(
-            FlutterIcons.progress_wrench_mco,
-            color: Theme.of(context).iconTheme.color,
-            size: 20,
-          ),
+          avatar: Icon(FlutterIcons.progress_wrench_mco, color: Theme.of(context).iconTheme.color, size: 20),
           label: Text(numberFormat.format(zOffset)),
         ),
       ),
@@ -180,8 +171,9 @@ class _CardBody extends ConsumerWidget {
     var klippyCanReceiveCommands = ref
         .watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
         .requireValue;
-    var selected =
-        ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
+    var selected = ref
+        .watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected))
+        .requireValue;
     var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
     var numberFormat = NumberFormat('#0.0##', context.locale.toStringWithSeparator());
@@ -207,9 +199,7 @@ class _CardBody extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
-              ),
+              child: Text('${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
             ),
             SingleValueSelector(
               selectedIndex: selected,
@@ -238,14 +228,20 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
     final alwaysShowSetting = ref.watch(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping));
     final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
-    final zOffsetF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.zOffset));
-    final isPrintingOrPausedF = ref.watch(printerProvider(machineUUID)
-        .selectAsync((data) => const {PrintState.printing, PrintState.paused}.contains(data.print.state)));
-    final stepsF = ref.watch(machineSettingsProvider(machineUUID).selectAsync((data) => data.babySteps));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final zOffsetAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.zOffset));
+    final isPrintingOrPausedAsync = ref.watch(
+      printerProvider(
+        machineUUID,
+      ).selectAs((data) => const {PrintState.printing, PrintState.paused}.contains(data.print.state)),
+    );
+    final stepsAsync = ref.watch(machineSettingsProvider(machineUUID).selectAs((data) => data.babySteps));
 
-    final (klippyCanReceiveCommands, zOffset, isPrintingOrPaused, steps) =
-        await (klippyF, zOffsetF, isPrintingOrPausedF, stepsF).wait;
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final zOffset = zOffsetAsync.requireValue;
+    final isPrintingOrPaused = isPrintingOrPausedAsync.requireValue;
+    final steps = stepsAsync.requireValue;
+
     if (!ref.mounted) return;
 
     final idx = state.whenData((value) => value.selected).value ?? initialIndex.clamp(0, steps.length - 1);
@@ -279,13 +275,15 @@ class _ZOffsetCardPreviewController extends _ZOffsetCardController {
   @override
   Stream<_Model> build(String machineUUID) {
     talker.info('Using Preview Controller for ZOffsetCard');
-    state = const AsyncValue.data(_Model(
-      showCard: true,
-      klippyCanReceiveCommands: true,
-      zOffset: 1.234,
-      steps: [0.1, 0.05, 0.01, 0.005],
-      selected: 1,
-    ));
+    state = const AsyncValue.data(
+      _Model(
+        showCard: true,
+        klippyCanReceiveCommands: true,
+        zOffset: 1.234,
+        steps: [0.1, 0.05, 0.01, 0.005],
+        selected: 1,
+      ),
+    );
 
     return const Stream.empty();
   }

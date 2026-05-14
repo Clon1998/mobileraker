@@ -247,15 +247,16 @@ class _FirmwareRetractionCardController extends _$FirmwareRetractionCardControll
   bool? _wroteValue;
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
     // await Future.delayed(const Duration(milliseconds: 5000));
 
-    var klippyCanReceiveF =
-        ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
-    var firmwareRetractionF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.firmwareRetraction));
+    var klippyCanReceiveAsync =
+        ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    var firmwareRetractionAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.firmwareRetraction));
 
-    final (klippyCanReceiveCommands, fwRetract) = await (klippyCanReceiveF, firmwareRetractionF).wait;
+    final klippyCanReceiveCommands = klippyCanReceiveAsync.requireValue;
+    final fwRetract = firmwareRetractionAsync.requireValue;
 
     var tmp = fwRetract != null;
     if (_wroteValue != tmp) {

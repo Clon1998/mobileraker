@@ -59,11 +59,10 @@ class _Preview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
-      ],
-      child:
-          isCard ? const LimitsCard(machineUUID: _machineUUID) : const LimitsSlidersOrTexts(machineUUID: _machineUUID),
+      overrides: [_controllerProvider(_machineUUID).overrideWith(_PreviewController.new)],
+      child: isCard
+          ? const LimitsCard(machineUUID: _machineUUID)
+          : const LimitsSlidersOrTexts(machineUUID: _machineUUID),
     );
   }
 }
@@ -115,9 +114,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
       debugLabel: 'LimitsSlidersOrTexts-$machineUUID',
       toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _LimitsSlidersOrTextsLoading(),
-      childOnData: _Body(
-        machineUUID: machineUUID,
-      ),
+      childOnData: _Body(machineUUID: machineUUID),
     );
   }
 }
@@ -134,8 +131,9 @@ class _Body extends HookConsumerWidget {
     var inputLocked = useState(true);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
 
-    var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watch(
+      _controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands),
+    );
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 
@@ -155,10 +153,7 @@ class _Body extends HookConsumerWidget {
               ),
               child: inputLocked.value
                   ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                  : const Icon(
-                      FlutterIcons.unlock_faw,
-                      key: ValueKey('unlock'),
-                    ),
+                  : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
             ),
           ),
         ),
@@ -183,8 +178,9 @@ class _Body extends HookConsumerWidget {
                 maxValue: 5000,
               ),
               SliderOrTextInput(
-                value:
-                    ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity)),
+                value: ref.watch(
+                  _controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity),
+                ),
                 prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                 onChange: canEdit ? controller.onEditedMaxSquareCornerVelocity : null,
                 numberFormat: NumberFormat('0.# mm/s', context.locale.toStringWithSeparator()),
@@ -210,14 +206,15 @@ class _Body extends HookConsumerWidget {
 @riverpod
 class _Controller extends _$Controller {
   @override
-  FutureOr<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
-    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
-    final toolheadF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.toolhead));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final toolheadAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.toolhead));
 
-    final (klippyCanReceiveCommands, toolhead) = await (klippyF, toolheadF).wait;
-    if (!ref.mounted) return throw Exception('Controller for $machineUUID was disposed while initializing');
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final toolhead = toolheadAsync.requireValue;
+
 
     return _Model(
       klippyCanReceiveCommands: klippyCanReceiveCommands,

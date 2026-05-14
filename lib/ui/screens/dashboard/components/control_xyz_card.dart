@@ -562,18 +562,20 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
     // await Future.delayed(Duration(seconds: 5));
 
     final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    final klipperFuture = ref.watch(klipperProvider(machineUUID).future);
-    final printerFuture = ref.watch(printerProvider(machineUUID).future);
-    final machineSettingsFuture = ref.watch(machineSettingsProvider(machineUUID).future);
+    final klippyAsync = ref.watch(klipperProvider(machineUUID));
+    final printerAsync = ref.watch(printerProvider(machineUUID));
+    final machineSettingsAsync = ref.watch(machineSettingsProvider(machineUUID));
 
-    final (klippy, printer, machineSettings) = await (klipperFuture, printerFuture, machineSettingsFuture).wait;
+    final klippy = klippyAsync.requireValue;
+    final printer = printerAsync.requireValue;
+    final machineSettings = machineSettingsAsync.requireValue;
 
     var idx = state.whenData((value) => value.selected).value ??
         initialIndex.clamp(0, machineSettings.moveSteps.length - 1);

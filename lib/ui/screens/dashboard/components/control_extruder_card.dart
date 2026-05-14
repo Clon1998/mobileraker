@@ -444,7 +444,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   CompositeKey get _hadExtruder => CompositeKey.keyWithString(UiKeys.hadExtruder, machineUUID);
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
     // await Future.delayed(Duration(seconds: 5));
@@ -459,17 +459,15 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    final klipperFuture = ref.watch(klipperProvider(machineUUID).future);
-    final printerFuture = ref.watch(printerProvider(machineUUID).future);
-    final klipperSystemInfoFuture = ref.watch(klippySystemInfoProvider(machineUUID).future);
-    final machineSettingsFuture = ref.watch(machineSettingsProvider(machineUUID).future);
+    final klippyAsync = ref.watch(klipperProvider(machineUUID));
+    final printerAsync = ref.watch(printerProvider(machineUUID));
+    final klipperSystemInfoAsync = ref.watch(klippySystemInfoProvider(machineUUID));
+    final machineSettingsAsync = ref.watch(machineSettingsProvider(machineUUID));
 
-    final (klippy, printer, klipperSystemInfo, machineSettings) = await (
-      klipperFuture,
-      printerFuture,
-      klipperSystemInfoFuture,
-      machineSettingsFuture,
-    ).wait;
+    final klippy = klippyAsync.requireValue;
+    final printer = printerAsync.requireValue;
+    final klipperSystemInfo = klipperSystemInfoAsync.requireValue;
+    final machineSettings = machineSettingsAsync.requireValue;
 
     var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
 
@@ -613,14 +611,14 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
   @override
-  Future<_Model> build(String machineUUID) {
-    var model = _Model(
+  FutureOr<_Model> build(String machineUUID) {
+    return _Model(
       showCard: true,
       klippyCanReceiveCommands: true,
       extruderCount: 1,
       extruderIndex: 0,
       stepIndex: 0,
-      steps: [1, 5, 10, 20, 50],
+      steps: const [1, 5, 10, 20, 50],
       extruderVelocity: 10,
       activeExtruder: Extruder.empty(),
       activeExtruderConfig: const ConfigExtruder(
@@ -636,8 +634,6 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
         maxExtrudeOnlyAccel: 100,
       ),
     );
-    state = AsyncValue.data(model);
-    return Future.value(model);
   }
 
   @override

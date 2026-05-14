@@ -483,7 +483,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
   bool _closing = false;
 
   @override
-  Stream<_Model> build(FilamentOperationDialogArgs args, DialogCompleter completer) async* {
+  FutureOr<_Model> build(FilamentOperationDialogArgs args, DialogCompleter completer)  {
     // Lets keep the provider for 30 sec
     // ref.keepAliveFor();
 
@@ -530,20 +530,20 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
 
     // await Future.delayed(Duration(seconds: 5));
 
-    final settingsF = ref.watch(machineSettingsProvider(machineUUID).future);
-    final printerF = ref.watch(printerProvider(machineUUID).future);
+    final settingsAsync = ref.watch(machineSettingsProvider(machineUUID));
+    final printerAsync = ref.watch(printerProvider(machineUUID));
 
-    final (settings, printer) = await (settingsF, printerF).wait;
-    if (!ref.mounted) return;
+    final settings = settingsAsync.requireValue;
+    final printer = printerAsync.requireValue;
 
     final extruderConfig = printer.configFile.extruders[args.extruder];
     final extruderTemp = printer.extruders[extruderIndex].temperature;
 
     final model = state.value;
     if (model == null) {
-      yield _Model(extruderConfig: extruderConfig!, extruderTemp: extruderTemp, settings: settings);
+      return _Model(extruderConfig: extruderConfig!, extruderTemp: extruderTemp, settings: settings);
     } else {
-      yield model.copyWith(extruderConfig: extruderConfig!, extruderTemp: extruderTemp);
+      return model.copyWith(extruderConfig: extruderConfig!, extruderTemp: extruderTemp);
     }
   }
 

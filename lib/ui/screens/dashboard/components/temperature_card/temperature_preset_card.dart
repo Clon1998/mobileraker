@@ -145,22 +145,29 @@ class _TemperaturePresetController extends _$TemperaturePresetController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID, VoidCallback? onPresetApplied) async* {
+  FutureOr<_Model> build(String machineUUID, VoidCallback? onPresetApplied) {
     ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
     var machineSettingsProviderr = machineSettingsProvider(machineUUID);
-    final klippyF = ref.watch(klipperProviderr.selectAsync((value) => value.klippyCanReceiveCommands));
-    final isPrintingOrPausedF = ref.watch(printerProviderr.selectAsync((value) => {PrintState.printing, PrintState.paused}.contains(value.print.state)));
-    final hasPrintBedF = ref.watch(printerProviderr.selectAsync((value) => value.heaterBed != null));
-    final presetsF = ref.watch(machineSettingsProviderr.selectAsync((data) => data.temperaturePresets));
+    final klippyAsync = ref.watch(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
+    final isPrintingOrPausedAsync = ref.watch(
+      printerProviderr.selectAs((value) => {PrintState.printing, PrintState.paused}.contains(value.print.state)),
+    );
+    final hasPrintBedAsync = ref.watch(printerProviderr.selectAs((value) => value.heaterBed != null));
+    final presetsAsync = ref.watch(machineSettingsProviderr.selectAs((data) => data.temperaturePresets));
 
-    final (klippyCanReceiveCommand, isPrintingOrPaused, hasPrintBed, temperaturePresets) =
-        await (klippyF, isPrintingOrPausedF, hasPrintBedF, presetsF).wait;
-    if (!ref.mounted) return;
+    final klippyCanReceiveCommand = klippyAsync.requireValue;
+    final isPrintingOrPaused = isPrintingOrPausedAsync.requireValue;
+    final hasPrintBed = hasPrintBedAsync.requireValue;
+    final temperaturePresets = presetsAsync.requireValue;
 
-    yield _Model(enabled: klippyCanReceiveCommand && !isPrintingOrPaused, hasPrintBed: hasPrintBed, temperaturePresets: temperaturePresets);
+    return _Model(
+      enabled: klippyCanReceiveCommand && !isPrintingOrPaused,
+      hasPrintBed: hasPrintBed,
+      temperaturePresets: temperaturePresets,
+    );
   }
 
   submitPreset(int extruderTemp, int? bedTemp, String? customGCode) {

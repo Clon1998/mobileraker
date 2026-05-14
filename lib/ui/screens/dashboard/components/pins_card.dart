@@ -495,19 +495,22 @@ class _PinsCardController extends _$PinsCardController {
   }
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     // talker.info('Rebuilding pinsCardController for $machineUUID');
 
-    final orderingF = ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.miscOrdering));
-    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
-    final rawElementsF = ref.watch(printerProvider(machineUUID).selectAsync((value) {
-      return [...value.leds.values, ...value.outputPins.values, ...value.filamentSensors.values];
-    }));
-    final configFileF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.configFile));
+    final orderingAsync = ref.watch(machineSettingsProvider(machineUUID).selectAs((value) => value.miscOrdering));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    final rawElementsAsync = ref.watch(
+      printerProvider(machineUUID).selectAs((value) {
+        return [...value.leds.values, ...value.outputPins.values, ...value.filamentSensors.values];
+      }),
+    );
+    final configFileAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.configFile));
 
-    final (ordering, klippyCanReceiveCommands, rawElements, configFile) =
-        await (orderingF, klippyF, rawElementsF, configFileF).wait;
-    if (!ref.mounted) return;
+    final ordering = orderingAsync.requireValue;
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final rawElements = rawElementsAsync.requireValue;
+    final configFile = configFileAsync.requireValue;
 
     var elements = <dynamic>[];
     for (var el in rawElements) {
@@ -541,7 +544,12 @@ class _PinsCardController extends _$PinsCardController {
       return aIndex.compareTo(bIndex);
     });
 
-    yield _Model(klippyCanReceiveCommands: klippyCanReceiveCommands, elements: elements, ledConfig: configFile.leds, pinConfig: configFile.outputs);
+    return _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      elements: elements,
+      ledConfig: configFile.leds,
+      pinConfig: configFile.outputs,
+    );
   }
 
   Future<void> onEditPin(Pin pin) async {
@@ -660,9 +668,8 @@ class _PinsCardController extends _$PinsCardController {
 
 class _PinsCardPreviewController extends _PinsCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(
-      _Model(
+  FutureOr<_Model> build(String machineUUID) {
+    const model = _Model(
         klippyCanReceiveCommands: true,
         elements: [
           OutputPin(name: 'Preview Pin', value: 0),
@@ -676,10 +683,12 @@ class _PinsCardPreviewController extends _PinsCardController {
             scale: 1,
           ),
         },
-      ),
+      );
+    state = const AsyncValue.data(
+      model,
     );
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

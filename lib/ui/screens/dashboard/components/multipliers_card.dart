@@ -204,17 +204,18 @@ class _Body extends HookConsumerWidget {
 @riverpod
 class _MultipliersCardController extends _$MultipliersCardController {
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
-    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
-    final extruderF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.extruder));
-    final gCodeMoveF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.gCodeMove));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final extruderAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.extruder));
+    final gCodeMoveAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.gCodeMove));
 
-    final (klippyCanReceiveCommands, extruder, gCodeMove) = await (klippyF, extruderF, gCodeMoveF).wait;
-    if (!ref.mounted) return;
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final extruder = extruderAsync.requireValue;
+    final gCodeMove = gCodeMoveAsync.requireValue;
 
-    yield _Model(
+    return _Model(
       klippyCanReceiveCommands: klippyCanReceiveCommands,
       speedFactor: gCodeMove.speedFactor,
       extrudeFactor: gCodeMove.extrudeFactor,
@@ -245,16 +246,17 @@ class _MultipliersCardController extends _$MultipliersCardController {
 @riverpod
 class _PreviewController extends _MultipliersCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    const model = _Model(
       klippyCanReceiveCommands: true,
       speedFactor: 1.25,
       extrudeFactor: 0.98,
       pressureAdvance: 0.65,
       smoothTime: 0.069,
-    ));
+    );
+    state = const AsyncValue.data(model);
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

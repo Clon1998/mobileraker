@@ -377,24 +377,26 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
   String get _componentUUID => ref.read(dashboardCardUUIDProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
     // Keep the printerService alive while this controller is alive
     ref.keepAliveExternally(printerServiceProvider(machineUUID));
 
     final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    final klippyF = ref.watch(klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands));
-    final printStateF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.print.state));
-    final groupsF = ref.watch(machineSettingsProvider(machineUUID).selectAsync((data) => data.macroGroups));
-    final configMacrosF = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.configFile.gcodeMacros));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final printStateAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.print.state));
+    final groupsAsync = ref.watch(machineSettingsProvider(machineUUID).selectAs((data) => data.macroGroups));
+    final configMacrosAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.configFile.gcodeMacros));
 
-    final (klippyCanReceiveCommands, printState, groups, configMacros) =
-        await (klippyF, printStateF, groupsF, configMacrosF).wait;
-    if (!ref.mounted) return;
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final printState = printStateAsync.requireValue;
+    final groups = groupsAsync.requireValue;
+    final configMacros = configMacrosAsync.requireValue;
+
 
     final idx = state.whenData((value) => value.selected).value ?? initialIndex;
-    yield _Model(
+    return _Model(
       klippyCanReceiveCommands: klippyCanReceiveCommands,
       printState: printState,
       groups: groups,
@@ -440,8 +442,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
 class _MacroGroupCardPreviewController extends _MacroGroupCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    var model = _Model(
       klippyCanReceiveCommands: true,
       printState: PrintState.standby,
       groups: [
@@ -466,9 +468,10 @@ class _MacroGroupCardPreviewController extends _MacroGroupCardController {
         'park toolhead': const ConfigGcodeMacro(macroName: 'Park Toolhead', gcode: ''),
         'preview macros': const ConfigGcodeMacro(macroName: 'Preview Macros', gcode: ''),
       },
-    ));
+    );
+    state = AsyncValue.data(model);
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

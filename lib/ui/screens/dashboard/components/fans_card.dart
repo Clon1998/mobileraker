@@ -288,11 +288,11 @@ class _FansCardController extends _$FansCardController {
   }
 
   @override
-  Future<_Model> build(String machineUUID) async {
-    final orderingFuture = ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.fanOrdering));
-    final klippyFuture = ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
-    final printerFuture = ref.watch(
-      printerProvider(machineUUID).selectAsync((data) {
+  FutureOr<_Model> build(String machineUUID) {
+    final orderingAsync = ref.watch(machineSettingsProvider(machineUUID).selectAs((value) => value.fanOrdering));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    final printerAsync = ref.watch(
+      printerProvider(machineUUID).selectAs((data) {
         final hasPrintFan = data.printFan != null;
         final hasPrintFanConfig = data.configFile.configPrintCoolingFan != null;
 
@@ -307,7 +307,9 @@ class _FansCardController extends _$FansCardController {
       }),
     );
 
-    final (ordering, klippyCanReceive, (fans, fanConfigs)) = await (orderingFuture, klippyFuture, printerFuture).wait;
+    final ordering = orderingAsync.requireValue;
+    final klippyCanReceive = klippyAsync.requireValue;
+    final (fans, fanConfigs) = printerAsync.requireValue;
 
     int getOrderingIndex(Fan fan) {
       return ordering.indexWhere((element) {

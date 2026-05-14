@@ -495,22 +495,18 @@ class _HeaterSensorCardController extends _$HeaterSensorCardController {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
-    final printerProviderr = printerProvider(machineUUID);
-    final klipperProviderr = klipperProvider(machineUUID);
-    final machineSettingsProviderr = machineSettingsProvider(machineUUID);
-    final temperatureStoresProviderr = temperatureStoresProvider(machineUUID);
+    final machineSettingsAsync = ref.watch(machineSettingsProvider(machineUUID));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID));
+    final printerAsync = ref.watch(printerProvider(machineUUID));
+    final rawTempStoresAsync = ref.watch(temperatureStoresProvider(machineUUID));
 
-
-    final orderingF =  ref.watch(machineSettingsProviderr.selectAsync((value) => value.tempOrdering));
-    final klippyCanReceiveCommandsF =  ref.watch(klipperProviderr.selectAsync((value) => value.klippyCanReceiveCommands));
-    final rawSensorsF =  ref.watch(printerProviderr.selectAsync((value) => value.allTemperatureSensors));
-    final rawTempStoresF =  ref.watch(temperatureStoresProviderr.future);
-
-    final (ordering, klippyCanReceiveCommands, rawSensors, rawTempStores) = await (orderingF, klippyCanReceiveCommandsF, rawSensorsF, rawTempStoresF).wait;
-    if (!ref.mounted) return;
+    final ordering = machineSettingsAsync.requireValue.tempOrdering;
+    final klippyCanReceiveCommands = klippyAsync.requireValue.klippyCanReceiveCommands;
+    final rawSensors = printerAsync.requireValue.allTemperatureSensors;
+    final rawTempStores = rawTempStoresAsync.requireValue;
 
     final sensors = CombinedSensorExtension.filterAndSortSensors(rawSensors, ordering);
 
@@ -519,8 +515,7 @@ class _HeaterSensorCardController extends _$HeaterSensorCardController {
         e.key: e.value.sublist(max(0, e.value.length - tempStoreLimit)),
     };
 
-
-    yield _Model(klippyCanReceiveCommands: klippyCanReceiveCommands, sensors: sensors, temperatureStores: tempStores);
+    return _Model(klippyCanReceiveCommands: klippyCanReceiveCommands, sensors: sensors, temperatureStores: tempStores);
   }
 
   void adjustHeater(HeaterMixin heater) {
@@ -599,13 +594,13 @@ class _PreviewController extends _HeaterSensorCardController {
       .toList();
 
   @override
-  Stream<_Model> build(String machineUUID) {
+  FutureOr<_Model> build(String machineUUID) {
     talker.info('Rebuilding (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
     ref.onDispose(() {
       talker.info('Disposing (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
     });
     ref.keepAliveFor();
-    state = AsyncValue.data(_Model(
+    return _Model(
       klippyCanReceiveCommands: true,
       sensors: [
         Extruder(temperature: 150, target: 200, num: 0),
@@ -615,9 +610,7 @@ class _PreviewController extends _HeaterSensorCardController {
         (ConfigFileObjectIdentifiers.extruder, 'extruder'): _extruderEntries,
         (ConfigFileObjectIdentifiers.heater_bed, 'heater_bed'): _heaterBedEntries,
       },
-    ));
-
-    return const Stream.empty();
+    );
   }
 
   @override
