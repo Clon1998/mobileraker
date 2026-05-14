@@ -100,6 +100,23 @@ class FileInteractionService {
     List<String>? usedNames,
     bool useHero = true,
   ]) async* {
+    // Prevent auto-dispose while the async operation is in flight (caller uses ref.read, not ref.watch).
+    final keepAlive = _ref.keepAlive();
+    try {
+      yield* _showFileActionMenu(file, origin, machineUUID, usedNames, useHero);
+    } finally {
+      keepAlive.close();
+      talker.info('Close file-interaction-service keepALive link!');
+    }
+  }
+
+  Stream<FileInteractionMenuEvent> _showFileActionMenu(
+    RemoteFile file,
+    Rect origin,
+    String machineUUID, [
+    List<String>? usedNames,
+    bool useHero = true,
+  ]) async* {
     final printer = _ref.read(printerProvider(_machineUUID)).value;
     final canStartPrint =
         printer != null &&
@@ -421,6 +438,7 @@ class FileInteractionService {
   }
 
   Stream<FileInteractionMenuEvent> preheatAction(GCodeFile file) async* {
+    final hasHeaterBed = _ref.read(printerProvider(_machineUUID)).value?.heaterBed != null;
     final tempArgs = ['170', file.firstLayerTempBed?.toStringAsFixed(0) ?? '60'];
     final resp = await _dialogService.showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
@@ -430,7 +448,7 @@ class FileInteractionService {
     if (resp?.confirmed != true) return;
     _printerService.setHeaterTemperature('extruder', 170);
 
-    if (_ref.read(printerProvider(_machineUUID)).value?.heaterBed != null) {
+    if (hasHeaterBed) {
       _printerService.setHeaterTemperature('heater_bed', (file.firstLayerTempBed ?? 60.0).toInt());
     }
     _snackBarService.show(
