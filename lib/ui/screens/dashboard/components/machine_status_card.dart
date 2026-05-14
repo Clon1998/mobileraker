@@ -478,20 +478,17 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
   KlippyService get _klippyService => ref.read(klipperServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
-    // updateShouldNotify(previous, next)
-    // await Future.delayed(const Duration(seconds: 5));
-    var printerProviderr = printerProvider(machineUUID);
-    var klipperProviderr = klipperProvider(machineUUID);
 
-    final printerF = ref.watch(printerProviderr.future);
-    final klipperF = ref.watch(klipperProviderr.future);
+    final klipperF = ref.watch(klipperProvider(machineUUID));
+    final printerF = ref.watch(printerProvider(machineUUID));
 
-    final (printer, klipper) = await (printerF, klipperF).wait;
-    if (!ref.mounted) return;
+    // Chaining asynchronous providers synchronously.
+    final klipper = klipperF.requireValue;
+    final printer = printerF.requireValue;
 
-    yield _Model(
+    return _Model(
       klippyConnected: klipper.klippyConnected,
       klippyStatusMessage: klipper.statusMessage,
       klipperState: klipper.klippyState,
@@ -519,8 +516,8 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
 
 class _MachineStatusCardPreviewController extends _MachineStatusCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    return const _Model(
       klippyConnected: true,
       klippyStatusMessage: 'Ready',
       klipperState: KlipperState.ready,
@@ -530,9 +527,7 @@ class _MachineStatusCardPreviewController extends _MachineStatusCardController {
       progress: 0.5,
       m117: 'M117 Message',
       excludeObject: null,
-    ));
-
-    return const Stream.empty();
+    );
   }
 
   @override
