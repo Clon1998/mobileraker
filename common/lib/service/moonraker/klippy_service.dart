@@ -71,15 +71,21 @@ class Klipper extends _$Klipper {
 
     if (!ref.mounted) return instance;
 
-    // Poll until klipper reaches ready state.
+    // Poll while klippy is in a transient starting-up state.
+    // Exit immediately for terminal states (ready, shutdown, error) — these
+    // require either no action (ready) or explicit user action (firmware/service
+    // restart), so spinning is wrong. notify_klippy_ready will trigger a rebuild
+    // when klipper recovers from shutdown/error.
+    bool keepPolling;
     do {
       talker.info('$_logTag Checking Klippy state...');
       instance = await _fetchPrinterInfo(instance);
       talker.info('$_logTag Current Klippy state: ${instance.klippyState}');
-      if (instance.klippyState != KlipperState.ready && ref.mounted) {
+      keepPolling = instance.klippyState == KlipperState.startup || instance.klippyState == KlipperState.initializing;
+      if (keepPolling && ref.mounted) {
         await Future.delayed(const Duration(seconds: 2));
       }
-    } while (instance.klippyState != KlipperState.ready && ref.mounted);
+    } while (keepPolling && ref.mounted);
 
     return instance;
   }
