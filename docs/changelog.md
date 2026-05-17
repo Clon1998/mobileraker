@@ -2,6 +2,11 @@
 
 ## [2.9.9] - 2026-05-xx
 
+### Enhancements
+
+- **Print Error Reset**: Added a reset button to the Machine Status Card on the dashboard when a print is in an error
+  state, making it consistent with the overview page.
+
 ### Bug Fixes
 
 - **Toolhead Selection**: Fixed a bug that displayed the toolhead selector on single-tool printers — the selector is now

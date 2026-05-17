@@ -226,6 +226,11 @@ class _Trailing extends ConsumerWidget {
               ? themeData.colorScheme.surfaceContainer
               : themeData.colorScheme.primary.withValues(alpha: 0.24),
         ),
+      PrintState.error => TextButton.icon(
+          onPressed: model.klippyCanReceiveCommands ? controller.resetPrintState : null,
+          icon: const Icon(Icons.restart_alt_outlined),
+          label: const Text('pages.dashboard.general.print_card.reset').tr(),
+        ),
       PrintState.complete || PrintState.cancelled => PopupMenuButton(
           enabled: model.klippyCanReceiveCommands,
           padding: EdgeInsets.zero,
