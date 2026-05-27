@@ -57,9 +57,9 @@ class KlippyProviderGuard extends HookConsumerWidget {
       child: switch (klippy) {
         AsyncValue(
           value: KlipperInstance(
-                klippyState: KlipperState.error || KlipperState.disconnected || KlipperState.shutdown
+                klippyState: KlipperState.error || KlipperState.disconnected || KlipperState.shutdown,
               ) &&
-              final kInstance
+              final kInstance,
           // The `when !wasFetched` ensures to skip the state error if we had a AsyncData before -> the dashboard should take care of showing errors
         )
             when !skipKlipperReady && !wasFetched =>
@@ -110,25 +110,22 @@ class _StateError extends ConsumerWidget {
                           ),
                         ),
                         child: Row(
-                          mainAxisAlignment:
-                              data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                          mainAxisAlignment: data.klippyConnected
+                              ? MainAxisAlignment.spaceBetween
+                              : MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
                               onPressed: () {
                                 ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
                               },
-                              child: const Text(
-                                'pages.dashboard.general.restart_klipper',
-                              ).tr(),
+                              child: const Text('pages.dashboard.general.restart_klipper').tr(),
                             ),
                             if (data.klippyConnected)
                               ElevatedButton(
                                 onPressed: () {
                                   ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
                                 },
-                                child: const Text(
-                                  'pages.dashboard.general.restart_mcu',
-                                ).tr(),
+                                child: const Text('pages.dashboard.general.restart_mcu').tr(),
                               ),
                           ],
                         ),
