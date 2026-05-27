@@ -44,7 +44,7 @@ class KlippyProviderGuard extends HookConsumerWidget {
     var fetchedOnce = useRef(false);
 
     var klippy = ref.watch(klipperProvider(machineUUID));
-    // talker.warning('Models(hasErr: ${klippy.hasError}): $klippy');
+    talker.warning('Models(hasErr: ${klippy.hasError}): $klippy');
 
     var wasFetched = fetchedOnce.value;
     if (klippy case AsyncData(value: KlipperInstance(klippyState: KlipperState.ready))) {
@@ -55,7 +55,7 @@ class KlippyProviderGuard extends HookConsumerWidget {
       // duration: Duration(milliseconds: 2200),
       duration: kThemeAnimationDuration,
       child: switch (klippy) {
-        AsyncData(
+        AsyncValue(
           value: KlipperInstance(
                 klippyState: KlipperState.error || KlipperState.disconnected || KlipperState.shutdown
               ) &&

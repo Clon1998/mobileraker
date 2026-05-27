@@ -25,18 +25,10 @@ part 'klippy_service.g.dart';
 class Klipper extends _$Klipper {
   JsonRpcClient get _jrpcClient => ref.read(jrpcClientProvider(machineUUID));
 
+  Timer? _timerConnected;
+
   @override
   Future<KlipperInstance> build(String machineUUID) async {
-    final clientState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
-
-    if (clientState != ClientState.connected) {
-      return KlipperInstance(
-        moonrakerVersion: MoonrakerVersion.fallback(),
-        klippyConnected: false,
-        klippyState: clientState == ClientState.error ? KlipperState.error : KlipperState.disconnected,
-      );
-    }
-
     // Set up notification listeners before any async ops so they survive a build() error.
     ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_klippy_ready'), (_, next) {
       if (!next.hasValue) return;
@@ -54,22 +46,43 @@ class Klipper extends _$Klipper {
       ref.invalidateSelf();
     });
 
+    listenSelf((previous, next) {
+      // talker.info('$_logTag Klipper provider state changed: $previous -> $next');
+      if (next case AsyncData(
+        isLoading: false,
+        value: KlipperInstance(klippyConnected: false),
+      ) when _timerConnected?.isActive != true && ref.mounted) {
+        var timer = Timer(Duration(seconds: 2), () {
+          if (!ref.mounted) return;
+          talker.info('$_logTag Klippy is not connected. Triggering refresh.');
+
+          ref.invalidateSelf(asReload: true);
+        });
+        ref.onDispose(timer.cancel);
+        _timerConnected = timer;
+        talker.info('$_logTag Klippy is not connected. Starting timer to trigger refresh in 2 seconds.');
+      }
+    });
+
+    final clientState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
+
+    if (clientState != ClientState.connected) {
+      return KlipperInstance(
+        moonrakerVersion: MoonrakerVersion.fallback(),
+        klippyConnected: false,
+        klippyState: clientState == ClientState.error ? KlipperState.error : KlipperState.disconnected,
+      );
+    }
+
     await _identifyConnection();
     if (!ref.mounted) return state.value ?? KlipperInstance(moonrakerVersion: MoonrakerVersion.fallback());
 
     KlipperInstance instance = state.value ?? KlipperInstance(moonrakerVersion: MoonrakerVersion.fallback());
 
-    // Poll until klippy domain is connected to moonraker.
-    do {
-      talker.info('$_logTag Checking if Klippy is connected...');
-      instance = await _fetchServerInfo();
-      talker.info('$_logTag Klippy connection status: ${instance.klippyConnected ? "Connected" : "Disconnected"}');
-      if (!instance.klippyConnected && ref.mounted) {
-        await Future.delayed(const Duration(seconds: 2));
-      }
-    } while (!instance.klippyConnected && ref.mounted);
-
-    if (!ref.mounted) return instance;
+    talker.info('$_logTag Checking if Klippy is connected...');
+    instance = await _fetchServerInfo();
+    talker.info('$_logTag Klippy connection status: ${instance.klippyConnected ? "Connected" : "Disconnected"}');
+    if (!instance.klippyConnected || !ref.mounted) return instance;
 
     // Poll while klippy is in a transient starting-up state.
     // Exit immediately for terminal states (ready, shutdown, error) — these
