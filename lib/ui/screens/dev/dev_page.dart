@@ -38,9 +38,15 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iabtcf_consent_info/iabtcf_consent_info.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/console/console_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/multipliers_card.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
+import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -48,6 +54,21 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
 part 'dev_page.g.dart';
+
+@riverpod
+Stream<int> fastInt(Ref ref) {
+  int counter = 0;
+  return Stream.periodic(Duration(milliseconds: 50), (_) => counter++);
+}
+
+@riverpod
+Future<int> childInt(Ref ref) async {
+  final fastInt = await ref.watch(fastIntProvider.future);
+
+  // Simulate some slow call to a non riverpod future provider
+  await Future.delayed(Duration(seconds: 1));
+  return fastInt;
+}
 
 class DevPage extends HookConsumerWidget {
   DevPage({super.key});
@@ -62,7 +83,7 @@ class DevPage extends HookConsumerWidget {
     var layouts = await dashboardLayoutService.availableLayouts();
 
     talker.info('Exporting ${list.length} machines');
-    
+
     // Convert machines to JSON-serializable format
     var exportData = {
       'version': '1.0.0',
@@ -70,7 +91,7 @@ class DevPage extends HookConsumerWidget {
       'machines': list.map((machine) => jsonEncode(machine)).toList(),
       'layouts': layouts,
     };
-    
+
     var export = jsonEncode(exportData);
     talker.info('Export data: $export');
 
@@ -78,14 +99,18 @@ class DevPage extends HookConsumerWidget {
     final File file = File('${tmpDir.path}/mobileraker_machines_export_${DateTime.now().toIso8601String()}.json');
     await file.writeAsString(export);
 
-    await SharePlus.instance.share(ShareParams(
-      files: [XFile(file.path)],
-      subject: 'Mobileraker Machines Export',
-    ));
+    await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], subject: 'Mobileraker Machines Export'));
   }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('REBUILIDNG DEV PAGE!');
+
+    // ref.listen(childIntProvider, (p,n) {
+    //   talker.info('childInt changed: $p -> $n');
+    // });
+
+
     var selMachine = ref.watch(selectedMachineProvider).value;
 
     var editingController = useTextEditingController();
@@ -93,11 +118,26 @@ class DevPage extends HookConsumerWidget {
       return const Center(child: Text('No machine selected'));
     }
 
+    ref.listen(jobQueueSelectedProvider, (p, n) {
+      talker.info('JobQueueStatusSELECTED changed: ${p.toString().substring(0,20)} -> ${n.toString().substring(0,20)}');
+    });
+
+    ref.listen(jobQueueServiceProvider(selMachine.uuid), (p, n) {
+      talker.info('JobQueueStatus(${selMachine.uuid}) changed: ${p.toString().substring(0,20)} -> ${n.toString().substring(0,20)}');
+    });
+
     final jrpc = ref.watch(jrpcClientSelectedProvider);
 
     Widget body = ListView(
       children: [
+        MacroGroupCard(machineUUID: selMachine.uuid),
         ControlExtruderCard(machineUUID: selMachine.uuid),
+        FansCard(machineUUID: selMachine.uuid),
+        ConsoleCard(machineUUID: selMachine.uuid),
+        MultipliersCard(machineUUID: selMachine.uuid),
+        BedMeshCard(machineUUID: selMachine.uuid),
+
+        // HeaterSensorCard(machineUUID: selMachine.uuid),
         // GCodePreviewCard.preview(),
         // const _StlPreview(),
         // ElevatedButton(
@@ -157,6 +197,14 @@ class DevPage extends HookConsumerWidget {
           },
           child: const Text('SNACKBAR'),
         ),
+        Placeholder(),
+        Placeholder(),
+        Placeholder(),
+        Placeholder(),
+        Placeholder(),
+        Placeholder(),
+        Placeholder(),
+        Placeholder(),
 
         // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
         // OutlinedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),

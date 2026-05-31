@@ -32,7 +32,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -378,38 +377,32 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
   String get _componentUUID => ref.read(dashboardCardUUIDProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
     // Keep the printerService alive while this controller is alive
     ref.keepAliveExternally(printerServiceProvider(machineUUID));
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    var printState = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.print.state),
-    );
+    final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    var groups = ref.watchAsSubject(
-      machineSettingsProvider(machineUUID).selectAs((data) => data.macroGroups),
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final printStateAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.print.state));
+    final groupsAsync = ref.watch(machineSettingsProvider(machineUUID).selectAs((data) => data.macroGroups));
+    final configMacrosAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.configFile.gcodeMacros));
+
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final printState = printStateAsync.requireValue;
+    final groups = groupsAsync.requireValue;
+    final configMacros = configMacrosAsync.requireValue;
+
+
+    final idx = state.whenData((value) => value.selected).value ?? initialIndex;
+    return _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      printState: printState,
+      groups: groups,
+      selected: min(groups.length - 1, max(0, idx)),
+      configMacros: configMacros,
     );
-
-    var configMacros = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((data) => data.configFile.gcodeMacros),
-    );
-
-    var initialIndex = _settingService.readInt(_settingsKey, 0);
-
-    yield* Rx.combineLatest4(klippyCanReceiveCommands, groups, configMacros, printState, (a, b, c, d) {
-      var idx = state.whenData((value) => value.selected).value ?? initialIndex;
-      return _Model(
-        klippyCanReceiveCommands: a,
-        printState: d,
-        groups: b,
-        selected: min(b.length - 1, max(0, idx)),
-        configMacros: c,
-      );
-    });
   }
 
   void onDropDownChanged(int? index) {
@@ -449,8 +442,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
 class _MacroGroupCardPreviewController extends _MacroGroupCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    var model = _Model(
       klippyCanReceiveCommands: true,
       printState: PrintState.standby,
       groups: [
@@ -475,9 +468,10 @@ class _MacroGroupCardPreviewController extends _MacroGroupCardController {
         'park toolhead': const ConfigGcodeMacro(macroName: 'Park Toolhead', gcode: ''),
         'preview macros': const ConfigGcodeMacro(macroName: 'Preview Macros', gcode: ''),
       },
-    ));
+    );
+    state = AsyncValue.data(model);
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

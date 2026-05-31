@@ -1,5 +1,22 @@
 # Mobileraker - Changelog
 
+## [2.9.10] - 2026-05-31
+
+### Enhancements
+
+- **Fleet Printing**: Added a new "Fleet Printing" option, that allows users to send a print job from one machine to
+  multiple machines at once! This can be done via the file manager on one "Source" machine.
+
+  *Note: This feature is available exclusively for "Supporters".*
+- **Backend Rework**: The app's core framework was updated and should now be more stable and faster.
+- **Print Error Reset**: Added a reset button to the Machine Status Card on the dashboard when a print is in an error
+  state, making it consistent with the overview page.
+
+### Bug Fixes
+
+- **Toolhead Selection**: Fixed a bug that displayed the toolhead selector on single-tool printers — the selector is now
+  hidden for single-tool setups to avoid user confusion.
+
 ## [2.9.9] - 2026-05-06
 
 ### Bug Fixes

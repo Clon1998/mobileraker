@@ -184,18 +184,6 @@ FileService fileServiceSelected(Ref ref) {
   return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
-@riverpod
-Stream<FileActionResponse> fileNotificationsSelected(Ref ref) async* {
-  if (!ref.mounted) return;
-  ref.keepAliveFor();
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-    yield* ref.watchAsSubject(fileNotificationsProvider(machine.uuid));
-  } on StateError catch (_) {
-// Just catch it. It is expected that the future/where might not complete!
-  }
-}
 
 @riverpod
 Future<FolderContentWrapper> directoryInfoApiResponse(Ref ref, String machineUUID, String path) async {
@@ -253,12 +241,14 @@ Future<RemoteFile> remoteFile(Ref ref, String machineUUID, String path) async {
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(Ref ref, this._machineUUID, this._jRpcClient, this._dio)
+  FileService(this._ref, this._machineUUID, this._jRpcClient, this._dio)
       : _apiRequestTimeout =
             _jRpcClient.timeout > const Duration(seconds: 30) ? _jRpcClient.timeout : const Duration(seconds: 30) {
-    ref.onDispose(dispose);
-    ref.listen(jrpcMethodEventProvider(_machineUUID, 'notify_filelist_changed'), _onFileListChanged);
+    _ref.onDispose(dispose);
+    _ref.listen(jrpcMethodEventProvider(_machineUUID, 'notify_filelist_changed'), _onFileListChanged);
   }
+
+  final Ref _ref;
 
   final String _machineUUID;
 
@@ -425,6 +415,9 @@ class FileService {
 
   Stream<FileOperation> downloadFile(
       {required String filePath, int? expectedFileSize, bool overWriteLocal = false, CancelToken? cancelToken}) async* {
+    // Prevent auto-dispose while the transfer is in flight (caller uses ref.read, not ref.watch).
+    final keepAlive = _ref.keepAlive();
+    try {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
 
@@ -481,9 +474,15 @@ class FileService {
 
     yield* updateProgress.stream;
     talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] File download completed');
+    } finally {
+      keepAlive.close();
+    }
   }
 
   Stream<FileOperation> uploadFile(String filePath, MultipartFile uploadContent, [CancelToken? cancelToken]) async* {
+    // Prevent auto-dispose while the transfer is in flight (caller uses ref.read, not ref.watch).
+    final keepAlive = _ref.keepAlive();
+    try {
     assert(!filePath.startsWith(r'(gcodes|config)'), 'filePath needs to contain root folder config or gcodes!');
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
@@ -539,6 +538,9 @@ class FileService {
 
     yield* updateStream.stream;
     talker.info('[FileService($_machineUUID, ${_jRpcClient.uri})] File upload completed');
+    } finally {
+      keepAlive.close();
+    }
   }
 
   _onFileListChanged(AsyncValue<Map<String, dynamic>>? previous, AsyncValue<Map<String, dynamic>> next) {

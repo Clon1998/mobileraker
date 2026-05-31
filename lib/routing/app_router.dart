@@ -28,6 +28,8 @@ import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dar
 import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
+import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_controller.dart';
+import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/gcode_preview/gcode_preview_page.dart';
 import 'package:mobileraker/ui/screens/graph/graph_page.dart';
@@ -97,6 +99,7 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
   fileManager_exlorer_imageViewer,
+  fileManager_fleetPrint,
 }
 
 @riverpod
@@ -240,6 +243,12 @@ GoRouter goRouterImpl(Ref ref) {
             path: 'image-viewer',
             name: AppRoute.fileManager_exlorer_imageViewer.name,
             builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'fleet-print',
+            name: AppRoute.fileManager_fleetPrint.name,
+            builder: (context, state) => FleetPrintPage(args: state.extra! as FleetPrintArgs),
+            pageBuilder: GoTransitions.fullscreenDialog,
           ),
         ],
       ),

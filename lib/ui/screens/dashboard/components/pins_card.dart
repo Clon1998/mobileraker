@@ -27,7 +27,6 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/horizontal_scroll_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -39,7 +38,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -71,7 +69,7 @@ class PinsCard extends HookConsumerWidget {
     talker.info('Rebuilding pins card for $machineUUID');
     return AsyncGuard(
       animate: true,
-      debugLabel: 'PinsCard-$machineUUID',
+      // debugLabel: 'PinsCard-$machineUUID',
       toGuard: _pinsCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: const _PinsCardLoading(),
       childOnData: Card(
@@ -497,78 +495,60 @@ class _PinsCardController extends _$PinsCardController {
   }
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
-    talker.info('Rebuilding pinsCardController for $machineUUID');
-    var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.miscOrdering));
-    // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
-    // This means that if the value is the same, the widget will not rebuild.
-    // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands),
+  FutureOr<_Model> build(String machineUUID) {
+    // talker.info('Rebuilding pinsCardController for $machineUUID');
+
+    final orderingAsync = ref.watch(machineSettingsProvider(machineUUID).selectAs((value) => value.miscOrdering));
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    final rawElementsAsync = ref.watch(
+      printerProvider(machineUUID).selectAs((value) {
+        return [...value.leds.values, ...value.outputPins.values, ...value.filamentSensors.values];
+      }),
     );
+    final configFileAsync = ref.watch(printerProvider(machineUUID).selectAs((data) => data.configFile));
 
-    var elements = ref
-        .watchAsSubject(
-          printerProvider(machineUUID).selectAs((value) {
-            var leds = value.leds;
-            var filamentSensors = value.filamentSensors;
-            var pins = value.outputPins;
+    final ordering = orderingAsync.requireValue;
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final rawElements = rawElementsAsync.requireValue;
+    final configFile = configFileAsync.requireValue;
 
-            return [...leds.values, ...pins.values, ...filamentSensors.values];
-          }),
-        )
-        // Use map here since this prevents to many operations if the original list not changes!
-        .map((elements) {
-          var output = <dynamic>[];
+    var elements = <dynamic>[];
+    for (var el in rawElements) {
+      switch (el) {
+        case Led():
+          if (el.name.startsWith('_')) continue;
+        case Pin():
+          if (el.name.startsWith('_')) continue;
+        case FilamentSensor():
+          if (el.name.startsWith('_')) continue;
+        default:
+          continue;
+      }
+      elements.add(el);
+    }
+    elements.sort((a, b) {
+      determineKind(obj) => switch (obj) {
+        Led() => obj.kind,
+        FilamentSensor() => obj.kind,
+        OutputPin() => ConfigFileObjectIdentifiers.output_pin,
+        PwmTool() => ConfigFileObjectIdentifiers.pwm_tool,
+        _ => null,
+      };
 
-          for (var el in elements) {
-            switch (el) {
-              case Led():
-                if (el.name.startsWith('_')) continue;
-                break;
-              case Pin():
-                if (el.name.startsWith('_')) continue;
-                break;
-              case FilamentSensor():
-                if (el.name.startsWith('_')) continue;
-                break;
-              default:
-                continue;
-            }
-            output.add(el);
-          }
+      final aKind = determineKind(a);
+      final bKind = determineKind(b);
+      var aIndex = ordering.indexWhere((e) => e.name == a.name && e.kind == aKind);
+      var bIndex = ordering.indexWhere((e) => e.name == b.name && e.kind == bKind);
+      if (aIndex == -1) aIndex = elements.length;
+      if (bIndex == -1) bIndex = elements.length;
+      return aIndex.compareTo(bIndex);
+    });
 
-          // Sort output by ordering, if ordering is not found it will be placed at the end
-          output.sort((a, b) {
-            determineKind(obj) => switch (obj) {
-              Led() => obj.kind,
-              FilamentSensor() => obj.kind,
-              OutputPin() => ConfigFileObjectIdentifiers.output_pin,
-              PwmTool() => ConfigFileObjectIdentifiers.pwm_tool,
-              _ => null,
-            };
-
-            ConfigFileObjectIdentifiers? aKind = determineKind(a);
-            ConfigFileObjectIdentifiers? bKind = determineKind(b);
-
-            var aIndex = ordering.indexWhere((element) => element.name == a.name && element.kind == aKind);
-            var bIndex = ordering.indexWhere((element) => element.name == b.name && element.kind == bKind);
-
-            if (aIndex == -1) aIndex = output.length;
-            if (bIndex == -1) bIndex = output.length;
-
-            return aIndex.compareTo(bIndex);
-          });
-          return output;
-        });
-
-    var configFile = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile));
-
-    yield* Rx.combineLatest3(
-      klippyCanReceiveCommands,
-      elements,
-      configFile,
-      (a, b, c) => _Model(klippyCanReceiveCommands: a, elements: b, ledConfig: c.leds, pinConfig: c.outputs),
+    return _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      elements: elements,
+      ledConfig: configFile.leds,
+      pinConfig: configFile.outputs,
     );
   }
 
@@ -688,9 +668,8 @@ class _PinsCardController extends _$PinsCardController {
 
 class _PinsCardPreviewController extends _PinsCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(
-      _Model(
+  FutureOr<_Model> build(String machineUUID) {
+    const model = _Model(
         klippyCanReceiveCommands: true,
         elements: [
           OutputPin(name: 'Preview Pin', value: 0),
@@ -704,10 +683,12 @@ class _PinsCardPreviewController extends _PinsCardController {
             scale: 1,
           ),
         },
-      ),
+      );
+    state = const AsyncValue.data(
+      model,
     );
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

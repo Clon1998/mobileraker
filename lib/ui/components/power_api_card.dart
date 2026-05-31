@@ -214,7 +214,7 @@ class _ProviderError extends ConsumerWidget {
               action: TextButton.icon(
                 onPressed: () {
                   talker.info('Invalidating power service for $machineUUID');
-                  ref.invalidate(powerServiceProvider(machineUUID));
+                  ref.invalidate(powerDevicesProvider(machineUUID));
                 },
                 icon: const Icon(Icons.restart_alt_outlined),
                 label: const Text('general.retry').tr(),
@@ -230,8 +230,6 @@ class _ProviderError extends ConsumerWidget {
 @riverpod
 class _PowerApiCardController extends _$PowerApiCardController {
   SettingService get _settingService => ref.read(settingServiceProvider);
-
-  PowerService get _powerService => ref.read(powerServiceProvider(machineUUID));
 
   CompositeKey get _hadPowerApi => CompositeKey.keyWithString(UiKeys.hadPowerAPI, machineUUID);
 
@@ -268,7 +266,7 @@ class _PowerApiCardController extends _$PowerApiCardController {
   }
 
   Future<PowerState> updateDeviceState(PowerDevice device, PowerState state) async {
-    return _powerService.setDeviceStatus(device.name, state);
+    return ref.read(powerDevicesProvider(machineUUID).notifier).setDeviceStatus(device.name, state);
   }
 }
 

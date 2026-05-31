@@ -272,7 +272,6 @@ class NotificationService {
         onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
         onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
         onNativeTokenHandle: _awesomeNotificationNativeTokenHandler,
-        licenseKeys: licenseKeys,
       );
     }
   }

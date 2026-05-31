@@ -21,7 +21,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 part 'limits_card.freezed.dart';
@@ -60,11 +59,10 @@ class _Preview extends HookWidget {
   Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
-      overrides: [
-        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
-      ],
-      child:
-          isCard ? const LimitsCard(machineUUID: _machineUUID) : const LimitsSlidersOrTexts(machineUUID: _machineUUID),
+      overrides: [_controllerProvider(_machineUUID).overrideWith(_PreviewController.new)],
+      child: isCard
+          ? const LimitsCard(machineUUID: _machineUUID)
+          : const LimitsSlidersOrTexts(machineUUID: _machineUUID),
     );
   }
 }
@@ -116,9 +114,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
       debugLabel: 'LimitsSlidersOrTexts-$machineUUID',
       toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _LimitsSlidersOrTextsLoading(),
-      childOnData: _Body(
-        machineUUID: machineUUID,
-      ),
+      childOnData: _Body(machineUUID: machineUUID),
     );
   }
 }
@@ -135,8 +131,9 @@ class _Body extends HookConsumerWidget {
     var inputLocked = useState(true);
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
 
-    var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watch(
+      _controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands),
+    );
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 
@@ -156,10 +153,7 @@ class _Body extends HookConsumerWidget {
               ),
               child: inputLocked.value
                   ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                  : const Icon(
-                      FlutterIcons.unlock_faw,
-                      key: ValueKey('unlock'),
-                    ),
+                  : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
             ),
           ),
         ),
@@ -184,8 +178,9 @@ class _Body extends HookConsumerWidget {
                 maxValue: 5000,
               ),
               SliderOrTextInput(
-                value:
-                    ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity)),
+                value: ref.watch(
+                  _controllerProvider(machineUUID).selectRequireValue((data) => data.squareCornerVelocity),
+                ),
                 prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                 onChange: canEdit ? controller.onEditedMaxSquareCornerVelocity : null,
                 numberFormat: NumberFormat('0.# mm/s', context.locale.toStringWithSeparator()),
@@ -211,26 +206,22 @@ class _Body extends HookConsumerWidget {
 @riverpod
 class _Controller extends _$Controller {
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    var toohlhead = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((value) => value.toolhead),
-    );
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final toolheadAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.toolhead));
 
-    yield* Rx.combineLatest2(
-      klippyCanReceiveCommands,
-      toohlhead,
-      (a, b) => _Model(
-        klippyCanReceiveCommands: a,
-        maxVelocity: b.maxVelocity,
-        maxAccel: b.maxAccel,
-        squareCornerVelocity: b.squareCornerVelocity,
-        maxAccelToDecel: b.maxAccelToDecel,
-      ),
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final toolhead = toolheadAsync.requireValue;
+
+
+    return _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      maxVelocity: toolhead.maxVelocity,
+      maxAccel: toolhead.maxAccel,
+      squareCornerVelocity: toolhead.squareCornerVelocity,
+      maxAccelToDecel: toolhead.maxAccelToDecel,
     );
   }
 
@@ -255,16 +246,17 @@ class _Controller extends _$Controller {
 
 class _PreviewController extends _Controller {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    const model = _Model(
       klippyCanReceiveCommands: true,
       maxVelocity: 250,
       maxAccel: 4000,
       squareCornerVelocity: 5,
       maxAccelToDecel: 2000,
-    ));
+    );
+    state = const AsyncValue.data(model);
 
-    return const Stream.empty();
+    return model;
   }
 
   @override

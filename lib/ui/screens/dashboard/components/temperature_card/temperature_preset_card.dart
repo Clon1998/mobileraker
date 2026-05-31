@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../../../../components/adaptive_horizontal_scroll.dart';
 import '../../../../components/card_with_button.dart';
@@ -146,27 +145,28 @@ class _TemperaturePresetController extends _$TemperaturePresetController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID, VoidCallback? onPresetApplied) async* {
+  FutureOr<_Model> build(String machineUUID, VoidCallback? onPresetApplied) {
     ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
     var machineSettingsProviderr = machineSettingsProvider(machineUUID);
-    var klippyCanReceiveCommand = ref.watchAsSubject(
-      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    var isPrintingOrPaused = ref.watchAsSubject(
+    final klippyAsync = ref.watch(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
+    final isPrintingOrPausedAsync = ref.watch(
       printerProviderr.selectAs((value) => {PrintState.printing, PrintState.paused}.contains(value.print.state)),
     );
-    var hasPrintBed = ref.watchAsSubject(printerProviderr.selectAs((value) => value.heaterBed != null));
-    var temperaturePresets = ref.watchAsSubject(machineSettingsProviderr.selectAs((data) => data.temperaturePresets));
+    final hasPrintBedAsync = ref.watch(printerProviderr.selectAs((value) => value.heaterBed != null));
+    final presetsAsync = ref.watch(machineSettingsProviderr.selectAs((data) => data.temperaturePresets));
 
-    yield* Rx.combineLatest4(
-      klippyCanReceiveCommand,
-      isPrintingOrPaused,
-      hasPrintBed,
-      temperaturePresets,
-      (a, b, c, d) => _Model(enabled: a && !b, hasPrintBed: c, temperaturePresets: d),
+    final klippyCanReceiveCommand = klippyAsync.requireValue;
+    final isPrintingOrPaused = isPrintingOrPausedAsync.requireValue;
+    final hasPrintBed = hasPrintBedAsync.requireValue;
+    final temperaturePresets = presetsAsync.requireValue;
+
+    return _Model(
+      enabled: klippyCanReceiveCommand && !isPrintingOrPaused,
+      hasPrintBed: hasPrintBed,
+      temperaturePresets: temperaturePresets,
     );
   }
 

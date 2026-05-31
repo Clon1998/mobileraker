@@ -31,16 +31,20 @@ extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<I
       /// This switch statement is used to handle different states of the original `AsyncValue` object.
       /// It takes an `AsyncValue` object as input and returns a new `AsyncValue` object based on the state of the input.
       final res = switch (value) {
-        AsyncData(value: final data, isLoading: final isLoading) =>
-          AsyncData<Output>(selector(data)).let((it) => isLoading ? it.toLoading() : it),
-        AsyncError(error: final error, stackTrace: final stackTrace, isLoading: final isLoading, :final hasValue)
+        AsyncData(value: final data, :final isLoading, :final isRefreshing) => AsyncData<Output>(
+          selector(data),
+        ).let((it) => isLoading ? it.toLoading(isRefreshing) : it),
+        AsyncError(:final error, :final stackTrace, :final isLoading, :final hasValue, :final isRefreshing)
             when !hasValue || !skipError =>
-          AsyncValue<Output>.error(error, stackTrace).let((it) => isLoading ? it.toLoading() : it),
-        AsyncError(value: final data?, hasValue: true, isLoading: final isLoading) =>
-          AsyncValue<Output>.data(selector(data)).let((it) => isLoading ? it.toLoading() : it),
-        AsyncLoading(hasValue: true, value: final data?) when skipLoadingOnReload =>
-          AsyncValue<Output>.data(selector(data)),
-        AsyncLoading(hasValue: true, value: final data?) => AsyncValue<Output>.data(selector(data)).toLoading(),
+          AsyncValue<Output>.error(error, stackTrace).let((it) => isLoading ? it.toLoading(isRefreshing) : it),
+        AsyncError(value: final data?, hasValue: true, :final isLoading, :final isRefreshing) =>
+          AsyncValue<Output>.data(selector(data)).let((it) => isLoading ? it.toLoading(isRefreshing) : it),
+        AsyncLoading(hasValue: true, value: final data?) when skipLoadingOnReload => AsyncValue<Output>.data(
+          selector(data),
+        ),
+        AsyncLoading(hasValue: true, value: final data?, :final isRefreshing) => AsyncValue<Output>.data(
+          selector(data),
+        ).toLoading(isRefreshing),
         _ => AsyncValue<Output>.loading(),
       };
 

@@ -21,7 +21,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 part 'multipliers_card.freezed.dart';
@@ -60,7 +59,7 @@ class _Preview extends HookWidget {
     useAutomaticKeepAlive();
     return ProviderScope(
       overrides: [
-        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
+        _multipliersCardControllerProvider(_machineUUID).overrideWith(_PreviewController.new),
       ],
       child: isCard
           ? const MultipliersCard(machineUUID: _machineUUID)
@@ -112,8 +111,8 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AsyncGuard(
-      debugLabel: 'MultipliersSlidersOrTexts-$machineUUID',
-      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      // debugLabel: 'MultipliersSlidersOrTexts-$machineUUID',
+      toGuard: _multipliersCardControllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _MultipliersSlidersOrTextsLoading(),
       childOnData: _Body(
         machineUUID: machineUUID,
@@ -132,10 +131,10 @@ class _Body extends HookConsumerWidget {
     talker.info('Building MultipliersBody for $machineUUID');
 
     var inputLocked = useState(true);
-    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    var controller = ref.watch(_multipliersCardControllerProvider(machineUUID).notifier);
 
     var model =
-        ref.watch(_controllerProvider(machineUUID).requireValue());
+        ref.watch(_multipliersCardControllerProvider(machineUUID).requireValue());
 
     var canEdit = model.klippyCanReceiveCommands && !inputLocked.value;
 
@@ -203,32 +202,25 @@ class _Body extends HookConsumerWidget {
 }
 
 @riverpod
-class _Controller extends _$Controller {
+class _MultipliersCardController extends _$MultipliersCardController {
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
-    );
-    var extruder = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((value) => value.extruder),
-    );
-    var gCodeMove = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((value) => value.gCodeMove),
-    );
+    final klippyAsync = ref.watch(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
+    final extruderAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.extruder));
+    final gCodeMoveAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.gCodeMove));
 
-    yield* Rx.combineLatest3(
-      klippyCanReceiveCommands,
-      extruder,
-      gCodeMove,
-      (a, b, c) => _Model(
-        klippyCanReceiveCommands: a,
-        speedFactor: c.speedFactor,
-        extrudeFactor: c.extrudeFactor,
-        pressureAdvance: b?.pressureAdvance,
-        smoothTime: b?.smoothTime,
-      ),
+    final klippyCanReceiveCommands = klippyAsync.requireValue;
+    final extruder = extruderAsync.requireValue;
+    final gCodeMove = gCodeMoveAsync.requireValue;
+
+    return _Model(
+      klippyCanReceiveCommands: klippyCanReceiveCommands,
+      speedFactor: gCodeMove.speedFactor,
+      extrudeFactor: gCodeMove.extrudeFactor,
+      pressureAdvance: extruder?.pressureAdvance,
+      smoothTime: extruder?.smoothTime,
     );
   }
 
@@ -252,18 +244,19 @@ class _Controller extends _$Controller {
 }
 
 @riverpod
-class _PreviewController extends _Controller {
+class _PreviewController extends _MultipliersCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    const model = _Model(
       klippyCanReceiveCommands: true,
       speedFactor: 1.25,
       extrudeFactor: 0.98,
       pressureAdvance: 0.65,
       smoothTime: 0.069,
-    ));
+    );
+    state = const AsyncValue.data(model);
 
-    return const Stream.empty();
+    return model;
   }
 
   @override
