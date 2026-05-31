@@ -111,6 +111,7 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
           // leading: arguments.leading,
           // horizontalTitleGap: 8,
           title: arguments.title,
+          subtitle: arguments.subtitle,
         ),
         if (arguments.showSearch) ...[
           Padding(
@@ -139,7 +140,7 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize {
-    return Size.fromHeight(kToolbarHeight + (arguments.showSearch ? 62 : 0));
+    return Size.fromHeight(kToolbarHeight + (arguments.showSearch ? 62 : 0) + (arguments.subtitle != null ? 15 : 0));
   }
 }
 
@@ -256,6 +257,7 @@ class _Entry<T> extends HookWidget {
           // leading: Icon(option.icon),
           leading: option.leading,
           trailing: option.trailing,
+          titleAlignment: option.titleAlignment,
           horizontalTitleGap: option.horizontalTitleGap,
           title: Text(option.label, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: option.subtitle != null ? Text(option.subtitle!) : null,
@@ -284,9 +286,10 @@ class _Entry<T> extends HookWidget {
 
 @immutable
 class SelectionBottomSheetArgs<T> {
-  const SelectionBottomSheetArgs({this.title, required this.options, this.showSearch = true, this.multiSelect = false});
+  const SelectionBottomSheetArgs({this.title, this.subtitle, required this.options, this.showSearch = true, this.multiSelect = false});
 
   final Widget? title;
+  final Widget? subtitle;
   final FutureOr<List<SelectionOption<T>>> options;
   final bool showSearch;
   final bool multiSelect;
@@ -331,6 +334,7 @@ class SelectionOption<T> {
     this.enabled = true,
     this.selected = false,
     this.horizontalTitleGap = 0,
+    this.titleAlignment
   });
 
   final T value;
@@ -341,6 +345,7 @@ class SelectionOption<T> {
   final bool enabled;
   final bool selected;
   final double horizontalTitleGap;
+  final ListTileTitleAlignment? titleAlignment;
 
   @override
   bool operator ==(Object other) =>
@@ -353,8 +358,9 @@ class SelectionOption<T> {
           (identical(trailing, other.trailing) || trailing == other.trailing) &&
           (identical(enabled, other.enabled) || enabled == other.enabled) &&
           (identical(horizontalTitleGap, other.horizontalTitleGap) || horizontalTitleGap == other.horizontalTitleGap) &&
+          (identical(titleAlignment, other.titleAlignment) || titleAlignment == other.titleAlignment) &&
           (identical(selected, other.selected) || selected == other.selected);
 
   @override
-  int get hashCode => Object.hash(value, label, subtitle, leading, trailing, enabled, selected, horizontalTitleGap);
+  int get hashCode => Object.hash(value, label, subtitle, leading, trailing, enabled, selected, horizontalTitleGap, titleAlignment);
 }

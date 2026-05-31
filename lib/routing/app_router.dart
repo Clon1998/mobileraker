@@ -97,6 +97,7 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
   fileManager_exlorer_imageViewer,
+  fileManager_fleetPrint,
 }
 
 @riverpod
@@ -240,6 +241,12 @@ GoRouter goRouterImpl(Ref ref) {
             path: 'image-viewer',
             name: AppRoute.fileManager_exlorer_imageViewer.name,
             builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'fleet-print',
+            name: AppRoute.fileManager_fleetPrint.name,
+            builder: (context, state) => FleetPrintPage(args: state.extra! as FleetPrintArgs),
+            pageBuilder: GoTransitions.fullscreenDialog,
           ),
         ],
       ),

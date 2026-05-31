@@ -306,6 +306,22 @@ pages:
       preheat: Preheat
       enqueue: Add to Print Queue
       preview: Preview
+      fleet_print: Fleet Print
+    fleet_print:
+      title: Fleet Print
+      select_hint: Select target printers to send this file to and start printing.
+      start_btn: Start Fleet Print
+      downloading: Downloading from {name}
+      uploading: Uploading
+      print_started: Print started
+      failed: Failed
+      summary_success: "Fleet print complete — {success} of {total} printers started."
+      summary_partial: "Fleet print complete — {success} of {total} printers started. {failed} failed."
+      done: Done
+      no_machines: No other printers available to send the file to.
+      source_printer: This printer
+      checking: Checking…
+      pick_source_printer: Pick source printer
     file_operation:
       download_canceled:
         title: Download canceled
@@ -1163,6 +1179,7 @@ components:
     custom_dashboard: Sorry, customizing the dashboard is only available to Supporters.
     full_file_management: Sorry, full file management (Download, Upload…) is only
       available to Supporters.
+    fleet_print: Sorry, Fleet Print is only available to Supporters.
     gcode_preview: Sorry, GCode preview is only available to Supporters.
     graph_page: Sorry, the Temperature-History page is only available to Supporters.
     snapshot_webcam: Sorry, notification snapshots are only available to Supporters.

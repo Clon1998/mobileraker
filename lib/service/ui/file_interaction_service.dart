@@ -19,6 +19,7 @@ import 'package:common/data/model/file_operation.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -44,6 +45,7 @@ import '../../routing/app_router.dart';
 import '../../ui/components/bottomsheet/action_bottom_sheet.dart';
 import '../../ui/components/dialog/text_input/text_input_dialog.dart';
 import '../../ui/screens/files/components/remote_file_icon.dart';
+import '../../ui/screens/files/fleet_print/fleet_print_controller.dart';
 import 'bottom_sheet_service_impl.dart';
 import 'dialog_service_impl.dart';
 
@@ -119,10 +121,10 @@ class FileInteractionService {
   ]) async* {
     final printer = _ref.read(printerProvider(_machineUUID)).value;
     final canStartPrint =
-        printer != null &&
-        printer.print.state != PrintState.printing &&
-        printer.print.state != PrintState.paused;
+        printer != null && printer.print.state != PrintState.printing && printer.print.state != PrintState.paused;
     final klippyReady = _ref.read(klipperProvider(_machineUUID)).value?.klippyCanReceiveCommands == true;
+    final allMachines = await _ref.read(allMachinesProvider.future);
+    final otherMachineCount = allMachines.where((m) => m.uuid != _machineUUID).length;
 
     final arg = ActionBottomSheetArgs(
       title: Tooltip(
@@ -151,7 +153,7 @@ class FileInteractionService {
           },
         ),
       ),
-      actions: _getFileActions(file, canStartPrint, klippyReady),
+      actions: _getFileActions(file, canStartPrint, klippyReady, otherMachineCount),
     );
 
     talker.info('[FileInteractionService($_machineUUID)] showing file action menu for ${file.name}');
@@ -464,6 +466,37 @@ class FileInteractionService {
     _goRouter.goNamed(AppRoute.dashBoard.name);
   }
 
+  Stream<FileInteractionMenuEvent> fleetPrintAction(GCodeFile file) async* {
+    if (!_isSupporter) {
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('components.supporter_only_feature.dialog_title'),
+          message: tr('components.supporter_only_feature.fleet_print'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
+    final allMachines = await _ref.read(allMachinesProvider.future);
+    final sourceMachine = allMachines.firstWhere((m) => m.uuid == _machineUUID);
+    final otherMachines = allMachines.where((m) => m.uuid != _machineUUID).toList();
+
+    if (otherMachines.isEmpty) {
+      _snackBarService.show(
+        SnackBarConfig(type: SnackbarType.warning, message: tr('pages.files.fleet_print.no_machines')),
+      );
+      return;
+    }
+
+    _goRouter.pushNamed(
+      AppRoute.fileManager_fleetPrint.name,
+      pathParameters: {'path': file.parentPath.split('/').first},
+      extra: FleetPrintArgs(sourceMachineUUID: _machineUUID, sourceMachineName: sourceMachine.name, file: file),
+    );
+  }
+
   Stream<FileInteractionMenuEvent> downloadFileAction(List<RemoteFile> files, Rect origin) async* {
     if (!_isSupporter) {
       _snackBarService.show(
@@ -740,7 +773,12 @@ class FileInteractionService {
 
   //////////////////// MISC ////////////////////
 
-  List<BottomSheetAction> _getFileActions(RemoteFile file, bool canStartPrint, bool klippyReady) {
+  List<BottomSheetAction> _getFileActions(
+    RemoteFile file,
+    bool canStartPrint,
+    bool klippyReady,
+    int otherMachineCount,
+  ) {
     final actions = <BottomSheetAction>[];
 
     if (file is GCodeFile) {
@@ -751,13 +789,13 @@ class FileInteractionService {
         ),
         GcodeFileSheetAction.preview,
         GcodeFileSheetAction.addToQueue,
+        if (otherMachineCount > 0) GcodeFileSheetAction.fleetPrint,
         DividerSheetAction.divider,
       ]);
     }
 
     actions.addAll([
-      if (!file.isArchive)
-      FileSheetAction.zipFile,
+      if (!file.isArchive) FileSheetAction.zipFile,
       FileSheetAction.download,
       DividerSheetAction.divider,
       FileSheetAction.rename,
@@ -795,6 +833,9 @@ class FileInteractionService {
           break;
         case GcodeFileSheetAction.submitPrintJob when file is GCodeFile:
           yield* submitJobAction(file);
+          break;
+        case GcodeFileSheetAction.fleetPrint when file is GCodeFile:
+          yield* fleetPrintAction(file);
           break;
         case FileSheetAction.download:
           yield* downloadFileAction([file], origin);

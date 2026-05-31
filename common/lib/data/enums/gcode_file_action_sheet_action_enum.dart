@@ -14,6 +14,7 @@ enum GcodeFileSheetAction with BottomSheetAction {
   preheat('pages.files.gcode_file_actions.preheat', MobilerakerIcons.nozzle_heat),
   addToQueue('pages.files.gcode_file_actions.enqueue', Icons.queue),
   preview('pages.files.gcode_file_actions.preview', Icons.layers),
+  fleetPrint('pages.files.gcode_file_actions.fleet_print', Icons.device_hub),
   ;
 
   const GcodeFileSheetAction(this.labelTranslationKey, this.icon);

@@ -4,6 +4,10 @@
 
 ### Enhancements
 
+- **Fleet Printing**: Added a new "Fleet Printing" option, that allows users to send a print job from one machine to
+  multiple machines at once! This can be done via the file manager on one "Source" machine.
+
+  *Note: This feature is available exclusively for "Supporters".*
 - **Print Error Reset**: Added a reset button to the Machine Status Card on the dashboard when a print is in an error
   state, making it consistent with the overview page.
 
