@@ -28,6 +28,8 @@ import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dar
 import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
+import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_controller.dart';
+import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/gcode_preview/gcode_preview_page.dart';
 import 'package:mobileraker/ui/screens/graph/graph_page.dart';
