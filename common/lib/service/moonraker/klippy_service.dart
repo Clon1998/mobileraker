@@ -70,7 +70,14 @@ class Klipper extends _$Klipper {
       return KlipperInstance(
         moonrakerVersion: MoonrakerVersion.fallback(),
         klippyConnected: false,
-        klippyState: clientState == ClientState.error ? KlipperState.error : KlipperState.disconnected,
+        // 'connecting' is a transient state — the WebSocket handshake is in progress.
+        // Mapping it to 'startup' avoids triggering the KlippyProviderGuard error
+        // screen on cold boot before we know whether the connection will succeed.
+        klippyState: switch (clientState) {
+          ClientState.error => KlipperState.error,
+          ClientState.connecting => KlipperState.startup,
+          _ => KlipperState.disconnected,
+        },
       );
     }
 
