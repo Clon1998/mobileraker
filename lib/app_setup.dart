@@ -13,6 +13,7 @@ import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
+import 'package:common/data/model/hive/folder_cache_entry.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
@@ -109,6 +110,31 @@ setupBoxes() async {
     Hive.registerAdapter(dctAdapter);
   }
 
+  var folderCacheEntryAdapter = FolderCacheEntryAdapter();
+  if (!Hive.isAdapterRegistered(folderCacheEntryAdapter.typeId)) {
+    Hive.registerAdapter(folderCacheEntryAdapter);
+  }
+
+  var cachedFolderAdapter = CachedFolderAdapter();
+  if (!Hive.isAdapterRegistered(cachedFolderAdapter.typeId)) {
+    Hive.registerAdapter(cachedFolderAdapter);
+  }
+
+  var cachedGCodeFileAdapter = CachedGCodeFileAdapter();
+  if (!Hive.isAdapterRegistered(cachedGCodeFileAdapter.typeId)) {
+    Hive.registerAdapter(cachedGCodeFileAdapter);
+  }
+
+  var cachedGenericFileAdapter = CachedGenericFileAdapter();
+  if (!Hive.isAdapterRegistered(cachedGenericFileAdapter.typeId)) {
+    Hive.registerAdapter(cachedGenericFileAdapter);
+  }
+
+  var cachedGCodeThumbnailAdapter = CachedGCodeThumbnailAdapter();
+  if (!Hive.isAdapterRegistered(cachedGCodeThumbnailAdapter.typeId)) {
+    Hive.registerAdapter(cachedGCodeThumbnailAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   await openBoxes();
@@ -163,6 +189,7 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
       Hive.openBox('settingsbox'),
       Hive.openBox<Notification>('notifications'),
       Hive.openBox<DashboardLayout>('dashboard_layouts'),
+      Hive.openBox<FolderCacheEntry>('fileContentCache'),
       // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
     ]);
   } catch (e, s) {
@@ -202,6 +229,7 @@ Future<void> deleteBoxes() {
     Hive.deleteBoxFromDisk('settingsbox'),
     Hive.deleteBoxFromDisk('notifications'),
     Hive.deleteBoxFromDisk('dashboard_layouts'),
+    Hive.deleteBoxFromDisk('fileContentCache'),
     // Hive.deleteBoxFromDisk('octo')
   ]);
 }

@@ -15,6 +15,7 @@ import 'package:common/data/dto/files/moonraker/file_roots.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/enums/file_action_enum.dart';
+import 'package:common/data/model/hive/folder_cache_entry.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/network/dio_provider.dart';
@@ -26,6 +27,7 @@ import 'package:common/util/path_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hooks_riverpod/experimental/persist.dart';
 import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -184,26 +186,41 @@ FileService fileServiceSelected(Ref ref) {
   return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
+@Riverpod(keepAlive: true)
+HiveFolderCacheStorage folderCacheStorage(Ref ref) => HiveFolderCacheStorage();
 
 @riverpod
-Future<FolderContentWrapper> directoryInfoApiResponse(Ref ref, String machineUUID, String path) async {
-  ref.keepAliveFor();
-  // Invalidation of the cache is done by the fileNotificationsProvider
-  ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
+class DirectoryInfoApiResponse extends _$DirectoryInfoApiResponse {
+  @override
+  Future<FolderContentWrapper> build(String machineUUID, String path) async {
+    ref.keepAliveFor();
+    ref.listen(
+      fileNotificationsProvider(machineUUID, path),
+      (prev, next) => next.whenData((_) => ref.invalidateSelf()),
+    );
 
-  final fetchDirectoryInfo = await ref.watch(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
-  return fetchDirectoryInfo;
+    // Auto-saves state to Hive on every state change; synchronously sets
+    // state to AsyncLoading(value: cached) on first build if valid cache exists.
+    persist(
+      ref.watch(folderCacheStorageProvider),
+      key: '$machineUUID:$path',
+      encode: FolderCacheEntry.fromFolderContentWrapper,
+      decode: (entry) => entry.toFolderContentWrapper(),
+      options: const StorageOptions(cacheTime: StorageCacheTime(Duration(days: 3))),
+    );
+
+    return ref.read(fileServiceProvider(machineUUID)).fetchDirectoryInfo(path, true);
+  }
 }
 
 @riverpod
-Future<FolderContentWrapper> moonrakerFolderContent(
-    Ref ref, String machineUUID, String path, SortConfiguration sortConfig) async {
+FutureOr<FolderContentWrapper> moonrakerFolderContent(
+    Ref ref, String machineUUID, String path, SortConfiguration sortConfig) {
   ref.keepAliveFor();
   ref.listen(fileNotificationsProvider(machineUUID, path), (prev, next) => next.whenData((d) => ref.invalidateSelf()));
   final hideBackupFiles = ref.watch(boolSettingProvider(AppSettingKeys.hideBackupFiles));
   final showHiddenFiles = ref.watch(boolSettingProvider(AppSettingKeys.showHiddenFiles));
-  // await Future.delayed(const Duration(milliseconds: 5000));
-  final apiResponse = await ref.watch(directoryInfoApiResponseProvider(machineUUID, path).future);
+  final FolderContentWrapper apiResponse = ref.watch(directoryInfoApiResponseProvider(machineUUID, path)).requireValue;
 
   filterHiddenFiles(RemoteFile file) => showHiddenFiles || !file.name.startsWith('.');
   filterBackUpFiles(RemoteFile file) {
