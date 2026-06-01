@@ -516,6 +516,15 @@ pages:
     developer:
       title: Entwickler
       crashlytics: Crashlytics-Berichterstattung aktivieren
+      reset_fcm_token:
+        title: Benachrichtigungs-Token zurücksetzen
+        subtitle: Behebt Benachrichtigungen von verkauften Druckern.
+        confirm_title: Benachrichtigungs-Token zurücksetzen?
+        confirm_body: "Dadurch wird der Push-Benachrichtigungs-Token dieses Geräts gelöscht und ein neuer bei Firebase angefordert. Alle deine Drucker werden automatisch aktualisiert.\n\nVerwende diese Funktion, wenn du Benachrichtigungen von einem verkauften oder übertragenen Drucker erhältst – der vorherige Besitzer hat das Gerät möglicherweise nicht vollständig zurückgesetzt."
+        confirm_action: Zurücksetzen
+        success_title: Token zurückgesetzt
+        success: Benachrichtigungs-Token erfolgreich zurückgesetzt.
+        cooldown: Wieder verfügbar in {} Stunden.
     imprint: Privatsphäre/Impressum
     ump_dialog: Datenschutz & Einwilligung
   printer_edit:
