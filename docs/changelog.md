@@ -1,5 +1,20 @@
 # Mobileraker - Changelog
 
+## [2.9.11] - 2026-06-xx
+
+### Enhancements
+
+- **File Manager – Folder Caching**: The file manager now caches folder contents locally, so previously visited folders
+  load instantly without waiting for a full network fetch each time.
+
+- **Reset Notification Token**: Added a "Reset Notification Token" option in the developer settings. Use this if you
+  receive notifications from a printer you no longer own (e.g. after selling a machine without a full wipe).
+
+### Bug Fixes
+
+- **Klippy Connecting State**: Fixed an issue where Klippy could stall in the "connecting" state and never transition
+  to ready, requiring a manual app restart to recover.
+
 ## [2.9.10] - 2026-05-31
 
 ### Enhancements
