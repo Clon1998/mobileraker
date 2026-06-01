@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:common/data/enums/eta_data_source.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/machine/print_state_enum.dart';
@@ -216,6 +215,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   machineOrdering('machineOrdering'),
   lastLocale('lastLocale', 'en'),
   fcmTokenHistory('fcmTokenHistory', <String>[]),
+  fcmTokenLastReset('fcmTokenLastReset'),
   graphSettings('graphSettings'),
   machineLastSeen('machineLastSeen'),
   ;

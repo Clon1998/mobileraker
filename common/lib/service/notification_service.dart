@@ -174,6 +174,8 @@ class NotificationService {
 
   Future<String> requestFirebaseToken() async => _notifyFCM.requestFirebaseAppToken();
 
+  Future<bool> deleteFirebaseToken() async => _notifyFCM.deleteToken();
+
   Future<bool> _initialRequestPermission() async {
     bool notificationAllowed = await hasNotificationPermission();
     talker.info('Notifications are permitted: $notificationAllowed');

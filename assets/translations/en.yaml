@@ -549,6 +549,15 @@ pages:
     developer:
       title: Developer
       crashlytics: Enable Crashlytics reporting
+      reset_fcm_token:
+        title: Reset Notification Token
+        subtitle: Resolves stale notifications from sold machines.
+        confirm_title: Reset Notification Token?
+        confirm_body: "This will delete your device's push notification token and request a new one from Firebase. All your printers will be updated automatically.\n\nUse this if you are receiving notifications from a machine you sold or transferred and forgot to fully wiped."
+        confirm_action: Reset
+        success_title: Token Reset
+        success: Notification token reset successfully.
+        cooldown: Available again in {} hours.
     imprint: Privacy/Impressum
     ump_dialog: Privacy & Consent Settings
   printer_edit:

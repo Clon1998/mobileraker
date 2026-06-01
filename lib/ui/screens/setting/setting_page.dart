@@ -6,7 +6,10 @@ import 'dart:io';
 
 import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/service/misc_providers.dart';
+import 'package:common/service/notification_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -307,6 +310,7 @@ class _DeveloperSection extends ConsumerWidget {
           trailing: Icon(Icons.keyboard_arrow_right),
           onTap: () => context.goNamed(AppRoute.settings_data.name),
         ),
+        const _FcmTokenResetTile(),
         FormBuilderSwitch(
           name: 'crashalytics',
           title: const Text('pages.setting.developer.crashlytics').tr(),
@@ -317,7 +321,7 @@ class _DeveloperSection extends ConsumerWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-            minimumSize: Size.zero, // Set this
+            minimumSize: Size.zero,
             padding: EdgeInsets.zero,
             textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
           ),
@@ -327,6 +331,70 @@ class _DeveloperSection extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class _FcmTokenResetTile extends ConsumerStatefulWidget {
+  const _FcmTokenResetTile();
+
+  @override
+  ConsumerState<_FcmTokenResetTile> createState() => _FcmTokenResetTileState();
+}
+
+class _FcmTokenResetTileState extends ConsumerState<_FcmTokenResetTile> {
+  static const _cooldown = Duration(hours: 24);
+
+  DateTime? _lastReset;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastReset = ref.read(settingServiceProvider).read<DateTime?>(UtilityKeys.fcmTokenLastReset, null);
+  }
+
+  bool get _onCooldown {
+    if (_lastReset == null) return false;
+    return DateTime.now().difference(_lastReset!) < _cooldown;
+  }
+
+  int get _hoursRemaining {
+    final elapsed = DateTime.now().difference(_lastReset!);
+    return (_cooldown.inHours - elapsed.inHours).clamp(1, _cooldown.inHours);
+  }
+
+  Future<void> _onTap() async {
+    final res = await ref.read(dialogServiceProvider).showDangerConfirm(
+      title: tr('pages.setting.developer.reset_fcm_token.confirm_title'),
+      body: tr('pages.setting.developer.reset_fcm_token.confirm_body'),
+      actionLabel: tr('pages.setting.developer.reset_fcm_token.confirm_action'),
+    );
+    if (res?.confirmed != true) return;
+    await ref.read(notificationServiceProvider).deleteFirebaseToken();
+    final now = DateTime.now();
+    await ref.read(settingServiceProvider).write(UtilityKeys.fcmTokenLastReset, now);
+    if (!mounted) return;
+    setState(() => _lastReset = now);
+    ref.read(snackBarServiceProvider).show(SnackBarConfig(
+      title: tr('pages.setting.developer.reset_fcm_token.success_title'),
+      message: tr('pages.setting.developer.reset_fcm_token.success'),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final onCooldown = _onCooldown;
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      enabled: !onCooldown,
+      title: Text('pages.setting.developer.reset_fcm_token.title').tr(),
+      subtitle: Text(
+        onCooldown
+            ? tr('pages.setting.developer.reset_fcm_token.cooldown', args: ['$_hoursRemaining'])
+            : tr('pages.setting.developer.reset_fcm_token.subtitle'),
+      ),
+      onTap: onCooldown ? null : () => _onTap(),
     );
   }
 }
