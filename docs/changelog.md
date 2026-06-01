@@ -4,6 +4,10 @@
 
 ### Enhancements
 
+- **GCode Preview – Caching & Progress**: The GCode preview now caches parsed file data, so re-opening a previously
+  viewed file loads instantly from cache. A combined download/parse progress bar is also shown while loading a file for
+  the first time.
+
 - **File Manager – Folder Caching**: The file manager now caches folder contents locally, so previously visited folders
   load instantly without waiting for a full network fetch each time.
 
