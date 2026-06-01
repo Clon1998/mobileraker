@@ -230,7 +230,7 @@ class PaymentService {
 
             var supporterEntitlement = customerInfo.entitlements.active['Supporter']!;
             final settingKey =
-                CompositeKey.keyWithString(UtilityKeys.supporterTokenDate, customerInfo.originalAppUserId);
+                CompositeKey.keyWithString(UtilityKeys.supporterTokenDate, token);
 
             if (_settingService.containsKey(settingKey)) {
               Map<dynamic, dynamic> name = _settingService.read(settingKey, {});
@@ -251,11 +251,11 @@ class PaymentService {
                 DateTime.now().add(const Duration(days: 30));
 
             try {
-              var supporter = Supporter(fcmToken: token, expirationDate: dt);
+              var supporter = Supporter(fcmToken: token, accountId: customerInfo.originalAppUserId, expirationDate: dt);
               await _ref
                   .read(firestoreProvider)
                   .collection('sup')
-                  .doc(customerInfo.originalAppUserId)
+                  .doc(token)
                   .set(supporter.toFirebase());
               talker.info('Added fcmToken to fireStore... now writing it to local storage');
               _settingService.write(settingKey, supporter.toJson());
