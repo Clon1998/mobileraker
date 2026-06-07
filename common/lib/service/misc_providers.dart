@@ -4,10 +4,10 @@
  */
 
 import 'package:flutter/scheduler.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../util/logger.dart';
@@ -54,6 +54,15 @@ class AppLifecycle extends _$AppLifecycle {
   void update(AppLifecycleState appLifecycleState) {
     state = appLifecycleState;
   }
+}
+
+/// Exposes a [Stream] of [BoxEvent]s for a given Hive [boxName] and optional [key].
+/// If [key] is provided, only events for that key are emitted; otherwise all box events are emitted.
+/// This brings Hive box reactivity into the Riverpod graph.
+@riverpod
+Stream<BoxEvent> hiveBoxEvents(Ref ref, String boxName, [dynamic key]) {
+  final box = Hive.box(boxName);
+  return key != null ? box.watch(key: key) : box.watch();
 }
 
 @riverpod

@@ -11,7 +11,6 @@ import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/model_event.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -41,6 +40,7 @@ import '../network/jrpc_client_provider.dart';
 import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
 import 'firebase/remote_config.dart';
+import 'misc_providers.dart';
 import 'moonraker/klippy_service.dart';
 import 'moonraker/printer_service.dart';
 import 'octoeverywhere/app_connection_service.dart';
@@ -60,10 +60,16 @@ Future<Machine?> machine(Ref ref, String uuid) async {
   /// Using keepAliveFor ensures that the machineProvider remains active until all users of this provider are disposed.
   /// While ensuring that it eventually gets disposed.
   ref.keepAliveFor();
-  ref.onDispose(() => talker.error('machineProvider disposed $uuid'));
+
+  // React to Hive changes for this specific machine UUID. Uses invalidateSelf() (soft reload by default –
+  // keeps previous AsyncValue during rebuild) so downstream providers only see a value change, not a disposal.
+  ref.listen(hiveBoxEventsProvider('printers', uuid), (_, __) {
+    talker.info('machineProvider Hive event for $uuid – triggering soft reload');
+    ref.invalidateSelf();
+  });
 
   talker.info('machineProvider creation STARTED $uuid');
-  var machine = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
+  final machine = await ref.read(machineRepositoryProvider).get(uuid: uuid);
   talker.info('machineProvider creation DONE $uuid - returns null: ${machine == null}');
   return machine;
 }
@@ -227,11 +233,7 @@ class MachineService {
     : _machineRepo = ref.watch(machineRepositoryProvider),
       _selectedMachineService = ref.watch(selectedMachineServiceProvider),
       _settingService = ref.watch(settingServiceProvider),
-      _appConnectionService = ref.watch(appConnectionServiceProvider) {
-    // ref.listen(provider, listener)
-
-    ref.onDispose(dispose);
-  }
+      _appConnectionService = ref.watch(appConnectionServiceProvider);
 
   final Ref ref;
   final MachineHiveRepository _machineRepo;
@@ -241,22 +243,15 @@ class MachineService {
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
-  final StreamController<ModelEvent<Machine>> _machineEventStreamCtler = StreamController.broadcast();
-
-  Stream<ModelEvent<Machine>> get machineModelEvents => _machineEventStreamCtler.stream;
-
   Future<void> updateMachine(Machine machine) async {
     await _machineRepo.update(machine);
     talker.info('Updated machine: ${machine.logName}');
     ref.read(analyticsProvider).logEvent(name: 'updated_machine');
-    _machineEventStreamCtler.add(ModelEvent.update(machine, machine.uuid));
-    await ref.refresh(machineProvider(machine.uuid).future);
+    // machineProvider self-invalidates via hiveBoxEventsProvider when the Hive write above fires.
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
       selectedMachineService.selectMachine(machine, true);
     }
-
-    return;
   }
 
   Future<Machine> addMachine(Machine machine) async {
@@ -270,7 +265,6 @@ class MachineService {
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
 
     await ref.read(machineProvider(machine.uuid).future);
-    _machineEventStreamCtler.add(ModelEvent.insert(machine, machine.uuid));
 
     return machine;
   }
@@ -284,7 +278,6 @@ class MachineService {
     }
 
     await _machineRepo.remove(machine.uuid);
-    _machineEventStreamCtler.add(ModelEvent.delete(machine, machine.uuid));
     var firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'remove_machine');
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
@@ -648,9 +641,5 @@ class MachineService {
     readList.insert(newIndex, machine.uuid);
 
     _settingService.write(UtilityKeys.machineOrdering, readList);
-  }
-
-  Future<void> dispose() async {
-    await _machineEventStreamCtler.close();
   }
 }

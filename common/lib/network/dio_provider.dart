@@ -18,6 +18,7 @@ import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:hashlib/hashlib.dart';
 import 'package:hashlib_codecs/hashlib_codecs.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../exceptions/mobileraker_exception.dart';
@@ -48,49 +49,74 @@ Dio dioClient(Ref ref, String machineUUID) {
 
 @riverpod
 BaseOptions baseOptions(Ref ref, String machineUUID, ClientType clientType) {
-  var machine = ref.watch(machineProvider(machineUUID)).value;
+  // Select only the fields that affect connection options so that non-connection
+  // field changes (name, theme, dashboard layout) do not rebuild the HTTP/WS stack.
+  final connectionKey = ref.watch(machineProvider(machineUUID).select((m) {
+    final v = m.value;
+    if (v == null) return null;
+    return (
+      v.httpUri,
+      v.apiKey,
+      v.httpHeaders,
+      v.timeout,
+      v.trustUntrustedCertificate,
+      v.pinnedCertificateDERBase64,
+      v.octoEverywhere,
+      v.obicoTunnel,
+      v.remoteInterface,
+    );
+  }));
 
-  if (machine == null) {
+  if (connectionKey == null) {
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
-  var pinnedSha256Fp = machine.pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)));
+  final (httpUri, apiKey, httpHeaders, timeout, trustUntrustedCertificate,
+      pinnedCertificateDERBase64, octoEverywhere, obicoTunnel, remoteInterface) = connectionKey;
+
+  // Equivalent of machine.headerWithApiKey
+  final headerWithApiKey = {
+    ...httpHeaders,
+    if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!,
+  };
+
+  final pinnedSha256Fp = pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)));
 
   return switch (clientType) {
     ClientType.octo => BaseOptions(
         headers: {
-          ...machine.headerWithApiKey,
-          HttpHeaders.authorizationHeader: machine.octoEverywhere!.basicAuthorizationHeader
+          ...headerWithApiKey,
+          HttpHeaders.authorizationHeader: octoEverywhere!.basicAuthorizationHeader,
         },
-        baseUrl: machine.octoEverywhere!.url,
+        baseUrl: octoEverywhere!.url,
         connectTimeout: _thirdPartyRemoteConnectionTimeout,
         receiveTimeout: _thirdPartyRemoteConnectionTimeout,
       ),
     ClientType.obico => BaseOptions(
         headers: {
-          ...machine.headerWithApiKey,
-          HttpHeaders.authorizationHeader: machine.obicoTunnel!.basicAuth,
+          ...headerWithApiKey,
+          HttpHeaders.authorizationHeader: obicoTunnel!.basicAuth,
         },
-        baseUrl: machine.obicoTunnel!.removeUserInfo().toString(),
+        baseUrl: obicoTunnel!.removeUserInfo().toString(),
         connectTimeout: _thirdPartyRemoteConnectionTimeout,
         receiveTimeout: _thirdPartyRemoteConnectionTimeout,
       ),
     ClientType.manual => BaseOptions(
         headers: {
-          ...machine.headerWithApiKey,
-          ...machine.remoteInterface!.httpHeaders,
+          ...headerWithApiKey,
+          ...remoteInterface!.httpHeaders,
         },
-        baseUrl: machine.remoteInterface!.remoteUri.toString(),
-        connectTimeout: machine.remoteInterface!.timeoutDuration,
-        receiveTimeout: machine.remoteInterface!.timeoutDuration,
+        baseUrl: remoteInterface!.remoteUri.toString(),
+        connectTimeout: remoteInterface!.timeoutDuration,
+        receiveTimeout: remoteInterface!.timeoutDuration,
       ),
     ClientType.local || _ => BaseOptions(
-        baseUrl: machine.httpUri.toString(),
-        headers: machine.headerWithApiKey,
-        connectTimeout: Duration(seconds: machine.timeout),
-        receiveTimeout: Duration(seconds: machine.timeout),
+        baseUrl: httpUri.toString(),
+        headers: headerWithApiKey,
+        connectTimeout: Duration(seconds: timeout),
+        receiveTimeout: Duration(seconds: timeout),
       )
-        ..trustUntrustedCertificate = machine.trustUntrustedCertificate
+        ..trustUntrustedCertificate = trustUntrustedCertificate
         ..pinnedCertificateFingerPrint = pinnedSha256Fp
   }
     ..clientType = clientType;
