@@ -36,8 +36,6 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
     try {
       talker.info('Trying to update or add webcam ${webcamInfo.name} with uuid:"${webcamInfo.uid}".');
 
-      talker.warning('I AM JSON : --- ${webcamInfo.toJson()}');
-
       final response = await _rpcClient.sendJRpcMethod('server.webcams.post_item', params: webcamInfo.toJson());
       return WebcamInfo.fromJson(response.result['webcam']);
     } on JRpcError catch (e) {
