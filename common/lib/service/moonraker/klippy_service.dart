@@ -67,6 +67,24 @@ class Klipper extends _$Klipper {
     final clientState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
 
     if (clientState != ClientState.connected) {
+      // Hard WebSocket error — surface immediately so guards and UI can react.
+      if (clientState == ClientState.error) {
+        return KlipperInstance(
+          moonrakerVersion: MoonrakerVersion.fallback(),
+          klippyConnected: false,
+          klippyState: KlipperState.error,
+        );
+      }
+
+      // For transient states (connecting / disconnected) after a previously successful
+      // connection, stay loading instead of emitting a disconnected instance. Consumers
+      // that call requireValue will transparently see the last connected state, so no
+      // red-error flash occurs anywhere on the dashboard during brief reconnections.
+      // On cold boot (no previous connected state) we fall through to the normal return.
+      if (state.value?.klippyConnected == true) {
+        return Completer<KlipperInstance>().future;
+      }
+
       return KlipperInstance(
         moonrakerVersion: MoonrakerVersion.fallback(),
         klippyConnected: false,
@@ -74,7 +92,6 @@ class Klipper extends _$Klipper {
         // Mapping it to 'startup' avoids triggering the KlippyProviderGuard error
         // screen on cold boot before we know whether the connection will succeed.
         klippyState: switch (clientState) {
-          ClientState.error => KlipperState.error,
           ClientState.connecting => KlipperState.startup,
           _ => KlipperState.disconnected,
         },

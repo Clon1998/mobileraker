@@ -61,21 +61,28 @@ void main() {
         'log_file': '/home/pi/klipper.log',
       });
 
+  // [mutableClientState] is a single-element list used as a mutable box so that the
+  // override closure can return a different value after container creation. Pass it and
+  // update [mutableClientState][0] + invalidate jrpcClientStateProvider to simulate
+  // JRPC state transitions in reconnection tests. When omitted, a box seeded with
+  // [clientState] is created internally (static / one-shot tests).
   ProviderContainer makeContainer(
     MockJsonRpcClient mockRpc, {
     StreamController<Map<String, dynamic>>? klippyReadyCtrl,
     StreamController<Map<String, dynamic>>? klippyShutdownCtrl,
     StreamController<Map<String, dynamic>>? klippyDisconnectedCtrl,
     ClientState clientState = ClientState.connected,
+    List<ClientState>? mutableClientState,
   }) {
     when(mockRpc.identifyConnection(any, any)).thenAnswer((_) async {});
     when(mockRpc.clientType).thenReturn(ClientType.local);
     when(mockRpc.uri).thenReturn(Uri.parse('ws://localhost:7125/websocket'));
+    final stateRef = mutableClientState ?? [clientState];
     final container = ProviderContainer.test(
         retry: (_, _) => null,
         overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
-      jrpcClientStateProvider(uuid).overrideWith((ref) async => clientState),
+      jrpcClientStateProvider(uuid).overrideWith((ref) async => stateRef[0]),
       versionInfoProvider.overrideWith((ref) async => PackageInfo(
             appName: 'test',
             packageName: 'com.test',
@@ -92,6 +99,10 @@ void main() {
     ]);
     return container;
   }
+
+  // ---------------------------------------------------------------------------
+  // Cold-boot: static JRPC state
+  // ---------------------------------------------------------------------------
 
   test('returns disconnected instance when JRPC is not connected', () async {
     final mockRpc = MockJsonRpcClient();
@@ -112,6 +123,17 @@ void main() {
 
     expect(instance.klippyConnected, false);
     expect(instance.klippyState, KlipperState.error);
+    verifyNever(mockRpc.sendJRpcMethod(any));
+  });
+
+  test('returns startup instance when JRPC is connecting on cold boot', () async {
+    final mockRpc = MockJsonRpcClient();
+
+    final container = makeContainer(mockRpc, clientState: ClientState.connecting);
+    final instance = await container.read(klipperProvider(uuid).future);
+
+    expect(instance.klippyConnected, false);
+    expect(instance.klippyState, KlipperState.startup);
     verifyNever(mockRpc.sendJRpcMethod(any));
   });
 
@@ -376,5 +398,121 @@ void main() {
     container.invalidate(klipperProvider(uuid));
     await container.read(klipperProvider(uuid).future);
     expect(callCount, 2);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Reconnection behaviour — JRPC state changes after a successful connection
+  // ---------------------------------------------------------------------------
+  //
+  // After a machine has been connected once (klippyConnected: true), transient
+  // WebSocket drops must NOT flash a disconnected/error instance to consumers.
+  // Instead klipperProvider should stay loading (returning Completer.future) so
+  // that requireValue transparently surfaces the last good state. A hard
+  // ClientState.error is the only case that must surface immediately.
+
+  group('reconnection behaviour (previously connected)', () {
+    late MockJsonRpcClient mockRpc;
+    late List<ClientState> clientStateBox; // single-element mutable box
+    late ProviderContainer container;
+
+    setUp(() async {
+      mockRpc = MockJsonRpcClient();
+      clientStateBox = [ClientState.connected];
+
+      when(mockRpc.sendJRpcMethod('server.info')).thenAnswer((_) async => serverInfoResponse());
+      when(mockRpc.sendJRpcMethod('printer.info')).thenAnswer((_) async => printerInfoResponse());
+
+      container = makeContainer(mockRpc, mutableClientState: clientStateBox);
+      addTearDown(container.dispose);
+
+      // Keep the provider alive and wait for initial ready state.
+      final sub = container.listen(klipperProvider(uuid), (_, __) {});
+      addTearDown(sub.close);
+      await container.read(klipperProvider(uuid).future);
+
+      // Reset interaction log so reconnection tests start with a clean slate.
+      clearInteractions(mockRpc);
+    });
+
+    // Simulate a JRPC state transition and allow the Riverpod event loop to settle.
+    Future<void> changeClientState(ClientState next) async {
+      clientStateBox[0] = next;
+      container.invalidate(jrpcClientStateProvider(uuid));
+      await pumpEventQueue();
+    }
+
+    test('stays loading when JRPC becomes disconnected', () async {
+      await changeClientState(ClientState.disconnected);
+
+      final state = container.read(klipperProvider(uuid));
+      expect(state.isLoading, isTrue, reason: 'should stay loading, not emit disconnected');
+      expect(state.value?.klippyConnected, isTrue, reason: 'previous connected state preserved as loading previousValue');
+      verifyNever(mockRpc.sendJRpcMethod(any));
+    });
+
+    test('stays loading when JRPC becomes connecting', () async {
+      await changeClientState(ClientState.connecting);
+
+      final state = container.read(klipperProvider(uuid));
+      expect(state.isLoading, isTrue, reason: 'should stay loading, not emit startup');
+      expect(state.value?.klippyConnected, isTrue, reason: 'previous connected state preserved as loading previousValue');
+      verifyNever(mockRpc.sendJRpcMethod(any));
+    });
+
+    test('surfaces KlipperState.error immediately when JRPC enters error state', () async {
+      await changeClientState(ClientState.error);
+
+      final instance = await container.read(klipperProvider(uuid).future);
+      expect(instance.klippyConnected, isFalse);
+      expect(instance.klippyState, KlipperState.error);
+      verifyNever(mockRpc.sendJRpcMethod(any));
+    });
+
+    test('emits ready state after reconnecting following a transient disconnection', () async {
+      await changeClientState(ClientState.disconnected);
+      expect(container.read(klipperProvider(uuid)).isLoading, isTrue);
+
+      await changeClientState(ClientState.connected);
+
+      final instance = await container.read(klipperProvider(uuid).future);
+      expect(instance.klippyConnected, isTrue);
+      expect(instance.klippyState, KlipperState.ready);
+      // Full handshake (server.info + printer.info) must happen on reconnect.
+      verify(mockRpc.sendJRpcMethod('server.info')).called(1);
+      verify(mockRpc.sendJRpcMethod('printer.info')).called(1);
+    });
+
+    test('emits ready state after reconnecting following a transient connecting phase', () async {
+      await changeClientState(ClientState.connecting);
+      expect(container.read(klipperProvider(uuid)).isLoading, isTrue);
+
+      await changeClientState(ClientState.connected);
+
+      final instance = await container.read(klipperProvider(uuid).future);
+      expect(instance.klippyConnected, isTrue);
+      expect(instance.klippyState, KlipperState.ready);
+    });
+
+    test('never emits a disconnected data value during the full reconnection cycle', () async {
+      final emitted = <AsyncValue<KlipperInstance>>[];
+      final sub = container.listen(klipperProvider(uuid), (_, next) => emitted.add(next));
+      addTearDown(sub.close);
+
+      // Simulate: connected → disconnected → connecting → connected
+      await changeClientState(ClientState.disconnected);
+      await changeClientState(ClientState.connecting);
+      await changeClientState(ClientState.connected);
+      await container.read(klipperProvider(uuid).future); // wait for handshake
+
+      // No emission should carry klippyConnected=false as settled data.
+      final disconnectedData = emitted.where(
+        (v) => v is AsyncData<KlipperInstance> && v.value.klippyConnected == false,
+      );
+      expect(
+        disconnectedData,
+        isEmpty,
+        reason: 'klipperProvider must not emit a disconnected/startup data value during transient reconnection',
+      );
+    });
   });
 }
