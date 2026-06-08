@@ -16,8 +16,6 @@ enum WebcamServiceType {
   ipStream(false, false, false),
   @JsonValue('hlsstream')
   hlsStream(false, false, false),
-  @JsonValue('ipstream')
-  ipSream(false, false, false),
   @JsonValue('webrtc-camerastreamer')
   webRtcCamStreamer(true, true, false),
   @JsonValue('webrtc-go2rtc')
