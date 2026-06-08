@@ -125,6 +125,12 @@ class _Content extends ConsumerWidget {
                 colorForground: Colors.white,
               ),
               _Tile(
+                icon: Icons.device_hub,
+                perk: 'fleet_print_perk',
+                color: Colors.deepOrange,
+                colorForground: Colors.white,
+              ),
+              _Tile(
                 icon: Icons.support_agent,
                 perk: 'contact_perk',
                 color: Colors.pink,

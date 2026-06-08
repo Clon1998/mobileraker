@@ -887,6 +887,10 @@ pages:
         title: Spoolman-UI
         subtitle: Manage your filament spools with Spoolman
         detail: Keep perfect track of your filament inventory with integrated Spoolman support - monitor usage, costs, and remaining amounts for each spool while printing, making material management effortless.
+      fleet_print_perk:
+        title: Fleet Print
+        subtitle: Send a print job to multiple printers at once!
+        detail: Distribute a print job across your entire printer fleet with a single tap — perfect for print farms and multi-machine setups.
       advanced_perk:
         title: Advanced Controls
         short: Full capabilities
