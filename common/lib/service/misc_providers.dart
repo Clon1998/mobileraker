@@ -56,12 +56,11 @@ class AppLifecycle extends _$AppLifecycle {
   }
 }
 
-/// Exposes a [Stream] of [BoxEvent]s for a given Hive [boxName] and optional [key].
+/// Exposes a [Stream] of [BoxEvent]s for a given Hive [box] and optional [key].
 /// If [key] is provided, only events for that key are emitted; otherwise all box events are emitted.
 /// This brings Hive box reactivity into the Riverpod graph.
 @riverpod
-Stream<BoxEvent> hiveBoxEvents(Ref ref, String boxName, [dynamic key]) {
-  final box = Hive.box(boxName);
+Stream<BoxEvent> hiveBoxEvents(Ref ref, Box box, [dynamic key]) {
   return key != null ? box.watch(key: key) : box.watch();
 }
 

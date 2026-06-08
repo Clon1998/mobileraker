@@ -16,6 +16,10 @@
 
 ### Bug Fixes
 
+- **Printer Settings – No More Disconnect**: Saving printer settings (name, theme, remote connections, etc.) no longer
+  causes a brief disconnect and reconnect to the printer. The app now updates settings smoothly in the background
+  without interrupting the active connection.
+
 - **Klippy Connecting State**: Fixed an issue where Klippy could stall in the "connecting" state and never transition
   to ready, requiring a manual app restart to recover.
 

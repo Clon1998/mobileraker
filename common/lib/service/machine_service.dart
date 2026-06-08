@@ -25,6 +25,7 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
@@ -63,7 +64,8 @@ Future<Machine?> machine(Ref ref, String uuid) async {
 
   // React to Hive changes for this specific machine UUID. Uses invalidateSelf() (soft reload by default –
   // keeps previous AsyncValue during rebuild) so downstream providers only see a value change, not a disposal.
-  ref.listen(hiveBoxEventsProvider('printers', uuid), (_, __) {
+  final box = Hive.box<Machine>('printers');
+  ref.listen(hiveBoxEventsProvider(box), (_, __) {
     talker.info('machineProvider Hive event for $uuid – triggering soft reload');
     ref.invalidateSelf();
   });
@@ -89,12 +91,8 @@ class AllMachines extends _$AllMachines {
     final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
     talker.info('Received ordering $ordering');
 
-
     // We must ensure that all machines are loaded before we can apply the ordering, otherwise we might end up in a situation where a machine is not loaded yet and thus not included in the ordering and gets pushed to the end of the list even though it should be in the middle!
-    await Future.wait(
-      machines.map((e) => ref.read(machineProvider(e.uuid).future)),
-    );
-
+    await Future.wait(machines.map((e) => ref.read(machineProvider(e.uuid).future)));
 
     machines = machines.sorted((a, b) {
       final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
@@ -225,7 +223,6 @@ Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
   // If we have no printer data we can still safely fetch the settings from moonraker!
   yield await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
 }
-
 
 /// Service handling the management of a machine
 class MachineService {
