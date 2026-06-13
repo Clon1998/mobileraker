@@ -15,6 +15,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/bottomsheet/color_picker_sheet.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
@@ -306,7 +307,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   Future<void> filterColor() async {
     final res = await _bottomSheetService.show(BottomSheetConfig(
       type: SheetType.colorPicker,
-      data: state.color,
+      data: ColorPickerSheetArgs(initialColor: state.color),
     ));
 
     talker.info('[SpoolmanFilterChipsController($machineUUID) selected Color: $res');

@@ -469,6 +469,48 @@ pages:
       keep_screen_on: Keep Screen Awake
       keep_screen_on_hint: Prevent the screen from turning off while the app is active
     ui:
+      appearance:
+        title: Appearance
+        subtitle: Theme, brightness & custom themes
+        theme_section: Theme
+        custom_themes: Custom Themes
+        custom_themes_empty: No custom themes yet. Tap "New Theme" to create one.
+        custom_themes_supporter_only: Create fully custom themes with your own colors and logo.
+        new_theme: New Theme
+        edit_theme: Edit Theme
+        delete_theme_title: Delete Theme
+        delete_theme_body: Delete theme "{}"? This cannot be undone.
+        theme_identity: Identity
+        theme_name: Theme Name
+        theme_name_required: Please enter a theme name.
+        logo_light: Light Logo (SVG/PNG)
+        logo_dark: Dark Logo (optional)
+        light_theme: Light Theme Colors
+        dark_theme: Dark Theme Colors
+        separate_dark_theme: Separate Dark Theme
+        separate_dark_theme_hint: Define different colors for dark mode
+        primary_color: Primary Color
+        secondary_color: Secondary Color (optional)
+        tertiary_color: Tertiary Color (optional)
+        surface_color: Surface Color (optional)
+        primary_color_hint: Buttons, headers & key actions
+        secondary_color_hint: Chips, selections & secondary actions
+        tertiary_color_hint: Contrasting accents & highlights
+        surface_color_hint: Cards, dialogs & background areas
+        surface_background: Background
+        surface_foreground: Text
+        app_bar_color: App Bar Color (optional)
+        app_bar_color_hint: Header & top navigation background
+        logo_hint: "Recommended: square SVG or 512×512px PNG"
+        use_material3: Use Material 3
+        use_material3_hint: "When enabled, secondary & tertiary colors are seeded from the primary. Disable for full manual control."
+        font_family: Font
+        font_family_system: System Default
+        theme_preview: Preview
+        export_theme: Export theme
+        import_theme: Import theme
+        theme_imported: "Theme \"{}\" imported successfully"
+        theme_import_failed: Failed to import theme — invalid file
       machine_card_style:
         title: Overview - Machine Card Style
         default: Default

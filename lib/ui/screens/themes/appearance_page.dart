@@ -1,0 +1,304 @@
+/*
+ * Copyright (c) 2023-2026. Patrick Schmidt.
+ * All rights reserved.
+ */
+
+import 'dart:convert';
+
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/responsive_limit.dart';
+import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_svg_provider/flutter_svg_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
+import 'package:mobileraker_pro/custom_themes/service/custom_theme_service.dart';
+import 'package:mobileraker_pro/custom_themes/ui/components/custom_theme_list_tile.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../routing/app_router.dart';
+import '../setting/components/section_header.dart';
+
+class AppearancePage extends ConsumerWidget {
+  const AppearancePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('pages.setting.ui.appearance.title').tr()),
+      body: Center(
+        child: ResponsiveLimit(
+          child: CustomScrollView(
+            slivers: [
+              const SliverPadding(
+                padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
+                sliver: SliverToBoxAdapter(child: _ThemeSection()),
+              ),
+              const SliverPadding(
+                padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                sliver: SliverToBoxAdapter(child: _CustomThemesSectionHeader()),
+              ),
+              const _CustomThemesSliverContent(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeSection extends ConsumerWidget {
+  const _ThemeSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        SectionHeader(title: 'pages.setting.ui.appearance.theme_section'.tr()),
+        const _ThemeSelector(),
+        const _ThemeModeSelector(),
+      ],
+    );
+  }
+}
+
+class _ThemeSelector extends ConsumerWidget {
+  const _ThemeSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeService = ref.watch(themeServiceProvider);
+    var themePackList = themeService.themePacks;
+
+    final systemThemeIdx = ref.read(intSettingProvider(AppSettingKeys.themePack)).clamp(0, themePackList.length - 1);
+    final currentSystemThemePack = themePackList.elementAtOrNull(systemThemeIdx) ?? themePackList.firstOrNull;
+    if (currentSystemThemePack == null) return const SizedBox.shrink();
+
+    var activeTheme = ref.read(activeThemeProvider).value!;
+    var usesSystemTheme = currentSystemThemePack == activeTheme.themePack;
+
+    final themeData = Theme.of(context);
+    return FormBuilderDropdown<ThemePack>(
+      initialValue: currentSystemThemePack,
+      name: 'theme',
+      items: themePackList.map((theme) {
+        final brandingIcon = themeData.brightness == Brightness.light ? theme.brandingIcon : theme.brandingIconDark;
+        return DropdownMenuItem(
+          value: theme,
+          child: Row(
+            spacing: 8,
+            children: [
+              Image(
+                height: 32,
+                width: 32,
+                image: brandingIcon ?? Svg('assets/vector/mr_logo.svg'),
+                semanticLabel: theme.name,
+              ),
+              Flexible(child: Text(theme.name)),
+            ],
+          ),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+        labelStyle: themeData.textTheme.labelLarge,
+        labelText: 'pages.setting.general.system_theme'.tr(),
+        helperText: usesSystemTheme ? null : 'pages.setting.general.printer_theme_warning'.tr(),
+        helperMaxLines: 3,
+      ),
+      onChanged: (ThemePack? themePack) {
+        if (themePack == null) return;
+        if (usesSystemTheme) {
+          themeService.selectThemePack(themePack);
+        } else {
+          themeService.updateSystemThemePack(themePack);
+        }
+      },
+    );
+  }
+}
+
+class _ThemeModeSelector extends ConsumerWidget {
+  const _ThemeModeSelector();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeService = ref.watch(themeServiceProvider);
+
+    return FormBuilderDropdown<ThemeMode>(
+      initialValue: ref.watch(activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode)),
+      name: 'themeMode',
+      items: [
+        for (final mode in ThemeMode.values)
+          DropdownMenuItem(
+            value: mode,
+            child: const Text('theme_mode').tr(gender: mode.name),
+          ),
+      ],
+      decoration: InputDecoration(
+        labelStyle: Theme.of(context).textTheme.labelLarge,
+        labelText: 'pages.setting.general.system_theme_mode'.tr(),
+      ),
+      onChanged: (ThemeMode? themeMode) => themeService.selectThemeMode(themeMode ?? ThemeMode.system),
+    );
+  }
+}
+
+// Header row: "Custom Themes" title + optional "Import" and "New" buttons
+class _CustomThemesSectionHeader extends ConsumerWidget {
+  const _CustomThemesSectionHeader();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isSupporter = ref.watch(isSupporterProvider);
+    return Row(
+      children: [
+        Expanded(child: SectionHeader(title: 'pages.setting.ui.appearance.custom_themes'.tr())),
+        if (isSupporter) ...[
+          IconButton(
+            icon: const Icon(Icons.file_download_outlined),
+            tooltip: 'pages.setting.ui.appearance.import_theme'.tr(),
+            onPressed: () => _importTheme(context, ref),
+          ),
+          TextButton.icon(
+            icon: const Icon(Icons.add),
+            label: const Text('pages.setting.ui.appearance.new_theme').tr(),
+            onPressed: () => context.pushNamed(AppRoute.settings_appearance_customThemeNew.name),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _importTheme(BuildContext context, WidgetRef ref) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      withReadStream: true,
+      withData: false,
+    );
+    if (result == null) return;
+    try {
+      final content = await utf8.decodeStream(result.files.first.readStream!);
+      final json = jsonDecode(content) as Map<String, dynamic>;
+      final pack = CustomThemePack.fromJson(json).copyWith(uuid: const Uuid().v4());
+      await ref.read(customThemeServiceProvider).save(pack);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('pages.setting.ui.appearance.theme_imported'.tr(args: [pack.name]))),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('pages.setting.ui.appearance.theme_import_failed'.tr())),
+        );
+      }
+    }
+  }
+}
+
+// Returns a sliver — either SliverFillRemaining (empty/gate) or SliverList (packs)
+class _CustomThemesSliverContent extends ConsumerWidget {
+  const _CustomThemesSliverContent();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isSupporter = ref.watch(isSupporterProvider);
+
+    if (!isSupporter) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: SupporterOnlyFeature(
+              text: const Text('pages.setting.ui.appearance.custom_themes_supporter_only').tr(),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final customPacks = ref.watch(customThemePacksProvider);
+
+    return customPacks.when(
+      loading: () => const SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) => SliverToBoxAdapter(child: Text('Error: $e')),
+      data: (packs) {
+        if (packs.isEmpty) {
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 8,
+                children: [
+                  Icon(Icons.palette_outlined, size: 56, color: Theme.of(context).colorScheme.outlineVariant),
+                  Text(
+                    'pages.setting.ui.appearance.custom_themes_empty'.tr(),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return SliverPadding(
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
+          sliver: SliverList.separated(
+            itemCount: packs.length,
+            itemBuilder: (ctx, i) => CustomThemeListTile(
+              key: ValueKey(packs[i].uuid),
+              pack: packs[i],
+              onEdit: () => ctx.pushNamed(
+                AppRoute.settings_appearance_customThemeEdit.name,
+                extra: packs[i],
+              ),
+              onDelete: () => _confirmDelete(ctx, ref, packs[i]),
+            ),
+            separatorBuilder: (_, _) => const SizedBox(height: 6),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, CustomThemePack pack) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('pages.setting.ui.appearance.delete_theme_title').tr(),
+        content: Text('pages.setting.ui.appearance.delete_theme_body'.tr(args: [pack.name])),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('general.cancel').tr(),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('general.delete').tr(),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(customThemeServiceProvider).delete(pack);
+    }
+  }
+}
