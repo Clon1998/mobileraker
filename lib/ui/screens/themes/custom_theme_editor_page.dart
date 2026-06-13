@@ -101,9 +101,9 @@ class CustomThemeEditorPage extends HookConsumerWidget {
     Future<void> save() async {
       final name = nameController.text.trim();
       if (name.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('pages.setting.ui.appearance.theme_name_required'.tr())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('pages.setting.ui.appearance.theme_name_required'.tr())));
         return;
       }
 
@@ -194,10 +194,12 @@ class CustomThemeEditorPage extends HookConsumerWidget {
       final safeName = pack.name.replaceAll(RegExp(r'[^\w\s-]'), '').replaceAll(' ', '_');
       final file = File('${tmpDir.path}/mobileraker_theme_$safeName.json');
       await file.writeAsString(json);
-      await SharePlus.instance.share(ShareParams(
-        files: [XFile(file.path, mimeType: 'application/json')],
-        subject: 'Mobileraker Theme: ${pack.name}',
-      ));
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: 'application/json')],
+          subject: 'Mobileraker Theme: ${pack.name}',
+        ),
+      );
     }
 
     Future<void> delete() async {
@@ -208,10 +210,8 @@ class CustomThemeEditorPage extends HookConsumerWidget {
           title: const Text('pages.setting.ui.appearance.delete_theme_title').tr(),
           content: Text('pages.setting.ui.appearance.delete_theme_body'.tr(args: [nameController.text])),
           actions: [
-            TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false), child: const Text('general.cancel').tr()),
-            TextButton(
-                onPressed: () => Navigator.of(ctx).pop(true), child: const Text('general.delete').tr()),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('general.cancel').tr()),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('general.delete').tr()),
           ],
         ),
       );
@@ -261,15 +261,16 @@ class CustomThemeEditorPage extends HookConsumerWidget {
       data: editorTheme,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_isEditMode
-              ? 'pages.setting.ui.appearance.edit_theme'.tr()
-              : 'pages.setting.ui.appearance.new_theme'.tr()),
+          title: Text(
+            _isEditMode ? 'pages.setting.ui.appearance.edit_theme'.tr() : 'pages.setting.ui.appearance.new_theme'.tr(),
+          ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.ios_share_outlined),
-              tooltip: 'pages.setting.ui.appearance.export_theme'.tr(),
-              onPressed: () => exportTheme(),
-            ),
+            if (_isEditMode)
+              IconButton(
+                icon: const Icon(Icons.ios_share_outlined),
+                tooltip: 'pages.setting.ui.appearance.export_theme'.tr(),
+                onPressed: () => exportTheme(),
+              ),
             if (_isEditMode)
               IconButton(
                 icon: const Icon(Icons.delete_outline),
@@ -413,6 +414,7 @@ class _IdentitySection extends StatelessWidget {
   final VoidCallback onClearLogoDark;
 
   String? get _effectiveLogo => logoPickedPath ?? logoSavedPath;
+
   String? get _effectiveLogoDark => logoDarkPickedPath ?? logoDarkSavedPath;
 
   @override
@@ -424,9 +426,7 @@ class _IdentitySection extends StatelessWidget {
         SectionHeader(title: 'pages.setting.ui.appearance.theme_identity'.tr()),
         TextField(
           controller: nameController,
-          decoration: InputDecoration(
-            labelText: 'pages.setting.ui.appearance.theme_name'.tr(),
-          ),
+          decoration: InputDecoration(labelText: 'pages.setting.ui.appearance.theme_name'.tr()),
         ),
         const Gap(8),
         _FontFamilyTile(value: fontFamily, onChanged: onFontChanged),
@@ -480,17 +480,11 @@ class _FontFamilyTile extends StatelessWidget {
         underline: const SizedBox.shrink(),
         style: theme.textTheme.bodyMedium,
         items: [
-          DropdownMenuItem<String?>(
-            value: null,
-            child: Text('pages.setting.ui.appearance.font_family_system'.tr()),
-          ),
+          DropdownMenuItem<String?>(value: null, child: Text('pages.setting.ui.appearance.font_family_system'.tr())),
           for (final family in _kGoogleFontFamilies)
             DropdownMenuItem<String?>(
               value: family,
-              child: Text(
-                family,
-                style: GoogleFonts.getFont(family),
-              ),
+              child: Text(family, style: GoogleFonts.getFont(family)),
             ),
         ],
         onChanged: onChanged,
@@ -500,12 +494,7 @@ class _FontFamilyTile extends StatelessWidget {
 }
 
 class _LogoPicker extends StatelessWidget {
-  const _LogoPicker({
-    required this.label,
-    required this.filePath,
-    required this.onPick,
-    required this.onClear,
-  });
+  const _LogoPicker({required this.label, required this.filePath, required this.onPick, required this.onClear});
 
   final String label;
   final String? filePath;
@@ -622,10 +611,14 @@ class _ColorSection extends HookConsumerWidget {
 
   Future<void> _pickColor(BuildContext _, WidgetRef ref, int? current, ValueChanged<int?> onChange) async {
     final currentHex = current != null ? colorToHex(Color(current), enableAlpha: false) : null;
-    final result = await ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
-          type: SheetType.colorPicker,
-          data: ColorPickerSheetArgs(initialColor: currentHex, clearIcon: Icons.clear),
-        ));
+    final result = await ref
+        .read(bottomSheetServiceProvider)
+        .show(
+          BottomSheetConfig(
+            type: SheetType.colorPicker,
+            data: ColorPickerSheetArgs(initialColor: currentHex, clearIcon: Icons.clear),
+          ),
+        );
     if (result.confirmed) {
       final hexStr = result.data as String?;
       onChange(hexStr?.toColor()?.toARGB32());
@@ -736,17 +729,14 @@ class _ColorTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(title, style: textTheme.bodyMedium),
-                if (subtitle != null)
-                  Text(subtitle!, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                if (subtitle != null) Text(subtitle!, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
               ],
             ),
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             spacing: 10,
-            children: [
-              for (final entry in swatches) _ColorSwatchButton(entry: entry),
-            ],
+            children: [for (final entry in swatches) _ColorSwatchButton(entry: entry)],
           ),
         ],
       ),
@@ -780,12 +770,11 @@ class _ColorSwatchButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: bgColor,
               shape: BoxShape.circle,
-              border: Border.all(color: Theme.of(context).useMaterial3? cs.outline: cs.primary),
+              border: Border.all(color: Theme.of(context).useMaterial3 ? cs.outline : cs.primary),
             ),
             child: Center(child: Icon(entry.icon, size: 15, color: fgColor)),
           ),
-          if (entry.label != null)
-            Text(entry.label!, style: TextStyle(fontSize: 9, color: cs.onSurfaceVariant)),
+          if (entry.label != null) Text(entry.label!, style: TextStyle(fontSize: 9, color: cs.onSurfaceVariant)),
         ],
       ),
     );
@@ -800,9 +789,7 @@ class _PreviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lightTheme = buildThemePack(
-      CustomThemePack(uuid: '', name: '', lightConfig: lightConfig),
-    ).lightTheme;
+    final lightTheme = buildThemePack(CustomThemePack(uuid: '', name: '', lightConfig: lightConfig)).lightTheme;
     final effectiveDarkConfig = darkConfig ?? lightConfig;
     final darkTheme = buildThemePack(
       CustomThemePack(uuid: '', name: '', lightConfig: effectiveDarkConfig, darkConfig: effectiveDarkConfig),
@@ -850,11 +837,7 @@ class _ThemePreviewCard extends StatelessWidget {
               color: themeData.appBarTheme.backgroundColor ?? cs.primary,
               width: double.infinity,
               child: Center(
-                child: Container(
-                  height: 6,
-                  width: 40,
-                  color: themeData.appBarTheme.foregroundColor ?? cs.onPrimary,
-                ),
+                child: Container(height: 6, width: 40, color: themeData.appBarTheme.foregroundColor ?? cs.onPrimary),
               ),
             ),
             Container(height: 7, color: cs.onSurface.withValues(alpha: 0.12), width: 80),
