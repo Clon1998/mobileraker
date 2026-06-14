@@ -507,10 +507,36 @@ pages:
         font_family: Font
         font_family_system: System Default
         theme_preview: Preview
+        set_active: Set Active
         export_theme: Export theme
         import_theme: Import theme
+        clone_theme: Clone
         theme_imported: "Theme \"{}\" imported successfully"
         theme_import_failed: Failed to import theme — invalid file
+        m3_options: Material 3 Color Mixing
+        blend_level: Surface Blend
+        blend_level_hint: "How strongly the primary color tints surfaces (0 = none, 40 = strong)"
+        surface_mode: Surface Mode
+        surface_mode_hint: Controls how the blend intensity is distributed across different surfaces
+        surface_mode_0: "Level (uniform)"
+        surface_mode_1: "Low scaffold blend"
+        surface_mode_2: "High scaffold blend"
+        surface_mode_3: "High surface, low scaffold"
+        surface_mode_4: "High scaffold, low surface"
+        app_bar_style: App Bar Style
+        app_bar_style_hint: "Determines the app bar's background color (ignored when a custom color is set)"
+        app_bar_style_overridden: "Using custom color — clear it above to enable"
+        app_bar_style_0: Surface
+        app_bar_style_1: Primary
+        app_bar_style_2: Material default
+        app_bar_style_3: Background
+        app_bar_style_4: "Scaffold background (default)"
+        used_colors: Color Spread
+        used_colors_hint: "How many seed colors generate the palette (1 = primary only, 7 = all three equally)"
+        light_is_white: Pure White Surfaces
+        light_is_white_hint: Forces all light surfaces to pure white — eliminates tinting for a clean, minimal look
+        dark_is_true_black: True Black (OLED)
+        dark_is_true_black_hint: Forces all dark surfaces to pure black — saves battery on OLED displays
       machine_card_style:
         title: Overview - Machine Card Style
         default: Default

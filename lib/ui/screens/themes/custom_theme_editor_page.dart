@@ -59,6 +59,20 @@ class CustomThemeEditorPage extends HookConsumerWidget {
     final darkAppBar = useState<int?>(initialPack?.darkConfig?.appBarColor);
     final darkUseMaterial3 = useState<bool>(initialPack?.darkConfig?.useMaterial3 ?? true);
 
+    // M3 FlexColorScheme options — light
+    final lightBlendLevel = useState<int>(initialPack?.lightConfig.blendLevel ?? 0);
+    final lightSurfaceModeIndex = useState<int>(initialPack?.lightConfig.surfaceModeIndex ?? 0);
+    final lightAppBarStyleIndex = useState<int>(initialPack?.lightConfig.appBarStyleIndex ?? 4);
+    final lightUsedColors = useState<int>(initialPack?.lightConfig.usedColors ?? 1);
+    final lightIsWhite = useState<bool>(initialPack?.lightConfig.lightIsWhite ?? false);
+
+    // M3 FlexColorScheme options — dark
+    final darkBlendLevel = useState<int>(initialPack?.darkConfig?.blendLevel ?? 0);
+    final darkSurfaceModeIndex = useState<int>(initialPack?.darkConfig?.surfaceModeIndex ?? 0);
+    final darkAppBarStyleIndex = useState<int>(initialPack?.darkConfig?.appBarStyleIndex ?? 4);
+    final darkUsedColors = useState<int>(initialPack?.darkConfig?.usedColors ?? 1);
+    final darkIsTrueBlack = useState<bool>(initialPack?.darkConfig?.darkIsTrueBlack ?? false);
+
     // Font family — shared for both light and dark variants
     final fontFamily = useState<String?>(initialPack?.lightConfig.fontFamily);
 
@@ -125,6 +139,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
           appBarColor: lightAppBar.value,
           useMaterial3: lightUseMaterial3.value,
           fontFamily: fontFamily.value,
+          blendLevel: lightBlendLevel.value,
+          surfaceModeIndex: lightSurfaceModeIndex.value,
+          appBarStyleIndex: lightAppBarStyleIndex.value,
+          usedColors: lightUsedColors.value,
+          lightIsWhite: lightIsWhite.value,
         );
 
         final darkConfig = hasDarkTheme.value
@@ -137,6 +156,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
                 appBarColor: darkAppBar.value,
                 useMaterial3: darkUseMaterial3.value,
                 fontFamily: fontFamily.value,
+                blendLevel: darkBlendLevel.value,
+                surfaceModeIndex: darkSurfaceModeIndex.value,
+                appBarStyleIndex: darkAppBarStyleIndex.value,
+                usedColors: darkUsedColors.value,
+                darkIsTrueBlack: darkIsTrueBlack.value,
               )
             : null;
 
@@ -167,6 +191,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
         appBarColor: lightAppBar.value,
         useMaterial3: lightUseMaterial3.value,
         fontFamily: fontFamily.value,
+        blendLevel: lightBlendLevel.value,
+        surfaceModeIndex: lightSurfaceModeIndex.value,
+        appBarStyleIndex: lightAppBarStyleIndex.value,
+        usedColors: lightUsedColors.value,
+        lightIsWhite: lightIsWhite.value,
       );
       final exportDark = hasDarkTheme.value
           ? CustomThemeConfig(
@@ -178,6 +207,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
               appBarColor: darkAppBar.value,
               useMaterial3: darkUseMaterial3.value,
               fontFamily: fontFamily.value,
+              blendLevel: darkBlendLevel.value,
+              surfaceModeIndex: darkSurfaceModeIndex.value,
+              appBarStyleIndex: darkAppBarStyleIndex.value,
+              usedColors: darkUsedColors.value,
+              darkIsTrueBlack: darkIsTrueBlack.value,
             )
           : null;
       final pack = CustomThemePack(
@@ -231,6 +265,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
       appBarColor: lightAppBar.value,
       useMaterial3: lightUseMaterial3.value,
       fontFamily: fontFamily.value,
+      blendLevel: lightBlendLevel.value,
+      surfaceModeIndex: lightSurfaceModeIndex.value,
+      appBarStyleIndex: lightAppBarStyleIndex.value,
+      usedColors: lightUsedColors.value,
+      lightIsWhite: lightIsWhite.value,
     );
 
     final darkConfig = hasDarkTheme.value
@@ -243,6 +282,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
             appBarColor: darkAppBar.value,
             useMaterial3: darkUseMaterial3.value,
             fontFamily: fontFamily.value,
+            blendLevel: darkBlendLevel.value,
+            surfaceModeIndex: darkSurfaceModeIndex.value,
+            appBarStyleIndex: darkAppBarStyleIndex.value,
+            usedColors: darkUsedColors.value,
+            darkIsTrueBlack: darkIsTrueBlack.value,
           )
         : null;
 
@@ -328,6 +372,23 @@ class CustomThemeEditorPage extends HookConsumerWidget {
                   onAppBarColorChanged: (v) => lightAppBar.value = v,
                   onMaterial3Changed: (v) => lightUseMaterial3.value = v,
                 ),
+                if (lightUseMaterial3.value) ...[
+                  const Gap(8),
+                  _M3OptionsSection(
+                    isDark: false,
+                    blendLevel: lightBlendLevel.value,
+                    surfaceModeIndex: lightSurfaceModeIndex.value,
+                    appBarStyleIndex: lightAppBarStyleIndex.value,
+                    usedColors: lightUsedColors.value,
+                    extremeSurface: lightIsWhite.value,
+                    appBarColorSet: lightAppBar.value != null,
+                    onBlendLevelChanged: (v) => lightBlendLevel.value = v,
+                    onSurfaceModeChanged: (v) => lightSurfaceModeIndex.value = v,
+                    onAppBarStyleChanged: (v) => lightAppBarStyleIndex.value = v,
+                    onUsedColorsChanged: (v) => lightUsedColors.value = v,
+                    onExtremeSurfaceChanged: (v) => lightIsWhite.value = v,
+                  ),
+                ],
                 const Gap(16),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -355,6 +416,23 @@ class CustomThemeEditorPage extends HookConsumerWidget {
                     onAppBarColorChanged: (v) => darkAppBar.value = v,
                     onMaterial3Changed: (v) => darkUseMaterial3.value = v,
                   ),
+                  if (darkUseMaterial3.value) ...[
+                    const Gap(8),
+                    _M3OptionsSection(
+                      isDark: true,
+                      blendLevel: darkBlendLevel.value,
+                      surfaceModeIndex: darkSurfaceModeIndex.value,
+                      appBarStyleIndex: darkAppBarStyleIndex.value,
+                      usedColors: darkUsedColors.value,
+                      extremeSurface: darkIsTrueBlack.value,
+                      appBarColorSet: darkAppBar.value != null,
+                      onBlendLevelChanged: (v) => darkBlendLevel.value = v,
+                      onSurfaceModeChanged: (v) => darkSurfaceModeIndex.value = v,
+                      onAppBarStyleChanged: (v) => darkAppBarStyleIndex.value = v,
+                      onUsedColorsChanged: (v) => darkUsedColors.value = v,
+                      onExtremeSurfaceChanged: (v) => darkIsTrueBlack.value = v,
+                    ),
+                  ],
                 ],
                 const Gap(16),
                 _PreviewSection(lightConfig: lightConfig, darkConfig: darkConfig),
@@ -616,7 +694,7 @@ class _ColorSection extends HookConsumerWidget {
         .show(
           BottomSheetConfig(
             type: SheetType.colorPicker,
-            data: ColorPickerSheetArgs(initialColor: currentHex, clearIcon: Icons.clear),
+            data: ColorPickerSheetArgs(initialColor: currentHex, clearIcon: Icons.format_color_reset_outlined),
           ),
         );
     if (result.confirmed) {
@@ -753,10 +831,46 @@ class _ColorSwatchButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final hasColor = entry.color != null;
-    final bgColor = hasColor ? entry.color! : Colors.transparent;
-    final fgColor = hasColor
-        ? (ThemeData.estimateBrightnessForColor(entry.color!) == Brightness.dark ? Colors.white : Colors.black)
-        : cs.onSurfaceVariant;
+
+    final Widget circle;
+    if (hasColor) {
+      final fgColor = ThemeData.estimateBrightnessForColor(entry.color!) == Brightness.dark
+          ? Colors.white
+          : Colors.black;
+      circle = Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: entry.color!,
+          shape: BoxShape.circle,
+          border: Border.all(color: Theme.of(context).useMaterial3 ? cs.outline : cs.primary),
+        ),
+        child: Center(child: Icon(entry.icon, size: 15, color: fgColor)),
+      );
+    } else {
+      circle = SizedBox(
+        width: 36,
+        height: 36,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest,
+                shape: BoxShape.circle,
+                border: Border.all(color: cs.outline),
+              ),
+            ),
+            Positioned.fill(
+              child: ClipOval(
+                child: CustomPaint(painter: _SlashPainter(color: cs.outlineVariant)),
+              ),
+            ),
+            Icon(entry.icon, size: 15, color: cs.onSurfaceVariant),
+          ],
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: entry.onTap,
@@ -764,19 +878,195 @@ class _ColorSwatchButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 3,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
-              border: Border.all(color: Theme.of(context).useMaterial3 ? cs.outline : cs.primary),
-            ),
-            child: Center(child: Icon(entry.icon, size: 15, color: fgColor)),
-          ),
+          circle,
           if (entry.label != null) Text(entry.label!, style: TextStyle(fontSize: 9, color: cs.onSurfaceVariant)),
         ],
       ),
+    );
+  }
+}
+
+class _SlashPainter extends CustomPainter {
+  const _SlashPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawLine(
+      Offset(size.width * 0.15, size.height * 0.85),
+      Offset(size.width * 0.85, size.height * 0.15),
+      Paint()
+        ..color = color
+        ..strokeWidth = 1.5
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SlashPainter old) => old.color != color;
+}
+
+const _kSurfaceModeLabels = [
+  'pages.setting.ui.appearance.surface_mode_0',
+  'pages.setting.ui.appearance.surface_mode_1',
+  'pages.setting.ui.appearance.surface_mode_2',
+  'pages.setting.ui.appearance.surface_mode_3',
+  'pages.setting.ui.appearance.surface_mode_4',
+];
+
+const _kAppBarStyleLabels = [
+  'pages.setting.ui.appearance.app_bar_style_0',
+  'pages.setting.ui.appearance.app_bar_style_1',
+  'pages.setting.ui.appearance.app_bar_style_2',
+  'pages.setting.ui.appearance.app_bar_style_3',
+  'pages.setting.ui.appearance.app_bar_style_4',
+];
+
+class _M3OptionsSection extends ConsumerWidget {
+  const _M3OptionsSection({
+    required this.isDark,
+    required this.blendLevel,
+    required this.surfaceModeIndex,
+    required this.appBarStyleIndex,
+    required this.usedColors,
+    required this.extremeSurface,
+    required this.appBarColorSet,
+    required this.onBlendLevelChanged,
+    required this.onSurfaceModeChanged,
+    required this.onAppBarStyleChanged,
+    required this.onUsedColorsChanged,
+    required this.onExtremeSurfaceChanged,
+  });
+
+  final bool isDark;
+  final int blendLevel;
+  final int surfaceModeIndex;
+  final int appBarStyleIndex;
+  final int usedColors;
+  final bool extremeSurface;
+  final bool appBarColorSet;
+  final ValueChanged<int> onBlendLevelChanged;
+  final ValueChanged<int> onSurfaceModeChanged;
+  final ValueChanged<int> onAppBarStyleChanged;
+  final ValueChanged<int> onUsedColorsChanged;
+  final ValueChanged<bool> onExtremeSurfaceChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(title: 'pages.setting.ui.appearance.m3_options'.tr()),
+
+        // Blend level
+        InputDecorator(
+          isEmpty: false,
+          decoration: InputDecoration(
+            labelText: 'pages.setting.ui.appearance.blend_level'.tr(),
+            helperText: 'pages.setting.ui.appearance.blend_level_hint'.tr(),
+            helperMaxLines: 3,
+          ),
+          child: Slider(
+            value: blendLevel.toDouble(),
+            min: 0,
+            max: 40,
+            divisions: 40,
+            label: '$blendLevel',
+            onChanged: (v) => onBlendLevelChanged(v.toInt()),
+          ),
+        ),
+        const Gap(8),
+
+        // Surface mode
+        InputDecorator(
+          isEmpty: false,
+          decoration: InputDecoration(
+            labelText: 'pages.setting.ui.appearance.surface_mode'.tr(),
+            helperText: 'pages.setting.ui.appearance.surface_mode_hint'.tr(),
+            helperMaxLines: 3,
+          ),
+          child: DropdownButton<int>(
+            value: surfaceModeIndex,
+            isExpanded: true,
+            isDense: true,
+            underline: const SizedBox.shrink(),
+            items: [
+              for (final (i, label) in _kSurfaceModeLabels.indexed) DropdownMenuItem(value: i, child: Text(label.tr())),
+            ],
+            onChanged: (v) {
+              if (v != null) onSurfaceModeChanged(v);
+            },
+          ),
+        ),
+        const Gap(8),
+
+        // App bar style
+        InputDecorator(
+          isEmpty: false,
+          decoration: InputDecoration(
+            labelText: 'pages.setting.ui.appearance.app_bar_style'.tr(),
+            helperText: appBarColorSet
+                ? 'pages.setting.ui.appearance.app_bar_style_overridden'.tr()
+                : 'pages.setting.ui.appearance.app_bar_style_hint'.tr(),
+            helperMaxLines: 3,
+          ),
+          child: DropdownButton<int>(
+            value: appBarStyleIndex,
+            isExpanded: true,
+            isDense: true,
+            underline: const SizedBox.shrink(),
+            disabledHint: Text(
+              (_kAppBarStyleLabels.elementAtOrNull(appBarStyleIndex) ?? _kAppBarStyleLabels.lastOrNull ?? '').tr(),
+            ),
+            onChanged: appBarColorSet
+                ? null
+                : (v) {
+                    if (v != null) onAppBarStyleChanged(v);
+                  },
+            items: [
+              for (final (i, label) in _kAppBarStyleLabels.indexed) DropdownMenuItem(value: i, child: Text(label.tr())),
+            ],
+          ),
+        ),
+        const Gap(8),
+
+        // Used colors
+        InputDecorator(
+          isEmpty: false,
+          decoration: InputDecoration(
+            labelText: 'pages.setting.ui.appearance.used_colors'.tr(),
+            helperText: 'pages.setting.ui.appearance.used_colors_hint'.tr(),
+            helperMaxLines: 3,
+          ),
+          child: Slider(
+            value: usedColors.toDouble(),
+            min: 1,
+            max: 7,
+            divisions: 6,
+            label: '$usedColors',
+            onChanged: (v) => onUsedColorsChanged(v.toInt()),
+          ),
+        ),
+
+        // True black / pure white
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(
+            isDark
+                ? 'pages.setting.ui.appearance.dark_is_true_black'.tr()
+                : 'pages.setting.ui.appearance.light_is_white'.tr(),
+          ),
+          subtitle: Text(
+            isDark
+                ? 'pages.setting.ui.appearance.dark_is_true_black_hint'.tr()
+                : 'pages.setting.ui.appearance.light_is_white_hint'.tr(),
+          ),
+          value: extremeSurface,
+          onChanged: onExtremeSurfaceChanged,
+        ),
+      ],
     );
   }
 }
