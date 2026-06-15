@@ -30,6 +30,7 @@ import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -419,7 +420,8 @@ class _Body extends ConsumerWidget {
                   builder: (context, ref, _) {
                     final status = ref.watch(permissionStatusProvider(Permission.location)).value;
                     return WarningCard(
-                      show: status?.isGranted == false, // We use false here because if true or loading (null) we don't want to show the warning
+                      show: status?.isGranted == false,
+                      // We use false here because if true or loading (null) we don't want to show the warning
                       title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
                       subtitle: const Text('pages.printer_edit.wifi_access_warning.subtitle').tr(),
                       leadingIcon: const Icon(Icons.wifi_off_outlined),
@@ -644,14 +646,45 @@ class _ConnectionGuard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(klipperProvider(machine.uuid).selectAs((d) => (d.klippyCanReceiveCommands, d.klippyState)));
+    final model = ref.watch(
+      klipperProvider(machine.uuid).selectAs((d) => (d.klippyCanReceiveCommands, d.klippyState, d.statusMessage)),
+    );
+    final jrpcState = ref.watch(jrpcClientStateProvider(machine.uuid)).value;
     final themeData = Theme.of(context);
     return AsyncValueWidget(
       value: model,
+      loading: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SectionHeader(title: 'pages.printer_edit.webcams_and_remote_settings'.tr()),
+          Shimmer.fromColors(
+            baseColor: Colors.grey,
+            highlightColor: themeData.colorScheme.background,
+            child: Column(
+              spacing: 4,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(color: themeData.disabledColor),
+                SectionHeader(title: 'pages.dashboard.general.cam_card.webcam'.tr(), padding: EdgeInsets.zero),
+                _TextShimmer(widthFactor: 0.7),
+                _TextShimmer(widthFactor: 0.42),
+                SectionHeader(title: 'pages.printer_edit.remote_settings'.tr()),
+                _TextShimmer(widthFactor: 0.6),
+                _TextShimmer(widthFactor: 0.42),
+                _TextShimmer(widthFactor: 0.72),
+                Divider(color: themeData.disabledColor),
+              ],
+            ),
+          ),
+        ],
+      ),
       data: (data) {
-        final (canReceiveCommands, klippyState) = data;
+        final (canReceiveCommands, klippyState, statusMessage) = data;
 
         if (!canReceiveCommands) {
+          final isNetworkIssue = jrpcState == ClientState.error || jrpcState == ClientState.disconnected;
+
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -663,7 +696,10 @@ class _ConnectionGuard extends ConsumerWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    child: const Icon(Icons.warning_amber_outlined, color: Colors.orange),
+                    child: Icon(
+                      Icons.warning_amber_outlined,
+                      color: isNetworkIssue ? Colors.orange : klippyState.color,
+                    ),
                   ),
 
                   Flexible(
@@ -671,11 +707,19 @@ class _ConnectionGuard extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('pages.printer_edit.printer_not_reachable', style: themeData.textTheme.titleMedium).tr(),
                         Text(
-                          'pages.printer_edit.printer_not_reachable_message',
-                          style: themeData.textTheme.bodySmall,
+                          isNetworkIssue
+                              ? 'pages.printer_edit.printer_not_reachable'
+                              : 'pages.printer_edit.klipper_not_ready',
+                          style: themeData.textTheme.titleMedium,
                         ).tr(),
+                        if (isNetworkIssue)
+                          Text(
+                            'pages.printer_edit.printer_not_reachable_message',
+                            style: themeData.textTheme.bodySmall,
+                          ).tr()
+                        else
+                          Text(statusMessage, style: themeData.textTheme.bodySmall),
                         Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -702,26 +746,6 @@ class _ConnectionGuard extends ConsumerWidget {
                     ),
                   ),
                 ],
-              ),
-              Shimmer.fromColors(
-                baseColor: Colors.grey,
-                highlightColor: themeData.colorScheme.background,
-                child: Column(
-                  spacing: 4,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Divider(color: themeData.disabledColor),
-                    SectionHeader(title: 'pages.dashboard.general.cam_card.webcam'.tr(), padding: EdgeInsets.zero),
-                    _TextShimmer(widthFactor: 0.7),
-                    _TextShimmer(widthFactor: 0.42),
-                    SectionHeader(title: 'pages.printer_edit.remote_settings'.tr()),
-                    _TextShimmer(widthFactor: 0.6),
-                    _TextShimmer(widthFactor: 0.42),
-                    _TextShimmer(widthFactor: 0.72),
-                    Divider(color: themeData.disabledColor),
-                  ],
-                ),
               ),
             ],
           );
