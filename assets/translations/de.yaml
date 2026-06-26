@@ -782,6 +782,10 @@ pages:
         title: Unterstützer-Theme
         subtitle: Exklusives Material 3 Design
         detail: Erleben Sie mit unserem Design Material 3 einen Premium-Look mit dynamischer Farbanpassung und verbesserten visuellen Elementen.
+      theme_editor_perk:
+        title: Theme Editor
+        subtitle: Erstelle dein eigenes Design!
+        detail: Gestalten Sie das Aussehen von Mobileraker nach Ihren Wünschen. Passen Sie Farben, Schriftarten und Mehr an, um ein einzigartiges und personalisiertes Erlebnis zu schaffen.
       contact_perk:
         title: Entwickler-Kontakt
         subtitle: Einfacher Kontakt zum Entwickler!

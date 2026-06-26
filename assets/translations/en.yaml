@@ -913,6 +913,10 @@ pages:
         title: Supporter Theme
         subtitle: Exclusive theme using Material 3
         detail: Experience a premium look with our Material 3 designed theme, featuring dynamic color adaptation and enhanced visual elements.
+      theme_editor_perk:
+        title: Theme Editor
+        subtitle: Create your own custom themes
+        detail: Unleash your creativity with the Theme Editor, allowing you to design and apply personalized themes that reflect your style and preferences.
       contact_perk:
         title: Developer Contact
         subtitle: Easy contact to the developer!
