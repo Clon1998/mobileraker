@@ -464,7 +464,6 @@ pages:
         theme_section: Тема
         custom_themes: Пользовательские темы
         custom_themes_empty: Пользовательских тем пока нет? Нажмите «Новая тема», чтобы создать её.
-        custom_themes_supporter_only: Создавайте полностью собственные темы со своими цветами и логотипом.
         new_theme: Новая тема
         edit_theme: Редактировать тему
         delete_theme_title: Удалить тему
