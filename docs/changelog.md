@@ -4,6 +4,10 @@
 
 ### Enhancements
 
+- **Theme Editor**: Added a theme editor to the app settings, allowing users to customize the app's appearance by
+  modifying colors, fonts, and other visual elements. This feature provides greater personalization options for users
+  who want to tailor the app's look and feel to their preferences.
+
 - **GCode Preview – Caching & Progress**: The GCode preview now caches parsed file data, so re-opening a previously
   viewed file loads instantly from cache. A combined download/parse progress bar is also shown while loading a file for
   the first time.
