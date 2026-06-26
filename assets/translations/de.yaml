@@ -524,7 +524,7 @@ pages:
         confirm_action: Zurücksetzen
         success_title: Token zurückgesetzt
         success: Benachrichtigungs-Token erfolgreich zurückgesetzt.
-        cooldown: "Wieder verfügbar in {} Stunden."
+        cooldown: Wieder verfügbar in {} Stunden.
     imprint: Privatsphäre/Impressum
     ump_dialog: Datenschutz & Einwilligung
   printer_edit:
