@@ -475,7 +475,6 @@ pages:
         theme_section: Theme
         custom_themes: Custom Themes
         custom_themes_empty: No custom themes yet. Tap "New Theme" to create one.
-        custom_themes_supporter_only: Create fully custom themes with your own colors and logo.
         new_theme: New Theme
         edit_theme: Edit Theme
         delete_theme_title: Delete Theme
@@ -1269,6 +1268,7 @@ components:
     gcode_preview: Sorry, GCode preview is only available to Supporters.
     graph_page: Sorry, the Temperature-History page is only available to Supporters.
     snapshot_webcam: Sorry, notification snapshots are only available to Supporters.
+    custom_themes: Create fully custom themes with your own colors and logo.
   machine_deletion_warning:
     title: Machine Deletion
     subtitle: It seems like you are not a Supporter. Only supports can have more than

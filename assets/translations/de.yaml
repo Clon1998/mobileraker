@@ -1108,6 +1108,7 @@ components:
     gcode_preview: Die G-Code-Vorschau ist leider nur für Supporter verfügbar.
     graph_page: Der Temperatur-Verlauf ist leider nur für Supporter verfügbar.
     snapshot_webcam: Benachrichtigungen mit Webcam-Snapshot sind leider nur für Supporter verfügbar.
+    custom_themes: Erstelle vollständig eigene Designs mit deinen Farben und eigenem Logo.
   machine_deletion_warning:
     title: Maschinelle Löschung
     subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt werden.

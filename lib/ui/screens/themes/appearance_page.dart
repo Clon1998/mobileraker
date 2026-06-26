@@ -280,7 +280,7 @@ class _CustomThemesSliverContent extends ConsumerWidget {
           padding: const EdgeInsets.all(24),
           child: Center(
             child: SupporterOnlyFeature(
-              text: const Text('pages.setting.ui.appearance.custom_themes_supporter_only').tr(),
+              text: const Text('components.supporter_only_feature.custom_themes').tr(),
             ),
           ),
         ),
