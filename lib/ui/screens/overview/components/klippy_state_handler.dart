@@ -398,7 +398,7 @@ class _Actions extends ConsumerWidget {
         break;
       case null:
         buttons.add(ElevatedButton.icon(
-          onPressed: () => ref.invalidate(klipperServiceProvider(machine.uuid)),
+          onPressed: () => ref.invalidate(klipperProvider(machine.uuid)),
           label: Text('general.retry').tr(),
           icon: Icon(Icons.restart_alt),
           style: ElevatedButton.styleFrom(

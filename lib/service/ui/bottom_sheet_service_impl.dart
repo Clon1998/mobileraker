@@ -248,14 +248,14 @@ class BottomSheetServiceImpl implements BottomSheetService {
       name: SheetType.colorPicker.name,
       path: '/sheet/color-picker',
       pageBuilder: (context, state) {
-        assert(state.extra is String?, 'Invalid extra data for String');
+        assert(state.extra is ColorPickerSheetArgs?, 'Invalid extra data for ColorPickerSheetArgs');
 
         // SheetContentScaffold
         return PagedSheetPage(
           scrollConfiguration: const SheetScrollConfiguration(),
           key: state.pageKey,
           name: state.name,
-          child: ColorPickerSheet(initialColor: state.extra as String?),
+          child: ColorPickerSheet(args: state.extra as ColorPickerSheetArgs?),
         );
       },
     ),

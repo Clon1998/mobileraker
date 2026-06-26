@@ -27,7 +27,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
@@ -52,7 +51,7 @@ class MachineStatusCard extends HookConsumerWidget {
 
     return AsyncGuard(
       animate: true,
-      debugLabel: 'MachineStatusCard-$machineUUID',
+      // debugLabel: 'MachineStatusCard-$machineUUID',
       toGuard: _machineStatusCardControllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _MachineStatusCardLoading(),
       childOnData: Card(
@@ -226,6 +225,11 @@ class _Trailing extends ConsumerWidget {
           backgroundColor: themeData.useMaterial3
               ? themeData.colorScheme.surfaceContainer
               : themeData.colorScheme.primary.withValues(alpha: 0.24),
+        ),
+      PrintState.error => TextButton.icon(
+          onPressed: model.klippyCanReceiveCommands ? controller.resetPrintState : null,
+          icon: const Icon(Icons.restart_alt_outlined),
+          label: const Text('pages.dashboard.general.print_card.reset').tr(),
         ),
       PrintState.complete || PrintState.cancelled => PopupMenuButton(
           enabled: model.klippyCanReceiveCommands,
@@ -479,30 +483,26 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
   KlippyService get _klippyService => ref.read(klipperServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
-    // updateShouldNotify(previous, next)
-    // await Future.delayed(const Duration(seconds: 5));
-    var printerProviderr = printerProvider(machineUUID);
-    var klipperProviderr = klipperProvider(machineUUID);
 
-    var printer = ref.watchAsSubject(printerProviderr);
-    var klipper = ref.watchAsSubject(klipperProviderr);
+    final klipperF = ref.watch(klipperProvider(machineUUID));
+    final printerF = ref.watch(printerProvider(machineUUID));
 
-    yield* Rx.combineLatest2(
-      printer,
-      klipper,
-      (a, b) => _Model(
-        klippyConnected: b.klippyConnected,
-        klippyStatusMessage: b.statusMessage,
-        klipperState: b.klippyState,
-        printState: a.print.state,
-        filename: a.print.filename,
-        message: a.print.message,
-        progress: a.printProgress,
-        m117: a.displayStatus?.message,
-        excludeObject: a.excludeObject,
-      ),
+    // Chaining asynchronous providers synchronously.
+    final klipper = klipperF.requireValue;
+    final printer = printerF.requireValue;
+
+    return _Model(
+      klippyConnected: klipper.klippyConnected,
+      klippyStatusMessage: klipper.statusMessage,
+      klipperState: klipper.klippyState,
+      printState: printer.print.state,
+      filename: printer.print.filename,
+      message: printer.print.message,
+      progress: printer.printProgress,
+      m117: printer.displayStatus?.message,
+      excludeObject: printer.excludeObject,
     );
   }
 
@@ -521,8 +521,8 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
 
 class _MachineStatusCardPreviewController extends _MachineStatusCardController {
   @override
-  Stream<_Model> build(String machineUUID) {
-    state = const AsyncValue.data(_Model(
+  FutureOr<_Model> build(String machineUUID) {
+    return const _Model(
       klippyConnected: true,
       klippyStatusMessage: 'Ready',
       klipperState: KlipperState.ready,
@@ -532,9 +532,7 @@ class _MachineStatusCardPreviewController extends _MachineStatusCardController {
       progress: 0.5,
       m117: 'M117 Message',
       excludeObject: null,
-    ));
-
-    return const Stream.empty();
+    );
   }
 
   @override

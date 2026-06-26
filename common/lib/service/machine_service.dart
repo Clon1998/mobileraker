@@ -11,7 +11,6 @@ import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/model_event.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -26,6 +25,7 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
@@ -41,6 +41,7 @@ import '../network/jrpc_client_provider.dart';
 import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
 import 'firebase/remote_config.dart';
+import 'misc_providers.dart';
 import 'moonraker/klippy_service.dart';
 import 'moonraker/printer_service.dart';
 import 'octoeverywhere/app_connection_service.dart';
@@ -60,10 +61,17 @@ Future<Machine?> machine(Ref ref, String uuid) async {
   /// Using keepAliveFor ensures that the machineProvider remains active until all users of this provider are disposed.
   /// While ensuring that it eventually gets disposed.
   ref.keepAliveFor();
-  ref.onDispose(() => talker.error('machineProvider disposed $uuid'));
+
+  // React to Hive changes for this specific machine UUID. Uses invalidateSelf() (soft reload by default –
+  // keeps previous AsyncValue during rebuild) so downstream providers only see a value change, not a disposal.
+  final box = Hive.box<Machine>('printers');
+  ref.listen(hiveBoxEventsProvider(box), (_, __) {
+    talker.info('machineProvider Hive event for $uuid – triggering soft reload');
+    ref.invalidateSelf();
+  });
 
   talker.info('machineProvider creation STARTED $uuid');
-  var machine = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
+  final machine = await ref.read(machineRepositoryProvider).get(uuid: uuid);
   talker.info('machineProvider creation DONE $uuid - returns null: ${machine == null}');
   return machine;
 }
@@ -77,12 +85,15 @@ class AllMachines extends _$AllMachines {
     });
 
     talker.info('Received fetchAll');
-
+    var isSupporter = ref.watch(isSupporterProvider);
     var settingService = ref.watch(settingServiceProvider);
     var machines = await ref.watch(machineRepositoryProvider).fetchAll();
     final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
-
     talker.info('Received ordering $ordering');
+
+    // We must ensure that all machines are loaded before we can apply the ordering, otherwise we might end up in a situation where a machine is not loaded yet and thus not included in the ordering and gets pushed to the end of the list even though it should be in the middle!
+    await Future.wait(machines.map((e) => ref.read(machineProvider(e.uuid).future)));
+
     machines = machines.sorted((a, b) {
       final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
       final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
@@ -91,10 +102,9 @@ class AllMachines extends _$AllMachines {
 
     // This makes sure that we have the last seen time for all machines and that if a machine is removed, the respective service is also destoryed!
     for (var machine in machines) {
-      ref.watch(machineLastSeenServiceProvider(machine.uuid)).trackLastSeen();
+      ref.watch(machineLastSeenServiceProvider(machine.uuid));
     }
 
-    var isSupporter = ref.watch(isSupporterProvider);
     talker.info('Received isSupporter $isSupporter');
     var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
     talker.info('Max allowed machines for non Supporters is $maxNonSupporterMachines');
@@ -210,19 +220,8 @@ Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
     );
     return;
   }
-  // We just do nothing/wait for a rebuild -> new data is available!
-}
-
-@riverpod
-Stream<MachineSettings> selectedMachineSettings(Ref ref) async* {
-  try {
-    var machine = await ref.watch(selectedMachineProvider.future);
-    if (machine == null) return;
-
-    yield* ref.watchAsSubject(machineSettingsProvider(machine.uuid));
-  } on StateError catch (_) {
-    // Just catch it. It is expected that the future/where might not complete!
-  }
+  // If we have no printer data we can still safely fetch the settings from moonraker!
+  yield await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
 }
 
 /// Service handling the management of a machine
@@ -231,11 +230,7 @@ class MachineService {
     : _machineRepo = ref.watch(machineRepositoryProvider),
       _selectedMachineService = ref.watch(selectedMachineServiceProvider),
       _settingService = ref.watch(settingServiceProvider),
-      _appConnectionService = ref.watch(appConnectionServiceProvider) {
-    // ref.listen(provider, listener)
-
-    ref.onDispose(dispose);
-  }
+      _appConnectionService = ref.watch(appConnectionServiceProvider);
 
   final Ref ref;
   final MachineHiveRepository _machineRepo;
@@ -245,22 +240,15 @@ class MachineService {
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
-  final StreamController<ModelEvent<Machine>> _machineEventStreamCtler = StreamController.broadcast();
-
-  Stream<ModelEvent<Machine>> get machineModelEvents => _machineEventStreamCtler.stream;
-
   Future<void> updateMachine(Machine machine) async {
     await _machineRepo.update(machine);
     talker.info('Updated machine: ${machine.logName}');
     ref.read(analyticsProvider).logEvent(name: 'updated_machine');
-    _machineEventStreamCtler.add(ModelEvent.update(machine, machine.uuid));
-    await ref.refresh(machineProvider(machine.uuid).future);
+    // machineProvider self-invalidates via hiveBoxEventsProvider when the Hive write above fires.
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
       selectedMachineService.selectMachine(machine, true);
     }
-
-    return;
   }
 
   Future<Machine> addMachine(Machine machine) async {
@@ -274,7 +262,6 @@ class MachineService {
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
 
     await ref.read(machineProvider(machine.uuid).future);
-    _machineEventStreamCtler.add(ModelEvent.insert(machine, machine.uuid));
 
     return machine;
   }
@@ -288,7 +275,6 @@ class MachineService {
     }
 
     await _machineRepo.remove(machine.uuid);
-    _machineEventStreamCtler.add(ModelEvent.delete(machine, machine.uuid));
     var firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'remove_machine');
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
@@ -652,9 +638,5 @@ class MachineService {
     readList.insert(newIndex, machine.uuid);
 
     _settingService.write(UtilityKeys.machineOrdering, readList);
-  }
-
-  Future<void> dispose() async {
-    await _machineEventStreamCtler.close();
   }
 }

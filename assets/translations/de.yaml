@@ -541,6 +541,7 @@ pages:
     webcams_and_remote_settings: Webcams & Remote-Einstellungen
     printer_not_reachable: Drucker nicht erreichbar
     printer_not_reachable_message: Webcam-Liste und Druckereinstellungen konnten nicht geladen werden. Verbinden Sie den Drucker, um diese Bereiche zu konfigurieren.
+    klipper_not_ready: Klipper nicht bereit
     remote_settings: Remote-Einstellungen
     store_error:
       title: Speichern fehlgeschlagen!
@@ -781,6 +782,10 @@ pages:
         title: Unterstützer-Theme
         subtitle: Exklusives Material 3 Design
         detail: Erleben Sie mit unserem Design Material 3 einen Premium-Look mit dynamischer Farbanpassung und verbesserten visuellen Elementen.
+      theme_editor_perk:
+        title: Theme Editor
+        subtitle: Erstelle dein eigenes Design!
+        detail: Gestalten Sie das Aussehen von Mobileraker nach Ihren Wünschen. Passen Sie Farben, Schriftarten und Mehr an, um ein einzigartiges und personalisiertes Erlebnis zu schaffen.
       contact_perk:
         title: Entwickler-Kontakt
         subtitle: Einfacher Kontakt zum Entwickler!
@@ -1103,6 +1108,7 @@ components:
     gcode_preview: Die G-Code-Vorschau ist leider nur für Supporter verfügbar.
     graph_page: Der Temperatur-Verlauf ist leider nur für Supporter verfügbar.
     snapshot_webcam: Benachrichtigungen mit Webcam-Snapshot sind leider nur für Supporter verfügbar.
+    custom_themes: Erstelle vollständig eigene Designs mit deinen Farben und eigenem Logo.
   machine_deletion_warning:
     title: Maschinelle Löschung
     subtitle: Es scheint, dass Sie kein Supporter sind. Nur Supporter können mehr als {} Maschinen haben. Sie haben {} Tage Zeit, bevor zusätzliche Geräte entfernt werden.

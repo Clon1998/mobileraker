@@ -16,7 +16,6 @@ import 'package:common/data/enums/consent_status.dart';
 import 'package:common/data/enums/region_timezone.dart';
 import 'package:common/data/model/firestore/consent_entry.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/model_event.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -101,7 +100,6 @@ class NotificationService {
   final ReceivePort _fcmTokenUpdatePort = ReceivePort();
   final ReceivePort _nativeTokenUpdatePort = ReceivePort();
 
-  StreamSubscription<ModelEvent<Machine>>? _machineRepoUpdateListener;
 
   ProviderSubscription? _marketingSubscription;
 
@@ -174,6 +172,8 @@ class NotificationService {
 
   Future<String> requestFirebaseToken() async => _notifyFCM.requestFirebaseAppToken();
 
+  Future<bool> deleteFirebaseToken() async => _notifyFCM.deleteToken();
+
   Future<bool> _initialRequestPermission() async {
     bool notificationAllowed = await hasNotificationPermission();
     talker.info('Notifications are permitted: $notificationAllowed');
@@ -212,19 +212,25 @@ class NotificationService {
   }
 
   void _initializeMachineRepoListener() {
-    talker.info('Initializing machineRepoListener');
-    _machineRepoUpdateListener = _machineService.machineModelEvents.listen((event) {
-      talker.info('Received machineModelEvents: ${event.runtimeType}(${event.key}:${event.data}');
+    talker.info('Initializing machine list listener via allMachinesProvider');
+    _ref.listen(allMachinesProvider, (previous, next) {
+      final prevMachines = previous?.value ?? [];
+      final nextMachines = next.value;
+      if (nextMachines == null) return;
 
-      switch (event) {
-        case ModelEventInsert<Machine> event:
-          onMachineAdded(event.data);
-          break;
-        case ModelEventUpdate<Machine> event:
-          break;
-        case ModelEventDelete<Machine> event:
-          onMachineRemoved(event.data);
-          break;
+      final prevUuids = prevMachines.map((m) => m.uuid).toSet();
+      final nextUuids = nextMachines.map((m) => m.uuid).toSet();
+
+      for (final uuid in nextUuids.difference(prevUuids)) {
+        final machine = nextMachines.firstWhere((m) => m.uuid == uuid);
+        talker.info('Machine added: ${machine.logName}');
+        onMachineAdded(machine);
+      }
+
+      for (final uuid in prevUuids.difference(nextUuids)) {
+        final machine = prevMachines.firstWhere((m) => m.uuid == uuid);
+        talker.info('Machine removed: ${machine.logName}');
+        onMachineRemoved(machine);
       }
     });
   }
@@ -272,7 +278,6 @@ class NotificationService {
         onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
         onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
         onNativeTokenHandle: _awesomeNotificationNativeTokenHandler,
-        licenseKeys: licenseKeys,
       );
     }
   }
@@ -510,7 +515,6 @@ class NotificationService {
     _notificationTapPort.close();
     _fcmTokenUpdatePort.close();
     _nativeTokenUpdatePort.close();
-    _machineRepoUpdateListener?.cancel();
 
     _initialized.completeError(StateError('Disposed notification service before it was initialized!'));
   }

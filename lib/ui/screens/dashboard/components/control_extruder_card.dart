@@ -11,7 +11,6 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/machine/gcode_macro.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/data/dto/machine/printer_builder.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/dto/server/klipper_system_info.dart';
 import 'package:common/data/dto/server/moonraker_version.dart';
@@ -108,10 +107,19 @@ class _Preview extends HookWidget {
       overrides: [
         _controlExtruderCardControllerProvider(_machineUUID).overrideWith(_ControlExtruderCardPreviewController.new),
         klippySystemInfoProvider(_machineUUID).overrideWithBuild((_,_) => KlipperSystemInfo()),
-        printerProvider(_machineUUID).overrideWithBuild((_,_) => Stream.value(PrinterBuilder.preview().build())),
-        klipperProvider(_machineUUID).overrideWithValue(AsyncValue.data(KlipperInstance(moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),))),
+        printerProvider(_machineUUID).overrideWith(PrinterPreviewNotifier.new),
+        klipperProvider(_machineUUID).overrideWith(() => _PreviewKlipperNotifier()),
       ],
       child: const ControlExtruderCard(machineUUID: _machineUUID),
+    );
+  }
+}
+
+class _PreviewKlipperNotifier extends Klipper {
+  @override
+  Future<KlipperInstance> build(String machineUUID) async {
+    return KlipperInstance(
+      moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),
     );
   }
 }
@@ -436,7 +444,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
   CompositeKey get _hadExtruder => CompositeKey.keyWithString(UiKeys.hadExtruder, machineUUID);
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
     // await Future.delayed(Duration(seconds: 5));
@@ -451,17 +459,15 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
     final initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    final klipperFuture = ref.watch(klipperProvider(machineUUID).future);
-    final printerFuture = ref.watch(printerProvider(machineUUID).future);
-    final klipperSystemInfoFuture = ref.watch(klippySystemInfoProvider(machineUUID).future);
-    final machineSettingsFuture = ref.watch(machineSettingsProvider(machineUUID).future);
+    final klippyAsync = ref.watch(klipperProvider(machineUUID));
+    final printerAsync = ref.watch(printerProvider(machineUUID));
+    final klipperSystemInfoAsync = ref.watch(klippySystemInfoProvider(machineUUID));
+    final machineSettingsAsync = ref.watch(machineSettingsProvider(machineUUID));
 
-    final (klippy, printer, klipperSystemInfo, machineSettings) = await (
-      klipperFuture,
-      printerFuture,
-      klipperSystemInfoFuture,
-      machineSettingsFuture,
-    ).wait;
+    final klippy = klippyAsync.requireValue;
+    final printer = printerAsync.requireValue;
+    final klipperSystemInfo = klipperSystemInfoAsync.requireValue;
+    final machineSettings = machineSettingsAsync.requireValue;
 
     var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
 
@@ -605,14 +611,14 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 
 class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
   @override
-  Future<_Model> build(String machineUUID) {
-    var model = _Model(
+  FutureOr<_Model> build(String machineUUID) {
+    return _Model(
       showCard: true,
       klippyCanReceiveCommands: true,
       extruderCount: 1,
       extruderIndex: 0,
       stepIndex: 0,
-      steps: [1, 5, 10, 20, 50],
+      steps: const [1, 5, 10, 20, 50],
       extruderVelocity: 10,
       activeExtruder: Extruder.empty(),
       activeExtruderConfig: const ConfigExtruder(
@@ -628,8 +634,6 @@ class _ControlExtruderCardPreviewController extends _ControlExtruderCardControll
         maxExtrudeOnlyAccel: 100,
       ),
     );
-    state = AsyncValue.data(model);
-    return Future.value(model);
   }
 
   @override

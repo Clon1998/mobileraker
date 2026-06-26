@@ -6,13 +6,13 @@ import 'dart:io';
 
 import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/service/misc_providers.dart';
+import 'package:common/service/notification_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/service/ui/theme_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
-import 'package:common/ui/theme/theme_pack.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -22,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart' hide Svg;
-import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -185,8 +184,14 @@ class _UiSection extends ConsumerWidget {
     return Column(
       children: [
         const SectionHeader(title: 'UI'),
-        const _ThemeSelector(),
-        const _ThemeModeSelector(),
+        ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          title: const Text('pages.setting.ui.appearance.title').tr(),
+          subtitle: const Text('pages.setting.ui.appearance.subtitle').tr(),
+          trailing: const Icon(Icons.keyboard_arrow_right),
+          onTap: () => context.goNamed(AppRoute.settings_appearance.name),
+        ),
         FormBuilderDropdown<bool>(
           name: 'classicMachineCards',
           onChanged: (b) => settingService.writeBool(AppSettingKeys.machineCardStyle, b ?? false),
@@ -307,6 +312,7 @@ class _DeveloperSection extends ConsumerWidget {
           trailing: Icon(Icons.keyboard_arrow_right),
           onTap: () => context.goNamed(AppRoute.settings_data.name),
         ),
+        const _FcmTokenResetTile(),
         FormBuilderSwitch(
           name: 'crashalytics',
           title: const Text('pages.setting.developer.crashlytics').tr(),
@@ -317,7 +323,7 @@ class _DeveloperSection extends ConsumerWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-            minimumSize: Size.zero, // Set this
+            minimumSize: Size.zero,
             padding: EdgeInsets.zero,
             textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
           ),
@@ -327,6 +333,70 @@ class _DeveloperSection extends ConsumerWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class _FcmTokenResetTile extends ConsumerStatefulWidget {
+  const _FcmTokenResetTile();
+
+  @override
+  ConsumerState<_FcmTokenResetTile> createState() => _FcmTokenResetTileState();
+}
+
+class _FcmTokenResetTileState extends ConsumerState<_FcmTokenResetTile> {
+  static const _cooldown = Duration(hours: 24);
+
+  DateTime? _lastReset;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastReset = ref.read(settingServiceProvider).read<DateTime?>(UtilityKeys.fcmTokenLastReset, null);
+  }
+
+  bool get _onCooldown {
+    if (_lastReset == null) return false;
+    return DateTime.now().difference(_lastReset!) < _cooldown;
+  }
+
+  int get _hoursRemaining {
+    final elapsed = DateTime.now().difference(_lastReset!);
+    return (_cooldown.inHours - elapsed.inHours).clamp(1, _cooldown.inHours);
+  }
+
+  Future<void> _onTap() async {
+    final res = await ref.read(dialogServiceProvider).showDangerConfirm(
+      title: tr('pages.setting.developer.reset_fcm_token.confirm_title'),
+      body: tr('pages.setting.developer.reset_fcm_token.confirm_body'),
+      actionLabel: tr('pages.setting.developer.reset_fcm_token.confirm_action'),
+    );
+    if (res?.confirmed != true) return;
+    await ref.read(notificationServiceProvider).deleteFirebaseToken();
+    final now = DateTime.now();
+    await ref.read(settingServiceProvider).write(UtilityKeys.fcmTokenLastReset, now);
+    if (!mounted) return;
+    setState(() => _lastReset = now);
+    ref.read(snackBarServiceProvider).show(SnackBarConfig(
+      title: tr('pages.setting.developer.reset_fcm_token.success_title'),
+      message: tr('pages.setting.developer.reset_fcm_token.success'),
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final onCooldown = _onCooldown;
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      enabled: !onCooldown,
+      title: Text('pages.setting.developer.reset_fcm_token.title').tr(),
+      subtitle: Text(
+        onCooldown
+            ? tr('pages.setting.developer.reset_fcm_token.cooldown', args: ['$_hoursRemaining'])
+            : tr('pages.setting.developer.reset_fcm_token.subtitle'),
+      ),
+      onTap: onCooldown ? null : () => _onTap(),
     );
   }
 }
@@ -518,81 +588,6 @@ class _TimeFormatSelector extends ConsumerWidget {
   }
 }
 
-class _ThemeSelector extends ConsumerWidget {
-  const _ThemeSelector({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var themeService = ref.watch(themeServiceProvider);
-    var themePackList = themeService.themePacks;
-
-    var systemThemeIdx = ref.read(intSettingProvider(AppSettingKeys.themePack)).clamp(0, themePackList.length - 1);
-    var currentSystemThemePack = themePackList[systemThemeIdx];
-
-    var activeTheme = ref.read(activeThemeProvider).value!;
-
-    var usesSystemTheme = currentSystemThemePack == activeTheme.themePack;
-
-    var themeData = Theme.of(context);
-    return FormBuilderDropdown(
-      initialValue: currentSystemThemePack,
-      name: 'theme',
-      items: themePackList.map((theme) {
-        var brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
-        return DropdownMenuItem(
-          value: theme,
-          child: Row(
-            children: [
-              Image(height: 32, width: 32, image:brandingIcon?? Svg('assets/vector/mr_logo.svg')),
-              const SizedBox(width: 8),
-              Flexible(child: Text(theme.name)),
-            ],
-          ),
-        );
-      }).toList(),
-      decoration: InputDecoration(
-        labelStyle: themeData.textTheme.labelLarge,
-        labelText: tr('pages.setting.general.system_theme'),
-        helperText: usesSystemTheme ? null : tr('pages.setting.general.printer_theme_warning'),
-        helperMaxLines: 3,
-      ),
-      onChanged: (ThemePack? themePack) {
-        if (usesSystemTheme) {
-          themeService.selectThemePack(themePack!);
-        } else {
-          themeService.updateSystemThemePack(themePack!);
-        }
-      },
-      // themeService.selectThemePack(themeData!),
-    );
-  }
-}
-
-class _ThemeModeSelector extends ConsumerWidget {
-  const _ThemeModeSelector({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var themeService = ref.watch(themeServiceProvider);
-
-    return FormBuilderDropdown(
-      initialValue: ref.watch(activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode)),
-      name: 'themeMode',
-      items: [
-        for (var mode in ThemeMode.values)
-          DropdownMenuItem(
-            value: mode,
-            child: const Text('theme_mode').tr(gender: mode.name),
-          ),
-      ],
-      decoration: InputDecoration(
-        labelStyle: Theme.of(context).textTheme.labelLarge,
-        labelText: tr('pages.setting.general.system_theme_mode'),
-      ),
-      onChanged: (ThemeMode? themeMode) => themeService.selectThemeMode(themeMode ?? ThemeMode.system),
-    );
-  }
-}
 
 class _ToggleMediumUI extends ConsumerWidget {
   const _ToggleMediumUI({super.key});

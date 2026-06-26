@@ -5,6 +5,7 @@
 
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:mobileraker_pro/custom_themes/service/custom_theme_service.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -712,6 +713,7 @@ ThemePack _mobilerakerOLEDPack() {
 
 List<ThemePack> themePacks(Ref ref) {
   var isSupporter = ref.watch(isSupporterAsyncProvider).value;
+  final customPacks = isSupporter == true ? ref.watch(customThemePacksAsThemePackProvider) : const <ThemePack>[];
   return [
     _mobilerakerPack(),
     _voronPack(),
@@ -720,5 +722,6 @@ List<ThemePack> themePacks(Ref ref) {
     _oePack(),
     _mobilerakerOLEDPack(),
     if (isSupporter ?? true) _mobilerakerSupporterPack(),
+    ...customPacks,
   ];
 }

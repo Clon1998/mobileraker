@@ -606,7 +606,7 @@ class _DashboardPageController extends _$DashboardPageController {
   DashboardLayout? _originalLayout;
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) async {
     // Cache it if the user goes back to the page, but dont persist it longer!
     ref.keepAliveFor();
     listenSelf((previous, next) {

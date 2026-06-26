@@ -357,7 +357,7 @@ class TestConnectionController extends _$TestConnectionController {
 
     final httpClient = httpClientFactory.fromBaseOptions(baseOptions);
 
-    JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(baseOptions, machineToAdd);
+    JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(baseOptions);
     jsonRpcClientBuilder.httpClient = httpClient;
 
     _httpClient = httpClient;

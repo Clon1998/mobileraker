@@ -129,15 +129,20 @@ class _Preview extends HookWidget {
         }),
         printerGCodeStoreProvider(_machineUUID).overrideWith(() => _PreviewGcodeStore()),
         printerServiceProvider(_machineUUID).overrideWith((_) => _PreviewPrinterService()),
-        klipperProvider(_machineUUID).overrideWith((_) async* {
-          yield KlipperInstance(
-            klippyConnected: true,
-            klippyState: KlipperState.ready,
-            moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),
-          );
-        }),
+        klipperProvider(_machineUUID).overrideWith(() => _PreviewKlipperNotifier()),
       ],
       child: const ConsoleCard(machineUUID: _machineUUID),
+    );
+  }
+}
+
+class _PreviewKlipperNotifier extends Klipper {
+  @override
+  Future<KlipperInstance> build(String machineUUID) async {
+    return KlipperInstance(
+      klippyConnected: true,
+      klippyState: KlipperState.ready,
+      moonrakerVersion: MoonrakerVersion(major: 1, minor: 0, patch: 0, commits: 0, commitHash: ''),
     );
   }
 }
@@ -163,7 +168,6 @@ class _PreviewGcodeStore extends PrinterGCodeStore {
 }
 
 class _PreviewPrinterService implements PrinterService {
-  @override
   Printer current = PrinterBuilder.preview().build();
 
   @override
@@ -190,17 +194,6 @@ class _PreviewPrinterService implements PrinterService {
   Future<void> clearBedMeshProfile() {
     throw UnimplementedError();
   }
-
-  @override
-  Printer? get currentOrNull => current;
-
-  @override
-  void dispose() {
-    // No-op for preview
-  }
-
-  @override
-  bool get disposed => false;
 
   @override
   void excludeObject(ParsedObject objToExc) {
@@ -238,15 +231,7 @@ class _PreviewPrinterService implements PrinterService {
   }
 
   @override
-  Stream<String> get gCodeResponseStream => Stream.empty();
-
-  @override
   Future<List<Command>> gcodeHelp() {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<GCodeStoreEntry>> gcodeStore() {
     throw UnimplementedError();
   }
 
@@ -254,9 +239,6 @@ class _PreviewPrinterService implements PrinterService {
   genericFanFan(String fanName, double perc) {
     throw UnimplementedError();
   }
-
-  @override
-  bool get hasCurrent => true;
 
   @override
   Future<bool> homePrintHead(Set<PrinterAxis> axis) {
@@ -317,9 +299,6 @@ class _PreviewPrinterService implements PrinterService {
   }
 
   @override
-  Stream<Printer> get printerStream => Stream.value(current);
-
-  @override
   Future<bool> probeCalibrate() {
     throw UnimplementedError();
   }
@@ -331,12 +310,6 @@ class _PreviewPrinterService implements PrinterService {
 
   @override
   Ref get ref => throw UnimplementedError();
-
-  @override
-  Future<void> refreshPrinter() {
-    // No-op for preview
-    return Future.value();
-  }
 
   @override
   reprintCurrentFile() {
@@ -415,11 +388,6 @@ class _PreviewPrinterService implements PrinterService {
 
   @override
   startPrintFile(GCodeFile file) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> updateCurrentFile(String? file) {
     throw UnimplementedError();
   }
 

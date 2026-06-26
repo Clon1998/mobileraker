@@ -18,6 +18,8 @@ sealed class AppDataExport with _$AppDataExport {
     required DateTime exportDate,
     required List<Machine> machines,
     required List<DashboardLayout> layouts,
+    // Raw JSON maps to avoid a common→pro dependency; parsed as CustomThemePack in the app layer.
+    @Default([]) List<Map<String, dynamic>> customThemePacks,
   }) = _AppDataExport;
 
 

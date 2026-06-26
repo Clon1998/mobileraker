@@ -100,14 +100,12 @@ class _U1ToolSelectorController extends _$U1ToolSelectorController {
   BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
   @override
-  Future<_Model> build(String machineUUID) async {
-    final printerF = ref.watch(printerProvider(machineUUID).future);
-    final klipperF = ref.watch(klipperProvider(machineUUID).future);
+  FutureOr<_Model> build(String machineUUID) {
+    final printerAsync = ref.watch(printerProvider(machineUUID));
+    final klipperAsync = ref.watch(klipperProvider(machineUUID));
 
-
-
-    final (printer, klipper) = await (printerF, klipperF,).wait;
-
+    final printer = printerAsync.requireValue;
+    final klipper = klipperAsync.requireValue;
 
     final activeTool = printer.extruders.firstWhereOrNull((e) => e.state == U1ExtruderState.activate);
 

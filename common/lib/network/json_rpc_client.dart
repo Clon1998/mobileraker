@@ -17,7 +17,6 @@ import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../data/dto/jrpc/rpc_response.dart';
-import '../data/model/hive/machine.dart';
 import '../util/extensions/uri_extension.dart';
 import '../util/logger.dart';
 import '../util/misc.dart';
@@ -57,7 +56,7 @@ class JRpcTimeoutError extends JRpcError {
 class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
-  factory JsonRpcClientBuilder.fromBaseOptions(BaseOptions options, Machine machine) {
+  factory JsonRpcClientBuilder.fromBaseOptions(BaseOptions options) {
     var baseURL = Uri.parse(options.baseUrl);
 
     var builder = JsonRpcClientBuilder()

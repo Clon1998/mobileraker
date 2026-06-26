@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:common/data/dto/server/klipper_system_info.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/server/service_status.dart';
@@ -69,6 +68,7 @@ class KlippySystemInfo extends _$KlippySystemInfo {
 
 @riverpod
 Stream<KlipperSystemInfo> selectedKlipperSystemInfo(Ref ref) async* {
+  if (!ref.mounted) return;
   ref.keepAliveFor();
   try {
     var machine = await ref.watch(selectedMachineProvider.future);

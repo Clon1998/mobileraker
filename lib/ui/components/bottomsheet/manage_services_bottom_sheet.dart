@@ -107,7 +107,7 @@ class _ServiceList extends ConsumerWidget {
         child: Text('bottom_sheets.non_printing.manage_service.no_services', style: themeData.textTheme.bodySmall).tr(),
       );
     }
-    var klippyService = ref.read(klipperServiceSelectedProvider);
+    var klippyService = ref.watch(klipperServiceSelectedProvider);
 
     return ListView(
       restorationId: 'npMsList',

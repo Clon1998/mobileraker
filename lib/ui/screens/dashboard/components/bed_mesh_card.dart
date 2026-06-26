@@ -158,14 +158,15 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    final controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    final canSelect = ref.watch(_controllerProvider(machineUUID).selectRequireValue((d) => d.klippyCanReceiveCommands));
 
     return ListTile(
       leading: const Icon(Icons.grid_4x4),
       // leading: const Icon(FlutterIcons.grid_mco),
       title: Row(children: [const Text('pages.dashboard.control.bed_mesh_card.title').tr()]),
       trailing: TextButton(
-        onPressed: () => controller.onSettingsTap(context),
+        onPressed: (() => controller.onSettingsTap(context)).only(canSelect),
         child: const Text('pages.dashboard.control.bed_mesh_card.profiles').tr(),
       ),
     );
@@ -299,7 +300,7 @@ class _CardBody extends ConsumerWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: controller.onPlotTap,
-                    onLongPress: controller.onPlotTap,// Just to prevent users from
+                    onLongPress: controller.onPlotTap, // Just to prevent users from
                     behavior: HitTestBehavior.translucent,
                     child: Hero(
                       tag: 'bed_mesh_plot',
@@ -348,20 +349,22 @@ class _Controller extends _$Controller {
   bool? _wroteValue;
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
     // await Future.delayed(const Duration(milliseconds: 2000));
 
     var showProbed = ref.watch(boolSettingProvider(_settingsKey));
 
-    var klippyCanReceiveCommandsF = ref.watch(
-      klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands),
+    var klippyCanReceiveCommandsAsync = ref.watch(
+      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
     );
-    var bedMeshF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.bedMesh));
-    var configFileF = ref.watch(printerProvider(machineUUID).selectAsync((value) => value.configFile));
+    var bedMeshAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.bedMesh));
+    var configFileAsync = ref.watch(printerProvider(machineUUID).selectAs((value) => value.configFile));
 
-    final (klippyCanReceiveCommands, mesh, configFile) = await (klippyCanReceiveCommandsF, bedMeshF, configFileF).wait;
+    final klippyCanReceiveCommands = klippyCanReceiveCommandsAsync.requireValue;
+    final mesh = bedMeshAsync.requireValue;
+    final configFile = configFileAsync.requireValue;
 
     var showCard = mesh != null;
 

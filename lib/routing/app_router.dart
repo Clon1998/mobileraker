@@ -28,6 +28,8 @@ import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dar
 import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_page.dart';
 import 'package:mobileraker/ui/screens/files/file_manager_search_page.dart';
+import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_controller.dart';
+import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/gcode_preview/gcode_preview_page.dart';
 import 'package:mobileraker/ui/screens/graph/graph_page.dart';
@@ -47,7 +49,10 @@ import 'package:mobileraker/ui/screens/spoolman/filament_detail_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/spool_detail_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
 import 'package:mobileraker/ui/screens/spoolman/vendor_detail_page.dart';
+import 'package:mobileraker/ui/screens/themes/appearance_page.dart';
+import 'package:mobileraker/ui/screens/themes/custom_theme_editor_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
+import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
@@ -76,6 +81,9 @@ enum AppRoute implements RouteDefinitionMixin {
   qrScanner,
   console,
   settings,
+  settings_appearance,
+  settings_appearance_customThemeNew,
+  settings_appearance_customThemeEdit,
   settings_notification,
   settings_notification_device,
   settings_data,
@@ -97,6 +105,7 @@ enum AppRoute implements RouteDefinitionMixin {
   fileManager_exlorer_editor,
   fileManager_exlorer_videoPlayer,
   fileManager_exlorer_imageViewer,
+  fileManager_fleetPrint,
 }
 
 @riverpod
@@ -241,6 +250,12 @@ GoRouter goRouterImpl(Ref ref) {
             name: AppRoute.fileManager_exlorer_imageViewer.name,
             builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
           ),
+          GoRoute(
+            path: 'fleet-print',
+            name: AppRoute.fileManager_fleetPrint.name,
+            builder: (context, state) => FleetPrintPage(args: state.extra! as FleetPrintArgs),
+            pageBuilder: GoTransitions.fullscreenDialog,
+          ),
         ],
       ),
       GoRoute(
@@ -248,6 +263,25 @@ GoRouter goRouterImpl(Ref ref) {
         name: AppRoute.settings.name,
         builder: (context, state) => const SettingPage(),
         routes: [
+          GoRoute(
+            path: 'appearance',
+            name: AppRoute.settings_appearance.name,
+            builder: (context, state) => const AppearancePage(),
+            routes: [
+              GoRoute(
+                path: 'theme/new',
+                name: AppRoute.settings_appearance_customThemeNew.name,
+                builder: (context, state) => const CustomThemeEditorPage(),
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+              GoRoute(
+                path: 'theme/edit',
+                name: AppRoute.settings_appearance_customThemeEdit.name,
+                builder: (context, state) => CustomThemeEditorPage(initialPack: state.extra as CustomThemePack),
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+            ],
+          ),
           GoRoute(
             path: 'notification',
             name: AppRoute.settings_notification.name,

@@ -95,6 +95,12 @@ class _Content extends ConsumerWidget {
                 colorForground: Colors.white,
               ),
               _Tile(
+                icon: Icons.format_color_fill_sharp,
+                perk: 'theme_editor',
+                color: Colors.cyan,
+                colorForground: Colors.white,
+              ),
+              _Tile(
                 icon: Icons.dark_mode_outlined,
                 perk: 'printer_theme_perk',
                 color: Colors.deepPurple,
@@ -122,6 +128,12 @@ class _Content extends ConsumerWidget {
                 icon: Icons.folder_special_outlined,
                 perk: 'full_file_management_perk',
                 color: Colors.cyan,
+                colorForground: Colors.white,
+              ),
+              _Tile(
+                icon: Icons.device_hub,
+                perk: 'fleet_print_perk',
+                color: Colors.deepOrange,
                 colorForground: Colors.white,
               ),
               _Tile(

@@ -21,6 +21,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
+import 'package:mobileraker_pro/custom_themes/repository/custom_theme_repository_impl.dart';
+import 'package:mobileraker_pro/custom_themes/service/custom_theme_service.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -84,6 +87,7 @@ class _Body extends ConsumerWidget {
   void onExportTap(WidgetRef ref, BuildContext context) async {
     var machineRepository = ref.read(machineRepositoryProvider);
     var dashboardLayoutService = ref.read(dashboardLayoutServiceProvider);
+    var customThemeRepository = ref.read(customThemeRepositoryProvider);
     var versionInfoFuture = ref.read(versionInfoProvider.future);
     final box = context.findRenderObject() as RenderBox?;
     final pos = box!.localToGlobal(Offset.zero) & box.size;
@@ -91,12 +95,14 @@ class _Body extends ConsumerWidget {
     var appV = await versionInfoFuture;
     var machines = await machineRepository.fetchAll();
     var layouts = await dashboardLayoutService.availableLayouts();
+    var customThemes = await customThemeRepository.findAll();
 
     var exportSnapshot = AppDataExport(
       version: appV.version,
       exportDate: DateTime.now(),
       machines: machines,
       layouts: layouts,
+      customThemePacks: customThemes.map((p) => p.toJson()).toList(),
     );
 
     var export = jsonEncode(exportSnapshot);
@@ -121,6 +127,7 @@ class _Body extends ConsumerWidget {
     var snackbarService = ref.read(snackBarServiceProvider);
     var machineService = ref.read(machineServiceProvider);
     var dashboardRepo = ref.read(dashboardLayoutHiveRepositoryProvider);
+    var customThemeService = ref.read(customThemeServiceProvider);
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -136,7 +143,7 @@ class _Body extends ConsumerWidget {
     var appDataExport = AppDataExport.fromJson(json);
 
     talker.info(
-      'Importing App Data Export from ${appDataExport.exportDate} with ${appDataExport.machines.length} machines and ${appDataExport.layouts.length} layouts.',
+      'Importing App Data Export from ${appDataExport.exportDate} with ${appDataExport.machines.length} machines, ${appDataExport.layouts.length} layouts and ${appDataExport.customThemePacks.length} themes.',
     );
     // Restore Machines
     for (var machine in appDataExport.machines) {
@@ -158,8 +165,15 @@ class _Body extends ConsumerWidget {
       // For now we will just add all layouts, in the future we offer UI to select which layouts to import
       await dashboardRepo.create(layout);
     }
-
     talker.info('Imported ${appDataExport.layouts.length} layouts.');
+
+    // Restore Custom Themes
+    for (var themeJson in appDataExport.customThemePacks) {
+      var pack = CustomThemePack.fromJson(themeJson).copyWith(uuid: Uuid().v4());
+      talker.info('Importing custom theme: ${pack.name} with new UUID: ${pack.uuid}');
+      await customThemeService.save(pack);
+    }
+    talker.info('Imported ${appDataExport.customThemePacks.length} custom themes.');
 
     snackbarService.show(
       SnackBarConfig(

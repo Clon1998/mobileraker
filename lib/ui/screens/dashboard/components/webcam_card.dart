@@ -269,14 +269,16 @@ class _WebcamCardController extends _$WebcamCardController {
   bool? _wroteValue;
 
   @override
-  Future<_Model> build(String machineUUID) async {
+  FutureOr<_Model> build(String machineUUID) {
     ref.keepAliveFor();
 
     talker.info('Rebuilding WebcamCardController for $machineUUID');
 
-    var machine = await ref.watch(machineProvider(machineUUID).future);
+    final machineAsync = ref.watch(machineProvider(machineUUID));
+    final allWebcamsAsync = ref.watch(allWebcamInfosProvider(machineUUID));
 
-    var allWebcams = await ref.watch(allWebcamInfosProvider(machineUUID).future);
+    var machine = machineAsync.requireValue;
+    var allWebcams = allWebcamsAsync.requireValue;
 
     var readInt = _settingService.readInt(_settingsKey, 0);
     var idx = (state.whenData((value) => value.selected).value ?? readInt);
@@ -325,8 +327,8 @@ class _WebcamCardController extends _$WebcamCardController {
 
 class _WebcamCardPreviewController extends _WebcamCardController {
   @override
-  Future<_Model> build(String machineUUID) {
-    final model = _Model(
+  FutureOr<_Model> build(String machineUUID) {
+    return _Model(
       machine: Machine(uuid: Uuid().v4(), name: 'Preview Machine', httpUri: Uri()),
       selected: 0,
       allCams: [
@@ -339,10 +341,6 @@ class _WebcamCardPreviewController extends _WebcamCardController {
         ),
       ],
     );
-
-    state = AsyncValue.data(model);
-
-    return Future.value(model);
   }
 
   @override

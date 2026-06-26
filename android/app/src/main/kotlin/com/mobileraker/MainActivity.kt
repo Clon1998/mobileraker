@@ -5,7 +5,7 @@
 
 package com.mobileraker
 
-import com.example.live_activities.LiveActivityManagerHolder
+import com.istornz.live_activities.LiveActivityManagerHolder
 import com.mobileraker.live_activity.CustomLiveActivityManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

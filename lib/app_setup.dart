@@ -13,6 +13,7 @@ import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
+import 'package:common/data/model/hive/folder_cache_entry.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
@@ -41,6 +42,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_config.dart';
+import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -109,6 +112,41 @@ setupBoxes() async {
     Hive.registerAdapter(dctAdapter);
   }
 
+  var folderCacheEntryAdapter = FolderCacheEntryAdapter();
+  if (!Hive.isAdapterRegistered(folderCacheEntryAdapter.typeId)) {
+    Hive.registerAdapter(folderCacheEntryAdapter);
+  }
+
+  var cachedFolderAdapter = CachedFolderAdapter();
+  if (!Hive.isAdapterRegistered(cachedFolderAdapter.typeId)) {
+    Hive.registerAdapter(cachedFolderAdapter);
+  }
+
+  var cachedGCodeFileAdapter = CachedGCodeFileAdapter();
+  if (!Hive.isAdapterRegistered(cachedGCodeFileAdapter.typeId)) {
+    Hive.registerAdapter(cachedGCodeFileAdapter);
+  }
+
+  var cachedGenericFileAdapter = CachedGenericFileAdapter();
+  if (!Hive.isAdapterRegistered(cachedGenericFileAdapter.typeId)) {
+    Hive.registerAdapter(cachedGenericFileAdapter);
+  }
+
+  var cachedGCodeThumbnailAdapter = CachedGCodeThumbnailAdapter();
+  if (!Hive.isAdapterRegistered(cachedGCodeThumbnailAdapter.typeId)) {
+    Hive.registerAdapter(cachedGCodeThumbnailAdapter);
+  }
+
+  var customThemeConfigAdapter = CustomThemeConfigAdapter();
+  if (!Hive.isAdapterRegistered(customThemeConfigAdapter.typeId)) {
+    Hive.registerAdapter(customThemeConfigAdapter);
+  }
+
+  var customThemePackAdapter = CustomThemePackAdapter();
+  if (!Hive.isAdapterRegistered(customThemePackAdapter.typeId)) {
+    Hive.registerAdapter(customThemePackAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   await openBoxes();
@@ -163,6 +201,8 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
       Hive.openBox('settingsbox'),
       Hive.openBox<Notification>('notifications'),
       Hive.openBox<DashboardLayout>('dashboard_layouts'),
+      Hive.openBox<FolderCacheEntry>('fileContentCache'),
+      Hive.openBox<CustomThemePack>('custom_theme_packs'),
       // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
     ]);
   } catch (e, s) {
@@ -202,6 +242,8 @@ Future<void> deleteBoxes() {
     Hive.deleteBoxFromDisk('settingsbox'),
     Hive.deleteBoxFromDisk('notifications'),
     Hive.deleteBoxFromDisk('dashboard_layouts'),
+    Hive.deleteBoxFromDisk('fileContentCache'),
+    Hive.deleteBoxFromDisk('custom_theme_packs'),
     // Hive.deleteBoxFromDisk('octo')
   ]);
 }
@@ -226,9 +268,6 @@ initializeAvailableMachines(Ref ref) async {
   List<Machine> machines = await ref.read(allMachinesProvider.future);
   talker.info('Received all machines');
 
-  await Future.wait(
-    machines.map((e) => ref.read(machineProvider(e.uuid).future)),
-  );
   talker.info('initialized all machineProviders');
 
   //   talker.info('Init for ${machine.name}(${machine.uuid})');

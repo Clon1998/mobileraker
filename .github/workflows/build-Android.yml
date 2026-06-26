@@ -16,7 +16,7 @@ jobs:
       - name: Set versions
         id: versions
         run: |
-          echo "flutter=3.32.8" >> $GITHUB_OUTPUT
+          echo "flutter=3.41.6" >> $GITHUB_OUTPUT
           echo "java=17.x" >> $GITHUB_OUTPUT
           
           # Extract version from tag (remove 'android' prefix if present)

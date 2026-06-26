@@ -19,6 +19,7 @@ import 'package:common/data/model/file_operation.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -44,6 +45,7 @@ import '../../routing/app_router.dart';
 import '../../ui/components/bottomsheet/action_bottom_sheet.dart';
 import '../../ui/components/dialog/text_input/text_input_dialog.dart';
 import '../../ui/screens/files/components/remote_file_icon.dart';
+import '../../ui/screens/files/fleet_print/fleet_print_controller.dart';
 import 'bottom_sheet_service_impl.dart';
 import 'dialog_service_impl.dart';
 
@@ -55,13 +57,13 @@ final _zipDateFormat = DateFormat('yyyy-MM-dd_HH-mm-ss');
 FileInteractionService fileInteractionService(Ref ref, String machineUUID) {
   return FileInteractionService(
     machineUUID,
+    ref,
     ref.watch(bottomSheetServiceProvider),
     ref.watch(dialogServiceProvider),
     ref.watch(snackBarServiceProvider),
     ref.watch(fileServiceProvider(machineUUID)),
     ref.watch(jobQueueServiceProvider(machineUUID)),
     ref.watch(printerServiceProvider(machineUUID)),
-    ref.watch(klipperServiceProvider(machineUUID)),
     ref.watch(goRouterProvider),
     ref.watch(isSupporterProvider),
   );
@@ -69,26 +71,26 @@ FileInteractionService fileInteractionService(Ref ref, String machineUUID) {
 
 class FileInteractionService {
   final String _machineUUID;
+  final Ref _ref;
   final BottomSheetService _bottomSheetService;
   final DialogService _dialogService;
   final SnackBarService _snackBarService;
   final FileService _fileService;
   final JobQueueService _jobQueueService;
   final PrinterService _printerService;
-  final KlippyService _klippyService;
   final GoRouter _goRouter;
 
   final bool _isSupporter;
 
   const FileInteractionService(
     this._machineUUID,
+    this._ref,
     this._bottomSheetService,
     this._dialogService,
     this._snackBarService,
     this._fileService,
     this._jobQueueService,
     this._printerService,
-    this._klippyService,
     this._goRouter,
     this._isSupporter,
   );
@@ -100,11 +102,29 @@ class FileInteractionService {
     List<String>? usedNames,
     bool useHero = true,
   ]) async* {
+    // Prevent auto-dispose while the async operation is in flight (caller uses ref.read, not ref.watch).
+    final keepAlive = _ref.keepAlive();
+    try {
+      yield* _showFileActionMenu(file, origin, machineUUID, usedNames, useHero);
+    } finally {
+      keepAlive.close();
+      talker.info('Close file-interaction-service keepALive link!');
+    }
+  }
+
+  Stream<FileInteractionMenuEvent> _showFileActionMenu(
+    RemoteFile file,
+    Rect origin,
+    String machineUUID, [
+    List<String>? usedNames,
+    bool useHero = true,
+  ]) async* {
+    final printer = _ref.read(printerProvider(_machineUUID)).value;
     final canStartPrint =
-        _printerService.hasCurrent &&
-        _printerService.current.print.state != PrintState.printing &&
-        _printerService.current.print.state != PrintState.paused;
-    final klippyReady = _klippyService.klippyCanReceiveCommands;
+        printer != null && printer.print.state != PrintState.printing && printer.print.state != PrintState.paused;
+    final klippyReady = _ref.read(klipperProvider(_machineUUID)).value?.klippyCanReceiveCommands == true;
+    final allMachines = await _ref.read(allMachinesProvider.future);
+    final otherMachineCount = allMachines.where((m) => m.uuid != _machineUUID).length;
 
     final arg = ActionBottomSheetArgs(
       title: Tooltip(
@@ -133,7 +153,7 @@ class FileInteractionService {
           },
         ),
       ),
-      actions: _getFileActions(file, canStartPrint, klippyReady),
+      actions: _getFileActions(file, canStartPrint, klippyReady, otherMachineCount),
     );
 
     talker.info('[FileInteractionService($_machineUUID)] showing file action menu for ${file.name}');
@@ -420,6 +440,7 @@ class FileInteractionService {
   }
 
   Stream<FileInteractionMenuEvent> preheatAction(GCodeFile file) async* {
+    final hasHeaterBed = _ref.read(printerProvider(_machineUUID)).value?.heaterBed != null;
     final tempArgs = ['170', file.firstLayerTempBed?.toStringAsFixed(0) ?? '60'];
     final resp = await _dialogService.showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
@@ -429,7 +450,7 @@ class FileInteractionService {
     if (resp?.confirmed != true) return;
     _printerService.setHeaterTemperature('extruder', 170);
 
-    if (_printerService.currentOrNull?.heaterBed != null) {
+    if (hasHeaterBed) {
       _printerService.setHeaterTemperature('heater_bed', (file.firstLayerTempBed ?? 60.0).toInt());
     }
     _snackBarService.show(
@@ -443,6 +464,37 @@ class FileInteractionService {
   Stream<FileInteractionMenuEvent> submitJobAction(GCodeFile file) async* {
     await _printerService.startPrintFile(file);
     _goRouter.goNamed(AppRoute.dashBoard.name);
+  }
+
+  Stream<FileInteractionMenuEvent> fleetPrintAction(GCodeFile file) async* {
+    if (!_isSupporter) {
+      _snackBarService.show(
+        SnackBarConfig(
+          type: SnackbarType.warning,
+          title: tr('components.supporter_only_feature.dialog_title'),
+          message: tr('components.supporter_only_feature.fleet_print'),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      return;
+    }
+
+    final allMachines = await _ref.read(allMachinesProvider.future);
+    final sourceMachine = allMachines.firstWhere((m) => m.uuid == _machineUUID);
+    final otherMachines = allMachines.where((m) => m.uuid != _machineUUID).toList();
+
+    if (otherMachines.isEmpty) {
+      _snackBarService.show(
+        SnackBarConfig(type: SnackbarType.warning, message: tr('pages.files.fleet_print.no_machines')),
+      );
+      return;
+    }
+
+    _goRouter.pushNamed(
+      AppRoute.fileManager_fleetPrint.name,
+      pathParameters: {'path': file.parentPath.split('/').first},
+      extra: FleetPrintArgs(sourceMachineUUID: _machineUUID, sourceMachineName: sourceMachine.name, file: file),
+    );
   }
 
   Stream<FileInteractionMenuEvent> downloadFileAction(List<RemoteFile> files, Rect origin) async* {
@@ -721,7 +773,12 @@ class FileInteractionService {
 
   //////////////////// MISC ////////////////////
 
-  List<BottomSheetAction> _getFileActions(RemoteFile file, bool canStartPrint, bool klippyReady) {
+  List<BottomSheetAction> _getFileActions(
+    RemoteFile file,
+    bool canStartPrint,
+    bool klippyReady,
+    int otherMachineCount,
+  ) {
     final actions = <BottomSheetAction>[];
 
     if (file is GCodeFile) {
@@ -732,13 +789,13 @@ class FileInteractionService {
         ),
         GcodeFileSheetAction.preview,
         GcodeFileSheetAction.addToQueue,
+        if (otherMachineCount > 0) GcodeFileSheetAction.fleetPrint,
         DividerSheetAction.divider,
       ]);
     }
 
     actions.addAll([
-      if (!file.isArchive)
-      FileSheetAction.zipFile,
+      if (!file.isArchive) FileSheetAction.zipFile,
       FileSheetAction.download,
       DividerSheetAction.divider,
       FileSheetAction.rename,
@@ -776,6 +833,9 @@ class FileInteractionService {
           break;
         case GcodeFileSheetAction.submitPrintJob when file is GCodeFile:
           yield* submitJobAction(file);
+          break;
+        case GcodeFileSheetAction.fleetPrint when file is GCodeFile:
+          yield* fleetPrintAction(file);
           break;
         case FileSheetAction.download:
           yield* downloadFileAction([file], origin);

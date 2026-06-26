@@ -44,7 +44,7 @@ class KlippyProviderGuard extends HookConsumerWidget {
     var fetchedOnce = useRef(false);
 
     var klippy = ref.watch(klipperProvider(machineUUID));
-    // talker.warning('Models(hasErr: ${klippy.hasError}): $klippy');
+    talker.warning('Models(hasErr: ${klippy.hasError}): $klippy');
 
     var wasFetched = fetchedOnce.value;
     if (klippy case AsyncData(value: KlipperInstance(klippyState: KlipperState.ready))) {
@@ -55,11 +55,11 @@ class KlippyProviderGuard extends HookConsumerWidget {
       // duration: Duration(milliseconds: 2200),
       duration: kThemeAnimationDuration,
       child: switch (klippy) {
-        AsyncData(
+        AsyncValue(
           value: KlipperInstance(
-                klippyState: KlipperState.error || KlipperState.disconnected || KlipperState.shutdown
+                klippyState: KlipperState.error || KlipperState.disconnected || KlipperState.shutdown,
               ) &&
-              final kInstance
+              final kInstance,
           // The `when !wasFetched` ensures to skip the state error if we had a AsyncData before -> the dashboard should take care of showing errors
         )
             when !skipKlipperReady && !wasFetched =>
@@ -110,25 +110,22 @@ class _StateError extends ConsumerWidget {
                           ),
                         ),
                         child: Row(
-                          mainAxisAlignment:
-                              data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                          mainAxisAlignment: data.klippyConnected
+                              ? MainAxisAlignment.spaceBetween
+                              : MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
                               onPressed: () {
                                 ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
                               },
-                              child: const Text(
-                                'pages.dashboard.general.restart_klipper',
-                              ).tr(),
+                              child: const Text('pages.dashboard.general.restart_klipper').tr(),
                             ),
                             if (data.klippyConnected)
                               ElevatedButton(
                                 onPressed: () {
                                   ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
                                 },
-                                child: const Text(
-                                  'pages.dashboard.general.restart_mcu',
-                                ).tr(),
+                                child: const Text('pages.dashboard.general.restart_mcu').tr(),
                               ),
                           ],
                         ),
@@ -199,8 +196,8 @@ class _ProviderError extends ConsumerWidget {
           body: Text(message),
           action: TextButton.icon(
             onPressed: () {
-              talker.info('Invalidating klipper service provider, to retry klippy fetching');
-              ref.invalidate(klipperServiceProvider(machineUUID));
+              talker.info('Invalidating klipper provider, to retry klippy fetching');
+              ref.invalidate(klipperProvider(machineUUID));
             },
             icon: const Icon(Icons.restart_alt_outlined),
             label: const Text('general.retry').tr(),

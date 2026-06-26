@@ -14,7 +14,7 @@ sealed class Supporter with _$Supporter {
   const Supporter._();
 
   const factory Supporter(
-      {required String fcmToken, DateTime? expirationDate}) = _Supporter;
+      {required String fcmToken, String? accountId, DateTime? expirationDate}) = _Supporter;
 
   factory Supporter.fromJson(Map<String, dynamic> json) =>
       _$SupporterFromJson(json);
@@ -22,6 +22,7 @@ sealed class Supporter with _$Supporter {
   Map<String, dynamic> toFirebase() {
     return {
       'fcmToken': fcmToken,
+      if (accountId != null) 'accountId': accountId,
       'expirationDate': expirationDate != null ? Timestamp.fromDate(expirationDate!) : null
     };
   }

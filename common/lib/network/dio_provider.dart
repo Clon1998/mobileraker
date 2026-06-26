@@ -18,6 +18,7 @@ import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:hashlib/hashlib.dart';
 import 'package:hashlib_codecs/hashlib_codecs.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../exceptions/mobileraker_exception.dart';
@@ -48,62 +49,87 @@ Dio dioClient(Ref ref, String machineUUID) {
 
 @riverpod
 BaseOptions baseOptions(Ref ref, String machineUUID, ClientType clientType) {
-  var machine = ref.watch(machineProvider(machineUUID)).value;
+  // Select only the fields that affect connection options so that non-connection
+  // field changes (name, theme, dashboard layout) do not rebuild the HTTP/WS stack.
+  final connectionKey = ref.watch(
+    machineProvider(machineUUID).select((m) {
+      final v = m.value;
+      if (v == null) return null;
+      return (
+        v.httpUri,
+        v.apiKey,
+        v.httpHeaders,
+        v.timeout,
+        v.trustUntrustedCertificate,
+        v.pinnedCertificateDERBase64,
+        v.octoEverywhere,
+        v.obicoTunnel,
+        v.remoteInterface,
+      );
+    }),
+  );
 
-  if (machine == null) {
+  if (connectionKey == null) {
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
-  var pinnedSha256Fp = machine.pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)));
+  final (
+    httpUri,
+    apiKey,
+    httpHeaders,
+    timeout,
+    trustUntrustedCertificate,
+    pinnedCertificateDERBase64,
+    octoEverywhere,
+    obicoTunnel,
+    remoteInterface,
+  ) = connectionKey;
+
+  // Equivalent of machine.headerWithApiKey
+  final headerWithApiKey = {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
+
+  final pinnedSha256Fp = pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)));
 
   return switch (clientType) {
     ClientType.octo => BaseOptions(
-        headers: {
-          ...machine.headerWithApiKey,
-          HttpHeaders.authorizationHeader: machine.octoEverywhere!.basicAuthorizationHeader
-        },
-        baseUrl: machine.octoEverywhere!.url,
-        connectTimeout: _thirdPartyRemoteConnectionTimeout,
-        receiveTimeout: _thirdPartyRemoteConnectionTimeout,
-      ),
+      headers: {...headerWithApiKey, HttpHeaders.authorizationHeader: octoEverywhere!.basicAuthorizationHeader},
+      baseUrl: octoEverywhere!.url,
+      connectTimeout: _thirdPartyRemoteConnectionTimeout,
+      receiveTimeout: _thirdPartyRemoteConnectionTimeout,
+    ),
     ClientType.obico => BaseOptions(
-        headers: {
-          ...machine.headerWithApiKey,
-          HttpHeaders.authorizationHeader: machine.obicoTunnel!.basicAuth,
-        },
-        baseUrl: machine.obicoTunnel!.removeUserInfo().toString(),
-        connectTimeout: _thirdPartyRemoteConnectionTimeout,
-        receiveTimeout: _thirdPartyRemoteConnectionTimeout,
-      ),
+      headers: {...headerWithApiKey, HttpHeaders.authorizationHeader: obicoTunnel!.basicAuth},
+      baseUrl: obicoTunnel!.removeUserInfo().toString(),
+      connectTimeout: _thirdPartyRemoteConnectionTimeout,
+      receiveTimeout: _thirdPartyRemoteConnectionTimeout,
+    ),
     ClientType.manual => BaseOptions(
-        headers: {
-          ...machine.headerWithApiKey,
-          ...machine.remoteInterface!.httpHeaders,
-        },
-        baseUrl: machine.remoteInterface!.remoteUri.toString(),
-        connectTimeout: machine.remoteInterface!.timeoutDuration,
-        receiveTimeout: machine.remoteInterface!.timeoutDuration,
-      ),
-    ClientType.local || _ => BaseOptions(
-        baseUrl: machine.httpUri.toString(),
-        headers: machine.headerWithApiKey,
-        connectTimeout: Duration(seconds: machine.timeout),
-        receiveTimeout: Duration(seconds: machine.timeout),
-      )
-        ..trustUntrustedCertificate = machine.trustUntrustedCertificate
-        ..pinnedCertificateFingerPrint = pinnedSha256Fp
-  }
-    ..clientType = clientType;
+      headers: {...headerWithApiKey, ...remoteInterface!.httpHeaders},
+      baseUrl: remoteInterface!.remoteUri.toString(),
+      connectTimeout: remoteInterface!.timeoutDuration,
+      receiveTimeout: remoteInterface!.timeoutDuration,
+    ),
+    ClientType.local || _ =>
+      BaseOptions(
+          baseUrl: httpUri.toString(),
+          headers: headerWithApiKey,
+          connectTimeout: Duration(seconds: timeout),
+          receiveTimeout: Duration(seconds: timeout),
+        )
+        ..trustUntrustedCertificate = trustUntrustedCertificate
+        ..pinnedCertificateFingerPrint = pinnedSha256Fp,
+  }..clientType = clientType;
 }
-
 
 @riverpod
 Dio octoApiClient(Ref ref) {
-  var dio = Dio(BaseOptions(
-    baseUrl: 'https://octoeverywhere.com/api',
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  )..clientType = ClientType.octo);
+  var dio = Dio(
+    BaseOptions(
+      baseUrl: 'https://octoeverywhere.com/api',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    )..clientType = ClientType.octo,
+  );
   ref.onDispose(dio.close);
   dio.interceptors.add(RetryInterceptor(dio: dio));
   dio.interceptors.add(MobilerakerDioInterceptor());
@@ -112,11 +138,13 @@ Dio octoApiClient(Ref ref) {
 
 @riverpod
 Dio obicoApiClient(Ref ref, String baseUri) {
-  var dio = Dio(BaseOptions(
-    baseUrl: baseUri,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-  )..clientType = ClientType.obico);
+  var dio = Dio(
+    BaseOptions(
+      baseUrl: baseUri,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    )..clientType = ClientType.obico,
+  );
   ref.onDispose(dio.close);
   dio.interceptors.add(RetryInterceptor(dio: dio));
   dio.interceptors.add(MobilerakerDioInterceptor());

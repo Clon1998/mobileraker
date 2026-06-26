@@ -1,8 +1,59 @@
 # Mobileraker - Changelog
 
-## [2.9.8] - 2026-04-xx
+## [2.9.11] - 2026-06-xx
 
 ### Enhancements
+
+- **Theme Editor**: Added a theme editor to the app settings, allowing users to customize the app's appearance by
+  modifying colors, fonts, and other visual elements. This feature provides greater personalization options for users
+  who want to tailor the app's look and feel to their preferences.
+
+- **GCode Preview – Caching & Progress**: The GCode preview now caches parsed file data, so re-opening a previously
+  viewed file loads instantly from cache. A combined download/parse progress bar is also shown while loading a file for
+  the first time.
+
+- **File Manager – Folder Caching**: The file manager now caches folder contents locally, so previously visited folders
+  load instantly without waiting for a full network fetch each time.
+
+- **Reset Notification Token**: Added a "Reset Notification Token" option in the developer settings. Use this if you
+  receive notifications from a printer you no longer own (e.g. after selling a machine without a full wipe).
+
+### Bug Fixes
+
+- **Printer Settings – No More Disconnect**: Saving printer settings (name, theme, remote connections, etc.) no longer
+  causes a brief disconnect and reconnect to the printer. The app now updates settings smoothly in the background
+  without interrupting the active connection.
+
+- **Klippy Connecting State**: Fixed an issue where Klippy could stall in the "connecting" state and never transition
+  to ready, requiring a manual app restart to recover.
+
+## [2.9.10] - 2026-05-31
+
+### Enhancements
+
+- **Fleet Printing**: Added a new "Fleet Printing" option, that allows users to send a print job from one machine to
+  multiple machines at once! This can be done via the file manager on one "Source" machine.
+
+  *Note: This feature is available exclusively for "Supporters".*
+- **Backend Rework**: The app's core framework was updated and should now be more stable and faster.
+- **Print Error Reset**: Added a reset button to the Machine Status Card on the dashboard when a print is in an error
+  state, making it consistent with the overview page.
+
+### Bug Fixes
+
+- **Toolhead Selection**: Fixed a bug that displayed the toolhead selector on single-tool printers — the selector is now
+  hidden for single-tool setups to avoid user confusion.
+
+## [2.9.9] - 2026-05-06
+
+### Bug Fixes
+
+- **Notifications**: Fixed a bug that caused the app to not properly show notifications on Android.
+
+## [2.9.8] - 2026-04-22
+
+### Enhancements
+
 - **Kalico MPC** Added support for Kalico's MPC in the temp-wait filter for the console output.
 
 ### Bug Fixes
@@ -10,6 +61,10 @@
 - **Printer Settings**: Decimal number fields in printer settings (e.g. Baby-Steps) now show a full keyboard allowing
   all users to enter decimal values, instead of a number-only keyboard that prevented some users from entering decimal
   points due to their locale settings.
+- **Webcam on Overview Page**: Fixed an issue that prevented the webcam from showing on the overview page when klippy
+  reported any other state than ready.
+- **Supporter Status reset**: Fixed an issue on android that could cause the app to forget the supporter status after
+  the user migrated from one android device to a new one.This was caused by a bug in the underlying firebase_auth lib.
 
 ## [2.9.7] - 2026-03-16
 
@@ -34,7 +89,7 @@
 - **Android Backup**: Fixed incorrect exclusion paths for Firebase and RevenueCat preferences to reliably prevent
   device-specific IDs from being restored across devices.
 
-## [2.9.6] - 2025-12-xx
+## [2.9.6] - 2025-12-22
 
 ### Enhancements
 

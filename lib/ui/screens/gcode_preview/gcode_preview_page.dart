@@ -23,9 +23,8 @@ import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart
 import 'package:mobileraker_pro/gcode_preview/data/model/gcode_structure.dart';
 import 'package:mobileraker_pro/gcode_preview/data/model/gcode_visualizer_settings_key.dart';
 import 'package:mobileraker_pro/gcode_preview/gcode_layer_renderer.dart';
-import 'package:mobileraker_pro/gcode_preview/ui/gcode_downloader_widget.dart';
+import 'package:mobileraker_pro/gcode_preview/providers.dart';
 import 'package:mobileraker_pro/gcode_preview/ui/gcode_layer_visualizer.dart';
-import 'package:mobileraker_pro/gcode_preview/ui/gcode_parser_widget.dart';
 
 class GCodePreviewPage extends HookConsumerWidget {
   const GCodePreviewPage({super.key, required this.machineUUID, required this.file, this.live = false});
@@ -65,16 +64,12 @@ class _Body extends HookConsumerWidget {
 
     return configFileAsync.when(
       data: (configFile) => Center(
-        child: GCodeDownloaderWidget(
+        child: _GCodeStructureLoader(
           machineUUID: machineUUID,
-          gcodeFile: file,
-          resultBuilder: (_, __) => GCodeParserWidget(
-            machineUUID: machineUUID,
-            gcodeFile: file,
-            resultBuilder: (_, structure) => live
-                ? _LivePreview(machineUUID: machineUUID, configFile: configFile, structure: structure)
-                : _StaticPreview(configFile: configFile, structure: structure),
-          ),
+          file: file,
+          resultBuilder: (structure) => live
+              ? _LivePreview(machineUUID: machineUUID, configFile: configFile, structure: structure)
+              : _StaticPreview(configFile: configFile, structure: structure),
         ),
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -88,6 +83,61 @@ class _Body extends HookConsumerWidget {
       skipLoadingOnReload: true,
       skipLoadingOnRefresh: true,
     );
+  }
+}
+
+// progress == null  → decoding from cache (indeterminate)
+// progress 0.0–0.5  → downloading
+// progress 0.5–1.0  → parsing
+String _progressLabel(double? progress) {
+  if (progress == null) return 'components.gcode_preview.loading.cache';
+  return progress < 0.5 ? 'components.gcode_preview.downloading.progress' : 'components.gcode_preview.parsing.progress';
+}
+
+double _displayValue(double progress) => progress < 0.5 ? progress * 2 : (progress - 0.5) * 2;
+
+/// Watches [gcodeStructureProvider] and shows a combined download+parse
+/// progress bar while loading, then calls [resultBuilder] on completion.
+class _GCodeStructureLoader extends ConsumerWidget {
+  const _GCodeStructureLoader({
+    required this.machineUUID,
+    required this.file,
+    required this.resultBuilder,
+  });
+
+  final String machineUUID;
+  final GCodeFile file;
+  final Widget Function(GCodeStructure) resultBuilder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(gcodeStructureProvider(machineUUID, file));
+    final themeData = Theme.of(context);
+    final percFormat = context.percentNumFormat();
+
+    return switch (async) {
+      AsyncData(:final value) => resultBuilder(value),
+      AsyncError(:final error) => SimpleErrorWidget(
+          title: const Text('components.gcode_preview.error.parsing.title').tr(),
+          body: Text(error.toString()),
+        ),
+      AsyncLoading(:final progress) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // progress is num? internally — cast to double? for our helpers.
+              Text(
+                _progressLabel(progress?.toDouble()),
+                style: themeData.textTheme.bodySmall,
+              ).tr(args: progress != null ? [percFormat.format(_displayValue(progress.toDouble()))] : []),
+              const SizedBox(height: 8),
+              // null → indeterminate (decoding cache); non-null → determinate bar
+              LinearProgressIndicator(value: progress != null ? _displayValue(progress.toDouble()) : null),
+            ],
+          ),
+        ),
+    };
   }
 }
 
