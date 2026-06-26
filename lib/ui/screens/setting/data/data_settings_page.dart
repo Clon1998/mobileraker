@@ -129,7 +129,7 @@ class _Body extends ConsumerWidget {
     var dashboardRepo = ref.read(dashboardLayoutHiveRepositoryProvider);
     var customThemeService = ref.read(customThemeServiceProvider);
 
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
       withReadStream: true,

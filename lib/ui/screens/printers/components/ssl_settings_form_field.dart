@@ -41,11 +41,9 @@ class SslSettingsFormField extends StatelessWidget {
         trustSelfSigned: false,
       ),
       builder: (FormFieldState<SslSettings> field) {
-        final enabled = field.widget.enabled && (FormBuilder.of(context)?.enabled?? true);
+        final enabled = field.widget.enabled && (FormBuilder.of(context)?.enabled ?? true);
 
-        final SslSettings model =
-            field.value ??
-                SslSettings();
+        final SslSettings model = field.value ?? SslSettings();
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -59,37 +57,36 @@ class SslSettingsFormField extends StatelessWidget {
                 title: const Text('pages.printer_edit.ssl.self_signed').tr(),
                 // If we have a pinned cert, we always trust it!
                 value: model.trustSelfSigned || model.fingerprintSHA256 != null,
-                onChanged: ((v) =>
-                    field.didChange(
-                      model.copyWith(trustSelfSigned: v),
-                    )).only(model.fingerprintSHA256 == null && enabled),
+                onChanged: ((v) => field.didChange(
+                  model.copyWith(trustSelfSigned: v),
+                )).only(model.fingerprintSHA256 == null && enabled),
                 controlAffinity: ListTileControlAffinity.trailing,
               ),
             ),
             Flexible(
               child: GestureDetector(
-                onTap: (() =>
-                    FilePicker.platform
-                        .pickFiles(
-                      type: FileType.custom,
-                      allowedExtensions: ['pem', 'crt', 'cer'],
-                      withReadStream: true,
-                      withData: false,
-                    )
-                        .then((result) async {
-                      if (result != null) {
-                        final file = result.files.first;
-                        final content = await utf8.decodeStream(file.readStream!);
-                        if (!field.mounted) return;
+                onTap:
+                    (() =>
+                            FilePicker.pickFiles(
+                              type: FileType.custom,
+                              allowedExtensions: ['pem', 'crt', 'cer'],
+                              withReadStream: true,
+                              withData: false,
+                            ).then((result) async {
+                              if (result != null) {
+                                final file = result.files.first;
+                                final content = await utf8.decodeStream(file.readStream!);
+                                if (!field.mounted) return;
 
-                        PemCodec pemCodec = PemCodec(PemLabel.certificate);
-                        final derBytes = pemCodec.decode(content);
-                        final certDER = toBase64(derBytes);
-                        final certFP = _fingerPrint(certDER);
+                                PemCodec pemCodec = PemCodec(PemLabel.certificate);
+                                final derBytes = pemCodec.decode(content);
+                                final certDER = toBase64(derBytes);
+                                final certFP = _fingerPrint(certDER);
 
-                        field.didChange(model.copyWith(certificateDER: certDER, fingerprintSHA256: certFP));
-                      }
-                    })).only(enabled),
+                                field.didChange(model.copyWith(certificateDER: certDER, fingerprintSHA256: certFP));
+                              }
+                            }))
+                        .only(enabled),
                 child: InputDecorator(
                   decoration: InputDecoration(
                     labelText: tr('pages.printer_edit.ssl.pin_certificate_label'),
@@ -98,16 +95,15 @@ class SslSettingsFormField extends StatelessWidget {
                     helperMaxLines: 100,
                     suffix: model.fingerprintSHA256?.isNotEmpty == true
                         ? DecoratorSuffixIconButton(
-                      icon: Icons.close,
-                      onPressed: (() =>
-                          field.didChange(
-                            model.copyWith(
-                              certificateDER: null,
-                              fingerprintSHA256: null,
-                              trustSelfSigned: model.trustSelfSigned,
-                            ),
-                          )).only(enabled),
-                    )
+                            icon: Icons.close,
+                            onPressed: (() => field.didChange(
+                              model.copyWith(
+                                certificateDER: null,
+                                fingerprintSHA256: null,
+                                trustSelfSigned: model.trustSelfSigned,
+                              ),
+                            )).only(enabled),
+                          )
                         : null,
                   ),
                   child: Text(model.certificateDER ?? ''),
@@ -131,9 +127,6 @@ class SslSettingsFormField extends StatelessWidget {
 
 @freezed
 sealed class SslSettings with _$SslSettings {
-  const factory SslSettings({
-    String? certificateDER,
-    String? fingerprintSHA256,
-    @Default(false) bool trustSelfSigned,
-  }) = _SslSettings;
+  const factory SslSettings({String? certificateDER, String? fingerprintSHA256, @Default(false) bool trustSelfSigned}) =
+      _SslSettings;
 }

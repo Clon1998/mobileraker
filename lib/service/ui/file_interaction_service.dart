@@ -689,7 +689,7 @@ class FileInteractionService {
 
     bool useAny = kDebugMode || Platform.isAndroid;
 
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
       type: useAny ? FileType.any : FileType.custom,
       allowedExtensions: allowedFileTypes.unless(useAny),
       withReadStream: true,

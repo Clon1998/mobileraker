@@ -24,7 +24,7 @@ environment:
 
 dependency_overrides:
 #  web: ^0.5.1 # required because network info is using 0.3, but this package is only used by web which we dont build
-
+#  win32: ^5.9.0 # due to file_picker and share_plus. Do not care as we do  not build for windows!
 
 dependencies:
   flutter:
@@ -38,13 +38,13 @@ dependencies:
     path: common
 
   #firebase
-  firebase_core_platform_interface: ^6.0.2
+  firebase_core_platform_interface: ^7.1.0
   firebase_core: ^4.5.0
   firebase_analytics: ^12.2.0
   firebase_app_check: ^0.4.2
   firebase_crashlytics: ^5.1.0
   firebase_remote_config: ^6.3.0
-  cloud_firestore: ^6.2.0
+  cloud_firestore: ^6.6.0
   firebase_auth: ^6.3.0
 
   #architecture
@@ -55,7 +55,7 @@ dependencies:
   json_annotation: ^4.7.0
 
   #routing
-  go_router: ^16.2.4
+  go_router: ^17.3.0
   go_transitions: ^0.8.1
 
   #util
@@ -83,7 +83,7 @@ dependencies:
   #persistent
   hive_ce_flutter: ^2.1.0
   flutter_secure_storage: ^10.0.0
-  share_plus: ^12.0.1
+  share_plus: ^12.0.2
   path_provider: ^2.1.0
 
   #theme
@@ -92,8 +92,8 @@ dependencies:
   google_fonts: ^8.0.2 # 6.2.0 preventing the app from building
 
   #notification
-  awesome_notifications: ^0.11.0
-  awesome_notifications_fcm: ^0.11.0
+  awesome_notifications: ^0.12.0
+  awesome_notifications_fcm: ^0.12.0
   live_activities: ^2.4.1
 #  live_activities:
 #    path: ../flutter_live_activities
@@ -118,7 +118,7 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #bottomsheet:
-  smooth_sheets: ^0.17.0
+  smooth_sheets: ^1.0.3
 
   #ui
   gap: ^3.0.1
@@ -130,7 +130,7 @@ dependencies:
   snap_scroll_physics: ^0.0.1+3
   expandable_page_view: ^1.0.17
   badges: ^3.1.1
-  easy_stepper: ^0.8.3
+  easy_stepper: ^1.1.0
   flutter_colorpicker: ^1.1.0
   percent_indicator: ^4.0.1
   flutter_vector_icons: ^2.0.0
@@ -162,7 +162,7 @@ dependencies:
       url: https://github.com/JahnChoi/appinio_flutter_packages
       path: packages/appinio_video_player
       ref: feature/switch-cached-video-player-dep
-  file_picker: ^10.1.9
+  file_picker: ^11.0.2
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
   dotted_border: ^3.0.1
@@ -184,7 +184,7 @@ dev_dependencies:
   dart_code_metrics_presets: ^2.5.0
 
   #ads
-  google_mobile_ads: ^7.0.0
+  google_mobile_ads: ^9.0.0
 
 flutter_icons:
   android: true

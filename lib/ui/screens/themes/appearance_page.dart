@@ -244,7 +244,7 @@ class _CustomThemesSectionHeader extends ConsumerWidget {
 
   Future<void> _importTheme(BuildContext _, WidgetRef ref) async {
     final snackbarService = ref.read(snackBarServiceProvider);
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
       withReadStream: true,
