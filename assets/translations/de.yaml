@@ -541,6 +541,7 @@ pages:
     webcams_and_remote_settings: Webcams & Remote-Einstellungen
     printer_not_reachable: Drucker nicht erreichbar
     printer_not_reachable_message: Webcam-Liste und Druckereinstellungen konnten nicht geladen werden. Verbinden Sie den Drucker, um diese Bereiche zu konfigurieren.
+    klipper_not_ready: Klipper nicht bereit
     remote_settings: Remote-Einstellungen
     store_error:
       title: Speichern fehlgeschlagen!

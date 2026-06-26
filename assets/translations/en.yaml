@@ -643,6 +643,7 @@ pages:
     webcams_and_remote_settings: Webcams & Remote Settings
     printer_not_reachable: Printer not reachable
     printer_not_reachable_message: Webcam list and printer settings couldn't be loaded. Connect the printer to configure these sections.
+    klipper_not_ready: Klipper not ready
     remote_settings: Remote Settings
     store_error:
       title: Saving failed!
