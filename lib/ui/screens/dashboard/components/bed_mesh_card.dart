@@ -24,7 +24,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -163,7 +163,7 @@ class _CardTitle extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(Icons.grid_4x4),
-      // leading: const Icon(FlutterIcons.grid_mco),
+      // leading: const Icon(MaterialCommunityIcons.grid),
       title: Row(children: [const Text('pages.dashboard.control.bed_mesh_card.title').tr()]),
       trailing: TextButton(
         onPressed: (() => controller.onSettingsTap(context)).only(canSelect),
@@ -230,8 +230,8 @@ class _CardBody extends ConsumerWidget {
                     child: Chip(
                       label: Text(range),
                       avatar: const Icon(
-                        FlutterIcons.unfold_less_horizontal_mco,
-                        // FlutterIcons.flow_line_ent,
+                        MaterialCommunityIcons.unfold_less_horizontal,
+                        // Entypo.flow_line,
                         // color: Colors.white,
                         size: 20,
                       ),
@@ -429,8 +429,8 @@ class _Controller extends _$Controller {
                         // ),
                       ),
                       avatar: const Icon(
-                        FlutterIcons.unfold_less_horizontal_mco,
-                        // FlutterIcons.flow_line_ent,
+                        MaterialCommunityIcons.unfold_less_horizontal,
+                        // Entypo.flow_line,
                         // color: Colors.white,
                         size: 20,
                       ),

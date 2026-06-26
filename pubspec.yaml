@@ -133,8 +133,7 @@ dependencies:
   easy_stepper: ^0.8.3
   flutter_colorpicker: ^1.1.0
   percent_indicator: ^4.0.1
-  flutter_icons:
-    git: https://github.com/jibiel/flutter-icons.git
+  flutter_vector_icons: ^2.0.0
   flutter_spinkit: ^5.1.0
   progress_indicators: ^1.0.0
   pull_to_refresh_flutter3: ^2.0.2

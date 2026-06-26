@@ -12,7 +12,7 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table_controller.dart';
 import 'package:mobileraker/util/Superscript.dart';
@@ -86,7 +86,7 @@ class _ToolheadData extends ConsumerWidget {
         if (rowsToShow.contains(ToolheadInfoTable.POS_ROW))
           TableRow(
             children: [
-              const Padding(padding: EdgeInsets.all(8.0), child: Icon(FlutterIcons.axis_arrow_mco)),
+              const Padding(padding: EdgeInsets.all(8.0), child: Icon(MaterialCommunityIcons.axis_arrow)),
               _ConsumerCell(
                 label: 'X',
                 consumerListenable: toolheadInfoProvider(
@@ -110,7 +110,7 @@ class _ToolheadData extends ConsumerWidget {
         if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW)) ...[
           TableRow(
             children: [
-              const Padding(padding: EdgeInsets.all(8.0), child: Icon(FlutterIcons.layers_fea)),
+              const Padding(padding: EdgeInsets.all(8.0), child: Icon(Feather.layers)),
               _ConsumerCell(
                 label: tr('pages.dashboard.general.print_card.speed'),
                 consumerListenable: toolheadInfoProvider(machineUUID).selectAs((value) => '${value.mmSpeed} mm/s'),
@@ -131,7 +131,7 @@ class _ToolheadData extends ConsumerWidget {
           ),
           TableRow(
             children: [
-              const Padding(padding: EdgeInsets.all(8.0), child: Icon(FlutterIcons.printer_3d_mco)),
+              const Padding(padding: EdgeInsets.all(8.0), child: Icon(MaterialCommunityIcons.printer_3d)),
               _ConsumerCell(
                 label: tr('pages.dashboard.general.print_card.flow'),
                 consumerListenable: toolheadInfoProvider(

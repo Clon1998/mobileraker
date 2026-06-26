@@ -14,9 +14,9 @@ import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
@@ -360,7 +360,7 @@ class _UrlInputStepFooter extends ConsumerWidget {
 
     return _FlowControlButtons(
       proceed: proceed,
-      proceedIcon: const Icon(FlutterIcons.rocket1_ant),
+      proceedIcon: const Icon(AntDesign.rocket1),
       proceedLabel: const Text('pages.printer_add.test_connection.button').tr(),
     );
   }
@@ -625,7 +625,7 @@ class _ConfirmationStepScreen extends ConsumerWidget {
         ),
         FilledButton.tonalIcon(
           onPressed: controller.goToDashboard,
-          icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+          icon: const Icon(MaterialCommunityIcons.printer_3d_nozzle),
           label: const Text('pages.printer_add.confirmed.to_dashboard').tr(),
         ),
       ],

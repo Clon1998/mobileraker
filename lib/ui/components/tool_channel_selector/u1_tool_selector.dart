@@ -15,7 +15,7 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
@@ -164,7 +164,7 @@ class _U1ToolSelectorController extends _$U1ToolSelectorController {
                         ),
                         visualDensity: VisualDensity.compact,
                         label: Text('${numberFormat.format(temp)} °C'),
-                        deleteIcon: Icon(FlutterIcons.temperature_celsius_mco),
+                        deleteIcon: Icon(MaterialCommunityIcons.temperature_celsius),
                       ),
                     );
                   },

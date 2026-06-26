@@ -22,7 +22,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -155,7 +155,7 @@ class _Trailing extends HookConsumerWidget {
         MachineStateIndicator(machine),
       // Handle other jrpc states
       AsyncData() when triedReconnect.value => Icon(
-          FlutterIcons.disconnect_ant,
+          AntDesign.disconnect,
           size: 20,
           color: themeData.colorScheme.error,
         ),
@@ -171,7 +171,7 @@ class _Trailing extends HookConsumerWidget {
       AsyncError(error: var e) => Tooltip(
           message: e.toString(),
           child: Icon(
-            FlutterIcons.disconnect_ant,
+            AntDesign.disconnect,
             size: 20,
             color: themeData.colorScheme.error,
           ),

@@ -5,7 +5,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:go_router/go_router.dart';
 
 class SupporterOnlyFeature extends StatelessWidget {
@@ -24,7 +24,7 @@ class SupporterOnlyFeature extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.only(bottom: 8.0),
               child: Icon(
-                FlutterIcons.hand_holding_heart_faw5s,
+                FontAwesome5Solid.hand_holding_heart,
                 size: 32,
               ),
             ),

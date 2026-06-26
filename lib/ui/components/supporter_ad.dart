@@ -9,7 +9,7 @@ import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -67,7 +67,7 @@ class SupporterAd extends ConsumerWidget {
                   ListTile(
                     onTap: ref.read(_supporterAdControllerProvider.notifier).navigateToSupporterPage,
                     contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 12),
-                    leading: const Icon(FlutterIcons.hand_holding_heart_faw5s),
+                    leading: const Icon(FontAwesome5Solid.hand_holding_heart),
                     title: const Text('components.supporter_add.title').tr(),
                     subtitle: const Text('components.supporter_add.subtitle').tr(),
                     trailing: MobilerakerIconButton(

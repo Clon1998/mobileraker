@@ -13,8 +13,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -80,7 +80,7 @@ class NavigationDrawerWidget extends HookConsumerWidget {
                     TextSpan(
                       text: ' GitHub ',
                       style: TextStyle(color: themeData.colorScheme.secondary),
-                      children: const [WidgetSpan(child: Icon(FlutterIcons.github_alt_faw, size: 18))],
+                      children: const [WidgetSpan(child: Icon(FontAwesome.github_alt, size: 18))],
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           const String url = 'https://github.com/Clon1998/mobileraker';
@@ -186,7 +186,7 @@ class _NavHeader extends HookConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Tooltip(
                         message: 'components.nav_drawer.printer_settings'.tr(),
-                        child: Icon(FlutterIcons.settings_mdi, color: onBackground, size: 27),
+                        child: Icon(Icons.settings, color: onBackground, size: 27),
                       ),
                     ),
                   ],

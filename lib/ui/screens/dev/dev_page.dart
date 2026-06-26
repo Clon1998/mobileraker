@@ -31,7 +31,7 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -658,7 +658,7 @@ class FeatureSectionHeader extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(FlutterIcons.github_alt_faw5d, size: 15, color: themeData.textTheme.bodySmall?.color),
+                  Icon(FontAwesome5Brands.github_alt, size: 15, color: themeData.textTheme.bodySmall?.color),
                   Gap(4),
                   Text("Open Core", style: themeData.textTheme.bodySmall),
                 ],
@@ -676,7 +676,7 @@ class FeatureSectionHeader extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(FlutterIcons.console_line_mco, size: 15, color: themeData.textTheme.bodySmall?.color),
+                  Icon(MaterialCommunityIcons.console_line, size: 15, color: themeData.textTheme.bodySmall?.color),
                   Gap(4),
                   Text("Active Dev", style: themeData.textTheme.bodySmall),
                 ],

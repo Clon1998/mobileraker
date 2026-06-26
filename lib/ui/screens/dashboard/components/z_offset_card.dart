@@ -24,7 +24,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -147,12 +147,12 @@ class _CardTitle extends ConsumerWidget {
     var zOffset = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
     var numberFormat = NumberFormat('#0.000mm', context.locale.toStringWithSeparator());
     return ListTile(
-      leading: const Icon(FlutterIcons.align_vertical_middle_ent),
+      leading: const Icon(Entypo.align_vertical_middle),
       title: const Text('pages.dashboard.general.baby_step_card.title').tr(),
       trailing: Tooltip(
         message: 'pages.dashboard.general.baby_step_card.z_offset'.tr(),
         child: Chip(
-          avatar: Icon(FlutterIcons.progress_wrench_mco, color: Theme.of(context).iconTheme.color, size: 20),
+          avatar: Icon(MaterialCommunityIcons.progress_wrench, color: Theme.of(context).iconTheme.color, size: 20),
           label: Text(numberFormat.format(zOffset)),
         ),
       ),
@@ -186,12 +186,12 @@ class _CardBody extends ConsumerWidget {
             SquareElevatedIconButton(
               margin: const EdgeInsets.all(10),
               onPressed: klippyCanReceiveCommands ? () => controller.onBabyStepping(true) : null,
-              child: const Icon(FlutterIcons.upsquare_ant),
+              child: const Icon(AntDesign.upsquare),
             ),
             SquareElevatedIconButton(
               margin: const EdgeInsets.all(10),
               onPressed: klippyCanReceiveCommands ? () => controller.onBabyStepping(false) : null,
-              child: const Icon(FlutterIcons.downsquare_ant),
+              child: const Icon(AntDesign.downsquare),
             ),
           ],
         ),

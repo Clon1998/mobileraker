@@ -73,8 +73,7 @@ dependencies:
   smooth_sheets: ^0.17.0
 
   #ui
-  flutter_icons:
-    git: https://github.com/jibiel/flutter-icons.git
+  flutter_vector_icons: ^2.0.0
   flutter_svg: ^2.2.4
   flutter_svg_provider: ^1.0.7
   progress_indicators: ^1.0.0

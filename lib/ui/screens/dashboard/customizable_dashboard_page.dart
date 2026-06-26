@@ -39,8 +39,8 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
@@ -392,7 +392,7 @@ class _PrintingFAB extends ConsumerWidget {
     final dialogService = ref.read(dialogServiceProvider);
 
     return SpeedDial(
-      icon: FlutterIcons.options_vertical_sli,
+      icon: SimpleLineIcons.options_vertical,
       activeIcon: Icons.close,
       spacing: 5,
       renderOverlay: false,
@@ -499,7 +499,7 @@ class _BottomNavigationBar extends ConsumerWidget {
       AsyncData(isLoading: false, value: var model) => AnimatedBottomNavigationBar(
         icons: [
           for (var tab in model.layout.tabs) tab.iconData,
-          if (model.isEditing && model.layout.tabs.length < 5) FlutterIcons.plus_ant,
+          if (model.isEditing && model.layout.tabs.length < 5) AntDesign.plus,
         ],
         activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
         inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor?.withAlpha(125),

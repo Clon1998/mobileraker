@@ -16,7 +16,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -326,7 +326,7 @@ class _CamFormBody extends ConsumerWidget {
           child: SwitchListTile(
             value: cam.flipVertical,
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
-            secondary: const Icon(FlutterIcons.swap_vertical_mco),
+            secondary: const Icon(MaterialCommunityIcons.swap_vertical),
             activeThumbColor: themeData.colorScheme.primary,
             onChanged: ((value) => onChanged!(cam.copyWith(flipVertical: value))).only(enabled),
             dense: true,
@@ -339,7 +339,7 @@ class _CamFormBody extends ConsumerWidget {
           child: SwitchListTile(
             value: cam.flipHorizontal,
             title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
-            secondary: const Icon(FlutterIcons.swap_horizontal_mco),
+            secondary: const Icon(MaterialCommunityIcons.swap_horizontal),
             activeThumbColor: themeData.colorScheme.primary,
             onChanged: ((value) => onChanged!(cam.copyWith(flipHorizontal: value))).only(enabled),
             dense: true,

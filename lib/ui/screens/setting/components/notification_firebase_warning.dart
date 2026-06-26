@@ -6,7 +6,6 @@
 import 'package:common/service/notification_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -42,7 +41,7 @@ class NotificationFirebaseWarning extends ConsumerWidget {
                     borderRadius: BorderRadius.all(Radius.circular(15)),
                   ),
                   leading: const Icon(
-                    FlutterIcons.notifications_paused_mdi,
+                    Icons.notifications_paused,
                     size: 40,
                   ),
                   title: const Text(

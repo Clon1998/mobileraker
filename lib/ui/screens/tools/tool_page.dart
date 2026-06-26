@@ -11,7 +11,7 @@ import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -56,12 +56,12 @@ class ToolPage extends HookConsumerWidget {
                     },
                   ),
                   const _UrlToolCard(
-                    icon: Icon(FlutterIcons.speedometer_slow_mco),
+                    icon: Icon(MaterialCommunityIcons.speedometer_slow),
                     label: Text('Shake & Tune'),
                     url: 'https://github.com/Frix-x/klippain-shaketune',
                   ),
                   // const _ToolCard(
-                  //   icon: Icon(FlutterIcons.question_ant),
+                  //   icon: Icon(AntDesign.question),
                   //   label: Text('Work In Progress', textAlign: TextAlign.center),
                   // ),
                 ],

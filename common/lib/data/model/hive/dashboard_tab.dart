@@ -4,7 +4,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -20,11 +20,11 @@ sealed class DashboardTab with _$DashboardTab {
     'settings': Icons.settings,
     'dashboard': Icons.dashboard,
     'info': Icons.info,
-    'tach': FlutterIcons.tachometer_faw,
-    'sliders': FlutterIcons.settings_oct,
-    'printer': FlutterIcons.printer_3d_mco,
-    'nozzle': FlutterIcons.printer_3d_nozzle_mco,
-    'fan': FlutterIcons.fan_mco,
+    'tach': FontAwesome.tachometer,
+    'sliders': Feather.sliders,
+    'printer': MaterialCommunityIcons.printer_3d,
+    'nozzle': MaterialCommunityIcons.printer_3d_nozzle,
+    'fan': MaterialCommunityIcons.fan,
   };
 
   static String defaultIcon = 'dashboard';

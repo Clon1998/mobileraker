@@ -23,8 +23,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:highlight/languages/properties.dart';
@@ -135,7 +135,7 @@ class _ConfigFileDetailsPage extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(FlutterIcons.issue_opened_oct, color: themeData.colorScheme.onErrorContainer),
+                leading: Icon(Octicons.issue_opened, color: themeData.colorScheme.onErrorContainer),
                 title: Text('Error while loading file!', style: textStyleOnError),
               ),
               Padding(
@@ -192,7 +192,7 @@ class _Fab extends ConsumerWidget {
     }
 
     return SpeedDial(
-      icon: FlutterIcons.save_mdi,
+      icon: Icons.save,
       activeIcon: Icons.close,
       children: [
         SpeedDialChild(

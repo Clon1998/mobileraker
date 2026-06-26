@@ -33,7 +33,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
@@ -136,7 +136,7 @@ class _CardTitle extends ConsumerWidget {
     talker.info('Rebuilding output card title');
 
     return ListTile(
-      leading: const Icon(FlutterIcons.led_outline_mco),
+      leading: const Icon(MaterialCommunityIcons.led_outline),
       title: const Text('pages.dashboard.control.pin_card.title_misc').tr(),
     );
   }

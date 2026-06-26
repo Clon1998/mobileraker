@@ -6,7 +6,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 class CardWithSwitch extends HookWidget {
   static const double radius = 15;
@@ -132,7 +132,7 @@ class CardWithSwitch extends HookWidget {
     }
 
     return state
-        ? const Icon(FlutterIcons.power_on_mco, key: ValueKey('on'))
-        : const Icon(FlutterIcons.power_off_mco, key: ValueKey('off'));
+        ? const Icon(MaterialCommunityIcons.power_on, key: ValueKey('on'))
+        : const Icon(MaterialCommunityIcons.power_off, key: ValueKey('off'));
   }
 }

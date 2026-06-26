@@ -9,7 +9,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -35,14 +35,14 @@ class NavWidgetController extends _$NavWidgetController {
       if (showOverview) ...[
         NavEntry(
           label: tr('pages.overview.title'),
-          icon: FlutterIcons.view_dashboard_mco,
+          icon: MaterialCommunityIcons.view_dashboard,
           route: '/overview',
         ),
         NavEntry.divider(),
       ],
       NavEntry(
         label: tr('pages.dashboard.title'),
-        icon: FlutterIcons.printer_3d_nozzle_mco,
+        icon: MaterialCommunityIcons.printer_3d_nozzle,
         route: '/',
       ),
       NavEntry(
@@ -59,7 +59,7 @@ class NavWidgetController extends _$NavWidgetController {
       if (showSpoolman)
         NavEntry(
           label: tr('pages.spoolman.title'),
-          icon: FlutterIcons.database_ent,
+          icon: Entypo.database,
           route: '/spoolman',
         ),
       if (kDebugMode)
@@ -71,12 +71,12 @@ class NavWidgetController extends _$NavWidgetController {
       NavEntry.divider(),
       NavEntry(
         label: tr('pages.setting.title'),
-        icon: FlutterIcons.build_mdi,
+        icon: Icons.build,
         route: '/setting',
       ),
       NavEntry(
         label: tr('pages.paywall.title'),
-        icon: FlutterIcons.hand_holding_heart_faw5s,
+        icon: FontAwesome5Solid.hand_holding_heart,
         route: '/paywall',
       ),
       NavEntry.divider(),
@@ -92,7 +92,7 @@ class NavWidgetController extends _$NavWidgetController {
       ),
       NavEntry(
         label: tr('pages.tool.title'),
-        icon: FlutterIcons.toolbox_faw5s,
+        icon: FontAwesome5Solid.toolbox,
         route: '/tool',
       ),
     ];

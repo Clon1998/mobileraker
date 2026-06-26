@@ -27,7 +27,7 @@ import 'package:extended_wrap/extended_wrap.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
@@ -139,7 +139,7 @@ class _CardTitle extends ConsumerWidget {
     var model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).requireValue;
 
     return ListTile(
-      leading: const Icon(FlutterIcons.code_braces_mco),
+      leading: const Icon(MaterialCommunityIcons.code_braces),
       title: const Text('pages.dashboard.control.macro_card.title').tr(),
       trailing: switch (model.groups.length) {
         == 1 => Tooltip(

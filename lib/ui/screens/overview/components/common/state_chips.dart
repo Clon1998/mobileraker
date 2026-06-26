@@ -13,7 +13,7 @@ import 'package:common/util/extensions/client_state_extension.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 class PrintStateChip extends HookWidget {
   const PrintStateChip({super.key, required this.printState});
@@ -27,7 +27,7 @@ class PrintStateChip extends HookWidget {
     )..repeat();
 
     Widget? avatar = switch (printState) {
-      PrintState.printing => Icon(FlutterIcons.printer_3d_nozzle_mco),
+      PrintState.printing => Icon(MaterialCommunityIcons.printer_3d_nozzle),
       PrintState.error => Icon(MobilerakerIcons.nozzle_alert_outline),
       PrintState.paused => Icon(Icons.pause_outlined),
       PrintState.complete => Icon(Icons.done),

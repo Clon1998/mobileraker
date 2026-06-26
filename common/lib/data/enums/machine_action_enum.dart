@@ -4,11 +4,11 @@
  */
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 enum MachineAction with BottomSheetAction {
   delete('pages.printer_edit.remove_printer', Icons.delete_forever_outlined),
-  import('pages.printer_edit.import_settings', FlutterIcons.import_mco),
+  import('pages.printer_edit.import_settings', MaterialCommunityIcons.import),
   reset_token(
     'pages.printer_edit.reset_notifications',
     Icons.notifications_off_outlined,

@@ -17,9 +17,9 @@ import 'package:common/util/svg/gray_scale_color_mapper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
@@ -204,7 +204,7 @@ class _ServicesUnavailableWidget extends ConsumerWidget {
           Gap(12),
           TextButton.icon(
             onPressed: controller.openGithub,
-            icon: const Icon(FlutterIcons.github_faw5d),
+            icon: const Icon(FontAwesome5Brands.github),
             label: Text('pages.paywall.services_unavailable.github_btn').tr(),
             style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
           ),
@@ -532,7 +532,7 @@ class _Header extends ConsumerWidget {
         children: [
           _buildStatItem(
             context: context,
-            icon: FlutterIcons.github_alt_faw5d,
+            icon: FontAwesome5Brands.github_alt,
             translationKey: 'pages.paywall.header.open_core',
           ),
           _buildStatItem(
@@ -543,7 +543,7 @@ class _Header extends ConsumerWidget {
           ),
           _buildStatItem(
             context: context,
-            icon: FlutterIcons.console_line_mco,
+            icon: MaterialCommunityIcons.console_line,
             translationKey: 'pages.paywall.header.active_dev',
           ),
         ],

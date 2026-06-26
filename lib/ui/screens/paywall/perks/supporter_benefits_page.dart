@@ -7,7 +7,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -70,7 +70,7 @@ class _Content extends ConsumerWidget {
               ),
               if (maxNonSupporterMachines >= 0)
                 _Tile(
-                  icon: FlutterIcons.printer_3d_nozzle_outline_mco,
+                  icon: MaterialCommunityIcons.printer_3d_nozzle_outline,
                   perk: 'unlimited_printers_perk',
                   color: Colors.green,
                   colorForground: Colors.white,
@@ -113,7 +113,7 @@ class _Content extends ConsumerWidget {
                 colorForground: Colors.white,
               ),
               _Tile(
-                icon: FlutterIcons.database_ent,
+                icon: Entypo.database,
                 perk: 'job_queue_perk',
                 color: Colors.orange,
                 colorForground: Colors.white,

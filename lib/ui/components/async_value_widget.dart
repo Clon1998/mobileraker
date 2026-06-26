@@ -5,7 +5,7 @@
 
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AsyncValueWidget<T> extends StatelessWidget {
@@ -58,7 +58,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(FlutterIcons.bug_faw5s, size: 99),
+              const Icon(FontAwesome5Solid.bug, size: 99),
               const SizedBox(height: 22),
               Text('Error:\n$e', textAlign: TextAlign.center),
             ],

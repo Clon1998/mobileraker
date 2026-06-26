@@ -9,7 +9,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class HomedAxisChip extends ConsumerWidget {
@@ -26,7 +26,7 @@ class HomedAxisChip extends ConsumerWidget {
       message: 'pages.dashboard.general.move_card.homed'.tr(),
       child: Chip(
         avatar: const Icon(
-          FlutterIcons.shield_home_mco,
+          MaterialCommunityIcons.shield_home,
           // color: Colors.white,
           size: 20,
         ),

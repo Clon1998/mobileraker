@@ -7,7 +7,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 
@@ -44,7 +44,7 @@ class CompanionMissingWarning extends ConsumerWidget {
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                 ),
-                leading: const Icon(FlutterIcons.uninstall_ent, size: 40),
+                leading: const Icon(Entypo.uninstall, size: 40),
                 title: const Text(
                   'pages.setting.notification.missing_companion_title',
                 ).tr(),

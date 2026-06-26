@@ -33,7 +33,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/IconElevatedButton.dart';
@@ -254,7 +254,7 @@ class _CardTitle extends ConsumerWidget {
 
 
     return ListTile(
-      leading: const Icon(FlutterIcons.axis_arrow_mco),
+      leading: const Icon(MaterialCommunityIcons.axis_arrow),
       title: const Text('pages.dashboard.general.move_card.title').tr(),
       trailing: AnimatedSwitcher(
         duration: kThemeAnimationDuration,
@@ -319,7 +319,7 @@ class _XYMotionWidget extends ConsumerWidget {
           margin: _marginForBtns,
           onPressed: klippyCanReceiveCommands && (yHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Y) : null,
           style: buttonStyle,
-          child: const Icon(FlutterIcons.upsquare_ant),
+          child: const Icon(AntDesign.upsquare),
         ),
         Row(
           children: [
@@ -327,7 +327,7 @@ class _XYMotionWidget extends ConsumerWidget {
               margin: _marginForBtns,
               onPressed: klippyCanReceiveCommands && (xHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.X, false) : null,
               style: buttonStyle,
-              child: const Icon(FlutterIcons.leftsquare_ant),
+              child: const Icon(AntDesign.leftsquare),
             ),
             Tooltip(
               message: 'pages.dashboard.general.move_card.home_xy_tooltip'.tr(),
@@ -345,7 +345,7 @@ class _XYMotionWidget extends ConsumerWidget {
               margin: _marginForBtns,
               onPressed: klippyCanReceiveCommands && (xHomed ||forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.X) : null,
               style: buttonStyle,
-              child: const Icon(FlutterIcons.rightsquare_ant),
+              child: const Icon(AntDesign.rightsquare),
             ),
           ],
         ),
@@ -353,7 +353,7 @@ class _XYMotionWidget extends ConsumerWidget {
           margin: _marginForBtns,
           onPressed: klippyCanReceiveCommands && (yHomed ||forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Y, false) : null,
           style: buttonStyle,
-          child: const Icon(FlutterIcons.downsquare_ant),
+          child: const Icon(AntDesign.downsquare),
         ),
       ],
     );
@@ -380,7 +380,7 @@ class _ZMotionWidget extends ConsumerWidget {
           margin: _marginForBtns,
           onPressed: klippyCanReceiveCommands && (zHomed || forceMoveEnabled)  ? () => controller.onMoveBtn(PrinterAxis.Z) : null,
           style: buttonStyle,
-          child: const Icon(FlutterIcons.upsquare_ant),
+          child: const Icon(AntDesign.upsquare),
         ),
         Tooltip(
           message: 'pages.dashboard.general.move_card.home_z_tooltip'.tr(),
@@ -394,7 +394,7 @@ class _ZMotionWidget extends ConsumerWidget {
           margin: _marginForBtns,
           onPressed: klippyCanReceiveCommands && (zHomed || forceMoveEnabled) ? () => controller.onMoveBtn(PrinterAxis.Z, false) : null,
           style: buttonStyle,
-          child: const Icon(FlutterIcons.downsquare_ant),
+          child: const Icon(AntDesign.downsquare),
         ),
       ],
     );
@@ -742,21 +742,21 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         _QuickAction(
           title: tr('pages.dashboard.general.move_card.qgl_btn'),
           description: tr('pages.dashboard.general.move_card.qgl_tooltip'),
-          icon: FlutterIcons.quadcopter_mco,
+          icon: MaterialCommunityIcons.quadcopter,
           callback: onQuadGantry,
         ),
       if (configFile.hasBedMesh == true)
         _QuickAction(
           title: tr('pages.dashboard.general.move_card.mesh_btn'),
           description: tr('pages.dashboard.general.move_card.mesh_tooltip'),
-          icon: FlutterIcons.map_marker_path_mco,
+          icon: MaterialCommunityIcons.map_marker_path,
           callback: onBedMesh,
         ),
       if (configFile.hasScrewTiltAdjust == true)
         _QuickAction(
           title: tr('pages.dashboard.general.move_card.stc_btn'),
           description: tr('pages.dashboard.general.move_card.stc_tooltip'),
-          icon: FlutterIcons.screw_machine_flat_top_mco,
+          icon: MaterialCommunityIcons.screw_machine_flat_top,
           callback: onScrewTiltCalc,
         ),
       if (configFile.hasZTilt == true)
@@ -783,14 +783,14 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         _QuickAction(
           title: 'pages.dashboard.general.move_card.poff_btn'.tr(),
           description: 'pages.dashboard.general.move_card.poff_tooltip'.tr(),
-          icon: FlutterIcons.grease_pencil_mco,
+          icon: MaterialCommunityIcons.grease_pencil,
           callback: onProbeCalibration,
         ),
       if (configFile.hasBedScrews == true)
         _QuickAction(
           title: tr('pages.dashboard.general.move_card.bsa_btn'),
           description: tr('pages.dashboard.general.move_card.bsa_tooltip'),
-          icon: FlutterIcons.axis_z_rotate_clockwise_mco,
+          icon: MaterialCommunityIcons.axis_z_rotate_clockwise,
           callback: onBedScrewAdjust,
         ),
       if (configFile.hasVirtualZEndstop == false)

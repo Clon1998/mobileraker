@@ -51,7 +51,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
@@ -395,9 +395,9 @@ class _BottomNav extends ConsumerWidget {
       items: [
         BottomNavigationBarItem(
           label: tr('pages.files.gcode_tab'),
-          icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+          icon: const Icon(MaterialCommunityIcons.printer_3d_nozzle_outline),
         ),
-        BottomNavigationBarItem(label: tr('pages.files.config_tab'), icon: const Icon(FlutterIcons.file_code_faw5)),
+        BottomNavigationBarItem(label: tr('pages.files.config_tab'), icon: const Icon(FontAwesome5Regular.file_code)),
         if (hasTimelapseComponent)
           BottomNavigationBarItem(
             label: tr('pages.files.timelapse_tab'),
@@ -476,8 +476,8 @@ class _TabbarNav extends HookConsumerWidget {
           onTap: controller.onClickRootNavigation,
           enableFeedback: true,
           tabs: [
-            Tab(text: tr('pages.files.gcode_tab'), icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
-            Tab(text: tr('pages.files.config_tab'), icon: const Icon(FlutterIcons.file_code_faw5)),
+            Tab(text: tr('pages.files.gcode_tab'), icon: const Icon(MaterialCommunityIcons.printer_3d_nozzle_outline)),
+            Tab(text: tr('pages.files.config_tab'), icon: const Icon(FontAwesome5Regular.file_code)),
             if (hasTimelapseComponent)
               Tab(text: tr('pages.files.timelapse_tab'), icon: const Icon(Icons.subscriptions_outlined)),
           ],

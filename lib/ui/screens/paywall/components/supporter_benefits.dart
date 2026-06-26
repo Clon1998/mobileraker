@@ -6,7 +6,7 @@
 import 'package:common/service/app_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -34,7 +34,7 @@ class SupporterBenefits extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(FlutterIcons.gift_outline_mco, size: 20, color: themeData.colorScheme.primary),
+                Icon(MaterialCommunityIcons.gift_outline, size: 20, color: themeData.colorScheme.primary),
                 const Gap(8),
                 Text(
                   'pages.paywall.benefits.title',
@@ -86,7 +86,7 @@ class _BenefitGrid extends StatelessWidget {
             Expanded(
               child: _buildFeatureItem(
                 context,
-                FlutterIcons.printer_3d_nozzle_outline_mco,
+                MaterialCommunityIcons.printer_3d_nozzle_outline,
                 'pages.paywall.benefits.unlimited_printers_perk.title',
                 'pages.paywall.benefits.unlimited_printers_perk.short',
               ),

@@ -19,7 +19,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
 import 'package:mobileraker_pro/custom_themes/repository/custom_theme_repository_impl.dart';
@@ -64,7 +64,7 @@ class _Body extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
               title: Text('pages.setting.data.export.title').tr(),
               subtitle: Text('pages.setting.data.export.helper').tr(),
-              leading: Icon(FlutterIcons.database_export_mco),
+              leading: Icon(MaterialCommunityIcons.database_export),
               // trailing: Icon(Icons.keyboard_arrow_right),
               onTap: () => onExportTap(ref, context),
             ),
@@ -73,7 +73,7 @@ class _Body extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
               title: Text('pages.setting.data.import.title').tr(),
               subtitle: Text('pages.setting.data.import.helper').tr(),
-              leading: Icon(FlutterIcons.database_import_mco),
+              leading: Icon(MaterialCommunityIcons.database_import),
               // trailing: Icon(Icons.keyboard_arrow_right),
               onTap: () => onImportTap(ref, context),
             ),

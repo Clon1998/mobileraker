@@ -12,7 +12,7 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -55,7 +55,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(FlutterIcons.raspberry_pi_faw5d, color: themeData.colorScheme.onBackground),
+                  child: Icon(FontAwesome5Brands.raspberry_pi, color: themeData.colorScheme.onBackground),
                 ),
                 Flexible(
                   flex: 5,

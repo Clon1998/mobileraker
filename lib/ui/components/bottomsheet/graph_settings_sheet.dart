@@ -8,7 +8,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -104,8 +104,8 @@ class _OptionsList extends ConsumerWidget {
                     children: [
                       FilterChip(
                         avatar: AnimatedCrossFade(
-                          firstChild: Icon(FlutterIcons.chart_line_mco, color: color.$1),
-                          // firstChild: Icon(FlutterIcons.line_graph_ent, color: color.$1),
+                          firstChild: Icon(MaterialCommunityIcons.chart_line, color: color.$1),
+                          // firstChild: Icon(Entypo.line_graph, color: color.$1),
                           secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
                           crossFadeState: tempActive ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                           duration: kThemeAnimationDuration,
@@ -123,7 +123,7 @@ class _OptionsList extends ConsumerWidget {
                       ),
                       FilterChip(
                         avatar: AnimatedCrossFade(
-                          firstChild: Icon(FlutterIcons.chart_areaspline_variant_mco, color: color.$1),
+                          firstChild: Icon(MaterialCommunityIcons.chart_areaspline_variant, color: color.$1),
                           secondChild: Icon(Icons.circle_outlined, color: themeData.disabledColor),
                           crossFadeState: targetActive ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                           duration: kThemeAnimationDuration,

@@ -16,7 +16,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
@@ -337,7 +337,7 @@ GoRouter goRouterImpl(Ref ref) {
             'https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md',
           ),
           topWidget: InfoCard(
-            leading: const Icon(FlutterIcons.code_fork_faw),
+            leading: const Icon(FontAwesome.code_fork),
             title: const Text('components.app_version_display.installed_version').tr(),
             body: const AppVersionText(prefix: 'Mobileraker'),
           ),

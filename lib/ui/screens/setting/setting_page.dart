@@ -20,8 +20,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart' hide Svg;
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -280,7 +280,7 @@ class _NotificationSection extends ConsumerWidget {
               TextSpan(
                 text: '\n${tr('pages.setting.general.companion_link')} ',
                 style: TextStyle(color: themeData.colorScheme.secondary),
-                children: const [WidgetSpan(child: Icon(FlutterIcons.github_alt_faw, size: 18))],
+                children: const [WidgetSpan(child: Icon(FontAwesome.github_alt, size: 18))],
                 recognizer: TapGestureRecognizer()
                   ..onTap = ref.read(settingPageControllerProvider.notifier).openCompanion,
               ),

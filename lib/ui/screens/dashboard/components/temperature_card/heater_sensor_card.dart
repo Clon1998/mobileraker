@@ -35,7 +35,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -418,7 +418,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
               ),
               temperatureFan.speed > 0
                   ? const SpinningFan(size: icoSize)
-                  : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
+                  : const Icon(MaterialCommunityIcons.fan_off, size: icoSize),
             ],
           ),
         );

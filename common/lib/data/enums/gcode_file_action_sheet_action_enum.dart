@@ -4,13 +4,13 @@
  */
 import 'package:common/ui/mobileraker_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 import '../model/sheet_action_mixin.dart';
 
 /// Actions specific to Gcode files.
 enum GcodeFileSheetAction with BottomSheetAction {
-  submitPrintJob('pages.files.gcode_file_actions.submit', FlutterIcons.printer_3d_nozzle_mco),
+  submitPrintJob('pages.files.gcode_file_actions.submit', MaterialCommunityIcons.printer_3d_nozzle),
   preheat('pages.files.gcode_file_actions.preheat', MobilerakerIcons.nozzle_heat),
   addToQueue('pages.files.gcode_file_actions.enqueue', Icons.queue),
   preview('pages.files.gcode_file_actions.preview', Icons.layers),

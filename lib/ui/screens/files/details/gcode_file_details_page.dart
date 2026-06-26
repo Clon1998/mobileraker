@@ -35,7 +35,7 @@ import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -210,7 +210,7 @@ class _CompactBody extends HookConsumerWidget {
                 children: <Widget>[
                   ListTile(
                     leading: const Icon(
-                      FlutterIcons.printer_3d_nozzle_outline_mco,
+                      MaterialCommunityIcons.printer_3d_nozzle_outline,
                     ),
                     title: const Text('pages.setting.general.title').tr(),
                   ),
@@ -241,7 +241,7 @@ class _CompactBody extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ListTile(
-                    leading: const Icon(FlutterIcons.tags_ant),
+                    leading: const Icon(AntDesign.tags),
                     title: const Text('pages.files.details.meta_card.title').tr(),
                   ),
                   const Divider(),
@@ -290,7 +290,7 @@ class _CompactBody extends HookConsumerWidget {
             //     mainAxisSize: MainAxisSize.min,
             //     children: <Widget>[
             //       ListTile(
-            //         leading: Icon(FlutterIcons.chart_bar_mco),
+            //         leading: Icon(MaterialCommunityIcons.chart_bar),
             //         title: Text('pages.files.details.stat_card.title').tr(),
             //       ),
             //       Divider(),
@@ -354,7 +354,7 @@ class _MediumBody extends HookConsumerWidget {
                             children: [
                               ListTile(
                                 leading: const Icon(
-                                  FlutterIcons.image_faw5,
+                                  FontAwesome5Regular.image,
                                 ),
                                 title: const Text('general.preview').tr(),
                               ),
@@ -396,7 +396,7 @@ class _MediumBody extends HookConsumerWidget {
                         children: <Widget>[
                           ListTile(
                             leading: const Icon(
-                              FlutterIcons.printer_3d_nozzle_outline_mco,
+                              MaterialCommunityIcons.printer_3d_nozzle_outline,
                             ),
                             title: const Text('pages.setting.general.title').tr(),
                           ),
@@ -450,7 +450,7 @@ class _MediumBody extends HookConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           ListTile(
-                            leading: const Icon(FlutterIcons.tags_ant),
+                            leading: const Icon(AntDesign.tags),
                             title: const Text('pages.files.details.meta_card.title').tr(),
                           ),
                           const Divider(),
@@ -541,7 +541,7 @@ class _Fab extends ConsumerWidget {
     return FloatingActionButton.extended(
       backgroundColor: (canStartPrint) ? null : Theme.of(context).disabledColor,
       onPressed: controller.onStartPrintTap.only(canStartPrint),
-      icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+      icon: const Icon(MaterialCommunityIcons.printer_3d_nozzle),
       label: const Text('general.print').tr(),
     );
   }

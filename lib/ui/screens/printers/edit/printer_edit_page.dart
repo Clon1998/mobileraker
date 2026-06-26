@@ -37,8 +37,8 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -617,7 +617,7 @@ class _ThemeSelector extends HookConsumerWidget {
           helperText: isSupporter ? tr('pages.printer_edit.general.theme_helper') : null,
           suffix: IconButton(
             constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
-            icon: const Icon(FlutterIcons.hand_holding_heart_faw5s),
+            icon: const Icon(FontAwesome5Solid.hand_holding_heart),
             onPressed: () => dialogService.show(
               DialogRequest(
                 type: DialogType.supporterOnlyFeature,
@@ -776,7 +776,7 @@ class _WebcamsFormField extends ConsumerWidget {
       trailing: TextButton.icon(
         onPressed: onAddWebcam,
         label: const Text('general.add').tr(),
-        icon: const Icon(FlutterIcons.webcam_mco),
+        icon: const Icon(MaterialCommunityIcons.webcam),
       ),
     );
 

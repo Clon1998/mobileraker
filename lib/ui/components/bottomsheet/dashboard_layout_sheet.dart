@@ -21,7 +21,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -82,7 +82,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
           children: [
             IconButton(
               onPressed: controller.onImportLayout,
-              icon: Icon(FlutterIcons.database_import_mco),
+              icon: Icon(MaterialCommunityIcons.database_import),
               tooltip: tr('general.import'),
             ),
             Gap(8),

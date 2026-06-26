@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 
 class SpinningFan extends HookWidget {
   const SpinningFan({super.key, required this.size, this.speed = 1});
@@ -23,7 +23,7 @@ class SpinningFan extends HookWidget {
     )..repeat();
     return RotationTransition(
       turns: animationController,
-      child: Icon(FlutterIcons.fan_mco, size: size),
+      child: Icon(MaterialCommunityIcons.fan, size: size),
     );
   }
 }

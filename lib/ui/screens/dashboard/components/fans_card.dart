@@ -26,7 +26,7 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -130,7 +130,7 @@ class _CardTitle extends ConsumerWidget {
     // talker.info('Rebuilding fans card title');
 
     return ListTile(
-      leading: const Icon(FlutterIcons.fan_mco),
+      leading: const Icon(MaterialCommunityIcons.fan),
       title: const Text('pages.dashboard.control.fan_card.title').plural(model),
     );
   }
@@ -268,7 +268,7 @@ class _FanCard extends StatelessWidget {
                   ],
                 ),
               ),
-              speed > 0 ? SpinningFan(size: icoSize, speed: speed) : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
+              speed > 0 ? SpinningFan(size: icoSize, speed: speed) : const Icon(MaterialCommunityIcons.fan_off, size: icoSize),
             ],
           ),
         );

@@ -8,7 +8,7 @@ import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class SliderOrTextInput extends StatefulWidget {
@@ -173,7 +173,7 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
               ),
               CrossFadeState.showSecond => IconButton(
                 key: const ValueKey('sliders'),
-                icon: const Icon(FlutterIcons.fingerprint_mco),
+                icon: const Icon(MaterialCommunityIcons.fingerprint),
                 onPressed: inputValid && widget.onChange != null ? _toggle : null,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 33, minHeight: 33),

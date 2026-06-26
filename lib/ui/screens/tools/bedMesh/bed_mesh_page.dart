@@ -11,7 +11,7 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -86,8 +86,8 @@ class BedMeshPage extends HookConsumerWidget {
                       child: Chip(
                         label: Text(range),
                         avatar: const Icon(
-                          FlutterIcons.unfold_less_horizontal_mco,
-                          // FlutterIcons.flow_line_ent,
+                          MaterialCommunityIcons.unfold_less_horizontal,
+                          // Entypo.flow_line,
                           // color: Colors.white,
                           size: 20,
                         ),

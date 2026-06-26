@@ -22,7 +22,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -148,7 +148,7 @@ class _CardTitle extends ConsumerWidget {
         ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
     return ListTile(
       contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
-      leading: Icon(klippyCanReceiveCommands ? FlutterIcons.monitor_dashboard_mco : FlutterIcons.disconnect_ant),
+      leading: Icon(klippyCanReceiveCommands ? MaterialCommunityIcons.monitor_dashboard : AntDesign.disconnect),
       title: _Title(machineUUID: machineUUID),
       subtitle: switch (printState) {
         PrintState.printing || PrintState.paused || PrintState.complete || PrintState.cancelled => Text(
@@ -261,7 +261,7 @@ class _Trailing extends ConsumerWidget {
               child: Row(
                 children: [
                   Icon(
-                    FlutterIcons.printer_3d_nozzle_mco,
+                    MaterialCommunityIcons.printer_3d_nozzle,
                     color: themeData.colorScheme.primary,
                   ),
                   const SizedBox(width: 8),
@@ -416,7 +416,7 @@ class _ExcludeObject extends ConsumerWidget {
                       fit: StackFit.expand,
                       alignment: Alignment.center,
                       children: [
-                        const Icon(FlutterIcons.printer_3d_nozzle_mco),
+                        const Icon(MaterialCommunityIcons.printer_3d_nozzle),
                         Positioned(
                           bottom: -0.6,
                           right: 1,

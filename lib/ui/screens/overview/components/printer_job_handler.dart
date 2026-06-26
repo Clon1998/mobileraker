@@ -31,7 +31,7 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -622,7 +622,7 @@ class _JobText extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(FlutterIcons.file_outline_mco, size: 14),
+        Icon(MaterialCommunityIcons.file_outline, size: 14),
         Gap(4),
         Flexible(
           child: Tooltip(

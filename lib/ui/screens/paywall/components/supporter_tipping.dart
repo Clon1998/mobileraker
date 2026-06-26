@@ -6,7 +6,7 @@
 import 'package:common/service/payment_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:purchases_flutter/models/offering_wrapper.dart';
@@ -57,7 +57,7 @@ class TippingCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    FlutterIcons.coffee_outline_mco,
+                    MaterialCommunityIcons.coffee_outline,
                     size: 20,
                     color: theme.colorScheme.tertiary,
                   ),
