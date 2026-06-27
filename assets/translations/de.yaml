@@ -301,6 +301,9 @@ pages:
       preheat: Vorheizen
       enqueue: Zur Warteschlange hinzufügen
       preview: Vorschau
+      fleet_print: Flotten-Druck
+    fleet_print:
+      title: Flotten-Druck
     file_operation:
       download_canceled:
         title: Download abgebrochen
