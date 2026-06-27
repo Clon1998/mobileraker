@@ -101,15 +101,21 @@ class FileInteractionService {
     String machineUUID, [
     List<String>? usedNames,
     bool useHero = true,
-  ]) async* {
-    // Prevent auto-dispose while the async operation is in flight (caller uses ref.read, not ref.watch).
+  ]) {
+    // keepAlive() must be called synchronously here, not inside async*, because async* bodies
+    // are lazy (only run on first subscription). By then the provider may already be
+    // auto-disposed (caller uses ref.read, not ref.watch), making keepAlive() throw.
     final keepAlive = _ref.keepAlive();
-    try {
-      yield* _showFileActionMenu(file, origin, machineUUID, usedNames, useHero);
-    } finally {
-      keepAlive.close();
-      talker.info('Close file-interaction-service keepALive link!');
+
+    Stream<FileInteractionMenuEvent> inner() async* {
+      try {
+        yield* _showFileActionMenu(file, origin, machineUUID, usedNames, useHero);
+      } finally {
+        keepAlive.close();
+      }
     }
+
+    return inner();
   }
 
   Stream<FileInteractionMenuEvent> _showFileActionMenu(
