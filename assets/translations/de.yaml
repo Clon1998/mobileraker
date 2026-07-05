@@ -301,6 +301,22 @@ pages:
       preheat: Vorheizen
       enqueue: Zur Warteschlange hinzufügen
       preview: Vorschau
+      fleet_print: Flotten-Druck
+    fleet_print:
+      title: Flotten-Druck
+      select_hint: Wählen Sie die Ziel-Drucker aus, an die diese Datei gesendet werden soll, und starten Sie den Druckvorgang.
+      start_btn: Flotten-Druck starten
+      downloading: Download von {name}
+      uploading: Hochladen
+      print_started: Druck gestartet
+      failed: Fehlgeschlagen
+      summary_success: "Flotten-Druck abgeschlossen — {success} von {total} Druckern gestartet."
+      summary_partial: "Flotten-Druck abgeschlossen — {success} von {total} Druckern gestartet. {failed} fehlgeschlagen."
+      done: Fertig
+      no_machines: Es sind keine anderen Drucker verfügbar, an die die Datei gesendet werden könnte.
+      source_printer: Dieser Drucker
+      checking: Prüfe…
+      pick_source_printer: Quelldrucker auswählen
     file_operation:
       download_canceled:
         title: Download abgebrochen
@@ -441,6 +457,73 @@ pages:
       keep_screen_on: Bildschirm aktiviert lassen
       keep_screen_on_hint: Verhindert, dass sich der Bildschirm ausschaltet, solange die App aktiv ist
     ui:
+      appearance:
+        title: Aussehen
+        subtitle: Design, Helligkeit und benutzerdefinierte Designs
+        theme_section: Design
+        custom_themes: Eigene Designs
+        custom_themes_empty: Es sind noch keine benutzerdefinierten Designs vorhanden. Tippe auf „Neues Design“, um eines zu erstellen.
+        new_theme: Neues Design
+        edit_theme: Design bearbeiten
+        delete_theme_title: Design löschen
+        delete_theme_body: Das Design „{}“ löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+        theme_identity: Identität
+        theme_name: Design-Name
+        theme_name_required: Bitte gib einen Namen für das Design ein.
+        logo_light: Helles Logo (SVG/PNG)
+        logo_dark: Dunkles Logo (optional)
+        light_theme: Helle Designfarben
+        dark_theme: Dunkle Designfarben
+        separate_dark_theme: Separates dunkles Design
+        separate_dark_theme_hint: Verschiedene Farben für den Dunkelmodus festlegen
+        primary_color: Grundfarbe
+        secondary_color: Sekundärfarbe (optional)
+        tertiary_color: Zusatzfarbe (optional)
+        surface_color: Oberflächenfarbe (Optional)
+        primary_color_hint: Schaltflächen, Überschriften und wichtige Aktionen
+        secondary_color_hint: Chips, Auswahlmöglichkeiten und Nebenaktionen
+        tertiary_color_hint: Kontrastierende Akzente & Highlights
+        surface_color_hint: Karten, Dialoge und Hintergrundbereiche
+        surface_background: Hintergrund
+        surface_foreground: Text
+        app_bar_color: Farbe der Appleiste (optional)
+        app_bar_color_hint: Hintergrund der Kopf- & oberen Navigation
+        logo_hint: "Empfohlen: quadratische SVG oder 512×512px PNG"
+        use_material3: Material 3 verwenden
+        use_material3_hint: "Wenn diese Option aktiviert ist, werden die Sekundär- und Zusatzfarbe anhand der Grundfarbe ermittelt. Deaktivieren Sie diese Option, um die vollständige manuelle Steuerung zu erhalten."
+        font_family: Schriftart
+        font_family_system: Systemvorgabe
+        theme_preview: Vorschau
+        set_active: Aktivieren
+        export_theme: Design exportieren
+        import_theme: Design importieren
+        clone_theme: Duplizieren
+        theme_imported: "Design \"{}\" erfolgreich importiert"
+        theme_import_failed: Fehler beim Importieren des Design — ungültige Datei
+        m3_options: Material 3 Farbmischung
+        blend_level: Oberflächenmischung
+        blend_level_hint: "Wie stark die Grundfarbe Oberflächen färbt (0 = gar nicht, 40 = stark)"
+        surface_mode: Oberflächenmodus
+        surface_mode_hint: Bestimmt, wie die Mischintensität auf verschiedene Oberflächen verteilt wird
+        surface_mode_0: "Ebene (einheitlich)"
+        surface_mode_1: "Niedrige Gerüstmischung"
+        surface_mode_2: "Hohe Gerüstmischung"
+        surface_mode_3: "Hohe Oberfläche, niedriger Gerüst"
+        surface_mode_4: "Hoher Gerüst, niedrige Oberfläche"
+        app_bar_style: Stil der App-Leiste
+        app_bar_style_hint: "Legt die Hintergrundfarbe der App-Leiste fest (wird ignoriert, wenn eine benutzerdefinierte Farbe festgelegt ist)"
+        app_bar_style_overridden: "Benutze benutzerdefinierte Farbe — leere sie oben, um sie zu aktivieren"
+        app_bar_style_0: Oberfläche
+        app_bar_style_1: Primär
+        app_bar_style_2: Material Standard
+        app_bar_style_3: Hintergrund
+        app_bar_style_4: "Gerüst-Hintergrund (Standard)"
+        used_colors: Farbstreuung
+        used_colors_hint: "Wie viele Seed-Farben erzeugen die Palette (1 = nur Primärfarben, 7 = alle drei gleichermaßen)"
+        light_is_white: Weiße Oberflächen
+        light_is_white_hint: Verleiht allen hellen Oberflächen ein reines Weiß – verhindert Farbstiche und sorgt so für einen klaren, minimalistischen Look
+        dark_is_true_black: Wahre Schwarz (OLED)
+        dark_is_true_black_hint: Stellt alle dunklen Flächen auf reines Schwarz um – spart Akku bei OLED-Displays
       machine_card_style:
         title: Übersichts - Karten Stil
         default: Standard
@@ -829,6 +912,10 @@ pages:
         title: Spoolman-UI
         subtitle: Verwalten Sie Ihre Filamentspulen mit Spoolman
         detail: 'Verfolgen Sie Ihren Filamentverbrauch in Echtzeit dank Spoolman-Integration: Von Materialkosten bis zur Restmenge haben Sie jede Spule im Blick - für eine smarte Bestandsverwaltung.'
+      fleet_print_perk:
+        title: Flotten-Druck
+        subtitle: Senden Sie einen Druckauftrag an mehrere Drucker gleichzeitig!
+        detail: Verteilen Sie einen Druckauftrag mit nur einem Fingertipp auf Ihre gesamte Drucker-Flotte – ideal für Druckfarmen und Umgebungen mit mehreren Druckern.
       advanced_perk:
         title: Erweiterte Einstellungen
         short: Vollständige Funktionen
@@ -1105,6 +1192,7 @@ components:
     spoolman_page: Die Spoolman-Seite ist leider nur für Supporter verfügbar.
     custom_dashboard: Benutzerdefinierte Dashboards sind leider nur für Supporter verfügbar.
     full_file_management: Die vollständige Dateiverwaltung (Hochladen, Runterladen…) ist leider nur für Supporter verfügbar.
+    fleet_print: Leider steht „Fleet Print“ nur Unterstützern zur Verfügung.
     gcode_preview: Die G-Code-Vorschau ist leider nur für Supporter verfügbar.
     graph_page: Der Temperatur-Verlauf ist leider nur für Supporter verfügbar.
     snapshot_webcam: Benachrichtigungen mit Webcam-Snapshot sind leider nur für Supporter verfügbar.
