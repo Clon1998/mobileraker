@@ -76,7 +76,7 @@ Future<Machine?> machine(Ref ref, String uuid) async {
   return machine;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AllMachines extends _$AllMachines {
   @override
   FutureOr<List<Machine>> build() async {
@@ -88,11 +88,16 @@ class AllMachines extends _$AllMachines {
     var isSupporter = ref.watch(isSupporterProvider);
     var settingService = ref.watch(settingServiceProvider);
     var machines = await ref.watch(machineRepositoryProvider).fetchAll();
+    // Do not touch `ref` again if we were disposed mid-await: throw immediately instead of a bare
+    // ref.watch, so callers awaiting `allMachinesProvider.future` get a rejected Future (as they
+    // already do today) rather than us tripping Riverpod's own disposed-ref assertion.
+    if (!ref.mounted) throw StateError('AllMachines was disposed while its build was still pending');
     final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
     talker.info('Received ordering $ordering');
 
     // We must ensure that all machines are loaded before we can apply the ordering, otherwise we might end up in a situation where a machine is not loaded yet and thus not included in the ordering and gets pushed to the end of the list even though it should be in the middle!
     await Future.wait(machines.map((e) => ref.read(machineProvider(e.uuid).future)));
+    if (!ref.mounted) throw StateError('AllMachines was disposed while its build was still pending');
 
     machines = machines.sorted((a, b) {
       final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
@@ -140,7 +145,7 @@ class AllMachines extends _$AllMachines {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class HiddenMachines extends _$HiddenMachines {
   @override
   FutureOr<List<Machine>> build() async {

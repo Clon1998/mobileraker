@@ -167,11 +167,14 @@ class _MachineNotificationSettingsPageController extends _$MachineNotificationSe
     final webcamsAsync = ref.watch(allSupportedWebcamInfosProvider(machine.uuid));
     final sensorsAsync = ref.watch(printerProvider(machine.uuid).selectAs((printer) => _Hack(printer.filamentSensors)));
 
-    final deviceFcm = deviceFcmAsync.requireValue;
+    // deviceFcm is null if the settings have not been synced to the printer yet (e.g. not yet connected,
+    // or push notifications are unavailable on this device). Fall back to sensible defaults instead of
+    // crashing; DeviceFcmService will correct the entry once a real sync succeeds.
+    final deviceFcm = deviceFcmAsync.requireValue ?? DeviceFcmSettings.fallback('', machine.name, null, null);
     final webcams = webcamsAsync.requireValue;
     final hack = sensorsAsync.requireValue;
 
-    return _Model(deviceFcmSettings: deviceFcm!, webcams: webcams, sensors: hack.sensors.values.toList());
+    return _Model(deviceFcmSettings: deviceFcm, webcams: webcams, sensors: hack.sensors.values.toList());
   }
 
   void onUseCustomChanged(bool value) {
