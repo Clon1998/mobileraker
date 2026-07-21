@@ -64,7 +64,7 @@ class _CardBody extends ConsumerWidget {
       AsyncError() => const ErrorCard(
           title: Text('Error loading User management'),
           body: Text(
-            'An unexpected error occured while loading the User management. Please try again later.',
+            'An unexpected error occurred while loading the User management. Please try again later.',
           ),
         ),
       AsyncValue(hasValue: true, value: fba.User(isAnonymous: false)) => const _Profile(key: Key('profile')),
@@ -549,7 +549,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     } catch (e) {
       talker.error('Error signing in', e);
       state = state.whenData((value) =>
-          value.copyWith(errorText: 'An unexpected error occured while signing in. Please try again later.'));
+          value.copyWith(errorText: 'An unexpected error occurred while signing in. Please try again later.'));
     }
   }
 
@@ -571,7 +571,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     } catch (e) {
       talker.error('Unexpected error while trying to Sign-Up', e);
       state = state.whenData((value) =>
-          value.copyWith(errorText: 'An unexpected error occured while registering. Please try again later.'));
+          value.copyWith(errorText: 'An unexpected error occurred while registering. Please try again later.'));
     }
   }
 
@@ -580,7 +580,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     return _auth.signOut().catchError((e) {
       talker.error('Error signing out', e);
       state = state.whenData((value) =>
-          value.copyWith(errorText: 'An unexpected error occured while signing out. Please try again later.'));
+          value.copyWith(errorText: 'An unexpected error occurred while signing out. Please try again later.'));
     });
   }
 
@@ -593,7 +593,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     } catch (e) {
       talker.error('Error sending email verification', e);
       state = state.whenData((value) => value.copyWith(
-          errorText: 'An unexpected error occured while sending the email verification. Please try again later.'));
+          errorText: 'An unexpected error occurred while sending the email verification. Please try again later.'));
     }
   }
 
@@ -608,7 +608,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     } catch (e) {
       talker.error('Error sending password reset email', e);
       state = state.whenData((value) => value.copyWith(
-          errorText: 'An unexpected error occured while sending the password reset email. Please try again later.'));
+          errorText: 'An unexpected error occurred while sending the password reset email. Please try again later.'));
     }
   }
 
@@ -629,7 +629,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     } catch (e) {
       talker.error('Error deleting user account', e);
       state = state.whenData((value) => value.copyWith(
-            errorText: 'An unexpected error occured while deleting your account. Please try again later.',
+            errorText: 'An unexpected error occurred while deleting your account. Please try again later.',
           ));
     }
   }
@@ -639,7 +639,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       talker.error('Error restoring purchases. Error code: $errorCode');
       state = state.whenData(
-        (value) => value.copyWith(errorText: 'An unexpected error occured while restoring purchases.\n$errorCode'),
+        (value) => value.copyWith(errorText: 'An unexpected error occurred while restoring purchases.\n$errorCode'),
       );
     });
     _showInfoText(tr('bottom_sheets.profile.restore_success'));
