@@ -2,6 +2,7 @@
 general:
   pause: 暂停
   resume: 恢复
+  connect: 连接
   connected: 已连接
   'off': '关闭'
   'on': '开启'
@@ -28,7 +29,10 @@ general:
   supported: 支持
   unsupported: 不支持
   details: 详细
+  google_play: Google Play
   ios_store: 应用商店
+  google_play_services: Google Play 服务
+  apple_services: Apple 服务
   active: 激活
   canceled: 取消
   monthly: 每月
@@ -66,6 +70,9 @@ general:
   print: 打印
   allow: 允许
   deny: 拒绝
+  settings: 设置
+  run: 运行
+  enable: 启用
 pages:
   dashboard:
     title: 仪表板
@@ -146,6 +153,13 @@ pages:
         save_btn: 保存配置
         more_btn: 更多
         homed: 已归位的轴
+        force_move_btn: 强制移动
+        force_move_tooltip: "启用强制移动模式"
+        force_move_dialog:
+          title: 要启用强制移动吗？
+          body: |-
+            您即将启用“强制移动”模式。此模式将绕过所有安全检查与运动学约束，直接驱动单个步进电机，且不会更新打印机的坐标状态。
+            这是一个底层诊断工具，操作不当可能导致机械损坏。使用完毕后，您必须执行 G28 指令重新回零，以恢复正确的运动学状态。
       baby_step_card:
         title: Z轴偏移
         z_offset: Z偏移
@@ -240,6 +254,15 @@ pages:
     editing_card:
       title: 编辑模式
       body: 您现在可以重新排序、添加和移除卡片和页面。所有卡片显示预览数据。
+    rename_layout:
+      title: 重命名布局
+      label: 布局名称
+    layout_rename_snack:
+      title: 已重命名布局！
+      body: 此布局已经成功重命名。
+    layout_reset_snack:
+      title: 布局已重置！
+      body: 此布局已经重置为默认配置。
     error_save_snack:
       title: 保存布局时出错 ！
       body: 试图保存布局时出错。
@@ -274,6 +297,22 @@ pages:
       preheat: 预热
       enqueue: 添加到打印队列
       preview: 预览
+      fleet_print: 批量打印
+    fleet_print:
+      title: 批量打印
+      select_hint: 选择目标打印机以发送此文件并开始打印。
+      start_btn: 开始批量打印
+      downloading: 从 {name} 下载
+      uploading: 上传中
+      print_started: 打印已开始
+      failed: 失败
+      summary_success: "批量打印完成 — {total} 台打印机中的 {success} 台已成功启动。"
+      summary_partial: "批量打印完成 — {total} 台打印机中的 {success} 台已成功启动，{failed} 台启动失败。"
+      done: 完成
+      no_machines: 没有其他可用的打印机可发送此文件。
+      source_printer: 此打印机
+      checking: 检查中…
+      pick_source_printer: 选择源打印机
     file_operation:
       download_canceled:
         title: 取消下载
@@ -411,6 +450,68 @@ pages:
       medium_ui_hint: 是否在大屏幕或横屏模式上使用平板界面
       keep_screen_on: 保持屏幕唤醒状态
       keep_screen_on_hint: 防止APP运行时屏幕自动关闭
+    ui:
+      appearance:
+        title: 外观
+        subtitle: 主题、亮度与自定义主题
+        theme_section: 主题
+        custom_themes: 自定义主题
+        custom_themes_empty: 暂无自定义主题。点击“新建主题”即可创建。
+        new_theme: 新建主题
+        edit_theme: 编辑主题
+        delete_theme_title: 删除主题
+        delete_theme_body: 确认删除 "{}" 主题？此操作不可逆。
+        theme_identity: 主题标识
+        theme_name: 主题名称
+        theme_name_required: 请输入主题名称。
+        logo_light: 亮色LOGO (SVG/PNG)
+        logo_dark: 暗色LOGO (可选)
+        light_theme: 亮色主题颜色
+        dark_theme: 暗色主题颜色
+        separate_dark_theme: 单独设置暗色主题
+        separate_dark_theme_hint: 为暗色主题设置不同的颜色
+        primary_color: 主要颜色
+        secondary_color: 次要颜色（可选）
+        tertiary_color: 第三颜色（可选）
+        surface_color: 背景颜色（可选）
+        primary_color_hint: 按钮，标题栏与核心操作区
+        secondary_color_hint: 标签、选中项与次要操作区
+        tertiary_color_hint: 对比强调色与高亮区
+        surface_color_hint: 卡片、对话框与背景区
+        surface_background: 背景
+        surface_foreground: 文字
+        app_bar_color: 应用栏颜色（可选）
+        app_bar_color_hint: 标题栏与顶部导航背景
+        logo_hint: "推荐：方形 SVG 或 512×512px PNG"
+        use_material3: 使用 Material 3 样式
+        use_material3_hint: "开启后，次要颜色与第三颜色将基于主要颜色自动生成。关闭即可完全手动自定义。"
+        font_family: 字体
+        font_family_system: 系统默认
+        theme_preview: 预览
+        set_active: 应用
+        export_theme: 导出主题
+        import_theme: 导入主题
+        clone_theme: 克隆
+        theme_imported: "主题 \"{}\" 导入成功"
+        theme_import_failed: 主题导入失败 — 无效文件
+        m3_options: Material 3 混色
+        blend_level: 表面混合
+        blend_level_hint: "主要颜色对表面的着色强度（0 = 无，40 = 强）"
+        surface_mode: 表面模式
+        surface_mode_hint: 控制混合强度在不同表面间的分布方式
+        surface_mode_0: "水平 （均匀）"
+        surface_mode_1: "背景弱混色"
+        surface_mode_2: "背景强混色"
+        surface_mode_3: "表面强混色，背景弱混色"
+        surface_mode_4: "背景强混色，表面弱混色"
+        app_bar_style: 应用栏样式
+        app_bar_style_hint: "决定应用栏的背景色（若已设置自定义颜色则不生效）"
+        app_bar_style_overridden: "使用自定义颜色 — 清空上方以启用"
+        app_bar_style_2: Material 默认
+        app_bar_style_3: 背景
+      machine_card_style:
+        default: 默认样式
+        classic: 紧凑样式
     notification:
       title: 消息通知
       progress_label: 打印进度通知
@@ -440,9 +541,58 @@ pages:
       opt_out_marketing_error: 加载营销偏好设置时出错，请稍后重试。
       use_progressbar_notification: 开启进度条通知
       use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
+      snapshot_webcam_label: 摄像头快照
+      snapshot_webcam_helper: 选择用于快照通知的摄像头。
+      snapshot_webcam_type_unsupported: 不支持的摄像头类型！
+      snapshot_webcam_disabled: 不要包含摄像头快照
+      ignore_filament_sensors_label: 忽略耗材传感器
+      ignore_filament_sensors_helper: 选择被激活时不应触发通知的耗材传感器。适用于 MMU多耗材单元 配置中的传感器。
+      ignore_filament_sensors_empty: 未找到传感器
+      global: 通知设置
+      global_helper: 为您的设备与打印机配置通知规则。
+      custom_settings_title: 自定义通知设置
+      custom_settings_helper: 为当前打印机设置自定义配置以覆盖全局配置。
+      enable_custom_settings: 启用自定义设置
+      enable_custom_settings_helper: 不再沿用全局设置，而是使用此处指定的配置。
+      hardware_settings_title: 硬件通知设置
+      hardware_settings_helper: 配置特定硬件的通知规则。
+      machine_notification_title: "{} - 通知 - 设置"
+      notification_settings_title: 通知 - 设置
+      general_settings_title: 全局通知设置
+      general_settings_helper: 配置应用通知权限与常规通知偏好设置。
+      global_settings_title: 全局通知设置
+      global_settings_helper: 配置从所有连接的打印机接收的通知类型。
+      device_specific_title: 设备特定通知设置
+      device_specific_helper: 查看并配置单个打印机的通知设置。
+      error_loading_printers_title: 打印机加载失败
+      error_loading_printers_body: 加载打印机时发生意外错误。请稍后再试。
+      no_devices_found: 未找到设备
+      configure_btn: 配置
+      not_connected_btn: 未连接
+    data:
+      title: 导入 & 导出数据
+      helper: 备份或迁移您的应用数据
+      export:
+        title: 导出应用数据
+        helper: 将所有打印机、布局及设置保存为文件，以便备份或迁移
+      import:
+        title: 导入应用数据
+        helper: 从文件载入打印机、布局及设置
+      snack_imported:
+        title: 数据已导入！
+        message: 已导入 {} 个打印机与 {} 个布局。
     developer:
       title: 开发者
       crashlytics: 启用崩溃报告
+      reset_fcm_token:
+        title: 重置通知令牌
+        subtitle: 解决已售出打印机产生的残留通知问题。
+        confirm_title: 确认重置通知令牌？
+        confirm_body: "这将删除您设备的推送通知令牌，并向 Firebase 请求新令牌。您的所有打印机通知设置将自动更新。\n如果您收到了来自已售出或转让且未完全清除数据的打印机的通知，请使用此功能。"
+        confirm_action: 重置
+        success_title: 重置令牌
+        success: 通知令牌重置成功。
+        cooldown: '{} 小时后可用。'
     imprint: 隐私声明及用户协议
   printer_edit:
     title: 编辑 {}
@@ -665,6 +815,9 @@ pages:
   changelog:
     title: 变更记录
   paywall:
+    benefits:
+      notification_perk:
+        title: 快照通知
     manage_view:
       title: 感谢您的支持！
       cancel_btn: 取消订阅
