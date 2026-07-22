@@ -471,6 +471,10 @@ pages:
         secondary_color: 次要颜色（可选）
         tertiary_color: 第三颜色（可选）
         surface_color: 背景颜色（可选）
+        primary_color_hint: 按钮，标题栏与核心操作区
+      machine_card_style:
+        default: 默认样式
+        classic: 紧凑样式
     notification:
       title: 消息通知
       progress_label: 打印进度通知
@@ -500,9 +504,57 @@ pages:
       opt_out_marketing_error: 加载营销偏好设置时出错，请稍后重试。
       use_progressbar_notification: 开启进度条通知
       use_progressbar_notification_helper: 除了默认的文本进度通知外，启用进度条通知的使用
+      snapshot_webcam_label: 摄像头快照
+      snapshot_webcam_helper: 选择用于快照通知的摄像头。
+      snapshot_webcam_type_unsupported: 不支持的摄像头类型！
+      snapshot_webcam_disabled: 不要包含摄像头快照
+      ignore_filament_sensors_label: 忽略耗材传感器
+      ignore_filament_sensors_helper: 选择被激活时不应触发通知的耗材传感器。适用于 MMU多耗材单元 配置中的传感器。
+      ignore_filament_sensors_empty: 未找到传感器
+      global: 通知设置
+      global_helper: 为您的设备与打印机配置通知规则。
+      custom_settings_title: 自定义通知设置
+      custom_settings_helper: 为当前打印机设置自定义配置以覆盖全局配置。
+      enable_custom_settings: 启用自定义设置
+      enable_custom_settings_helper: 不再沿用全局设置，而是使用此处指定的配置。
+      hardware_settings_title: 硬件通知设置
+      hardware_settings_helper: 配置特定硬件的通知规则。
+      machine_notification_title: "{} - 通知 - 设置"
+      notification_settings_title: 通知 - 设置
+      general_settings_title: 全局通知设置
+      general_settings_helper: 配置应用通知权限与常规通知偏好设置。
+      global_settings_title: 全局通知设置
+      global_settings_helper: 配置从所有连接的打印机接收的通知类型。
+      device_specific_title: 设备特定通知设置
+      device_specific_helper: 查看并配置单个打印机的通知设置。
+      error_loading_printers_title: 打印机加载失败
+      error_loading_printers_body: 加载打印机时发生意外错误。请稍后再试。
+      no_devices_found: 未找到设备
+      configure_btn: 配置
+      not_connected_btn: 未连接
+    data:
+      title: 导入 & 导出数据
+      helper: 备份或迁移您的应用数据
+      export:
+        title: 导出应用数据
+        helper: 将所有打印机、布局及设置保存为文件，以便备份或迁移
+      import:
+        title: 导入应用数据
+        helper: 从文件载入打印机、布局及设置
+      snack_imported:
+        title: 数据已导入！
+        message: 已导入 {} 个打印机与 {} 个布局。
     developer:
       title: 开发者
       crashlytics: 启用崩溃报告
+      reset_fcm_token:
+        title: 重置通知令牌
+        subtitle: 解决已售出打印机产生的残留通知问题。
+        confirm_title: 确认重置通知令牌？
+        confirm_body: "这将删除您设备的推送通知令牌，并向 Firebase 请求新令牌。您的所有打印机通知设置将自动更新。\n如果您收到了来自已售出或转让且未完全清除数据的打印机的通知，请使用此功能。"
+        confirm_action: 重置
+        success_title: 重置令牌
+        success: 通知令牌重置成功。
     imprint: 隐私声明及用户协议
   printer_edit:
     title: 编辑 {}
