@@ -29,7 +29,10 @@ general:
   supported: 支持
   unsupported: 不支持
   details: 详细
+  google_play: Google Play
   ios_store: 应用商店
+  google_play_services: Google Play 服务
+  apple_services: Apple 服务
   active: 激活
   canceled: 取消
   monthly: 每月
@@ -472,6 +475,15 @@ pages:
         tertiary_color: 第三颜色（可选）
         surface_color: 背景颜色（可选）
         primary_color_hint: 按钮，标题栏与核心操作区
+        secondary_color_hint: 标签、选中项与次要操作区
+        tertiary_color_hint: 对比强调色与高亮区
+        surface_color_hint: 卡片、对话框与背景区
+        surface_background: 背景
+        surface_foreground: 文字
+        app_bar_color: 应用栏颜色（可选）
+        app_bar_color_hint: 标题栏与顶部导航背景
+        logo_hint: "推荐：方形 SVG 或 512×512px PNG"
+        use_material3: 使用 Material 3 样式
       machine_card_style:
         default: 默认样式
         classic: 紧凑样式
@@ -555,6 +567,7 @@ pages:
         confirm_action: 重置
         success_title: 重置令牌
         success: 通知令牌重置成功。
+        cooldown: '{} 小时后可用。'
     imprint: 隐私声明及用户协议
   printer_edit:
     title: 编辑 {}
