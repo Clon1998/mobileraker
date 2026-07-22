@@ -2,6 +2,7 @@
 general:
   pause: 暂停
   resume: 恢复
+  connect: 连接
   connected: 已连接
   'off': '关闭'
   'on': '开启'
@@ -66,6 +67,9 @@ general:
   print: 打印
   allow: 允许
   deny: 拒绝
+  settings: 设置
+  run: 运行
+  enable: 启用
 pages:
   dashboard:
     title: 仪表板
@@ -146,6 +150,13 @@ pages:
         save_btn: 保存配置
         more_btn: 更多
         homed: 已归位的轴
+        force_move_btn: 强制移动
+        force_move_tooltip: "启用强制移动模式"
+        force_move_dialog:
+          title: 要启用强制移动吗？
+          body: |-
+            您即将启用“强制移动”模式。此模式将绕过所有安全检查与运动学约束，直接驱动单个步进电机，且不会更新打印机的坐标状态。
+            这是一个底层诊断工具，操作不当可能导致机械损坏。使用完毕后，您必须执行 G28 指令重新回零，以恢复正确的运动学状态。
       baby_step_card:
         title: Z轴偏移
         z_offset: Z偏移
@@ -240,6 +251,15 @@ pages:
     editing_card:
       title: 编辑模式
       body: 您现在可以重新排序、添加和移除卡片和页面。所有卡片显示预览数据。
+    rename_layout:
+      title: 重命名布局
+      label: 布局名称
+    layout_rename_snack:
+      title: 已重命名布局！
+      body: 此布局已经成功重命名。
+    layout_reset_snack:
+      title: 布局已重置！
+      body: 此布局已经重置为默认配置。
     error_save_snack:
       title: 保存布局时出错 ！
       body: 试图保存布局时出错。
@@ -274,6 +294,22 @@ pages:
       preheat: 预热
       enqueue: 添加到打印队列
       preview: 预览
+      fleet_print: 批量打印
+    fleet_print:
+      title: 批量打印
+      select_hint: 选择目标打印机以发送此文件并开始打印。
+      start_btn: 开始批量打印
+      downloading: 从 {name} 下载
+      uploading: 上传中
+      print_started: 打印已开始
+      failed: 失败
+      summary_success: "批量打印完成 — {total} 台打印机中的 {success} 台已成功启动。"
+      summary_partial: "批量打印完成 — {total} 台打印机中的 {success} 台已成功启动，{failed} 台启动失败。"
+      done: 完成
+      no_machines: 没有其他可用的打印机可发送此文件。
+      source_printer: 此打印机
+      checking: 检查中…
+      pick_source_printer: 选择源打印机
     file_operation:
       download_canceled:
         title: 取消下载
@@ -411,6 +447,30 @@ pages:
       medium_ui_hint: 是否在大屏幕或横屏模式上使用平板界面
       keep_screen_on: 保持屏幕唤醒状态
       keep_screen_on_hint: 防止APP运行时屏幕自动关闭
+    ui:
+      appearance:
+        title: 外观
+        subtitle: 主题、亮度与自定义主题
+        theme_section: 主题
+        custom_themes: 自定义主题
+        custom_themes_empty: 暂无自定义主题。点击“新建主题”即可创建。
+        new_theme: 新建主题
+        edit_theme: 编辑主题
+        delete_theme_title: 删除主题
+        delete_theme_body: 确认删除 "{}" 主题？此操作不可逆。
+        theme_identity: 主题标识
+        theme_name: 主题名称
+        theme_name_required: 请输入主题名称。
+        logo_light: 亮色LOGO (SVG/PNG)
+        logo_dark: 暗色LOGO (可选)
+        light_theme: 亮色主题颜色
+        dark_theme: 暗色主题颜色
+        separate_dark_theme: 单独设置暗色主题
+        separate_dark_theme_hint: 为暗色主题设置不同的颜色
+        primary_color: 主要颜色
+        secondary_color: 次要颜色（可选）
+        tertiary_color: 第三颜色（可选）
+        surface_color: 背景颜色（可选）
     notification:
       title: 消息通知
       progress_label: 打印进度通知
