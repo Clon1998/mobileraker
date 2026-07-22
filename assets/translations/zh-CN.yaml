@@ -484,6 +484,31 @@ pages:
         app_bar_color_hint: 标题栏与顶部导航背景
         logo_hint: "推荐：方形 SVG 或 512×512px PNG"
         use_material3: 使用 Material 3 样式
+        use_material3_hint: "开启后，次要颜色与第三颜色将基于主要颜色自动生成。关闭即可完全手动自定义。"
+        font_family: 字体
+        font_family_system: 系统默认
+        theme_preview: 预览
+        set_active: 应用
+        export_theme: 导出主题
+        import_theme: 导入主题
+        clone_theme: 克隆
+        theme_imported: "主题 \"{}\" 导入成功"
+        theme_import_failed: 主题导入失败 — 无效文件
+        m3_options: Material 3 混色
+        blend_level: 表面混合
+        blend_level_hint: "主要颜色对表面的着色强度（0 = 无，40 = 强）"
+        surface_mode: 表面模式
+        surface_mode_hint: 控制混合强度在不同表面间的分布方式
+        surface_mode_0: "水平 （均匀）"
+        surface_mode_1: "背景弱混色"
+        surface_mode_2: "背景强混色"
+        surface_mode_3: "表面强混色，背景弱混色"
+        surface_mode_4: "背景强混色，表面弱混色"
+        app_bar_style: 应用栏样式
+        app_bar_style_hint: "决定应用栏的背景色（若已设置自定义颜色则不生效）"
+        app_bar_style_overridden: "使用自定义颜色 — 清空上方以启用"
+        app_bar_style_2: Material 默认
+        app_bar_style_3: 背景
       machine_card_style:
         default: 默认样式
         classic: 紧凑样式
@@ -790,6 +815,9 @@ pages:
   changelog:
     title: 变更记录
   paywall:
+    benefits:
+      notification_perk:
+        title: 快照通知
     manage_view:
       title: 感谢您的支持！
       cancel_btn: 取消订阅
