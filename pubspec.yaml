@@ -38,7 +38,7 @@ dependencies:
     path: common
 
   #firebase
-  firebase_core_platform_interface: ^7.1.0
+  firebase_core_platform_interface: ^8.0.0
   firebase_core: ^4.5.0
   firebase_analytics: ^12.2.0
   firebase_app_check: ^0.4.2
