@@ -2,6 +2,13 @@
 
 ## [2.9.12] - 2026-08-xx
 
+### Bug Fixes
+
+- **GCode Preview**: Fixed a rare crash when opening the GCode preview for a file right as the printer's connection
+  was reestablished, which could interrupt the download/parse and leave the preview stuck on an error.
+- **Notification Settings**: Fixed a rare crash when opening a printer's notification settings before its device list
+  had fully finished loading.
+
 ## [2.9.11] - 2026-07-05
 
 ### Enhancements
