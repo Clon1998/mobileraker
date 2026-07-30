@@ -216,7 +216,7 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
         canResetStorage: true,
       );
     } else if (e is FileSystemException) {
-      talker.error('An FileSystemException(${e.runtimeType}) occured while trying to open Boxes (tryNo#$tryNo)...', e);
+      talker.error('An FileSystemException(${e.runtimeType}) occurred while trying to open Boxes (tryNo#$tryNo)...', e);
       if (tryNo < 4) {
         talker.error('Will retry to open boxes in 5 seconds');
         await Future.delayed(Duration(milliseconds: 400 * tryNo));
