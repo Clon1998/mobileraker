@@ -12,7 +12,7 @@
     <string>eu_consent_policy</string>
 
     <key>NSUserTrackingUsageDescription</key>
-    <string>This identifier will be used to deliver personalized ads to you.</string>
+    <string>Mobileraker uses your device's advertising identifier to show you ads that are more relevant to your interests and to measure how well those ads perform. This identifier is not linked to your printer data.</string>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-9024548154217588~8054208971</string>
 	<key>AwnAppGroupName</key>
@@ -47,13 +47,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Please provide access to the camera in order to scan QR codes.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Required to access WiFi SSID to enable faster switching to remote connection.</string>
+	<string>Mobileraker uses your camera to scan the setup QR code shown on your printer's screen or web interface, so it can read the printer's address and API key and add it to the app without you typing them in manually.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Required to access WiFi SSID to enable faster switching to remote connection.</string>
+	<string>Mobileraker reads the name (SSID) of the Wi-Fi network your device is currently connected to, so it can detect when you're on the same network as your printer and automatically use a faster local connection instead of routing through the internet.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>To enable the functionality of the belt tuner, kindly grant permission for microphone access.</string>
+	<string>Mobileraker's belt tuner uses the microphone to record the sound your printer's belt makes when plucked, then analyzes the recording to calculate the belt's vibration frequency so you can tension it correctly.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
