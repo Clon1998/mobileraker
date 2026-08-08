@@ -1,5 +1,13 @@
 # Mobileraker - Changelog
 
+## [2.9.13] - 2026-08-xx
+
+### Bug Fixes
+
+- **Macro Visibility**: Tapping a macro in the printer edit page's macro group editor now reopens the macro settings
+  dialog again, restoring the ability to configure per-print-state visibility (not just the general
+  visible/not-visible toggle). [#584](https://github.com/Clon1998/mobileraker/issues/584)
+
 ## [2.9.12] - 2026-08-01
 
 ### Bug Fixes
