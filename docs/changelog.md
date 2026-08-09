@@ -8,6 +8,13 @@
   dialog again, restoring the ability to configure per-print-state visibility (not just the general
   visible/not-visible toggle). [#584](https://github.com/Clon1998/mobileraker/issues/584)
 
+- **Webcam Setup on Older Moonraker Versions**: Fixed newly added webcams being saved under an invalid `null` key in
+  Moonraker's database instead of a proper unique id, on Moonraker instances that predate the native webcam API.
+
+- **Moonraker Version Parsing**: Fixed the detected Moonraker version falling back to `0.0.0` on some Moonraker
+  derivatives (e.g. U1-based boards) that report a plain, dot-separated version like `1.5.2` instead of the standard
+  git-describe format.
+
 ## [2.9.12] - 2026-08-01
 
 ### Bug Fixes
