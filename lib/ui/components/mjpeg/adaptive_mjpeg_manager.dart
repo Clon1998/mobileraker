@@ -77,8 +77,13 @@ class AdaptiveMjpegManager implements MjpegManager {
 
       if (!_isActive || _mjpegStreamController.isClosed) return;
 
-      if (response.data is Uint8List && response.data.isNotEmpty) {
+      if (response.data is Uint8List && _isCompleteJpeg(response.data)) {
         _mjpegStreamController.add(MemoryImage(response.data));
+      } else {
+        // Snapshot endpoints (e.g. the Snapmaker U1's) can be caught mid-write and return a
+        // truncated file. Drop it rather than handing a broken image to the Image widget,
+        // which would only surface as an uncatchable decode error and a flash on screen.
+        talker.warning('[AdaptiveMjpegManager] Dropped incomplete/corrupt JPEG frame from $_uri');
       }
 
       // Calculate timing for next frame
@@ -114,4 +119,12 @@ class AdaptiveMjpegManager implements MjpegManager {
     stop();
     await _mjpegStreamController.close();
   }
+}
+
+// Jpeg Magic Numbers: https://www.file-recovery.com/jpg-signature-format.htm
+bool _isCompleteJpeg(Uint8List bytes) {
+  if (bytes.length < 4) return false;
+  final startsWithSoi = bytes[0] == 0xFF && bytes[1] == 0xD8;
+  final endsWithEoi = bytes[bytes.length - 2] == 0xFF && bytes[bytes.length - 1] == 0xD9;
+  return startsWithSoi && endsWithEoi;
 }
