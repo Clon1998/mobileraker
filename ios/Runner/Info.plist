@@ -48,6 +48,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Mobileraker uses your camera to scan the setup QR code shown on your printer's screen or web interface, so it can read the printer's address and API key and add it to the app without you typing them in manually.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Mobileraker reads the name (SSID) of the Wi-Fi network your device is currently connected to, so it can detect when you're on the same network as your printer and automatically use a faster local connection instead of routing through the internet. Mobileraker only checks this while you're using the app and does not track your location in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Mobileraker reads the name (SSID) of the Wi-Fi network your device is currently connected to, so it can detect when you're on the same network as your printer and automatically use a faster local connection instead of routing through the internet.</string>
 	<key>NSMicrophoneUsageDescription</key>
