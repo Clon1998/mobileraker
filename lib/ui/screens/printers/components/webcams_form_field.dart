@@ -6,10 +6,12 @@
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/klipper_system_info_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -24,7 +26,7 @@ import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:stringr/stringr.dart';
 
-class WebcamsFormField extends StatelessWidget {
+class WebcamsFormField extends ConsumerWidget {
   const WebcamsFormField({
     super.key,
     required this.name,
@@ -39,7 +41,13 @@ class WebcamsFormField extends StatelessWidget {
   final Widget Function(BuildContext context, VoidCallback? onAddWebcam)? headerBuilder;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // The U1 has no way of announcing itself as a webcam to Moonraker, so once we know
+    // the printer is a U1 we can just default new webcams to what it actually needs.
+    final isSnapmakerU1 = ref.watch(
+      klippySystemInfoProvider(machine.uuid).select((v) => v.value?.isSnapmakerU1 ?? false),
+    );
+
     return FormBuilderField(
       name: name,
       initialValue: initialValue,
@@ -51,7 +59,12 @@ class WebcamsFormField extends StatelessWidget {
             if (headerBuilder != null)
               headerBuilder!(
                 context,
-                (() => field.didChange(List.unmodifiable([...?field.value, WebcamInfo.mjpegDefault()]))).only(enabled),
+                (() => field.didChange(
+                  List.unmodifiable([
+                    ...?field.value,
+                    isSnapmakerU1 ? WebcamInfo.fallbackSnapmakerU1() : WebcamInfo.mjpegDefault(),
+                  ]),
+                )).only(enabled),
               ),
             _WebcamList(machine: machine, field: field),
           ],

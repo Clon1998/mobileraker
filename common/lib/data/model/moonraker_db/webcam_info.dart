@@ -110,6 +110,7 @@ sealed class WebcamInfo with _$WebcamInfo {
     @JsonKey(fromJson: _boolOrInt) @Default(false) bool flipVertical,
     @StringIntegerConverter() @Default(0) int rotation,
     @Default('unknown') String source,
+    @Default(<String, dynamic>{}) Map<String, dynamic> extraData,
   }) = _WebcamInfo;
 
   factory WebcamInfo.fromJson(Map<String, dynamic> json) => _$WebcamInfoFromJson(json);
@@ -123,11 +124,30 @@ sealed class WebcamInfo with _$WebcamInfo {
         snapshotUrl: defaultSnapshotUri);
   }
 
+  /// Defaults tailored to the Snapmaker U1's onboard camera: adaptive MJPEG streaming,
+  /// its fixed snapshot endpoint, a low target FPS since the U1 itself is slow to serve
+  /// frames, and the `u1_beacon` marker so [requiresU1Beacon] kicks in.
+  factory WebcamInfo.fallbackSnapmakerU1() {
+    return WebcamInfo(
+      uid: null,
+      name: 'Case Camera',
+      service: WebcamServiceType.mjpegStreamerAdaptive,
+      streamUrl: defaultStreamUri,
+      snapshotUrl: Uri(path: '/server/files/camera/monitor.jpg'),
+      targetFps: 2,
+      extraData: const {'u1_beacon': true},
+    );
+  }
+
   Matrix4 get transformMatrix => Matrix4.identity()
     ..rotateX(flipVertical ? pi : 0)
     ..rotateY(flipHorizontal ? pi : 0);
 
   bool get isReadOnly => source == 'config';
+
+  /// Whether this webcam needs a periodic `camera.start_monitor` beacon sent over the
+  /// Moonraker websocket to keep the stream alive (Snapmaker U1 onboard camera).
+  bool get requiresU1Beacon => extraData['u1_beacon'] == true;
 }
 
 bool _boolOrInt(dynamic raw) {
