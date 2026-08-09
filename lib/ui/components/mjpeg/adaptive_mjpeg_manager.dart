@@ -28,10 +28,15 @@ class AdaptiveMjpegManager implements MjpegManager {
   final Uri _uri;
   final StreamController<MemoryImage> _mjpegStreamController = StreamController();
 
+  // Snapshot endpoints can blip (e.g. the Snapmaker U1's file briefly missing while it is
+  // rewritten). Only surface an error to the UI once failures stop being transient.
+  static const _maxConsecutiveFailures = 5;
+
   bool _isActive = false;
   bool _isRequestInProgress = false;
   Timer? _timer;
   DateTime _lastRefresh = DateTime.now();
+  int _consecutiveFailures = 0;
 
   @override
   Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;
@@ -77,6 +82,10 @@ class AdaptiveMjpegManager implements MjpegManager {
 
       if (!_isActive || _mjpegStreamController.isClosed) return;
 
+      // A completed HTTP round-trip proves connectivity, regardless of whether the body
+      // turned out to be a usable frame.
+      _consecutiveFailures = 0;
+
       if (response.data is Uint8List && _isCompleteJpeg(response.data)) {
         _mjpegStreamController.add(MemoryImage(response.data));
       } else {
@@ -95,9 +104,17 @@ class AdaptiveMjpegManager implements MjpegManager {
       _scheduleNextFrame(Duration(microseconds: max(0, targetDelay.inMicroseconds)));
       _lastRefresh = now;
     } on DioException catch (error, stack) {
-      talker.warning('DioException while requesting MJPEG-Snapshot', error);
+      _consecutiveFailures++;
+      talker.warning(
+        'DioException while requesting MJPEG-Snapshot ($_consecutiveFailures/$_maxConsecutiveFailures)',
+        error,
+      );
 
-      if (!_mjpegStreamController.isClosed && _isActive) {
+      if (_consecutiveFailures < _maxConsecutiveFailures) {
+        // Likely just a blip (eg. a snapshot file caught mid-write) - keep retrying on
+        // schedule rather than taking the whole webcam down over a single failed fetch.
+        _scheduleNextFrame(Duration(microseconds: frameTimeInMicros));
+      } else if (!_mjpegStreamController.isClosed && _isActive) {
         _mjpegStreamController.addError(error, stack);
       }
     } finally {
