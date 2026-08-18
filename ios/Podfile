@@ -43,6 +43,8 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
+      # Fix for 'Lexical or Preprocessor Issue (Xcode): Include of non-modular header inside framework module 'google_mobile_ads.FLTAdPreloader': '
+      config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = "YES"
       # deletes the deployment target included for all the targets, so it's set to the default determined by Xcode.
       config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
 
