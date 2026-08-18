@@ -30,6 +30,7 @@ import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/klipper_system_info_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/misc.dart';
@@ -469,7 +470,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     final klipperSystemInfo = klipperSystemInfoAsync.requireValue;
     final machineSettings = machineSettingsAsync.requireValue;
 
-    var isSnapmakerU1 = klipperSystemInfo.productInfo?.machineType == 'Snapmaker U1';
+    var isSnapmakerU1 = klipperSystemInfo.isSnapmakerU1;
 
     final idx =
         state.whenData((value) => value.stepIndex).value ??

@@ -1,5 +1,32 @@
 # Mobileraker - Changelog
 
+## [2.9.13] - 2026-08-xx
+
+### Enhancements
+
+- **Snapmaker U1 Webcam**: Adding a webcam from the printer edit page now automatically detects a Snapmaker U1 and
+  pre-fills it with the correct camera mode, snapshot URL, and a periodic keepalive so its onboard camera keeps
+  streaming while it's actually visible on screen. The FPS overlay is also hidden for the U1, since its reported
+  frame timing isn't reliable.
+
+### Bug Fixes
+
+- **Macro Visibility**: Tapping a macro in the printer edit page's macro group editor now reopens the macro settings
+  dialog again, restoring the ability to configure per-print-state visibility (not just the general
+  visible/not-visible toggle). [#584](https://github.com/Clon1998/mobileraker/issues/584)
+
+- **Webcam Setup on Older Moonraker Versions**: Fixed newly added webcams being saved under an invalid `null` key in
+  Moonraker's database instead of a proper unique id, on Moonraker instances that predate the native webcam API.
+
+- **Moonraker Version Parsing**: Fixed the detected Moonraker version falling back to `0.0.0` on some Moonraker
+  derivatives (e.g. U1-based boards) that report a plain, dot-separated version like `1.5.2` instead of the standard
+  git-describe format.
+
+- **Adaptive MJPEG Webcams**: Made adaptive/snapshot-based webcams more robust: incoming frames are now verified to
+  be complete images before being displayed, instead of occasionally flashing on a corrupted/partial frame, and a
+  single failed frame fetch no longer takes the whole webcam down instantly — an error is now only shown after
+  several consecutive failures.
+
 ## [2.9.12] - 2026-08-01
 
 ### Bug Fixes

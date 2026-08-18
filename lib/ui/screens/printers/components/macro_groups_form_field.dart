@@ -9,6 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
 import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -20,6 +21,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
@@ -218,6 +220,7 @@ class _MacroGroup extends HookConsumerWidget {
     final controller = useExpansibleController();
     final canReorder = useListenableSelector(controller, () => !controller.isExpanded);
     final macros = macroGroup.macros;
+    final dialogService = ref.read(dialogServiceProvider);
 
     final themeData = Theme.of(context);
 
@@ -299,7 +302,7 @@ class _MacroGroup extends HookConsumerWidget {
                     child: Icon(key: ValueKey((macroGroup.uuid,m.uuid,m.visible)),Icons.visibility_outlined.only(m.visible) ?? Icons.visibility_off_outlined),
                   ),
                   label: Text(m.beautifiedName),
-                  onPressed: () => onChangeVisibility(m, !m.visible),
+                  onPressed: (() => onMacroSettings(m, dialogService)).only(onChanged != null),
                 );
               }).toList(),
             ),
@@ -308,12 +311,16 @@ class _MacroGroup extends HookConsumerWidget {
     );
   }
 
-  void onChangeVisibility(GCodeMacro m, bool visible) {
+  void onMacroSettings(GCodeMacro m, DialogService dialogService) async {
+    final result = await dialogService.show(DialogRequest(type: DialogType.macroSettings, data: m));
+    if (result?.confirmed != true) return;
+    final updatedMacro = result!.data as GCodeMacro;
+
     onChanged?.call(
       macroGroup.copyWith(
         macros: List.unmodifiable([
           for (final macro in macroGroup.macros)
-            if (macro.uuid == m.uuid) macro.copyWith(visible: visible) else macro,
+            if (macro.uuid == m.uuid) updatedMacro else macro,
         ]),
       ),
     );

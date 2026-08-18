@@ -6,6 +6,7 @@
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/klipper_system_info_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/tool_channel_selector/macro_tool_selector.dart';
@@ -35,7 +36,7 @@ class _MachineToolChannelSelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSnapmakerU1 = ref.watch(
-      klippySystemInfoProvider(machineUUID).selectRequireValue(((d) => d.productInfo?.machineType == 'Snapmaker U1')),
+      klippySystemInfoProvider(machineUUID).selectRequireValue(((d) => d.isSnapmakerU1)),
     );
     if (isSnapmakerU1) {
       return U1ToolSelector(machineUUID: machineUUID);

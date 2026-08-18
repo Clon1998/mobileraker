@@ -34,7 +34,7 @@ class WebcamInfoRepositoryLegacy extends WebcamInfoRepository {
 
   @override
   Future<WebcamInfo> addOrUpdate(WebcamInfo webcamInfo) async {
-    var uuid = (webcamInfo.uid?.isEmpty == true) ? const Uuid().v4() : webcamInfo.uid;
+    var uuid = (webcamInfo.uid == null || webcamInfo.uid!.isEmpty) ? const Uuid().v4() : webcamInfo.uid!;
 
     await _databaseService.addDatabaseItem('mobileraker', 'webcams.$uuid', webcamInfo);
     return webcamInfo.copyWith(uid: uuid);

@@ -8,8 +8,11 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/moonraker/klipper_system_service.dart';
+import 'package:common/service/moonraker/webcam_beacon_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/klipper_system_info_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -45,6 +48,16 @@ class Webcam extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
+
+    // Only sends camera keepalive beacons while this specific webcam is on screen.
+    if (webcamInfo.requiresU1Beacon) {
+      ref.watch(u1CameraBeaconControllerProvider(machine.uuid));
+    }
+
+    // The U1's reported frame timing is unreliable, so the FPS overlay is misleading there.
+    final isSnapmakerU1 = ref.watch(
+      klippySystemInfoProvider(machine.uuid).select((v) => v.value?.isSnapmakerU1 ?? false),
+    );
 
     if (clientType == ClientType.obico) {
       return const Text('Webcams via Obico are still Work in Progress!');
@@ -97,7 +110,7 @@ class Webcam extends HookConsumerWidget {
           machine: machine,
           webcamInfo: webcamInfo,
           imageBuilder: imageBuilder,
-          showFps: showFpsIfAvailable,
+          showFps: showFpsIfAvailable && !isSnapmakerU1,
           stackChild: modifiedStack,
           onHidePressed: onHidePressed,
         );

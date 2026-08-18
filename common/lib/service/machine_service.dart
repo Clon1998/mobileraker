@@ -229,6 +229,23 @@ Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
   yield await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
 }
 
+/// Whether [error] indicates that no [MachineSettings] have been saved for a machine yet.
+///
+/// Moonraker's `server.database.get_item` raises one of two messages depending on how "empty" the
+/// database is:
+/// - "Key '`<key>`' in namespace '`<namespace>`' not found" once the namespace has been created (e.g. by
+///   another key already being written) but this specific key never was.
+/// - "Namespace '`<namespace>`' not found" if the namespace itself was never created at all, which is what
+///   older/LMDB-backed Moonraker instances (e.g. pre Dec-2023, as still shipped on some vendor forks like
+///   the Creality Sonic Pad) raise for a genuinely fresh machine that has never stored anything under it.
+/// Both simply mean "no settings saved yet" and should fall back to defaults instead of being rethrown.
+bool isMissingMachineSettingsError(JRpcError error) {
+  final isMissingKey = error.message ==
+      'Key \'${MachineSettingsRepository.key}\' in namespace \'${MachineSettingsRepository.namespace}\' not found';
+  final isMissingNamespace = error.message == 'Namespace \'${MachineSettingsRepository.namespace}\' not found';
+  return isMissingKey || isMissingNamespace;
+}
+
 /// Service handling the management of a machine
 class MachineService {
   MachineService(this.ref)
@@ -349,9 +366,7 @@ class MachineService {
       machineSettings = await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get();
     } on JRpcError catch (e) {
       talker.error('Error while fetching settings for ${machine?.logName ?? machineUUID}', e);
-      // check if error message is like 'Key 'settingss' in namespace 'mobileraker' not found'
-      if (e.message !=
-          'Key \'${MachineSettingsRepository.key}\' in namespace \'${MachineSettingsRepository.namespace}\' not found') {
+      if (!isMissingMachineSettingsError(e)) {
         rethrow;
       }
     }
