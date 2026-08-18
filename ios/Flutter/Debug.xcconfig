@@ -1,2 +1,6 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
+
+// Fix for 'Lexical or Preprocessor Issue (Xcode): Include of non-modular header inside framework module 'google_mobile_ads.FLTAd_Internal''
+// The Podfile post_install hook only sets this on Pods targets; Runner needs it too since it's the one importing the module.
+CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES
