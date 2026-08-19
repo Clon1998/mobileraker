@@ -21,12 +21,15 @@ sealed class ConfigStepper with _$ConfigStepper {
   )
   const factory ConfigStepper({
     required String name,
-    required String stepPin,
-    required String dirPin,
+    // step_pin/dir_pin/rotation_distance are not used anywhere in MR. Some custom firmware forks
+    // (e.g. Rinkhals' mclib) abstract stepper motor control away and don't report raw pins for it.
+    // In favor of https://github.com/jbatonnet/Rinkhals/issues/133, https://github.com/Clon1998/mobileraker/issues/505,
+    // https://github.com/Clon1998/mobileraker/issues/586 these are optional.
+    String? stepPin,
+    String? dirPin,
     String? enablePin,
-    required int rotationDistance,
-    int?
-        microsteps, // In default klipper that is required. In favor of https://github.com/jbatonnet/Rinkhals/issues/133 , https://github.com/Clon1998/mobileraker/issues/505 I will make it optional!
+    int? rotationDistance,
+    int? microsteps,
     @Default(200) int fullStepsPerRotation,
     @Default([]) @JsonKey(fromJson: _unpackGearRatio) List<int> gearRatio,
     String? endstopPin,

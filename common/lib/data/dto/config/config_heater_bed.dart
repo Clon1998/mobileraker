@@ -15,10 +15,11 @@ sealed class ConfigHeaterBed with _$ConfigHeaterBed {
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterBed({
-    required String heaterPin,
-    required String sensorType,
+    // heaterPin/sensorType/control are not used anywhere in MR.
+    String? heaterPin,
+    String? sensorType,
     String? sensorPin,
-    required String control,
+    String? control,
     required double minTemp,
     required double maxTemp,
     @Default(1) double maxPower,

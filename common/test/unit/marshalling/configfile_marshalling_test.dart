@@ -9,9 +9,14 @@ import 'dart:io';
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/config/pin/config_output.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUpAll(() async {
+    await setupIsolateLogger();
+  });
+
   test('Test ConfigFile parsing, multi extruder one one nozzle!', () {
     final configFile = File('test_resources/marshalling/multi_extruder_configfile.json');
     var configFileJson = jsonDecode(configFile.readAsStringSync());
@@ -208,5 +213,50 @@ void main() {
     expect(config.configScrewsTiltAdjust?.screws[2].position, [155, 190]);
     expect(config.configScrewsTiltAdjust?.screws[3].name, 'rear left screw');
     expect(config.configScrewsTiltAdjust?.screws[3].position, [5, 190]);
+  });
+
+  test('ConfigFile.parse() skips a section that fails to parse instead of throwing', () {
+    // Regression test for https://github.com/Clon1998/mobileraker/issues/586: a single
+    // malformed/unsupported section (e.g. from a modified firmware fork) must not prevent the
+    // rest of a valid config from being parsed.
+    const str = '''
+    {
+      "heater_bed": {
+        "heater_pin": "PA1"
+      }
+    }
+    ''';
+    var rawConfig = jsonDecode(str).cast<String, dynamic>();
+
+    late ConfigFile configFile;
+    expect(() => configFile = ConfigFile.parse(rawConfig), returnsNormally);
+
+    // min_temp/max_temp are required and missing above, so parsing this section throws and it
+    // is skipped rather than crashing the whole ConfigFile.parse() call.
+    expect(configFile.configHeaterBed, isNull);
+  });
+
+  test('ConfigFile.parse() still parses valid sections when another section is malformed', () {
+    // Same scenario as https://github.com/Clon1998/mobileraker/issues/586: heater_bed is
+    // missing the required min_temp/max_temp and fails to parse, but stepper_x (which, on
+    // Rinkhals' mclib, has no step_pin/dir_pin) still parses fine and isn't affected.
+    const str = '''
+    {
+      "heater_bed": {
+        "heater_pin": "PA1"
+      },
+      "stepper_x": {
+        "microsteps": 16
+      }
+    }
+    ''';
+    var rawConfig = jsonDecode(str).cast<String, dynamic>();
+
+    var configFile = ConfigFile.parse(rawConfig);
+
+    expect(configFile.configHeaterBed, isNull);
+    expect(configFile.stepperX, isNotNull);
+    expect(configFile.stepperX!.stepPin, isNull);
+    expect(configFile.stepperX!.microsteps, equals(16));
   });
 }

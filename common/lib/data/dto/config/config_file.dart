@@ -7,6 +7,7 @@
 import 'package:common/data/dto/config/config_screws_tilt_adjust.dart';
 import 'package:common/data/dto/config/pin/config_pin.dart';
 import 'package:common/util/extensions/string_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 
 import 'config_bed_screws.dart';
@@ -57,72 +58,128 @@ class ConfigFile {
 
   ConfigFile.parse(this.rawConfig) {
     for (String key in rawConfig.keys) {
-      var (cIdentifier, objectName) = key.toKlipperObjectIdentifier();
-
-      Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-
-      if (cIdentifier == ConfigFileObjectIdentifiers.heater_bed) {
-        configHeaterBed = ConfigHeaterBed.fromJson(rawConfig['heater_bed']);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.printer) {
-        configPrinter = ConfigPrinter.fromJson(rawConfig['printer']);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.extruder) {
-        if (jsonChild.containsKey('shared_heater')) {
-          String sharedHeater = jsonChild['shared_heater'];
-          Map<String, dynamic> sharedHeaterConfig = Map.of(rawConfig[sharedHeater]);
-          sharedHeaterConfig.removeWhere((key, value) => jsonChild.containsKey(key));
-          jsonChild.addAll(sharedHeaterConfig);
-        }
-        extruders[key] = ConfigExtruder.fromJson(key, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.output_pin) {
-        outputs[(cIdentifier!, objectName!)] = ConfigOutput.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.pwm_tool) {
-        outputs[(cIdentifier!, objectName!)] = ConfigPwmTool.fromJson(objectName, jsonChild);
-      } else if (stepperRegex.hasMatch(key)) {
-        var match = stepperRegex.firstMatch(key)!;
-        steppers[match.group(1)!] = ConfigStepper.fromJson(match.group(1)!, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.gcode_macro) {
-        gcodeMacros[objectName!] = ConfigGcodeMacro.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.dotstar) {
-        leds[(cIdentifier!, objectName!)] = ConfigDotstar.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.neopixel) {
-        leds[(cIdentifier!, objectName!)] = ConfigNeopixel.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.led) {
-        leds[(cIdentifier!, objectName!)] = ConfigDumbLed.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.pca9533 ||
-          cIdentifier == ConfigFileObjectIdentifiers.pca9632) {
-        //pca9533 and pcapca9632
-        leds[(cIdentifier!, objectName!)] = ConfigPcaLed.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.fan) {
-        configPrintCoolingFan = ConfigPrintCoolingFan.fromJson(jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.heater_fan) {
-        fans[(cIdentifier!, objectName!)] = ConfigHeaterFan.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.controller_fan) {
-        fans[(cIdentifier!, objectName!)] = ConfigControllerFan.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.temperature_fan) {
-        fans[(cIdentifier!, objectName!)] = ConfigTemperatureFan.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.fan_generic) {
-        fans[(cIdentifier!, objectName!)] = ConfigGenericFan.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.heater_generic) {
-        genericHeaters[objectName!] = ConfigHeaterGeneric.fromJson(objectName, jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.bed_screws) {
-        configBedScrews = ConfigBedScrews.fromJson(jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.screws_tilt_adjust) {
-        configScrewsTiltAdjust = ConfigScrewsTiltAdjust.fromJson(jsonChild);
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.beacon) {
-        // Note we will match 'beacon model' to beacon because how I implemeted it. But I am to lazy to correctly do that lol
-        if (objectName?.startsWith('model') == true) {
-          // We know for sure its a model now!
-          beaconModels = [
-            ...?beaconModels,
-            objectName!.substring(5).trim(),
-          ];
-        }
-      } else if (cIdentifier == ConfigFileObjectIdentifiers.force_move) {
-        enableForceMove = jsonChild['enable_force_move'] ?? false;
+      try {
+        _parseSection(key);
+      } catch (e, s) {
+        // Some (esp. modified/custom) firmware forks expose config sections that don't follow
+        // the standard Klipper schema (e.g. missing required pins/fields on steppers, custom
+        // sections we don't know about, etc). Skip just that section instead of failing to
+        // load the entire printer config.
+        talker.warning(
+          'Failed to parse config section "$key", skipping it.',
+          e,
+          s,
+        );
       }
     }
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
     // TODO migrate to the entire key instead of just the objectName. The problem is LEDs, Fans of different types can have the same name!
+  }
+
+  void _parseSection(String key) {
+    var (cIdentifier, objectName) = key.toKlipperObjectIdentifier();
+
+    Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
+
+    if (cIdentifier == ConfigFileObjectIdentifiers.heater_bed) {
+      configHeaterBed = ConfigHeaterBed.fromJson(rawConfig['heater_bed']);
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.printer) {
+      configPrinter = ConfigPrinter.fromJson(rawConfig['printer']);
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.extruder) {
+      if (jsonChild.containsKey('shared_heater')) {
+        String sharedHeater = jsonChild['shared_heater'];
+        Map<String, dynamic> sharedHeaterConfig = Map.of(
+          rawConfig[sharedHeater],
+        );
+        sharedHeaterConfig.removeWhere(
+          (key, value) => jsonChild.containsKey(key),
+        );
+        jsonChild.addAll(sharedHeaterConfig);
+      }
+      extruders[key] = ConfigExtruder.fromJson(key, jsonChild);
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.output_pin) {
+      outputs[(cIdentifier!, objectName!)] = ConfigOutput.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.pwm_tool) {
+      outputs[(cIdentifier!, objectName!)] = ConfigPwmTool.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (stepperRegex.hasMatch(key)) {
+      var match = stepperRegex.firstMatch(key)!;
+      steppers[match.group(1)!] = ConfigStepper.fromJson(
+        match.group(1)!,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.gcode_macro) {
+      gcodeMacros[objectName!] = ConfigGcodeMacro.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.dotstar) {
+      leds[(cIdentifier!, objectName!)] = ConfigDotstar.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.neopixel) {
+      leds[(cIdentifier!, objectName!)] = ConfigNeopixel.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.led) {
+      leds[(cIdentifier!, objectName!)] = ConfigDumbLed.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.pca9533 ||
+        cIdentifier == ConfigFileObjectIdentifiers.pca9632) {
+      //pca9533 and pcapca9632
+      leds[(cIdentifier!, objectName!)] = ConfigPcaLed.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.fan) {
+      configPrintCoolingFan = ConfigPrintCoolingFan.fromJson(jsonChild);
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.heater_fan) {
+      fans[(cIdentifier!, objectName!)] = ConfigHeaterFan.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.controller_fan) {
+      fans[(cIdentifier!, objectName!)] = ConfigControllerFan.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.temperature_fan) {
+      fans[(cIdentifier!, objectName!)] = ConfigTemperatureFan.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.fan_generic) {
+      fans[(cIdentifier!, objectName!)] = ConfigGenericFan.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.heater_generic) {
+      genericHeaters[objectName!] = ConfigHeaterGeneric.fromJson(
+        objectName,
+        jsonChild,
+      );
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.bed_screws) {
+      configBedScrews = ConfigBedScrews.fromJson(jsonChild);
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.screws_tilt_adjust) {
+      configScrewsTiltAdjust = ConfigScrewsTiltAdjust.fromJson(jsonChild);
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.beacon) {
+      // Note we will match 'beacon model' to beacon because how I implemeted it. But I am to lazy to correctly do that lol
+      if (objectName?.startsWith('model') == true) {
+        // We know for sure its a model now!
+        beaconModels = [...?beaconModels, objectName!.substring(5).trim()];
+      }
+    } else if (cIdentifier == ConfigFileObjectIdentifiers.force_move) {
+      enableForceMove = jsonChild['enable_force_move'] ?? false;
+    }
   }
 
   Map<String, dynamic> rawConfig = {};
@@ -140,9 +197,11 @@ class ConfigFile {
   bool get hasBedScrews => rawConfig.containsKey('bed_screws');
 
   /// Either has BlTouch or a normal probe!
-  bool get hasProbe => rawConfig.containsKey('probe') || rawConfig.containsKey('bltouch');
+  bool get hasProbe =>
+      rawConfig.containsKey('probe') || rawConfig.containsKey('bltouch');
 
-  bool get hasVirtualZEndstop => steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
+  bool get hasVirtualZEndstop =>
+      steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
 
   bool get hasBeacon => rawConfig.containsKey('beacon');
 
@@ -150,7 +209,8 @@ class ConfigFile {
 
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
 
-  ConfigExtruder? extruderForIndex(int idx) => extruders['extruder${idx > 0 ? idx : ''}'];
+  ConfigExtruder? extruderForIndex(int idx) =>
+      extruders['extruder${idx > 0 ? idx : ''}'];
 
   double get maxX => stepperX?.positionMax ?? 300;
 

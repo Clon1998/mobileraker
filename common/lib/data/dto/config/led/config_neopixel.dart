@@ -33,8 +33,9 @@ sealed class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigNeopixel({
     required String name,
-    @JsonKey(required: true) required String pin,
-    required int chainCount,
+    // pin/chainCount are not used anywhere in MR.
+    String? pin,
+    int? chainCount,
     @JsonKey(fromJson: versionedColorOrder) @Default('RGB') String colorOrder,
     @Default(0) double initialRed,
     @Default(0) double initialGreen,

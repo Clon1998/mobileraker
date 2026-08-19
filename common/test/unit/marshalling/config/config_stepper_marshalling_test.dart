@@ -60,4 +60,20 @@ void main() {
     expect(obj.homingRetractDist, equals(2));
     expect(obj.homingPositiveDir, equals(false));
   });
+
+  test('Parse stepper config without step_pin/dir_pin/rotation_distance (e.g. Rinkhals mclib)', () {
+    // Regression test for https://github.com/Clon1998/mobileraker/issues/586:
+    // custom firmware forks (e.g. Rinkhals' mclib) abstract stepper motor control away and
+    // don't report step_pin/dir_pin/rotation_distance for stepper sections.
+    String input = '{"microsteps":16,"full_steps_per_rotation":200,"gear_ratio":[]}';
+
+    ConfigStepper obj = ConfigStepper.fromJson('x', jsonDecode(input));
+
+    expect(obj, isNotNull);
+    expect(obj.name, equals('x'));
+    expect(obj.stepPin, isNull);
+    expect(obj.dirPin, isNull);
+    expect(obj.rotationDistance, isNull);
+    expect(obj.microsteps, equals(16));
+  });
 }

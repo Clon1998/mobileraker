@@ -20,7 +20,7 @@ sealed class ConfigPrintCoolingFan extends ConfigFan with _$ConfigPrintCoolingFa
   @StringDoubleConverter()
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigPrintCoolingFan({
-    required String pin,
+    String? pin, // Not used anywhere in MR.
     @Default(1) double maxPower,
     @Default(0) double shutdownSpeed,
     @Default(0.010) double cycleTime,

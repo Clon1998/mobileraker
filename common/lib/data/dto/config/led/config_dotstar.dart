@@ -21,9 +21,10 @@ sealed class ConfigDotstar extends ConfigLed with _$ConfigDotstar {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigDotstar({
     required String name,
-    @JsonKey(required: true) required String dataPin,
-    @JsonKey(required: true) required String clockPin,
-    required int chainCount,
+    // dataPin/clockPin/chainCount are not used anywhere in MR.
+    String? dataPin,
+    String? clockPin,
+    int? chainCount,
     @Default(0) double initialRed,
     @Default(0) double initialGreen,
     @Default(0) double initialBlue,

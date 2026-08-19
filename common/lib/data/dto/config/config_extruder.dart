@@ -20,7 +20,7 @@ sealed class ConfigExtruder with _$ConfigExtruder {
     required double minTemp,
     required double minExtrudeTemp,
     required double maxTemp,
-    required double maxPower,
+    double? maxPower, // Not used anywhere in MR.
     required double filamentDiameter,
     required double? maxExtrudeOnlyVelocity, // mm/s
     required double? maxExtrudeOnlyAccel, // mm/s^2

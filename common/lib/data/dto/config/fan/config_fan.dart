@@ -7,7 +7,7 @@ abstract class ConfigFan {
   const ConfigFan();
 
   abstract final String name;
-  abstract final String pin;
+  abstract final String? pin;
   abstract final double maxPower;
   abstract final double shutdownSpeed;
   abstract final double cycleTime;

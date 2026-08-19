@@ -20,7 +20,7 @@ sealed class ConfigTemperatureFan extends ConfigFan with _$ConfigTemperatureFan 
   @StringDoubleConverter()
   const factory ConfigTemperatureFan({
     required String name,
-    required String pin,
+    String? pin, // Not used anywhere in MR.
     @JsonKey(name: 'max_power') @Default(1) double maxPower,
     @JsonKey(name: 'shutdown_speed') @Default(0) double shutdownSpeed,
     @JsonKey(name: 'cycle_time') @Default(0.010) double cycleTime,

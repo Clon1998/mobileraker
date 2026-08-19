@@ -15,18 +15,23 @@ sealed class ConfigPrinter with _$ConfigPrinter {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigPrinter(
       {required String kinematics,
-      required double maxVelocity,
-      required double maxAccel,
-      @JsonKey(readValue: _calculateMaxAccelToDecel) required double maxAccelToDecel,
+      // maxVelocity/maxAccel/maxAccelToDecel are not used anywhere in MR (the UI reads the
+      // runtime toolhead values instead of the static config).
+      double? maxVelocity,
+      double? maxAccel,
+      @JsonKey(readValue: _calculateMaxAccelToDecel) double? maxAccelToDecel,
       @Default(5) double squareCornerVelocity}) = _ConfigPrinter;
 
   factory ConfigPrinter.fromJson(Map<String, dynamic> json) => _$ConfigPrinterFromJson(json);
 }
 
-num _calculateMaxAccelToDecel(Map input, String key) {
+num? _calculateMaxAccelToDecel(Map input, String key) {
   var json = input.cast<String, dynamic>();
 
   if (json.containsKey(key)) return json[key];
 
-  return (json['max_accel'] as num).toDouble() / 2;
+  final maxAccel = json['max_accel'];
+  if (maxAccel is num) return maxAccel.toDouble() / 2;
+
+  return null;
 }

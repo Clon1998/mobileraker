@@ -36,11 +36,12 @@ sealed class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterGeneric({
     required String name,
-    required String control,
-    required String heaterPin,
+    // control/heaterPin/sensorType/maxPower are not used anywhere in MR.
+    String? control,
+    String? heaterPin,
     String? sensorPin, // BME280 has no sensor pin since it uses I2C
-    required String sensorType,
-    required double maxPower,
+    String? sensorType,
+    double? maxPower,
     required double maxTemp,
     required double minTemp,
   }) = _ConfigHeaterGeneric;

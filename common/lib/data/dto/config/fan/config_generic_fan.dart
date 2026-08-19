@@ -21,7 +21,7 @@ sealed class ConfigGenericFan extends ConfigFan with _$ConfigGenericFan {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigGenericFan({
     required String name,
-    required String pin,
+    String? pin, // Not used anywhere in MR.
     @Default(1) double maxPower,
     @Default(0) double shutdownSpeed,
     @Default(0.010) double cycleTime,

@@ -21,7 +21,7 @@ sealed class ConfigHeaterFan extends ConfigFan with _$ConfigHeaterFan {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterFan({
     required String name,
-    required String pin,
+    String? pin, // Not used anywhere in MR.
     @Default(1) double maxPower,
     @Default(0) double shutdownSpeed,
     @Default(0.010) double cycleTime,
@@ -34,7 +34,7 @@ sealed class ConfigHeaterFan extends ConfigFan with _$ConfigHeaterFan {
     String? enablePin,
     @Default(50) double heaterTemp,
     @Default(1) double fanSpeed,
-    required List<String> heater,
+    @Default([]) List<String> heater, // Not used anywhere in MR.
   }) = _ConfigHeaterFan;
 
   factory ConfigHeaterFan.fromJson(String name, Map<String, dynamic> json) =>
