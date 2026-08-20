@@ -480,6 +480,7 @@ GoRouter goRouterImpl(Ref ref) {
               return SheetViewport(
                 padding: EdgeInsets.only(
                   top: MediaQuery.viewPaddingOf(context).top,
+                  bottom: MediaQuery.viewInsetsOf(context).bottom,
                 ),
                 // The child is the widget built by the builder callback.
                 child: child,
