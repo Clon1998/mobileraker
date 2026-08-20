@@ -27,6 +27,13 @@
   single failed frame fetch no longer takes the whole webcam down instantly — an error is now only shown after
   several consecutive failures.
 
+- **Bottom Sheet Keyboard Overlap**: Text fields inside bottom sheets (e.g. the sign-in/sign-up form, add remote
+  connection, and selection search) are no longer covered by the on-screen keyboard — the sheet now shifts up to
+  stay above it.
+
+- **Config Editor – Selection Toolbar**: Fixed the Cut/Copy/Paste toolbar appearing off-screen (behind the system
+  navigation bar) when selecting text in the config file editor, especially after "Select All" on longer files.
+
 ## [2.9.12] - 2026-08-01
 
 ### Bug Fixes
