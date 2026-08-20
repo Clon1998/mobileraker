@@ -147,20 +147,14 @@ class _ConfigFileDetailsPage extends HookConsumerWidget {
         ),
       ),
       data: (model) {
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              CodeTheme(
-                data: const CodeThemeData(styles: atomOneDarkTheme),
-                child: CodeField(
-                  textStyle: TextStyle(fontFamily: 'monospace'),
-                  controller: codeController,
-                  //TODO disable editing when uploading/sharing
-                  // enabled: !ref.watch(configFileDetailsControllerProvider).isUploading,
-                ),
-              ),
-              const SizedBox(height: 30),
-            ],
+        return CodeTheme(
+          data: const CodeThemeData(styles: atomOneDarkTheme),
+          child: CodeField(
+            textStyle: const TextStyle(fontFamily: 'monospace'),
+            controller: codeController,
+            expands: true,
+            //TODO disable editing when uploading/sharing
+            // enabled: !ref.watch(configFileDetailsControllerProvider).isUploading,
           ),
         );
       },
