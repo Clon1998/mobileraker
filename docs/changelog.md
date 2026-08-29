@@ -25,6 +25,11 @@
 - **Z-Offset Dashboard Card**: Fixed a crash that could briefly occur in the baby-stepping/Z-offset dashboard card
   while the printer connection was being (re-)established.
 
+- **Custom Headers for Manual Remote Connections**: Restored the ability to add/edit custom HTTP headers when
+  setting up a "Manual" remote connection (e.g. for Cloudflare Zero Trust or other reverse-proxy auth). The input
+  fields had gone missing from the form during a refactor even though the headers were still applied to existing
+  connections. [#587](https://github.com/Clon1998/mobileraker/issues/587)
+
 ## [2.9.13] - 2026-08-18
 
 ### Enhancements

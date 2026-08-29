@@ -43,11 +43,11 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
 
   FormBuilderFieldState get _timeout => _formState.fields['alt.remoteTimeout']!;
 
+  FormBuilderFieldState get _httpHeaders => _formState.fields['alt.httpHeaders']!;
+
   Machine get _machine => ref.read(sheetArgsProvider).machine;
 
   AddRemoteConnectionSheetArgs get _args => ref.read(sheetArgsProvider);
-
-  RemoteInterface? get _remoteInterface => _args.remoteInterface;
 
   MachineService get _machineService => ref.read(machineServiceProvider);
 
@@ -106,15 +106,12 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
   saveManual() {
     if (!_formState.saveAndValidate()) return;
 
-    //TODO
-    // var headers = ref.read(
-    //   headersControllerProvider(_remoteInterface?.httpHeaders ?? const {}),
-    // );
+    var httpHeaders = _httpHeaders.value as Map<String, String>? ?? const {};
     var httpUri = buildMoonrakerHttpUri(_uri.transformedValue);
 
     ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(RemoteInterface(
           remoteUri: httpUri!,
-          // httpHeaders: headers,
+          httpHeaders: httpHeaders,
           timeout: _timeout.transformedValue,
         )));
   }
