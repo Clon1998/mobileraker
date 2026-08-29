@@ -165,7 +165,13 @@ class PaymentService {
       //     message: 'You just subscribed to Mobileraker! Thanks a lot for the support!'));
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
-      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+      if (errorCode == PurchasesErrorCode.productAlreadyPurchasedError) {
+        // The store already considers this product owned (e.g. a double tap, or the
+        // entitlement hasn't synced to this app user yet). This isn't a real error;
+        // just resync the customer's purchases instead of surfacing a scary message.
+        talker.warning('Product already purchased, restoring purchases to sync entitlement; $e');
+        await restorePurchases();
+      } else if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
         FirebaseCrashlytics.instance.recordError(
           e,
           StackTrace.current,
