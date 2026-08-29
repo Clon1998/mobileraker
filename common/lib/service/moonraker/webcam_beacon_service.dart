@@ -52,7 +52,9 @@ class U1CameraBeaconController extends _$U1CameraBeaconController {
 
   void _start() {
     _stop();
-    _sendBeacon();
+    // onResume (which can call _start synchronously) forbids using ref right away,
+    // so the initial beacon is deferred to the next microtask.
+    scheduleMicrotask(_sendBeacon);
     _timer = Timer.periodic(_interval, (_) => _sendBeacon());
   }
 
@@ -62,6 +64,7 @@ class U1CameraBeaconController extends _$U1CameraBeaconController {
   }
 
   Future<void> _sendBeacon() async {
+    if (!ref.mounted) return;
     final client = ref.read(jrpcClientProvider(machineUUID));
     client.sendJRpcMethod('camera.start_monitor', params: {'domain': 'lan', 'interval': 0}).ignore();
   }
