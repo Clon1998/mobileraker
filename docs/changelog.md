@@ -1,5 +1,30 @@
 # Mobileraker - Changelog
 
+## [2.9.14] - 2026-09-xx
+
+### Bug Fixes
+
+- **Purchase "Already Owned" Error**: Tapping a subscription/product that Google Play already considers active for
+  your account no longer shows a confusing "Unexpected Error" toast — the app now automatically re-syncs your
+  purchases instead, so your Supporter status is restored right away.
+
+- **Manual Offset "Save Config" Reminder**: The "Save Config" button on the reminder shown after a manual bed/nozzle
+  offset calibration no longer silently fails to do anything if tapped several seconds after leaving the
+  calibration dialog.
+
+- **Rare Crashes on Navigation**: Fixed a batch of rare crashes that could occur when leaving a screen (webcam view,
+  dashboard, config file editor, filament load/unload, macro execution, printer setup) while a request to the
+  printer or a file download was still in flight.
+
+- **Dashboard Printer Card**: Fixed the (legacy) printer overview card occasionally ending up in an error state due
+  to an internal race condition when refreshing its webcam preview and print status at the same time.
+
+- **Bed Mesh Preview**: Fixed a crash when opening the bed mesh visualization if the active mesh profile could not
+  yet be resolved (e.g. right after a profile was saved/renamed on the printer).
+
+- **Z-Offset Dashboard Card**: Fixed a crash that could briefly occur in the baby-stepping/Z-offset dashboard card
+  while the printer connection was being (re-)established.
+
 ## [2.9.13] - 2026-08-18
 
 ### Enhancements
