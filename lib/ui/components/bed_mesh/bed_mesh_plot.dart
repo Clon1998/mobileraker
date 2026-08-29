@@ -255,8 +255,17 @@ class _BedMeshPainter extends PrintBedPainter {
 
     super.paint(canvas, size);
 
+    final activeProfile = bedMesh.activeProfile;
+    if (activeProfile == null) {
+      // profileName can be non-empty while no matching entry exists yet in profiles (e.g. a
+      // partial mesh update that changed one field but not the other) - just draw the empty
+      // bed/grid from super.paint() above instead of crashing.
+      canvas.restore();
+      return;
+    }
+
     var meshCords = isProbed ? bedMesh.probedCoordinates : bedMesh.meshCoordinates;
-    var meshParams = bedMesh.activeProfile!.meshParams;
+    var meshParams = activeProfile.meshParams;
 
     // Determine the distance between two points in x and y direction
     final xCount = isProbed ? meshParams.xCount : (meshParams.xCount - 1) * (meshParams.meshXPPS + 1) + 1;

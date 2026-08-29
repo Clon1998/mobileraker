@@ -144,7 +144,11 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var zOffset = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
+    var zOffsetAsync = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset));
+    // AsyncGuard above only guards `showCard`; it can still keep this data branch mounted for a
+    // moment while other fields of the same model are transiently valueless (e.g. mid-reconnect).
+    if (!zOffsetAsync.hasValue) return const SizedBox.shrink();
+    var zOffset = zOffsetAsync.requireValue;
     var numberFormat = NumberFormat('#0.000mm', context.locale.toStringWithSeparator());
     return ListTile(
       leading: const Icon(Entypo.align_vertical_middle),
@@ -168,13 +172,20 @@ class _CardBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_zOffsetCardControllerProvider(machineUUID).notifier);
-    var klippyCanReceiveCommands = ref
-        .watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .requireValue;
-    var selected = ref
-        .watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected))
-        .requireValue;
-    var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
+    var klippyCanReceiveCommandsAsync =
+        ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    var selectedAsync = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected));
+    var stepsAsync = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps));
+
+    // AsyncGuard above only guards `showCard`; it can still keep this data branch mounted for a
+    // moment while other fields of the same model are transiently valueless (e.g. mid-reconnect).
+    if (!klippyCanReceiveCommandsAsync.hasValue || !selectedAsync.hasValue || !stepsAsync.hasValue) {
+      return const SizedBox.shrink();
+    }
+
+    var klippyCanReceiveCommands = klippyCanReceiveCommandsAsync.requireValue;
+    var selected = selectedAsync.requireValue;
+    var steps = stepsAsync.requireValue;
 
     var numberFormat = NumberFormat('#0.0##', context.locale.toStringWithSeparator());
 
