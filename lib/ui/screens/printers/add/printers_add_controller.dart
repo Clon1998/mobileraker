@@ -413,6 +413,7 @@ class TestConnectionController extends _$TestConnectionController {
         request.headers.add(key, value);
       });
       var response = await request.close();
+      if (!ref.mounted) return;
 
       var isSuccess = response.statusCode == 200;
       state = state.copyWith(
@@ -421,6 +422,7 @@ class TestConnectionController extends _$TestConnectionController {
       );
     } catch (e) {
       talker.warning('_testHttp returned error', e);
+      if (!ref.mounted) return;
 
       state = state.copyWith(httpState: false, httpError: e.toString());
     }

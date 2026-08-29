@@ -236,10 +236,12 @@ class _ConfigFilePageController extends _$ConfigFilePageController {
       overWriteLocal: true,
     );
     await for (final op in opsStream) {
+      if (!ref.mounted) return;
       if (op is FileOperationProgress && (op.progress - (state.progress ?? 0)) > 0.01) {
         state = AsyncLoading(progress: op.progress);
       } else if (op is FileDownloadComplete) {
         final content = await op.file.readAsString();
+        if (!ref.mounted) return;
         yield _Model(editorContent: content, fsFile: op.file);
         return;
       }

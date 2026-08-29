@@ -36,6 +36,7 @@ Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
   // if (jrpcState != ClientState.connected) return;
 
   final webcamInfos = await ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
+  if (!ref.mounted) return;
   ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_webcams_changed'), (previous, next) => ref.invalidateSelf());
 
   var ordering = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((value) => value.webcamOrdering));
@@ -64,6 +65,7 @@ Future<WebcamInfo?> activeWebcamInfoForMachine(Ref ref, String machineUUID) asyn
   final isSupporter = ref.watch(isSupporterProvider);
 
   final cams = await ref.watch(allSupportedWebcamInfosProvider(machineUUID).future);
+  if (!ref.mounted) return null;
   if (cams.isEmpty) {
     return null;
   }

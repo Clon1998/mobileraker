@@ -154,6 +154,7 @@ class HiddenMachines extends _$HiddenMachines {
     });
 
     var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
+    if (!ref.mounted) throw StateError('HiddenMachines was disposed while its build was still pending');
     // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
     var actualStoredMachines = await ref.read(machineServiceProvider).fetchAllMachines();
     var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));

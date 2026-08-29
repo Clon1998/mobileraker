@@ -420,6 +420,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
       );
 
       if (response?.confirmed == true) {
+        if (!ref.mounted) return;
         var paramsMap = response!.data as Map<String, String>;
 
         var paramStr = paramsMap.keys

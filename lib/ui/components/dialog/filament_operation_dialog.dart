@@ -583,6 +583,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
       }
     }
 
+    if (!ref.mounted) return;
     state = AsyncValue.data(state.requireValue.copyWith(movingFilament: false));
   }
 
@@ -594,6 +595,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     final veloc = min(model.settings.purgeSpeed, model.extruderConfig.maxExtrudeOnlyVelocity ?? 50);
     await _printerService.moveExtruder(move, veloc, true);
 
+    if (!ref.mounted) return;
     state = AsyncValue.data(state.requireValue.copyWith(purgingFilament: false));
   }
 
