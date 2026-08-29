@@ -18,19 +18,19 @@ class SnackBarServiceImpl implements SnackBarService {
   final Ref ref;
 
   @override
-  void show(SnackBarConfig config) {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? show(SnackBarConfig config) {
     var context = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
     if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(_constructSnackbar(context, config));
+      return ScaffoldMessenger.of(context).showSnackBar(_constructSnackbar(context, config));
     }
   }
 
   @override
-  void showForMachine(String machineUUID, SnackBarConfig config) {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? showForMachine(String machineUUID, SnackBarConfig config) {
     var activeMachine = ref.read(selectedMachineProvider).value;
-    if (activeMachine?.uuid != machineUUID) return;
-    show(config);
+    if (activeMachine?.uuid != machineUUID) return null;
+    return show(config);
   }
 
   SnackBar _constructSnackbar(BuildContext context, SnackBarConfig config) {

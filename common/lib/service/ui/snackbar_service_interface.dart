@@ -5,7 +5,6 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'dialog_service_interface.dart';
@@ -63,8 +62,8 @@ class SnackBarConfig {
 SnackBarService snackBarService(Ref ref) => throw UnimplementedError();
 
 abstract interface class SnackBarService {
-  void show(SnackBarConfig config);
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? show(SnackBarConfig config);
 
   /// Only show the snackbar if the machine with the given UUID is currently selected
-  void showForMachine(String machineUUID, SnackBarConfig config);
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? showForMachine(String machineUUID, SnackBarConfig config);
 }
