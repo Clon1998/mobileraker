@@ -284,8 +284,8 @@ class _PrinterCardController extends _$PrinterCardController {
 
   @override
   Future<_Model> build(Machine machine) async {
-    final jrpcStateFuture = ref.watch(jrpcClientStateProvider(machine.uuid).future);
-    final jrpcState = await jrpcStateFuture;
+    final jrpcState = await ref.watch(jrpcClientStateProvider(machine.uuid).future);
+    if (!ref.mounted) throw StateError('_PrinterCardController was disposed while its build was still pending');
 
     if (jrpcState != ClientState.connected) {
       return _Model(jrpcClientState: jrpcState, printState: PrintState.error, printProgress: 0);
@@ -295,8 +295,9 @@ class _PrinterCardController extends _$PrinterCardController {
     final printerDataFuture =
         ref.watch(printerProvider(machine.uuid).selectAsync((d) => (d.print.state, d.printProgress)));
 
-    final printerData = await printerDataFuture;
-    final previewCam = await previewCamFuture;
+    // (f1, f2).wait attaches a result-handler to both futures synchronously, so neither can be
+    // left unobserved if the other fails first - unlike awaiting them one at a time.
+    final (previewCam, printerData) = await (previewCamFuture, printerDataFuture).wait;
 
     return _Model(
       previewCam: previewCam,
