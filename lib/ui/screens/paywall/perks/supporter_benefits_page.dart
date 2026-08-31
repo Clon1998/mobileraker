@@ -96,7 +96,7 @@ class _Content extends ConsumerWidget {
               ),
               _Tile(
                 icon: Icons.format_color_fill_sharp,
-                perk: 'theme_editor',
+                perk: 'theme_editor_perk',
                 color: Colors.cyan,
                 colorForground: Colors.white,
               ),
