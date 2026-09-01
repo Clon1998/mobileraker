@@ -74,6 +74,26 @@ class PaywallPageController extends _$PaywallPageController {
     }
   }
 
+  openTermsOfUse() async {
+    final String url = Platform.isIOS
+        ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
+        : 'https://mobileraker.com/eula.html';
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  openPrivacyPolicy() async {
+    const String url = 'https://privacy.mobileraker.com/';
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   onTippingPressed() async {
     // var tipPacket = state.value?.tipPackage;
     if (state.value?.tipAvailable != true) {

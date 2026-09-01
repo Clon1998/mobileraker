@@ -596,6 +596,14 @@ class _Footer extends ConsumerWidget {
             onLongPress: controller.copyRCatIdToClipboard,
             child: Text('pages.paywall.restore_sign_in').tr(),
           ),
+          TextButton(
+            onPressed: controller.openTermsOfUse,
+            child: Text('pages.paywall.terms_of_use').tr(),
+          ),
+          TextButton(
+            onPressed: controller.openPrivacyPolicy,
+            child: Text('pages.paywall.privacy_policy').tr(),
+          ),
           if (isSupporter)
             TextButton(
               onPressed: controller.openDevContact,

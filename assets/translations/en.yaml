@@ -1022,6 +1022,8 @@ pages:
     trial_disclaimer: Start your free trial now. You won't be charged until it ends, and you can cancel at any time with no obligation.
     subscription_disclaimer: Subscription renews automatically. You can cancel at any time.
     restore_sign_in: Restore / Sign in
+    terms_of_use: Terms of Use
+    privacy_policy: Privacy Policy
     loading:
       title: Loading supporter Tiers
     services_unavailable:
