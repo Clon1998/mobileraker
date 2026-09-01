@@ -2,9 +2,8 @@
  * Copyright (c) 2023-2026. Patrick Schmidt.
  * All rights reserved.
  */
-import 'dart:io';
-
 import 'package:common/data/enums/eta_data_source.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/notification_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -429,30 +428,17 @@ class _Footer extends ConsumerWidget {
                 spacing: 4,
                 children: [
                   if (isFormAvailable.value == true) const DataAndPrivacyTextButton(),
-                  if (Platform.isIOS)
-                    TextButton(
-                      child: const Text('EULA'),
-                      onPressed: () async {
-                        const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-                        if (await canLaunchUrlString(url)) {
-                          await launchUrlString(url, mode: LaunchMode.externalApplication);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
-                    ),
-                  if (Platform.isAndroid)
-                    TextButton(
-                      child: const Text('EULA'),
-                      onPressed: () async {
-                        const String url = 'https://mobileraker.com/eula.html';
-                        if (await canLaunchUrlString(url)) {
-                          await launchUrlString(url, mode: LaunchMode.externalApplication);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
-                    ),
+                  TextButton(
+                    child: const Text('EULA'),
+                    onPressed: () async {
+                      final String url = ref.read(eulaUrlProvider);
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url, mode: LaunchMode.externalApplication);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                  ),
                   TextButton(
                     child: Text(MaterialLocalizations.of(context).viewLicensesButtonLabel),
                     onPressed: () {

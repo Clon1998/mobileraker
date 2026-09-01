@@ -5,6 +5,7 @@
 
 import 'dart:io';
 
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -75,9 +76,7 @@ class PaywallPageController extends _$PaywallPageController {
   }
 
   openTermsOfUse() async {
-    final String url = Platform.isIOS
-        ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
-        : 'https://mobileraker.com/eula.html';
+    final String url = ref.read(eulaUrlProvider);
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {

@@ -3,13 +3,13 @@
  * All rights reserved.
  */
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:common/data/dto/remote_config/developer_announcements.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
-import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'remote_config.g.dart';
@@ -86,6 +86,13 @@ bool remoteConfigBool(Ref ref, String key) {
     }
   });
   return instance.getBool(key);
+}
+
+@riverpod
+String eulaUrl(Ref ref) {
+  final key = Platform.isIOS ? 'eula_url_ios' : 'eula_url_android';
+
+  return ref.watch(remoteConfigStringProvider(key));
 }
 
 @riverpod
@@ -168,6 +175,8 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'graph_page_pay': true,
         'use_admobs': false,
         'files_page_add_density': 12,
+        'eula_url_ios': 'https://mobileraker.com/eula-v2.html',
+        'eula_url_android': 'https://mobileraker.com/eula-v2.html',
       });
       fetchAndActivate().then((value) {
         talker.info(
