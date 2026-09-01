@@ -17,7 +17,7 @@ class ImprintPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     var imprint =
-        Uri.parse('https://www.iubenda.com/privacy-policy/19183925/full-legal');
+        Uri.parse('https://privacy.mobileraker.com/');
 
     var imprintLoaded = useState(false);
 
