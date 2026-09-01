@@ -20,6 +20,7 @@ import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/consent_service.dart';
 import 'package:common/service/device_fcm_settings_sync_service.dart';
 import 'package:common/service/firebase/admobs.dart';
@@ -42,8 +43,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_config.dart';
-import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -277,6 +276,23 @@ initializeAvailableMachines(Ref ref) async {
   talker.info('Completed initializeAvailableMachines');
 }
 
+/// JRPC requests can time out whenever a Klipper/Moonraker instance is slow to respond
+/// (e.g. an overloaded Pi). This is an expected, transient condition rather than a bug,
+/// so it should not be reported to Crashlytics as a non-fatal error.
+///
+/// A timeout can end up unhandled (and therefore routed through the global error handlers
+/// below) whenever the provider that throws it has no active listener with an `onError`
+/// callback attached (e.g. a keep-alive-only background provider) - Riverpod then falls
+/// back to `Zone.current.handleUncaughtError`.
+bool _isTransientJRpcTimeout(Object error) {
+  var current = error;
+  while (current is MobilerakerException) {
+    if (current.parentException == null) return false;
+    current = current.parentException!;
+  }
+  return current is JRpcTimeoutError;
+}
+
 @riverpod
 class Warmup extends _$Warmup {
   @override
@@ -317,12 +333,20 @@ class Warmup extends _$Warmup {
     }
 
     FlutterError.onError = (FlutterErrorDetails details) {
+      if (_isTransientJRpcTimeout(details.exception)) {
+        talker.warning('Ignoring transient JRpcTimeoutError in FlutterError.onError', details.exception);
+        return;
+      }
       if (!kDebugMode)
         talker.error(
             'FlutterError caught by FlutterError.onError (${details.library})', details.exception, details.stack);
       FirebaseCrashlytics.instance.recordFlutterError(details).ignore();
     };
     PlatformDispatcher.instance.onError = (error, stack) {
+      if (_isTransientJRpcTimeout(error)) {
+        talker.warning('Ignoring transient JRpcTimeoutError in PlatformDispatcher.onError', error);
+        return true;
+      }
       FirebaseCrashlytics.instance.recordError(error, stack).ignore();
       return true;
     };
