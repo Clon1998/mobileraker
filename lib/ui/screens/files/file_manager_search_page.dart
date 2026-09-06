@@ -221,6 +221,8 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   @override
   _Model build(String machineUUID, String path) {
     talker.info('[FileManagerSearchController] initializing for $path');
+    ref.onDispose(() => _debouncer?.cancel());
+
     ref.listen(jrpcClientStateProvider(machineUUID), (prev, next) {
       if (next.value == ClientState.error || next.value == ClientState.disconnected) {
         if (_goRouter.canPop()) _goRouter.pop();
@@ -234,8 +236,11 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
         _refreshResults();
       }
     });
-    // Start fetching files from the root directory
+    // Start fetching files from the root directory. This recurses through the whole
+    // folder tree, so it can still be running after the page (and this provider) is
+    // gone - guard every `state =` after an async gap with ref.mounted.
     _fetchFiles(path).whenComplete(() {
+      if (!ref.mounted) return;
       state = state.copyWith(isLoading: false);
       talker.info('[FileManagerSearchController] finished fetching files');
     });
@@ -267,6 +272,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
     talker.info('[FileManagerSearchController] Search term changed: $searchTerm');
     _debouncer?.cancel();
     _debouncer = Timer(const Duration(milliseconds: 400), () {
+      if (!ref.mounted) return;
       talker.info('[FileManagerSearchController] Debounced search term: $searchTerm');
       state = state.copyWith(searchTerm: searchTerm.trim());
     });
@@ -279,6 +285,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
       final provider = directoryInfoApiResponseProvider(machineUUID, path).future;
       //TODO: Should I really watch or read?
       final response = await (isRetry ? ref.refresh(provider) : ref.read(provider));
+      if (!ref.mounted) return;
 
       // Add the response to the list of responses
       state = state.copyWith(apiResponses: [...state.apiResponses, response]);
@@ -292,9 +299,11 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
 
       await Future.wait(futures);
     } catch (e, s) {
+      if (!ref.mounted) return;
       if (!isRetry) {
         talker.error('Error while fetching files. Retrying in 400ms...', e, s);
         await Future.delayed(const Duration(milliseconds: 400));
+        if (!ref.mounted) return;
         _fetchFiles(path, true);
       } else {
         talker.error('Error while fetching files', e, s);
@@ -303,6 +312,7 @@ class _FileManagerSearchController extends _$FileManagerSearchController {
   }
 
   void _refreshResults([List<RemoteFile>? files]) {
+    if (!ref.mounted) return;
     final searchTerm = state.searchTerm;
     if (searchTerm?.isNotEmpty != true) return;
     final toFilter = files ?? state.apiResponses.expand((element) => element.files);
