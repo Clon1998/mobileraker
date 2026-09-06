@@ -171,7 +171,26 @@ class PaymentService {
         // just resync the customer's purchases instead of surfacing a scary message.
         talker.warning('Product already purchased, restoring purchases to sync entitlement; $e');
         await restorePurchases();
-      } else if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+      } else if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
+        talker.warning('User canceled purchase!');
+        // ref.read(snackBarServiceProvider).show(SnackBarConfig(
+        //     type: SnackbarType.warning,
+        //     title: 'Canceled',
+        //     message: 'Subscription request canceled'));
+      } else if (_isRecoverablePurchaseError(errorCode, e)) {
+        // Environmental failures (store/network flakiness, e.g. Play Store request
+        // timeouts) are expected and retryable by the user - they are not app bugs,
+        // so don't let them inflate Crashlytics' fatal/crash-free-users metrics.
+        talker.warning('Recoverable error while trying to purchase; $e');
+        FirebaseCrashlytics.instance.recordError(
+          e,
+          StackTrace.current,
+          reason: 'Recoverable error while trying to purchase',
+          fatal: false,
+        );
+        _ref.read(snackBarServiceProvider).show(
+            SnackBarConfig(type: SnackbarType.error, title: 'Unexpected Error', message: errorCode.name.capitalize()));
+      } else {
         FirebaseCrashlytics.instance.recordError(
           e,
           StackTrace.current,
@@ -182,14 +201,37 @@ class PaymentService {
         talker.error('Error while trying to purchase; $e');
         _ref.read(snackBarServiceProvider).show(
             SnackBarConfig(type: SnackbarType.error, title: 'Unexpected Error', message: errorCode.name.capitalize()));
-      } else {
-        talker.warning('User canceled purchase!');
-        // ref.read(snackBarServiceProvider).show(SnackBarConfig(
-        //     type: SnackbarType.warning,
-        //     title: 'Canceled',
-        //     message: 'Subscription request canceled'));
       }
     }
+  }
+
+  static const _recoverablePurchaseErrorCodes = {
+    PurchasesErrorCode.networkError,
+    PurchasesErrorCode.storeProblemError,
+    PurchasesErrorCode.offlineConnectionError,
+    PurchasesErrorCode.paymentPendingError,
+    PurchasesErrorCode.operationAlreadyInProgressError,
+    PurchasesErrorCode.productRequestTimeout,
+    PurchasesErrorCode.apiEndpointBlocked,
+    PurchasesErrorCode.unknownBackendError,
+    PurchasesErrorCode.unexpectedBackendResponseError,
+  };
+
+  /// RevenueCat/the stores often bucket transient, non-actionable failures (e.g. a
+  /// Play Store request timeout) under generic codes like [PurchasesErrorCode.purchaseInvalidError].
+  /// Fall back to inspecting the underlying native error message for known network/timeout
+  /// signatures so those don't get reported as fatal crashes either.
+  bool _isRecoverablePurchaseError(PurchasesErrorCode errorCode, PlatformException e) {
+    if (_recoverablePurchaseErrorCodes.contains(errorCode)) return true;
+
+    final details = e.details;
+    final underlyingMessage =
+        (details is Map ? details['underlyingErrorMessage'] : null)?.toString().toLowerCase();
+    if (underlyingMessage == null) return false;
+
+    return underlyingMessage.contains('network request failed') ||
+        underlyingMessage.contains('timeout') ||
+        underlyingMessage.contains('timed out');
   }
 
   Future<void> restorePurchases({bool passErrors = false, bool showSnacks = true}) async {
