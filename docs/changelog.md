@@ -2,6 +2,15 @@
 
 ## [2.9.14] - 2026-09-xx
 
+### Enhancements
+
+- **Printer Groups**: Added the ability to create named groups of printers, managed right alongside your printer
+  list in the app drawer. In Fleet Print, apply a saved group with a single tap instead of re-selecting the same set
+  of target printers every time — perfect for print farms that repeatedly print the same file across multiple
+  machines. [#585](https://github.com/Clon1998/mobileraker/issues/585)
+
+  *Note: This feature is available exclusively for "Supporters".*
+
 ### Bug Fixes
 
 - **Purchase "Already Owned" Error**: Tapping a subscription/product that Google Play already considers active for
