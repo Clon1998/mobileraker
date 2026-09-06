@@ -822,6 +822,19 @@ pages:
     settings_imported:
       title: Settings imported!
       message: Applied selected settings. Remember to save the form.
+  printer_groups:
+    title: Printer Groups
+    create_title: New Printer Group
+    edit_title: Edit Printer Group
+    empty_hint: No printer groups yet. Tap + to create one and apply it with a single
+      tap in Fleet Print.
+    no_printers: No printers
+    name_field_label: Group name
+    select_machines_hint: Select the printers that belong to this group.
+    delete_dialog:
+      title: Delete Printer Group
+      body: |-
+        Are you sure you want to delete the printer group {}?
   printer_add:
     steps:
       mode: Mode
@@ -963,6 +976,10 @@ pages:
         title: Fleet Print
         subtitle: Send a print job to multiple printers at once!
         detail: Distribute a print job across your entire printer fleet with a single tap — perfect for print farms and multi-machine setups.
+      printer_groups_perk:
+        title: Printer Groups
+        subtitle: Save reusable groups of printers!
+        detail: Organize your printers into named groups and apply one with a single tap in Fleet Print — perfect for print farms you send the same file to over and over.
       advanced_perk:
         title: Advanced Controls
         short: Full capabilities
@@ -1267,6 +1284,7 @@ components:
     full_file_management: Sorry, full file management (Download, Upload…) is only
       available to Supporters.
     fleet_print: Sorry, Fleet Print is only available to Supporters.
+    printer_groups: Sorry, Printer Groups are only available to Supporters.
     gcode_preview: Sorry, GCode preview is only available to Supporters.
     graph_page: Sorry, the Temperature-History page is only available to Supporters.
     snapshot_webcam: Sorry, notification snapshots are only available to Supporters.

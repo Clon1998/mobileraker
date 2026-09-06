@@ -53,6 +53,7 @@ import 'package:mobileraker/ui/screens/themes/appearance_page.dart';
 import 'package:mobileraker/ui/screens/themes/custom_theme_editor_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
 import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
+import 'package:mobileraker_pro/printer_groups/data/model/printer_group.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
@@ -63,6 +64,8 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
 import '../ui/screens/files/move_file_destination_page.dart';
+import '../ui/screens/printers/groups/printer_group_edit_page.dart';
+import '../ui/screens/printers/groups/printer_groups_page.dart';
 import '../ui/screens/setting/notification/machine_notification_settings_page.dart';
 import '../ui/screens/spoolman/filament_form_page.dart';
 import '../ui/screens/spoolman/spool_form_page.dart';
@@ -78,6 +81,8 @@ enum AppRoute implements RouteDefinitionMixin {
   printerEdit,
   fullCam,
   printerAdd,
+  printerGroups,
+  printerGroupEdit,
   qrScanner,
   console,
   settings,
@@ -185,6 +190,18 @@ GoRouter goRouterImpl(Ref ref) {
             path: 'add',
             name: AppRoute.printerAdd.name,
             builder: (context, state) => const PrinterAddPage(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/printer-groups',
+        name: AppRoute.printerGroups.name,
+        builder: (context, state) => const PrinterGroupsPage(),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            name: AppRoute.printerGroupEdit.name,
+            builder: (context, state) => PrinterGroupEditPage(group: state.extra as PrinterGroup?),
           ),
         ],
       ),

@@ -137,6 +137,12 @@ class _Content extends ConsumerWidget {
                 colorForground: Colors.white,
               ),
               _Tile(
+                icon: Icons.workspaces_outline,
+                perk: 'printer_groups_perk',
+                color: Colors.blueGrey,
+                colorForground: Colors.white,
+              ),
+              _Tile(
                 icon: Icons.support_agent,
                 perk: 'contact_perk',
                 color: Colors.pink,

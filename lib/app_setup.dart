@@ -146,6 +146,11 @@ setupBoxes() async {
     Hive.registerAdapter(customThemePackAdapter);
   }
 
+  var printerGroupAdapter = PrinterGroupAdapter();
+  if (!Hive.isAdapterRegistered(printerGroupAdapter.typeId)) {
+    Hive.registerAdapter(printerGroupAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   await openBoxes();
@@ -202,6 +207,7 @@ Future<List<Box>> openBoxes([int tryNo = 1]) async {
       Hive.openBox<DashboardLayout>('dashboard_layouts'),
       Hive.openBox<FolderCacheEntry>('fileContentCache'),
       Hive.openBox<CustomThemePack>('custom_theme_packs'),
+      Hive.openBox<PrinterGroup>('printer_groups'),
       // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
     ]);
   } catch (e, s) {
@@ -243,6 +249,7 @@ Future<void> deleteBoxes() {
     Hive.deleteBoxFromDisk('dashboard_layouts'),
     Hive.deleteBoxFromDisk('fileContentCache'),
     Hive.deleteBoxFromDisk('custom_theme_packs'),
+    Hive.deleteBoxFromDisk('printer_groups'),
     // Hive.deleteBoxFromDisk('octo')
   ]);
 }
@@ -389,6 +396,9 @@ class Warmup extends _$Warmup {
     yield StartUpStep.initMachineSync;
     ref.read(deviceFcmSettingsSyncServiceProvider).initialize();
 
+    yield StartUpStep.printerGroups;
+    ref.read(printerGroupServiceProvider).initialize();
+
     yield StartUpStep.consentService;
     ref.read(consentServiceProvider);
 
@@ -410,6 +420,7 @@ enum StartUpStep {
   initMachines('⚙️'),
   notificationService('📢'),
   initMachineSync('🔄'),
+  printerGroups('🖨️'),
   consentService('⚖️'),
   complete('🌟');
 

@@ -61,6 +61,26 @@ class _SetupBody extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: Text('pages.files.fleet_print.select_hint', style: themeData.textTheme.bodyMedium).tr(),
         ),
+        if (state.availableGroups.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final group in state.availableGroups)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ActionChip(
+                        avatar: const Icon(Icons.workspaces_outline, size: 18),
+                        label: Text(group.name),
+                        onPressed: () => controller.applyGroup(group),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
         Expanded(
           child: ListView.builder(
             itemCount: state.availableTargets.length,

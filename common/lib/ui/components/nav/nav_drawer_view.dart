@@ -254,6 +254,7 @@ class _PrinterSelection extends HookConsumerWidget {
     final themeData = Theme.of(context);
     final isExpanded = useListenable(machineSelectionExt);
     final selMachine = ref.watch(selectedMachineProvider);
+    final showGroups = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).value ?? false;
 
     return AnimatedSwitcher(
       // duration: Duration(seconds: 2),
@@ -261,7 +262,7 @@ class _PrinterSelection extends HookConsumerWidget {
       switchInCurve: Curves.easeOutQuad,
       switchOutCurve: Curves.easeInQuad,
       transitionBuilder: (child, anim) => SizeTransition(
-        axisAlignment: 1,
+        alignment: Alignment.bottomCenter,
         sizeFactor: anim,
         child: child,
         // child: FadeTransition(opacity: anim, child: child),
@@ -290,14 +291,27 @@ class _PrinterSelection extends HookConsumerWidget {
                         });
                       },
                     ),
+
                 ListTile(
                   title: const Text('pages.printer_add.title').tr(),
+                  dense: true,
                   contentPadding: basePadding,
-                  textColor: themeData.colorScheme.onBackground,
-                  iconColor: themeData.colorScheme.onBackground,
+                  textColor: themeData.colorScheme.onSurface,
+                  iconColor: themeData.colorScheme.onSurface,
                   trailing: const Icon(Icons.add, size: baseIconSize),
                   onTap: () => ref.read(navWidgetControllerProvider.notifier).pushingTo('/printer/add'),
                 ),
+                if (showGroups)
+                  ListTile(
+                    title: const Text('pages.printer_groups.title').tr(),
+                    dense: true,
+
+                    contentPadding: basePadding,
+                    textColor: themeData.colorScheme.onSurface,
+                    iconColor: themeData.colorScheme.onSurface,
+                    trailing: const Icon(Icons.workspaces_outline, size: baseIconSize),
+                    onTap: () => ref.read(navWidgetControllerProvider.notifier).pushingTo('/printer-groups'),
+                  ),
               ],
             )
           : const SizedBox.shrink(),
@@ -315,8 +329,8 @@ class _MachineTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var selectedTileColor = (themeData.brightness == Brightness.light)
-        ? themeData.colorScheme.surfaceVariant
-        : themeData.colorScheme.primaryContainer.withOpacity(.1);
+        ? themeData.colorScheme.surface
+        : themeData.colorScheme.primaryContainer.withAlpha(25);
 
     return ListTile(
       title: Text(machine.name, maxLines: 1),
@@ -324,8 +338,8 @@ class _MachineTile extends ConsumerWidget {
       trailing: Icon(isSelected ? Icons.check : Icons.arrow_forward_ios_sharp, size: baseIconSize),
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
-      textColor: themeData.colorScheme.onBackground,
-      iconColor: themeData.colorScheme.onBackground,
+      textColor: themeData.colorScheme.onSurface,
+      iconColor: themeData.colorScheme.onSurface,
       dense: true,
       contentPadding: basePadding,
       selected: isSelected,

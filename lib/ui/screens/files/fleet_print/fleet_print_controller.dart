@@ -14,6 +14,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'fleet_print_controller.freezed.dart';
@@ -59,6 +60,7 @@ sealed class FleetPrintState with _$FleetPrintState {
   const factory FleetPrintState({
     @Default([]) List<Machine> availableTargets,
     @Default([]) List<Machine> selectedTargets,
+    @Default([]) List<PrinterGroup> availableGroups,
     @Default(false) bool started,
     @Default(false) bool downloadRequired,
     @Default(0.0) double downloadProgress,
@@ -76,9 +78,10 @@ class FleetPrintController extends _$FleetPrintController {
 
   @override
   FleetPrintState build(FleetPrintArgs args) {
+    final groups = ref.watch(printerGroupsProvider).value ?? const <PrinterGroup>[];
     ref.onDispose(_cancelToken.cancel);
     _loadAvailableTargets();
-    return const FleetPrintState();
+    return FleetPrintState(availableGroups: groups);
   }
 
   Future<void> _loadAvailableTargets() async {
@@ -109,6 +112,12 @@ class FleetPrintController extends _$FleetPrintController {
     } else {
       state = state.copyWith(selectedTargets: [...current, machine]);
     }
+  }
+
+  void applyGroup(PrinterGroup group) {
+    state = state.copyWith(
+      selectedTargets: state.availableTargets.where((m) => group.machineUUIDs.contains(m.uuid)).toList(),
+    );
   }
 
   Future<void> startFleetPrint() async {
