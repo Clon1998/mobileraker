@@ -631,6 +631,7 @@ class _FilamentOperationDialogController extends _$FilamentOperationDialogContro
     await _printerService.gCode(gcode);
     await Future.delayed(const Duration(milliseconds: 1600));
 
+    if (!ref.mounted) return;
     // Automatically move to next step
     state = AsyncValue.data(state.requireValue.copyWith(step: _FilamentChangeSteps.moveFilament));
     moveFilament();

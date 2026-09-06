@@ -862,6 +862,7 @@ class _DashboardPageController extends _$DashboardPageController {
       // await Future.delayed(const Duration(seconds: 2));
 
       await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, toUpdate);
+      if (!ref.mounted) return;
       _snackbarService.show(
         SnackBarConfig(
           type: SnackbarType.info,
@@ -871,6 +872,7 @@ class _DashboardPageController extends _$DashboardPageController {
         ),
       );
     } catch (e, s) {
+      if (!ref.mounted) return;
       talker.error('Error saving layout', e, s);
 
       _snackbarService.show(

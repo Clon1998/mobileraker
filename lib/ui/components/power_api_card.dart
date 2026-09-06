@@ -288,6 +288,7 @@ class _PowerApiCardPreviewController extends _PowerApiCardController {
   Future<PowerState> updateDeviceState(PowerDevice device, PowerState state) async {
     // Some fake data processing
     await Future.delayed(const Duration(milliseconds: 100));
+    if (!ref.mounted) return state;
     final cModel = this.state.requireValue;
 
     final uModel = cModel.copyWith(

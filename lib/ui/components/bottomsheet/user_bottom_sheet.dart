@@ -648,6 +648,7 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
   _showInfoText(String text, [int seconds = 5]) async {
     state = state.whenData((value) => value.copyWith(infoText: text));
     await Future.delayed(Duration(seconds: seconds));
+    if (!ref.mounted) return;
     state = state.whenData((value) => value.copyWith(infoText: null));
   }
 
