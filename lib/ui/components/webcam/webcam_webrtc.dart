@@ -51,7 +51,9 @@ class WebcamWebRtc extends ConsumerWidget {
       case ClientType.octo:
         var octoEverywhere = machine.octoEverywhere;
         var baseUri = octoEverywhere!.uri;
-        webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl);
+        // OctoEverywhere's tunnel only listens on its own port (443) - a camera's local
+        // port (e.g. go2rtc on 1984) can never be reached there, so don't carry it over.
+        webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl, allowCamPort: false);
         break;
       case ClientType.manual:
         var remoteInterface = machine.remoteInterface!;

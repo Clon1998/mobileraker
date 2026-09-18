@@ -51,13 +51,21 @@ Uri buildWebCamUri(Uri machineUri, Uri camUri) {
   // return machineUri.toHttpUri().removePort().resolveUri(camUri);
 }
 
-Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri) {
+/// Builds the URI used to reach a webcam through a remote connection.
+///
+/// [allowCamPort] controls whether an explicit port on an absolute [camUri] is carried
+/// over onto [remoteUri]. This is correct for a self-hosted reverse proxy/port-forward
+/// (a manual remote connection), where the remote host can expose arbitrary ports, but
+/// wrong for a managed tunnel like OctoEverywhere, which only ever listens on its own
+/// port (typically 443) - carrying over the camera's local port there produces an
+/// address nothing is listening on.
+Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri, {bool allowCamPort = true}) {
   if (camUri.isAbsolute) {
     if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
       return remoteUri.replace(
           path: camUri.path,
           query: camUri.query.isEmpty ? null : camUri.query,
-          port: camUri.hasPort ? camUri.port : remoteUri.port);
+          port: allowCamPort && camUri.hasPort ? camUri.port : remoteUri.port);
     } else {
       return camUri;
     }

@@ -1122,5 +1122,15 @@ void main() {
       );
       expect(moonrakerUri, Uri.parse('http://my.remote:4444/webcam/webrtc'));
     });
+
+    test('Absolut cam with PORT and matches machine URI but allowCamPort is false (e.g. OctoEverywhere)', () {
+      var moonrakerUri = buildRemoteWebCamUri(
+        Uri.parse('https://app-xxxx.octoeverywhere.com'),
+        Uri.parse('ws://192.1.1.0:212/test'),
+        Uri.parse('http://192.1.1.0:4444/webcam/webrtc'),
+        allowCamPort: false,
+      );
+      expect(moonrakerUri, Uri.parse('https://app-xxxx.octoeverywhere.com:443/webcam/webrtc'));
+    });
   });
 }

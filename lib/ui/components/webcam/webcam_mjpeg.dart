@@ -62,9 +62,11 @@ class WebcamMjpeg extends ConsumerWidget {
       case ClientType.octo:
         var octoEverywhere = machine.octoEverywhere;
         var baseUri = octoEverywhere!.uri;
+        // OctoEverywhere's tunnel only listens on its own port (443) - a camera's local
+        // port (e.g. go2rtc on 1984) can never be reached there, so don't carry it over.
         configBuilder
-          ..streamUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl)
-          ..snapshotUri = buildRemoteWebCamUri(baseUri, machineUri, camSnapshotUrl);
+          ..streamUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl, allowCamPort: false)
+          ..snapshotUri = buildRemoteWebCamUri(baseUri, machineUri, camSnapshotUrl, allowCamPort: false);
         break;
       case ClientType.manual:
         var remoteInterface = machine.remoteInterface!;
