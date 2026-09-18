@@ -187,10 +187,11 @@ class _CardBody extends ConsumerWidget {
     var themeData = Theme.of(context);
     var numberFormat = NumberFormat('0.000mm', context.locale.toStringWithSeparator());
 
-    var meshIsActive = model.bedMesh?.profileName?.isNotEmpty == true;
-    var activeMeshName = model.bedMesh?.profileName ?? tr('general.none');
+    var meshIsActive = model.showProbed ? model.bedMesh?.hasProbedData == true : model.bedMesh?.hasMeshData == true;
+    var activeMeshName = model.bedMesh?.profileName?.isNotEmpty == true ? model.bedMesh!.profileName! : tr('general.none');
     var valueRange = model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh;
-    var gridSize = model.bedMesh!.activeProfile?.meshParams.let((it) => '${it.xCount}x${it.yCount}');
+    var activeMatrix = model.showProbed ? model.bedMesh!.probedMatrix : model.bedMesh!.meshMatrix;
+    var gridSize = activeMatrix.isNotEmpty ? '${activeMatrix[0].length}x${activeMatrix.length}' : null;
 
     var range = numberFormat.format((valueRange.$2 - valueRange.$1));
 
@@ -460,7 +461,7 @@ class _Controller extends _$Controller {
   void onPlotTap() {
     if (state case AsyncData(
       value: _Model(:final bedMesh?, :final bedMin, :final bedMax, :final showProbed),
-    ) when bedMesh.activeProfile != null) {
+    ) when (showProbed ? bedMesh.hasProbedData : bedMesh.hasMeshData)) {
       // ToDo: receive the selected bed mesh from the page if changed to adapt it (No need tho because this is handled by klipper)
       _router.pushNamed(
         AppRoute.tool_bedMesh.name,

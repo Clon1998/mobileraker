@@ -43,6 +43,13 @@ sealed class BedMesh with _$BedMesh {
 
   double get yAxisSize => meshMax.$2 - meshMin.$2;
 
+  // profileName/activeProfile are only set for meshes loaded from a saved profile.
+  // An unsaved mesh (e.g. a per-print adaptive mesh) still carries real matrix data,
+  // so use these to decide whether there is something to render.
+  bool get hasProbedData => probedMatrix.isNotEmpty;
+
+  bool get hasMeshData => meshMatrix.isNotEmpty;
+
   (double, double) get zValueRangeProbed => _extractMaxMin(probedMatrix);
 
   (double, double) get zValueRangeMesh => _extractMaxMin(meshMatrix);

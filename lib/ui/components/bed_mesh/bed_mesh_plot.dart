@@ -43,11 +43,12 @@ class _BedMeshPlotState extends State<BedMeshPlot> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.bedMesh?.profileName?.isNotEmpty != true) {
+    final bedMesh = widget.bedMesh;
+    final hasData = bedMesh != null && (widget.isProbed ? bedMesh.hasProbedData : bedMesh.hasMeshData);
+    if (!hasData) {
       return Center(child: const Text('bottom_sheets.bedMesh.no_mesh_loaded').tr());
     }
 
-    var meshCords = (widget.isProbed) ? widget.bedMesh!.probedCoordinates : widget.bedMesh!.meshCoordinates;
     var zRange = (widget.isProbed) ? widget.bedMesh!.zValueRangeProbed : widget.bedMesh!.zValueRangeMesh;
 
     NumScaler scaler = NumScaler(originMin: zRange.$1, originMax: zRange.$2, targetMin: 0, targetMax: 1);
@@ -255,24 +256,24 @@ class _BedMeshPainter extends PrintBedPainter {
 
     super.paint(canvas, size);
 
-    final activeProfile = bedMesh.activeProfile;
-    if (activeProfile == null) {
-      // profileName can be non-empty while no matching entry exists yet in profiles (e.g. a
-      // partial mesh update that changed one field but not the other) - just draw the empty
-      // bed/grid from super.paint() above instead of crashing.
+    final matrix = isProbed ? bedMesh.probedMatrix : bedMesh.meshMatrix;
+    if (matrix.isEmpty) {
+      // No mesh loaded from a saved profile, and no unsaved (e.g. adaptive) mesh data either -
+      // just draw the empty bed/grid from super.paint() above instead of crashing.
       canvas.restore();
       return;
     }
 
     var meshCords = isProbed ? bedMesh.probedCoordinates : bedMesh.meshCoordinates;
-    var meshParams = activeProfile.meshParams;
 
-    // Determine the distance between two points in x and y direction
-    final xCount = isProbed ? meshParams.xCount : (meshParams.xCount - 1) * (meshParams.meshXPPS + 1) + 1;
-    final yCount = isProbed ? meshParams.yCount : (meshParams.yCount - 1) * (meshParams.meshYPPS + 1) + 1;
+    // Determine the distance between two points in x and y direction based on the matrix
+    // actually being rendered - works for saved profiles and unsaved (e.g. adaptive) meshes
+    // alike, since it doesn't rely on a matching entry in bedMesh.profiles.
+    final xCount = matrix[0].length;
+    final yCount = matrix.length;
 
-    final xStep = (meshParams.maxX - meshParams.minX) / (xCount - 1);
-    final yStep = (meshParams.maxY - meshParams.minY) / (yCount - 1);
+    final xStep = xCount > 1 ? bedMesh.xAxisSize / (xCount - 1) : bedMesh.xAxisSize;
+    final yStep = yCount > 1 ? bedMesh.yAxisSize / (yCount - 1) : bedMesh.yAxisSize;
 
     // Log the xCount, yCount, actualXCount, actualYCount, xStep, yStep
     talker.info(

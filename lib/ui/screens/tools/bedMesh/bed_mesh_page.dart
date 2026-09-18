@@ -7,7 +7,6 @@ import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -44,8 +43,9 @@ class BedMeshPage extends HookConsumerWidget {
     final numberFormat = NumberFormat('0.000mm', context.locale.toStringWithSeparator());
     final valueRange = showProbed.value ? args.bedMesh.zValueRangeProbed : args.bedMesh.zValueRangeMesh;
     final range = numberFormat.format((valueRange.$2 - valueRange.$1));
-    final gridSize = args.bedMesh.activeProfile?.meshParams.let((it) => '${it.xCount}x${it.yCount}');
-    final activeMeshName = args.bedMesh.profileName ?? tr('general.none');
+    final activeMatrix = showProbed.value ? args.bedMesh.probedMatrix : args.bedMesh.meshMatrix;
+    final gridSize = activeMatrix.isNotEmpty ? '${activeMatrix[0].length}x${activeMatrix.length}' : null;
+    final activeMeshName = args.bedMesh.profileName?.isNotEmpty == true ? args.bedMesh.profileName! : tr('general.none');
 
     Widget body = ResponsiveLimit(
       child: Column(
