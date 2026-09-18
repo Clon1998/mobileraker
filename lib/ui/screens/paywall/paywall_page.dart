@@ -401,6 +401,7 @@ class _SubscriptionView extends ConsumerWidget {
             ],
           ),
         _Footer(),
+        Gap(MediaQuery.viewPaddingOf(context).bottom),
       ],
     );
   }
@@ -462,6 +463,7 @@ class _ManagementView extends ConsumerWidget {
             ],
           ),
         _Footer(),
+        Gap(MediaQuery.viewPaddingOf(context).bottom),
       ],
     );
   }
