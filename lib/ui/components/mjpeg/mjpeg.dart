@@ -275,6 +275,8 @@ class _MjpegController extends _$MjpegController {
 
   @override
   Stream<_Model> build(Dio dio, MjpegConfig config) async* {
+    if (!ref.mounted) return;
+
     // Get the manager
     final manager = ref.watch(mjpegManagerProvider(dio, config));
 
