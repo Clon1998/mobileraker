@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -32,8 +33,15 @@ Stream<List<WebcamInfo>> allWebcamInfos(Ref ref, String machineUUID) async* {
     return;
   }
   ref.keepAliveFor();
-  // final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
-  // if (jrpcState != ClientState.connected) return;
+  final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
+  if (!ref.mounted) return;
+  if (jrpcState != ClientState.connected) {
+    // Not connected (yet). Emit an empty list instead of leaving the stream stuck in
+    // AsyncLoading forever - the generator re-runs automatically once
+    // jrpcClientStateProvider emits ClientState.connected.
+    yield const [];
+    return;
+  }
 
   final webcamInfos = await ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
   if (!ref.mounted) return;
