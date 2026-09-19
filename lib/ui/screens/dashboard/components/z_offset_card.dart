@@ -234,6 +234,9 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
+    // async* bodies are lazy (only run once listened to), which can happen after this
+    // provider was already disposed - guard before touching ref.
+    if (!ref.mounted) return;
     ref.keepAliveFor();
 
     final alwaysShowSetting = ref.watch(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping));

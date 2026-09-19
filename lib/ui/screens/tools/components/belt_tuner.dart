@@ -232,6 +232,9 @@ class _BeltTunerController extends _$BeltTunerController {
 
   @override
   Stream<int> build() async* {
+    // async* bodies are lazy (only run once listened to), which can happen after this
+    // provider was already disposed - guard before touching ref.
+    if (!ref.mounted) return;
     var status = await ref.watch(permissionStatusProvider(Permission.microphone).future);
     // We can only use the fft service if we have permission to access the microphone
     if (!status.isGranted) return;
