@@ -182,6 +182,9 @@ Future<List<Machine>> machinesWithoutCompanion(Ref ref) async {
 
 @riverpod
 Stream<MachineSettings> machineSettings(Ref ref, String machineUUID) async* {
+  // async* bodies are lazy (only run once listened to), which can happen after this provider
+  // was already disposed - guard before touching ref.
+  if (!ref.mounted) return;
   ref.keepAliveFor();
 
   ref.listen(printerProvider(machineUUID), (AsyncValue<Printer>? prev, next) {
