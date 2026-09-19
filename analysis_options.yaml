@@ -33,7 +33,6 @@ linter:
 
 analyzer:
   enable-experiment:
-    - null-aware-elements
   plugins:
     - custom_lint
 

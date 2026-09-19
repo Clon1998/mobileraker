@@ -32,7 +32,5 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 
 analyzer:
-  enable-experiment:
-    - null-aware-elements
   plugins:
     - custom_lint
