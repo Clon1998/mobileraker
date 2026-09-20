@@ -54,7 +54,14 @@ class PaywallPage extends HookConsumerWidget {
           top: false,
           sliver: SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
-            sliver: const SliverFillRemaining(hasScrollBody: false, child: ResponsiveLimit(child: _PaywallPage())),
+            sliver: SliverLayoutBuilder(
+              builder: (context, constraints) => SliverToBoxAdapter(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.remainingPaintExtent),
+                  child: const ResponsiveLimit(child: _PaywallPage()),
+                ),
+              ),
+            ),
           ),
         ),
       ],
@@ -401,7 +408,6 @@ class _SubscriptionView extends ConsumerWidget {
             ],
           ),
         _Footer(),
-        Gap(MediaQuery.viewPaddingOf(context).bottom),
       ],
     );
   }
@@ -463,7 +469,6 @@ class _ManagementView extends ConsumerWidget {
             ],
           ),
         _Footer(),
-        Gap(MediaQuery.viewPaddingOf(context).bottom),
       ],
     );
   }
