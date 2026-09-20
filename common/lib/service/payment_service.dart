@@ -34,22 +34,26 @@ class CustomerInfoNotifier extends _$CustomerInfoNotifier {
       var customerInfo = await Purchases.getCustomerInfo();
       talker.info('Got customerInfo: $customerInfo');
 
-      checkForExpired() async {
-        talker.info('Checking for expired subs!');
-        var curUserInfo = state;
-        var now = DateTime.now();
-        if (curUserInfo.hasValue) {
-          var hasExpired = curUserInfo.requireValue.entitlements.active.values.any(
-              (ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
-          if (hasExpired) {
-            talker.info('Found expired Entitlement, force refresh!');
-            state = await AsyncValue.guard(() async {
-              await Purchases.invalidateCustomerInfoCache();
-              return Purchases.getCustomerInfo();
-            });
-            // ref.state = AsyncValue.guard(() => )
+      checkForExpired() {
+        // Deferred to a microtask: onAddListener/onResume fire synchronously
+        // from inside Riverpod's internal callback stack, where reading/writing
+        // `state` is forbidden (`_debugCallbackStack == 0` assertion).
+        Future.microtask(() async {
+          talker.info('Checking for expired subs!');
+          var curUserInfo = state;
+          var now = DateTime.now();
+          if (curUserInfo.hasValue) {
+            var hasExpired = curUserInfo.requireValue.entitlements.active.values.any(
+                (ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
+            if (hasExpired) {
+              talker.info('Found expired Entitlement, force refresh!');
+              state = await AsyncValue.guard(() async {
+                await Purchases.invalidateCustomerInfoCache();
+                return Purchases.getCustomerInfo();
+              });
+            }
           }
-        }
+        });
       }
 
       ref.onAddListener(checkForExpired);
