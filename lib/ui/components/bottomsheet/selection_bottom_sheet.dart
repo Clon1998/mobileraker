@@ -57,7 +57,11 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: ElevatedButton(
             onPressed: () {
-              context.pop(BottomSheetResult.confirmed(selected!.value));
+              if (arguments.onConfirmed != null) {
+                arguments.onConfirmed!(context, selected!.value);
+              } else {
+                context.pop(BottomSheetResult.confirmed(selected!.value));
+              }
             },
             child: Text(MaterialLocalizations.of(context).keyboardKeySelect),
           ),
@@ -101,6 +105,16 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final node = useFocusNode();
 
+    final backButton = IconButton(
+      icon: const Icon(Icons.arrow_back),
+      tooltip: MaterialLocalizations
+          .of(context)
+          .closeButtonTooltip,
+      onPressed: context.pop,
+    ).only((ModalRoute
+        .of(context)
+        ?.impliesAppBarDismissal == true));
+
     return Column(
       // mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -109,6 +123,7 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
           visualDensity: VisualDensity.compact,
           titleAlignment: ListTileTitleAlignment.center,
           // leading: arguments.leading,
+          leading: backButton,
           // horizontalTitleGap: 8,
           title: arguments.title,
           subtitle: arguments.subtitle,
@@ -167,6 +182,7 @@ class _DataBottomSheet<T> extends HookConsumerWidget {
       options: options,
       searchTerm: debouncedTextEditingValue?.text,
       selectedNotifier: arguments.multiSelect ? selected : null,
+      onConfirmed: arguments.onConfirmed,
     );
 
     return body;
@@ -174,11 +190,12 @@ class _DataBottomSheet<T> extends HookConsumerWidget {
 }
 
 class _FilteredResults<T> extends StatelessWidget {
-  const _FilteredResults({super.key, required this.options, this.searchTerm, this.selectedNotifier});
+  const _FilteredResults({super.key, required this.options, this.searchTerm, this.selectedNotifier, this.onConfirmed});
 
   final List<SelectionOption<T>> options;
   final String? searchTerm;
   final ValueNotifier<List<T>>? selectedNotifier;
+  final void Function(BuildContext context, List<T> values)? onConfirmed;
 
   @override
   Widget build(BuildContext context) {
@@ -208,11 +225,13 @@ class _FilteredResults<T> extends StatelessWidget {
       padding: EdgeInsets.only(top: 4, bottom: MediaQuery.viewPaddingOf(context).bottom),
       shrinkWrap: true,
       // physics: const ClampingScrollPhysics(),
-      children: [for (final opt in result) _Entry(option: opt, selectedNotifier: selectedNotifier)],
+      children: [
+        for (final opt in result) _Entry(option: opt, selectedNotifier: selectedNotifier, onConfirmed: onConfirmed),
+      ],
     );
   }
 
-  List<SelectionOption> _filterOptions(List<SelectionOption> options, String? term) {
+  List<SelectionOption<T>> _filterOptions(List<SelectionOption<T>> options, String? term) {
     if (term == null || term.isEmpty) return options;
 
     final searchTokens = term.split(RegExp(r'[\W,]+'));
@@ -232,10 +251,11 @@ class _FilteredResults<T> extends StatelessWidget {
 }
 
 class _Entry<T> extends HookWidget {
-  const _Entry({super.key, required this.option, this.selectedNotifier});
+  const _Entry({super.key, required this.option, this.selectedNotifier, this.onConfirmed});
 
   final SelectionOption<T> option;
   final ValueNotifier<List<T>>? selectedNotifier;
+  final void Function(BuildContext context, List<T> values)? onConfirmed;
 
   @override
   Widget build(BuildContext context) {
@@ -272,6 +292,8 @@ class _Entry<T> extends HookWidget {
               } else {
                 selectedNotifier!.value = [...?selectedNotifier?.value, option.value];
               }
+            } else if (onConfirmed != null) {
+              onConfirmed!(context, [option.value]);
             } else {
               context.pop(BottomSheetResult.confirmed(option.value));
             }
@@ -286,13 +308,27 @@ class _Entry<T> extends HookWidget {
 
 @immutable
 class SelectionBottomSheetArgs<T> {
-  const SelectionBottomSheetArgs({this.title, this.subtitle, required this.options, this.showSearch = true, this.multiSelect = false});
+  const SelectionBottomSheetArgs({
+    this.title,
+    this.subtitle,
+    required this.options,
+    this.showSearch = true,
+    this.multiSelect = false,
+    this.onConfirmed,
+  });
 
   final Widget? title;
   final Widget? subtitle;
   final FutureOr<List<SelectionOption<T>>> options;
   final bool showSearch;
   final bool multiSelect;
+  // When set, called instead of popping this sheet with the result. Needed when this sheet is
+  // pushed via a local Navigator.push (e.g. PagedSheetRoute) rather than through
+  // BottomSheetService/go_router: go_router's context.pop() extension only pops from its own
+  // known navigator tree (see GoRouterDelegate._findCurrentNavigators), so it can't correctly
+  // resolve a route that go_router doesn't know about — it would pop the wrong thing instead.
+  // See ActionBottomSheetArgs.onActionSelected for the same pattern.
+  final void Function(BuildContext context, List<T> values)? onConfirmed;
 
   bool get hasSyncOptions {
     if (options case Future<List<SelectionOption<T>>>()) return false;

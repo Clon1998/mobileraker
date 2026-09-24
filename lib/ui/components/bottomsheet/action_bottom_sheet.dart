@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -23,6 +25,16 @@ class ActionBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
 
+    final backButton = IconButton(
+      icon: const Icon(Icons.arrow_back),
+      tooltip: MaterialLocalizations
+          .of(context)
+          .closeButtonTooltip,
+      onPressed: context.pop,
+    ).only((ModalRoute
+        .of(context)
+        ?.impliesAppBarDismissal == true));
+
     return SheetContentScaffold(
       topBar: Column(
         mainAxisSize: MainAxisSize.min,
@@ -32,7 +44,7 @@ class ActionBottomSheet extends ConsumerWidget {
             ListTile(
               visualDensity: VisualDensity.compact,
               titleAlignment: ListTileTitleAlignment.center,
-              leading: arguments.leading,
+              leading: arguments.leading ?? backButton,
               trailing: arguments.trailing,
               iconColor: themeData.colorScheme.primary,
               // leading: arguments.leading,
@@ -50,7 +62,9 @@ class ActionBottomSheet extends ConsumerWidget {
         child: ListView(
           shrinkWrap: true,
           padding: MediaQuery.viewPaddingOf(context),
-          children: [for (final action in arguments.actions) _Entry(action: action)],
+          children: [
+            for (final action in arguments.actions) _Entry(action: action, onSelected: arguments.onActionSelected),
+          ],
         ),
       ),
     );
@@ -58,9 +72,13 @@ class ActionBottomSheet extends ConsumerWidget {
 }
 
 class _Entry extends StatelessWidget {
-  const _Entry({super.key, required this.action});
+  const _Entry({super.key, required this.action, this.onSelected});
 
   final BottomSheetAction action;
+  // When set, called instead of popping this sheet — lets the caller keep it open and stack
+  // further sheets on top of it. Popping this sheet and immediately pushing another one races
+  // navigator_resizable's route-settle tracking; stacking onto a still-open sheet doesn't.
+  final FutureOr<void> Function(BuildContext context, BottomSheetAction action)? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +100,11 @@ class _Entry extends StatelessWidget {
             borderRadius: BorderRadius.horizontal(left: Radius.circular(44)),
           ).only(themeData.useMaterial3),
           onTap: () {
-            context.pop(BottomSheetResult.confirmed(action));
+            if (onSelected != null) {
+              onSelected!(context, action);
+            } else {
+              context.pop(BottomSheetResult.confirmed(action));
+            }
           },
         ),
       ),
@@ -91,13 +113,21 @@ class _Entry extends StatelessWidget {
 }
 
 class ActionBottomSheetArgs {
-  const ActionBottomSheetArgs({this.title, required this.actions, this.leading, this.subtitle, this.trailing});
+  const ActionBottomSheetArgs({
+    this.title,
+    required this.actions,
+    this.leading,
+    this.subtitle,
+    this.trailing,
+    this.onActionSelected,
+  });
 
   final Widget? title;
   final Widget? subtitle;
   final Widget? leading;
   final Widget? trailing;
   final List<BottomSheetAction> actions;
+  final FutureOr<void> Function(BuildContext context, BottomSheetAction action)? onActionSelected;
 
   @override
   bool operator ==(Object other) =>
