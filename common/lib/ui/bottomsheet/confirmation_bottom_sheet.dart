@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,7 @@ class ConfirmationBottomSheet extends ConsumerWidget {
                       .of(context)
                       .backButtonTooltip),
                   icon: const Icon(Icons.keyboard_arrow_left),
-                  onPressed: () => Navigator.of(context).pop(false),
+                  onPressed: () => context.pop(BottomSheetResult.dismissed()),
                 ),
               if (ModalRoute
                   .of(context)
@@ -72,11 +73,11 @@ class ConfirmationBottomSheet extends ConsumerWidget {
                       .of(context)
                       .closeButtonTooltip),
                   icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: () => Navigator.of(context).pop(false),
+                  onPressed: () => context.pop(BottomSheetResult.dismissed()),
                 ),
               FilledButton(
                 style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
-                onPressed: () => context.pop(true),
+                onPressed: () => context.pop(BottomSheetResult.confirmed()),
                 child: const Text('general.confirm').tr(),
               ),
             ],

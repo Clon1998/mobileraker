@@ -118,15 +118,18 @@ class NonPrintingBottomSheet extends ConsumerWidget {
     var performAction = !requireConfirm;
 
     if (requireConfirm) {
-      final confirmed = await router.pushNamed(
-        SheetType.confirm.name,
-        extra: ConfirmationBottomSheetArgs(
-          title: tr('bottom_sheets.non_printing.confirm_action.title'),
-          description: tr('bottom_sheets.non_printing.confirm_action.body', gender: type),
-          hint: tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
+      final bottomSheetService = tsx.get(bottomSheetServiceProvider);
+      final result = await bottomSheetService.show(
+        BottomSheetConfig(
+          type: SheetType.confirm,
+          data: ConfirmationBottomSheetArgs(
+            title: tr('bottom_sheets.non_printing.confirm_action.title'),
+            description: tr('bottom_sheets.non_printing.confirm_action.body', gender: type),
+            hint: tr('bottom_sheets.non_printing.confirm_action.hint.long_press'),
+          ),
         ),
       );
-      performAction = performAction || confirmed == true;
+      performAction = performAction || result.confirmed;
     }
     if (!performAction) return;
     switch (type) {
