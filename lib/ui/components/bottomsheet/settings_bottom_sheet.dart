@@ -5,11 +5,15 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/slider_or_text_input.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+
+import 'selection_bottom_sheet.dart';
 
 class SettingsBottomSheet extends ConsumerWidget {
   const SettingsBottomSheet({super.key, required this.arguments});
@@ -50,6 +54,7 @@ class _SettingsList extends ConsumerWidget {
             switch (setting) {
               SwitchSettingItem() => _BoolSetting(setting: setting),
               NumSettingItem() => _DoubleSetting(setting: setting),
+              ChoiceSettingItem() => _ChoiceSetting(setting: setting),
               DividerSettingItem() => Divider(height: setting.height),
             },
         ],
@@ -93,6 +98,65 @@ class _DoubleSetting extends ConsumerWidget {
         submitOnChange: true,
       ),
     );
+  }
+}
+
+class _ChoiceSetting extends ConsumerWidget {
+  const _ChoiceSetting({super.key, required this.setting});
+
+  final ChoiceSettingItem setting;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fallbackIndex = setting.options.indexOf(setting.defaultValue);
+    final index = ref.watch(intSettingProvider(setting.settingKey, fallbackIndex));
+    final current = setting.options.elementAtOrNull(index) ?? setting.defaultValue;
+
+    final themeData = Theme.of(context);
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      title: Text(setting.title),
+      subtitle: setting.subtitle?.let(Text.new),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            setting.labelBuilder(current),
+            style: themeData.textTheme.bodyMedium?.copyWith(color: themeData.colorScheme.primary),
+          ),
+          Icon(Icons.chevron_right, color: themeData.disabledColor),
+        ],
+      ),
+      enabled: setting.enabled,
+      onTap: () => _pick(context, ref, current),
+    );
+  }
+
+  // Opened as a genuine tap on this already-settled sheet — safe, unlike pushing a second
+  // sheet programmatically right after the first one's own push resolves (see group_actions_fab.dart).
+  Future<void> _pick(BuildContext context, WidgetRef ref, dynamic current) async {
+    final result = await ref.read(bottomSheetServiceProvider).show(
+          BottomSheetConfig(
+            type: SheetType.selections,
+            data: SelectionBottomSheetArgs(
+              title: Text(setting.title),
+              showSearch: false,
+              options: [
+                for (final option in setting.options)
+                  SelectionOption(
+                    value: option,
+                    label: setting.labelBuilder(option),
+                    subtitle: setting.optionSubtitleBuilder?.call(option),
+                    selected: option == current,
+                  ),
+              ],
+            ),
+          ),
+        );
+    if (!result.confirmed || result.data == null) return;
+    ref.read(settingServiceProvider).writeInt(setting.settingKey, setting.options.indexOf(result.data));
   }
 }
 
@@ -172,6 +236,51 @@ class NumSettingItem extends SettingItem {
 
   @override
   int get hashCode => Object.hash(settingKey, title, defaultValue, enabled);
+}
+
+@immutable
+class ChoiceSettingItem<T> extends SettingItem {
+  // Not const: labelBuilder is wrapped here (while T is still known) into a dynamic-parameter
+  // closure. A field typed `String Function(T)` cannot be read back safely once this item is
+  // held as the raw/erased `ChoiceSettingItem` (T becomes dynamic) — function parameter types
+  // are contravariant, so `(T) => String` is not a subtype of `(dynamic) => String`, unlike
+  // `List<T>`, whose covariant reads stay safe through that same erasure.
+  ChoiceSettingItem({
+    required this.settingKey,
+    required this.title,
+    required this.options,
+    required String Function(T) labelBuilder,
+    required this.defaultValue,
+    this.subtitle,
+    String Function(T)? optionSubtitleBuilder,
+    super.enabled,
+  }) : labelBuilder = ((value) => labelBuilder(value as T)),
+       optionSubtitleBuilder = optionSubtitleBuilder == null ? null : ((value) => optionSubtitleBuilder(value as T));
+
+  final KeyValueStoreKey settingKey;
+  final String title;
+  final String? subtitle;
+  final List<T> options;
+  final String Function(dynamic) labelBuilder;
+  // Short blurb shown per-option in the picker sheet (not on the settings row itself).
+  final String Function(dynamic)? optionSubtitleBuilder;
+  final T defaultValue;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChoiceSettingItem &&
+          runtimeType == other.runtimeType &&
+          settingKey == other.settingKey &&
+          title == other.title &&
+          subtitle == other.subtitle &&
+          const DeepCollectionEquality().equals(options, other.options) &&
+          defaultValue == other.defaultValue &&
+          enabled == other.enabled;
+
+  @override
+  int get hashCode =>
+      Object.hash(settingKey, title, subtitle, const DeepCollectionEquality().hash(options), defaultValue, enabled);
 }
 
 @immutable

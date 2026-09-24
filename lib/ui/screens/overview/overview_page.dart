@@ -18,6 +18,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import 'components/group_actions_fab.dart';
 import 'components/legacy_printer_card.dart';
 import 'components/printer_card.dart';
 
@@ -42,6 +43,7 @@ class OverviewPage extends StatelessWidget {
       ),
       body: body,
       drawer: const NavigationDrawerWidget(),
+      floatingActionButton: const GroupActionsFab(),
     );
   }
 }

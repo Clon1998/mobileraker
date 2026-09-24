@@ -830,6 +830,7 @@ pages:
       tap in Fleet Print.
     no_printers: No printers
     name_field_label: Group name
+    presets_title: Presets
     select_machines_hint: Select the printers that belong to this group.
     delete_dialog:
       title: Delete Printer Group
@@ -907,6 +908,29 @@ pages:
     fetching_machines: "@:general.fetching machines…"
     no_entries: No machines found
     add_machine: Add Machine
+    group_actions:
+      title: Group Actions
+      preheat: Preheat Group
+      console: Group Console
+      pick_group: Pick a group
+    group_preheat:
+      pick_preset: Pick a preset
+      confirm_title: Preheat Group
+      confirm_body: "Apply preset \"{}\" (extruder {}°C, bed {}°C) to every printer in \"{}\"?"
+      summary: "Preheat sent to {}/{} printers."
+    group_console:
+      empty: No console output yet.
+      command_hint: Broadcast a command to every printer in this group…
+      settings:
+        title: Group Console Settings
+        indicator_title: Printer Label
+        indicator_subtitle: Shown next to each printer's output.
+        indicator_name: Machine name
+        indicator_name_desc: The printer's name, as set in Mobileraker.
+        indicator_ip_full: Full IP / hostname
+        indicator_ip_full_desc: The printer's full address, e.g. 192.168.1.42.
+        indicator_ip_short: Last IP segment
+        indicator_ip_short_desc: Just the last number, e.g. 42.
   markdown:
     loading: "@:general.loading {}…"
     error: An error occurred while trying to fetch {};

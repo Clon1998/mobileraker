@@ -76,9 +76,12 @@ class ConfirmationBottomSheet extends ConsumerWidget {
                   onPressed: () => context.pop(BottomSheetResult.dismissed()),
                 ),
               FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
+                style: FilledButton.styleFrom(
+                  backgroundColor: args.danger ? cc?.danger : null,
+                  foregroundColor: args.danger ? cc?.onDanger : null,
+                ),
                 onPressed: () => context.pop(BottomSheetResult.confirmed()),
-                child: const Text('general.confirm').tr(),
+                child: Text(args.actionLabel ?? tr('general.confirm')),
               ),
             ],
           ),
@@ -94,5 +97,7 @@ sealed class ConfirmationBottomSheetArgs with _$ConfirmationBottomSheetArgs {
     required String title,
     required String description,
     String? hint,
+    String? actionLabel,
+    @Default(true) bool danger,
   }) = _ConfirmationBottomSheetArgs;
 }

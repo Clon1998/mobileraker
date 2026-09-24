@@ -25,6 +25,7 @@ class PrinterGroupEditPage extends HookConsumerWidget {
     final nameController = useTextEditingController(text: group?.name);
     final name = useState(group?.name ?? '');
     final selected = useState<Set<String>>(group?.machineUUIDs.toSet() ?? {});
+    final presets = useState<List<GroupPreset>>(group?.presets ?? []);
     final allMachines = ref.watch(allMachinesProvider).value ?? const <Machine>[];
 
     final canSave = name.value.trim().isNotEmpty && selected.value.isNotEmpty;
@@ -41,8 +42,7 @@ class PrinterGroupEditPage extends HookConsumerWidget {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -56,37 +56,64 @@ class PrinterGroupEditPage extends HookConsumerWidget {
               ),
             ),
             Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'pages.printer_groups.presets_title',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ).tr(),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => presets.value = [
+                      ...presets.value,
+                      GroupPreset.create(name: tr('pages.printer_edit.presets.new_preset')),
+                    ],
+                    icon: const Icon(Icons.add),
+                    label: const Text('general.add').tr(),
+                  ),
+                ],
+              ),
+            ),
+            if (presets.value.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: const Text('pages.printer_edit.presets.no_presets').tr(),
+              ),
+            for (final preset in presets.value)
+              _GroupPresetTile(
+                key: ValueKey(preset.uuid),
+                preset: preset,
+                onChanged: (updated) => presets.value = [
+                  for (final p in presets.value) if (p.uuid == preset.uuid) updated else p,
+                ],
+                onRemove: () => presets.value = presets.value.where((p) => p.uuid != preset.uuid).toList(),
+              ),
+            Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text(
                 'pages.printer_groups.select_machines_hint',
                 style: Theme.of(context).textTheme.bodyMedium,
               ).tr(),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: allMachines.length,
-                itemBuilder: (context, i) {
-                  final machine = allMachines[i];
-                  final isSelected = selected.value.contains(machine.uuid);
-                  return CheckboxListTile(
-                    value: isSelected,
-                    onChanged: (v) {
-                      final next = {...selected.value};
-                      if (v == true) {
-                        next.add(machine.uuid);
-                      } else {
-                        next.remove(machine.uuid);
-                      }
-                      selected.value = next;
-                    },
-                    title: Text(machine.name),
-                    subtitle: Text(machine.httpUri.host, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    secondary: MachineStateIndicator(machine),
-                    controlAffinity: ListTileControlAffinity.leading,
-                  );
+            for (final machine in allMachines)
+              CheckboxListTile(
+                value: selected.value.contains(machine.uuid),
+                onChanged: (v) {
+                  final next = {...selected.value};
+                  if (v == true) {
+                    next.add(machine.uuid);
+                  } else {
+                    next.remove(machine.uuid);
+                  }
+                  selected.value = next;
                 },
+                title: Text(machine.name),
+                subtitle: Text(machine.httpUri.host, maxLines: 1, overflow: TextOverflow.ellipsis),
+                secondary: MachineStateIndicator(machine),
+                controlAffinity: ListTileControlAffinity.leading,
               ),
-            ),
           ],
         ),
       ),
@@ -96,7 +123,8 @@ class PrinterGroupEditPage extends HookConsumerWidget {
           child: SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: canSave ? () => _onSave(context, ref, name.value.trim(), selected.value) : null,
+              onPressed:
+                  canSave ? () => _onSave(context, ref, name.value.trim(), selected.value, presets.value) : null,
               child: const Text('general.save').tr(),
             ),
           ),
@@ -105,9 +133,15 @@ class PrinterGroupEditPage extends HookConsumerWidget {
     );
   }
 
-  Future<void> _onSave(BuildContext context, WidgetRef ref, String name, Set<String> machineUUIDs) async {
-    final effective = group?.copyWith(name: name, machineUUIDs: machineUUIDs.toList()) ??
-        PrinterGroup.create(name: name, machineUUIDs: machineUUIDs.toList());
+  Future<void> _onSave(
+    BuildContext context,
+    WidgetRef ref,
+    String name,
+    Set<String> machineUUIDs,
+    List<GroupPreset> presets,
+  ) async {
+    final effective = group?.copyWith(name: name, machineUUIDs: machineUUIDs.toList(), presets: presets) ??
+        PrinterGroup.create(name: name, machineUUIDs: machineUUIDs.toList(), presets: presets);
 
     await ref.read(printerGroupServiceProvider).save(effective);
     if (context.mounted) context.pop();
@@ -125,5 +159,79 @@ class PrinterGroupEditPage extends HookConsumerWidget {
       await ref.read(printerGroupServiceProvider).delete(group);
       if (context.mounted) context.pop();
     }
+  }
+}
+
+class _GroupPresetTile extends HookWidget {
+  const _GroupPresetTile({super.key, required this.preset, required this.onChanged, required this.onRemove});
+
+  final GroupPreset preset;
+  final ValueChanged<GroupPreset> onChanged;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final nameController = useTextEditingController(text: preset.name);
+    final extruderController = useTextEditingController(text: preset.extruderTemp.toString());
+    final bedController = useTextEditingController(text: preset.bedTemp.toString());
+    final gcodeController = useTextEditingController(text: preset.customGCode);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ExpansionTile(
+        title: Text(preset.name.isEmpty ? tr('pages.printer_edit.presets.new_preset') : preset.name),
+        subtitle: Text('${preset.extruderTemp}°C / ${preset.bedTemp}°C'),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        children: [
+          TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              labelText: tr('pages.printer_edit.general.displayname'),
+              suffixIcon: IconButton(icon: const Icon(Icons.delete), onPressed: onRemove),
+            ),
+            onChanged: (v) => onChanged(preset.copyWith(name: v)),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: extruderController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: tr('pages.printer_edit.presets.hotend_temp'),
+                    suffixText: '°C',
+                  ),
+                  onChanged: (v) => onChanged(preset.copyWith(extruderTemp: int.tryParse(v) ?? 0)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: bedController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: tr('pages.printer_edit.presets.bed_temp'),
+                    suffixText: '°C',
+                  ),
+                  onChanged: (v) => onChanged(preset.copyWith(bedTemp: int.tryParse(v) ?? 0)),
+                ),
+              ),
+            ],
+          ),
+          TextField(
+            controller: gcodeController,
+            decoration: InputDecoration(
+              labelText: tr('pages.printer_edit.presets.custom_gcode'),
+              helperText: tr('pages.printer_edit.presets.custom_gcode_helper'),
+              helperMaxLines: 3,
+            ),
+            keyboardType: TextInputType.multiline,
+            minLines: 1,
+            maxLines: 5,
+            onChanged: (v) => onChanged(preset.copyWith(customGCode: v.trim().isEmpty ? null : v.trim())),
+          ),
+        ],
+      ),
+    );
   }
 }

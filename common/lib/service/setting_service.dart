@@ -185,7 +185,8 @@ enum AppSettingKeys implements KeyValueStoreKey {
   consoleShowTimestamp('cShowTs', true),
   reverseConsole('reverseConsole', false),
   hideBackupFiles('hBakFiles', false),
-  showHiddenFiles('sHidFiles', false)
+  showHiddenFiles('sHidFiles', false),
+  groupConsoleIndicatorMode('groupConsoleIndicatorMode', 0)
   ;
 
   @override

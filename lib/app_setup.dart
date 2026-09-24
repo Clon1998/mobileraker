@@ -146,6 +146,11 @@ setupBoxes() async {
     Hive.registerAdapter(customThemePackAdapter);
   }
 
+  var groupPresetAdapter = GroupPresetAdapter();
+  if (!Hive.isAdapterRegistered(groupPresetAdapter.typeId)) {
+    Hive.registerAdapter(groupPresetAdapter);
+  }
+
   var printerGroupAdapter = PrinterGroupAdapter();
   if (!Hive.isAdapterRegistered(printerGroupAdapter.typeId)) {
     Hive.registerAdapter(printerGroupAdapter);

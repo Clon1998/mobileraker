@@ -64,6 +64,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
 import '../ui/screens/files/move_file_destination_page.dart';
+import '../ui/screens/overview/group_console/group_console_page.dart';
 import '../ui/screens/printers/groups/printer_group_edit_page.dart';
 import '../ui/screens/printers/groups/printer_groups_page.dart';
 import '../ui/screens/setting/notification/machine_notification_settings_page.dart';
@@ -83,6 +84,7 @@ enum AppRoute implements RouteDefinitionMixin {
   printerAdd,
   printerGroups,
   printerGroupEdit,
+  groupConsole,
   qrScanner,
   console,
   settings,
@@ -202,6 +204,11 @@ GoRouter goRouterImpl(Ref ref) {
             path: 'edit',
             name: AppRoute.printerGroupEdit.name,
             builder: (context, state) => PrinterGroupEditPage(group: state.extra as PrinterGroup?),
+          ),
+          GoRoute(
+            path: 'console',
+            name: AppRoute.groupConsole.name,
+            builder: (context, state) => GroupConsolePage(group: state.extra as PrinterGroup),
           ),
         ],
       ),

@@ -8,6 +8,7 @@ import 'package:common/data/dto/server/service_status.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/bottomsheet/confirmation_bottom_sheet.dart';
 import 'package:common/ui/components/async_button_.dart';
@@ -168,7 +169,7 @@ class _ServiceList extends ConsumerWidget {
   }
 
   Future<void> _confirmation(BuildContext context, VoidCallback toCall, String action, String serviceName) async {
-    final result = await context.pushNamed(
+    final result = await context.pushNamed<BottomSheetResult>(
       SheetType.confirm.name,
       extra: ConfirmationBottomSheetArgs(
         title: tr('bottom_sheets.non_printing.confirm_action.title'),
@@ -177,7 +178,7 @@ class _ServiceList extends ConsumerWidget {
       ),
     );
 
-    if (result == true) {
+    if (result?.confirmed == true) {
       toCall();
       // if (context.mounted) context.pop();
     }

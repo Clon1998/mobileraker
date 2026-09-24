@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/data/repository/machine_hive_repository.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/consent_service.dart';
@@ -33,20 +34,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:iabtcf_consent_info/iabtcf_consent_info.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/console/console_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/fans_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/multipliers_card.dart';
+import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/selection_bottom_sheet.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/admobs.dart';
 import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
+import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
@@ -68,6 +67,21 @@ Future<int> childInt(Ref ref) async {
   // Simulate some slow call to a non riverpod future provider
   await Future.delayed(Duration(seconds: 1));
   return fastInt;
+}
+
+enum _Actions with BottomSheetAction {
+  one('One', Icons.one_k),
+  two('Two', Icons.one_k),
+  three('Three', Icons.one_k),
+  four('Four', Icons.one_k);
+
+  const _Actions(this.labelTranslationKey, this.icon);
+
+  @override
+  final String labelTranslationKey;
+
+  @override
+  final IconData icon;
 }
 
 class DevPage extends HookConsumerWidget {
@@ -102,14 +116,83 @@ class DevPage extends HookConsumerWidget {
     await SharePlus.instance.share(ShareParams(files: [XFile(file.path)], subject: 'Mobileraker Machines Export'));
   }
 
+  void funTesting(WidgetRef ref) async {
+    var bottomSheetService = ref.read(bottomSheetServiceProvider);
+
+    final args = ActionBottomSheetArgs(
+      title: Text("Layer A"),
+      subtitle: Text("Subtitle Layer A"),
+      onActionSelected: (octx, action) async {
+        talker.info('Selected action: ${action.labelTranslationKey}');
+        final args = SelectionBottomSheetArgs(
+          title: Text("Selection B"),
+          subtitle: Text("$action -> B"),
+          showSearch: false,
+
+          options: [
+            SelectionOption(value: 'A', label: 'A'),
+            SelectionOption(value: 'B', label: 'B'),
+            SelectionOption(value: 'C', label: 'C'),
+            SelectionOption(value: 'D', label: 'D'),
+          ],
+          onConfirmed: (ctx, List<dynamic> selected) async {
+            talker.info('Selected stuff: ${selected}');
+            final b = selected.first;
+            final full = '$action -> $b';
+
+            final a = SelectionBottomSheetArgs(
+              title: Text("Selection MOST INNER"),
+              subtitle: Text(full),
+              showSearch: false,
+
+              options: [
+                SelectionOption(value: 'AA', label: 'AA'),
+                SelectionOption(value: 'BB', label: 'BB'),
+                SelectionOption(value: 'CC', label: 'CC'),
+                SelectionOption(value: 'DD', label: 'DD'),
+              ],
+              onConfirmed: (ctx, List<dynamic> selected) async {
+                talker.info('Selected stuff MOST INNER: ${selected}');
+                ctx.pop(BottomSheetResult.confirmed());
+                // Well okay the confirm dialog is BROKEN... But that does not matter/is sufficient the test showe dnesting works. Just the entire route closure is something we still need!
+                // var r = await bottomSheetService.show(BottomSheetConfig(type: SheetType.confirm, data: ConfirmationBottomSheetArgs(title: "Confirm xy", description: "XXXXXX")));
+                // if (r.confirmed == true) {
+                // CLOSE ALL rather than just the inner one
+                  // talker.info("CONFIRMED, can pop ALL");
+                // }
+                // talker.info("NOT CONFIRMED");
+              },
+            );
+
+            final resp = await bottomSheetService.show(BottomSheetConfig(type: SheetType.selections, data: a));
+            talker.info("LEVEL 1 -> LEVEL 2 -> LEVEL 3 returned $resp");
+            if (resp.confirmed) {
+              ctx.pop(BottomSheetResult.confirmed());
+            }
+          },
+        );
+
+        final resp = await bottomSheetService.show(BottomSheetConfig(type: SheetType.selections, data: args));
+        talker.info("LEVEL 1 -> LEVEL 2 returned $resp");
+        if (resp.confirmed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => octx.pop(BottomSheetResult.confirmed()));
+        }
+      },
+      actions: [_Actions.one, _Actions.two, DividerSheetAction.divider, _Actions.three, _Actions.four],
+    );
+
+    final resp = await bottomSheetService.show(BottomSheetConfig(type: SheetType.actions, data: args));
+    talker.info("LEVEL 1 returned $resp");
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     talker.info('REBUILIDNG DEV PAGE!');
+    ref.listen(printerGroupsProvider, (_, _) => {});
 
     // ref.listen(childIntProvider, (p,n) {
     //   talker.info('childInt changed: $p -> $n');
     // });
-
 
     var selMachine = ref.watch(selectedMachineProvider).value;
 
@@ -119,24 +202,21 @@ class DevPage extends HookConsumerWidget {
     }
 
     ref.listen(jobQueueSelectedProvider, (p, n) {
-      talker.info('JobQueueStatusSELECTED changed: ${p.toString().substring(0,20)} -> ${n.toString().substring(0,20)}');
+      talker.info(
+        'JobQueueStatusSELECTED changed: ${p.toString().substring(0, 20)} -> ${n.toString().substring(0, 20)}',
+      );
     });
 
     ref.listen(jobQueueServiceProvider(selMachine.uuid), (p, n) {
-      talker.info('JobQueueStatus(${selMachine.uuid}) changed: ${p.toString().substring(0,20)} -> ${n.toString().substring(0,20)}');
+      talker.info(
+        'JobQueueStatus(${selMachine.uuid}) changed: ${p.toString().substring(0, 20)} -> ${n.toString().substring(0, 20)}',
+      );
     });
 
     final jrpc = ref.watch(jrpcClientSelectedProvider);
 
     Widget body = ListView(
       children: [
-        MacroGroupCard(machineUUID: selMachine.uuid),
-        ControlExtruderCard(machineUUID: selMachine.uuid),
-        FansCard(machineUUID: selMachine.uuid),
-        ConsoleCard(machineUUID: selMachine.uuid),
-        MultipliersCard(machineUUID: selMachine.uuid),
-        BedMeshCard(machineUUID: selMachine.uuid),
-
         // HeaterSensorCard(machineUUID: selMachine.uuid),
         // GCodePreviewCard.preview(),
         // const _StlPreview(),
@@ -183,6 +263,7 @@ class DevPage extends HookConsumerWidget {
           onPressed: () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.userManagement)),
           child: const Text('UserMngnt'),
         ),
+        OutlinedButton(onPressed: () => funTesting(ref), child: const Text('FUnFunFuuun')),
         ElevatedButton(
           onPressed: () {
             ref
