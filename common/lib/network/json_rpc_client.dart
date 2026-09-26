@@ -218,6 +218,10 @@ class JsonRpcClient {
     talker.info('$logPrefix Identifying connection');
     _connectionIdentified = true;
 
+    // Moonraker >= 0.11 revokes trusted-client auth if identify contains an
+    // invalid api_key (including an empty string). Only send it if it's set.
+    final trimmedKey = apiKey?.trim();
+
     try {
       await sendJRpcMethod(
         'server.connection.identify',
@@ -226,7 +230,7 @@ class JsonRpcClient {
           'version': '${packageInfo.version}-${packageInfo.buildNumber}',
           'type': Platform.isMacOS || Platform.isWindows ? 'desktop' : 'mobile',
           'url': 'www.mobileraker.com',
-          if (apiKey != null) 'api_key': apiKey,
+          'api_key': ?effectiveKey,
         },
       );
     } catch (e) {
