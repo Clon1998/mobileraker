@@ -577,7 +577,6 @@ notifications:
       desc: Yazdırma ilerlemesine ilişkin bildirimler.
       title: '{} işleminin yazdırılma durumu'
 form_validators:
-  simple_url: 'Giriş yalnızca URL bileşenlerine izin verir: Ana Bilgisayar Adı ve Bağlantı Noktası'
   disallow_mdns: mDNS (.local) adresleri desteklenmez
 date:
   year:
