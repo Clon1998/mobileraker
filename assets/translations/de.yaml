@@ -582,6 +582,8 @@ pages:
       error_loading_printers_title: Fehler beim Laden der Drucker
       error_loading_printers_body: Ein unerwarteter Fehler ist beim Laden der Drucker aufgetreten. Bitte versuche es später erneut.
       no_devices_found: Keine Geräte gefunden
+      inherits_global_tooltip: Verwendet die globalen Benachrichtigungseinstellungen
+      custom_settings_tooltip: Verwendet eigene Benachrichtigungseinstellungen
       configure_btn: Konfigurieren
       not_connected_btn: Nicht verbunden
     data:
@@ -1688,7 +1690,7 @@ notifications:
       desc: Benachrichtigungen über den Druckfortschritt.
       title: Druckenfortschritt von {}
 form_validators:
-  simple_url: 'Die Eingabe erlaubt nur URL-Komponenten: Hostname und Port'
+  simple_url: 'Die Eingabe erlaubt nur URL-Komponenten: Hostname und Port. IPv6-Adressen mit Port benötigen eckige Klammern, z. B. [2001:db8::1]:7125'
   disallow_mdns: mDNS (.local) Adressen werden nicht unterstützt
   file_name_in_use: Dateiname wird bereits verwendet
   min_before_max: Der Wert muss kleiner oder gleich dem Maximalwert sein
