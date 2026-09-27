@@ -1525,7 +1525,6 @@ notifications:
       desc: Oznámení týkající se postupu tisku.
       title: Postup tisku {}
 form_validators:
-  simple_url: 'Vstup povoluje pouze komponenty URL: název hostitele a port'
   disallow_mdns: mDNS (.local) adresy nejsou podporovány
   file_name_in_use: Název souboru je již používán
   min_before_max: Minimální hodnota musí být menší nebo rovna maximální hodnotě
