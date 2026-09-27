@@ -158,7 +158,7 @@ void main() {
       'http://[::1]:7125/websocket': (true, false),
       'fe80::1': (true, true),
       'fe80::1%wlan0': (true, true),
-      '2001:db8::1:7125': (false, true), // url rejects it with the "did you mean [..]:port" hint
+      '2001:db8::1:7125': (false, false), // both reject it with the "did you mean [..]:port" hint
       '[2001:db8::1:7125]': (true, true), // explicit escape hatch for an address ending in 7125
       '2001:db8::1:abcd': (true, true),
       'user:pw@2001:db8::1': (true, false),
@@ -223,5 +223,28 @@ void main() {
     test('no hint if the remaining address would be invalid', () => expect(url('1:2:3:4:5:6:7:80'), isNull));
     test('no hint for bracketed input', () => expect(url('[2001:db8::1:7125]'), isNull));
     test('no hint for non-port last group', () => expect(url('2001:db8::1:7126'), isNull));
+  });
+
+  group('review round 2', () {
+    final simple = MobilerakerFormBuilderValidator.simpleUrl<String>();
+
+    test('simpleUrl returns an error for an overflowing port instead of throwing', () {
+      expect(() => simple('myprinter:99999999999999999999'), returnsNormally);
+      expect(simple('myprinter:99999999999999999999'), isNotNull);
+      expect(simple('[::1]:99999999999999999999'), isNotNull);
+    });
+
+    test('simpleUrl rejects a bare IPv6 ending in a common port', () => expect(simple('2001:db8::1:7125'), isNotNull));
+    test('simpleUrl accepts the explicit escape hatch', () => expect(simple('[2001:db8::1:7125]'), isNull));
+
+    test('the port hint is shown even if a generic errorText is passed', () {
+      final url = MobilerakerFormBuilderValidator.url<String>(errorText: 'generic');
+      expect(url('2001:db8::1:7125'), isNot('generic'));
+      expect(url('[2001:db8::1'), 'generic');
+    });
+
+    test('the port hint keeps the zone ID', () {
+      expect(MobilerakerFormBuilderValidator.suggestBracketedIPv6Port('fe80::1:7125%25wlan0'), '[fe80::1%wlan0]:7125');
+    });
   });
 }

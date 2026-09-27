@@ -160,7 +160,7 @@ _verifyOctoHttpResponseCodes(int statusCode) {
   switch (statusCode) {
     case 400:
       throw const OctoEverywhereHttpException(
-          'Internal App error while trying too fetch info. No AppToken was found!', 400);
+          'Internal App error while trying to fetch info. No AppToken was found!', 400);
     case 500:
       throw const OctoEverywhereHttpException('Internal Server Error - OctoEverywhere\'s server is faulty', 500);
     case 600:
@@ -261,15 +261,15 @@ _verifyHttpResponseCodes(int statusCode) {
 }
 
 _verifyObicoHttpResponseCodes(int statusCode) {
-  var err = switch (statusCode) {
-    401 => throw const ObicoHttpException('Unauthenticated request', 401),
-    481 => throw const ObicoHttpException('Over free tunnel monthly data cap.', 481),
-    482 => throw const ObicoHttpException('Obico for Klipper is not connected to the Obico server.', 482),
-    483 => throw const ObicoHttpException('Obico for Klipper is connected but timed out (30s)', 483),
-    _ => null
-  };
-  if (err != null) {
-    throw err;
+  switch (statusCode) {
+    case 401:
+      throw const ObicoHttpException('Unauthenticated request', 401);
+    case 481:
+      throw const ObicoHttpException('Over free tunnel monthly data cap.', 481);
+    case 482:
+      throw const ObicoHttpException('Obico for Klipper is not connected to the Obico server.', 482);
+    case 483:
+      throw const ObicoHttpException('Obico for Klipper is connected but timed out (30s)', 483);
   }
 }
 
