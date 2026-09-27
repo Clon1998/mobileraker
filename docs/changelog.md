@@ -11,6 +11,20 @@
 
   *Note: This feature is available exclusively for "Supporters".*
 
+- **Group Actions**: Once you have a printer group, a new button on the overview page gives you quick actions for a
+  whole group at once:
+  - **Preheat Group**: Define temperature presets directly on a group and apply one to every printer in it with a
+    single tap.
+  - **Group Console**: Broadcast a G-code command to every printer in a group and see each printer's response in one
+    combined console. Each line is labeled with the printer's name, full IP/hostname, or just the last IP segment
+    (configurable in the console settings).
+
+  *Note: This feature is available exclusively for "Supporters".*
+
+- **Email Verification**: After verifying your email address in the browser, the app now picks up the verified
+  status as soon as you return to it, instead of continuing to show the account as unverified.
+
+
 ### Bug Fixes
 
 - **Purchase "Already Owned" Error**: Tapping a subscription/product that Google Play already considers active for
@@ -38,6 +52,20 @@
   setting up a "Manual" remote connection (e.g. for Cloudflare Zero Trust or other reverse-proxy auth). The input
   fields had gone missing from the form during a refactor even though the headers were still applied to existing
   connections. [#587](https://github.com/Clon1998/mobileraker/issues/587)
+
+- **Connection with Empty API Key**: Fixed the app losing access to printers that rely on Moonraker's trusted-client
+  authentication when an empty API key was saved for the printer. Newer Moonraker versions treat an empty key as
+  invalid and revoke the trusted access. [#593](https://github.com/Clon1998/mobileraker/issues/593)
+
+- **OctoEverywhere Webcams**: Fixed webcams configured with an explicit local port (e.g. `http://printer:8080/...`)
+  failing to load through OctoEverywhere, because the local port was wrongly carried over to the remote
+  URL. [#561](https://github.com/Clon1998/mobileraker/issues/561)
+
+- **Manage Services Sheet**: The services sheet no longer shows an error while the printer connection is being
+  (re-)established. It now shows a loading placeholder until the printer is reachable again.
+
+- **Translations**: Corrected the German filament usage tooltip
+  text [#592](https://github.com/Clon1998/mobileraker/issues/592) and updated the Russian translation.
 
 ## [2.9.13] - 2026-08-18
 
