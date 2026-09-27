@@ -1424,7 +1424,6 @@ notifications:
       desc: 有关打印进度的通知。
       title: 打印{}的进度
 form_validators:
-  simple_url: '输入仅允许 URL 组件： 主机名和端口'
   disallow_mdns: 不支持 mDNS (.local) 地址
   file_name_in_use: 文件名已被使用
 date:

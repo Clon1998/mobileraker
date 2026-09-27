@@ -1519,7 +1519,6 @@ notifications:
       desc: Értesítések a nyomtatás előrehaladásáról.
       title: Nyomtatás folyamata {}
 form_validators:
-  simple_url: 'A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port'
   disallow_mdns: Az MDNs (.local) címek nem támogatottak.
   file_name_in_use: Fájlnév már használatban van
   min_before_max: A minimális értéknek kisebbnek vagy egyenlőnek kell lennie a maximális értékkel
