@@ -57,6 +57,25 @@ extension MobilerakerUri on Uri {
         });
   }
 
+  /// The host as it should be shown to users. [Uri.host] keeps the zone ID of a
+  /// link-local IPv6 address percent-encoded (`fe80::1%25en0`), this decodes it (`fe80::1%en0`).
+  String get displayHost => host.replaceAll('%25', '%');
+
+  /// A shortened [displayHost] for space constrained places like headers and cards.
+  /// Long IPv6 addresses are reduced to their last two groups (`…:9abc:1a2b`), as the leading
+  /// network prefix is usually shared by all devices in the same network. The zone ID is dropped.
+  /// Every other host is returned as [displayHost].
+  String get compactHost {
+    // IPv6 literals are the only hosts containing a colon
+    if (!host.contains(':')) return displayHost;
+
+    final address = host.split('%').first;
+    if (address.length <= 20) return address;
+
+    final groups = address.split(':');
+    return '…:${groups.sublist(groups.length - 2).join(':')}';
+  }
+
   /// Hide the userInfo to ensure we can safely log the uri
   Uri obfuscate() => replace(userInfo: userInfo.obfuscate());
 

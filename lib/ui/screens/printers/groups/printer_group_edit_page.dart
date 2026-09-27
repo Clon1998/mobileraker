@@ -6,6 +6,7 @@
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -110,7 +111,7 @@ class PrinterGroupEditPage extends HookConsumerWidget {
                   selected.value = next;
                 },
                 title: Text(machine.name),
-                subtitle: Text(machine.httpUri.host, maxLines: 1, overflow: TextOverflow.ellipsis),
+                subtitle: Text(machine.httpUri.displayHost, maxLines: 1, overflow: TextOverflow.ellipsis),
                 secondary: MachineStateIndicator(machine),
                 controlAffinity: ListTileControlAffinity.leading,
               ),

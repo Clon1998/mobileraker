@@ -91,4 +91,63 @@ void main() {
       });
     });
   });
+
+  group('MobilerakerFormBuilderValidator.url', () {
+    final validator = MobilerakerFormBuilderValidator.url<String>();
+
+    for (final valid in [
+      '192.1.1.1',
+      '192.1.1.1:7125',
+      'http://myprinter:7125/path',
+      '[2001:db8::1]',
+      '[2001:db8::1]:7125',
+      'http://[2001:db8::1]:7125',
+      'https://[2001:db8::1]:7125/moon',
+      '2001:db8::1',
+      'http://fd00::abcd',
+      '[::1]:7125',
+      '[fe80::1%25en0]:7125',
+    ]) {
+      test('accepts $valid', () => expect(validator(valid), isNull));
+    }
+
+    for (final invalid in [
+      'ftp://[2001:db8::1]',
+      '[2001:db8::1]:99999',
+      '[zz::1]:7125',
+      '[2001:db8::1',
+      'not a url',
+      'ftp://192.1.1.1',
+    ]) {
+      test('rejects $invalid', () => expect(validator(invalid), isNotNull));
+    }
+
+    test('requireProtocol rejects IPv6 without scheme',
+        () => expect(MobilerakerFormBuilderValidator.url<String>(requireProtocol: true)('[::1]'), isNotNull));
+
+    test('custom protocols are honored for IPv6', () {
+      final v = MobilerakerFormBuilderValidator.url<String>(protocols: ['http', 'https', 'ftp']);
+      expect(v('ftp://[::1]'), isNull);
+    });
+  });
+
+  group('MobilerakerFormBuilderValidator.simpleUrl', () {
+    final validator = MobilerakerFormBuilderValidator.simpleUrl<String>();
+
+    for (final valid in [
+      'myprinter',
+      '192.1.1.1:7125',
+      '[2001:db8::1]',
+      '[2001:db8::1]:7125',
+      '[fe80::1%en0]:7125',
+      '2001:db8::1',
+      '::1',
+    ]) {
+      test('accepts $valid', () => expect(validator(valid), isNull));
+    }
+
+    for (final invalid in ['[2001:db8::1]:0', 'http://[::1]', '[::1]/path', '2001:db8::1/path']) {
+      test('rejects $invalid', () => expect(validator(invalid), isNotNull));
+    }
+  });
 }

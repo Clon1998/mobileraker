@@ -17,6 +17,7 @@ import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -257,10 +258,16 @@ class _DeviceSetting extends ConsumerWidget {
                 Text(machine.name, style: themeData.textTheme.titleMedium),
                 // globe_faw5s
                 if (machineConnected)
-                  Icon(inheritGlobalSettings ? Icons.sync_sharp : Icons.sync_disabled_sharp, size: 15),
+                  Tooltip(
+                    message: inheritGlobalSettings
+                        ? tr('pages.setting.notification.inherits_global_tooltip')
+                        : tr('pages.setting.notification.custom_settings_tooltip'),
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: Icon(inheritGlobalSettings ? Icons.sync_sharp : Icons.sync_disabled_sharp, size: 15),
+                  ),
               ],
             ),
-            Text(machine.httpUri.host, style: themeData.textTheme.bodyMedium),
+            Text(machine.httpUri.displayHost, style: themeData.textTheme.bodyMedium),
           ],
         ),
         if (canConfigure)

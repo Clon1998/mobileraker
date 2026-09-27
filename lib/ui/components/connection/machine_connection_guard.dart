@@ -17,6 +17,7 @@ import 'package:common/ui/components/connection/klippy_provider_guard.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ class _WebsocketStateWidget extends ConsumerWidget {
               message: Text(
                 'components.connection_watcher.lost_connection',
                 textAlign: TextAlign.center,
-              ).tr(args: [machine.name, machine.httpUri.host]),
+              ).tr(args: [machine.name, machine.httpUri.displayHost]),
               actionButton: OutlinedButton.icon(
                 onPressed: controller.onRetryPressed,
                 icon: const Icon(Icons.restart_alt_outlined),
@@ -148,7 +149,7 @@ class _WebsocketStateWidget extends ConsumerWidget {
               message: Text(
                 'components.connection_watcher.could_not_connect',
                 textAlign: TextAlign.center,
-              ).tr(args: [machine.name, machine.httpUri.host]),
+              ).tr(args: [machine.name, machine.httpUri.displayHost]),
               errorChip: ActionChip(
                 onPressed: controller.onErrorDetailsPressed,
                 avatar: Icon(Icons.info, color: Theme.of(context).colorScheme.onErrorContainer),

@@ -598,6 +598,8 @@ pages:
       error_loading_printers_title: Error loading printers
       error_loading_printers_body: An unexpected error occurred while loading printers. Please try again later.
       no_devices_found: No devices found
+      inherits_global_tooltip: Uses the global notification settings
+      custom_settings_tooltip: Uses custom notification settings
       configure_btn: Configure
       not_connected_btn: Not connected
     data:
@@ -1846,7 +1848,7 @@ notifications:
       desc: Notifications regarding the print progress.
       title: Print progress of {}
 form_validators:
-  simple_url: 'Input only allows URL components: Hostname and Port'
+  simple_url: 'Input only allows URL components: Hostname and Port. IPv6 addresses with a port require brackets, e.g. [2001:db8::1]:7125'
   disallow_mdns: mDNS (.local) addresses are not supported
   file_name_in_use: File name already in use
   min_before_max: Minimum value must be less or equal to the maximum value

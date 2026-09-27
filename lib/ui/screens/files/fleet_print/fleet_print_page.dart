@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -94,8 +95,8 @@ class _SetupBody extends ConsumerWidget {
                 title: Text(machine.name),
                 subtitle: Text(
                   isSource
-                      ? '${machine.httpUri.host} · ${'pages.files.fleet_print.source_printer'.tr()}'
-                      : machine.httpUri.host,
+                      ? '${machine.httpUri.displayHost} · ${'pages.files.fleet_print.source_printer'.tr()}'
+                      : machine.httpUri.displayHost,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -206,7 +207,7 @@ class _MachineProgressTile extends ConsumerWidget {
         children: [
           Text(machine.name),
           Text(
-            machine.httpUri.host,
+            machine.httpUri.displayHost,
             style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

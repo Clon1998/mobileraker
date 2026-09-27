@@ -10,6 +10,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -144,7 +145,7 @@ class ImportSettingsDialog extends HookConsumerWidget {
                     items: [
                       for (var m in machines)
                         if (m.uuid != target.uuid)
-                          DropdownMenuItem<Machine>(value: m, child: Text('${m.name} (${m.httpUri.host}')),
+                          DropdownMenuItem<Machine>(value: m, child: Text('${m.name} (${m.httpUri.displayHost}')),
                     ],
                   ),
                 ),

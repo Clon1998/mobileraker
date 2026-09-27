@@ -8,6 +8,7 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
                         tileColor: themeData.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
                         textColor: themeData.colorScheme.onSurfaceVariant,
                         title: Text(machine.name),
-                        subtitle: Text(machine.httpUri.toString()),
+                        subtitle: Text(machine.httpUri.compactHost.toString()),
                         onTap: () {
                           selected.value = true;
                           ref.read(selectPrinterDialogControllerProvider.notifier).selectMachine(machine);

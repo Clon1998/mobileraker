@@ -183,4 +183,21 @@ void main() {
       expect(result, 'Basic $expectedAuth');
     });
   });
+
+  group('displayHost', () {
+    test('IPv4', () => expect(Uri.parse('http://192.1.1.1:7125').displayHost, '192.1.1.1'));
+    test('IPv6', () => expect(Uri.parse('http://[2001:db8::1]:7125').displayHost, '2001:db8::1'));
+    test('IPv6 with zone id', () => expect(Uri.parse('http://[fe80::1%25en0]:7125').displayHost, 'fe80::1%en0'));
+  });
+
+  group('compactHost', () {
+    test('IPv4 is untouched', () => expect(Uri.parse('http://192.168.1.42:7125').compactHost, '192.168.1.42'));
+    test('hostname is untouched', () => expect(Uri.parse('http://my-very-long-printer-name.lan').compactHost, 'my-very-long-printer-name.lan'));
+    test('short IPv6 is untouched', () => expect(Uri.parse('http://[fd00::5]').compactHost, 'fd00::5'));
+    test('long IPv6 keeps last two groups',
+        () => expect(Uri.parse('http://[2001:db8:85a3:0:1c2e:5678:9abc:1a2b]:7125').compactHost, '…:9abc:1a2b'));
+    test('zone id is dropped', () => expect(Uri.parse('http://[fe80::1%25en0]').compactHost, 'fe80::1'));
+    test('long link-local with zone id',
+        () => expect(Uri.parse('http://[fe80::1c2e:5678:9abc:1a2b%25wlan0]').compactHost, '…:9abc:1a2b'));
+  });
 }

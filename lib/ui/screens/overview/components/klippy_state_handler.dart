@@ -13,6 +13,7 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -167,7 +168,7 @@ class _KlippyErrorShutdownUnauthorized extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Gap(8),
-        Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+        Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
         Gap(8),
         Card(
           color: bgColor,
@@ -261,7 +262,7 @@ class _KlippyProviderErrorBody extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Gap(8),
-        Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+        Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
         Gap(8),
         Card(
           color: bgColor,

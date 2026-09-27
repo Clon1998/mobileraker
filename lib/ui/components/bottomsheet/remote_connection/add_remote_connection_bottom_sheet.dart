@@ -21,6 +21,7 @@ import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remo
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers_form_field.dart';
+import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../../screens/printers/components/section_header.dart';
@@ -244,7 +245,7 @@ class _ManualTab extends ConsumerWidget {
                 initialValue: model.remoteInterface?.remoteUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  FormBuilderValidators.url(requireTld: false),
+                  MobilerakerFormBuilderValidator.url(protocols: ['http', 'https', 'ftp']),
                 ]),
               ),
               FormBuilderTextField(
@@ -332,7 +333,7 @@ class _ObicoTab extends ConsumerWidget {
                           ),
                           validator: FormBuilderValidators.compose([
                             // FormBuilderValidators.required(),
-                            FormBuilderValidators.url(requireTld: false, checkNullOrEmpty: false),
+                            MobilerakerFormBuilderValidator.url(protocols: ['http', 'https', 'ftp'], checkNullOrEmpty: false),
                           ]),
                         ),
                       ],

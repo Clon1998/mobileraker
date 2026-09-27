@@ -7,6 +7,7 @@ import 'package:common/data/dto/console/gcode_store_entry.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -47,9 +48,16 @@ enum GroupConsoleIndicatorMode {
 
   String labelFor(Machine machine) => switch (this) {
         GroupConsoleIndicatorMode.machineName => machine.name,
-        GroupConsoleIndicatorMode.ipFull => machine.httpUri.host,
-        GroupConsoleIndicatorMode.ipShort => machine.httpUri.host.split('.').last,
+        GroupConsoleIndicatorMode.ipFull => machine.httpUri.displayHost,
+        GroupConsoleIndicatorMode.ipShort => _shortHost(machine.httpUri.displayHost),
       };
+}
+
+/// Last group of the address: `192.168.1.42` -> `42`, `2001:db8::1a2b` -> `1a2b`.
+String _shortHost(String host) {
+  // IPv6 literals are the only hosts containing a colon, strip the zone ID of link-local addresses
+  if (host.contains(':')) return host.split('%').first.split(':').last;
+  return host.split('.').last;
 }
 
 @riverpod

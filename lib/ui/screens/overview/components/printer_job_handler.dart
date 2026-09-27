@@ -27,6 +27,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -121,7 +122,7 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                      Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
                       Gap(4),
                       _JobText(job!),
                     ],
@@ -212,7 +213,7 @@ class _JobPrintingPausedBody extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                      Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
                       Gap(4),
                       _JobText(job!),
                     ],
@@ -273,7 +274,7 @@ class _JobStandbyBody extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
                 Flexible(child: Text('components.machine_card.waiting_for_job').tr()),
               ],
             ),
@@ -324,7 +325,7 @@ class _JobErrorBody extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+                      Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
                       Gap(4),
                       _JobText(job!),
                     ],
@@ -409,7 +410,7 @@ class _PrinterProviderErrorBody extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Gap(8),
-        Text(machine.httpUri.host, style: themeData.textTheme.bodySmall),
+        Text(machine.httpUri.compactHost, style: themeData.textTheme.bodySmall),
         Gap(8),
         Card(
           color: bgColor,

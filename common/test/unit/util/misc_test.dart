@@ -1133,4 +1133,66 @@ void main() {
       expect(moonrakerUri, Uri.parse('https://app-xxxx.octoeverywhere.com:443/webcam/webrtc'));
     });
   });
+
+  group('IPv6 support', () {
+    group('bracketIPv6Host', () {
+      test('bare address', () => expect(bracketIPv6Host('2001:db8::1'), '[2001:db8::1]'));
+      test('bare address with scheme and path',
+          () => expect(bracketIPv6Host('http://2001:db8::1/path'), 'http://[2001:db8::1]/path'));
+      test('bare address with zone id', () => expect(bracketIPv6Host('fe80::1%en0'), '[fe80::1%en0]'));
+      test('bracketed address is untouched',
+          () => expect(bracketIPv6Host('[2001:db8::1]:7125'), '[2001:db8::1]:7125'));
+      test('IPv4 is untouched', () => expect(bracketIPv6Host('192.1.1.1:7125'), '192.1.1.1:7125'));
+      test('hostname is untouched', () => expect(bracketIPv6Host('ws://myprinter:25'), 'ws://myprinter:25'));
+    });
+
+    group('buildMoonrakerHttpUri', () {
+      test('bracketed with port', () {
+        final uri = buildMoonrakerHttpUri('[2001:db8::1]:7125')!;
+        expect(uri.host, '2001:db8::1');
+        expect(uri.port, 7125);
+        expect(uri, Uri.parse('http://[2001:db8::1]:7125'));
+      });
+
+      test('bracketed with scheme, port and path',
+          () => expect(buildMoonrakerHttpUri('https://[2001:db8::1]:8443/moon/'),
+              Uri.parse('https://[2001:db8::1]:8443/moon')));
+
+      test('bare address without port',
+          () => expect(buildMoonrakerHttpUri('2001:db8::1'), Uri.parse('http://[2001:db8::1]')));
+
+      test('bare address with scheme',
+          () => expect(buildMoonrakerHttpUri('wss://fd00::abcd'), Uri.parse('https://[fd00::abcd]')));
+
+      test('loopback', () => expect(buildMoonrakerHttpUri('[::1]:7125'), Uri.parse('http://[::1]:7125')));
+
+      test('link-local with zone id', () {
+        final uri = buildMoonrakerHttpUri('[fe80::1%25en0]:7125')!;
+        expect(uri.host, 'fe80::1%25en0');
+        expect(uri.port, 7125);
+      });
+
+      test('invalid bracketed address', () => expect(buildMoonrakerHttpUri('[zz::1]:7125'), isNull));
+    });
+
+    group('buildMoonrakerWebSocketUri', () {
+      test('bracketed with port',
+          () => expect(buildMoonrakerWebSocketUri('[2001:db8::1]:7125'), Uri.parse('ws://[2001:db8::1]:7125/websocket')));
+
+      test('bare address with https',
+          () => expect(buildMoonrakerWebSocketUri('https://2001:db8::1'), Uri.parse('wss://[2001:db8::1]/websocket')));
+    });
+
+    test('Uri survives Hive-adapter style round trip', () {
+      final uri = buildMoonrakerHttpUri('[fe80::1%25en0]:7125')!;
+      final rebuilt = Uri(scheme: uri.scheme, host: uri.host, port: uri.port, path: uri.path);
+      expect(rebuilt, uri);
+    });
+
+    test('webcam uri is resolved against IPv6 machine', () {
+      final machineUri = Uri.parse('http://[2001:db8::1]:7125');
+      expect(buildWebCamUri(machineUri, Uri.parse('/webcam/?action=stream')),
+          Uri.parse('http://[2001:db8::1]/webcam/?action=stream'));
+    });
+  });
 }

@@ -141,8 +141,9 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       PlatformInfo platformInfo = await tunnelService.retrievePlatformInfo(tunnel);
       talker.info('Local Platform Info used by obico client app: $platformInfo');
 
-      var localAddress = '${platformInfo.host}:${platformInfo.port}';
-      var httpUri = buildMoonrakerHttpUri(localAddress);
+      // Build via Uri so IPv6 hosts are bracketed correctly
+      var localAddress = Uri(scheme: 'http', host: platformInfo.host, port: platformInfo.port);
+      var httpUri = buildMoonrakerHttpUri(localAddress.toString());
       if (httpUri == null) {
         throw const ObicoException('Could not retrieve Printer\'s local IP.');
       }

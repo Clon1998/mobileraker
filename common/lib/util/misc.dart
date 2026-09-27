@@ -74,8 +74,31 @@ Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri, {bool allowC
   }
 }
 
+/// Wraps a bare (unbracketed) IPv6 literal host of [url] in brackets, as required by RFC 3986.
+/// E.g. `fe80::1` -> `[fe80::1]` and `http://2001:db8::1/path` -> `http://[2001:db8::1]/path`.
+///
+/// A bare IPv6 host can not carry a port, as `2001:db8::1:7125` is itself a valid address.
+/// Users have to use the bracketed form `[2001:db8::1]:7125` in that case.
+String bracketIPv6Host(String url) {
+  final schemeMatch = RegExp(r'^[A-z]+://').firstMatch(url);
+  final prefix = schemeMatch?.group(0) ?? '';
+  final rest = url.substring(prefix.length);
+
+  final authorityEnd = rest.indexOf(RegExp(r'[/?#]'));
+  final authority = authorityEnd == -1 ? rest : rest.substring(0, authorityEnd);
+  final remainder = authorityEnd == -1 ? '' : rest.substring(authorityEnd);
+
+  final userInfoEnd = authority.lastIndexOf('@');
+  final userInfo = userInfoEnd == -1 ? '' : authority.substring(0, userInfoEnd + 1);
+  final host = authority.substring(userInfoEnd + 1);
+
+  if (host.startsWith('[') || InternetAddress.tryParse(host)?.type != InternetAddressType.IPv6) return url;
+
+  return '$prefix$userInfo[$host]$remainder';
+}
+
 Uri? _normalizeURL(String? enteredURL) {
-  enteredURL = enteredURL?.let((it) => it.trim());
+  enteredURL = enteredURL?.let((it) => bracketIPv6Host(it.trim()));
   if (enteredURL == null || enteredURL.isEmpty) return null;
   // make sure a schema is available to ensure a host is properly parsed.
   // This is required because an IP is not parsed into the URI.host otherwise

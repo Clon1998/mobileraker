@@ -54,6 +54,7 @@ import 'package:mobileraker/ui/components/dialog/import_settings/import_settings
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/printers/components/remote_machine_settings_form_field.dart';
 import 'package:mobileraker/ui/screens/printers/components/webcams_form_field.dart';
+import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:shimmer/shimmer.dart';
@@ -362,7 +363,7 @@ class _Body extends ConsumerWidget {
                   initialValue: machine.httpUri.toString(),
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
-                    FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: ['http', 'https']),
+                    MobilerakerFormBuilderValidator.url(),
                   ]),
                 ),
                 FormBuilderTextField(

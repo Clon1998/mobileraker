@@ -312,7 +312,7 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
           name: 'simple.url',
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
-            FormBuilderValidators.url(requireTld: false),
+            MobilerakerFormBuilderValidator.url(),
             MobilerakerFormBuilderValidator.simpleUrl(),
           ]),
           onSubmitted: (txt) => simpleFormController.focusNext('simple.url', addFocusNode, apiFocusNode),
@@ -417,11 +417,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           // initialValue: advancedFormState.httpUri?.toString(),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
-            FormBuilderValidators.url(
-              requireTld: false,
-              requireProtocol: false,
-              protocols: ['http', 'https'],
-            ),
+            MobilerakerFormBuilderValidator.url(),
           ]),
           onSubmitted: (txt) => advancedFormController.focusNext('advanced.http', addressFocusNode, timeoutFocusNode),
           textInputAction: TextInputAction.next,
