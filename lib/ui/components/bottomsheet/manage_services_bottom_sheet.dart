@@ -19,6 +19,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -47,11 +48,7 @@ class ManageServicesBottomSheet extends ConsumerWidget {
           key: const Key('systemInfoReady'),
           systemInfo: value,
         ),
-      AsyncLoading() => const SizedBox(
-          key: Key('systemInfoLoading'),
-          height: 140,
-          child: Center(child: CircularProgressIndicator.adaptive()),
-        ),
+      AsyncLoading() => const _ServiceListShimmer(key: Key('systemInfoLoading')),
       AsyncError(:final error) =>
           _SystemInfoProviderError(key: const Key('systemInfoError'), error: error),
       _ => const SizedBox.shrink(),
@@ -182,6 +179,54 @@ class _ServiceList extends ConsumerWidget {
       toCall();
       // if (context.mounted) context.pop();
     }
+  }
+}
+
+class _ServiceListShimmer extends StatelessWidget {
+  const _ServiceListShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    return Shimmer.fromColors(
+      baseColor: Colors.grey,
+      highlightColor: themeData.colorScheme.background,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < 4; i++)
+              SizedBox(
+                height: 48,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 0.4,
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(color: Colors.white),
+                          child: Text(' ', style: themeData.textTheme.labelLarge),
+                        ),
+                      ),
+                    ),
+                    for (var j = 0; j < 2; j++)
+                      const Padding(
+                        padding: EdgeInsets.all(13),
+                        child: SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: DecoratedBox(decoration: BoxDecoration(color: Colors.white)),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
