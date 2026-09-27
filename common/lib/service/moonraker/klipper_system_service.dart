@@ -11,6 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/server/service_status.dart';
 import '../../network/jrpc_client_provider.dart';
+import '../../network/json_rpc_client.dart';
 import '../selected_machine_service.dart';
 
 part 'klipper_system_service.g.dart';
@@ -32,6 +33,10 @@ class KlippySystemInfo extends _$KlippySystemInfo {
   @override
   FutureOr<KlipperSystemInfo> build(String machineUUID) async {
     var client = ref.watch(jrpcClientProvider(machineUUID));
+    final connected =
+        await ref.watch(jrpcClientStateProvider(machineUUID).selectAsync((s) => s == ClientState.connected));
+    // Stay in loading (keeping the previous value) until the client is connected again.
+    if (!connected) return Completer<KlipperSystemInfo>().future;
 
     var response = await client.sendJRpcMethod('machine.system_info');
 
