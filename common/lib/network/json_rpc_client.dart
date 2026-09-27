@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -218,9 +219,6 @@ class JsonRpcClient {
     talker.info('$logPrefix Identifying connection');
     _connectionIdentified = true;
 
-    // Moonraker >= 0.11 revokes trusted-client auth if identify contains an
-    // invalid api_key (including an empty string). Only send it if it's set.
-    final trimmedKey = apiKey?.trim();
 
     try {
       await sendJRpcMethod(
@@ -230,7 +228,9 @@ class JsonRpcClient {
           'version': '${packageInfo.version}-${packageInfo.buildNumber}',
           'type': Platform.isMacOS || Platform.isWindows ? 'desktop' : 'mobile',
           'url': 'www.mobileraker.com',
-          'api_key': ?effectiveKey,
+          // Moonraker >= 0.11 revokes trusted-client auth if identify contains an
+          // invalid api_key (including an empty string). Only send it if it's set.
+          'api_key': ?apiKey?.trim().onlyLet((s) => s.isNotEmpty),
         },
       );
     } catch (e) {
