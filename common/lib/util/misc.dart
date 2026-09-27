@@ -61,7 +61,7 @@ Uri buildWebCamUri(Uri machineUri, Uri camUri) {
 /// address nothing is listening on.
 Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri, {bool allowCamPort = true}) {
   if (camUri.isAbsolute) {
-    if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
+    if (_isSameHost(camUri.host, machineUri.host)) {
       return remoteUri.replace(
           path: camUri.path,
           query: camUri.query.isEmpty ? null : camUri.query,
@@ -80,7 +80,7 @@ Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri, {bool allowC
 /// A bare IPv6 host can not carry a port, as `2001:db8::1:7125` is itself a valid address.
 /// Users have to use the bracketed form `[2001:db8::1]:7125` in that case.
 String bracketIPv6Host(String url) {
-  final schemeMatch = RegExp(r'^[A-z]+://').firstMatch(url);
+  final schemeMatch = RegExp(r'^[A-Za-z]+://').firstMatch(url);
   final prefix = schemeMatch?.group(0) ?? '';
   final rest = url.substring(prefix.length);
 
@@ -97,12 +97,21 @@ String bracketIPv6Host(String url) {
   return '$prefix$userInfo[$host]$remainder';
 }
 
+/// Compares hosts as addresses if both are IP literals, so equivalent IPv6 spellings
+/// (`::1` vs `0:0:0:0:0:0:0:1`) match. Other hosts are compared case-insensitively.
+bool _isSameHost(String a, String b) {
+  final ipA = InternetAddress.tryParse(a.replaceAll('%25', '%'));
+  final ipB = InternetAddress.tryParse(b.replaceAll('%25', '%'));
+  if (ipA != null && ipB != null) return ipA == ipB;
+  return a.toLowerCase() == b.toLowerCase();
+}
+
 Uri? _normalizeURL(String? enteredURL) {
   enteredURL = enteredURL?.let((it) => bracketIPv6Host(it.trim()));
   if (enteredURL == null || enteredURL.isEmpty) return null;
   // make sure a schema is available to ensure a host is properly parsed.
   // This is required because an IP is not parsed into the URI.host otherwise
-  if (!enteredURL.startsWith(RegExp(r'[A-z]+://'))) {
+  if (!enteredURL.startsWith(RegExp(r'[A-Za-z]+://'))) {
     enteredURL = 'http://$enteredURL';
   }
   if (enteredURL.endsWith('/')) {
@@ -110,20 +119,6 @@ Uri? _normalizeURL(String? enteredURL) {
   }
 
   return Uri.tryParse(enteredURL)?.replace(userInfo: '');
-}
-
-String urlToHttpUrl(String enteredURL) {
-  var parse = Uri.tryParse(enteredURL);
-  if (parse == null) return enteredURL;
-  if (!parse.hasScheme) {
-    parse = Uri.tryParse('http://$enteredURL');
-  } else if (parse.isScheme('ws')) {
-    parse = parse.replace(scheme: 'http');
-  } else if (parse.isScheme('wss')) {
-    parse = parse.replace(scheme: 'http');
-  }
-
-  return parse.toString();
 }
 
 String beautifyName(String name) {
@@ -150,7 +145,7 @@ int hashAllNullable(Iterable<dynamic>? list) {
   return Object.hashAll(list);
 }
 
-verifyHttpResponseCodesForObico(int statusCode) => verifyHttpResponseCodes(statusCode, ClientType.octo);
+verifyHttpResponseCodesForObico(int statusCode) => verifyHttpResponseCodes(statusCode, ClientType.obico);
 
 verifyHttpResponseCodes(int statusCode, [ClientType clientType = ClientType.local]) {
   if (clientType == ClientType.octo) {
@@ -258,7 +253,7 @@ _verifyHttpResponseCodes(int statusCode) {
     case 598:
       throw const HttpException('Bad-Response: 598-NetworkReadTimeoutError');
     case 599:
-      throw const HttpException('Bad-Response: 599-NetworkConnectTimeoutError It\'s possible to override this list');
+      throw const HttpException('Bad-Response: 599-NetworkConnectTimeoutError');
 
     default:
       throw HttpException('HttpException - StatusCode $statusCode');
@@ -319,7 +314,7 @@ DioException _convertBadResponseOctoeverywhere(DioException base) {
   return switch (statusCode) {
     400 => OctoEverywhereDioException('Internal App error while trying to fetch info. No AppToken was found!', 400,
         requestOptions: base.requestOptions),
-    401 => OctoEverywhereDioException('Internal App error while trying to fetch info. No AppToken was found!', 400,
+    401 => OctoEverywhereDioException('Internal App error while trying to fetch info. No AppToken was found!', 401,
         requestOptions: base.requestOptions),
     500 => OctoEverywhereDioException('Internal Server Error - OctoEverywhere\'s server is faulty', 500,
         requestOptions: base.requestOptions),

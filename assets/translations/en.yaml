@@ -1850,6 +1850,7 @@ notifications:
 form_validators:
   simple_url: 'Input only allows URL components: Hostname and Port. IPv6 addresses with a port require brackets, e.g. [2001:db8::1]:7125'
   disallow_mdns: mDNS (.local) addresses are not supported
+  ipv6_ambiguous_port: 'IPv6 addresses with a port need brackets. Did you mean {}?'
   file_name_in_use: File name already in use
   min_before_max: Minimum value must be less or equal to the maximum value
   heater_min: Value is below the minimum allowed temperature of {}°C
