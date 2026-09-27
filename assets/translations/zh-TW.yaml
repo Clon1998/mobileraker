@@ -1590,7 +1590,6 @@ notifications:
       desc: 有關列印進度的通知。
       title: 列印進度： {}
 form_validators:
-  simple_url: '輸入僅允許 URL元件：主機名稱和連接埠。'
   disallow_mdns: 不支援 mDNS (.local) 位址
   file_name_in_use: 檔案名稱已經在使用中
   min_before_max: 最小值必須小於或等於最大值
