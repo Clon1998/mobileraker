@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.9.14] - 2026-09-xx
+## [2.9.14] - 2026-10-03
 
 ### Enhancements
 
@@ -23,6 +23,11 @@
 
 - **Email Verification**: After verifying your email address in the browser, the app now picks up the verified
   status as soon as you return to it, instead of continuing to show the account as unverified.
+
+- **IPv6 Support**: Printers can now be added using an IPv6 address, either bracketed with a port
+  (`[2001:db8::1]:7125`) or without brackets if no port is needed (`2001:db8::1`). If an address without brackets
+  looks like it contains a port, the app suggests the bracketed form. Long IPv6 addresses are shortened to their last
+  segments on the overview and in the app drawer. [#423](https://github.com/Clon1998/mobileraker/issues/423)
 
 
 ### Bug Fixes
