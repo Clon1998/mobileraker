@@ -64,11 +64,11 @@ dependencies:
   vector_math: ^2.1.4
   enum_to_string: ^2.0.1
   url_launcher: ^6.1.6
-  talker_flutter: ^5.1.16
+  talker_flutter: ^5.2.0
   talker_riverpod_logger: ^5.1.16
   uuid: ^4.5.2
 
-  permission_handler: ^12.0.0+1
+  permission_handler: ^13.0.2
   collection: ^1.19.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
@@ -83,7 +83,7 @@ dependencies:
   #persistent
   hive_ce_flutter: ^2.1.0
   flutter_secure_storage: ^10.0.0
-  share_plus: ^12.0.2
+  share_plus: ^13.3.1
   path_provider: ^2.1.0
 
   #theme
@@ -94,7 +94,7 @@ dependencies:
   #notification
   awesome_notifications: ^0.12.0
   awesome_notifications_fcm: ^0.12.0
-  live_activities: ^2.4.1
+  live_activities: ^2.6.0
 #  live_activities:
 #    path: ../flutter_live_activities
   #        ref: feature/multi-state-req
@@ -109,7 +109,7 @@ dependencies:
   easy_localization_loader: ^2.0.2
 
   #purchases
-  purchases_flutter: ^9.16.0
+  purchases_flutter: ^11.0.0
 
   #rating
   rate_my_app: ^2.0.0
@@ -145,7 +145,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   dots_indicator: 2.1.2
   webview_flutter: ^4.4.0
-  syncfusion_flutter_charts: ^33.1.46
+  syncfusion_flutter_charts: ^35.1.42
   code_text_field: ^1.0.2
   mobile_scanner: ^7.4.0
   touchable:
@@ -162,7 +162,7 @@ dependencies:
       url: https://github.com/JahnChoi/appinio_flutter_packages
       path: packages/appinio_video_player
       ref: feature/switch-cached-video-player-dep
-  file_picker: ^11.0.2
+  file_picker: ^13.3.0
   geekyants_flutter_gauges: ^1.0.3
   pretty_qr_code: ^3.3.0
   dotted_border: ^3.0.1

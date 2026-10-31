@@ -67,15 +67,12 @@ class SslSettingsFormField extends StatelessWidget {
               child: GestureDetector(
                 onTap:
                     (() =>
-                            FilePicker.pickFiles(
+                            FilePicker.pickFile(
                               type: FileType.custom,
                               allowedExtensions: ['pem', 'crt', 'cer'],
-                              withReadStream: true,
-                              withData: false,
-                            ).then((result) async {
-                              if (result != null) {
-                                final file = result.files.first;
-                                final content = await utf8.decodeStream(file.readStream!);
+                            ).then((file) async {
+                              if (file != null) {
+                                final content = await utf8.decodeStream(file.readAsByteStream());
                                 if (!field.mounted) return;
 
                                 PemCodec pemCodec = PemCodec(PemLabel.certificate);

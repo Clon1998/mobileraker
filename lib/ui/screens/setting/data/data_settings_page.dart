@@ -129,16 +129,13 @@ class _Body extends ConsumerWidget {
     var dashboardRepo = ref.read(dashboardLayoutHiveRepositoryProvider);
     var customThemeService = ref.read(customThemeServiceProvider);
 
-    FilePickerResult? result = await FilePicker.pickFiles(
+    var file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['json'],
-      withReadStream: true,
-      withData: false,
     );
 
-    if (result == null) return;
-    var file = result.files.first;
-    var content = await utf8.decodeStream(file.readStream!);
+    if (file == null) return;
+    var content = await utf8.decodeStream(file.readAsByteStream());
     var json = jsonDecode(content);
     var appDataExport = AppDataExport.fromJson(json);
 

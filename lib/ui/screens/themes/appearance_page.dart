@@ -244,15 +244,13 @@ class _CustomThemesSectionHeader extends ConsumerWidget {
 
   Future<void> _importTheme(BuildContext _, WidgetRef ref) async {
     final snackbarService = ref.read(snackBarServiceProvider);
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['json'],
-      withReadStream: true,
-      withData: false,
     );
-    if (result == null) return;
+    if (file == null) return;
     try {
-      final content = await utf8.decodeStream(result.files.firstOrNull!.readStream!);
+      final content = await utf8.decodeStream(file.readAsByteStream());
       final json = jsonDecode(content) as Map<String, dynamic>;
       final pack = CustomThemePack.fromJson(json).copyWith(uuid: const Uuid().v4());
       await ref.read(customThemeServiceProvider).save(pack);

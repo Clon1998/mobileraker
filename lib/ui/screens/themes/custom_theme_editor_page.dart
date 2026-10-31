@@ -86,13 +86,11 @@ class CustomThemeEditorPage extends HookConsumerWidget {
     final isSaving = useState(false);
 
     Future<void> pickLogo({required bool isDark}) async {
-      final result = await FilePicker.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['svg', 'png'],
-        withData: false,
       );
-      if (result == null || result.files.isEmpty) return;
-      final path = result.files.firstOrNull?.path;
+      final path = file?.path;
       if (path == null) return;
       if (isDark) {
         logoDarkPickedPath.value = path;
