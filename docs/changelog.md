@@ -1,5 +1,38 @@
 # Mobileraker - Changelog
 
+## [2.9.15] - 2026-11-xx
+
+### Enhancements
+
+- **WebRTC via OctoEverywhere & Remote Connections**: WebRTC webcams using camera-streamer (e.g. Crowsnest) now work
+  through OctoEverywhere and other remote connections. The app now requests a STUN server like Mainsail does, which
+  allows the stream to reach your device from outside your local network. Older camera-streamer versions that do not
+  support this automatically fall back to the previous behavior. Note that very restrictive networks (e.g. some
+  mobile carriers) can still prevent a direct WebRTC connection. [#595](https://github.com/Clon1998/mobileraker/issues/595)
+
+  *Note: WebRTC is available exclusively for "Supporters".*
+
+- **Latest Timelapse Frame**: If moonraker-timelapse is installed, the webcam card's camera selection offers the
+  latest timelapse frame while a print is running. As frames are taken with the toolhead parked, this gives a clear
+  view of the print even if the toolhead blocks the live view. The frame updates with every new layer, uses the same
+  rotation/flip as the rendered timelapse, and the card switches back to the live view once the print is done. The
+  latest frame is also shown in the file manager's timelapse tab. [#450](https://github.com/Clon1998/mobileraker/issues/450)
+
+- **Configurable Fullscreen Webcam Temperatures**: Tap the temperatures in the fullscreen webcam view to choose which
+  sensors are shown, including chamber, generic heaters, temperature fans and sensors. Each sensor shows its live
+  reading (and target, if it has one) in the selection. By default the tools, the bed and a sensor named "chamber"
+  are shown. The selection is saved per printer. [#398](https://github.com/Clon1998/mobileraker/issues/398)
+
+- **Webcam Unavailable State**: An unreachable webcam now shows a clear "Webcam unavailable" message with the likely
+  reason (HTTP error, timeout, unreachable) and a retry button, instead of raw error details.
+  [#424](https://github.com/Clon1998/mobileraker/issues/424)
+
+- **Hide Webcam Card**: The dashboard webcam card can now be collapsed by tapping its webcam icon. The stream stops
+  while hidden, and the choice is remembered per printer.
+
+- **Lock Icon Animation**: Smoother lock/unlock animation for the input lock on the limits, multipliers and firmware
+  retraction cards.
+
 ## [2.9.14] - 2026-10-03
 
 ### Enhancements
