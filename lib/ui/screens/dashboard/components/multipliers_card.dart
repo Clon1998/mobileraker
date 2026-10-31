@@ -7,6 +7,7 @@
 
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/ui/components/animated_lock_icon.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
@@ -146,19 +147,7 @@ class _Body extends HookConsumerWidget {
           title: const Text('pages.dashboard.control.multipl_card.title').tr(),
           trailing: IconButton(
             onPressed: model.klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
-            icon: AnimatedSwitcher(
-              duration: kThemeAnimationDuration,
-              transitionBuilder: (child, anim) => RotationTransition(
-                turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                child: ScaleTransition(scale: anim, child: child),
-              ),
-              child: inputLocked.value
-                  ? const Icon(FontAwesome.lock, key: ValueKey('lock'))
-                  : const Icon(
-                      FontAwesome.unlock,
-                      key: ValueKey('unlock'),
-                    ),
-            ),
+            icon: AnimatedLockIcon(locked: inputLocked.value),
           ),
         ),
         Padding(
