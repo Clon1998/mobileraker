@@ -113,6 +113,14 @@ pages:
         error_connecting: |-
           Error connecting to {}.
           Please check the connection settings and ensure the webcam is online.
+        error_title: Webcam unavailable
+        error_hint: Check the webcam settings and make sure it is online
+        reason_http: The webcam server responded with HTTP {}
+        reason_timeout: The webcam did not respond in time
+        reason_unreachable: The webcam could not be reached
+        hide: Hide webcam
+        show: Show webcam
+        hidden: Hidden – tap the icon to show
       temp_card:
         title: Temperature Controls
         presets_btn: Presets

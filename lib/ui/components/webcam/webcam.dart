@@ -12,6 +12,7 @@ import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/webcam_beacon_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/ui/components/webcam_status_view.dart';
 import 'package:common/util/extensions/klipper_system_info_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class Webcam extends HookConsumerWidget {
     this.imageBuilder,
     this.showFpsIfAvailable = false,
     this.showRemoteIndicator = true,
-    this.onHidePressed,
+    this.statusStyle = WebcamStatusStyle.compact,
   });
   final Machine machine;
   final WebcamInfo webcamInfo;
@@ -42,7 +43,7 @@ class Webcam extends HookConsumerWidget {
   final ImageBuilder? imageBuilder;
   final bool showFpsIfAvailable;
   final bool showRemoteIndicator;
-  final VoidCallback? onHidePressed;
+  final WebcamStatusStyle statusStyle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -112,7 +113,7 @@ class Webcam extends HookConsumerWidget {
           imageBuilder: imageBuilder,
           showFps: showFpsIfAvailable && !isSnapmakerU1,
           stackChild: modifiedStack,
-          onHidePressed: onHidePressed,
+          statusStyle: statusStyle,
         );
 
       case WebcamServiceType.webRtcGo2Rtc:
@@ -124,7 +125,7 @@ class Webcam extends HookConsumerWidget {
           webcamInfo: webcamInfo,
           stackContent: modifiedStack,
           imageBuilder: imageBuilder,
-          onHidePressed: onHidePressed,
+          statusStyle: statusStyle,
         );
       default:
         return Text(

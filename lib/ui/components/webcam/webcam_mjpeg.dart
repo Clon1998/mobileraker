@@ -9,6 +9,7 @@ import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/dio_provider.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/ui/components/webcam_status_view.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,7 +26,7 @@ class WebcamMjpeg extends ConsumerWidget {
     this.imageBuilder,
     this.stackChild = const [],
     this.showFps = false,
-    this.onHidePressed,
+    this.statusStyle = WebcamStatusStyle.compact,
   });
 
   final WebcamInfo webcamInfo;
@@ -38,7 +39,7 @@ class WebcamMjpeg extends ConsumerWidget {
 
   final bool showFps;
 
-  final VoidCallback? onHidePressed;
+  final WebcamStatusStyle statusStyle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,7 +97,7 @@ class WebcamMjpeg extends ConsumerWidget {
       config: configBuilder.build(),
       showFps: showFps,
       stackChild: stackChild,
-      onHidePressed: onHidePressed,
+      statusStyle: statusStyle,
     );
   }
 }

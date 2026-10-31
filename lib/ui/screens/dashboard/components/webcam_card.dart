@@ -10,10 +10,11 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
+import 'package:common/ui/components/webcam_status_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -45,56 +46,34 @@ class WebcamCard extends HookConsumerWidget {
 
   CompositeKey get _hadWebcamKey => CompositeKey.keyWithString(UiKeys.hadWebcam, machineUUID);
 
+  CompositeKey get _hideWebcamKey => CompositeKey.keyWithString(UiKeys.hideWebcam, machineUUID);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
     var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
     var hadWebcam = ref.read(boolSettingProvider(_hadWebcamKey));
+    var hidden = ref.read(boolSettingProvider(_hideWebcamKey));
 
     return AsyncGuard(
       debugLabel: 'WebcamCard-$machineUUID',
       animate: true,
-      toGuard: _webcamCardControllerProvider(
-        machineUUID,
-      ).selectAs((data) => !data.userRequestedHide && data.allCams.isNotEmpty),
-      childOnLoading: hadWebcam ? const _WebcamCardLoading(key: Key('wcL')) : const SizedBox.shrink(key: Key('wcL')),
+      toGuard: _webcamCardControllerProvider(machineUUID).selectAs((data) => data.allCams.isNotEmpty),
+      childOnLoading: switch ((hadWebcam, hidden)) {
+        (true, false) => const _WebcamCardLoading(key: Key('wcL')),
+        // Hidden cards only show their header, so there is no need for the large skeleton
+        (true, true) => _Card(key: const Key('wcL'), machineUUID: machineUUID, child: const SizedBox.shrink()),
+        _ => const SizedBox.shrink(key: Key('wcL')),
+      },
       childOnError: (error, _) => _Card(
         key: const Key('wcE'),
         machineUUID: machineUUID,
-        child: Center(
-          child: Column(
-            key: UniqueKey(),
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline),
-              const SizedBox(height: 30),
-              Text(
-                error.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              TextButton.icon(
-                onPressed: controller.onRetry,
-                icon: const Icon(Icons.restart_alt_outlined),
-                label: const Text('general.retry').tr(),
-              ),
-            ],
-          ),
-        ),
+        child: WebcamErrorView(error: error, onRetry: controller.onRetry),
       ),
-      childOnData: Card(
+      childOnData: _Card(
         key: const Key('wcD'),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _CardTitle(machineUUID: machineUUID),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-              child: _CardBody(machineUUID: machineUUID),
-            ),
-          ],
-        ),
+        machineUUID: machineUUID,
+        child: _CardBody(machineUUID: machineUUID),
       ),
     );
   }
@@ -145,20 +124,28 @@ class _WebcamCardLoading extends StatelessWidget {
   }
 }
 
-class _Card extends StatelessWidget {
+class _Card extends ConsumerWidget {
   const _Card({super.key, required this.machineUUID, required this.child});
 
   final String machineUUID;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // If hidden, the child (and therefore the webcam stream) is not built at all.
+    final hidden = ref.watch(boolSettingProvider(CompositeKey.keyWithString(UiKeys.hideWebcam, machineUUID)));
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          Padding(padding: const EdgeInsets.fromLTRB(8, 8, 8, 10), child: child),
+          _CardTitle(machineUUID: machineUUID, hidden: hidden),
+          AnimatedSizeAndFade(
+            alignment: Alignment.topCenter,
+            child: hidden
+                ? const SizedBox(key: Key('wcHidden'), width: double.infinity)
+                : Padding(key: const Key('wcVisible'), padding: const EdgeInsets.fromLTRB(8, 8, 8, 10), child: child),
+          ),
         ],
       ),
     );
@@ -166,22 +153,65 @@ class _Card extends StatelessWidget {
 }
 
 class _CardTitle extends ConsumerWidget {
-  const _CardTitle({super.key, required this.machineUUID});
+  const _CardTitle({super.key, required this.machineUUID, required this.hidden});
 
   final String machineUUID;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
+    final themeData = Theme.of(context);
+
     return ListTile(
-      leading: const Icon(MaterialCommunityIcons.webcam),
-      title: const Text('pages.dashboard.general.cam_card.webcam').tr(),
-      trailing: _Trailing(machineUUID: machineUUID),
+      // Keeps the leading icon centered while the hidden hint adds a second line
+      titleAlignment: ListTileTitleAlignment.center,
+      // InkResponse instead of IconButton to keep the same footprint as a plain leading icon
+      leading: Tooltip(
+        message: tr(hidden ? 'pages.dashboard.general.cam_card.show' : 'pages.dashboard.general.cam_card.hide'),
+        child: InkResponse(
+          onTap: controller.toggleHidden,
+          radius: 20,
+          child: AnimatedSwitcher(
+            duration: kThemeAnimationDuration,
+            // Both icons share the same outline, so a cross-fade makes it look like only the slash appears
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: ScaleTransition(scale: Tween<double>(begin: 0.8, end: 1).animate(anim), child: child),
+            ),
+            child: hidden
+                ? const Icon(MaterialCommunityIcons.webcam_off, key: ValueKey('camHidden'))
+                : const Icon(MaterialCommunityIcons.webcam, key: ValueKey('camVisible')),
+          ),
+        ),
+      ),
+      // The hint is part of the title instead of the subtitle, so the switch from one to two lines can be animated
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('pages.dashboard.general.cam_card.webcam').tr(),
+          AnimatedSizeAndFade(
+            alignment: Alignment.topLeft,
+            fadeDuration: kThemeAnimationDuration,
+            sizeDuration: kThemeAnimationDuration,
+            child: hidden
+                ? Text(
+                    'pages.dashboard.general.cam_card.hidden',
+                    key: const ValueKey('camHiddenHint'),
+                    style: themeData.textTheme.bodyMedium?.copyWith(color: themeData.colorScheme.onSurfaceVariant),
+                  ).tr()
+                : const SizedBox(key: ValueKey('camNoHint'), width: double.infinity),
+          ),
+        ],
+      ),
+      trailing: hidden ? null : _CamSelector(machineUUID: machineUUID),
     );
   }
 }
 
-class _Trailing extends ConsumerWidget {
-  const _Trailing({super.key, required this.machineUUID});
+class _CamSelector extends ConsumerWidget {
+  const _CamSelector({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -248,7 +278,6 @@ class _CardBody extends ConsumerWidget {
         ],
         imageBuilder: _imageBuilder,
         showFpsIfAvailable: true,
-        onHidePressed: controller.hideCard.unless(model.allCams.length > 1),
       ),
     );
   }
@@ -261,6 +290,8 @@ class _CardBody extends ConsumerWidget {
 @riverpod
 class _WebcamCardController extends _$WebcamCardController {
   CompositeKey get _hadWebcamKey => CompositeKey.keyWithString(UiKeys.hadWebcam, machineUUID);
+
+  CompositeKey get _hideWebcamKey => CompositeKey.keyWithString(UiKeys.hideWebcam, machineUUID);
 
   SettingService get _settingService => ref.read(settingServiceProvider);
 
@@ -319,9 +350,10 @@ class _WebcamCardController extends _$WebcamCardController {
     // ref.invalidateSelf();
   }
 
-  void hideCard() {
-    talker.info('Hiding Webcam Card');
-    state = AsyncValue.data(state.requireValue.copyWith(userRequestedHide: true));
+  void toggleHidden() {
+    final hidden = !_settingService.readBool(_hideWebcamKey);
+    talker.info('${hidden ? 'Hiding' : 'Showing'} Webcam Card for $machineUUID');
+    _settingService.writeBool(_hideWebcamKey, hidden);
   }
 }
 
@@ -359,7 +391,7 @@ class _WebcamCardPreviewController extends _WebcamCardController {
   }
 
   @override
-  void hideCard() {
+  void toggleHidden() {
     // do nothing in preview
   }
 }
@@ -372,7 +404,6 @@ sealed class _Model with _$Model {
     required List<WebcamInfo> allCams,
     required int? selected,
     required Machine machine,
-    @Default(false) bool userRequestedHide,
   }) = __Model;
 
   bool get camSelected => allCams.isNotEmpty && selected != null;

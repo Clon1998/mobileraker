@@ -238,6 +238,7 @@ enum UiKeys implements KeyValueStoreKey {
   hadFirmwareRetraction('hFwRetr'),
   hadMoreMacros('hMoreMacros'),
   hadExtruder('hExtruder'),
+  hideWebcam('hideWebcam'),
   ;
 
   @override

@@ -13,6 +13,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -227,7 +228,8 @@ class _Cam extends ConsumerWidget {
     // talker.info('Rebuilding _Cam for ${machine.logName}');
     final model = ref.watch(_printerCardControllerProvider(machine)).value;
     final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
-    if (model == null || model.previewCam == null) return const SizedBox.shrink();
+    final hidden = ref.watch(boolSettingProvider(CompositeKey.keyWithString(UiKeys.hideWebcam, machine.uuid)));
+    if (model == null || model.previewCam == null || hidden) return const SizedBox.shrink();
 
     talker.warning('Rebuilding _Cam for ${machine.logName} with ${model}');
 

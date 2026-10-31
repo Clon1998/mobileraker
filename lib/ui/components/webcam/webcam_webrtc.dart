@@ -10,6 +10,7 @@ import 'package:common/network/dio_provider.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/ui/components/webcam_status_view.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class WebcamWebRtc extends ConsumerWidget {
     required this.machine,
     this.stackContent = const [],
     this.imageBuilder,
-    this.onHidePressed,
+    this.statusStyle = WebcamStatusStyle.compact,
   });
 
   final WebcamInfo webcamInfo;
@@ -34,7 +35,7 @@ class WebcamWebRtc extends ConsumerWidget {
 
   final ImageBuilder? imageBuilder;
 
-  final VoidCallback? onHidePressed;
+  final WebcamStatusStyle statusStyle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,7 +87,7 @@ class WebcamWebRtc extends ConsumerWidget {
       rotation: webcamInfo.rotation,
       transform: webcamInfo.transformMatrix,
       imageBuilder: imageBuilder,
-      onHidePressed: onHidePressed,
+      statusStyle: statusStyle,
     );
   }
 }

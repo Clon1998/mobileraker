@@ -9,6 +9,7 @@ import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/ui/components/webcam_status_view.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,7 @@ class _FullCamView extends ConsumerWidget {
                     stackContent: const [_StackContent()],
                     showFpsIfAvailable: true,
                     showRemoteIndicator: false,
+                    statusStyle: WebcamStatusStyle.fullscreen,
                   ),
                 ),
               ),

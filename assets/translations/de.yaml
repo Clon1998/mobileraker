@@ -112,6 +112,14 @@ pages:
         error_connecting: |-
           Fehler beim Verbinden mit {}.
           Bitte überprüfen Sie die Verbindungseinstellungen und stellen Sie sicher, dass die Webcam online ist.
+        error_title: Webcam nicht verfügbar
+        error_hint: Bitte prüfen Sie die Webcam-Einstellungen und ob die Webcam online ist
+        reason_http: Der Webcam-Server antwortete mit HTTP {}
+        reason_timeout: Die Webcam hat nicht rechtzeitig geantwortet
+        reason_unreachable: Die Webcam ist nicht erreichbar
+        hide: Webcam ausblenden
+        show: Webcam einblenden
+        hidden: Ausgeblendet – zum Einblenden auf das Symbol tippen
       temp_card:
         title: Thermik
         presets_btn: Voreinstellungen
