@@ -58,6 +58,30 @@ extension CombinedSensorExtension on Printer {
 
   List<TemperatureFan> get temperatureFans => fans.values.whereType<TemperatureFan>().toList();
 
+  /// Returns all temperature sensors except hidden ones (prefixed with `_`), in the order of [allTemperatureSensors].
+  List<TemperatureSensorMixin> get visibleTemperatureSensors => [
+        for (final sensor in allTemperatureSensors)
+          if (!sensor.name.startsWith('_')) sensor,
+      ];
+
+  /// Returns the sensor that most likely represents the chamber temperature, or `null` if none is found.
+  ///
+  /// Klipper has no dedicated chamber object, so this matches the first generic heater, temperature fan or
+  /// temperature sensor (in that order) whose name contains "chamber". Hidden sensors (prefixed with `_`) are ignored.
+  TemperatureSensorMixin? get chamberSensor {
+    final candidates = <TemperatureSensorMixin>[
+      ...genericHeaters.values,
+      ...temperatureFans,
+      ...temperatureSensors.values,
+    ];
+
+    for (final sensor in candidates) {
+      if (sensor.name.startsWith('_')) continue;
+      if (sensor.name.toLowerCase().contains('chamber')) return sensor;
+    }
+    return null;
+  }
+
   /// Static method to filter and sort a list of sensors based on a given ordering.
   ///
   /// This method provides a standalone way to filter and sort sensors without a [Printer] instance.

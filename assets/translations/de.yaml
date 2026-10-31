@@ -109,6 +109,7 @@ pages:
       cam_card:
         webcam: Webcam
         fullscreen: Vollbild
+        timelapse_frame: Letztes Zeitraffer-Bild
         error_connecting: |-
           Fehler beim Verbinden mit {}.
           Bitte überprüfen Sie die Verbindungseinstellungen und stellen Sie sicher, dass die Webcam online ist.
@@ -281,6 +282,8 @@ pages:
     error_no_components:
       title: Leeres Layout!
       body: Du hast keine Widgets hinzugefügt. Füge mindestens ein Widget hinzu, um das Layout zu speichern.
+  full_cam:
+    shown_sensors: Angezeigte Temperaturen
   files:
     title: Dateien
     empty_folder:
@@ -376,6 +379,7 @@ pages:
     gcode_tab: GCodes
     config_tab: Konfigs
     timelapse_tab: Zeitraffer
+    timelapse_last_frame: Letztes Zeitraffer-Bild
     element:
       one: Element
       other: Elemente

@@ -110,6 +110,7 @@ pages:
       cam_card:
         webcam: Webcam
         fullscreen: Fullscreen
+        timelapse_frame: Latest timelapse frame
         error_connecting: |-
           Error connecting to {}.
           Please check the connection settings and ensure the webcam is online.
@@ -286,6 +287,8 @@ pages:
     error_no_components:
       title: Empty Layout!
       body: You have not added any widgets. Add at least one widget to save the layout.
+  full_cam:
+    shown_sensors: Shown temperatures
   files:
     title: Files
     empty_folder:
@@ -383,6 +386,7 @@ pages:
     gcode_tab: GCodes
     config_tab: Configs
     timelapse_tab: Timelapses
+    timelapse_last_frame: Latest timelapse frame
     element:
       one: Element
       other: Elements

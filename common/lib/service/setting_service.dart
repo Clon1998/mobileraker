@@ -219,6 +219,8 @@ enum UtilityKeys implements KeyValueStoreKey {
   fcmTokenLastReset('fcmTokenLastReset'),
   graphSettings('graphSettings'),
   machineLastSeen('machineLastSeen'),
+  // Per machine (CompositeKey), the config entries of the extra sensors shown on the full cam page
+  fullCamSensors('fullCamSensors'),
   ;
 
   @override
