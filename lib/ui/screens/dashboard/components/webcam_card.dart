@@ -3,11 +3,15 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/timelapse_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
@@ -15,6 +19,7 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/webcam_status_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -30,10 +35,14 @@ import 'package:shimmer/shimmer.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../routing/app_router.dart';
+import '../../../components/timelapse_frame_image.dart';
 import '../../../components/webcam/webcam.dart';
 
 part 'webcam_card.freezed.dart';
 part 'webcam_card.g.dart';
+
+/// Dropdown value used for the latest timelapse frame, as it is not part of the cam list
+const int timelapseFrameIndex = -1;
 
 class WebcamCard extends HookConsumerWidget {
   const WebcamCard({super.key, required this.machineUUID});
@@ -220,16 +229,21 @@ class _CamSelector extends ConsumerWidget {
     var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
     var model = ref.watch(_webcamCardControllerProvider(machineUUID)).value;
 
-    if (model == null || model.allCams.length <= 1) {
+    if (model == null || model.allCams.length + (model.timelapseAvailable ? 1 : 0) <= 1) {
       return const SizedBox.shrink();
     }
 
     return DropdownButton(
-      value: model.selected,
+      value: model.showTimelapseFrame ? timelapseFrameIndex : model.selected,
       onChanged: controller.onSelectedChange,
       items: [
         for (var i = 0; i < model.allCams.length; i++)
           DropdownMenuItem(value: i, child: Text(beautifyName(model.allCams[i].name))),
+        if (model.timelapseAvailable)
+          DropdownMenuItem(
+            value: timelapseFrameIndex,
+            child: const Text('pages.dashboard.general.cam_card.timelapse_frame').tr(),
+          ),
       ],
     );
   }
@@ -254,6 +268,16 @@ class _CardBody extends ConsumerWidget {
           constraints: const BoxConstraints(maxHeight: 200),
           child: SvgPicture.asset('assets/vector/undraw_video_files_fu10.svg'),
         ),
+      );
+    }
+
+    if (model.showTimelapseFrame) {
+      return Center(
+        child: TimelapseFrameImage(
+          key: const Key('wcTimelapseFrame'),
+          machineUUID: machineUUID,
+          placeholder: const AspectRatio(aspectRatio: 4 / 3, child: Center(child: CircularProgressIndicator())),
+        ).let((it) => _imageBuilder(context, it)),
       );
     }
 
@@ -307,6 +331,18 @@ class _WebcamCardController extends _$WebcamCardController {
 
     final machineAsync = ref.watch(machineProvider(machineUUID));
     final allWebcamsAsync = ref.watch(allWebcamInfosProvider(machineUUID));
+    final hasTimelapseComponent =
+        ref.watch(klipperProvider(machineUUID).selectAs((d) => d.hasTimelapseComponent)).value == true;
+    // A paused print still is a running print
+    final printRunning = ref
+            .watch(printerProvider(machineUUID).selectAs(
+                (d) => d.print.state == PrintState.printing || d.print.state == PrintState.paused))
+            .value ==
+        true;
+    // Only fetch the last frame if the timelapse component is available, and only rebuild if a frame exists or not
+    final hasTimelapseFrame = hasTimelapseComponent &&
+        printRunning &&
+        ref.watch(timelapseLastFrameProvider(machineUUID).select((d) => d.value != null));
 
     var machine = machineAsync.requireValue;
     var allWebcams = allWebcamsAsync.requireValue;
@@ -327,12 +363,24 @@ class _WebcamCardController extends _$WebcamCardController {
 
     // await Future.delayed(const Duration(milliseconds: 5000));
 
-    return _Model(machine: machine!, selected: idx, allCams: allWebcams);
+    return _Model(
+      machine: machine!,
+      selected: idx,
+      allCams: allWebcams,
+      timelapseAvailable: hasTimelapseFrame,
+      // Falls back to the live cam once the print is done or no frame is available anymore
+      showTimelapseFrame: hasTimelapseFrame && (state.value?.showTimelapseFrame ?? false),
+    );
   }
 
   void onSelectedChange(int? index) {
     if (index == null) return;
-    state = state.whenData((value) => value.copyWith(selected: index));
+    // The timelapse frame is only a temporary view during a print, therefore it is not persisted
+    if (index == timelapseFrameIndex) {
+      state = state.whenData((value) => value.copyWith(showTimelapseFrame: true));
+      return;
+    }
+    state = state.whenData((value) => value.copyWith(selected: index, showTimelapseFrame: false));
     _settingService.writeInt(_settingsKey, index);
   }
 
@@ -404,6 +452,9 @@ sealed class _Model with _$Model {
     required List<WebcamInfo> allCams,
     required int? selected,
     required Machine machine,
+    // Whether the latest timelapse frame can be selected instead of a cam (timelapse component + running print)
+    @Default(false) bool timelapseAvailable,
+    @Default(false) bool showTimelapseFrame,
   }) = __Model;
 
   bool get camSelected => allCams.isNotEmpty && selected != null;

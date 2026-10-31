@@ -51,8 +51,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -76,6 +76,7 @@ import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../components/connection/machine_connection_guard.dart';
 import 'components/shimmer_file_list.dart';
 import 'components/sorted_file_list_header.dart';
+import 'components/timelapse_last_frame.dart';
 
 part 'file_manager_page.freezed.dart';
 part 'file_manager_page.g.dart';
@@ -744,6 +745,8 @@ class _FileListState extends ConsumerState<_FileListData> {
               isUserRefresh: _isUserRefresh,
             ),
           ),
+          if (widget.filePath == 'timelapse')
+            SliverToBoxAdapter(child: TimelapseLastFrame(machineUUID: widget.machineUUID)),
           if (widget.folderContent.isEmpty)
             SliverFillRemaining(
               child: Column(
