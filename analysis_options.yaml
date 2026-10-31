@@ -33,6 +33,10 @@ linter:
 
 analyzer:
   enable-experiment:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
   plugins:
     - custom_lint
 

@@ -129,10 +129,10 @@ class PrinterEditPage extends HookConsumerWidget {
   Future<void> onMoreActionsTap(MutationTarget scope, Machine machine) async {
     talker.info('More actions tapped, showing bottom sheet');
 
-    var machineName = _formKey.currentState?.fields[_FormFields.printerName.name]?.value as String?;
-    if (machineName?.isNotEmpty != true) machineName = machine.name;
-    var machineAdd = _formKey.currentState?.fields[_FormFields.printerAddress.name]?.value as String?;
-    if (machineAdd?.isNotEmpty != true) machineAdd = machine.httpUri.toString();
+    final formName = _formKey.currentState?.fields[_FormFields.printerName.name]?.value as String?;
+    final machineName = formName?.isNotEmpty == true ? formName! : machine.name;
+    final formAdd = _formKey.currentState?.fields[_FormFields.printerAddress.name]?.value as String?;
+    final machineAdd = formAdd?.isNotEmpty == true ? formAdd! : machine.httpUri.toString();
 
     await BottomSheetService.showSheetMutation.run(scope, (tsx) async {
       final BottomSheetService sheetService = tsx.get(bottomSheetServiceProvider);
@@ -150,8 +150,8 @@ class PrinterEditPage extends HookConsumerWidget {
         BottomSheetConfig(
           type: SheetType.actions,
           data: ActionBottomSheetArgs(
-            title: Text(machineName!),
-            subtitle: Text(machineAdd!, maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(machineName),
+            subtitle: Text(machineAdd, maxLines: 1, overflow: TextOverflow.ellipsis),
             trailing: MachineStateIndicator(machine),
             actions: [
               if (remoteSettings.hasValue) MachineAction.import,
