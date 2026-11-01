@@ -2,19 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE</key>
-    <true/>
-    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE</key>
-    <true/>
-    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA</key>
-    <string>eu_consent_policy</string>
-    <key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
-    <string>eu_consent_policy</string>
-
-    <key>NSUserTrackingUsageDescription</key>
-    <string>Mobileraker uses your device's advertising identifier to show you ads that are more relevant to your interests and to measure how well those ads perform. This identifier is not linked to your printer data.</string>
-    <key>GADApplicationIdentifier</key>
-    <string>ca-app-pub-9024548154217588~8054208971</string>
 	<key>AwnAppGroupName</key>
 	<string>group.mobileraker.awn</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
@@ -37,13 +24,36 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.mobileraker.ios</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mobileraker</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-9024548154217588~8054208971</string>
+	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
+	<string>eu_consent_policy</string>
+	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE</key>
+	<true/>
+	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_USER_DATA</key>
+	<string>eu_consent_policy</string>
+	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_ANALYTICS_STORAGE</key>
+	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
 		<string>http</string>
 	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>12.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
@@ -54,6 +64,35 @@
 	<string>Mobileraker reads the name (SSID) of the Wi-Fi network your device is currently connected to, so it can detect when you're on the same network as your printer and automatically use a faster local connection instead of routing through the internet.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Mobileraker's belt tuner uses the microphone to record the sound your printer's belt makes when plucked, then analyzes the recording to calculate the belt's vibration frequency so you can tension it correctly.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Mobileraker uses your device's advertising identifier to show you ads that are more relevant to your interests and to measure how well those ads perform. This identifier is not linked to your printer data.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
@@ -80,93 +119,69 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
-	<true/>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
 	<key>UTExportedTypeDeclarations</key>
-    <array>
-        <!-- G-code File Types -->
-        <dict>
-            <key>UTTypeIdentifier</key>
-            <string>com.mobileraker.ios.gcode</string>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>G-code File</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>gcode</string>
-                    <string>g</string>
-                    <string>gc</string>
-                    <string>gco</string>
-                </array>
-            </dict>
-        </dict>
-
-        <!-- Configuration File Types -->
-        <dict>
-            <key>UTTypeIdentifier</key>
-            <string>com.mobileraker.ios.config</string>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>Configuration File</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>conf</string>
-                    <string>cfg</string>
-                </array>
-            </dict>
-        </dict>
-
-        <!-- Text File Types -->
-        <dict>
-            <key>UTTypeIdentifier</key>
-            <string>com.mobileraker.ios.textfiles</string>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.plain-text</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>Text File</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>md</string>
-                    <string>txt</string>
-                    <string>log</string>
-                    <string>json</string>
-                    <string>xml</string>
-                    <string>yaml</string>
-                    <string>yml</string>
-                </array>
-            </dict>
-        </dict>
-    </array>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>com.mobileraker.ios</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>mobileraker</string>
-            </array>
-        </dict>
-    </array>
-    <key>LSMinimumSystemVersion</key>
-    <string>12.0</string>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>G-code File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.mobileraker.ios.gcode</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gcode</string>
+					<string>g</string>
+					<string>gc</string>
+					<string>gco</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Configuration File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.mobileraker.ios.config</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>conf</string>
+					<string>cfg</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.plain-text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Text File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.mobileraker.ios.textfiles</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>md</string>
+					<string>txt</string>
+					<string>log</string>
+					<string>json</string>
+					<string>xml</string>
+					<string>yaml</string>
+					<string>yml</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

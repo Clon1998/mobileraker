@@ -656,6 +656,26 @@ class LiveActivityHostApi {
     ;
     return pigeonVar_replyValue as String?;
   }
+
+  /// Stores the (downscaled) thumbnail of [fileName] in the App Group container, replacing the previous one of the machine.
+  /// The widget shows it as long as the activity's `file` matches [fileName].
+  Future<void> setThumbnail(String machineUUID, String fileName, Uint8List image) async {
+    final pigeonVar_channelName = 'dev.flutter.pigeon.common.LiveActivityHostApi.setThumbnail$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[machineUUID, fileName, image]);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+        pigeonVar_replyList,
+        pigeonVar_channelName,
+        isNullValid: true,
+    )
+    ;
+  }
 }
 
 /// Returns a broadcast [Stream] of events from the `liveActivityEvents` event channel.

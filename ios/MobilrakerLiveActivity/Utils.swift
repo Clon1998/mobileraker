@@ -122,4 +122,13 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
     var etaLabel: String {
         return self.attributes.etaLabel
     }
+    
+    /// Thumbnail of the printed file, if the app stored one for it
+    var thumbnail: UIImage? {
+        guard let machineUUID = self.attributes.machineUUID, let file = self.state.file,
+              let url = LiveActivityThumbnail.url(machineUUID: machineUUID, fileName: file) else {
+            return nil
+        }
+        return UIImage(contentsOfFile: url.path)
+    }
 }

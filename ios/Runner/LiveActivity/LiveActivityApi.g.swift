@@ -587,6 +587,9 @@ protocol LiveActivityHostApi {
   func endAllExcept(machineUUIDs: [String], completion: @escaping (Result<Void, Error>) -> Void)
   /// The token that allows starting an activity via push (iOS 17.2+). Null if not (yet) available.
   func getPushToStartToken() throws -> String?
+  /// Stores the (downscaled) thumbnail of [fileName] in the App Group container, replacing the previous one of the machine.
+  /// The widget shows it as long as the activity's `file` matches [fileName].
+  func setThumbnail(machineUUID: String, fileName: String, image: FlutterStandardTypedData, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -694,6 +697,27 @@ class LiveActivityHostApiSetup {
       }
     } else {
       getPushToStartTokenChannel.setMessageHandler(nil)
+    }
+    /// Stores the (downscaled) thumbnail of [fileName] in the App Group container, replacing the previous one of the machine.
+    /// The widget shows it as long as the activity's `file` matches [fileName].
+    let setThumbnailChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.common.LiveActivityHostApi.setThumbnail\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      setThumbnailChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let machineUUIDArg = args[0] as! String
+        let fileNameArg = args[1] as! String
+        let imageArg = args[2] as! FlutterStandardTypedData
+        api.setThumbnail(machineUUID: machineUUIDArg, fileName: fileNameArg, image: imageArg) { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      setThumbnailChannel.setMessageHandler(nil)
     }
   }
 }

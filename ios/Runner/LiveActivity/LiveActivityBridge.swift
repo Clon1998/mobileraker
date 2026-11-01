@@ -6,6 +6,7 @@
 import ActivityKit
 import Flutter
 import Foundation
+import UIKit
 
 /// Native bridge for the print live activities (replaces the live_activities plugin).
 ///
@@ -23,11 +24,10 @@ final class LiveActivityBridge: LiveActivityEventsStreamHandler, LiveActivityHos
     private var pushToStartToken: String?
     private var observingActivityUpdates = false
 
-    /// Call from `application(_:didFinishLaunchingWithOptions:)`.
+    /// Attaches the Dart API once the Flutter engine exists.
     func register(with messenger: FlutterBinaryMessenger) {
         LiveActivityHostApiSetup.setUp(binaryMessenger: messenger, api: self)
         LiveActivityEventsStreamHandler.register(with: messenger, streamHandler: self)
-        startObserving()
     }
 
     // MARK: - LiveActivityEventsStreamHandler
@@ -70,6 +70,28 @@ final class LiveActivityBridge: LiveActivityEventsStreamHandler, LiveActivityHos
 
     func getPushToStartToken() throws -> String? {
         currentPushToStartToken()
+    }
+
+    func setThumbnail(machineUUID: String, fileName: String, image: FlutterStandardTypedData,
+                      completion: @escaping (Result<Void, Error>) -> Void) {
+        let data = image.data
+        DispatchQueue.global(qos: .utility).async {
+            let result = Result<Void, Error> {
+                guard let directory = LiveActivityThumbnail.directory(machineUUID: machineUUID),
+                      let url = LiveActivityThumbnail.url(machineUUID: machineUUID, fileName: fileName) else {
+                    throw PigeonError(code: "NO_APP_GROUP", message: "App Group container is not available", details: nil)
+                }
+                guard let source = UIImage(data: data), let png = self.downscaled(source).pngData() else {
+                    throw PigeonError(code: "INVALID_IMAGE", message: "Could not decode thumbnail", details: nil)
+                }
+
+                // Only keep the thumbnail of the current file
+                try? FileManager.default.removeItem(at: directory)
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                try png.write(to: url, options: .atomic)
+            }
+            DispatchQueue.main.async { completion(result) }
+        }
     }
 
     func createOrUpdate(attributes: LiveActivityAttributesMessage, content: LiveActivityContentMessage,
@@ -156,7 +178,9 @@ final class LiveActivityBridge: LiveActivityEventsStreamHandler, LiveActivityHos
 
     // MARK: - Observing
 
-    private func startObserving() {
+    /// Call from `application(_:didFinishLaunchingWithOptions:)`. Independent of the Flutter engine, which is only
+    /// created with a UI scene and therefore might not exist when the app is launched in the background.
+    func startObserving() {
         guard #available(iOS 16.2, *) else { return }
 
         for activity in Activity<LiveActivitiesAppAttributes>.activities {
@@ -222,6 +246,19 @@ final class LiveActivityBridge: LiveActivityEventsStreamHandler, LiveActivityHos
     private func runningActivities(of machineUUID: String) -> [Activity<LiveActivitiesAppAttributes>] {
         Activity<LiveActivitiesAppAttributes>.activities.filter {
             $0.attributes.machineUUID == machineUUID && ($0.activityState == .active || $0.activityState == .stale)
+        }
+    }
+
+    private func downscaled(_ image: UIImage) -> UIImage {
+        let maxSize = LiveActivityThumbnail.maxPixelSize
+        let pixelWidth = image.size.width * image.scale
+        let pixelHeight = image.size.height * image.scale
+        let factor = min(1, maxSize / max(pixelWidth, pixelHeight))
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        let size = CGSize(width: (pixelWidth * factor).rounded(), height: (pixelHeight * factor).rounded())
+        return UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
         }
     }
 

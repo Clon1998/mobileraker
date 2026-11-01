@@ -31,6 +31,7 @@ import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:gap/gap.dart';
@@ -447,6 +448,10 @@ class DevPage extends HookConsumerWidget {
 
   startLiveActivity(WidgetRef ref) async {
     var liveActivities = ref.read(liveActivityHostApiProvider);
+
+    // Sample thumbnail, normally the service downloads the one of the printed file
+    final sample = await rootBundle.load('assets/images/voron_design.png');
+    await liveActivities.setThumbnail(customID, 'Benchy.gcode', sample.buffer.asUint8List());
 
     var activityId = await liveActivities.createOrUpdate(
       _devActivityAttributes(Colors.pinkAccent, Colors.yellow),

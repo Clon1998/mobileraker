@@ -10,12 +10,15 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:common/data/enums/eta_data_source.dart';
 import 'package:common/data/model/hive/notification.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../data/dto/files/gcode_file.dart';
 import '../data/dto/machine/print_state_enum.dart';
 import '../data/dto/machine/printer.dart';
 import '../data/repository/notifications_hive_repository.dart';
@@ -66,6 +70,9 @@ class LiveActivityServiceV2 {
 
   final Map<String, _ActivityEntry> _machineActivityMapping = {};
   final Map<String, ProviderSubscription<AsyncValue<Printer>>> _printerDataListeners = {};
+
+  /// Machine UUID -> file name of the thumbnail that was stored for the widget
+  final Map<String, String> _thumbnailFiles = {};
 
   final Map<String, Completer?> _refreshActivityLocks = {};
   final Map<String, Completer?> _handlePrinterDataThrottleLocks = {}; // Throttle lock for printer data updates
@@ -341,6 +348,8 @@ class LiveActivityServiceV2 {
       var isPrinting = {PrintState.printing, PrintState.paused}.contains(printer.print.state);
 
       if (isPrinting) {
+        // Do not block the activity for too long on slow (remote) connections, the image shows up with the next update
+        await _syncThumbnail(machineUUID, printer.currentFile).timeout(const Duration(seconds: 5), onTimeout: () {});
         await _updateOrCreateLiveActivity(attributes, content);
       } else {
         // Only remove the activity if the app is not in the resumed state -> This is to prevent the activity from being removed when the app is in the background and usefull for the user to see
@@ -361,6 +370,41 @@ class LiveActivityServiceV2 {
     } finally {
       // Release lock if acquired
       lock?.complete();
+    }
+  }
+
+  /// Stores the thumbnail of the printed file for the widget. Only downloaded once per file.
+  Future<void> _syncThumbnail(String machineUUID, GCodeFile? file) async {
+    if (file == null || _thumbnailFiles[machineUUID] == file.name) return;
+    // Thumbnails are sorted by size, the smallest one that is still big enough for the activity is sufficient
+    final thumbnail =
+        file.thumbnails.firstWhereOrNull((e) => e.width >= 100 && e.height >= 100) ?? file.thumbnails.lastOrNull;
+    if (thumbnail == null) return;
+
+    final dioSubscription = ref.keepAliveExternally(dioClientProvider(machineUUID));
+    try {
+      final dio = dioSubscription.read();
+      final baseUri = Uri.parse(dio.options.baseUrl);
+      final uri = baseUri.replace(pathSegments: [
+        ...baseUri.pathSegments,
+        'server',
+        'files',
+        ...file.parentPath.split('/'),
+        ...thumbnail.relativePath.split('/'),
+      ]);
+
+      final response = await dio.getUri<List<int>>(uri, options: Options(responseType: ResponseType.bytes));
+      final bytes = response.data;
+      if (bytes == null) return;
+
+      await _liveActivityAPI.setThumbnail(machineUUID, file.name, Uint8List.fromList(bytes));
+      _thumbnailFiles[machineUUID] = file.name;
+      talker.info('Stored LiveActivity thumbnail ${thumbnail.width}x${thumbnail.height} for $machineUUID');
+    } catch (e) {
+      // Retried with the next refresh
+      talker.warning('Could not store LiveActivity thumbnail for $machineUUID', e);
+    } finally {
+      dioSubscription.close();
     }
   }
 

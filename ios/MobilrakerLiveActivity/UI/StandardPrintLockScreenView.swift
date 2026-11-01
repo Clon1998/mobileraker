@@ -13,8 +13,9 @@ struct StandardPrintLockScreenView: View {
     let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
     
     var body: some View {
-        let labelColor = Color(UIColor.label.dark)
-        let secondaryLabel = Color(UIColor.secondaryLabel.dark)
+        // Semantic colors adapt to the glass platter, the fixed dark ones match the old dark background
+        let labelColor = activityUsesSystemGlass ? Color.primary : Color(UIColor.label.dark)
+        let secondaryLabel = activityUsesSystemGlass ? Color.secondary : Color(UIColor.secondaryLabel.dark)
         
         VStack(alignment: .leading, spacing: 8.0) {
             if (activityContext.printerState == "printing") {
@@ -34,7 +35,14 @@ struct StandardPrintLockScreenView: View {
                             .minimumScaleFactor(0.8)
                         
                     }
-                    //TODO: Add image here!
+                    if let thumbnail = activityContext.thumbnail {
+                        Spacer(minLength: 8)
+                        Image(uiImage: thumbnail)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: 56, maxHeight: 56)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
                 }
             } else {
                 Text(activityContext.fileName)

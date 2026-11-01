@@ -90,6 +90,11 @@ abstract class LiveActivityHostApi {
 
   /// The token that allows starting an activity via push (iOS 17.2+). Null if not (yet) available.
   String? getPushToStartToken();
+
+  /// Stores the (downscaled) thumbnail of [fileName] in the App Group container, replacing the previous one of the machine.
+  /// The widget shows it as long as the activity's `file` matches [fileName].
+  @async
+  void setThumbnail(String machineUUID, String fileName, Uint8List image);
 }
 
 sealed class LiveActivityEvent {}
