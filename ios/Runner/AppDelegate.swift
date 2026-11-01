@@ -11,6 +11,7 @@ import awesome_notifications_fcm
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+    LiveActivityBridge.shared.register(with: registrar(forPlugin: "LiveActivityBridge")!.messenger())
 
     // This function register the desired plugins to be used within a notification background action
     SwiftAwesomeNotificationsPlugin.setPluginRegistrantCallback { registry in

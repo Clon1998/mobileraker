@@ -95,9 +95,5 @@
             </intent-filter>
         </activity>
 
-        <service
-                android:name="com.istornz.live_activities.LiveActivityFirebaseMessagingService"
-                android:enabled="false"
-        />
     </application>
 </manifest>

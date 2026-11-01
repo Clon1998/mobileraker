@@ -41,11 +41,6 @@ dependencies:
 #  awesome_notifications_core: ^0.11.0
   awesome_notifications: ^0.12.0
   awesome_notifications_fcm: ^0.12.0
-  live_activities: ^2.6.0
-  #        ref: main
-  #      ref: feature/multi-state-req
-#  live_activities:
-#    path: ../../flutter_live_activities
 
   #routing
   go_router: ^17.3.0
@@ -109,6 +104,7 @@ dev_dependencies:
   json_serializable: ^6.9.5
   riverpod_generator: ^4.0.4
   hive_ce_generator: ^1.8.0
+  pigeon: ^27.3.0
 
 flutter:
   fonts:

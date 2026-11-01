@@ -19,23 +19,6 @@ struct MobilrakerLiveActivityBundle: WidgetBundle {
 }
 
 
-struct LiveActivitiesAppAttributes: ActivityAttributes, Identifiable {
-    public typealias LiveDeliveryData = ContentState // don't forget to add this line, otherwise, live activity will not display it.
-    
-    public struct ContentState: Codable, Hashable {
-        // make everything nullable to be able to retrieve initial
-        // values before notification is sent to update
-        let progress: Double?
-        let eta: Int?
-        let printState: String?
-        let file: String?
-    }
-    
-    var id = UUID()
-}
-
-let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
-
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         let liveAc = ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
@@ -114,28 +97,16 @@ struct PrintingLiveActivity: Widget {
 }
 
 extension LiveActivitiesAppAttributes {
-    func prefixedKey(key: String) -> String {
-        return "\(id)_\(key)"
-    }
-    
     static var previewAttributes: LiveActivitiesAppAttributes {
-        let attributes = LiveActivitiesAppAttributes()
-        
-        // Setup mock data in UserDefaults
-        let defaults = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
-        defaults.set("Prusa MK3S+", forKey: attributes.prefixedKey(key: "machine_name"))
-        defaults.set("Printing", forKey: attributes.prefixedKey(key: "printing_label"))
-        defaults.set("Complete", forKey: attributes.prefixedKey(key: "complete_label"))
-        defaults.set("Paused", forKey: attributes.prefixedKey(key: "paused_label"))
-        defaults.set("Error", forKey: attributes.prefixedKey(key: "error_label"))
-        defaults.set("Time Remaining", forKey: attributes.prefixedKey(key: "remaining_label"))
-        defaults.set("ETA", forKey: attributes.prefixedKey(key: "eta_label"))
-        defaults.set("Time Elapsed", forKey: attributes.prefixedKey(key: "elapsed_label"))
-        defaults.set(0xFF0FF0FF, forKey: attributes.prefixedKey(key: "primary_color_light"))
-        defaults.set(0xFFFF0000, forKey: attributes.prefixedKey(key: "primary_color_dark"))
-        defaults.set(Int(Date().timeIntervalSince1970), forKey: attributes.prefixedKey(key: "printStartTime"))
-        
-        return attributes
+        LiveActivitiesAppAttributes(
+            machineUUID: "preview",
+            machineName: "Prusa MK3S+",
+            colorLight: 0xFF0FF0FF,
+            colorDark: 0xFFFF0000,
+            etaLabel: "ETA",
+            remainingLabel: "Time Remaining",
+            stateLabels: ["printing": "Printing", "complete": "Complete", "paused": "Paused", "error": "Error"]
+        )
     }
 }
 

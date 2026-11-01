@@ -68,19 +68,19 @@ func shouldShowAsTimer(_ eta: Date?, delta: Int = 3) -> Bool {
 extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
     
     var printerState: String {
-        return self.state.printState ?? sharedDefault.string(forKey: self.attributes.prefixedKey(key:"state"))!
+        return self.state.printState ?? "printing"
     }
     
     var fileName: String {
-        self.state.file ??  sharedDefault.string(forKey: self.attributes.prefixedKey(key: "file"))!
+        self.state.file ?? ""
     }
     
     var printProgress: Double {
-        return printerState == "complete" ?  1 : self.state.progress ?? sharedDefault.double(forKey: self.attributes.prefixedKey(key: "progress"))
+        return printerState == "complete" ?  1 : self.state.progress ?? 0
     }
     
     var etaInterval: Int {
-        return self.state.eta ?? sharedDefault.integer(forKey: self.attributes.prefixedKey(key: "eta"))
+        return self.state.eta ?? -1
     }
     
     var etaDate: Date? {
@@ -93,29 +93,20 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
         return nil
     }
     
-    var printStartDate: Date {
-        let startStamp = sharedDefault.integer(forKey: self.attributes.prefixedKey(key: "printStartTime"))
-        return Date(timeIntervalSince1970: TimeInterval(startStamp))
-    }
-    
     var printerColor: Int {
-        return sharedDefault.integer(forKey: self.attributes.prefixedKey(key:"primary_color_light"))
+        return self.attributes.colorLight
     }
     
     var printerColorDark: Int {
-        return sharedDefault.integer(forKey: self.attributes.prefixedKey(key:"primary_color_dark"))
+        return self.attributes.colorDark
     }
     
     var printerName: String {
-        return sharedDefault.string(forKey: self.attributes.prefixedKey(key:"machine_name"))!
-    }
-    
-    var elapsedLabel: String {
-        return sharedDefault.string(forKey: self.attributes.prefixedKey(key:"elapsed_label"))!
+        return self.attributes.machineName
     }
     
     var printerStateLabel: String {
-        sharedDefault.string(forKey: self.attributes.prefixedKey(key:"\(self.printerState)_label"))!
+        self.attributes.stateLabels[self.printerState] ?? self.printerState.capitalized
     }
     
     var printStateColor: Color {
@@ -125,10 +116,10 @@ extension ActivityViewContext where Attributes == LiveActivitiesAppAttributes {
     }
     
     var remainingLabel: String {
-        return sharedDefault.string(forKey: self.attributes.prefixedKey(key: "remaining_label"))!
+        return self.attributes.remainingLabel
     }
     
     var etaLabel: String {
-        return sharedDefault.string(forKey: self.attributes.prefixedKey(key: "eta_label"))!
+        return self.attributes.etaLabel
     }
 }

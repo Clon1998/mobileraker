@@ -22,14 +22,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:live_activities/live_activities.dart';
-import 'package:live_activities/models/activity_update.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/machine/print_state_enum.dart';
 import '../data/dto/machine/printer.dart';
 import '../data/repository/notifications_hive_repository.dart';
 import '../data/repository/notifications_repository.dart';
+import 'live_activity/live_activity_api.pigeon.dart';
 import 'misc_providers.dart';
 import 'moonraker/printer_service.dart';
 import 'ui/theme_service.dart';
@@ -39,8 +38,8 @@ part 'live_activity_service_v2.g.dart';
 const int PRINTER_DATA_REFRESH_INTERVAL = 5; // SECONDS
 
 @Riverpod(keepAlive: true)
-LiveActivities liveActivity(Ref ref) {
-  return LiveActivities();
+LiveActivityHostApi liveActivityHostApi(Ref ref) {
+  return LiveActivityHostApi();
 }
 
 
@@ -54,7 +53,7 @@ class LiveActivityServiceV2 {
   LiveActivityServiceV2(this.ref)
       : _machineService = ref.watch(machineServiceProvider),
         _settingsService = ref.watch(settingServiceProvider),
-        _liveActivityAPI = ref.watch(liveActivityProvider),
+        _liveActivityAPI = ref.watch(liveActivityHostApiProvider),
         _notificationsRepository = ref.watch(notificationRepositoryProvider) {
     ref.onDispose(dispose);
   }
@@ -62,7 +61,7 @@ class LiveActivityServiceV2 {
   final Ref ref;
   final MachineService _machineService;
   final SettingService _settingsService;
-  final LiveActivities _liveActivityAPI;
+  final LiveActivityHostApi _liveActivityAPI;
   final NotificationsRepository _notificationsRepository;
 
   final Map<String, _ActivityEntry> _machineActivityMapping = {};
@@ -93,81 +92,70 @@ class LiveActivityServiceV2 {
   }
 
   Future<void> _init() async {
-    try {
-      talker.info('Connecting with Platform live_activity');
-      await _liveActivityAPI.init(appGroupId: 'group.mobileraker.liveactivity');
-
-      final all = await _liveActivityAPI.getAllActivitiesIds();
-      talker.info('Found ${all.length} active activities. Ending all of them.');
-      await _liveActivityAPI.endAllActivities();
-
-      // var allowsPushStart = await _liveActivityAPI.allowsPushStart();
-
-      // talker.info('LiveActivityService allows push start: $allowsPushStart');
-
-      // final sub = _liveActivityAPI.pushToStartTokenUpdateStream.listen((event) {
-      //   talker.info('Received push to start token update token $event');
-      // });
-
-      // var pushStartToken = await _liveActivityAPI.getPushToStartToken();
-      // talker.info('LiveActivityService push to start token: $pushStartToken');
-
-      // _subscriptions.add(sub);
-
-      _setupLiveActivityListener();
-      _setupPrinterDataListeners();
-      _registerAppLifecycleHandler();
-    } catch (e, s) {
-      if (e is PlatformException) {
-        if (e.code == 'WRONG_IOS_VERSION') {
-          talker.warning('Failed to initialize LiveActivityService. The current iOS version is not supported.');
-          return;
-        }
-      }
-      rethrow;
-    }
+    talker.info('Connecting with native LiveActivityBridge');
+    await _restoreActivities();
+    _setupLiveActivityListener();
+    _setupPrinterDataListeners();
+    _registerAppLifecycleHandler();
   }
+
+  /// Re-adopts the activities that are still running from a previous app session.
+  /// Activities are identified via their machine UUID, so there is no need to end them on startup.
+  Future<void> _restoreActivities() async {
+    final machines = await ref.read(allMachinesProvider.future);
+    // Ends activities of deleted machines and the ones created by older app versions (no machine UUID)
+    await _liveActivityAPI.endAllExcept(machines.map((e) => e.uuid).toList());
+
+    final activities = await _liveActivityAPI.getActivities();
+    for (final activity in activities) {
+      final machineUUID = activity.machineUUID;
+      if (machineUUID == null || !_isRunning(activity.state)) continue;
+      // The push token is synced to the machine once the event stream replays it
+      _machineActivityMapping[machineUUID] = _ActivityEntry(activity.activityId);
+    }
+    talker.info('Restored ${_machineActivityMapping.length} running live activities');
+  }
+
+  bool _isRunning(LiveActivityStateMessage state) =>
+      state == LiveActivityStateMessage.active || state == LiveActivityStateMessage.stale;
 
   /// Responsible for syncing the push token (APNs token) from the platform to this service and the machine service.
   void _setupLiveActivityListener() {
     talker.info('Setting up LiveActivity listener');
-    final s = _liveActivityAPI.activityUpdateStream.listen((event) async {
+    final s = liveActivityEvents().listen((event) {
       switch (event) {
-        case ActiveActivityUpdate():
-          talker.info('Received activity push token update for ${event.activityId} with token ${event.activityToken}');
-          final entry = _machineActivityMapping.entries
-              .firstWhereOrNull((element) => element.value.activityId == event.activityId);
-
-          if (entry == null) {
-            talker.warning('Received push token update for unknown activity ${event.activityId}');
-            return;
-          }
-          if (entry.value.pushToken == event.activityToken) {
+        case LiveActivityTokenEvent(:final machineUUID?):
+          talker.info('Received activity push token update for ${event.activityId} with token ${event.token}');
+          final entry = _machineActivityMapping[machineUUID];
+          if (entry?.activityId == event.activityId && entry?.pushToken == event.token) {
             talker.info('Push token for activity ${event.activityId} is already up to date');
             return;
           }
 
-          talker.info('LiveActivity update is for machine ${entry.key}');
-          // Track in this service
-          _machineActivityMapping[entry.key] = entry.value.copyWith(pushToken: event.activityToken);
-
-          // We also need to sync that token to the machine to be able to send push notifications/updates
-          _machineService.updateApplePushNotificationToken(entry.key, event.activityToken).ignore();
-          talker.info('Updated push token for activity ${event.activityId} to ${event.activityToken}');
-          break;
-        case EndedActivityUpdate():
-          talker.info('Received activity ended update for ${event.activityId}');
-          final entry = _machineActivityMapping.entries
-              .firstWhereOrNull((element) => element.value.activityId == event.activityId);
-          if (entry == null) {
-            talker.warning('Received ended activity update for unknown activity ${event.activityId}');
+          talker.info('LiveActivity update is for machine $machineUUID');
+          if (ref.read(allMachinesProvider).value?.none((e) => e.uuid == machineUUID) ?? true) {
+            talker.warning('Received push token for activity of unknown machine $machineUUID. Not syncing it.');
             return;
           }
-          _machineService.updateApplePushNotificationToken(entry.key, null).ignore();
-          _machineActivityMapping.remove(entry.key);
-          break;
+          // Track in this service
+          _machineActivityMapping[machineUUID] = _ActivityEntry(event.activityId, pushToken: event.token);
+
+          // We also need to sync that token to the machine to be able to send push notifications/updates
+          _machineService.updateApplePushNotificationToken(machineUUID, event.token).ignore();
+          talker.info('Updated push token for activity ${event.activityId} to ${event.token}');
+        case LiveActivityStateEvent(:final machineUUID?, :final state) when !_isRunning(state):
+          talker.info('Received activity ended update for ${event.activityId}');
+          if (_machineActivityMapping[machineUUID]?.activityId != event.activityId) {
+            talker.info('Ended activity ${event.activityId} is not the current activity of machine $machineUUID');
+            return;
+          }
+          _machineService.updateApplePushNotificationToken(machineUUID, null).ignore();
+          _machineActivityMapping.remove(machineUUID);
+        case LiveActivityPushToStartTokenEvent():
+          // Not synced anywhere yet, remote start is not implemented. Logged to allow manual testing.
+          talker.info('Received LiveActivity push-to-start token: ${event.token}');
         default:
-          talker.warning('Received unknown activity update: $event');
+          talker.info('Ignoring live activity event: $event');
       }
     });
     _subscriptions.add(s);
@@ -334,31 +322,26 @@ class LiveActivityServiceV2 {
       final etaSources = _settingsService
           .readList<ETADataSource>(AppSettingKeys.etaSources, elementDecoder: ETADataSource.fromJson)
           .toSet();
-      Map<String, dynamic> data = {
-        'progress': printer.printProgress,
-        'state': printer.print.state.name,
-        'file': printer.currentFile?.name ?? tr('general.unknown'),
-        'eta': printer.calcEta(etaSources)?.secondsSinceEpoch ?? -1,
-
-        // Not sure yet if I want to use this
-        'printStartTime':
-            DateTime.now().subtract(Duration(seconds: printer.print.totalDuration.toInt())).secondsSinceEpoch,
-
-        // Labels
-        'primary_color_dark': (themePack.darkTheme ?? themePack.lightTheme).colorScheme.primary.value,
-        'primary_color_light': themePack.lightTheme.colorScheme.primary.value,
-        'machine_name': machine.name,
-        'eta_label': tr('pages.dashboard.general.print_card.eta'),
-        'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
-        'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
-        for (var state in PrintState.values) '${state.name}_label': state.displayName,
-      };
+      final attributes = LiveActivityAttributesMessage(
+        machineUUID: machineUUID,
+        machineName: machine.name,
+        colorLight: themePack.lightTheme.colorScheme.primary.toARGB32(),
+        colorDark: (themePack.darkTheme ?? themePack.lightTheme).colorScheme.primary.toARGB32(),
+        etaLabel: tr('pages.dashboard.general.print_card.eta'),
+        remainingLabel: tr('pages.dashboard.general.print_card.remaining'),
+        stateLabels: {for (var state in PrintState.values) state.name: state.displayName},
+      );
+      final content = LiveActivityContentMessage(
+        progress: printer.printProgress,
+        eta: printer.calcEta(etaSources)?.secondsSinceEpoch ?? -1,
+        printState: printer.print.state.name,
+        file: printer.currentFile?.name ?? tr('general.unknown'),
+      );
 
       var isPrinting = {PrintState.printing, PrintState.paused}.contains(printer.print.state);
-      var isDone = {PrintState.complete, PrintState.cancelled}.contains(printer.print.state);
 
       if (isPrinting) {
-        await _updateOrCreateLiveActivity(data, machineUUID);
+        await _updateOrCreateLiveActivity(attributes, content);
       } else {
         // Only remove the activity if the app is not in the resumed state -> This is to prevent the activity from being removed when the app is in the background and usefull for the user to see
         if (ref.read(appLifecycleProvider) != AppLifecycleState.resumed) {
@@ -368,7 +351,7 @@ class LiveActivityServiceV2 {
         final activity = _machineActivityMapping.remove(machineUUID);
         // Remove the activity if the printer is not printing or paused
         if (activity != null && ref.read(remoteConfigBoolProvider('clear_live_activity_on_done'))) {
-          _liveActivityAPI.endActivity(activity.activityId).ignore();
+          _liveActivityAPI.end(machineUUID, null, true).ignore();
         }
 
         // Also remove the push token from the machine
@@ -383,25 +366,35 @@ class LiveActivityServiceV2 {
 
   /// Updates or creates a live activity for a machine.
   /// Note that this does not require a lock as it is part of the refreshLiveActivityForMachine method which already has a lock.
-  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, String machineUUID) async {
+  Future<String?> _updateOrCreateLiveActivity(
+    LiveActivityAttributesMessage attributes,
+    LiveActivityContentMessage content,
+  ) async {
+    final machineUUID = attributes.machineUUID;
     // Get platform info about the current active activities
-    final activeCount = await _liveActivityAPI.getAllActivitiesIds().then((value) => value.length);
-    if (activeCount >= 5) {
+    final running = await _liveActivityAPI
+        .getActivities()
+        .then((value) => value.where((e) => _isRunning(e.state)).toList());
+    if (running.length >= 5 && running.none((e) => e.machineUUID == machineUUID)) {
       talker.warning('Cannot create new LiveActivity for $machineUUID. Too many activities are already active.');
       return null;
     }
 
-    // Okay I guess we need to create a new activity for this machine
-    final activityId =
-        await _liveActivityAPI.createOrUpdateActivity(machineUUID, activityData, removeWhenAppIsKilled: true);
-    if (activityId case String()) {
-      _machineActivityMapping[machineUUID] = _ActivityEntry(activityId);
-      talker.info('Created new LiveActivity for $machineUUID} with id: $activityId');
+    try {
+      final activityId = await _liveActivityAPI.createOrUpdate(attributes, content);
+      // Do not override the entry if it is the same activity, the push token might already be set
+      if (_machineActivityMapping[machineUUID]?.activityId != activityId) {
+        _machineActivityMapping[machineUUID] = _ActivityEntry(activityId);
+        talker.info('Created new LiveActivity for $machineUUID with id: $activityId');
+      } else {
+        talker.info('Updated LiveActivity for $machineUUID');
+      }
       return activityId;
+    } on PlatformException catch (e) {
+      // E.g. the OS does not allow starting an activity while the app is in the background
+      talker.warning('Failed to create or update LiveActivity for $machineUUID: ${e.message} (${e.details})');
+      return null;
     }
-
-    talker.info('Updated LiveActivity for $machineUUID');
-    return activityId;
   }
 
   void dispose() {

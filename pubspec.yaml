@@ -94,9 +94,6 @@ dependencies:
   #notification
   awesome_notifications: ^0.12.0
   awesome_notifications_fcm: ^0.12.0
-  live_activities: ^2.6.0
-#  live_activities:
-#    path: ../flutter_live_activities
   #        ref: feature/multi-state-req
 
   #form
