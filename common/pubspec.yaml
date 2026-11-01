@@ -35,7 +35,7 @@ dependencies:
   google_mobile_ads: ^9.0.0
 
   #purchases
-  purchases_flutter: ^11.0.0
+  purchases_flutter: ^10.19.0
 
   #notification
 #  awesome_notifications_core: ^0.11.0

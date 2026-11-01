@@ -109,7 +109,7 @@ dependencies:
   easy_localization_loader: ^2.0.2
 
   #purchases
-  purchases_flutter: ^11.0.0
+  purchases_flutter: ^10.19.0
 
   #rating
   rate_my_app: ^2.0.0
