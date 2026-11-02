@@ -115,7 +115,8 @@ dependencies:
   responsive_framework: ^1.4.0
 
   #bottomsheet:
-  smooth_sheets: ^1.0.3
+  # 1.3.0 migrated to package:material_ui, whose Material is not detected by flutter/material widgets
+  smooth_sheets: ">=1.0.3 <1.3.0"
 
   #ui
   gap: ^3.0.1
