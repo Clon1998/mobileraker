@@ -510,12 +510,27 @@ class _HeaterSensorCardController extends _$HeaterSensorCardController {
 
     final sensors = CombinedSensorExtension.filterAndSortSensors(rawSensors, ordering);
 
+    // Reuse the previous list instance if a sensor's store did not change. This keeps the per-tile selects stable
+    // (List == is identity), so tiles/charts only rebuild if their own history changed and not on every printer update.
+    final previousStores = state.value?.temperatureStores;
     final TemperatureStore tempStores = {
-      for (var e in rawTempStores.entries)
-        e.key: e.value.sublist(max(0, e.value.length - tempStoreLimit)),
+      for (var e in rawTempStores.entries) e.key: _trimmedStore(previousStores?[e.key], e.value),
     };
 
     return _Model(klippyCanReceiveCommands: klippyCanReceiveCommands, sensors: sensors, temperatureStores: tempStores);
+  }
+
+  List<TemperatureSensorSeriesEntry> _trimmedStore(
+    List<TemperatureSensorSeriesEntry>? previous,
+    List<TemperatureSensorSeriesEntry> raw,
+  ) {
+    final start = max(0, raw.length - tempStoreLimit);
+    if (previous != null &&
+        previous.length == raw.length - start &&
+        (previous.isEmpty || (previous.first == raw[start] && previous.last == raw.last))) {
+      return previous;
+    }
+    return raw.sublist(start);
   }
 
   void adjustHeater(HeaterMixin heater) {

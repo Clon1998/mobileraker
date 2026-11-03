@@ -115,14 +115,26 @@ class _Chart extends StatefulWidget {
 class _ChartState extends State<_Chart> {
   int maxStoreSize = 300;
 
+  /// Own copy of the data. It is mutated in place to feed [ChartSeriesController.updateDataSource], so it must never
+  /// alias the provider's list.
   late List<TemperatureSensorSeriesEntry> _tempStore;
   ChartSeriesController? _chartSeriesController;
   DateTime _last = DateTime(1990);
 
+  /// Cached chart widget. Returning the identical instance lets Flutter skip rebuilding the chart when only the
+  /// parent rebuilt. New data is pushed via [_chartSeriesController] instead.
+  Widget? _chart;
+  Color? _chartColor;
+  List<TemperatureSensorSeriesEntry>? _chartData;
+
   @override
   void initState() {
     super.initState();
-    _tempStore = widget.tempStore;
+    _replaceStore(widget.tempStore);
+  }
+
+  void _replaceStore(List<TemperatureSensorSeriesEntry> store) {
+    _tempStore = List.of(store);
     if (_tempStore.isNotEmpty) {
       _last = _tempStore.last.time;
     }
@@ -136,7 +148,7 @@ class _ChartState extends State<_Chart> {
     if (!identical(widget.tempStore, oldWidget.tempStore)) {
       if (_chartSeriesController == null) {
         setState(() {
-          _tempStore = widget.tempStore;
+          _replaceStore(widget.tempStore);
         });
       } else {
         _syncStoreDataToChart(widget.tempStore);
@@ -197,7 +209,12 @@ class _ChartState extends State<_Chart> {
 
   @override
   Widget build(BuildContext context) {
-    return SfCartesianChart(
+    if (_chart != null && _chartColor == widget.graphColor && identical(_chartData, _tempStore)) {
+      return _chart!;
+    }
+    _chartColor = widget.graphColor;
+    _chartData = _tempStore;
+    return _chart = SfCartesianChart(
       primaryXAxis: DateTimeAxis(isVisible: false),
       primaryYAxis: NumericAxis(
         isVisible: false,
@@ -218,11 +235,5 @@ class _ChartState extends State<_Chart> {
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    _tempStore.clear();
-    super.dispose();
   }
 }
