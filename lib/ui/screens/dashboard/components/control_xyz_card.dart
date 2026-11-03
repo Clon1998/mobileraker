@@ -63,7 +63,9 @@ class ControlXYZCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // No keep-alive: state is derived synchronously from providers, so off-screen instances can be disposed.
+    // Kept alive on purpose: mounting this card is expensive (~15 ms in debug) and caused a dropped frame every time
+    // it scrolled back into view. Off-screen updates are cheap since its selects are narrow.
+    useAutomaticKeepAlive();
     talker.info('Rebuilding ControlXYZCard.');
 
     return AsyncGuard(
