@@ -156,7 +156,7 @@ class _CardBody extends ConsumerWidget {
           _SensorMixinTile(
             machineUUID: machineUUID,
             sensorProvider: _heaterSensorCardControllerProvider(machineUUID).selectRequireValue((value) {
-              return value.sensors[i];
+              return _DisplayedSensor(value.sensors[i]);
             }),
           ),
       ],
@@ -164,15 +164,52 @@ class _CardBody extends ConsumerWidget {
   }
 }
 
+/// Wraps a sensor for selects and only compares what the tiles actually render.
+///
+/// Temperatures are displayed with 0.1 °C precision, so changes below that do not rebuild the tile.
+/// Values that drive icons, colors or callbacks (target, still-hot threshold, fan spinning, ...) are compared exactly.
+@immutable
+class _DisplayedSensor {
+  const _DisplayedSensor(this.sensor);
+
+  final TemperatureSensorMixin sensor;
+
+  static int _displayed(double value) => (value * 10).round();
+
+  Object? get _key {
+    final common = (sensor.runtimeType, sensor.kind, sensor.name, _displayed(sensor.temperature));
+    // Same order as the switch in _SensorMixinTile
+    return switch (sensor) {
+      HeaterMixin(:final target, :final temperature) => (
+        common,
+        target,
+        temperature > _HeaterMixinTile._stillHotTemp,
+        temperature < _HeaterMixinTile._stillHotTemp,
+      ),
+      TemperatureSensor(:final measuredMaxTemp) => (common, _displayed(measuredMaxTemp)),
+      TemperatureFan(:final target, :final speed) => (common, target, speed > 0),
+      ZThermalAdjust(:final currentZAdjust) => (common, currentZAdjust),
+      _ => sensor,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is _DisplayedSensor && other._key == _key;
+
+  @override
+  int get hashCode => _key.hashCode;
+}
+
 class _SensorMixinTile extends ConsumerWidget {
   const _SensorMixinTile({super.key, required this.machineUUID, required this.sensorProvider});
 
   final String machineUUID;
-  final ProviderListenable<TemperatureSensorMixin> sensorProvider;
+  final ProviderListenable<_DisplayedSensor> sensorProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sensor = ref.watch(sensorProvider);
+    final sensor = ref.watch(sensorProvider).sensor;
 
     return switch (sensor) {
       HeaterMixin() => _HeaterMixinTile(
