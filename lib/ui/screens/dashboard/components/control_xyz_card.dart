@@ -581,10 +581,18 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         initialIndex.clamp(0, machineSettings.moveSteps.length - 1);
 
     var supportsForceMove = printer.configFile.hasForceMove == true && printer.configFile.enableForceMove == true;
+
+    // Keep the previous list instance if the actions did not change, so selects on it stay stable (List == is identity)
+    final previousActions = state.value?.directActions;
+    final quickActions = _quickActions(printer.configFile);
+    final directActions = previousActions != null && const ListEquality<_QuickAction>().equals(previousActions, quickActions)
+        ? previousActions
+        : quickActions;
+
     return _Model(
       showCard: printer.print.state != PrintState.printing && printer.configFile.configPrinter?.kinematics != 'none',
       klippyCanReceiveCommands: klippy.klippyCanReceiveCommands,
-      directActions: _quickActions(printer.configFile),
+      directActions: directActions,
       steps: machineSettings.moveSteps,
       selected: min(max(0, idx), machineSettings.moveSteps.length - 1),
       homedAxis: printer.toolhead.homedAxes,
@@ -663,6 +671,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     return _printerService.homePrintHead(axis);
   }
 
+  Future<void> onHomeAllBtn() => onHomeAxisBtn({PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z});
+
   Future<void> onQuadGantry() => _printerService.quadGantryLevel();
 
   Future<void> onBedMesh() => _printerService.bedMeshLevel();
@@ -734,9 +744,8 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
         title: tr('pages.dashboard.general.move_card.home_all_btn'),
         description: tr('pages.dashboard.general.move_card.home_all_tooltip'),
         icon: Icons.home,
-        callback: () => onHomeAxisBtn(
-          {PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z},
-        ),
+        // Tear-off (not a closure) so the action stays == across rebuilds
+        callback: onHomeAllBtn,
       ),
       if (configFile.hasQuadGantry == true)
         _QuickAction(
