@@ -232,16 +232,36 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
+    // Only select what is rendered. The model contains the active extruder (temperature changes constantly).
+    final (
+      :extruderCount,
+      :isSnapmakerU1,
+      :extruderIndex,
+      :klippyCanReceiveCommands,
+      :showColdWarning,
+      :minExtrudeTemp,
+    ) = ref.watch(
+      _controlExtruderCardControllerProvider(machineUUID).select((value) {
+        final model = value.requireValue;
+        return (
+          extruderCount: model.extruderCount,
+          isSnapmakerU1: model.isSnapmakerU1,
+          extruderIndex: model.extruderIndex,
+          klippyCanReceiveCommands: model.klippyCanReceiveCommands,
+          showColdWarning: model.activeExtruder != null && !model.minExtrudeTempReached,
+          minExtrudeTemp: model.activeExtruderConfig?.minExtrudeTemp,
+        );
+      }),
+    );
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     Widget? trailing = null;
 
-    if (model.extruderCount > 1 && !model.isSnapmakerU1) {
+    if (extruderCount > 1 && !isSnapmakerU1) {
       trailing = DropdownButton(
-        value: model.extruderIndex,
-        onChanged: model.klippyCanReceiveCommands ? controller.onExtruderSelected : null,
-        items: List.generate(model.extruderCount, (index) {
+        value: extruderIndex,
+        onChanged: klippyCanReceiveCommands ? controller.onExtruderSelected : null,
+        items: List.generate(extruderCount, (index) {
           String name = tr('pages.dashboard.control.extrude_card.title');
           if (index > 0) name += ' $index';
           return DropdownMenuItem(value: index, child: Text(name));
@@ -255,7 +275,7 @@ class _CardTitle extends ConsumerWidget {
         children: [
           const Text('pages.dashboard.control.extrude_card.title').tr(),
           AnimatedOpacity(
-            opacity: model.activeExtruder == null || model.minExtrudeTempReached ? 0 : 1,
+            opacity: showColdWarning ? 1 : 0,
             duration: kThemeAnimationDuration,
             child: Padding(
               padding: const EdgeInsets.only(left: 5),
@@ -264,7 +284,7 @@ class _CardTitle extends ConsumerWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 64.0),
                 message: tr(
                   'pages.dashboard.control.extrude_card.cold_extrude_error',
-                  args: [(model.activeExtruderConfig?.minExtrudeTemp ?? 180).toStringAsFixed(0)],
+                  args: [(minExtrudeTemp ?? 180).toStringAsFixed(0)],
                 ),
                 child: Icon(Icons.severe_cold, color: Theme.of(context).colorScheme.error),
               ),
@@ -284,10 +304,20 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
+    // Only select what is rendered. The model contains the active extruder (temperature changes constantly).
+    // `steps` comes straight from the machine settings, so its identity only changes if the settings change.
+    final (:canExtrude, :klippyCanReceiveCommands, :stepIndex, :steps) = ref.watch(
+      _controlExtruderCardControllerProvider(machineUUID).select((value) {
+        final model = value.requireValue;
+        return (
+          canExtrude: model.minExtrudeTempReached && model.klippyCanReceiveCommands,
+          klippyCanReceiveCommands: model.klippyCanReceiveCommands,
+          stepIndex: model.stepIndex,
+          steps: model.steps,
+        );
+      }),
+    );
     final controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
-
-    final canExtrude = model.minExtrudeTempReached && model.klippyCanReceiveCommands;
 
     final themeData = Theme.of(context);
     return Column(
@@ -347,9 +377,9 @@ class _CardBody extends ConsumerWidget {
         Text('${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
         Gap(8),
         SingleValueSelector(
-          selectedIndex: model.stepIndex,
+          selectedIndex: stepIndex,
           onSelected: controller.onSelectedStepChanged,
-          values: [for (var step in model.steps) step.toString()],
+          values: [for (var step in steps) step.toString()],
         ),
         Gap(8),
         const Divider(),
@@ -370,7 +400,7 @@ class _CardBody extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       AsyncOutlinedButton(
-                        onPressed: controller.onUnloadFilament.only(model.klippyCanReceiveCommands),
+                        onPressed: controller.onUnloadFilament.only(klippyCanReceiveCommands),
                         child: const Text('general.unload').tr(),
                       ),
                     ],
@@ -388,7 +418,7 @@ class _CardBody extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       AsyncOutlinedButton(
-                        onPressed: controller.onLoadFilament.only(model.klippyCanReceiveCommands),
+                        onPressed: controller.onLoadFilament.only(klippyCanReceiveCommands),
                         child: const Text('general.load').tr(),
                       ),
                     ],
