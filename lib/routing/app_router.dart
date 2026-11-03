@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:go_transitions/go_transitions.dart';
+import 'package:mobileraker/routing/rail_destination_page.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
@@ -150,12 +151,12 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/',
         name: AppRoute.dashBoard.name,
-        builder: (context, state) => const CustomizableDashboardPage(),
+        pageBuilder: railDestination((context, state) => const CustomizableDashboardPage()),
       ),
       GoRoute(
         path: '/overview',
         name: AppRoute.overview.name,
-        builder: (context, state) => const OverviewPage(),
+        pageBuilder: railDestination((context, state) => const OverviewPage()),
       ),
       GoRoute(
         path: '/qrScanner',
@@ -215,8 +216,12 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/files/:path',
         name: AppRoute.fileManager_explorer.name,
-        builder: (context, state) =>
-            FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
+        pageBuilder: (context, state) => RailDestinationPage<void>.fromState(
+          state,
+          FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
+          // Only the root folder is a rail destination, sub folders are pushed and should keep animating.
+          instantOnRailLayout: !state.pathParameters['path']!.contains('/'),
+        ),
         routes: [
           GoRoute(
             path: 'search',
@@ -285,7 +290,7 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/setting',
         name: AppRoute.settings.name,
-        builder: (context, state) => const SettingPage(),
+        pageBuilder: railDestination((context, state) => const SettingPage()),
         routes: [
           GoRoute(
             path: 'appearance',
@@ -334,12 +339,12 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/console',
         name: AppRoute.console.name,
-        builder: (context, state) => const ConsolePage(),
+        pageBuilder: railDestination((context, state) => const ConsolePage()),
       ),
       GoRoute(
         path: '/faq',
         name: AppRoute.faq.name,
-        builder: (context, state) => MarkDownPage(
+        pageBuilder: railDestination((context, state) => MarkDownPage(
           title: tr('pages.faq.title'),
           mdRoot: Uri.parse(
             'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md',
@@ -347,12 +352,12 @@ GoRouter goRouterImpl(Ref ref) {
           mdHuman: Uri.parse(
             'https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md',
           ),
-        ),
+        )),
       ),
       GoRoute(
         path: '/changelog',
         name: AppRoute.changelog.name,
-        builder: (context, state) => MarkDownPage(
+        pageBuilder: railDestination((context, state) => MarkDownPage(
           title: tr('pages.changelog.title'),
           mdRoot: Uri.parse(
             'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md',
@@ -365,12 +370,12 @@ GoRouter goRouterImpl(Ref ref) {
             title: const Text('components.app_version_display.installed_version').tr(),
             body: const AppVersionText(prefix: 'Mobileraker'),
           ),
-        ),
+        )),
       ),
       GoRoute(
         path: '/paywall',
         name: AppRoute.supportDev.name,
-        builder: (context, state) => const PaywallPage(),
+        pageBuilder: railDestination((context, state) => const PaywallPage()),
         routes: [
           GoRoute(
             path: 'benefits',
@@ -383,7 +388,7 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/dev',
         name: AppRoute.dev.name,
-        builder: (context, state) => DevPage(),
+        pageBuilder: railDestination((context, state) => DevPage()),
       ),
       GoRoute(
         path: '/talker',
@@ -393,7 +398,7 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/tool',
         name: AppRoute.tool.name,
-        builder: (context, state) => const ToolPage(),
+        pageBuilder: railDestination((context, state) => const ToolPage()),
         routes: [
           GoRoute(
             path: 'belt-tuner',
@@ -411,7 +416,7 @@ GoRouter goRouterImpl(Ref ref) {
       GoRoute(
         path: '/spoolman',
         name: ProRoutes.spoolman.name,
-        builder: (context, state) => const SpoolmanPage(),
+        pageBuilder: railDestination((context, state) => const SpoolmanPage()),
         routes: [
           GoRoute(
             path: 'details/spool',
