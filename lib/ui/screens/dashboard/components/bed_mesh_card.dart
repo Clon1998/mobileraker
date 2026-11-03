@@ -54,7 +54,7 @@ class BedMeshCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useAutomaticKeepAlive();
+    // No keep-alive: state is derived synchronously from providers, so off-screen instances can be disposed.
     talker.info('Rebuilding bed mesh card.');
     var hadBedMesh = ref.read(boolSettingProvider(_hadMeshKey));
 

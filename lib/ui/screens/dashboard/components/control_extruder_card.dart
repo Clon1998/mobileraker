@@ -69,7 +69,7 @@ class ControlExtruderCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    useAutomaticKeepAlive();
+    // No keep-alive: state is derived synchronously from providers, so off-screen instances can be disposed.
     final hadExtruder = ref.read(boolSettingProvider(_hadExtruder));
 
     return AsyncGuard(
