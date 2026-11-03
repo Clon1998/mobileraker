@@ -121,8 +121,11 @@ sealed class ToolheadInfo with _$ToolheadInfo {
     return max(0, min(totalLayers, layer));
   }
 }
+// Intentionally synchronous (FutureOr + requireValue instead of awaiting `.future`): an async build passes through
+// AsyncLoading on every printer update, and selectAs consumers would rebuild twice per update even if their value
+// did not change.
 @riverpod
-Future<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) async {
+FutureOr<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) {
   ref.keepAliveFor();
   final applyOffsetSettings = ref.watch(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion));
   final etaSourceSettings = ref
@@ -131,6 +134,6 @@ Future<ToolheadInfo> toolheadInfo(Ref ref, String machineUUID) async {
       .cast<ETADataSource>()
       .toSet();
 
-  final printer = await ref.watch(printerProvider(machineUUID).future);
+  final printer = ref.watch(printerProvider(machineUUID)).requireValue;
   return ToolheadInfo.byComponents(printer, applyOffsetSettings, etaSourceSettings);
 }
