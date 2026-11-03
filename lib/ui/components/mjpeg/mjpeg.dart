@@ -224,6 +224,11 @@ class _MjpegController extends _$MjpegController {
     // This part ensures the camera is started/stopped when the provider is not used anymore!
     ref.onCancel(_manager.stop);
     ref.onResume(_manager.start);
+    ref.onDispose(() {
+      final last = _previousFrame;
+      if (last != null) PaintingBinding.instance.imageCache.evict(last);
+      _previousFrame = null;
+    });
 
     ref.keepAliveFor();
     yield* manager.jpegStream.doOnData(_frameReceived).map((event) => _Model(fps: _fps, image: event));
@@ -235,7 +240,17 @@ class _MjpegController extends _$MjpegController {
     _manager.start();
   }
 
+  MemoryImage? _previousFrame;
+
   void _frameReceived(MemoryImage image) {
+    // Every frame is a new MemoryImage key, so the global ImageCache would otherwise fill up with stale frames
+    // (~100 MB of decoded images) and constantly evict them. Frames are never shown again, so drop the previous one.
+    // This does not dispose it while still displayed: the Image widget's stream listener keeps it alive until the new
+    // frame is decoded (gaplessPlayback).
+    final previous = _previousFrame;
+    if (previous != null) PaintingBinding.instance.imageCache.evict(previous);
+    _previousFrame = image;
+
     final DateTime now = DateTime.now();
     _fpsFrameCount++;
     final int passed = now.difference(_fpsLastUpdate).inSeconds;
