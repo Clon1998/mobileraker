@@ -140,9 +140,10 @@ class _DashboardView extends HookConsumerWidget {
         ) ==
         true;
 
-    return Scaffold(
+    return RailScaffold(
       appBar: const _AppBar(),
-      body: NavigationRailInset(leading: fab, child: body),
+      body: body,
+      railLeading: fab,
       floatingActionButton: fab.unless(context.isLargerThanCompact)?.let((it) => _FabHider(child: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: activeMachine?.uuid

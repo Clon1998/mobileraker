@@ -153,10 +153,10 @@ GoRouter goRouterImpl(Ref ref) {
     // refreshListenable: GoRouterRefreshStream(authRepository.authStateChanges()),
     routes: [
       // All top-level destinations reachable via the navigation rail/drawer. Switching between them only replaces
-      // the shell's nested Navigator content (see RailDestinationPage for the tablet transition). Pages render the rail
-      // in their body via NavigationRailInset, the shell keeps it static during transitions.
-      // Sub-routes shown next to the rail use railSubPage (push transition that keeps the rail static), sub-routes that
-      // should cover the rail (details, fullscreen dialogs, ...) use the root navigator.
+      // the shell's nested Navigator content (see RailDestinationPage for the tablet transition). On tablets the shell
+      // hosts the app bar, drawer and rail provided by the current page's RailScaffold, so only the bodies animate.
+      // Sub-routes shown next to the rail use railSubPage (push transition of the body only), sub-routes that should
+      // cover the shell (details, fullscreen dialogs, ...) use the root navigator.
       ShellRoute(
         builder: (context, state, child) => NavigationRailShell(child: child),
         routes: [

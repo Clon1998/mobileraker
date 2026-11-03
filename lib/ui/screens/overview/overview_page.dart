@@ -30,9 +30,7 @@ class OverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget body = const _OverviewBody();
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(
         title: const Text(
           'pages.overview.title',

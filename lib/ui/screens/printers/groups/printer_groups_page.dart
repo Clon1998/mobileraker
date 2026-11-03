@@ -33,9 +33,7 @@ class PrinterGroupsPage extends ConsumerWidget {
             ),
           );
 
-    body = NavigationRailInset(child: SafeArea(child: body));
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(title: const Text('pages.printer_groups.title').tr()),
       drawer: const NavigationDrawerWidget(),
       floatingActionButton: isSupporter
@@ -44,7 +42,7 @@ class PrinterGroupsPage extends ConsumerWidget {
               child: const Icon(Icons.add),
             )
           : null,
-      body: body,
+      body: SafeArea(child: body),
     );
   }
 }

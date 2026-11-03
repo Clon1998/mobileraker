@@ -49,9 +49,7 @@ class SpoolmanPage extends HookWidget {
   Widget build(BuildContext context) {
     Widget body = const _Body();
 
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),

@@ -10,182 +10,229 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../service/ui/theme_service.dart';
 
-/// App-wide shell for all top-level destinations (the builder of the [ShellRoute] wrapping them).
+/// App-wide shell for all top-level destinations (the builder of the [ShellRoute] wrapping them). Works together with
+/// [RailScaffold], which the pages hosted by it use instead of a [Scaffold].
 ///
-/// Switching between destinations only replaces the content of the shell's nested Navigator. The rail itself is
-/// rendered by every page in its Scaffold body via [NavigationRailInset] (so the page's app bar spans the full width
-/// above it, and the page's drawer covers it), but kept static while the pages transition: the rail cancels out the
-/// transforms of the nested Navigator's route transitions (see [_RenderRailTransitionCompensation]). As the entering
-/// page fades in on top of the leaving one, the rails of both pages blend into one static rail.
+/// - Compact layouts (phones): just returns the nested Navigator, the pages build a regular [Scaffold].
+/// - Larger layouts (tablets): builds the [Scaffold] itself, with the navigation rail next to the nested Navigator.
+///   The app bar, drawer and rail leading are slots filled by the [RailScaffold] of the current page, the page itself
+///   only provides its body. Therefore route transitions of the nested Navigator only animate the bodies, while the
+///   app bar and the rail stay static, and the drawer covers the rail.
 ///
-/// Transitions of the root Navigator (e.g. a sub-page covering the shell) are not affected, the rail moves together
-/// with the shell there.
-class NavigationRailShell extends StatelessWidget {
+/// Transitions of the root Navigator (e.g. a page covering the shell) are not affected, the whole shell moves there.
+class NavigationRailShell extends StatefulWidget {
   const NavigationRailShell({super.key, required this.child});
 
   /// The nested Navigator of the shell route.
   final Widget child;
 
   @override
+  State<NavigationRailShell> createState() => _NavigationRailShellState();
+}
+
+class _NavigationRailShellState extends State<NavigationRailShell> {
+  final _slots = _RailSlotsController();
+
+  @override
+  void dispose() {
+    _slots.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return _NavigationRailScope(
-      // The child's render box covers the nested Navigator, i.e. it is the reference rails stay static against.
-      referenceBox: () => context.mounted ? context.findRenderObject() as RenderBox? : null,
-      child: child,
+    final content = _RailScope(slots: _slots, child: widget.child);
+    if (!context.isLargerThanCompact) return content;
+
+    return ListenableBuilder(
+      listenable: _slots,
+      builder: (context, content) {
+        final slots = _slots.value;
+        return Scaffold(
+          appBar: slots.appBar,
+          drawer: slots.drawer,
+          body: Builder(
+            // Uses the MediaQuery of the Scaffold's body, i.e. without the top padding if there is an app bar.
+            builder: (context) => Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Rail(leading: slots.railLeading),
+                Expanded(
+                  child: MediaQuery.removePadding(context: context, removeLeft: true, child: content!),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      child: content,
     );
   }
 }
 
-class _NavigationRailScope extends InheritedWidget {
-  const _NavigationRailScope({required this.referenceBox, required super.child});
+/// What the [RailScaffold] of the current page provides to the [NavigationRailShell].
+@immutable
+class _RailSlots {
+  const _RailSlots({this.appBar, this.drawer, this.railLeading});
 
-  final RenderBox? Function() referenceBox;
+  final PreferredSizeWidget? appBar;
+  final Widget? drawer;
+  final Widget? railLeading;
 
-  static _NavigationRailScope? maybeOf(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_NavigationRailScope>();
-
-  @override
-  bool updateShouldNotify(_NavigationRailScope oldWidget) => false;
+  bool isSameAs(_RailSlots other) =>
+      identical(appBar, other.appBar) && identical(drawer, other.drawer) && identical(railLeading, other.railLeading);
 }
 
-/// Wraps the Scaffold body of pages hosted by the [NavigationRailShell] and shows the navigation rail next to it on
-/// layouts larger than compact. On compact layouts, or outside of the shell (e.g. pages covering it), it just returns
-/// [child].
-class NavigationRailInset extends StatelessWidget {
-  const NavigationRailInset({super.key, this.leading, required this.child});
+class _RailSlotsController extends ChangeNotifier implements ValueListenable<_RailSlots> {
+  Object? _owner;
 
-  /// Widget shown on top of the rail, typically a FAB.
-  final Widget? leading;
+  _RailSlots _value = const _RailSlots();
 
-  final Widget child;
+  @override
+  _RailSlots get value => _value;
+
+  void publish(Object owner, _RailSlots slots) {
+    if (identical(owner, _owner) && slots.isSameAs(_value)) return;
+    _owner = owner;
+    _value = slots;
+    notifyListeners();
+  }
+
+  void clear(Object owner) {
+    if (!identical(owner, _owner)) return;
+    _owner = null;
+    _value = const _RailSlots();
+    notifyListeners();
+  }
+}
+
+class _RailScope extends InheritedWidget {
+  const _RailScope({required this.slots, required super.child});
+
+  final _RailSlotsController slots;
+
+  static _RailSlotsController? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_RailScope>()?.slots;
+
+  @override
+  bool updateShouldNotify(_RailScope oldWidget) => slots != oldWidget.slots;
+}
+
+/// Drop-in replacement for the [Scaffold] of pages hosted by the [NavigationRailShell].
+///
+/// - Compact layouts (phones), or outside of the shell (e.g. pages covering it): builds a regular [Scaffold].
+/// - Larger layouts (tablets) within the shell: hands [appBar], [drawer] and [railLeading] to the shell, which shows
+///   them while the page's route is the current one, and only builds the body (incl. FAB and bottom navigation bar).
+///
+/// Note that the app bar is built by the shell on larger layouts, outside of the page's route. Hence, an [AppBar] can
+/// not imply the back button of a page that can be popped, use [RailScaffold.impliedLeadingOf] for those.
+class RailScaffold extends StatefulWidget {
+  const RailScaffold({
+    super.key,
+    this.appBar,
+    required this.body,
+    this.drawer,
+    this.floatingActionButton,
+    this.floatingActionButtonLocation,
+    this.bottomNavigationBar,
+    this.railLeading,
+  });
+
+  final PreferredSizeWidget? appBar;
+
+  final Widget body;
+
+  final Widget? drawer;
+
+  final Widget? floatingActionButton;
+
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+
+  final Widget? bottomNavigationBar;
+
+  /// Widget shown on top of the navigation rail (larger layouts only), typically a FAB.
+  final Widget? railLeading;
+
+  /// The leading for app bars of [RailScaffold]s, which an [AppBar] can not imply itself: a back button if the page
+  /// is shown by the [NavigationRailShell] on larger layouts and can be popped. Null otherwise, so the [AppBar]
+  /// implies its leading as usual.
+  static Widget? impliedLeadingOf(BuildContext context) {
+    if (_RailScope.maybeOf(context) == null || !context.isLargerThanCompact) return null;
+    if (ModalRoute.of(context)?.impliesAppBarDismissal != true) return null;
+
+    return BackButton(
+      onPressed: () {
+        if (context.mounted) Navigator.maybePop(context);
+      },
+    );
+  }
+
+  @override
+  State<RailScaffold> createState() => _RailScaffoldState();
+}
+
+class _RailScaffoldState extends State<RailScaffold> {
+  /// The shell's slots, if they are filled by this page (i.e. on larger layouts while the page is the current one).
+  _RailSlotsController? _slots;
+
+  bool _publishScheduled = false;
 
   @override
   Widget build(BuildContext context) {
-    final scope = _NavigationRailScope.maybeOf(context);
-    if (scope == null || !context.isLargerThanCompact) return child;
-
-    final route = ModalRoute.of(context);
-    Widget rail = _Rail(leading: leading);
-    if (route != null) {
-      rail = _RailTransitionCompensation(
-        referenceBox: scope.referenceBox,
-        animations: Listenable.merge([route.animation, route.secondaryAnimation]),
-        child: RepaintBoundary(child: rail),
+    final slots = _RailScope.maybeOf(context);
+    if (slots == null || !context.isLargerThanCompact) {
+      _slots = null;
+      return Scaffold(
+        appBar: widget.appBar,
+        drawer: widget.drawer,
+        floatingActionButton: widget.floatingActionButton,
+        floatingActionButtonLocation: widget.floatingActionButtonLocation,
+        bottomNavigationBar: widget.bottomNavigationBar,
+        body: widget.body,
       );
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        rail,
-        Expanded(
-          child: MediaQuery.removePadding(context: context, removeLeft: true, child: child),
-        ),
-      ],
+    // Rebuilds once the route becomes the current one again (e.g. a sub-page on top of it is popped).
+    _slots = (ModalRoute.isCurrentOf(context) ?? true) ? slots : null;
+    _schedulePublish();
+
+    return Scaffold(
+      floatingActionButton: widget.floatingActionButton,
+      floatingActionButtonLocation: widget.floatingActionButtonLocation,
+      bottomNavigationBar: widget.bottomNavigationBar,
+      body: widget.body,
     );
   }
-}
 
-/// Paints its child as if the route transitions of the shell's nested Navigator were not applied.
-class _RailTransitionCompensation extends SingleChildRenderObjectWidget {
-  const _RailTransitionCompensation({required this.referenceBox, required this.animations, super.child});
-
-  final RenderBox? Function() referenceBox;
-
-  /// Animations driving the route transitions, the compensation is updated whenever they tick.
-  final Listenable animations;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) =>
-      _RenderRailTransitionCompensation(referenceBox: referenceBox, animations: animations);
-
-  @override
-  void updateRenderObject(BuildContext context, _RenderRailTransitionCompensation renderObject) {
-    renderObject
-      ..referenceBox = referenceBox
-      ..animations = animations;
-  }
-}
-
-/// Paints the child with the inverse of the transforms between itself and the nested Navigator (i.e. the route
-/// transitions), placed where it is laid out within the page.
-///
-/// Assumes the page's Scaffold fills the route, which is the case for all pages hosted by the shell. Only painting
-/// is compensated, hit testing uses the regular transforms (they are identities once a transition completed).
-class _RenderRailTransitionCompensation extends RenderProxyBox {
-  _RenderRailTransitionCompensation({required this.referenceBox, required Listenable animations})
-    : _animations = animations;
-
-  RenderBox? Function() referenceBox;
-
-  Listenable _animations;
-
-  set animations(Listenable value) {
-    if (value == _animations) return;
-    if (attached) {
-      _animations.removeListener(markNeedsPaint);
-      value.addListener(markNeedsPaint);
-    }
-    _animations = value;
-    markNeedsPaint();
+  // The shell is an ancestor, hence it can not be rebuilt while this page is building. Publishing after the frame
+  // delays the slots by a frame, which is not noticeable as entering pages fade in.
+  void _schedulePublish() {
+    if (_slots == null || _publishScheduled) return;
+    _publishScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _publishScheduled = false;
+      if (!mounted) return;
+      _slots?.publish(
+        this,
+        _RailSlots(appBar: widget.appBar, drawer: widget.drawer, railLeading: widget.railLeading),
+      );
+    });
   }
 
   @override
-  void attach(PipelineOwner owner) {
-    super.attach(owner);
-    _animations.addListener(markNeedsPaint);
+  void dispose() {
+    // Usually the page that became the current one already replaced the slots, in that case this is a no-op.
+    final slots = _slots;
+    if (slots != null) WidgetsBinding.instance.addPostFrameCallback((_) => slots.clear(this));
+    super.dispose();
   }
-
-  @override
-  void detach() {
-    _animations.removeListener(markNeedsPaint);
-    super.detach();
-  }
-
-  Matrix4? _compensation() {
-    final reference = referenceBox();
-    if (reference == null || !reference.attached) return null;
-
-    // Where the rail is laid out relative to the reference, without any transitions.
-    var origin = Offset.zero;
-    RenderObject? node = this;
-    while (node != null && node != reference) {
-      final parentData = node.parentData;
-      if (parentData is BoxParentData) origin += parentData.offset;
-      node = node.parent;
-    }
-    // Not hosted by the shell's Navigator.
-    if (node == null) return null;
-
-    // Transform including the route transitions.
-    final actual = getTransformTo(reference);
-
-    final inverse = Matrix4.tryInvert(actual);
-    if (inverse == null) return null;
-    final compensation = inverse..translateByDouble(origin.dx, origin.dy, 0, 1);
-    return compensation.isIdentity() ? null : compensation;
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    final compensation = _compensation();
-    if (compensation == null) {
-      layer = null;
-      return super.paint(context, offset);
-    }
-    layer = context.pushTransform(needsCompositing, offset, compensation, super.paint, oldLayer: layer as TransformLayer?);
-  }
-
-  @override
-  bool get alwaysNeedsCompositing => child != null;
 }
 
 class _Rail extends StatelessWidget {
@@ -213,7 +260,7 @@ class _Rail extends StatelessWidget {
                 primary: false,
                 physics: const RangeMaintainingScrollPhysics(parent: ClampingScrollPhysics()),
                 slivers: [
-                  // Only non-zero if the page has no app bar, keeps the rail out of the status bar.
+                  // Only non-zero if the current page has no app bar, keeps the rail out of the status bar.
                   SliverPadding(
                     padding: EdgeInsets.only(top: paddingOf.top),
                     sliver: SliverToBoxAdapter(

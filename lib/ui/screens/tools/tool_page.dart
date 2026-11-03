@@ -70,9 +70,7 @@ class ToolPage extends HookConsumerWidget {
         ),
     );
 
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(title: const Text('pages.tool.title').tr()),
       drawer: const NavigationDrawerWidget(),
       body: body,

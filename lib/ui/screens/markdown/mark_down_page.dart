@@ -70,9 +70,7 @@ class MarkDownPage extends StatelessWidget {
         ),
       ),
     );
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(
         title: Text(title),
         actions: [

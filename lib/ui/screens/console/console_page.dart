@@ -33,9 +33,7 @@ class ConsolePage extends ConsumerWidget {
       onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID),
       skipKlipperReady: true,
     );
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
         actions: [MachineStateIndicator(ref.watch(selectedMachineProvider).value), const EmergencyStopButton()],

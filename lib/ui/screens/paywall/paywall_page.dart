@@ -66,9 +66,7 @@ class PaywallPage extends HookConsumerWidget {
         ),
       ],
     );
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(title: Text(tr('pages.paywall.title'))).unless(context.isCompact),
       drawer: const NavigationDrawerWidget(),
       body: LoaderOverlay(

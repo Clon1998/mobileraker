@@ -16,8 +16,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 ///   iOS back swipe and parallax rules).
 /// - Rail layouts (tablets): switching destinations slides the content in vertically, following the order of the
 ///   entries in the rail ([direction]), combined with a fade. The leaving destination mirrors the slide (without
-///   fading, the entering page fades in on top of it). The rail rendered by the pages is kept static (see
-///   `NavigationRailInset`). The page still reacts to sub-pages pushed on top of it like a regular [MaterialPage].
+///   fading, the entering page fades in on top of it). Only the page bodies are animated, the shell hosts the app bar
+///   and the rail (see `RailScaffold`). The page still reacts to sub-pages pushed on top of it like a regular
+///   [MaterialPage].
 ///
 /// Why not go_transitions: its route type differs from [MaterialPageRoute] (durations, canTransitionTo/From rules,
 /// delegated transitions), so phones would not behave exactly as before.
@@ -77,8 +78,13 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
 
   RailDestinationPage<T> get _page => settings as RailDestinationPage<T>;
 
+  /// Whether this route uses one of the custom transitions below (instead of the theme's one), which share
+  /// [_railDuration]. Sub-pages keep the theme's Cupertino transition (incl. its duration and the back swipe).
   bool _useRailTransition(BuildContext? context) =>
-      _page.railTransition && context != null && context.mounted && context.isLargerThanCompact;
+      context != null &&
+      context.mounted &&
+      context.isLargerThanCompact &&
+      (_page.railTransition || !_usesCupertino(context));
 
   // Durations are read once when the route is installed, i.e. at navigation time.
   @override
@@ -107,9 +113,8 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
       return super.buildTransitions(context, animation, secondaryAnimation, child);
     }
 
-    // On rail layouts the pages render the rail, which NavigationRailInset keeps static by cancelling out the
-    // movement of the transitions. Its opacity can not be restored though, so a page covered by another one is never
-    // faded (only the page on top fades). That way the rails of both pages blend into a fully opaque one.
+    // On rail layouts the routes only contain the page bodies (the shell hosts the app bar and the rail, see
+    // RailScaffold). A page covered by another one is never faded, only the page on top fades in/out over it.
     final cupertino = _usesCupertino(context);
 
     // The animation passed to the theme transition. Completed if this route handles its primary animation itself.
@@ -123,8 +128,8 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
       themeAnimation = animation;
       content = child;
     } else {
-      // Sub-page: replaces the theme transition (e.g. zoom or fade forwards on Android), which fades the covered page
-      // and/or scales a snapshot of the pages.
+      // Sub-page: replaces the theme transition (e.g. zoom or fade forwards on Android), which would also fade the
+      // covered page and/or scale the bodies, while the app bar stays static.
       content = _slideAndFade(animation, const Offset(_railSlideOffset, 0), child);
     }
 

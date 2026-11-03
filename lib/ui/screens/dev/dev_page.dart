@@ -309,9 +309,7 @@ class DevPage extends HookConsumerWidget {
       ],
     );
 
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(title: const Text('Dev')),
       drawer: const NavigationDrawerWidget(),
       body: body,

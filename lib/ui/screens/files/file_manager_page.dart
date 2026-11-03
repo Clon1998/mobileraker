@@ -98,12 +98,11 @@ class FileManagerPage extends HookConsumerWidget {
           _Body(machineUUID: machineUUID, filePath: filePath, scrollController: scrollController),
     );
     final fab = _Fab(filePath: filePath, scrollController: scrollController);
-    body = NavigationRailInset(child: body);
 
     return PrimaryScrollController(
       controller: scrollController,
-      child: Scaffold(
-        appBar: _AppBar(filePath: filePath, folder: folder),
+      child: RailScaffold(
+        appBar: _AppBar(filePath: filePath, folder: folder, leading: RailScaffold.impliedLeadingOf(context)),
         drawer: const NavigationDrawerWidget().only(isRoot),
         bottomNavigationBar: _BottomNav(filePath: filePath).unless(context.isLargerThanCompact),
         floatingActionButton: fab,
@@ -114,11 +113,14 @@ class FileManagerPage extends HookConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key, required this.filePath, this.folder});
+  const _AppBar({super.key, required this.filePath, this.folder, this.leading});
 
   final String filePath;
 
   final Folder? folder;
+
+  /// See [RailScaffold.impliedLeadingOf], this widget is built by the shell on larger layouts.
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -128,7 +130,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final selMachine = ref.watch(selectedMachineProvider).value;
 
     if (selMachine == null) {
-      return AppBar(title: Text(title.capitalize()));
+      return AppBar(leading: leading, title: Text(title.capitalize()));
     }
 
     return Consumer(
@@ -165,7 +167,12 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
         final defaultBar = isRoot
             ? SwitchPrinterAppBar(key: const Key('file_manager_app_bar'), title: title.capitalize(), actions: actions)
-            : AppBar(key: const Key('file_manager_app_bar'), title: Text(title.capitalize()), actions: actions);
+            : AppBar(
+                key: const Key('file_manager_app_bar'),
+                leading: leading,
+                title: Text(title.capitalize()),
+                actions: actions,
+              );
 
         return AnimatedSwitcher(
           duration: kThemeAnimationDuration,

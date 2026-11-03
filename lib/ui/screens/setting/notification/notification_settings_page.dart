@@ -40,11 +40,9 @@ class NotificationSettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = const _Body();
 
-    body = NavigationRailInset(child: SafeArea(child: body));
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('pages.setting.notification.notification_settings_title').tr()),
-      body: body,
+    return RailScaffold(
+      appBar: AppBar(leading: RailScaffold.impliedLeadingOf(context), title: const Text('pages.setting.notification.notification_settings_title').tr()),
+      body: SafeArea(child: body),
     );
   }
 }

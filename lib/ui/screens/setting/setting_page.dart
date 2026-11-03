@@ -41,9 +41,7 @@ class SettingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = const _Body();
 
-    body = NavigationRailInset(child: body);
-
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(title: const Text('pages.setting.title').tr()),
       body: body,
       drawer: const NavigationDrawerWidget(),
