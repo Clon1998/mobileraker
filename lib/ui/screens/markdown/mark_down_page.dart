@@ -6,9 +6,7 @@
 import 'dart:io';
 
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
@@ -71,9 +69,6 @@ class MarkDownPage extends StatelessWidget {
         ),
       ),
     );
-    if (context.isLargerThanCompact) {
-      body = NavigationRailView(page: body);
-    }
 
     return Scaffold(
       appBar: AppBar(

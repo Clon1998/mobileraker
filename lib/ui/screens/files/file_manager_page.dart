@@ -33,7 +33,6 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
@@ -98,12 +97,6 @@ class FileManagerPage extends HookConsumerWidget {
           _Body(machineUUID: machineUUID, filePath: filePath, scrollController: scrollController),
     );
     final fab = _Fab(filePath: filePath, scrollController: scrollController);
-    if (context.isLargerThanCompact && isRoot) {
-      body = NavigationRailView(
-        // leading: fab,
-        page: Padding(padding: const EdgeInsets.only(left: 2.0), child: body),
-      );
-    }
 
     return PrimaryScrollController(
       controller: scrollController,

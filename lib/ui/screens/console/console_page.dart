@@ -5,7 +5,6 @@
 
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -33,9 +32,6 @@ class ConsolePage extends ConsumerWidget {
       onConnected: (_, machineUUID) => _ConsoleBody(machineUUID: machineUUID),
       skipKlipperReady: true,
     );
-    if (context.isLargerThanCompact) {
-      body = NavigationRailView(page: body);
-    }
 
     return Scaffold(
       appBar: SwitchPrinterAppBar(

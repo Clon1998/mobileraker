@@ -29,7 +29,6 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -132,11 +131,8 @@ class _DashboardView extends HookConsumerWidget {
         ),
       ),
     );
+    // On rail layouts the FAB is shown in the rail by the NavigationRailShell (see DashboardRailFab).
     final fab = activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it));
-
-    if (context.isLargerThanCompact) {
-      body = NavigationRailView(leading: fab, page: body);
-    }
 
     var isEditing =
         activeMachine?.let(
@@ -154,6 +150,21 @@ class _DashboardView extends HookConsumerWidget {
           .unless(context.isLargerThanCompact),
       drawer: const NavigationDrawerWidget().unless(isEditing),
     );
+  }
+}
+
+/// Dashboard FAB rendered in the navigation rail by the NavigationRailShell (see `app_router.dart`).
+///
+/// Only depends on global providers (selected machine, klipper/printer state, dashboard editing state), so the shell
+/// can build it without any state of the dashboard page.
+class DashboardRailFab extends ConsumerWidget {
+  const DashboardRailFab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final machineUUID = ref.watch(selectedMachineProvider.select((d) => d.value?.uuid));
+    if (machineUUID == null) return const SizedBox.shrink();
+    return _FloatingActionBtn(machineUUID: machineUUID);
   }
 }
 

@@ -17,10 +17,8 @@ import 'package:common/data/repository/fcm/device_fcm_settings_repository_impl.d
 import 'package:common/service/machine_fcm_settings_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -50,9 +48,6 @@ class MachineNotificationSettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = _Body(machine: machine);
 
-    if (context.isLargerThanCompact) {
-      body = NavigationRailView(page: body);
-    }
 
     return Scaffold(
       appBar: AppBar(title: Text('pages.setting.notification.machine_notification_title'.tr(args: [machine.name]))),

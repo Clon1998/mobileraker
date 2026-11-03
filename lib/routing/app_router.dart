@@ -12,6 +12,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -133,7 +134,10 @@ Future<String> initialRoute(Ref ref) async {
 }
 
 GoRouter goRouterImpl(Ref ref) {
+  final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: ref.watch(initialRouteProvider).requireValue,
     debugLogDiagnostics: false,
     observers: [
@@ -148,21 +152,351 @@ GoRouter goRouterImpl(Ref ref) {
     // },
     // refreshListenable: GoRouterRefreshStream(authRepository.authStateChanges()),
     routes: [
-      GoRoute(
-        path: '/',
-        name: AppRoute.dashBoard.name,
-        pageBuilder: railDestination((context, state) => const CustomizableDashboardPage()),
+      // All top-level destinations reachable via the navigation rail/drawer. On layouts larger than compact the shell
+      // renders the rail next to its nested Navigator, so switching destinations only swaps the page content.
+      // Sub-routes that should cover the rail (details, dialogs, ...) use the root navigator.
+      ShellRoute(
+        builder: (context, state, child) => NavigationRailShell(
+          // Simple approach: the rail's leading widget is picked based on the current route. See NavigationRailShell's
+          // docs for the slot-based alternative if pages ever need to provide their own (stateful) rail FAB.
+          leading: switch (state.topRoute?.name) {
+            final name when name == AppRoute.dashBoard.name => const DashboardRailFab(),
+            _ => null,
+          },
+          child: child,
+        ),
+        routes: [
+          GoRoute(
+            path: '/',
+            name: AppRoute.dashBoard.name,
+            pageBuilder: railDestination(ref, (context, state) => const CustomizableDashboardPage()),
+          ),
+          GoRoute(
+            path: '/overview',
+            name: AppRoute.overview.name,
+            pageBuilder: railDestination(ref, (context, state) => const OverviewPage()),
+          ),
+          GoRoute(
+            path: '/printer-groups',
+            name: AppRoute.printerGroups.name,
+            builder: (context, state) => const PrinterGroupsPage(),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.printerGroupEdit.name,
+                builder: (context, state) => PrinterGroupEditPage(group: state.extra as PrinterGroup?),
+              ),
+              GoRoute(
+                path: 'console',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.groupConsole.name,
+                builder: (context, state) => GroupConsolePage(group: state.extra as PrinterGroup),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/files/:path',
+            name: AppRoute.fileManager_explorer.name,
+            pageBuilder: railDestination(
+              ref,
+              (context, state) =>
+                  FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
+              // Only the root folder is a rail destination, sub folders are pushed and keep the regular transition.
+              railTransitionWhen: (state) => !state.pathParameters['path']!.contains('/'),
+            ),
+            routes: [
+              GoRoute(
+                path: 'search',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_exlorer_search.name,
+                builder: (context, state) => FileManagerSearchPage(
+                  machineUUID: state.uri.queryParameters['machineUUID']!,
+                  path: state.pathParameters['path']!,
+                ),
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+              GoRoute(
+                path: 'move',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_exlorer_move.name,
+                builder: (context, state) => MoveFileDestinationPage(
+                  machineUUID: state.uri.queryParameters['machineUUID']!,
+                  path: state.pathParameters['path']!,
+                  submitLabel: state.uri.queryParameters['submitLabel']!,
+                ),
+                pageBuilder: (context, state) {
+                  final path = state.pathParameters['path'] as String;
+                  final parts = path.split('/');
+
+                  if (parts.length > 1) {
+                    return GoTransitions.theme(context, state);
+                  }
+
+                  return GoTransitions.fullscreenDialog(context, state);
+                },
+              ),
+              GoRoute(
+                path: 'gcode-preview',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.fileManager_exlorer_gcodePreview.name,
+                builder: (context, state) => GCodePreviewPage(
+                  machineUUID: state.uri.queryParameters['machineUUID']!,
+                  file: state.extra as GCodeFile,
+                  live: state.uri.queryParameters['live'] == 'true',
+                ),
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+              GoRoute(
+                path: 'gcode-details',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_exlorer_gcodeDetail.name,
+                builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
+              ),
+              GoRoute(
+                path: 'editor',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_exlorer_editor.name,
+                builder: (context, state) => ConfigFileDetailPage(
+                  machineUUID: state.uri.queryParameters['machineUUID']!,
+                  file: state.extra! as GenericFile,
+                ),
+              ),
+              GoRoute(
+                path: 'video-player',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_exlorer_videoPlayer.name,
+                builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+              ),
+              GoRoute(
+                path: 'image-viewer',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_exlorer_imageViewer.name,
+                builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
+              ),
+              GoRoute(
+                path: 'fleet-print',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.fileManager_fleetPrint.name,
+                builder: (context, state) => FleetPrintPage(args: state.extra! as FleetPrintArgs),
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/setting',
+            name: AppRoute.settings.name,
+            pageBuilder: railDestination(ref, (context, state) => const SettingPage()),
+            routes: [
+              GoRoute(
+                path: 'appearance',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.settings_appearance.name,
+                builder: (context, state) => const AppearancePage(),
+                routes: [
+                  GoRoute(
+                    path: 'theme/new',
+                    parentNavigatorKey: rootNavigatorKey,
+                    name: AppRoute.settings_appearance_customThemeNew.name,
+                    builder: (context, state) => const CustomThemeEditorPage(),
+                    pageBuilder: GoTransitions.fullscreenDialog,
+                  ),
+                  GoRoute(
+                    path: 'theme/edit',
+                    parentNavigatorKey: rootNavigatorKey,
+                    name: AppRoute.settings_appearance_customThemeEdit.name,
+                    builder: (context, state) => CustomThemeEditorPage(initialPack: state.extra as CustomThemePack),
+                    pageBuilder: GoTransitions.fullscreenDialog,
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: 'notification',
+                name: AppRoute.settings_notification.name,
+                builder: (context, state) => NotificationSettingsPage(),
+                routes: [
+                  GoRoute(
+                    path: 'device',
+                    name: AppRoute.settings_notification_device.name,
+                    pageBuilder: GoTransitions.fullscreenDialog,
+                    builder: (context, state) => MachineNotificationSettingsPage(machine: state.extra as Machine),
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: 'data',
+                name: AppRoute.settings_data.name,
+                builder: (context, state) => const DataSettingsPage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/console',
+            name: AppRoute.console.name,
+            pageBuilder: railDestination(ref, (context, state) => const ConsolePage()),
+          ),
+          GoRoute(
+            path: '/faq',
+            name: AppRoute.faq.name,
+            pageBuilder: railDestination(
+              ref,
+              (context, state) => MarkDownPage(
+                title: tr('pages.faq.title'),
+                mdRoot: Uri.parse('https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md'),
+                mdHuman: Uri.parse('https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md'),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/changelog',
+            name: AppRoute.changelog.name,
+            pageBuilder: railDestination(
+              ref,
+              (context, state) => MarkDownPage(
+                title: tr('pages.changelog.title'),
+                mdRoot: Uri.parse('https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md'),
+                mdHuman: Uri.parse('https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md'),
+                topWidget: InfoCard(
+                  leading: const Icon(FontAwesome.code_fork),
+                  title: const Text('components.app_version_display.installed_version').tr(),
+                  body: const AppVersionText(prefix: 'Mobileraker'),
+                ),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/paywall',
+            name: AppRoute.supportDev.name,
+            pageBuilder: railDestination(ref, (context, state) => const PaywallPage()),
+            routes: [
+              GoRoute(
+                path: 'benefits',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.supportDev_benefits.name,
+                pageBuilder: GoTransitions.fullscreenDialog,
+                builder: (context, state) => const SupporterBenefitsPage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/dev',
+            name: AppRoute.dev.name,
+            pageBuilder: railDestination(ref, (context, state) => DevPage()),
+          ),
+          GoRoute(
+            path: '/tool',
+            name: AppRoute.tool.name,
+            pageBuilder: railDestination(ref, (context, state) => const ToolPage()),
+            routes: [
+              GoRoute(
+                path: 'belt-tuner',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.tool_beltTuner.name,
+                builder: (context, state) => const BeltTuner(),
+              ),
+              GoRoute(
+                path: 'bed-mesh',
+                name: AppRoute.tool_bedMesh.name,
+                builder: (context, state) => BedMeshPage(args: state.extra as BedMeshPageArgs),
+                pageBuilder: GoTransitions.zoom.withBackGesture.build(
+                  settings: const GoTransitionSettings(fullscreenDialog: true),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/spoolman',
+            name: ProRoutes.spoolman.name,
+            pageBuilder: railDestination(ref, (context, state) => const SpoolmanPage()),
+            routes: [
+              GoRoute(
+                path: 'details/spool',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.spoolman_details_spool.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID, GetSpool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
+                  _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+                },
+              ),
+              GoRoute(
+                path: 'details/filament',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.spoolman_details_filament.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID, GetFilament filament] => FilamentDetailPage(
+                    filament: filament,
+                    machineUUID: machineUUID,
+                  ),
+                  _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+                },
+              ),
+              GoRoute(
+                path: 'details/vendor',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.spoolman_details_vendor.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID, GetVendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
+                  _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+                },
+              ),
+              GoRoute(
+                path: 'create/spool',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.spoolman_form_spool.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID] => SpoolFormPage(machineUUID: machineUUID),
+                  [String machineUUID, GetSpool spool] => SpoolFormPage(
+                    machineUUID: machineUUID,
+                    initialSpool: spool,
+                    isCopy: state.uri.queryParameters['isCopy'] == 'true',
+                  ),
+                  [String machineUUID, GetFilament filament] => SpoolFormPage(
+                    machineUUID: machineUUID,
+                    initialFilament: filament,
+                  ),
+                  _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+                },
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+              GoRoute(
+                path: 'create/filament',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.spoolman_form_filament.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID] => FilamentFormPage(machineUUID: machineUUID),
+                  [String machineUUID, GetFilament filament] => FilamentFormPage(
+                    machineUUID: machineUUID,
+                    initialFilament: filament,
+                    isCopy: state.uri.queryParameters['isCopy'] == 'true',
+                  ),
+                  [String machineUUID, GetVendor vendor] => FilamentFormPage(
+                    machineUUID: machineUUID,
+                    initialVendor: vendor,
+                  ),
+                  _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+                },
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+              GoRoute(
+                path: 'create/vendor',
+                parentNavigatorKey: rootNavigatorKey,
+                name: ProRoutes.spoolman_form_vendor.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID] => VendorFormPage(machineUUID: machineUUID),
+                  [String machineUUID, GetVendor vendor] => VendorFormPage(
+                    machineUUID: machineUUID,
+                    vendor: vendor,
+                    isCopy: state.uri.queryParameters['isCopy'] == 'true',
+                  ),
+                  _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+                },
+                pageBuilder: GoTransitions.fullscreenDialog,
+              ),
+            ],
+          ),
+        ],
       ),
-      GoRoute(
-        path: '/overview',
-        name: AppRoute.overview.name,
-        pageBuilder: railDestination((context, state) => const OverviewPage()),
-      ),
-      GoRoute(
-        path: '/qrScanner',
-        name: AppRoute.qrScanner.name,
-        builder: (context, state) => const QrScannerPage(),
-      ),
+      GoRoute(path: '/qrScanner', name: AppRoute.qrScanner.name, builder: (context, state) => const QrScannerPage()),
       GoRoute(
         path: '/fullcam',
         name: AppRoute.fullCam.name,
@@ -189,316 +523,13 @@ GoRouter goRouterImpl(Ref ref) {
               // return PrinterEditPage(machine: state.extra! as Machine);
             },
           ),
-          GoRoute(
-            path: 'add',
-            name: AppRoute.printerAdd.name,
-            builder: (context, state) => const PrinterAddPage(),
-          ),
+          GoRoute(path: 'add', name: AppRoute.printerAdd.name, builder: (context, state) => const PrinterAddPage()),
         ],
       ),
-      GoRoute(
-        path: '/printer-groups',
-        name: AppRoute.printerGroups.name,
-        builder: (context, state) => const PrinterGroupsPage(),
-        routes: [
-          GoRoute(
-            path: 'edit',
-            name: AppRoute.printerGroupEdit.name,
-            builder: (context, state) => PrinterGroupEditPage(group: state.extra as PrinterGroup?),
-          ),
-          GoRoute(
-            path: 'console',
-            name: AppRoute.groupConsole.name,
-            builder: (context, state) => GroupConsolePage(group: state.extra as PrinterGroup),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/files/:path',
-        name: AppRoute.fileManager_explorer.name,
-        pageBuilder: (context, state) => RailDestinationPage<void>.fromState(
-          state,
-          FileManagerPage(filePath: state.pathParameters['path']!, folder: state.extra as Folder?),
-          // Only the root folder is a rail destination, sub folders are pushed and should keep animating.
-          instantOnRailLayout: !state.pathParameters['path']!.contains('/'),
-        ),
-        routes: [
-          GoRoute(
-            path: 'search',
-            name: AppRoute.fileManager_exlorer_search.name,
-            builder: (context, state) => FileManagerSearchPage(
-                machineUUID: state.uri.queryParameters['machineUUID']!, path: state.pathParameters['path']!),
-            pageBuilder: GoTransitions.fullscreenDialog,
-          ),
-          GoRoute(
-            path: 'move',
-            name: AppRoute.fileManager_exlorer_move.name,
-            builder: (context, state) => MoveFileDestinationPage(
-              machineUUID: state.uri.queryParameters['machineUUID']!,
-              path: state.pathParameters['path']!,
-              submitLabel: state.uri.queryParameters['submitLabel']!,
-            ),
-            pageBuilder: (context, state) {
-              final path = state.pathParameters['path'] as String;
-              final parts = path.split('/');
-
-              if (parts.length > 1) {
-                return GoTransitions.theme(context, state);
-              }
-
-              return GoTransitions.fullscreenDialog(context, state);
-            },
-          ),
-          GoRoute(
-            path: 'gcode-preview',
-            name: ProRoutes.fileManager_exlorer_gcodePreview.name,
-            builder: (context, state) => GCodePreviewPage(
-              machineUUID: state.uri.queryParameters['machineUUID']!,
-              file: state.extra as GCodeFile,
-              live: state.uri.queryParameters['live'] == 'true',
-            ),
-            pageBuilder: GoTransitions.fullscreenDialog,
-          ),
-          GoRoute(
-            path: 'gcode-details',
-            name: AppRoute.fileManager_exlorer_gcodeDetail.name,
-            builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
-          ),
-          GoRoute(
-            path: 'editor',
-            name: AppRoute.fileManager_exlorer_editor.name,
-            builder: (context, state) => ConfigFileDetailPage(machineUUID: state.uri.queryParameters['machineUUID']!, file: state.extra! as GenericFile),
-          ),
-          GoRoute(
-            path: 'video-player',
-            name: AppRoute.fileManager_exlorer_videoPlayer.name,
-            builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
-          ),
-          GoRoute(
-            path: 'image-viewer',
-            name: AppRoute.fileManager_exlorer_imageViewer.name,
-            builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
-          ),
-          GoRoute(
-            path: 'fleet-print',
-            name: AppRoute.fileManager_fleetPrint.name,
-            builder: (context, state) => FleetPrintPage(args: state.extra! as FleetPrintArgs),
-            pageBuilder: GoTransitions.fullscreenDialog,
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/setting',
-        name: AppRoute.settings.name,
-        pageBuilder: railDestination((context, state) => const SettingPage()),
-        routes: [
-          GoRoute(
-            path: 'appearance',
-            name: AppRoute.settings_appearance.name,
-            builder: (context, state) => const AppearancePage(),
-            routes: [
-              GoRoute(
-                path: 'theme/new',
-                name: AppRoute.settings_appearance_customThemeNew.name,
-                builder: (context, state) => const CustomThemeEditorPage(),
-                pageBuilder: GoTransitions.fullscreenDialog,
-              ),
-              GoRoute(
-                path: 'theme/edit',
-                name: AppRoute.settings_appearance_customThemeEdit.name,
-                builder: (context, state) => CustomThemeEditorPage(initialPack: state.extra as CustomThemePack),
-                pageBuilder: GoTransitions.fullscreenDialog,
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'notification',
-            name: AppRoute.settings_notification.name,
-            builder: (context, state) => NotificationSettingsPage(),
-            routes: [
-              GoRoute(
-                path: 'device',
-                name: AppRoute.settings_notification_device.name,
-                pageBuilder: GoTransitions.fullscreenDialog,
-                builder: (context, state) => MachineNotificationSettingsPage(machine: state.extra as Machine),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'data',
-            name: AppRoute.settings_data.name,
-            builder: (context, state) => const DataSettingsPage(),
-          )
-        ],
-      ),
-      GoRoute(
-        path: '/imprint',
-        name: AppRoute.imprint.name,
-        builder: (context, state) => const ImprintPage(),
-      ),
-      GoRoute(
-        path: '/console',
-        name: AppRoute.console.name,
-        pageBuilder: railDestination((context, state) => const ConsolePage()),
-      ),
-      GoRoute(
-        path: '/faq',
-        name: AppRoute.faq.name,
-        pageBuilder: railDestination((context, state) => MarkDownPage(
-          title: tr('pages.faq.title'),
-          mdRoot: Uri.parse(
-            'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md',
-          ),
-          mdHuman: Uri.parse(
-            'https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md',
-          ),
-        )),
-      ),
-      GoRoute(
-        path: '/changelog',
-        name: AppRoute.changelog.name,
-        pageBuilder: railDestination((context, state) => MarkDownPage(
-          title: tr('pages.changelog.title'),
-          mdRoot: Uri.parse(
-            'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md',
-          ),
-          mdHuman: Uri.parse(
-            'https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md',
-          ),
-          topWidget: InfoCard(
-            leading: const Icon(FontAwesome.code_fork),
-            title: const Text('components.app_version_display.installed_version').tr(),
-            body: const AppVersionText(prefix: 'Mobileraker'),
-          ),
-        )),
-      ),
-      GoRoute(
-        path: '/paywall',
-        name: AppRoute.supportDev.name,
-        pageBuilder: railDestination((context, state) => const PaywallPage()),
-        routes: [
-          GoRoute(
-            path: 'benefits',
-            name: AppRoute.supportDev_benefits.name,
-            pageBuilder: GoTransitions.fullscreenDialog,
-            builder: (context, state) => const SupporterBenefitsPage(),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/dev',
-        name: AppRoute.dev.name,
-        pageBuilder: railDestination((context, state) => DevPage()),
-      ),
-      GoRoute(
-        path: '/talker',
-        name: AppRoute.talker_logscreen.name,
-        builder: (context, state) => LogPage(),
-      ),
-      GoRoute(
-        path: '/tool',
-        name: AppRoute.tool.name,
-        pageBuilder: railDestination((context, state) => const ToolPage()),
-        routes: [
-          GoRoute(
-            path: 'belt-tuner',
-            name: AppRoute.tool_beltTuner.name,
-            builder: (context, state) => const BeltTuner(),
-          ),
-          GoRoute(
-            path: 'bed-mesh',
-            name: AppRoute.tool_bedMesh.name,
-            builder: (context, state) => BedMeshPage(args: state.extra as BedMeshPageArgs),
-            pageBuilder: GoTransitions.zoom.withBackGesture.build(settings: const GoTransitionSettings(fullscreenDialog: true)),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/spoolman',
-        name: ProRoutes.spoolman.name,
-        pageBuilder: railDestination((context, state) => const SpoolmanPage()),
-        routes: [
-          GoRoute(
-            path: 'details/spool',
-            name: ProRoutes.spoolman_details_spool.name,
-            builder: (context, state) => switch (state.extra) {
-              [String machineUUID, GetSpool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
-              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
-            },
-          ),
-          GoRoute(
-            path: 'details/filament',
-            name: ProRoutes.spoolman_details_filament.name,
-            builder: (context, state) => switch (state.extra) {
-              [String machineUUID, GetFilament filament] =>
-                FilamentDetailPage(filament: filament, machineUUID: machineUUID),
-              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
-            },
-          ),
-          GoRoute(
-            path: 'details/vendor',
-            name: ProRoutes.spoolman_details_vendor.name,
-            builder: (context, state) => switch (state.extra) {
-              [String machineUUID, GetVendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
-              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
-            },
-          ),
-          GoRoute(
-            path: 'create/spool',
-            name: ProRoutes.spoolman_form_spool.name,
-            builder: (context, state) => switch (state.extra) {
-              [String machineUUID] => SpoolFormPage(machineUUID: machineUUID),
-              [String machineUUID, GetSpool spool] => SpoolFormPage(
-                  machineUUID: machineUUID,
-                  initialSpool: spool,
-                  isCopy: state.uri.queryParameters['isCopy'] == 'true',
-                ),
-              [String machineUUID, GetFilament filament] => SpoolFormPage(
-                  machineUUID: machineUUID,
-                  initialFilament: filament,
-                ),
-              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
-            },
-            pageBuilder: GoTransitions.fullscreenDialog,
-          ),
-          GoRoute(
-            path: 'create/filament',
-            name: ProRoutes.spoolman_form_filament.name,
-            builder: (context, state) => switch (state.extra) {
-              [String machineUUID] => FilamentFormPage(machineUUID: machineUUID),
-              [String machineUUID, GetFilament filament] => FilamentFormPage(
-                  machineUUID: machineUUID,
-                  initialFilament: filament,
-                  isCopy: state.uri.queryParameters['isCopy'] == 'true',
-                ),
-              [String machineUUID, GetVendor vendor] => FilamentFormPage(
-                  machineUUID: machineUUID,
-                  initialVendor: vendor,
-                ),
-              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
-            },
-            pageBuilder: GoTransitions.fullscreenDialog,
-          ),
-          GoRoute(
-            path: 'create/vendor',
-            name: ProRoutes.spoolman_form_vendor.name,
-            builder: (context, state) => switch (state.extra) {
-              [String machineUUID] => VendorFormPage(machineUUID: machineUUID),
-              [String machineUUID, GetVendor vendor] => VendorFormPage(
-                  machineUUID: machineUUID,
-                  vendor: vendor,
-                  isCopy: state.uri.queryParameters['isCopy'] == 'true',
-                ),
-              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
-            },
-            pageBuilder: GoTransitions.fullscreenDialog,
-          ),
-        ],
-      ),
+      GoRoute(path: '/imprint', name: AppRoute.imprint.name, builder: (context, state) => const ImprintPage()),
+      GoRoute(path: '/talker', name: AppRoute.talker_logscreen.name, builder: (context, state) => LogPage()),
       ShellRoute(
-        observers: [
-          MobilerakerRouteObserver('SheetShell'),
-        ],
+        observers: [MobilerakerRouteObserver('SheetShell')],
         pageBuilder: (context, state, child) {
           // Use ModalSheetPage to show a modal sheet.
           return ModalSheetPage(
@@ -518,13 +549,10 @@ GoRouter goRouterImpl(Ref ref) {
             child: PagedSheet(
               decoration: MaterialSheetDecoration(
                 size: SheetSize.stretch,
-                  borderRadius:  BorderRadius.vertical(top: Radius.circular(16)),
-                  clipBehavior: Clip.antiAlias,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                clipBehavior: Clip.antiAlias,
               ),
-              navigator: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: child,
-              ),
+              navigator: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 500), child: child),
             ),
           );
         },
