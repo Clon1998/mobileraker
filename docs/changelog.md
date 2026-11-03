@@ -33,6 +33,16 @@
 - **Lock Icon Animation**: Smoother lock/unlock animation for the input lock on the limits, multipliers and firmware
   retraction cards.
 
+- **Live Activity Thumbnails & New Look (iOS)**: The Live Activity now shows the thumbnail of the file being printed.
+  On iOS 26 and newer it uses the system's glass style. On iOS 27, the compact Dynamic Island content is centered and
+  shows the Mobileraker logo instead of the timer when space is limited (e.g. in landscape).
+  [#560](https://github.com/Clon1998/mobileraker/issues/560)
+
+- **Tablet Navigation**: On tablets and other large screens, the navigation rail now stays in place when switching
+  pages. Only the page content changes, sliding up or down to follow the order of the rail entries, instead of the
+  whole screen sliding in. The rail also keeps the current section highlighted on its sub-pages (e.g. the
+  notification settings) and on pages opened from elsewhere, such as a printer opened from the overview.
+
 ## [2.9.14] - 2026-10-03
 
 ### Enhancements
