@@ -7,6 +7,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -29,6 +30,7 @@ class OverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget body = const _OverviewBody();
+    body = NavigationRailInset(child: body);
 
     return Scaffold(
       appBar: AppBar(

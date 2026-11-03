@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -65,6 +66,7 @@ class PaywallPage extends HookConsumerWidget {
         ),
       ],
     );
+    body = NavigationRailInset(child: body);
 
     return Scaffold(
       appBar: AppBar(title: Text(tr('pages.paywall.title'))).unless(context.isCompact),

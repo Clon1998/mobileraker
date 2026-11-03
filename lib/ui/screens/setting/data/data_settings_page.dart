@@ -12,6 +12,7 @@ import 'package:common/data/repository/machine_hive_repository.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -34,10 +35,11 @@ class DataSettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = const _Body();
 
+    body = NavigationRailInset(child: SafeArea(child: body));
 
     return Scaffold(
       appBar: AppBar(title: const Text('pages.setting.data.title').tr()),
-      body: SafeArea(child: body),
+      body: body,
     );
   }
 }

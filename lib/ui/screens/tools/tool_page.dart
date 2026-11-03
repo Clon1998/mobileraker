@@ -6,6 +6,7 @@
 import 'package:common/service/app_router.dart';
 import 'package:common/ui/components/info_card.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -69,6 +70,7 @@ class ToolPage extends HookConsumerWidget {
         ),
     );
 
+    body = NavigationRailInset(child: body);
 
     return Scaffold(
       appBar: AppBar(title: const Text('pages.tool.title').tr()),

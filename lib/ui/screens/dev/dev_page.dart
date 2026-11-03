@@ -24,6 +24,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 // import 'package:common/ui/components/ad_banner.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
@@ -308,6 +309,7 @@ class DevPage extends HookConsumerWidget {
       ],
     );
 
+    body = NavigationRailInset(child: body);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dev')),

@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,7 @@ class MarkDownPage extends StatelessWidget {
         ),
       ),
     );
+    body = NavigationRailInset(child: body);
 
     return Scaffold(
       appBar: AppBar(

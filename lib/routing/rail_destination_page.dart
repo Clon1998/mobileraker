@@ -5,6 +5,7 @@
 
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,9 +15,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 /// - Compact layouts (phones): behaves exactly like a [MaterialPage] (same route type, platform transition, durations,
 ///   iOS back swipe and parallax rules).
 /// - Rail layouts (tablets): switching destinations slides the content in vertically, following the order of the
-///   entries in the rail ([direction]), combined with a fade. The rail lives outside the shell's nested Navigator and
-///   is not affected. The leaving destination mirrors that (same direction, fading out). The page still reacts to
-///   sub-pages pushed on top of it like a regular [MaterialPage].
+///   entries in the rail ([direction]), combined with a fade. The leaving destination mirrors the slide (without
+///   fading, the entering page fades in on top of it). The rail rendered by the pages is kept static (see
+///   `NavigationRailInset`). The page still reacts to sub-pages pushed on top of it like a regular [MaterialPage].
 ///
 /// Why not go_transitions: its route type differs from [MaterialPageRoute] (durations, canTransitionTo/From rules,
 /// delegated transitions), so phones would not behave exactly as before.
@@ -57,8 +58,8 @@ class RailDestinationPage<T> extends Page<T> {
   /// [AxisDirection.down] from above. Null only fades.
   final AxisDirection? direction;
 
-  /// Whether to use the destination transition while the rail is shown. Disable this for pages that are pushed
-  /// "deeper" (e.g. file manager sub folders), which should keep the regular push transition.
+  /// Whether to use the destination transition while the rail is shown. Disable this for sub-pages within the shell
+  /// (e.g. file manager sub folders, settings sub-pages), which use a push transition that keeps the rail static.
   final bool railTransition;
 
   @override
@@ -87,6 +88,14 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
   Duration get reverseTransitionDuration =>
       _useRailTransition(navigator?.context) ? _railDuration : super.reverseTransitionDuration;
 
+  bool _isRailLayout(BuildContext context) => context.mounted && context.isLargerThanCompact;
+
+  /// Whether the theme uses the Cupertino transition (incl. the back swipe), which never fades the pages.
+  static bool _usesCupertino(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.pageTransitionsTheme.builders[theme.platform] is CupertinoPageTransitionsBuilder;
+  }
+
   @override
   Widget buildTransitions(
     BuildContext context,
@@ -94,45 +103,64 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    if (!_useRailTransition(context)) {
+    if (!_isRailLayout(context)) {
       return super.buildTransitions(context, animation, secondaryAnimation, child);
     }
 
-    final dy = _slideOffsetFor(_page.direction);
+    // On rail layouts the pages render the rail, which NavigationRailInset keeps static by cancelling out the
+    // movement of the transitions. Its opacity can not be restored though, so a page covered by another one is never
+    // faded (only the page on top fades). That way the rails of both pages blend into a fully opaque one.
+    final cupertino = _usesCupertino(context);
 
-    final entering = FadeTransition(
-      opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
-      child: SlideTransition(
-        position: animation.drive(
-          Tween(begin: Offset(0, dy), end: Offset.zero).chain(CurveTween(curve: Curves.easeOutCubic)),
-        ),
-        child: child,
-      ),
-    );
+    // The animation passed to the theme transition. Completed if this route handles its primary animation itself.
+    Animation<double> themeAnimation = kAlwaysCompleteAnimation;
+    Widget content;
+    if (_page.railTransition) {
+      // Destination switch: slide vertically following the rail order, combined with a fade.
+      content = _slideAndFade(animation, Offset(0, _slideOffsetFor(_page.direction)), child);
+    } else if (cupertino) {
+      // Sub-page: the Cupertino transition does not fade and also provides the back swipe.
+      themeAnimation = animation;
+      content = child;
+    } else {
+      // Sub-page: replaces the theme transition (e.g. zoom or fade forwards on Android), which fades the covered page
+      // and/or scales a snapshot of the pages.
+      content = _slideAndFade(animation, const Offset(_railSlideOffset, 0), child);
+    }
 
-    // Switching to another destination: leave in the same direction the next page enters in, instead of the theme's
-    // "covered by a pushed page" transition (e.g. iOS parallax to the left).
     final next = _nextRoute;
-    if (next is _RailDestinationRoute && next._useRailTransition(context)) {
-      final leaving = FadeTransition(
-        opacity: secondaryAnimation.drive(Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn))),
-        child: SlideTransition(
-          position: secondaryAnimation.drive(
-            Tween(
-              begin: Offset.zero,
-              end: Offset(0, -_slideOffsetFor(next._page.direction)),
-            ).chain(CurveTween(curve: Curves.easeInCubic)),
-          ),
-          child: entering,
-        ),
-      );
-      return super.buildTransitions(context, kAlwaysCompleteAnimation, kAlwaysDismissedAnimation, leaving);
+    if (next is _RailDestinationRoute && next._isRailLayout(context)) {
+      if (next._page.railTransition) {
+        // Switching to another destination: leave in the same direction the next page enters in.
+        return super.buildTransitions(
+          context,
+          themeAnimation,
+          kAlwaysDismissedAnimation,
+          _slide(secondaryAnimation, Offset(0, -_slideOffsetFor(next._page.direction)), Curves.easeInCubic, content),
+        );
+      }
+      if (!cupertino) {
+        // A sub-page is pushed on top: stay in place (moving would expose an empty strip at the far edge), the
+        // sub-page fades in on top.
+        return super.buildTransitions(context, themeAnimation, kAlwaysDismissedAnimation, content);
+      }
     }
 
     // Otherwise keep the theme transition for the secondary animation (e.g. iOS parallax when a sub-page is pushed
-    // on top), with the primary one completed as the entering is handled above.
-    return super.buildTransitions(context, kAlwaysCompleteAnimation, secondaryAnimation, entering);
+    // on top).
+    return super.buildTransitions(context, themeAnimation, secondaryAnimation, content);
   }
+
+  static Widget _slideAndFade(Animation<double> animation, Offset begin, Widget child) => FadeTransition(
+    opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
+    child: _slide(ReverseAnimation(animation), begin, Curves.easeInCubic, child),
+  );
+
+  /// Slides from [Offset.zero] to [end] while [animation] goes from 0 to 1.
+  static Widget _slide(Animation<double> animation, Offset end, Curve curve, Widget child) => SlideTransition(
+    position: animation.drive(Tween(begin: Offset.zero, end: end).chain(CurveTween(curve: curve))),
+    child: child,
+  );
 
   /// The route on top of this one. [ModalRoute.didChangeNext] rebuilds the transitions, so it is always up to date
   /// in [buildTransitions]. Intentionally not cleared in didPopNext, so a reverse animation keeps its transition.
@@ -177,4 +205,10 @@ GoRouterPageBuilder railDestination(
     direction: ref.read(navWidgetControllerProvider.notifier).switchDirectionTo(state.uri.path),
     railTransition: railTransitionWhen?.call(state) ?? true,
   );
+}
+
+/// Builds sub-pages hosted by the shell (i.e. shown next to the rail) as a [RailDestinationPage] using the push
+/// transition. On compact layouts it behaves like a [MaterialPage].
+GoRouterPageBuilder railSubPage(GoRouterWidgetBuilder builder) {
+  return (context, state) => RailDestinationPage<void>.fromState(state, builder(context, state), railTransition: false);
 }

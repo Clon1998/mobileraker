@@ -152,19 +152,13 @@ GoRouter goRouterImpl(Ref ref) {
     // },
     // refreshListenable: GoRouterRefreshStream(authRepository.authStateChanges()),
     routes: [
-      // All top-level destinations reachable via the navigation rail/drawer. On layouts larger than compact the shell
-      // renders the rail next to its nested Navigator, so switching destinations only swaps the page content.
-      // Sub-routes that should cover the rail (details, dialogs, ...) use the root navigator.
+      // All top-level destinations reachable via the navigation rail/drawer. Switching between them only replaces
+      // the shell's nested Navigator content (see RailDestinationPage for the tablet transition). Pages render the rail
+      // in their body via NavigationRailInset, the shell keeps it static during transitions.
+      // Sub-routes shown next to the rail use railSubPage (push transition that keeps the rail static), sub-routes that
+      // should cover the rail (details, fullscreen dialogs, ...) use the root navigator.
       ShellRoute(
-        builder: (context, state, child) => NavigationRailShell(
-          // Simple approach: the rail's leading widget is picked based on the current route. See NavigationRailShell's
-          // docs for the slot-based alternative if pages ever need to provide their own (stateful) rail FAB.
-          leading: switch (state.topRoute?.name) {
-            final name when name == AppRoute.dashBoard.name => const DashboardRailFab(),
-            _ => null,
-          },
-          child: child,
-        ),
+        builder: (context, state, child) => NavigationRailShell(child: child),
         routes: [
           GoRoute(
             path: '/',
@@ -313,11 +307,12 @@ GoRouter goRouterImpl(Ref ref) {
               GoRoute(
                 path: 'notification',
                 name: AppRoute.settings_notification.name,
-                builder: (context, state) => NotificationSettingsPage(),
+                pageBuilder: railSubPage((context, state) => NotificationSettingsPage()),
                 routes: [
                   GoRoute(
                     path: 'device',
                     name: AppRoute.settings_notification_device.name,
+                    parentNavigatorKey: rootNavigatorKey,
                     pageBuilder: GoTransitions.fullscreenDialog,
                     builder: (context, state) => MachineNotificationSettingsPage(machine: state.extra as Machine),
                   ),
@@ -326,7 +321,7 @@ GoRouter goRouterImpl(Ref ref) {
               GoRoute(
                 path: 'data',
                 name: AppRoute.settings_data.name,
-                builder: (context, state) => const DataSettingsPage(),
+                pageBuilder: railSubPage((context, state) => const DataSettingsPage()),
               ),
             ],
           ),
@@ -397,6 +392,7 @@ GoRouter goRouterImpl(Ref ref) {
               GoRoute(
                 path: 'bed-mesh',
                 name: AppRoute.tool_bedMesh.name,
+                parentNavigatorKey: rootNavigatorKey,
                 builder: (context, state) => BedMeshPage(args: state.extra as BedMeshPageArgs),
                 pageBuilder: GoTransitions.zoom.withBackGesture.build(
                   settings: const GoTransitionSettings(fullscreenDialog: true),

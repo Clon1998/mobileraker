@@ -11,6 +11,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
@@ -48,6 +49,7 @@ class SpoolmanPage extends HookWidget {
   Widget build(BuildContext context) {
     Widget body = const _Body();
 
+    body = NavigationRailInset(child: body);
 
     return Scaffold(
       appBar: const _AppBar(),
