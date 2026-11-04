@@ -137,7 +137,6 @@ void main() {
 
   testWidgets(
     'print is disabled while another print is running',
-    skip: true, // Finding: canPrintCalc checks `state != printing || state != paused`, which is always true.
     (tester) async {
       await pumpPage(tester, state: PrintState.printing);
 
@@ -167,17 +166,19 @@ void main() {
     });
 
     testWidgets(
-      'clearing the active spool while the details are open',
-      skip: true, // Finding: the active spool listener calls spoolCalc(next.value!) and throws on null.
+      'clearing the active spool while the details are open removes its warnings',
       (tester) async {
-        final spool = SpoolmanFixtures.spool(1, SpoolmanFixtures.filament(1, 'Basic'));
+        final spool = SpoolmanFixtures.spool(1, SpoolmanFixtures.filament(1, 'Basic', material: 'PLA'), usedWeight: 800);
         final active = _FixedSpool(spool);
         await pumpPage(tester, components: ['spoolman'], activeSpool: () => active);
+        expect(find.text('Material Mismatch'), findsOneWidget);
 
         active.emit(null);
         await tester.pumpAndSettle();
 
         expect(tester.takeException(), isNull);
+        expect(find.text('Material Mismatch'), findsNothing);
+        expect(find.text('Insufficient filament'), findsNothing);
         await tester.unmountApp();
       },
     );

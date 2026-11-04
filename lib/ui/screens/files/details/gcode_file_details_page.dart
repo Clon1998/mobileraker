@@ -652,7 +652,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   _Model build() {
     ref.keepAliveFor();
     talker.info('Buildign GCodeFileDetailsController');
-    canPrintCalc(PrintState? d) => d != null && (d != PrintState.printing || d != PrintState.paused);
+    canPrintCalc(PrintState? d) => d != null && d != PrintState.printing && d != PrintState.paused;
     final gCodeFile = ref.watch(_gcodeProvider);
     final klippy = ref.watch(klipperProvider(machineUUID)).value;
     final printer = ref.read(printerProvider(machineUUID)).value;
@@ -689,7 +689,9 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
 
       ref.listen(activeSpoolProvider(machineUUID), (previous, next) {
         if (previous?.value != next.value) {
-          final res = spoolCalc(next.value!);
+          final nextSpool = next.value;
+          // Without an active spool there is nothing to warn about.
+          final res = nextSpool == null ? (null, null) : spoolCalc(nextSpool);
           state = state.copyWith(
             insufficientFilament: res.$1,
             materialMissmatch: res.$2,
