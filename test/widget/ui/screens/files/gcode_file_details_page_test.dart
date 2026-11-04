@@ -107,9 +107,9 @@ void main() {
 
   testWidgets(
     'shows the nozzle diameter as a number',
-    skip: true, // Finding: nozzleDiameter is a list now, the tile shows "[0.4] mm" (and "[] mm" when unknown).
     (tester) async {
       await pumpPage(tester);
+      await tester.scrollUntilVisible(find.text('0.4 mm'), 200, scrollable: find.byType(Scrollable).first);
 
       expect(find.text('0.4 mm'), findsOneWidget);
       await tester.unmountApp();

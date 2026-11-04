@@ -307,7 +307,7 @@ class _CompactBody extends HookConsumerWidget {
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                    subtitle: model.file.nozzleDiameter?.let((it) => '$it mm') ?? tr('general.unknown'),
+                    subtitle: _nozzleDiameterText(context, model.file.nozzleDiameter),
                   ),
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.layer_higher'.tr(),
@@ -516,7 +516,7 @@ class _MediumBody extends HookConsumerWidget {
                           ),
                           _PropertyTile(
                             title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                            subtitle: '${model.file.nozzleDiameter} mm',
+                            subtitle: _nozzleDiameterText(context, model.file.nozzleDiameter),
                           ),
                           _PropertyTile(
                             title: 'pages.files.details.meta_card.layer_higher'.tr(),
@@ -598,6 +598,13 @@ class _Fab extends ConsumerWidget {
       label: const Text('general.print').tr(),
     );
   }
+}
+
+/// The nozzle diameter(s) of a file, e.g. "0.4 mm" or "0.4, 0.6 mm" for multiple tools.
+String _nozzleDiameterText(BuildContext context, List<double> diameters) {
+  if (diameters.isEmpty) return tr('general.unknown');
+  final format = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
+  return '${diameters.map(format.format).join(', ')} mm';
 }
 
 class _PropertyTile extends StatelessWidget {
