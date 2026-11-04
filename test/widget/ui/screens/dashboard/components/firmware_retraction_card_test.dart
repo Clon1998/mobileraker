@@ -106,7 +106,6 @@ void main() {
 
   testWidgets(
     'is hidden once firmware retraction is removed from a machine that had it',
-    skip: true, // Finding: the loading placeholder builds the body, which throws on `firmwareRetraction!`.
     (tester) async {
       await testSettingsBox.put(hadFwRetractKey, true);
       await pumpCard(tester, firmwareRetraction: null);
