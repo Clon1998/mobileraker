@@ -244,7 +244,7 @@ class _FilteredResults<T> extends StatelessWidget {
           ).also((it) => talker.warning('Score: ${it.$2} for ${it.$1.label}')),
         )
         .where((e) => e.$2 > 150)
-        .sortedBy<num>((e) => e.$2)
+        .sortedBy<num>((e) => -e.$2) // Best match first
         .map((e) => e.$1)
         .toList();
   }

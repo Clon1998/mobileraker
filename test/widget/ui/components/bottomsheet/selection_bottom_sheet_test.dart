@@ -82,7 +82,6 @@ void main() {
 
   testWidgets(
     'search lists the best match first',
-    skip: true, // Finding: results are sorted by score ascending, so the exact match "PLA" comes last.
     (tester) async {
       await openSheet(tester, const SelectionBottomSheetArgs(options: filaments));
 
