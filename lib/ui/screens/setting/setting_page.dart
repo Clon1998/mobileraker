@@ -218,14 +218,6 @@ class _UiSection extends ConsumerWidget {
           decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
         ),
         FormBuilderSwitch(
-          name: 'sliders_grouping',
-          title: const Text('pages.setting.general.sliders_grouping').tr(),
-          subtitle: const Text('pages.setting.general.sliders_grouping_hint').tr(),
-          onChanged: (b) => settingService.writeBool(AppSettingKeys.groupSliders, b ?? false),
-          initialValue: ref.read(boolSettingProvider(AppSettingKeys.groupSliders, true)),
-          decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-        ),
-        FormBuilderSwitch(
           name: 'lcFullCam',
           title: const Text('pages.setting.general.lcFullCam').tr(),
           subtitle: const Text('pages.setting.general.lcFullCam_hint').tr(),
