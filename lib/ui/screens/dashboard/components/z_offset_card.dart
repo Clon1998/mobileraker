@@ -206,7 +206,9 @@ class _CardBody extends ConsumerWidget {
             ),
           ],
         ),
-        Column(
+        // Flexible, so the step selector scrolls on narrow phones instead of overflowing.
+        Flexible(
+          child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
@@ -218,6 +220,7 @@ class _CardBody extends ConsumerWidget {
               values: [for (var step in steps) numberFormat.format(step)],
             ),
           ],
+          ),
         ),
       ],
     );

@@ -20,10 +20,6 @@ void main() {
     'phone, dark': (device: TestDevice.phone, themeMode: ThemeMode.dark),
   };
 
-  // Findings (docs/testing_plan.md): the step size selectors of these cards sit in a Row without a width limit, so they
-  // overflow on 360 wide phones instead of scrolling.
-  const overflowsAt360 = {DashboardComponentType.controlXYZ, DashboardComponentType.zOffset};
-
   for (final type in DashboardComponentType.values) {
     group(type.name, () {
       for (final MapEntry(key: name, value: v) in variants.entries) {
@@ -41,7 +37,7 @@ void main() {
 
           expect(find.byType(DasboardCard), findsOneWidget);
           await tester.unmountApp();
-        }, skip: name == '360 wide' && overflowsAt360.contains(type));
+        });
       }
     });
   }

@@ -279,12 +279,21 @@ class _CardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _XYMotionWidget(machineUUID: machineUUID),
-            _ZMotionWidget(machineUUID: machineUUID),
-          ],
+        // Scaled down on narrow phones, the fixed size buttons would overflow otherwise. The min width keeps them spread.
+        LayoutBuilder(
+          builder: (context, constraints) => FittedBox(
+            fit: BoxFit.scaleDown,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _XYMotionWidget(machineUUID: machineUUID),
+                  _ZMotionWidget(machineUUID: machineUUID),
+                ],
+              ),
+            ),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
