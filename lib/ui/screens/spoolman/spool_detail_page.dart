@@ -54,17 +54,24 @@ GetSpool _spool(Ref ref) {
 }
 
 class SpoolDetailPage extends StatelessWidget {
-  const SpoolDetailPage({super.key, required this.machineUUID, required this.spool});
+  const SpoolDetailPage({super.key, required this.machineUUID, required this.spool, this.embedded = false});
 
   final String machineUUID;
   final GetSpool spool;
+
+  /// Whether the details are embedded in the detail pane of the Spoolman page instead of being their own page.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
       // Make sure we are able to access the vendor in all places
       overrides: [_spoolProvider.overrideWithValue(spool)],
-      child: _SpoolDetailPage(key: Key('spd-${spool.id}'), machineUUID: machineUUID),
+      child: embedded
+          ? EmbeddedSpoolmanDetail(
+              child: _SpoolDetailPage(key: Key('spd-${spool.id}'), machineUUID: machineUUID),
+            )
+          : _SpoolDetailPage(key: Key('spd-${spool.id}'), machineUUID: machineUUID),
     );
   }
 }
@@ -122,7 +129,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
       ),
       filters: SpoolmanFilter({'filament.material': spool.filament.material}),
     );
-    return Scaffold(
+    return SpoolmanDetailScaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -192,7 +199,10 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     final spool = ref.watch(_spoolDetailPageControllerProvider(machineUUID).select((data) => data.spool));
 
     final title = [if (spool.filament.vendor != null) spool.filament.vendor!.name, spool.filament.name].join(' – ');
-    return AppBar(title: const Text('pages.spoolman.spool_details.page_title').tr(args: [title]));
+    return AppBar(
+      automaticallyImplyLeading: !EmbeddedSpoolmanDetail.of(context),
+      title: const Text('pages.spoolman.spool_details.page_title').tr(args: [title]),
+    );
   }
 
   @override
@@ -270,10 +280,7 @@ class _SpoolInfo extends ConsumerWidget {
               children: [
                 WidgetSpan(
                   alignment: PlaceholderAlignment.middle,
-                  child: Icon(
-                    FontAwesome.external_link,
-                    size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2,
-                  ),
+                  child: Icon(FontAwesome.external_link, size: (DefaultTextStyle.of(context).style.fontSize ?? 14) + 2),
                 ),
                 const WidgetSpan(alignment: PlaceholderAlignment.middle, child: SizedBox(width: 4)),
                 TextSpan(

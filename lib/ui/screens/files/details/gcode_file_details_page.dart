@@ -22,6 +22,7 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -51,15 +52,53 @@ part 'gcode_file_details_page.freezed.dart';
 part 'gcode_file_details_page.g.dart';
 
 class GCodeFileDetailPage extends ConsumerWidget {
-  const GCodeFileDetailPage({super.key, required this.gcodeFile});
+  const GCodeFileDetailPage({super.key, required this.gcodeFile, this.embedded = false});
 
   final GCodeFile gcodeFile;
+
+  /// Whether the details are embedded in another page (e.g. the detail pane of the file manager on larger layouts)
+  /// instead of being their own page: no back button, layout chosen by the available width, and no Hero animations
+  /// (the file list shows the same file).
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
       overrides: [_gcodeProvider.overrideWithValue(gcodeFile)],
-      child: const _GCodeFileDetailPage(),
+      child: embedded ? const _EmbeddedScope(child: _EmbeddedGCodeFileDetails()) : const _GCodeFileDetailPage(),
+    );
+  }
+}
+
+/// Marks [GCodeFileDetailPage.embedded] details.
+class _EmbeddedScope extends InheritedWidget {
+  const _EmbeddedScope({required super.child});
+
+  static bool of(BuildContext context) => context.getInheritedWidgetOfExactType<_EmbeddedScope>() != null;
+
+  @override
+  bool updateShouldNotify(_EmbeddedScope oldWidget) => false;
+}
+
+class _EmbeddedGCodeFileDetails extends StatelessWidget {
+  const _EmbeddedGCodeFileDetails();
+
+  @override
+  Widget build(BuildContext context) {
+    return HeroMode(
+      enabled: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 600;
+          // A plain Scaffold, its host page owns the rail.
+          return Scaffold(
+            appBar: const _AppBar().unless(compact),
+            body: compact ? const _CompactBody() : const _MediumBody(),
+            floatingActionButton: const _Fab(),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          );
+        },
+      ),
     );
   }
 }
@@ -69,7 +108,7 @@ class _GCodeFileDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return RailScaffold(
       appBar: const _AppBar().only(context.isLargerThanCompact),
       body: context.isCompact ? const _CompactBody() : const _MediumBody(),
       floatingActionButton: const _Fab(),
@@ -105,6 +144,7 @@ class _CompactBody extends HookConsumerWidget {
       slivers: [
         SliverLayoutBuilder(builder: (context, constraints) {
           return SliverAppBar(
+            automaticallyImplyLeading: !_EmbeddedScope.of(context),
             expandedHeight: 220,
             floating: true,
             flexibleSpace: FlexibleSpaceBar(
@@ -513,7 +553,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
     final model = ref.watch(_gCodeFileDetailsControllerProvider);
     final controller = ref.read(_gCodeFileDetailsControllerProvider.notifier);
 
-    return AppBar(title: Text(model.file.name), actions: [
+    return AppBar(automaticallyImplyLeading: !_EmbeddedScope.of(context), title: Text(model.file.name), actions: [
       IconButton(
         icon: const Icon(Icons.more_vert),
         onPressed: () {
@@ -538,10 +578,23 @@ class _Fab extends ConsumerWidget {
     final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     final canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.canStartPrint));
 
+    final backgroundColor = (canStartPrint) ? null : Theme.of(context).disabledColor;
+    const icon = Icon(MaterialCommunityIcons.printer_3d_nozzle);
+
+    // Has to fit the width of the fold strip (iPhone Duo).
+    if (!_EmbeddedScope.of(context) && RailScaffold.showsRailOf(context)) {
+      return FloatingActionButton(
+        backgroundColor: backgroundColor,
+        onPressed: controller.onStartPrintTap.only(canStartPrint),
+        tooltip: tr('general.print'),
+        child: icon,
+      );
+    }
+
     return FloatingActionButton.extended(
-      backgroundColor: (canStartPrint) ? null : Theme.of(context).disabledColor,
+      backgroundColor: backgroundColor,
       onPressed: controller.onStartPrintTap.only(canStartPrint),
-      icon: const Icon(MaterialCommunityIcons.printer_3d_nozzle),
+      icon: icon,
       label: const Text('general.print').tr(),
     );
   }
@@ -588,6 +641,10 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
   GoRouter get _goRouter => ref.read(goRouterProvider);
+
+  /// Whether the details are their own page (the top-most route), not embedded in the file manager's detail pane. Only
+  /// then they close/reopen themselves on file changes, the file manager handles it for embedded ones.
+  bool get _isOwnPage => _goRouter.state.name == AppRoute.fileManager_exlorer_gcodeDetail.name;
 
   String get machineUUID => ref.read(selectedMachineProvider.selectRequireValue((value) => value!.uuid));
 
@@ -686,8 +743,10 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
       case FileAction.delete_file:
         talker.info('[GCodeFileDetailsController] File deleted: ${notification.item.fullPath}, will close view');
 
-        _goRouter.pop();
+        if (_isOwnPage) _goRouter.pop();
         WidgetsBinding.instance.addPostFrameCallback((_) => ref.invalidateSelf());
+        break;
+      case FileAction.move_file when !_isOwnPage:
         break;
       case FileAction.move_file:
         final filePath = state.file.absolutPath;

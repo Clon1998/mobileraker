@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:math' as math;
+
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
@@ -39,6 +41,10 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../components/connection/machine_connection_guard.dart';
 import '../../components/machine_state_indicator.dart';
+import 'common_detail.dart';
+import 'filament_detail_page.dart';
+import 'spool_detail_page.dart';
+import 'vendor_detail_page.dart';
 
 part 'spoolman_page.g.dart';
 
@@ -201,31 +207,76 @@ class _Body extends ConsumerWidget {
             _ => SpoolmanListType.spools,
           };
 
-          return ResponsiveLimit(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
-                if (type == SpoolmanListType.spools || type == SpoolmanListType.filaments)
-                  SpoolmanFilterChips(
-                    cache: type.name,
-                    machineUUID: machineUUID,
-                    onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
-                    filterBy: typeToFilters(type),
-                  ),
-                Expanded(
-                  child: SpoolmanScrollPagination(
-                    scrollController: scrollController,
-                    machineUUID: machineUUID,
-                    type: type,
-                    onEntryTap: controller.onEntryTap,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    filters: filters.value[type]!.toFilterForType(type),
-                  ),
+          final paneSelection = ref.watch(spoolmanDetailSelectionProvider(machineUUID));
+
+          Widget list({required bool inSplit}) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
+              if (type == SpoolmanListType.spools || type == SpoolmanListType.filaments)
+                SpoolmanFilterChips(
+                  cache: type.name,
+                  machineUUID: machineUUID,
+                  onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
+                  filterBy: typeToFilters(type),
                 ),
-              ],
-            ),
+              Expanded(
+                child: SpoolmanScrollPagination(
+                  scrollController: scrollController,
+                  machineUUID: machineUUID,
+                  type: type,
+                  onEntryTap: inSplit
+                      ? ref.read(spoolmanDetailSelectionProvider(machineUUID).notifier).select
+                      : controller.onEntryTap,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  filters: filters.value[type]!.toFilterForType(type),
+                  selected: paneSelection.only(inSplit),
+                ),
+              ),
+            ],
+          );
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < _listDetailMinWidth) return ResponsiveLimit(child: list(inSplit: false));
+
+              // List-detail on larger layouts (tablets, foldables): the details are shown next to the list instead of
+              // as their own page.
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(width: math.min(_maxListWidth, constraints.maxWidth * 0.4), child: list(inSplit: true)),
+                  const VerticalDivider(width: 1),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: kThemeAnimationDuration,
+                      child: switch (paneSelection) {
+                        GetSpool spool => SpoolDetailPage(
+                          key: ValueKey('spool-${spool.id}'),
+                          machineUUID: machineUUID,
+                          spool: spool,
+                          embedded: true,
+                        ),
+                        GetFilament filament => FilamentDetailPage(
+                          key: ValueKey('filament-${filament.id}'),
+                          machineUUID: machineUUID,
+                          filament: filament,
+                          embedded: true,
+                        ),
+                        GetVendor vendor => VendorDetailPage(
+                          key: ValueKey('vendor-${vendor.id}'),
+                          machineUUID: machineUUID,
+                          vendor: vendor,
+                          embedded: true,
+                        ),
+                        _ => const _DetailPanePlaceholder(),
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
           );
         });
       },
@@ -244,6 +295,37 @@ class _Body extends ConsumerWidget {
     }
 
     return {};
+  }
+}
+
+/// Min. width of the Spoolman page's body for the list-detail layout.
+const double _listDetailMinWidth = 720;
+
+/// Max. width of the list in the list-detail layout, the details take the rest.
+const double _maxListWidth = 400;
+
+class _DetailPanePlaceholder extends StatelessWidget {
+  const _DetailPanePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final color = themeData.textTheme.bodySmall?.color;
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.spoke_outlined, size: 48, color: color),
+          const SizedBox(height: 8),
+          Text(
+            tr('pages.spoolman.detail_pane_hint'),
+            textAlign: TextAlign.center,
+            style: themeData.textTheme.bodyMedium?.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -360,6 +442,8 @@ class _SpoolmanPageController extends _$SpoolmanPageController {
 
   void onBottomItemTapped(int index) {
     state = index;
+    // The detail pane shows an entry of the previous list.
+    ref.read(spoolmanDetailSelectionProvider(machineUUID).notifier).select(null);
   }
 
   void onEntryTap(SpoolmanIdentifiableDtoMixin dto) {

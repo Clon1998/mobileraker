@@ -291,6 +291,7 @@ pages:
     shown_sensors: Shown temperatures
   files:
     title: Files
+    detail_pane_hint: Select a file to see its details
     empty_folder:
       title: This folder is empty
       subtitle: No files found
@@ -1122,6 +1123,7 @@ pages:
 
         Tap to grant the permission.
   spoolman:
+    detail_pane_hint: Select an entry to see its details
     title: Spoolman
     not_available: "Spoolman is not available for this printer. \nPlease make sure
       that Spoolman is installed and enabled on your printer."

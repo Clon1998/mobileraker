@@ -40,18 +40,25 @@ GetVendor _vendor(Ref ref) {
 }
 
 class VendorDetailPage extends StatelessWidget {
-  const VendorDetailPage({super.key, required this.machineUUID, required this.vendor});
+  const VendorDetailPage({super.key, required this.machineUUID, required this.vendor, this.embedded = false});
 
   final String machineUUID;
 
   final GetVendor vendor;
+
+  /// Whether the details are embedded in the detail pane of the Spoolman page instead of being their own page.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
       // Make sure we are able to access the vendor in all places
       overrides: [_vendorProvider.overrideWithValue(vendor)],
-      child: _VendorDetailPage(key: Key('vd-${vendor.id}'), machineUUID: machineUUID),
+      child: embedded
+          ? EmbeddedSpoolmanDetail(
+              child: _VendorDetailPage(key: Key('vd-${vendor.id}'), machineUUID: machineUUID),
+            )
+          : _VendorDetailPage(key: Key('vd-${vendor.id}'), machineUUID: machineUUID),
     );
   }
 }
@@ -69,7 +76,7 @@ class _VendorDetailPage extends HookConsumerWidget {
     final controller = ref.watch(_vendorDetailPageControllerProvider(machineUUID).notifier);
 
     final themeData = Theme.of(context);
-    return Scaffold(
+    return SpoolmanDetailScaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.onAction(Theme.of(context)),
@@ -125,7 +132,10 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vendor = ref.watch(_vendorDetailPageControllerProvider(machineUUID));
-    return AppBar(title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]));
+    return AppBar(
+      automaticallyImplyLeading: !EmbeddedSpoolmanDetail.of(context),
+      title: const Text('pages.spoolman.vendor_details.page_title').tr(args: [vendor.name]),
+    );
   }
 
   @override

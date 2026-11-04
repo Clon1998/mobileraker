@@ -41,18 +41,25 @@ GetFilament _filament(Ref ref) {
 }
 
 class FilamentDetailPage extends StatelessWidget {
-  const FilamentDetailPage({super.key, required this.machineUUID, required this.filament});
+  const FilamentDetailPage({super.key, required this.machineUUID, required this.filament, this.embedded = false});
 
   final String machineUUID;
 
   final GetFilament filament;
+
+  /// Whether the details are embedded in the detail pane of the Spoolman page instead of being their own page.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
       // Make sure we are able to access the vendor in all places
       overrides: [_filamentProvider.overrideWithValue(filament)],
-      child: _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID),
+      child: embedded
+          ? EmbeddedSpoolmanDetail(
+              child: _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID),
+            )
+          : _FilamentDetailPage(key: Key('fd-${filament.id}'), machineUUID: machineUUID),
     );
   }
 }
@@ -68,7 +75,7 @@ class _FilamentDetailPage extends HookConsumerWidget {
     useEffect(() => refreshController.dispose, const []);
 
     final controller = ref.watch(_filamentDetailPageControllerProvider(machineUUID).notifier);
-    return Scaffold(
+    return SpoolmanDetailScaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: FloatingActionButton(
         onPressed: () => controller.onAction(Theme.of(context)),
@@ -117,7 +124,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       title += ' (${filament.material})';
     }
 
-    return AppBar(title: Text(title));
+    return AppBar(automaticallyImplyLeading: !EmbeddedSpoolmanDetail.of(context), title: Text(title));
   }
 
   @override
@@ -276,7 +283,6 @@ class _FilamentSpools extends HookConsumerWidget {
     if (model.material != null) {
       title += ' (${model.material})';
     }
-
 
     final filter = SpoolmanFilter({'filament.id': model.id});
     return Card(

@@ -4,6 +4,7 @@
  */
 
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
@@ -62,6 +63,7 @@ import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_list_tile.dart';
+import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker_pro/ads/ad_block_unit.dart';
 import 'package:mobileraker_pro/ads/ui/ad_banner.dart';
 import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
@@ -537,7 +539,13 @@ class _TabbarNav extends HookConsumerWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+/// Min. width of the file manager's body for the list-detail layout.
+const double _listDetailMinWidth = 720;
+
+/// Max. width of the file list in the list-detail layout, the details take the rest.
+const double _maxListWidth = 400;
+
+class _Body extends HookWidget {
   const _Body({super.key, required this.machineUUID, required this.filePath, required this.scrollController});
 
   final String machineUUID;
@@ -548,13 +556,95 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveLimit(
+    final selection = useValueNotifier<GCodeFile?>(null);
+
+    final list = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (context.isLargerThanCompact) _TabbarNav(filePath: filePath),
+        Expanded(
+          child: _FileList(machineUUID: machineUUID, filePath: filePath, scrollController: scrollController),
+        ),
+      ],
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!_isGcodePath(filePath) || constraints.maxWidth < _listDetailMinWidth) return ResponsiveLimit(child: list);
+
+        // List-detail on larger layouts (tablets, foldables): the details of gcode files are shown next to the list
+        // instead of as their own page.
+        return _DetailSelection(
+          notifier: selection,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(width: math.min(_maxListWidth, constraints.maxWidth * 0.4), child: list),
+              const VerticalDivider(width: 1),
+              Expanded(
+                child: _DetailPane(machineUUID: machineUUID, filePath: filePath),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// The gcode file shown in the detail pane of the list-detail layout. Only present if the layout is used.
+class _DetailSelection extends InheritedNotifier<ValueNotifier<GCodeFile?>> {
+  const _DetailSelection({required super.notifier, required super.child});
+
+  static ValueNotifier<GCodeFile?>? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_DetailSelection>()?.notifier;
+}
+
+class _DetailPane extends ConsumerWidget {
+  const _DetailPane({required this.machineUUID, required this.filePath});
+
+  final String machineUUID;
+
+  final String filePath;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedPath = _DetailSelection.maybeOf(context)?.value?.absolutPath;
+    // The current version of the file, hides the details once it is no longer in this folder (deleted, moved).
+    final file = ref.watch(
+      _modernFileManagerControllerProvider(machineUUID, filePath).select(
+        (d) =>
+            d.folderContent.value?.files.whereType<GCodeFile>().where((f) => f.absolutPath == selectedPath).firstOrNull,
+      ),
+    );
+
+    return AnimatedSwitcher(
+      duration: kThemeAnimationDuration,
+      child: file == null
+          ? const _DetailPanePlaceholder()
+          : GCodeFileDetailPage(key: ValueKey(file.absolutPath), gcodeFile: file, embedded: true),
+    );
+  }
+}
+
+class _DetailPanePlaceholder extends StatelessWidget {
+  const _DetailPanePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final color = themeData.textTheme.bodySmall?.color;
+
+    return Center(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (context.isLargerThanCompact) _TabbarNav(filePath: filePath),
-          Expanded(
-            child: _FileList(machineUUID: machineUUID, filePath: filePath, scrollController: scrollController),
+          Icon(Icons.description_outlined, size: 48, color: color),
+          const Gap(8),
+          Text(
+            tr('pages.files.detail_pane_hint'),
+            textAlign: TextAlign.center,
+            style: themeData.textTheme.bodyMedium?.copyWith(color: color),
           ),
         ],
       ),
@@ -919,6 +1009,10 @@ class _FileItem extends ConsumerWidget {
       decimalDigits: 1,
     );
 
+    // List-detail layout: gcode files open in the detail pane, the shown one is highlighted.
+    final detailSelection = file is GCodeFile ? _DetailSelection.maybeOf(context) : null;
+    final shownInPane = detailSelection?.value?.absolutPath == file.absolutPath;
+
     Widget subtitle = switch (sortMode) {
       SortMode.size => Text(numberFormat.formatFileSize(file.size)),
       SortMode.estimatedPrintTime when file is GCodeFile => Text(
@@ -932,7 +1026,7 @@ class _FileItem extends ConsumerWidget {
       _ => Text('@:pages.files.sort_by.last_modified: ${file.modifiedDate?.let(dateFormat.format) ?? '--'}').tr(),
     };
 
-    return RemoteFileListTile(
+    final tile = RemoteFileListTile(
       machineUUID: machineUUID,
       file: file,
       selected: selected,
@@ -960,6 +1054,8 @@ class _FileItem extends ConsumerWidget {
       onTap: () {
         if (selectionMode) {
           controller.onLongClickFile(file);
+        } else if (detailSelection != null) {
+          detailSelection.value = file as GCodeFile;
         } else {
           final box = context.findRenderObject() as RenderBox?;
           final pos = box!.localToGlobal(Offset.zero) & box.size;
@@ -969,6 +1065,11 @@ class _FileItem extends ConsumerWidget {
       onLongPress: () {
         controller.onLongClickFile(file);
       }.only(enabled),
+    );
+
+    return Material(
+      color: shownInPane ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
+      child: tile,
     );
   }
 }
