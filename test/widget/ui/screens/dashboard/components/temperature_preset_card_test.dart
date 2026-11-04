@@ -46,7 +46,7 @@ void main() {
           ).copyWith(extruders: [const Extruder(num: 0)], heaterBed: hasBed ? const HeaterBed() : null),
         ),
         machineSettingsProvider(machine.uuid).overrideWithValue(AsyncData(settings)),
-        temperatureStoresProvider(machine.uuid).overrideWith(_NoTemperatureHistory.new),
+        temperatureStoresProvider(machine.uuid).overrideWith(NoTemperatureHistory.new),
       ],
     );
     await tester.pumpAndSettle();
@@ -149,9 +149,4 @@ void main() {
     expect(tester.widget<TextButton>(buttonOf('Cooloff')).onPressed, isNull);
     await tester.unmountApp();
   });
-}
-
-class _NoTemperatureHistory extends TemperatureStores {
-  @override
-  Future<TemperatureStore> build(String machineUUID) async => {};
 }

@@ -144,6 +144,11 @@ Notes from building it:
   sends `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=…` (Klipper answers with an error). Cooloff handles it.
   Test skipped: `temperature_preset_card_test.dart` "without a heater bed a preset only sets the extruder".
 
+- `KlippyProviderGuard` "unauthorized" screen: the printer settings button pushes `printerEdit` with
+  `extra: machine`, which resolves to the top-level `machine()` provider function (no local `machine` in scope), so the
+  route's `state.extra as Machine` throws. Test skipped: `klippy_provider_guard_test.dart` "unauthorized: the printer
+  settings button opens the settings of this machine".
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -177,6 +182,8 @@ Data comes from public providers + fixtures; actions go to fake services.
   - Fans/Pins/Temperature: list built from the printer fixture, slider sends `SET_FAN_SPEED`/`SET_PIN`/`M104`
   - Machine status: klippy states (ready, error, shutdown, disconnected) show the right message and actions
   - Macro groups: hidden/visible macros, macros with params open the dialog
+- **Connection guards** ✅ (`KlippyProviderGuard`, `PrinterProviderGuard` in common, `MachineConnectionGuard` in the
+  app): every websocket / Klippy / provider state shows the right screen, retry/reconnect/restart actions.
 
 ### Phase 3: layout and navigation (the foldable/tablet work) ✅
 

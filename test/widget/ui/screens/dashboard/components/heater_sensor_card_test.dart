@@ -56,7 +56,7 @@ void main() {
           printer: printer ?? withHeaters(),
         ),
         machineSettingsProvider(machine.uuid).overrideWithValue(AsyncData(MachineSettings())),
-        temperatureStoresProvider(machine.uuid).overrideWith(_NoTemperatureHistory.new),
+        temperatureStoresProvider(machine.uuid).overrideWith(NoTemperatureHistory.new),
       ],
     );
     await tester.pumpAndSettle();
@@ -144,9 +144,4 @@ void main() {
     expect(tester.widget<TextButton>(buttonOf('Extruder')).onLongPress, isNull);
     await tester.unmountApp();
   });
-}
-
-class _NoTemperatureHistory extends TemperatureStores {
-  @override
-  Future<TemperatureStore> build(String machineUUID) async => {};
 }

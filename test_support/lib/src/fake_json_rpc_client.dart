@@ -47,10 +47,20 @@ class FakeJsonRpcClient extends Fake implements JsonRpcClient {
   Stream<ClientState> get stateStream => Stream.value(curState);
 
   @override
-  bool get hasError => false;
+  bool get hasError => errorReason != null;
+
+  /// Why the last connection attempt failed (e.g. a `TimeoutException`).
+  @override
+  Object? errorReason;
+
+  /// How often [openChannel] was called (e.g. by a reconnect button).
+  int openChannelCalls = 0;
 
   @override
-  Future<bool> openChannel() async => true;
+  Future<bool> openChannel() async {
+    openChannelCalls++;
+    return true;
+  }
 
   @override
   Future<bool> ensureConnection() async => true;

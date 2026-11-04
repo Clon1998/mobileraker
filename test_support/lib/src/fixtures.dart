@@ -18,6 +18,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -84,26 +85,37 @@ class FakePrinter extends PrinterNotifier {
   Future<Printer> build(String machineUUID) async => printer;
 }
 
-/// Overrides for a machine whose websocket is connected (with [client], a [FakeJsonRpcClient] by default) and whose
-/// Klipper is [klipper] (ready, without components by default) with [printer] (standby by default).
+/// Temperature history without a websocket: always empty.
+class NoTemperatureHistory extends TemperatureStores {
+  @override
+  Future<TemperatureStore> build(String machineUUID) async => {};
+}
+
+/// Overrides for a machine whose websocket is in [clientState] (connected by default, with [client], a
+/// [FakeJsonRpcClient] by default) and whose Klipper is [klipper] (ready, without components by default) with
+/// [printer] (standby by default).
 ///
 /// With [selected] (default) it is also the selected machine; pass `false` for all but one machine of multi-machine
-/// tests.
+/// tests. [klipperNotifier] / [printerNotifier] replace the fixed [klipper] / [printer] with a custom notifier (e.g. one
+/// the test changes or that fails).
 List<Override> connectedMachineOverrides(
   Machine machine, {
   FakeJsonRpcClient? client,
   KlipperInstance? klipper,
   Printer? printer,
+  Klipper Function()? klipperNotifier,
+  PrinterNotifier Function()? printerNotifier,
   bool selected = true,
+  ClientState clientState = ClientState.connected,
 }) {
   final rpc = client ?? FakeJsonRpcClient();
   return [
-    klipperProvider(machine.uuid).overrideWith(() => FakeKlipper(klipper ?? Fixtures.klipper())),
-    printerProvider(machine.uuid).overrideWith(() => FakePrinter(printer ?? Fixtures.printer())),
+    klipperProvider(machine.uuid).overrideWith(klipperNotifier ?? () => FakeKlipper(klipper ?? Fixtures.klipper())),
+    printerProvider(machine.uuid).overrideWith(printerNotifier ?? () => FakePrinter(printer ?? Fixtures.printer())),
     if (selected) selectedMachineProvider.overrideWithValue(AsyncData(machine)),
     machineProvider(machine.uuid).overrideWithValue(AsyncData(machine)),
     jrpcClientProvider(machine.uuid).overrideWithValue(rpc),
-    jrpcClientStateProvider(machine.uuid).overrideWithValue(const AsyncData(ClientState.connected)),
+    jrpcClientStateProvider(machine.uuid).overrideWithValue(AsyncData(clientState)),
     jrpcClientTypeProvider(machine.uuid).overrideWithValue(rpc.clientType),
   ];
 }
