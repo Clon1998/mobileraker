@@ -114,7 +114,8 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
     }
 
     // On rail layouts the routes only contain the page bodies (the shell hosts the app bar and the rail, see
-    // RailScaffold). A page covered by another one is never faded, only the page on top fades in/out over it.
+    // RailScaffold). Follows the M3 motion guidelines: the entering page decelerates into place while the page it
+    // covers quickly fades out, so the contents of both pages barely overlap.
     final cupertino = _usesCupertino(context);
 
     // The animation passed to the theme transition. Completed if this route handles its primary animation itself.
@@ -141,13 +142,20 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
           context,
           themeAnimation,
           kAlwaysDismissedAnimation,
-          _slide(secondaryAnimation, Offset(0, -_slideOffsetFor(next._page.direction)), Curves.easeInCubic, content),
+          _fadeOut(
+            secondaryAnimation,
+            _slide(secondaryAnimation, Offset(0, -_slideOffsetFor(next._page.direction)), content),
+          ),
         );
       }
       if (!cupertino) {
-        // A sub-page is pushed on top: stay in place (moving would expose an empty strip at the far edge), the
-        // sub-page fades in on top.
-        return super.buildTransitions(context, themeAnimation, kAlwaysDismissedAnimation, content);
+        // A sub-page is pushed on top: fade out in place (moving would expose an empty strip at the far edge).
+        return super.buildTransitions(
+          context,
+          themeAnimation,
+          kAlwaysDismissedAnimation,
+          _fadeOut(secondaryAnimation, content),
+        );
       }
     }
 
@@ -156,14 +164,31 @@ class _RailDestinationRoute<T> extends PageRoute<T> with MaterialRouteTransition
     return super.buildTransitions(context, themeAnimation, secondaryAnimation, content);
   }
 
+  /// M3 emphasized decelerate: covers most of the distance right away and then eases into place. Played in reverse
+  /// (popping), it accelerates out.
+  static const Curve _curve = Easing.emphasizedDecelerate;
+
+  /// Fades in while sliding from [begin] to [Offset.zero] as [animation] goes from 0 to 1.
   static Widget _slideAndFade(Animation<double> animation, Offset begin, Widget child) => FadeTransition(
-    opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
-    child: _slide(ReverseAnimation(animation), begin, Curves.easeInCubic, child),
+    opacity: animation.drive(CurveTween(curve: _curve)),
+    child: SlideTransition(
+      position: animation.drive(Tween(begin: begin, end: Offset.zero).chain(CurveTween(curve: _curve))),
+      child: child,
+    ),
   );
 
   /// Slides from [Offset.zero] to [end] while [animation] goes from 0 to 1.
-  static Widget _slide(Animation<double> animation, Offset end, Curve curve, Widget child) => SlideTransition(
-    position: animation.drive(Tween(begin: Offset.zero, end: end).chain(CurveTween(curve: curve))),
+  static Widget _slide(Animation<double> animation, Offset end, Widget child) => SlideTransition(
+    position: animation.drive(Tween(begin: Offset.zero, end: end).chain(CurveTween(curve: _curve))),
+    child: child,
+  );
+
+  /// Fades out within the first half while [animation] goes from 0 to 1 (i.e. a page is pushed on top). Played in
+  /// reverse, the page fades back in within the second half.
+  static Widget _fadeOut(Animation<double> animation, Widget child) => FadeTransition(
+    opacity: animation.drive(
+      Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: const Interval(0, 0.5, curve: Curves.easeOut))),
+    ),
     child: child,
   );
 

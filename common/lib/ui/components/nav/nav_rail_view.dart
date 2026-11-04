@@ -55,8 +55,11 @@ class _NavigationRailShellState extends State<NavigationRailShell> {
       listenable: _slots,
       builder: (context, content) {
         final slots = _slots.value;
+        final appBar = slots.appBar;
         return Scaffold(
-          appBar: slots.appBar,
+          // Keyed by the page providing it, so pages never take over the app bar state of another page (e.g. running
+          // animations), just like on compact layouts where every page builds its own app bar.
+          appBar: appBar == null ? null : _RailAlignedAppBar(key: ObjectKey(_slots.owner), child: appBar),
           drawer: slots.drawer,
           body: Builder(
             // Uses the MediaQuery of the Scaffold's body, i.e. without the top padding if there is an app bar.
@@ -77,6 +80,26 @@ class _NavigationRailShellState extends State<NavigationRailShell> {
   }
 }
 
+/// Widens the leading of the app bar (drawer/back button) to the width of the rail, so it is aligned with the rail's
+/// entries.
+class _RailAlignedAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _RailAlignedAppBar({super.key, required this.child});
+
+  final PreferredSizeWidget child;
+
+  @override
+  Size get preferredSize => child.preferredSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Theme(
+      data: theme.copyWith(appBarTheme: theme.appBarTheme.copyWith(leadingWidth: _Rail.width)),
+      child: child,
+    );
+  }
+}
+
 /// What the [RailScaffold] of the current page provides to the [NavigationRailShell].
 @immutable
 class _RailSlots {
@@ -92,6 +115,9 @@ class _RailSlots {
 
 class _RailSlotsController extends ChangeNotifier implements ValueListenable<_RailSlots> {
   Object? _owner;
+
+  /// The page currently providing the slots.
+  Object? get owner => _owner;
 
   _RailSlots _value = const _RailSlots();
 
@@ -219,10 +245,7 @@ class _RailScaffoldState extends State<RailScaffold> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _publishScheduled = false;
       if (!mounted) return;
-      _slots?.publish(
-        this,
-        _RailSlots(appBar: widget.appBar, drawer: widget.drawer, railLeading: widget.railLeading),
-      );
+      _slots?.publish(this, _RailSlots(appBar: widget.appBar, drawer: widget.drawer, railLeading: widget.railLeading));
     });
   }
 
@@ -238,6 +261,9 @@ class _RailScaffoldState extends State<RailScaffold> {
 class _Rail extends StatelessWidget {
   const _Rail({super.key, required this.leading});
 
+  /// Width of the rail, excluding the horizontal safe area (M3 constraints).
+  static const double width = 72;
+
   final Widget? leading;
 
   @override
@@ -249,7 +275,7 @@ class _Rail extends StatelessWidget {
     final safeAreaPadding = EdgeInsets.only(left: paddingOf.left);
 
     return SizedBox(
-      width: 72 + paddingOf.left, // M3 Constraints
+      width: width + paddingOf.left,
       child: Material(
         color: backgroundColor,
         elevation: 2,
@@ -267,10 +293,7 @@ class _Rail extends StatelessWidget {
                       child: _Leading(leading: leading, safeAreaPadding: safeAreaPadding),
                     ),
                   ),
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: _Body(safeAreaPadding: safeAreaPadding),
-                  ),
+                  SliverFillRemaining(hasScrollBody: false, child: _Body(safeAreaPadding: safeAreaPadding)),
                 ],
               ),
             ),
