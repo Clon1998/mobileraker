@@ -144,7 +144,7 @@ class _DashboardView extends HookConsumerWidget {
       appBar: const _AppBar(),
       body: body,
       railLeading: fab,
-      floatingActionButton: fab.unless(context.isLargerThanCompact)?.let((it) => _FabHider(child: it)),
+      floatingActionButton: fab.unless(RailScaffold.showsRailOf(context))?.let((it) => _FabHider(child: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: activeMachine?.uuid
           .let((it) => _BottomNavigationBar(machineUUID: it))
@@ -393,8 +393,9 @@ class _PrintingFAB extends ConsumerWidget {
       activeIcon: Icons.close,
       spacing: 5,
       renderOverlay: false,
-      direction: context.isLargerThanCompact ? SpeedDialDirection.down : SpeedDialDirection.up,
-      switchLabelPosition: context.isLargerThanCompact,
+      // In the rail (top of the screen) instead of docked to the bottom bar.
+      direction: RailScaffold.showsRailOf(context) ? SpeedDialDirection.down : SpeedDialDirection.up,
+      switchLabelPosition: RailScaffold.showsRailOf(context),
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
@@ -500,7 +501,8 @@ class _BottomNavigationBar extends ConsumerWidget {
         ],
         activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
         inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor?.withAlpha(125),
-        gapLocation: GapLocation.end,
+        // The FAB docks there, unless it is shown in the rail (foldables).
+        gapLocation: RailScaffold.showsRailOf(context) ? GapLocation.none : GapLocation.end,
         backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ?? colorScheme.primary,
         notchSmoothness: NotchSmoothness.softEdge,
         activeIndex: model.activeIndex,

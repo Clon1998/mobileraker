@@ -13,6 +13,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/fold_bridge.dart';
 import 'package:common/ui/components/keep_screen_on_trigger.dart';
 import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/logger.dart';
@@ -210,7 +211,9 @@ class _WarmUp extends HookConsumerWidget {
               if (step == StartUpStep.complete) {
                 return KeepScreenOnTrigger(
                   child: AdMobsConsent(
-                    child: AnalyticsConsent(child: ResponsiveBuilder(childBuilder: (context) => const MyApp())),
+                    child: AnalyticsConsent(
+                      child: FoldBridge(child: ResponsiveBuilder(childBuilder: (context) => const MyApp())),
+                    ),
                   ),
                 );
               }

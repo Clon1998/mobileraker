@@ -63,6 +63,9 @@ dependencies:
 
   #reactive UI
   responsive_framework: ^1.4.0
+  # iPhone Duo / foldables: native fold bridge (foldable) and fold geometry (duo_kit), see docs/iphone_duo_support.md
+  foldable: ^1.0.5
+  duo_kit: ^0.1.2
 
   #bottomsheet:
   # 1.3.0 migrated to package:material_ui, whose Material is not detected by flutter/material widgets

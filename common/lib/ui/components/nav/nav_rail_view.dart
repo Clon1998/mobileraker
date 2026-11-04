@@ -3,8 +3,11 @@
  * All rights reserved.
  */
 
+import 'dart:math' as math;
+
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/fold_bridge.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -48,14 +51,23 @@ class _NavigationRailShellState extends State<NavigationRailShell> {
 
   @override
   Widget build(BuildContext context) {
-    final content = _RailScope(slots: _slots, child: widget.child);
-    if (!context.isLargerThanCompact) return content;
+    // Foldables (iPhone Duo) reserve a strip at a side edge for the navigation, also on compact layouts.
+    final strip = context.foldStrip;
+    final showsRail = context.isLargerThanCompact || strip != null;
 
+    // Wraps the rail too, so a rail leading can tell it is shown in the rail (see RailScaffold.showsRailOf).
+    return _RailScope(slots: _slots, showsRail: showsRail, child: showsRail ? _buildRailLayout(strip) : widget.child);
+  }
+
+  Widget _buildRailLayout(FoldStrip? strip) {
     return ListenableBuilder(
       listenable: _slots,
       builder: (context, content) {
         final slots = _slots.value;
         final appBar = slots.appBar;
+
+        if (strip != null) return _buildStripLayout(slots, strip, content!);
+
         return Scaffold(
           // Keyed by the page providing it, so pages never take over the app bar state of another page (e.g. running
           // animations), just like on compact layouts where every page builds its own app bar.
@@ -75,7 +87,48 @@ class _NavigationRailShellState extends State<NavigationRailShell> {
           ),
         );
       },
-      child: content,
+      child: widget.child,
+    );
+  }
+
+  /// Layout following Apple's guidelines for the iPhone Duo: all navigation lives in the system's strip. The rail fills
+  /// it (its full height, below the status cluster), the app bar and page only take the remaining part of the window.
+  /// The drawer opens from the strip's side, via the menu button at the bottom of the rail (instead of the app bar's
+  /// leading). The strip stays on its physical side, also in RTL languages.
+  Widget _buildStripLayout(_RailSlots slots, FoldStrip strip, Widget content) {
+    final appBar = slots.appBar;
+    final drawer = slots.drawer;
+    final isLeft = strip.side == FoldStripSide.left;
+    // Scaffold's drawer opens from the start side, the strip is on a physical side.
+    final drawerAtStart = isLeft == (Directionality.of(context) == TextDirection.ltr);
+    final rail = _Rail(leading: slots.railLeading, strip: strip, opensDrawer: drawer != null);
+
+    // The drawer belongs to the outer Scaffold, so it covers the rail and the app bar (in the inner Scaffold) does
+    // not imply a drawer button.
+    return Scaffold(
+      drawer: drawer.only(drawerAtStart),
+      endDrawer: drawer.unless(drawerAtStart),
+      body: Row(
+        textDirection: TextDirection.ltr,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (isLeft) rail,
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeLeft: isLeft,
+              removeRight: !isLeft,
+              child: Scaffold(
+                appBar: appBar == null
+                    ? null
+                    : PreferredSize(key: ObjectKey(_slots.owner), preferredSize: appBar.preferredSize, child: appBar),
+                body: content,
+              ),
+            ),
+          ),
+          if (!isLeft) rail,
+        ],
+      ),
     );
   }
 }
@@ -140,15 +193,22 @@ class _RailSlotsController extends ChangeNotifier implements ValueListenable<_Ra
 }
 
 class _RailScope extends InheritedWidget {
-  const _RailScope({required this.slots, required super.child});
+  const _RailScope({required this.slots, required this.showsRail, required super.child});
 
   final _RailSlotsController slots;
 
-  static _RailSlotsController? maybeOf(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_RailScope>()?.slots;
+  /// Whether the shell shows the rail, i.e. builds the app bar, drawer and rail leading of the current page. Decided by
+  /// the shell, as pages can not detect a fold strip themselves (the shell removes its padding).
+  final bool showsRail;
+
+  /// The shell's slots, if the shell shows the rail.
+  static _RailSlotsController? slotsOf(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<_RailScope>();
+    return scope != null && scope.showsRail ? scope.slots : null;
+  }
 
   @override
-  bool updateShouldNotify(_RailScope oldWidget) => slots != oldWidget.slots;
+  bool updateShouldNotify(_RailScope oldWidget) => slots != oldWidget.slots || showsRail != oldWidget.showsRail;
 }
 
 /// Drop-in replacement for the [Scaffold] of pages hosted by the [NavigationRailShell].
@@ -186,11 +246,16 @@ class RailScaffold extends StatefulWidget {
   /// Widget shown on top of the navigation rail (larger layouts only), typically a FAB.
   final Widget? railLeading;
 
+  /// Whether the [NavigationRailShell] shows the rail for the page of [context], i.e. its [railLeading] is shown
+  /// instead of a FAB. Not the same as [BuildContextExtension.isLargerThanCompact]: foldables (iPhone Duo) show the
+  /// rail in their fold strip, also on compact layouts.
+  static bool showsRailOf(BuildContext context) => _RailScope.slotsOf(context) != null;
+
   /// The leading for app bars of [RailScaffold]s, which an [AppBar] can not imply itself: a back button if the page
   /// is shown by the [NavigationRailShell] on larger layouts and can be popped. Null otherwise, so the [AppBar]
   /// implies its leading as usual.
   static Widget? impliedLeadingOf(BuildContext context) {
-    if (_RailScope.maybeOf(context) == null || !context.isLargerThanCompact) return null;
+    if (_RailScope.slotsOf(context) == null) return null;
     if (ModalRoute.of(context)?.impliesAppBarDismissal != true) return null;
 
     return BackButton(
@@ -212,8 +277,8 @@ class _RailScaffoldState extends State<RailScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final slots = _RailScope.maybeOf(context);
-    if (slots == null || !context.isLargerThanCompact) {
+    final slots = _RailScope.slotsOf(context);
+    if (slots == null) {
       _slots = null;
       return Scaffold(
         appBar: widget.appBar,
@@ -259,12 +324,19 @@ class _RailScaffoldState extends State<RailScaffold> {
 }
 
 class _Rail extends StatelessWidget {
-  const _Rail({super.key, required this.leading});
+  const _Rail({super.key, required this.leading, this.strip, this.opensDrawer = false});
 
   /// Width of the rail, excluding the horizontal safe area (M3 constraints).
   static const double width = 72;
 
   final Widget? leading;
+
+  /// The fold strip the rail fills, if any. Otherwise the rail is placed at the left edge, next to the safe area.
+  final FoldStrip? strip;
+
+  /// Whether the footer is a menu button opening the drawer of the enclosing [Scaffold] instead of the branding icon.
+  /// Only used with a [strip].
+  final bool opensDrawer;
 
   @override
   Widget build(BuildContext context) {
@@ -272,10 +344,22 @@ class _Rail extends StatelessWidget {
     final backgroundColor = themeData.colorScheme.surface;
 
     final paddingOf = MediaQuery.paddingOf(context);
-    final safeAreaPadding = EdgeInsets.only(left: paddingOf.left);
+    final strip = this.strip;
+
+    final onMenu = strip != null && opensDrawer
+        ? () {
+            final scaffold = Scaffold.of(context);
+            scaffold.hasDrawer ? scaffold.openDrawer() : scaffold.openEndDrawer();
+          }
+        : null;
+
+    // The strip is the safe area itself; its top holds the status cluster/camera.
+    final safeAreaPadding = strip == null ? EdgeInsets.only(left: paddingOf.left) : EdgeInsets.zero;
+    final topPadding = strip?.topClearance ?? paddingOf.top;
+    final bottomPadding = strip == null ? 0.0 : math.max(strip.bottomClearance, paddingOf.bottom);
 
     return SizedBox(
-      width: width + paddingOf.left,
+      width: strip?.width ?? width + paddingOf.left,
       child: Material(
         color: backgroundColor,
         elevation: 2,
@@ -286,9 +370,10 @@ class _Rail extends StatelessWidget {
                 primary: false,
                 physics: const RangeMaintainingScrollPhysics(parent: ClampingScrollPhysics()),
                 slivers: [
-                  // Only non-zero if the current page has no app bar, keeps the rail out of the status bar.
+                  // Without a strip only non-zero if the current page has no app bar, keeps the rail out of the
+                  // status bar.
                   SliverPadding(
-                    padding: EdgeInsets.only(top: paddingOf.top),
+                    padding: EdgeInsets.only(top: topPadding),
                     sliver: SliverToBoxAdapter(
                       child: _Leading(leading: leading, safeAreaPadding: safeAreaPadding),
                     ),
@@ -297,7 +382,10 @@ class _Rail extends StatelessWidget {
                 ],
               ),
             ),
-            _Footer(safeAreaPadding: safeAreaPadding),
+            _Footer(
+              safeAreaPadding: safeAreaPadding.copyWith(bottom: bottomPadding),
+              onMenu: onMenu,
+            ),
           ],
         ),
       ),
@@ -455,9 +543,13 @@ class _NavEntryState extends State<_NavEntry> {
 }
 
 class _Footer extends ConsumerWidget {
-  const _Footer({super.key, this.safeAreaPadding = EdgeInsets.zero});
+  const _Footer({super.key, this.safeAreaPadding = EdgeInsets.zero, this.onMenu});
 
   final EdgeInsets safeAreaPadding;
+
+  /// If set, the footer is a menu button calling this instead of showing the branding icon (which switches the active
+  /// machine on tap, the drawer offers that too).
+  final VoidCallback? onMenu;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -470,12 +562,45 @@ class _Footer extends ConsumerWidget {
 
     final navigationEnabled = ref.watch(navWidgetControllerProvider.select((s) => s.enabled));
 
+    final backgroundColor =
+        themeData.appBarTheme.backgroundColor ??
+        themeData.colorScheme.primary.unless(themeData.useMaterial3) ??
+        themeData.colorScheme.surface;
+
+    final onMenu = this.onMenu;
+    if (onMenu != null) {
+      // Styled like a BottomNavigationBar, so it lines up with the bottom bar some pages show next to the rail.
+      final barTheme = themeData.bottomNavigationBarTheme;
+      final foregroundColor =
+          barTheme.unselectedIconTheme?.color ??
+          barTheme.unselectedItemColor ??
+          themeData.appBarTheme.foregroundColor ??
+          themeData.colorScheme.onPrimary.unless(themeData.useMaterial3) ??
+          themeData.colorScheme.onSurface;
+
+      return Material(
+        color: barTheme.backgroundColor ?? backgroundColor,
+        elevation: barTheme.elevation ?? 8,
+        child: InkWell(
+          onTap: onMenu,
+          child: Tooltip(
+            message: MaterialLocalizations.of(context).openAppDrawerTooltip,
+            child: Padding(
+              padding: safeAreaPadding,
+              child: SizedBox(
+                width: double.infinity,
+                height: kBottomNavigationBarHeight,
+                child: Icon(Icons.menu, color: foregroundColor),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Container(
       width: double.infinity,
-      color:
-          themeData.appBarTheme.backgroundColor ??
-          themeData.colorScheme.primary.unless(themeData.useMaterial3) ??
-          themeData.colorScheme.surface,
+      color: backgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8).add(safeAreaPadding),
       child: Consumer(
         builder: (context, ref, child) {

@@ -7,6 +7,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/fold_bridge.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/uri_extension.dart';
@@ -35,75 +36,90 @@ class NavigationDrawerWidget extends HookConsumerWidget {
 
     final machineSelectionExt = useValueNotifier(false);
 
+    // On foldables (iPhone Duo) the drawer opens over the fold strip. Only the top of the strip is covered by the
+    // status cluster/camera, so the drawer uses the strip instead of leaving it blank: the header's background reaches
+    // into it (its content stays clear of the status cluster), the entries below fill it.
+    final strip = context.foldStrip;
+    final stripInset = switch (strip?.side) {
+      FoldStripSide.left => EdgeInsets.only(left: strip!.width),
+      FoldStripSide.right => EdgeInsets.only(right: strip!.width),
+      null => EdgeInsets.zero,
+    };
+
     return Drawer(
       clipBehavior: Clip.antiAlias,
-      child: SafeArea(
-        top: false,
-        child: Column(
-          children: [
-            _NavHeader(machineSelectionExt),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                primary: false,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    children: [
-                      _PrinterSelection(machineSelectionExt),
-                      for (var entry in model.entries)
-                        entry.isDivider
-                            ? const Divider()
-                            : _DrawerItem(
-                                text: entry.label,
-                                icon: entry.icon,
-                                routeName: entry.route,
-                                routeMatcher: entry.routeMatcherOrDefault,
-                              ),
-                    ],
+      child: MediaQuery.removePadding(
+        context: context,
+        removeLeft: strip?.side == FoldStripSide.left,
+        removeRight: strip?.side == FoldStripSide.right,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: [
+              _NavHeader(machineSelectionExt, contentInset: stripInset),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  primary: false,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Column(
+                      children: [
+                        _PrinterSelection(machineSelectionExt),
+                        for (var entry in model.entries)
+                          entry.isDivider
+                              ? const Divider()
+                              : _DrawerItem(
+                                  text: entry.label,
+                                  icon: entry.icon,
+                                  routeName: entry.route,
+                                  routeMatcher: entry.routeMatcherOrDefault,
+                                ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            // const AdBanner(
-            //   unit: AdBlockUnit.navDrawerBanner,
-            //   constraints: BoxConstraints(maxHeight: 50),
-            //   adSize: AdSize.fluid,
-            // ),
-            Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.only(bottom: 20, top: 10),
-              child: RichText(
-                text: TextSpan(
-                  style: themeData.textTheme.bodySmall!.copyWith(color: themeData.colorScheme.onSurface),
-                  text: 'components.nav_drawer.footer'.tr(),
-                  children: [
-                    TextSpan(
-                      text: ' GitHub ',
-                      style: TextStyle(color: themeData.colorScheme.secondary),
-                      children: const [WidgetSpan(child: Icon(FontAwesome.github_alt, size: 18))],
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          const String url = 'https://github.com/Clon1998/mobileraker';
-                          if (await canLaunchUrlString(url)) {
-                            await launchUrlString(url, mode: LaunchMode.externalApplication);
-                          } else {
-                            throw 'Could not launch $url';
-                          }
-                        },
-                    ),
-                    const TextSpan(text: '\n\n'),
-                    TextSpan(
-                      text: tr('pages.setting.imprint'),
-                      style: TextStyle(color: themeData.colorScheme.secondary),
-                      recognizer: TapGestureRecognizer()..onTap = () => controller.pushingTo('/imprint'),
-                    ),
-                  ],
+              // const AdBanner(
+              //   unit: AdBlockUnit.navDrawerBanner,
+              //   constraints: BoxConstraints(maxHeight: 50),
+              //   adSize: AdSize.fluid,
+              // ),
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.only(bottom: 20, top: 10),
+                child: RichText(
+                  text: TextSpan(
+                    style: themeData.textTheme.bodySmall!.copyWith(color: themeData.colorScheme.onSurface),
+                    text: 'components.nav_drawer.footer'.tr(),
+                    children: [
+                      TextSpan(
+                        text: ' GitHub ',
+                        style: TextStyle(color: themeData.colorScheme.secondary),
+                        children: const [WidgetSpan(child: Icon(FontAwesome.github_alt, size: 18))],
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            const String url = 'https://github.com/Clon1998/mobileraker';
+                            if (await canLaunchUrlString(url)) {
+                              await launchUrlString(url, mode: LaunchMode.externalApplication);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                      ),
+                      const TextSpan(text: '\n\n'),
+                      TextSpan(
+                        text: tr('pages.setting.imprint'),
+                        style: TextStyle(color: themeData.colorScheme.secondary),
+                        recognizer: TapGestureRecognizer()..onTap = () => controller.pushingTo('/imprint'),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -111,9 +127,12 @@ class NavigationDrawerWidget extends HookConsumerWidget {
 }
 
 class _NavHeader extends HookConsumerWidget {
-  const _NavHeader(this.machineSelectionExt, {super.key});
+  const _NavHeader(this.machineSelectionExt, {super.key, this.contentInset = EdgeInsets.zero});
 
   final ValueNotifier<bool> machineSelectionExt;
+
+  /// Keeps the content clear of the status cluster of a fold strip the background reaches into.
+  final EdgeInsets contentInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,7 +154,7 @@ class _NavHeader extends HookConsumerWidget {
 
     return DrawerHeader(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.only(top: 30).add(contentInset),
       decoration: BoxDecoration(color: background),
       child: Material(
         color: Colors.transparent,
