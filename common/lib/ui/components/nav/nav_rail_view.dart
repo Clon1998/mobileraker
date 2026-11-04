@@ -184,8 +184,17 @@ class _RailSlotsController extends ChangeNotifier implements ValueListenable<_Ra
     notifyListeners();
   }
 
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  /// No-op once disposed: pages clear the slots after the frame, the shell may be disposed together with them.
   void clear(Object owner) {
-    if (!identical(owner, _owner)) return;
+    if (_disposed || !identical(owner, _owner)) return;
     _owner = null;
     _value = const _RailSlots();
     notifyListeners();
