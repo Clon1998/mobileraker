@@ -19,6 +19,9 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hooks_riverpod/misc.dart' show Override;
 
@@ -112,4 +115,26 @@ List<Override> remoteConfigOverrides({
   remoteConfigIntProvider.overrideWith((ref, key) => ints[key] ?? 0),
   remoteConfigBoolProvider.overrideWith((ref, key) => bools[key] ?? false),
   remoteConfigStringProvider.overrideWith((ref, key) => strings[key] ?? ''),
+];
+
+/// Records snackbars instead of showing them.
+class FakeSnackBarService extends Fake implements SnackBarService {
+  final List<SnackBarConfig> shown = [];
+
+  @override
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? show(SnackBarConfig config) {
+    shown.add(config);
+    return null;
+  }
+
+  @override
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>? showForMachine(
+    String machineUUID,
+    SnackBarConfig config,
+  ) => show(config);
+}
+
+/// The UI services the app provides in main() (currently the snackbar service).
+List<Override> uiServiceOverrides({FakeSnackBarService? snackBars}) => [
+  snackBarServiceProvider.overrideWithValue(snackBars ?? FakeSnackBarService()),
 ];

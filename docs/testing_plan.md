@@ -129,6 +129,8 @@ Notes from building it:
   Z offset (20 px, `z_offset_card.dart:192`) overflow to the right. Their step size `SingleValueSelector` sits in a
   `Column` inside a `Row` without a width limit, so its horizontal scroll view takes its full width instead of
   scrolling. Everything fits from 380. Tests skipped in `dashboard_card_test.dart`.
+- `PrinterService.speedMultiplier` sends `M220  S110` (two spaces). Probably harmless for Klipper, cosmetic in the
+  console.
 - `SingleValueSelector(values: [])` fails its own assert (`selectedIndex <= values.length - 1`), so the
   "No Steps configured!" branch is unreachable in debug builds.
 
@@ -157,7 +159,7 @@ Data comes from public providers + fixtures; actions go to fake services.
 - **One smoke test for every card** ✅ (`test/widget/ui/components/dashboard_card_test.dart`, 360 wide / phone /
   dark): each card's `preview()` renders without exceptions or overflows at phone and
   tablet widths, light and dark. Cheap and catches most layout regressions (there are ~18 cards).
-- **Per card**, the states and the main interaction:
+- **Per card**, the states and the main interaction (_started: Multipliers_):
   - loading (skeleton) → data → error/"not available" (e.g. no fans configured)
   - Multipliers/Limits/Z-offset/Firmware retraction: change a value → correct G-code sent
   - Control XYZ / extruder: buttons disabled while printing or not homed, jog sends the right move
