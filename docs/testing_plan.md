@@ -149,6 +149,14 @@ Notes from building it:
   route's `state.extra as Machine` throws. Test skipped: `klippy_provider_guard_test.dart` "unauthorized: the printer
   settings button opens the settings of this machine".
 
+- Number edit dialog (fans, pins, heaters, extruder): the text field always uses
+  `TextInputType.numberWithOptions(decimal: false)`, also when decimals are allowed (`fraction > 0`, e.g. PWM pins),
+  so iOS shows a number pad without a decimal separator. Test skipped: `num_edit_form_dialog_test.dart` "the keyboard
+  offers a decimal separator when decimals are allowed".
+- Macro params dialog: a param without default whose field is left untouched is returned as `null`; the macro card
+  then throws on `paramsMap[key]!.trim()` and the macro is not run. Test skipped: `macro_params_dialog_test.dart`
+  "an untouched param without default is returned as text".
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -184,6 +192,8 @@ Data comes from public providers + fixtures; actions go to fake services.
   - Macro groups: hidden/visible macros, macros with params open the dialog
 - **Connection guards** ✅ (`KlippyProviderGuard`, `PrinterProviderGuard` in common, `MachineConnectionGuard` in the
   app): every websocket / Klippy / provider state shows the right screen, retry/reconnect/restart actions.
+- **More cards and their dialogs** ✅: Grouped sliders, Power API (against the real `PowerDevices` notifier), Console
+  (history, suggestions, input), number edit dialog, macro params dialog.
 
 ### Phase 3: layout and navigation (the foldable/tablet work) ✅
 
