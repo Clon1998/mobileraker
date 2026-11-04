@@ -43,6 +43,49 @@
   whole screen sliding in. The rail also keeps the current section highlighted on its sub-pages (e.g. the
   notification settings) and on pages opened from elsewhere, such as a printer opened from the overview.
 
+### Bug Fixes
+
+- **API Key Prompt**: The "Printer Settings" button on the screen asking for a Moonraker API key now opens the
+  printer's settings instead of doing nothing.
+
+- **Macro Parameters**: Running a macro while leaving a parameter without default value empty no longer fails
+  silently. The macro is now sent without that parameter.
+
+- **File Details**:
+  - The "Print" button is now disabled while another print is running or paused.
+  - The nozzle diameter is shown as a number (e.g. "0.4 mm") instead of "[0.4] mm".
+  - Clearing the active Spoolman spool while the file details are open no longer causes an error. Any filament
+    warnings are removed instead.
+
+- **Firmware Retraction Card**: Fixed an error on printers that previously had firmware retraction configured but no
+  longer do.
+
+- **Spoolman on Tablets**: Opening a spool, filament or vendor from the detail pane next to the list no longer fails.
+  Long spool names in the spool lists are now shortened instead of overflowing.
+
+- **Small Phones**: The Move Axis and Z-Offset cards no longer overflow on narrow phones (e.g. 360 dp wide).
+
+- **Search in Selection Sheets**: Searching in selection lists (e.g. Spoolman filaments or vendors) now lists the best
+  match first.
+
+- **Number Input Keyboard**: When editing a value that allows decimals (e.g. PWM pins), the keyboard now offers a
+  decimal separator.
+
+- **Temperature Presets**: Applying a preset on a printer without a heated bed no longer tries to set a bed
+  temperature, which Klipper rejected with an error.
+
+- **Fan Speed Dialog**: The dialog title now shows the name of the fan being adjusted instead of always "Part Fan".
+
+- **Slider Text Input**: Switching a slider to text input now focuses the text field right away.
+
+- **G-code Commands**: Removed extra spaces from some G-code commands sent by the app (speed factor, fan speed,
+  heater temperature, homing and macros without parameters).
+
+- **Spoolman Forms**: Saving a spool, filament or vendor without changes no longer sends an update to Spoolman when
+  it has no extra fields.
+
+- **Settings**: Removed the "Group Slider Cards" setting, which no longer had any effect.
+
 ## [2.9.14] - 2026-10-03
 
 ### Enhancements
