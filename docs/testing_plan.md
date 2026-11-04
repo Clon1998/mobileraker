@@ -129,13 +129,19 @@ Notes from building it:
   Z offset (20 px, `z_offset_card.dart:192`) overflow to the right. Their step size `SingleValueSelector` sits in a
   `Column` inside a `Row` without a width limit, so its horizontal scroll view takes its full width instead of
   scrolling. Everything fits from 380. Tests skipped in `dashboard_card_test.dart`.
-- `PrinterService.speedMultiplier` sends `M220  S110` (two spaces). Probably harmless for Klipper, cosmetic in the
-  console.
+- `PrinterService` sends some commands with two spaces after the command: `M220  S110` (speedMultiplier),
+  `SET_FAN_SPEED  FAN=…` (genericFanFan), `SET_HEATER_TEMPERATURE  HEATER=…` (setHeaterTemperature). Probably
+  harmless for Klipper, cosmetic in the console.
 - `SingleValueSelector(values: [])` fails its own assert (`selectedIndex <= values.length - 1`), so the
   "No Steps configured!" branch is unreachable in debug builds.
 - Firmware retraction card: when a machine had firmware retraction (remembered flag) but its config no longer has
   it, the loading placeholder builds the full body, whose sliders read `firmwareRetraction!` → null check error.
   Test skipped: `firmware_retraction_card_test.dart` "is hidden once firmware retraction is removed …".
+- Fans card: the speed dialog title is always "Edit Part Fan %", also for generic fans (`onEditFan` uses the
+  `part_fan` string). Test skipped: `fans_card_test.dart` "the speed dialog names the fan being set".
+- Temperature presets on a printer without a heater bed: the bed temperature is hidden, but applying a preset still
+  sends `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=…` (Klipper answers with an error). Cooloff handles it.
+  Test skipped: `temperature_preset_card_test.dart` "without a heater bed a preset only sets the extruder".
 
 ## Phases (bottom up)
 
@@ -162,7 +168,8 @@ Data comes from public providers + fixtures; actions go to fake services.
 - **One smoke test for every card** ✅ (`test/widget/ui/components/dashboard_card_test.dart`, 360 wide / phone /
   dark): each card's `preview()` renders without exceptions or overflows at phone and
   tablet widths, light and dark. Cheap and catches most layout regressions (there are ~18 cards).
-- **Per card**, the states and the main interaction (_done: Multipliers, Limits, Z offset, Firmware retraction, Machine status_):
+- **Per card**, the states and the main interaction (_done: Multipliers, Limits, Z offset, Firmware retraction, Machine status, Fans, Pins, Temperature +
+  presets_):
   - loading (skeleton) → data → error/"not available" (e.g. no fans configured)
   - Multipliers/Limits/Z-offset/Firmware retraction: change a value → correct G-code sent
   - Control XYZ / extruder: buttons disabled while printing or not homed, jog sends the right move
