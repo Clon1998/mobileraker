@@ -136,7 +136,9 @@ class _FilamentFormPage extends HookConsumerWidget {
     return Scaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: _Fab(machineUUID: machineUUID),
-      body: Center(
+      // Top aligned, a short form would otherwise be centered vertically.
+      body: Align(
+        alignment: Alignment.topCenter,
         child: SafeArea(
           child: ResponsiveLimit(
             child: FormBuilder(
