@@ -168,6 +168,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test_support:
+    path: test_support
   build_runner: ^2.6.0
   flutter_lints: ^6.0.0
   freezed: ^3.2.0

@@ -100,6 +100,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test_support:
+    path: ../test_support
   mockito: ^5.4.5
   flutter_lints: ^6.0.0
   # riverpod_lint and custom_lint removed: requires Dart 3.10+ for compatibility with riverpod 3.2+

@@ -1,0 +1,33 @@
+name: test_support
+description: Shared helpers for widget tests of Mobileraker, common and mobileraker_pro.
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+  flutter: '>=3.32.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  common:
+    path: ../common
+  duo_kit: ^0.1.2
+  easy_localization: ^3.0.3
+  form_builder_validators: ^11.0.0
+  hive_ce: ^2.8.0+1
+  hooks_riverpod: ^3.3.2
+  responsive_framework: ^1.4.0
+  shared_preferences: ^2.5.3
+  talker_flutter: ^5.2.0
+  yaml: ^3.1.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
