@@ -22,6 +22,7 @@ dependencies:
   go_router: ^17.3.0
   hive_ce: ^2.8.0+1
   hooks_riverpod: ^3.3.2
+  package_info_plus: ^10.2.2
   responsive_framework: ^1.4.0
   shared_preferences: ^2.5.3
   talker_flutter: ^5.2.0

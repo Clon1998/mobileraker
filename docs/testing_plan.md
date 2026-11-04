@@ -51,13 +51,13 @@ It contains:
 
 - **`pumpApp`**: ProviderScope (no retry) → easy_localization (real `en.json`) → `MaterialApp` with our theme →
   `ResponsiveBreakpoints` (same breakpoints as the app) → `FoldBridge`-compatible `MediaQuery`.
-  `pumpRouterApp` does the same with a `GoRouter` for shell and page tests (_comes with phase 3_).
+  `pumpRouterApp` does the same with a `GoRouter` for shell and page tests.
 - **`TestDevice`**: sets `tester.view.physicalSize`/`devicePixelRatio` and `viewPadding`. The Duo poses come from
   `duo_kit`'s `FoldTestPose`, so the strip is real geometry, not hand-written padding.
-- **Fixtures** (_come with phase 2_): `PrinterFixtures`, `KlipperFixtures`, `MachineFixtures`, `GCodeFileFixtures`, `SpoolFixtures`, built
+- **Fixtures** (_started: `Fixtures.machine/folder/gcode`, `connectedMachineOverrides`, `remoteConfigOverrides`; the rest comes with phase 2_): `PrinterFixtures`, `KlipperFixtures`, `MachineFixtures`, `GCodeFileFixtures`, `SpoolFixtures`, built
   on the existing DTO constructors / `PrinterBuilder` and the JSON in `common/test_resources`. One place to fix
   when a DTO changes.
-- **Fakes/mocks** (_come with phase 2_): mockito stays (already used). Fakes for the services pages call (`PrinterService`,
+- **Fakes/mocks** (_started: `FakeJsonRpcClient` records calls_): mockito stays (already used). Fakes for the services pages call (`PrinterService`,
   `FileService`, `DialogService`, `SnackBarService`, `BottomSheetService`) that record calls, so a test can say
   "tapping +10% sent `M220 S110`".
 - The broken counter `test/widget_test.dart` is removed; `test_support/test/pump_app_test.dart` checks the harness.
@@ -87,6 +87,12 @@ Notes from building it:
 - The Pixel Tablet in landscape (1280 wide) is wider than the last breakpoint (1200), so the breakpoint name is
   `null` there (same as in the app); `isLargerThanCompact` is still true.
 - Create `StreamController`s etc. inside the test (or a helper it calls), not in `setUp`.
+- Riverpod's own `tester.container()` returns the app's container; pages with nested `ProviderScope`s need
+  `tester.container(of: find.byType(MaterialApp))`.
+- Pages: `connectedMachineOverrides(Fixtures.machine())` (selected machine, connected `FakeJsonRpcClient`) and
+  `remoteConfigOverrides()` (no Firebase) cover most of what a page needs; override the data provider of the page
+  (e.g. `moonrakerFolderContentProvider.overrideWith((ref, args) => ...)` for a whole family). Pro providers
+  (e.g. `jobQueueProvider`) are overridden in the app's tests, `test_support` can't depend on pro.
 
 ### Pre-existing failing tests (fix before CI)
 
@@ -133,7 +139,7 @@ Data comes from public providers + fixtures; actions go to fake services.
   - Machine status: klippy states (ready, error, shutdown, disconnected) show the right message and actions
   - Macro groups: hidden/visible macros, macros with params open the dialog
 
-### Phase 3: layout and navigation (the foldable/tablet work)
+### Phase 3: layout and navigation (the foldable/tablet work) (_shell and Files done_)
 
 These are the tests that keep today's Duo/tablet work from regressing.
 

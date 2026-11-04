@@ -152,6 +152,4 @@ extension PumpApp on WidgetTester {
     await pump();
   }
 
-  /// The [ProviderContainer] of the app pumped by [pumpApp], e.g. to read a provider or a notifier in a test.
-  ProviderContainer get container => ProviderScope.containerOf(element(find.byType(MaterialApp)));
 }
