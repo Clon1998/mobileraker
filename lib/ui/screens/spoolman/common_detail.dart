@@ -100,6 +100,13 @@ mixin CommonSpoolmanDetailPagesController<State> {
   SpoolmanDetailSelection get _paneSelection => ref.read(spoolmanDetailSelectionProvider(machineUUID).notifier);
 
   void onEntryTap(SpoolmanIdentifiableDtoMixin dto) async {
+    // Embedded in the detail pane: entries of the type the pane (and its list) shows switch the pane, others open as
+    // their own page.
+    if (!_isOwnPage && ref.read(spoolmanDetailSelectionProvider(machineUUID)).runtimeType == dto.runtimeType) {
+      _paneSelection.select(dto);
+      return;
+    }
+
     switch (dto) {
       case GetSpool spool:
         goRouterRef.pushNamed(ProRoutes.spoolman_details_spool.name, extra: [machineUUID, spool]);
