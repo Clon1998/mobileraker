@@ -36,7 +36,11 @@ class PaywallPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSupporter = ref.watch(isSupporterProvider);
-    Widget body = CustomScrollView(
+    Widget body = LayoutBuilder(
+      builder: (context, constraints) {
+        // Two columns on wide layouts (tablets, foldables), the logo then heads the intro column.
+        final wide = constraints.maxWidth >= _twoColumnMinWidth;
+        return CustomScrollView(
       physics: const ClampingScrollPhysics().only(context.isCompact),
       slivers: [
         if (context.isCompact)
@@ -48,7 +52,7 @@ class PaywallPage extends HookConsumerWidget {
               background: SvgPicture.asset(alignment: Alignment.topCenter, 'assets/vector/mr_logo.svg', colorMapper: GrayScaleColorMapper().unless(isSupporter),),
             ),
           ),
-        if (context.isLargerThanCompact)
+        if (context.isLargerThanCompact && !wide)
           SliverToBoxAdapter(child: SvgPicture.asset(height: 210, 'assets/vector/mr_logo.svg', colorMapper: GrayScaleColorMapper().unless(isSupporter),)),
         SliverSafeArea(
           top: false,
@@ -58,13 +62,15 @@ class PaywallPage extends HookConsumerWidget {
               builder: (context, constraints) => SliverToBoxAdapter(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.remainingPaintExtent),
-                  child: const ResponsiveLimit(child: _PaywallPage()),
+                  child: ResponsiveLimit(child: _PaywallPage(wide: wide)),
                 ),
               ),
             ),
           ),
         ),
       ],
+    );
+      },
     );
     return RailScaffold(
       appBar: AppBar(title: Text(tr('pages.paywall.title'))).unless(context.isCompact),
@@ -87,8 +93,68 @@ class PaywallPage extends HookConsumerWidget {
   }
 }
 
+/// Min. width of the paywall for its two-column layout.
+const double _twoColumnMinWidth = 720;
+
+/// Lays out the paywall's [intro] (header, benefits) and its [purchase] section (offerings, tips, footer): one column,
+/// or two columns side by side on [wide] layouts, so the offerings are visible without scrolling.
+class _PaywallLayout extends ConsumerWidget {
+  const _PaywallLayout({required this.wide, required this.intro, required this.purchase});
+
+  final bool wide;
+
+  final List<Widget> intro;
+
+  final List<Widget> purchase;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!wide) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [...intro, ...purchase],
+      );
+    }
+
+    final isSupporter = ref.watch(isSupporterProvider);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SvgPicture.asset(
+                height: 140,
+                'assets/vector/mr_logo.svg',
+                colorMapper: GrayScaleColorMapper().unless(isSupporter),
+              ),
+              ...intro,
+            ],
+          ),
+        ),
+        const Gap(16),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: purchase,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _PaywallPage extends ConsumerWidget {
-  const _PaywallPage({super.key});
+  const _PaywallPage({super.key, required this.wide});
+
+  final bool wide;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -103,7 +169,7 @@ class _PaywallPage extends ConsumerWidget {
     return ref
         .watch(paywallPageControllerProvider)
         .when(
-          data: (data) => _PaywallOfferingsContainer(model: data),
+          data: (data) => _PaywallOfferingsContainer(model: data, wide: wide),
           error: (e, s) {
             if (e is PlatformException && e.code == '3') {
               return _ServicesUnavailableWidget();
@@ -342,33 +408,36 @@ class _FetchErrorWidget extends ConsumerWidget {
 }
 
 class _PaywallOfferingsContainer extends ConsumerWidget {
-  const _PaywallOfferingsContainer({super.key, required this.model});
+  const _PaywallOfferingsContainer({super.key, required this.model, required this.wide});
 
   final PaywallPageState model;
 
+  final bool wide;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(isSupporterProvider) ? _ManagementView(model: model) : _SubscriptionView(model: model);
+    return ref.watch(isSupporterProvider)
+        ? _ManagementView(model: model, wide: wide)
+        : _SubscriptionView(model: model, wide: wide);
   }
 }
 
 class _SubscriptionView extends ConsumerWidget {
-  const _SubscriptionView({super.key, required this.model});
+  const _SubscriptionView({super.key, required this.model, required this.wide});
 
   final PaywallPageState model;
+
+  final bool wide;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textTheme = Theme.of(context).textTheme;
     final controller = ref.read(paywallPageControllerProvider.notifier);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _Header(),
-        const SupporterBenefits(),
-        Gap(16),
+    return _PaywallLayout(
+      wide: wide,
+      intro: [_Header(), const SupporterBenefits(), Gap(16)],
+      purchase: [
         Padding(
           padding: const EdgeInsets.all(4.0),
           child: Text(
@@ -410,9 +479,11 @@ class _SubscriptionView extends ConsumerWidget {
 }
 
 class _ManagementView extends ConsumerWidget {
-  const _ManagementView({super.key, required this.model});
+  const _ManagementView({super.key, required this.model, required this.wide});
 
   final PaywallPageState model;
+
+  final bool wide;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -421,15 +492,16 @@ class _ManagementView extends ConsumerWidget {
 
     var textTheme = Theme.of(context).textTheme;
     final controller = ref.read(paywallPageControllerProvider.notifier);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
+    return _PaywallLayout(
+      wide: wide,
+      intro: [
         _Header(),
         if (supOrigin == false) ...[const _SubscriptionManagementNotice(), Gap(8)],
         const SupporterBenefits(),
         if (hasSubAndLifetime) ...[Gap(8), const _SubLifetimeWarning()],
         Gap(16),
+      ],
+      purchase: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
