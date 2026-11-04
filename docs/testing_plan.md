@@ -228,6 +228,10 @@ Router-based (`pumpRouterApp`), services faked, a few flows per page instead of 
 - **Settings**: toggles write the setting.
 - **Spoolman (pro)**: list paging, detail, create/edit forms.
 
+
+_Done: printer edit page (prefill, save, validation, failing save, Klipper/connection states, delete,
+supporter theme) and the printer add flow (mode, simple/advanced form, connection test results, add, limits)._
+
 ### Phase 5: later / optional
 
 - **Golden tests** for a handful of key screens (dashboard, overview, Duo layout). Goldens differ between macOS and

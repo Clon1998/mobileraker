@@ -8,6 +8,7 @@
 library;
 
 export 'src/fake_json_rpc_client.dart';
+export 'src/fake_services.dart';
 export 'src/fixtures.dart';
 export 'src/pump_app.dart';
 export 'src/test_device.dart';
