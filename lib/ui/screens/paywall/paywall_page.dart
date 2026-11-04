@@ -117,7 +117,6 @@ class _PaywallLayout extends ConsumerWidget {
       );
     }
 
-    final isSupporter = ref.watch(isSupporterProvider);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -125,14 +124,7 @@ class _PaywallLayout extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SvgPicture.asset(
-                height: 140,
-                'assets/vector/mr_logo.svg',
-                colorMapper: GrayScaleColorMapper().unless(isSupporter),
-              ),
-              ...intro,
-            ],
+            children: [const _Logo(height: 140), ...intro],
           ),
         ),
         const Gap(16),
@@ -147,6 +139,22 @@ class _PaywallLayout extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The (grayscale for non-supporters) Mobileraker logo heading the paywall on wide layouts.
+class _Logo extends ConsumerWidget {
+  const _Logo({required this.height});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SvgPicture.asset(
+      height: height,
+      'assets/vector/mr_logo.svg',
+      colorMapper: GrayScaleColorMapper().unless(ref.watch(isSupporterProvider)),
     );
   }
 }
@@ -166,10 +174,14 @@ class _PaywallPage extends ConsumerWidget {
       }
     });
 
-    return ref
+    var showsOfferings = false;
+    final content = ref
         .watch(paywallPageControllerProvider)
         .when(
-          data: (data) => _PaywallOfferingsContainer(model: data, wide: wide),
+          data: (data) {
+            showsOfferings = true;
+            return _PaywallOfferingsContainer(model: data, wide: wide);
+          },
           error: (e, s) {
             if (e is PlatformException && e.code == '3') {
               return _ServicesUnavailableWidget();
@@ -186,6 +198,10 @@ class _PaywallPage extends ConsumerWidget {
             ],
           ),
         );
+
+    // On wide layouts the logo is part of the offerings' two-column layout, the other states show it above them.
+    if (!wide || showsOfferings) return content;
+    return Column(mainAxisSize: MainAxisSize.min, children: [const _Logo(height: 210), content]);
   }
 }
 
