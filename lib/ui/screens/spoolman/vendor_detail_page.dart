@@ -102,20 +102,26 @@ class _VendorDetailPage extends HookConsumerWidget {
           addAutomaticKeepAlives: true,
           children: [
             _VendorInfo(machineUUID: machineUUID),
-            if (context.isCompact) ...[
-              _VendorFilaments(machineUUID: machineUUID),
-              _VendorSpools(machineUUID: machineUUID),
-            ],
-            if (context.isLargerThanCompact)
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
-                    Flexible(child: _VendorSpools(machineUUID: machineUUID)),
-                  ],
-                ),
-              ),
+            // Side by side only with enough room, by the available width (the details may be shown in the detail pane
+            // of the Spoolman page).
+            LayoutBuilder(
+              builder: (context, constraints) => constraints.maxWidth <= 600
+                  ? Column(
+                      children: [
+                        _VendorFilaments(machineUUID: machineUUID),
+                        _VendorSpools(machineUUID: machineUUID),
+                      ],
+                    )
+                  : IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Flexible(child: _VendorFilaments(machineUUID: machineUUID)),
+                          Flexible(child: _VendorSpools(machineUUID: machineUUID)),
+                        ],
+                      ),
+                    ),
+            ),
           ],
         ),
       ),
