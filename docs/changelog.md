@@ -38,10 +38,18 @@
   shows the Mobileraker logo instead of the timer when space is limited (e.g. in landscape).
   [#560](https://github.com/Clon1998/mobileraker/issues/560)
 
-- **Tablet Navigation**: On tablets and other large screens, the navigation rail now stays in place when switching
-  pages. Only the page content changes, sliding up or down to follow the order of the rail entries, instead of the
-  whole screen sliding in. The rail also keeps the current section highlighted on its sub-pages (e.g. the
-  notification settings) and on pages opened from elsewhere, such as a printer opened from the overview.
+- **Improved Tablet & iPhone Duo Support**: Mobileraker now makes much better use of large and foldable screens.
+  - **Navigation**: On tablets and other large screens, the navigation rail now stays in place when switching
+    pages. Only the page content changes, sliding up or down to follow the order of the rail entries, instead of the
+    whole screen sliding in. The rail also keeps the current section highlighted on its sub-pages (e.g. the
+    notification settings) and on pages opened from elsewhere, such as a printer opened from the overview.
+  - **iPhone Duo**: Following Apple's guidelines, navigation and the page's main action button live in the strip
+    the system reserves at the side of the screen, on the cover display and the inner display in landscape. The
+    app bar and page content use the remaining width.
+  - **List and Details Side by Side**: From 720 dp wide (tablets, unfolded foldables), the file manager and the
+    Spoolman page show the selected file, spool, filament or vendor next to the list instead of opening a new page.
+  - **Wider Layouts**: The printer overview uses an adaptive grid and the Supporter page a two-column layout on
+    larger screens.
 
 ### Bug Fixes
 
@@ -51,40 +59,14 @@
 - **Macro Parameters**: Running a macro while leaving a parameter without default value empty no longer fails
   silently. The macro is now sent without that parameter.
 
-- **File Details**:
-  - The "Print" button is now disabled while another print is running or paused.
-  - The nozzle diameter is shown as a number (e.g. "0.4 mm") instead of "[0.4] mm".
-  - Clearing the active Spoolman spool while the file details are open no longer causes an error. Any filament
-    warnings are removed instead.
-
-- **Firmware Retraction Card**: Fixed an error on printers that previously had firmware retraction configured but no
-  longer do.
-
-- **Spoolman on Tablets**: Opening a spool, filament or vendor from the detail pane next to the list no longer fails.
-  Long spool names in the spool lists are now shortened instead of overflowing.
-
-- **Small Phones**: The Move Axis and Z-Offset cards no longer overflow on narrow phones (e.g. 360 dp wide).
-
-- **Search in Selection Sheets**: Searching in selection lists (e.g. Spoolman filaments or vendors) now lists the best
-  match first.
-
-- **Number Input Keyboard**: When editing a value that allows decimals (e.g. PWM pins), the keyboard now offers a
-  decimal separator.
+- **File Details**: The "Print" button is now disabled while another print is running or paused.
 
 - **Temperature Presets**: Applying a preset on a printer without a heated bed no longer tries to set a bed
   temperature, which Klipper rejected with an error.
 
-- **Fan Speed Dialog**: The dialog title now shows the name of the fan being adjusted instead of always "Part Fan".
-
-- **Slider Text Input**: Switching a slider to text input now focuses the text field right away.
-
-- **G-code Commands**: Removed extra spaces from some G-code commands sent by the app (speed factor, fan speed,
-  heater temperature, homing and macros without parameters).
-
-- **Spoolman Forms**: Saving a spool, filament or vendor without changes no longer sends an update to Spoolman when
-  it has no extra fields.
-
-- **Settings**: Removed the "Group Slider Cards" setting, which no longer had any effect.
+- **Minor Fixes**: Various smaller fixes to the file details, Spoolman (forms, detail pane, long names), dashboard
+  cards on narrow phones, the firmware retraction and fan cards, number and text inputs, the search order in
+  selection lists and the formatting of sent G-code commands. The unused "Group Slider Cards" setting was removed.
 
 ## [2.9.14] - 2026-10-03
 
