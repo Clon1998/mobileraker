@@ -19,6 +19,7 @@ dependencies:
   duo_kit: ^0.1.2
   easy_localization: ^3.0.3
   form_builder_validators: ^11.0.0
+  go_router: ^17.3.0
   hive_ce: ^2.8.0+1
   hooks_riverpod: ^3.3.2
   responsive_framework: ^1.4.0

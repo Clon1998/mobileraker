@@ -3,12 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:common/service/app_router.dart';
 import 'package:common/ui/app_breakpoints.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hooks_riverpod/misc.dart' show Override;
 import 'package:responsive_framework/responsive_framework.dart';
@@ -17,6 +19,13 @@ import 'test_device.dart';
 import 'test_translations.dart';
 
 const _english = Locale('en');
+
+final _defaultLight = ThemeData(useMaterial3: true);
+final _defaultDark = ThemeData(useMaterial3: true, brightness: Brightness.dark);
+
+TransitionBuilder? _directionBuilder(TextDirection? textDirection) => textDirection == null
+    ? null
+    : (context, child) => Directionality(textDirection: textDirection, child: child!);
 
 extension PumpApp on WidgetTester {
   /// Pumps [widget] the way the app hosts its pages: a [ProviderScope] with [overrides], easy_localization with the
@@ -43,6 +52,62 @@ extension PumpApp on WidgetTester {
     Locale locale = _english,
     TextDirection? textDirection,
     bool wrapInScaffold = true,
+  }) {
+    return _pumpHost(
+      overrides: overrides,
+      device: device,
+      locale: locale,
+      app: (context, delegates) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: theme ?? _defaultLight,
+        darkTheme: darkTheme ?? _defaultDark,
+        themeMode: themeMode,
+        locale: context.locale,
+        supportedLocales: context.supportedLocales,
+        localizationsDelegates: delegates,
+        builder: _directionBuilder(textDirection),
+        home: wrapInScaffold ? Scaffold(body: widget) : widget,
+      ),
+    );
+  }
+
+  /// Like [pumpApp], but hosts [router] in a [MaterialApp.router], for tests of shells, navigation and pages.
+  ///
+  /// `goRouterProvider` is overridden with [router], so code navigating via the provider uses it too.
+  Future<void> pumpRouterApp(
+    GoRouter router, {
+    List<Override> overrides = const [],
+    TestDevice device = TestDevice.phone,
+    ThemeData? theme,
+    ThemeData? darkTheme,
+    ThemeMode themeMode = ThemeMode.light,
+    Locale locale = _english,
+    TextDirection? textDirection,
+  }) {
+    addTearDown(router.dispose);
+    return _pumpHost(
+      overrides: [goRouterProvider.overrideWithValue(router), ...overrides],
+      device: device,
+      locale: locale,
+      app: (context, delegates) => MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        theme: theme ?? _defaultLight,
+        darkTheme: darkTheme ?? _defaultDark,
+        themeMode: themeMode,
+        locale: context.locale,
+        supportedLocales: context.supportedLocales,
+        localizationsDelegates: delegates,
+        builder: _directionBuilder(textDirection),
+        routerConfig: router,
+      ),
+    );
+  }
+
+  Future<void> _pumpHost({
+    required List<Override> overrides,
+    required TestDevice device,
+    required Locale locale,
+    required Widget Function(BuildContext context, List<LocalizationsDelegate<dynamic>> delegates) app,
   }) async {
     device.apply(this);
 
@@ -61,25 +126,13 @@ extension PumpApp on WidgetTester {
           child: ResponsiveBreakpoints(
             breakpoints: appBreakpoints(),
             child: Builder(
-              builder: (context) => MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: theme ?? ThemeData(useMaterial3: true),
-                darkTheme: darkTheme ?? ThemeData(useMaterial3: true, brightness: Brightness.dark),
-                themeMode: themeMode,
-                locale: context.locale,
-                supportedLocales: context.supportedLocales,
-                localizationsDelegates: [
-                  ...context.localizationDelegates,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                  FormBuilderLocalizations.delegate,
-                ],
-                builder: textDirection == null
-                    ? null
-                    : (context, child) => Directionality(textDirection: textDirection, child: child!),
-                home: wrapInScaffold ? Scaffold(body: widget) : widget,
-              ),
+              builder: (context) => app(context, [
+                ...context.localizationDelegates,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                FormBuilderLocalizations.delegate,
+              ]),
             ),
           ),
         ),
