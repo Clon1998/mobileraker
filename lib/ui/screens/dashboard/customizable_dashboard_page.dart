@@ -393,6 +393,11 @@ class _PrintingFAB extends ConsumerWidget {
       activeIcon: Icons.close,
       spacing: 5,
       renderOverlay: false,
+      // SpeedDial does not use the FAB theme by itself (e.g. smaller and flat in the iPhone Duo's rail).
+      elevation: Theme.of(context).floatingActionButtonTheme.elevation ?? 6,
+      buttonSize:
+          Theme.of(context).floatingActionButtonTheme.sizeConstraints?.smallest.onlyLet((s) => !s.isEmpty) ??
+          const Size(56, 56),
       // In the rail (top of the screen) instead of docked to the bottom bar.
       direction: RailScaffold.showsRailOf(context) ? SpeedDialDirection.down : SpeedDialDirection.up,
       switchLabelPosition: RailScaffold.showsRailOf(context),

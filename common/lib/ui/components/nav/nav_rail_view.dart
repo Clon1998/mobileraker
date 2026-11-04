@@ -329,6 +329,16 @@ class _Rail extends StatelessWidget {
   /// Width of the rail, excluding the horizontal safe area (M3 constraints).
   static const double width = 72;
 
+  /// iPhone Duo: the system centers the status cluster (and the items of native vertical bars) this far from the
+  /// window's edge, the rail's items are aligned with it.
+  static const double _stripItemCenterFromEdge = 48;
+
+  /// iPhone Duo: size of the rail's FAB in the strip, close to the status cluster's width (and Apple's min. touch size).
+  static const double _stripFabSize = 44;
+
+  /// iPhone Duo: size of the rail's icons in the strip.
+  static const double _stripIconSize = 22;
+
   final Widget? leading;
 
   /// The fold strip the rail fills, if any. Otherwise the rail is placed at the left edge, next to the safe area.
@@ -353,12 +363,18 @@ class _Rail extends StatelessWidget {
           }
         : null;
 
-    // The strip is the safe area itself; its top holds the status cluster/camera.
-    final safeAreaPadding = strip == null ? EdgeInsets.only(left: paddingOf.left) : EdgeInsets.zero;
+    // The strip is the safe area itself; its top holds the status cluster/camera. Items in the strip are centered like
+    // the status cluster, i.e. a bit away from the window's edge.
+    final outerStripPadding = strip == null ? 0.0 : math.max(0.0, 2 * _stripItemCenterFromEdge - strip.width);
+    final safeAreaPadding = switch (strip?.side) {
+      null => EdgeInsets.only(left: paddingOf.left),
+      FoldStripSide.left => EdgeInsets.only(left: outerStripPadding),
+      FoldStripSide.right => EdgeInsets.only(right: outerStripPadding),
+    };
     final topPadding = strip?.topClearance ?? paddingOf.top;
     final bottomPadding = strip == null ? 0.0 : math.max(strip.bottomClearance, paddingOf.bottom);
 
-    return SizedBox(
+    final rail = SizedBox(
       width: strip?.width ?? width + paddingOf.left,
       child: Material(
         color: backgroundColor,
@@ -388,6 +404,30 @@ class _Rail extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+    if (strip == null) return rail;
+
+    // Smaller and flat in the strip, to match the system's status cluster above. The FAB is the page's rail leading, hence
+    // sized via the theme. Its tap target is not padded to 48, otherwise the rail's entries move when switching between
+    // pages with and without a FAB (44 is still Apple's min. touch size).
+    return Theme(
+      data: themeData.copyWith(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        floatingActionButtonTheme: themeData.floatingActionButtonTheme.copyWith(
+          sizeConstraints: const BoxConstraints.tightFor(width: _stripFabSize, height: _stripFabSize),
+          iconSize: _stripIconSize,
+          // Flat, like the system's controls in the strip.
+          elevation: 0,
+          focusElevation: 0,
+          hoverElevation: 0,
+          highlightElevation: 0,
+          disabledElevation: 0,
+        ),
+      ),
+      child: IconTheme.merge(
+        data: const IconThemeData(size: _stripIconSize),
+        child: rail,
       ),
     );
   }
