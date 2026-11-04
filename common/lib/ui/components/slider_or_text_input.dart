@@ -221,7 +221,10 @@ class SliderOrTextInputState extends State<SliderOrTextInput> {
       if (fadeState == CrossFadeState.showFirst) {
         _updateTextController(sliderPos);
         fadeState = CrossFadeState.showSecond;
-        focusNode.requestFocus();
+        // After the rebuild, before it the text field is the hidden side of the cross fade, which can't take focus.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && fadeState == CrossFadeState.showSecond) focusNode.requestFocus();
+        });
       } else {
         sliderPos = _numberFormat.parse(textEditingController.text).toDouble();
         fadeState = CrossFadeState.showFirst;

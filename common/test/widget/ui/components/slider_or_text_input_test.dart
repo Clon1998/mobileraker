@@ -25,12 +25,8 @@ void main() {
 
   Slider slider(WidgetTester tester) => tester.widget<Slider>(find.byType(Slider));
 
-  // Note: tapping edit doesn't focus the field yet (the hidden side of the AnimatedCrossFade can't take focus when
-  // requestFocus runs), so the tests tap the field like a user has to.
   Future<void> switchToText(WidgetTester tester) async {
     await tester.tap(find.byIcon(Icons.edit));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byType(TextField));
     await tester.pumpAndSettle();
   }
 
@@ -73,6 +69,14 @@ void main() {
 
     expect(find.widgetWithText(TextField, '100'), findsOneWidget);
     expect(find.byIcon(Icons.check), findsOneWidget);
+  });
+
+  testWidgets('the edit button focuses the text field', (tester) async {
+    await tester.pumpApp(input(value: 1));
+
+    await switchToText(tester);
+
+    expect(tester.widget<TextField>(find.byType(TextField)).focusNode!.hasFocus, isTrue);
   });
 
   testWidgets('submitting the text field sends the typed percentage', (tester) async {
