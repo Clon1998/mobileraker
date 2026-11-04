@@ -84,6 +84,9 @@ Notes from building it:
 
 - `setUpWidgetTests` loads the bundled NotoSans as "Roboto" (`loadTestFonts`). With the default test font (square
   glyphs, about twice as wide) layouts overflowed that fit on devices.
+- Providers using `ref.keepAliveFor()` start a 30 s timer when their last listener goes away, also while the test
+  tears the tree down ("A Timer is still pending even after the widget tree was disposed"): end such tests with
+  `await tester.unmountApp()`.
 - Pages with infinite animations (loading spinners, the Overview cards) never settle: pump a fixed time instead of
   `pumpAndSettle`.
 - `isSupporter` is always true in debug builds (tests too): override `isSupporterProvider` for non-supporter UI.
@@ -122,6 +125,10 @@ Notes from building it:
   share the same tag". Test skipped: "a filament in the pane opens its spools as their own page".
 - `SpoolListEntry` (pro): the name column isn't `Flexible`, so long names/narrow lists overflow to the right
   (seen with the test font before real fonts were loaded; plausible on devices with long names).
+- Dashboard cards on 360 wide phones (common Samsung width): Control XYZ (8 px, `control_xyz_card.dart:282`) and
+  Z offset (20 px, `z_offset_card.dart:192`) overflow to the right. Their step size `SingleValueSelector` sits in a
+  `Column` inside a `Row` without a width limit, so its horizontal scroll view takes its full width instead of
+  scrolling. Everything fits from 380. Tests skipped in `dashboard_card_test.dart`.
 - `SingleValueSelector(values: [])` fails its own assert (`selectedIndex <= values.length - 1`), so the
   "No Steps configured!" branch is unreachable in debug builds.
 
@@ -147,7 +154,8 @@ Constructor-driven, no or one provider. Quick wins that also prove the harness.
 
 Data comes from public providers + fixtures; actions go to fake services.
 
-- **One smoke test for every card**: each card's `preview()` renders without exceptions or overflows at phone and
+- **One smoke test for every card** ✅ (`test/widget/ui/components/dashboard_card_test.dart`, 360 wide / phone /
+  dark): each card's `preview()` renders without exceptions or overflows at phone and
   tablet widths, light and dark. Cheap and catches most layout regressions (there are ~18 cards).
 - **Per card**, the states and the main interaction:
   - loading (skeleton) → data → error/"not available" (e.g. no fans configured)

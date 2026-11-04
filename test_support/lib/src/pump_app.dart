@@ -142,6 +142,14 @@ extension PumpApp on WidgetTester {
     await pump();
   }
 
+  /// Unmounts the app and runs the timers providers start when they lose their last listener (`ref.keepAliveFor`
+  /// keeps them for 30 s), so none is pending when the test ends ("A Timer is still pending even after the widget
+  /// tree was disposed").
+  Future<void> unmountApp() async {
+    await pumpWidget(const SizedBox());
+    await pump(const Duration(seconds: 31));
+  }
+
   /// Pumps until a provider change made by the test (a stream event, a notifier update, an override change) is on
   /// screen.
   ///
