@@ -29,19 +29,23 @@ class ProgressTracker extends StatelessWidget {
           borderRadius: BorderRadius.circular(2),
           backgroundColor: themeData.colorScheme.surfaceContainerHigh,
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            leading ?? const SizedBox.shrink(),
-            if (trailing != null) trailing!,
-            if (trailing == null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(numberFormat.format(progress), style: themeData.textTheme.bodySmall),
-                ],
-              ),
-          ],
+        // Wraps instead of overflowing if leading and trailing do not fit next to each other (narrow cards). Full
+        // width, so spaceBetween puts them at the edges (a Wrap shrinks to its content otherwise).
+        SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              leading ?? const SizedBox.shrink(),
+              if (trailing != null) trailing!,
+              if (trailing == null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [Text(numberFormat.format(progress), style: themeData.textTheme.bodySmall)],
+                ),
+            ],
+          ),
         ),
       ],
     );

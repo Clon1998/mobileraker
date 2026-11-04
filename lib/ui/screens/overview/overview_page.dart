@@ -74,6 +74,12 @@ class _OverviewBody extends HookConsumerWidget {
   }
 }
 
+/// Min. width of a printer card in the grid of larger layouts.
+const double _minCardWidth = 290;
+
+/// Max. columns of the grid of larger layouts (wide tablets keep 3 columns).
+const int _maxColumns = 3;
+
 class _Data extends ConsumerWidget {
   const _Data({super.key, required this.machines});
 
@@ -88,10 +94,13 @@ class _Data extends ConsumerWidget {
       physics: const ClampingScrollPhysics(),
       slivers: [
         if (context.isLargerThanCompact)
-          SliverAlignedGrid.count(
-            crossAxisCount: 3,
-            itemCount: machines.length,
-            itemBuilder: (context, index) => PrinterCard(machines[index]),
+          // As many columns as fit, cards get too narrow for their content otherwise (e.g. on foldables).
+          SliverLayoutBuilder(
+            builder: (context, constraints) => SliverAlignedGrid.count(
+              crossAxisCount: (constraints.crossAxisExtent ~/ _minCardWidth).clamp(1, _maxColumns),
+              itemCount: machines.length,
+              itemBuilder: (context, index) => PrinterCard(machines[index]),
+            ),
           ),
         if (context.isCompact)
           SliverReorderableList(
