@@ -17,7 +17,7 @@ class SingleValueSelector extends StatelessWidget {
     required this.values,
     this.selectedIndex = 0,
   })  : assert(selectedIndex >= 0, 'SelectedIndex must be > 0'),
-        assert(selectedIndex <= (values.length - 1), 'selectedIndex is out of bound of provided values');
+        assert(values.length == 0 || selectedIndex < values.length, 'selectedIndex is out of bound of provided values');
 
   _onSelectionChanged(int newIndex) {
     if (newIndex == selectedIndex) return;

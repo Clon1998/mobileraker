@@ -43,6 +43,13 @@ void main() {
     expect(selected, isEmpty);
   });
 
+  testWidgets('without values it says that no steps are configured', (tester) async {
+    await tester.pumpApp(SingleValueSelector(values: const [], onSelected: (_) {}));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('No Steps configured!'), findsOneWidget);
+  });
+
   testWidgets('scrolls horizontally instead of overflowing on a narrow screen', (tester) async {
     await tester.pumpApp(
       SingleValueSelector(values: [for (var i = 0; i < 12; i++) 'Step $i'], onSelected: (_) {}),
