@@ -131,7 +131,8 @@ Notes from building it:
   scrolling. Everything fits from 380. Tests skipped in `dashboard_card_test.dart`.
 - `PrinterService` sends some commands with two spaces after the command: `M220  S110` (speedMultiplier),
   `SET_FAN_SPEED  FAN=…` (genericFanFan), `SET_HEATER_TEMPERATURE  HEATER=…` (setHeaterTemperature). Probably
-  harmless for Klipper, cosmetic in the console.
+  harmless for Klipper, cosmetic in the console. Same for macros run through the params dialog without params
+  (`PURGE_LINE ` with a trailing space, e.g. with "confirm macro execution").
 - `SingleValueSelector(values: [])` fails its own assert (`selectedIndex <= values.length - 1`), so the
   "No Steps configured!" branch is unreachable in debug builds.
 - Firmware retraction card: when a machine had firmware retraction (remembered flag) but its config no longer has
@@ -169,7 +170,7 @@ Data comes from public providers + fixtures; actions go to fake services.
   dark): each card's `preview()` renders without exceptions or overflows at phone and
   tablet widths, light and dark. Cheap and catches most layout regressions (there are ~18 cards).
 - **Per card**, the states and the main interaction (_done: Multipliers, Limits, Z offset, Firmware retraction, Machine status, Fans, Pins, Temperature +
-  presets_):
+  presets, Macro groups, Control XYZ, Control extruder; open: bed mesh, webcam, grouped sliders, pro cards_):
   - loading (skeleton) → data → error/"not available" (e.g. no fans configured)
   - Multipliers/Limits/Z-offset/Firmware retraction: change a value → correct G-code sent
   - Control XYZ / extruder: buttons disabled while printing or not homed, jog sends the right move
