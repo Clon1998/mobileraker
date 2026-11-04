@@ -144,7 +144,7 @@ class _DashboardView extends HookConsumerWidget {
       appBar: const _AppBar(),
       body: body,
       railLeading: fab,
-      floatingActionButton: fab.unless(RailScaffold.showsRailOf(context))?.let((it) => _FabHider(child: it)),
+      floatingActionButton: fab?.let((it) => _FabHider(child: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: activeMachine?.uuid
           .let((it) => _BottomNavigationBar(machineUUID: it))

@@ -214,8 +214,9 @@ class _RailScope extends InheritedWidget {
 /// Drop-in replacement for the [Scaffold] of pages hosted by the [NavigationRailShell].
 ///
 /// - Compact layouts (phones), or outside of the shell (e.g. pages covering it): builds a regular [Scaffold].
-/// - Larger layouts (tablets) within the shell: hands [appBar], [drawer] and [railLeading] to the shell, which shows
-///   them while the page's route is the current one, and only builds the body (incl. FAB and bottom navigation bar).
+/// - Larger layouts (tablets) or foldables with a fold strip, within the shell: hands [appBar], [drawer] and the rail
+///   leading ([railLeading], defaults to the [floatingActionButton]) to the shell, which shows them while the page's
+///   route is the current one, and only builds the body (incl. bottom navigation bar, but no FAB).
 ///
 /// Note that the app bar is built by the shell on larger layouts, outside of the page's route. Hence, an [AppBar] can
 /// not imply the back button of a page that can be popped, use [RailScaffold.impliedLeadingOf] for those.
@@ -243,11 +244,11 @@ class RailScaffold extends StatefulWidget {
 
   final Widget? bottomNavigationBar;
 
-  /// Widget shown on top of the navigation rail (larger layouts only), typically a FAB.
+  /// Widget shown on top of the navigation rail instead of the [floatingActionButton], if the rail is shown. Defaults to
+  /// the [floatingActionButton], only needed if the FAB differs in the rail.
   final Widget? railLeading;
 
-  /// Whether the [NavigationRailShell] shows the rail for the page of [context], i.e. its [railLeading] is shown
-  /// instead of a FAB. Not the same as [BuildContextExtension.isLargerThanCompact]: foldables (iPhone Duo) show the
+  /// Whether the [NavigationRailShell] shows the rail for the page of [context], i.e. the FAB is shown in the rail. Not the same as [BuildContextExtension.isLargerThanCompact]: foldables (iPhone Duo) show the
   /// rail in their fold strip, also on compact layouts.
   static bool showsRailOf(BuildContext context) => _RailScope.slotsOf(context) != null;
 
@@ -294,12 +295,8 @@ class _RailScaffoldState extends State<RailScaffold> {
     _slots = (ModalRoute.isCurrentOf(context) ?? true) ? slots : null;
     _schedulePublish();
 
-    return Scaffold(
-      floatingActionButton: widget.floatingActionButton,
-      floatingActionButtonLocation: widget.floatingActionButtonLocation,
-      bottomNavigationBar: widget.bottomNavigationBar,
-      body: widget.body,
-    );
+    // The FAB is shown in the rail instead.
+    return Scaffold(bottomNavigationBar: widget.bottomNavigationBar, body: widget.body);
   }
 
   // The shell is an ancestor, hence it can not be rebuilt while this page is building. Publishing after the frame
@@ -310,7 +307,14 @@ class _RailScaffoldState extends State<RailScaffold> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _publishScheduled = false;
       if (!mounted) return;
-      _slots?.publish(this, _RailSlots(appBar: widget.appBar, drawer: widget.drawer, railLeading: widget.railLeading));
+      _slots?.publish(
+        this,
+        _RailSlots(
+          appBar: widget.appBar,
+          drawer: widget.drawer,
+          railLeading: widget.railLeading ?? widget.floatingActionButton,
+        ),
+      );
     });
   }
 
