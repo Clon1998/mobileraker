@@ -128,7 +128,6 @@ void main() {
 
   testWidgets(
     'without a heater bed a preset only sets the extruder',
-    skip: true, // Finding: submitPreset still sends the preset's bed temperature to `heater_bed`.
     (tester) async {
       await pumpCard(tester, hasBed: false);
       await showPresets(tester);

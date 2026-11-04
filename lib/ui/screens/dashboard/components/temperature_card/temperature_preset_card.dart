@@ -84,7 +84,7 @@ class _CardBody extends ConsumerWidget {
         extruderTemp: preset.extruderTemp,
         bedTemp: model.hasPrintBed ? preset.bedTemp : null,
         onTap: model.enabled
-            ? () => controller.submitPreset(preset.extruderTemp, preset.bedTemp, preset.customGCode)
+            ? () => controller.submitPreset(preset.extruderTemp, model.hasPrintBed ? preset.bedTemp : null, preset.customGCode)
             : null,
       );
     });
