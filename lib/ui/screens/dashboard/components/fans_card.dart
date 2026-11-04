@@ -329,11 +329,15 @@ class _FansCardController extends _$FansCardController {
   Future<void> onEditFan(Fan fan, ConfigFan? fanConfig) async {
     if (!state.hasValue) return;
     final normalizedSpeed = fan.speed / (fanConfig?.maxPower ?? 1) * 100;
+    final fanName = switch (fan) {
+      NamedFan(name: final n) => beautifyName(n),
+      _ => tr('pages.dashboard.control.fan_card.part_fan'),
+    };
 
     var resp = await _dialogService.show(
       DialogRequest(
         type: _dialogMode,
-        title: tr('dialogs.fan_speed.title', args: [tr('pages.dashboard.control.fan_card.part_fan')]),
+        title: tr('dialogs.fan_speed.title', args: [fanName]),
         dismissLabel: tr('general.cancel'),
         actionLabel: tr('general.confirm'),
         data: NumberEditDialogArguments(current: normalizedSpeed.round(), min: 0, max: 100),

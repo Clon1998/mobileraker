@@ -139,7 +139,6 @@ void main() {
 
   testWidgets(
     'the speed dialog names the fan being set',
-    skip: true, // Finding: the title always uses "Part Fan" (fans_card.dart onEditFan).
     (tester) async {
       await pumpCard(tester, dialogResponse: DialogResponse.aborted());
 
