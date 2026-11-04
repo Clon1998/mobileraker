@@ -114,74 +114,42 @@ Notes from building it:
 
 ### Findings from the tests so far
 
-- `SliderOrTextInput`: tapping edit doesn't focus the text field (it requests focus while the field is still the
-  hidden, focus-excluded side of the `AnimatedCrossFade`), so the user has to tap the field.
+Open:
+
 - Spoolman list-detail (tablet width, spool in the pane): the side-by-side "Alternative spools" cards
   (`IntrinsicHeight` + `Row(stretch)` in `spool_detail_page.dart`) are measured 56 px tall while their entries need
   68 px, so `SpoolmanStaticPagination`'s column overflows by 12 px (also with short names, not a font artefact).
   Test skipped: `spoolman_page_test.dart` "spool details next to the list on a tablet".
-- Spoolman list-detail: the embedded detail pages keep their FAB's hero (the G-code details disable it with
-  `HeroMode`), so pushing a page from the pane (e.g. a spool from a filament in the pane) fails with "multiple heroes
-  share the same tag". Test skipped: "a filament in the pane opens its spools as their own page".
-- `SpoolListEntry` (pro): the name column isn't `Flexible`, so long names/narrow lists overflow to the right
-  (seen with the test font before real fonts were loaded; plausible on devices with long names).
-- Dashboard cards on 360 wide phones (common Samsung width): Control XYZ (8 px, `control_xyz_card.dart:282`) and
-  Z offset (20 px, `z_offset_card.dart:192`) overflow to the right. Their step size `SingleValueSelector` sits in a
-  `Column` inside a `Row` without a width limit, so its horizontal scroll view takes its full width instead of
-  scrolling. Everything fits from 380. Tests skipped in `dashboard_card_test.dart`.
-- `PrinterService` sends some commands with two spaces after the command: `M220  S110` (speedMultiplier),
-  `SET_FAN_SPEED  FAN=…` (genericFanFan), `SET_HEATER_TEMPERATURE  HEATER=…` (setHeaterTemperature). Probably
-  harmless for Klipper, cosmetic in the console. Same for macros run through the params dialog without params
-  (`PURGE_LINE ` with a trailing space, e.g. with "confirm macro execution").
-- `SingleValueSelector(values: [])` fails its own assert (`selectedIndex <= values.length - 1`), so the
-  "No Steps configured!" branch is unreachable in debug builds.
-- Firmware retraction card: when a machine had firmware retraction (remembered flag) but its config no longer has
-  it, the loading placeholder builds the full body, whose sliders read `firmwareRetraction!` → null check error.
-  Test skipped: `firmware_retraction_card_test.dart` "is hidden once firmware retraction is removed …".
-- Fans card: the speed dialog title is always "Edit Part Fan %", also for generic fans (`onEditFan` uses the
-  `part_fan` string). Test skipped: `fans_card_test.dart` "the speed dialog names the fan being set".
-- Temperature presets on a printer without a heater bed: the bed temperature is hidden, but applying a preset still
-  sends `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=…` (Klipper answers with an error). Cooloff handles it.
-  Test skipped: `temperature_preset_card_test.dart` "without a heater bed a preset only sets the extruder".
-
-- `KlippyProviderGuard` "unauthorized" screen: the printer settings button pushes `printerEdit` with
-  `extra: machine`, which resolves to the top-level `machine()` provider function (no local `machine` in scope), so the
-  route's `state.extra as Machine` throws. Test skipped: `klippy_provider_guard_test.dart` "unauthorized: the printer
-  settings button opens the settings of this machine".
-
-- Number edit dialog (fans, pins, heaters, extruder): the text field always uses
-  `TextInputType.numberWithOptions(decimal: false)`, also when decimals are allowed (`fraction > 0`, e.g. PWM pins),
-  so iOS shows a number pad without a decimal separator. Test skipped: `num_edit_form_dialog_test.dart` "the keyboard
-  offers a decimal separator when decimals are allowed".
-- Macro params dialog: a param without default whose field is left untouched is returned as `null`; the macro card
-  then throws on `paramsMap[key]!.trim()` and the macro is not run. Test skipped: `macro_params_dialog_test.dart`
-  "an untouched param without default is returned as text".
-
-- Selection bottom sheet search: results are sorted by score ascending, so the best match comes last (searching
-  "pla" lists "Silk PLA+" before "PLA"). Affects every searchable picker (Spoolman filament/vendor, webcams, …).
-  Test skipped: `selection_bottom_sheet_test.dart` "search lists the best match first".
-
 - Dashboard edit mode on tablets (medium layout): pages can't be added, removed or given another icon. The add page
   "+" and the icon editing live in the bottom navigation bar (phones only) and the medium layout ignores `onRemove`
   (no "Remove Page" button). Test skipped: `dashboard_medium_layout_test.dart` "editing: pages can be removed on
   tablets too".
-
-- G-code details: the Print button stays enabled while another print runs. `canPrintCalc` checks
-  `state != printing || state != paused`, which is always true (should be `&&`). Test skipped:
-  `gcode_file_details_page_test.dart` "print is disabled while another print is running".
-- G-code details with Spoolman: clearing the active spool while the details are open throws (the listener calls
-  `spoolCalc(next.value!)`). Test skipped: "clearing the active spool while the details are open".
-- G-code details: the nozzle diameter is a list now, the tile shows "[0.4] mm" ("[] mm" when unknown). Test skipped:
-  "shows the nozzle diameter as a number".
-
-- Settings: "Group Slider Cards" (`AppSettingKeys.groupSliders`) is written by the settings page but read nowhere, so
-  the switch has no effect (grouped sliders became a dashboard card).
-
 - Spool form (edit): clearing a number field (price, weights) can't remove the value. The empty field becomes `null`,
   which `UpdateSpool` leaves out (`includeIfNull: false`), so an empty update is sent and the old value stays. Text
   fields are fine (sent as ""). Test skipped: `spool_form_page_test.dart` "clearing a number removes it from the
-  spool". Minor: a spool whose `extra` is `null` (Spoolman without extra fields support) gets an update with
-  `extra: {}` even without changes.
+  spool".
+
+Fixed (2026-11-04, each with its test unskipped or added):
+
+- `KlippyProviderGuard` "unauthorized": the printer settings button pushed the `machine()` provider function as
+  `extra`, the edit route's cast threw.
+- Macro params dialog: untouched params without default came back as `null`, the macro card threw on `!`.
+- G-code details: Print stayed enabled during a print (`||` instead of `&&`); clearing the active spool threw; the
+  nozzle diameter list showed as "[0.4] mm".
+- Firmware retraction card: the loading placeholder built the body, which threw once firmware retraction was removed.
+- Spoolman list-detail: the embedded details' FAB hero clashed with the Spoolman page's FAB (now `HeroMode` off).
+- Control XYZ (8 px) and Z offset (20 px) cards overflowed on 360 wide phones.
+- Selection bottom sheet search listed the best match last.
+- Number edit dialog keyboard had no decimal separator, also with fraction digits.
+- Temperature presets sent the bed temperature on printers without a heater bed.
+- `SpoolListEntry` (pro): long names overflowed (name column now `Expanded`, texts ellipsize).
+- Fans card: the speed dialog always said "Part Fan".
+- Settings: removed the dead "Group Slider Cards" switch (`groupSliders` is read nowhere).
+- G-code commands with double spaces (`M220  S`, `SET_FAN_SPEED  FAN=`, `SET_HEATER_TEMPERATURE  HEATER=`) and trailing
+  spaces (`G28 `, macros without params).
+- `SliderOrTextInput`: tapping edit now focuses the text field.
+- `SingleValueSelector(values: [])` failed its own assert.
+- Spool, filament and vendor forms: entries with `extra: null` always got an update.
 
 ## Phases (bottom up)
 
