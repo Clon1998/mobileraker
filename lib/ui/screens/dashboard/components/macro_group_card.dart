@@ -424,7 +424,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
         var paramsMap = response!.data as Map<String, String>;
 
         var paramStr = paramsMap.keys
-            .where((e) => paramsMap[e]!.trim().isNotEmpty)
+            .where((e) => paramsMap[e]?.trim().isNotEmpty == true)
             .map((e) => '${e.toUpperCase()}=${paramsMap[e]}')
             .join(' ');
         _printerService.gCode('${macro.macroName} $paramStr');

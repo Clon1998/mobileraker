@@ -88,7 +88,6 @@ void main() {
 
   testWidgets(
     'an untouched param without default is returned as text',
-    skip: true, // Finding: it is returned as null, the macro card's `paramsMap[key]!` then throws.
     (tester) async {
       await pumpDialog(tester, ConfigGcodeMacro.fromJson('SET_SPEED', {'gcode': 'M220 S{params.SPEED}'}));
 

@@ -87,7 +87,8 @@ class _MacroParamsDialog extends ConsumerWidget {
 
     formKey.saveAndValidate();
 
-    var paramsValuesMap = formKey.value.cast<String, String>();
+    // Untouched fields without a default have no value; report them as empty text.
+    var paramsValuesMap = formKey.value.map((key, value) => MapEntry(key, value?.toString() ?? ''));
     ref.read(dialogCompleter)(DialogResponse.confirmed(paramsValuesMap));
   }
 }
