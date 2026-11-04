@@ -1708,7 +1708,6 @@ notifications:
       desc: Уведомления о ходе печати.
       title: Ход печати {}
 form_validators:
-  simple_url: 'Ввод допускает только компоненты URL: имя хоста и порт'
   disallow_mdns: Адреса mDNS (.local) не поддерживаются
   file_name_in_use: Имя файла уже используется
   min_before_max: Минимальное значение должно быть меньше или равно максимальному

@@ -706,7 +706,6 @@ notifications:
       desc: Notifications concernant la progression de l'impression.
       title: Progression de l'impression {}
 form_validators:
-  simple_url: 'La saisie n''autorise que les composants URL : Nom d''hôte et Port'
   disallow_mdns: Les adresses mDNS (.local) ne sont pas prises en charge.
 date:
   year:

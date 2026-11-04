@@ -1491,7 +1491,6 @@ notifications:
       desc: Notificações de progresso de impressão.
       title: Progresso de Impressão de {}
 form_validators:
-  simple_url: 'A entrada permite apenas componentes de URL: Nome do Host e Porta'
   disallow_mdns: Endereços mDNS (.local) não são suportados
   file_name_in_use: Nome do arquivo já está em uso
   min_before_max: O valor mínimo deve ser menor ou igual ao valor máximo
