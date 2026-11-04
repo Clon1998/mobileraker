@@ -65,6 +65,24 @@ abstract final class Fixtures {
   }) => GCodeFile(name: name, parentPath: parentPath, modified: modified, size: size, estimatedTime: estimatedTime);
 }
 
+/// All machines without Hive: [machines].
+class FakeAllMachines extends AllMachines {
+  FakeAllMachines(this.machines);
+
+  final List<Machine> machines;
+
+  @override
+  Future<List<Machine>> build() async => machines;
+}
+
+/// Records [selectMachine] calls instead of writing the selection to Hive.
+class FakeSelectedMachineService extends Fake implements SelectedMachineService {
+  final List<Machine?> selections = [];
+
+  @override
+  Future<void> selectMachine(Machine? machine, [bool force = false]) async => selections.add(machine);
+}
+
 /// Reports a fixed [KlipperInstance] instead of querying Moonraker.
 class FakeKlipper extends Klipper {
   FakeKlipper(this.instance);

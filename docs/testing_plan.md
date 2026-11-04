@@ -198,7 +198,8 @@ Data comes from public providers + fixtures; actions go to fake services.
   app): every websocket / Klippy / provider state shows the right screen, retry/reconnect/restart actions.
 - **More cards and their dialogs** ✅: Grouped sliders, Power API (against the real `PowerDevices` notifier), Console
   (history, suggestions, input), number edit dialog, macro params dialog, selection bottom sheet (opened through
-  the real `BottomSheetServiceImpl` in the app's sheet shell, see `test/helpers/sheet_router.dart`).
+  the real `BottomSheetServiceImpl` in the app's sheet shell, see `test/helpers/sheet_router.dart`), text input,
+  confirmation and select printer dialogs.
 
 ### Phase 3: layout and navigation (the foldable/tablet work) ✅
 
