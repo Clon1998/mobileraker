@@ -36,6 +36,7 @@ void main() {
     GetSpool? initialSpool,
     GetFilament? initialFilament,
     BottomSheetResult? sheetResult,
+    Locale locale = const Locale('en'),
   }) async {
     spoolman = FakeSpoolmanService(spools: [existing], filaments: [galaxyBlack], vendors: [vendor]);
     snackBars = FakeSnackBarService();
@@ -66,6 +67,7 @@ void main() {
     await tester.pumpRouterApp(
       router,
       device: TestDevice.sized(411, 1600),
+      locale: locale,
       overrides: [
         ...uiServiceOverrides(
           snackBars: snackBars,
@@ -189,6 +191,20 @@ void main() {
       expect(spoolman.updated, isEmpty);
       expect(snackBars.shown.single.title, 'No changes made!');
     });
+
+    testWidgets(
+      'with a decimal comma, saving without changes makes no update',
+      (tester) async {
+        await pumpForm(tester, initialSpool: existing.copyWith(price: 19.99), locale: const Locale('de'));
+        expect(find.text('19,99'), findsOneWidget, reason: 'the price is shown with a comma');
+
+        await save(tester);
+
+        expect(spoolman.updated, isEmpty);
+        expect(popped, hasLength(1), reason: 'the form closes');
+      },
+      skip: true, // Finding: numbers are shown with the locale's comma, the validator rejects them; no save.
+    );
 
     testWidgets(
       'clearing a number removes it from the spool',

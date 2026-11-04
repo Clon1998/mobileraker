@@ -4,13 +4,18 @@
  */
 
 import 'package:common/data/dto/pagination_result.dart';
+import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/misc.dart' show Override;
+import 'package:mobileraker_pro/spoolman/dto/create_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/create_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_extra_field.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/update_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/update_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
@@ -157,16 +162,97 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
 
   @override
   Future<List<String>> allLocations() async => {for (final s in spools) ?s.location}.toList();
-}
 
-/// No active spool, without the provider's 30 s refresh timer.
-class _NoActiveSpool extends ActiveSpool {
+  /// Filaments and vendors sent to the create / update calls.
+  final List<CreateFilament> createdFilaments = [];
+  final List<UpdateFilament> updatedFilaments = [];
+  final List<CreateVendor> createdVendors = [];
+  final List<UpdateVendor> updatedVendors = [];
+
   @override
-  Stream<GetSpool?> build(String machineUUID) => Stream.value(null);
+  Future<GetFilament> createFilament(CreateFilament filament) async {
+    createdFilaments.add(filament);
+    return SpoolmanFixtures.filament(200 + createdFilaments.length, filament.name ?? '', vendor: filament.vendor);
+  }
+
+  @override
+  Future<GetFilament> updateFilament(UpdateFilament filament) async {
+    updatedFilaments.add(filament);
+    return filaments.firstWhere((f) => f.id == filament.id);
+  }
+
+  @override
+  Future<GetVendor> createVendor(CreateVendor vendor) async {
+    createdVendors.add(vendor);
+    return SpoolmanFixtures.vendor(300 + createdVendors.length, vendor.name);
+  }
+
+  @override
+  Future<GetVendor> updateVendor(UpdateVendor vendor) async {
+    updatedVendors.add(vendor);
+    return vendors.firstWhere((v) => v.id == vendor.id);
+  }
+
+  /// The actions of the detail pages, e.g. `delete spool 7`, `activate 7`, `adjust 7 weight 10.0`.
+  final List<String> actions = [];
+
+  /// Whether deletes fail, like a Spoolman that is not reachable.
+  bool failDeletes = false;
+
+  Future<T> _delete<T>(String what, int id, T entity) async {
+    if (failDeletes) throw Exception('Spoolman not reachable');
+    actions.add('delete $what $id');
+    return entity;
+  }
+
+  @override
+  Future<GetSpool> deleteSpool(GetSpool spool) => _delete('spool', spool.id, spool);
+
+  @override
+  Future<GetFilament> deleteFilament(GetFilament filament) => _delete('filament', filament.id, filament);
+
+  @override
+  Future<GetVendor> deleteVendor(GetVendor vendor) => _delete('vendor', vendor.id, vendor);
+
+  static final _ok = RpcResponse(jsonrpc: '2.0', id: 1, result: const {});
+
+  @override
+  Future<RpcResponse> setActiveSpool(GetSpool spool) async {
+    actions.add('activate ${spool.id}');
+    return _ok;
+  }
+
+  @override
+  Future<RpcResponse> clearActiveSpool() async {
+    actions.add('deactivate');
+    return _ok;
+  }
+
+  @override
+  Future<GetSpool> archiveSpool(GetSpool spool, [bool archive = true]) async {
+    actions.add('${archive ? 'archive' : 'unarchive'} ${spool.id}');
+    return spool.copyWith(archived: archive);
+  }
+
+  @override
+  Future<GetSpool> adjustFilamentOnSpool({required GetSpool spool, double? length, double? weight}) async {
+    actions.add('adjust ${spool.id} ${length != null ? 'length $length' : 'weight $weight'}');
+    return spool;
+  }
 }
 
-/// Overrides for a machine whose Spoolman is [service].
-List<Override> spoolmanOverrides(String machineUUID, FakeSpoolmanService service) => [
+/// A fixed active spool (none by default), without the provider's 30 s refresh timer.
+class _FixedActiveSpool extends ActiveSpool {
+  _FixedActiveSpool(this.spool);
+
+  final GetSpool? spool;
+
+  @override
+  Stream<GetSpool?> build(String machineUUID) => Stream.value(spool);
+}
+
+/// Overrides for a machine whose Spoolman is [service], with [activeSpool] as the active spool.
+List<Override> spoolmanOverrides(String machineUUID, FakeSpoolmanService service, {GetSpool? activeSpool}) => [
   spoolmanServiceProvider(machineUUID).overrideWithValue(service),
-  activeSpoolProvider(machineUUID).overrideWith(_NoActiveSpool.new),
+  activeSpoolProvider(machineUUID).overrideWith(() => _FixedActiveSpool(activeSpool)),
 ];
