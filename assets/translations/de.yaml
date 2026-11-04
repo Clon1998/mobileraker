@@ -286,6 +286,7 @@ pages:
     shown_sensors: Angezeigte Temperaturen
   files:
     title: Dateien
+    detail_pane_hint: Wähle eine Datei aus, um ihre Details zu sehen
     empty_folder:
       title: Dieser Ordner ist leer
       subtitle: Keine Dateien gefunden
@@ -1019,6 +1020,7 @@ pages:
 
         Tippen Sie, um die Erlaubnis zu erteilen.
   spoolman:
+    detail_pane_hint: Wähle einen Eintrag aus, um seine Details zu sehen
     title: Spoolman
     not_available: "Spoolman ist für diesen Drucker nicht verfügbar.\nBitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist."
     learn_more: Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die
