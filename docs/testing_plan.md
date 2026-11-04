@@ -54,7 +54,7 @@ It contains:
   `pumpRouterApp` does the same with a `GoRouter` for shell and page tests.
 - **`TestDevice`**: sets `tester.view.physicalSize`/`devicePixelRatio` and `viewPadding`. The Duo poses come from
   `duo_kit`'s `FoldTestPose`, so the strip is real geometry, not hand-written padding.
-- **Fixtures** (_started: `Fixtures.machine/folder/gcode`, `connectedMachineOverrides`, `remoteConfigOverrides`; the rest comes with phase 2_): `PrinterFixtures`, `KlipperFixtures`, `MachineFixtures`, `GCodeFileFixtures`, `SpoolFixtures`, built
+- **Fixtures** (_started: `Fixtures.machine/klipper/printer/folder/gcode`, `connectedMachineOverrides` (machine, connected client, `FakeKlipper`, `FakePrinter`), `remoteConfigOverrides`; more with phase 2_): `PrinterFixtures`, `KlipperFixtures`, `MachineFixtures`, `GCodeFileFixtures`, `SpoolFixtures`, built
   on the existing DTO constructors / `PrinterBuilder` and the JSON in `common/test_resources`. One place to fix
   when a DTO changes.
 - **Fakes/mocks** (_started: `FakeJsonRpcClient` records calls_): mockito stays (already used). Fakes for the services pages call (`PrinterService`,
@@ -84,6 +84,9 @@ Notes from building it:
 
 - `setUpWidgetTests` loads the bundled NotoSans as "Roboto" (`loadTestFonts`). With the default test font (square
   glyphs, about twice as wide) layouts overflowed that fit on devices.
+- Pages with infinite animations (loading spinners, the Overview cards) never settle: pump a fixed time instead of
+  `pumpAndSettle`.
+- `isSupporter` is always true in debug builds (tests too): override `isSupporterProvider` for non-supporter UI.
 - Scroll things below the fold into view before tapping: `await tester.ensureVisible(finder)`.
 - No formatter config in the repo, so `dart format` defaults to 80 columns; the code uses 120:
   `dart format -l 120 <new files>`.
@@ -154,7 +157,7 @@ Data comes from public providers + fixtures; actions go to fake services.
   - Machine status: klippy states (ready, error, shutdown, disconnected) show the right message and actions
   - Macro groups: hidden/visible macros, macros with params open the dialog
 
-### Phase 3: layout and navigation (the foldable/tablet work) (_shell, Files and Spoolman done_)
+### Phase 3: layout and navigation (the foldable/tablet work) ✅
 
 These are the tests that keep today's Duo/tablet work from regressing.
 
