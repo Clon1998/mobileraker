@@ -8,7 +8,6 @@ import 'package:common/data/enums/machine_action_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
