@@ -161,6 +161,11 @@ Notes from building it:
   "pla" lists "Silk PLA+" before "PLA"). Affects every searchable picker (Spoolman filament/vendor, webcams, …).
   Test skipped: `selection_bottom_sheet_test.dart` "search lists the best match first".
 
+- Dashboard edit mode on tablets (medium layout): pages can't be added, removed or given another icon. The add page
+  "+" and the icon editing live in the bottom navigation bar (phones only) and the medium layout ignores `onRemove`
+  (no "Remove Page" button). Test skipped: `dashboard_medium_layout_test.dart` "editing: pages can be removed on
+  tablets too".
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -230,7 +235,8 @@ Router-based (`pumpRouterApp`), services faked, a few flows per page instead of 
 
 
 _Done: printer edit page (prefill, save, validation, failing save, Klipper/connection states, delete,
-supporter theme) and the printer add flow (mode, simple/advanced form, connection test results, add, limits)._
+supporter theme), the printer add flow (mode, simple/advanced form, connection test results, add, limits) and the
+dashboard layouts (compact and medium, normal and edit mode: live cards, previews, delete, add, remove page, reorder)._
 
 ### Phase 5: later / optional
 
