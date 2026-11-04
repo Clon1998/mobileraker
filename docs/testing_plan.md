@@ -157,6 +157,10 @@ Notes from building it:
   then throws on `paramsMap[key]!.trim()` and the macro is not run. Test skipped: `macro_params_dialog_test.dart`
   "an untouched param without default is returned as text".
 
+- Selection bottom sheet search: results are sorted by score ascending, so the best match comes last (searching
+  "pla" lists "Silk PLA+" before "PLA"). Affects every searchable picker (Spoolman filament/vendor, webcams, …).
+  Test skipped: `selection_bottom_sheet_test.dart` "search lists the best match first".
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -193,7 +197,8 @@ Data comes from public providers + fixtures; actions go to fake services.
 - **Connection guards** ✅ (`KlippyProviderGuard`, `PrinterProviderGuard` in common, `MachineConnectionGuard` in the
   app): every websocket / Klippy / provider state shows the right screen, retry/reconnect/restart actions.
 - **More cards and their dialogs** ✅: Grouped sliders, Power API (against the real `PowerDevices` notifier), Console
-  (history, suggestions, input), number edit dialog, macro params dialog.
+  (history, suggestions, input), number edit dialog, macro params dialog, selection bottom sheet (opened through
+  the real `BottomSheetServiceImpl` in the app's sheet shell, see `test/helpers/sheet_router.dart`).
 
 ### Phase 3: layout and navigation (the foldable/tablet work) ✅
 
