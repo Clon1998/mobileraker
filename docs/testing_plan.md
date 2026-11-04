@@ -174,6 +174,9 @@ Notes from building it:
 - G-code details: the nozzle diameter is a list now, the tile shows "[0.4] mm" ("[] mm" when unknown). Test skipped:
   "shows the nozzle diameter as a number".
 
+- Settings: "Group Slider Cards" (`AppSettingKeys.groupSliders`) is written by the settings page but read nowhere, so
+  the switch has no effect (grouped sliders became a dashboard card).
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -249,6 +252,10 @@ and the full dashboard page (stored layout, page switching, edit mode, save thro
 layout validation, supporter check, discard dialog, page removal limit). Full pages need `pageExtrasOverrides()` from
 `test/helpers/app_overrides.dart` (announcements, ads, consent). G-code details page (meta data, start print,
 Klipper state, Spoolman material/filament warnings)._
+
+_Blocked: the settings page builds its developer section with `FirebaseCrashlytics.instance` (even off-screen), so it
+can't be pumped without Firebase. Reading Crashlytics through a provider would make the page testable (needs a small
+app change, not done)._
 
 ### Phase 5: later / optional
 
