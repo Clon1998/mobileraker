@@ -181,6 +181,15 @@ void main() {
       expect(popped, hasLength(1));
     });
 
+    testWidgets('saving without changes makes no update also for spools without extra fields', (tester) async {
+      await pumpForm(tester, initialSpool: existing.copyWith(extra: null));
+
+      await save(tester);
+
+      expect(spoolman.updated, isEmpty);
+      expect(snackBars.shown.single.title, 'No changes made!');
+    });
+
     testWidgets(
       'clearing a number removes it from the spool',
       skip: true, // Finding: the cleared price is null, which UpdateSpool leaves out (includeIfNull: false); it stays.

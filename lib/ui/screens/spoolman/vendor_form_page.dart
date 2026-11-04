@@ -332,7 +332,8 @@ class _VendorFormPageController extends _$VendorFormPageController {
     final extras = formData.extractExtraFields();
 
     // If no changes were made, return null
-    final extraIsSame = DeepCollectionEquality().equals(extras, source.extra);
+    // Without extra fields Spoolman may send none at all (null), the form then has none either.
+    final extraIsSame = DeepCollectionEquality().equals(extras, source.extra ?? const {});
     if (name == source.name &&
         spoolWeight == source.spoolWeight &&
         externalId == source.externalId &&
