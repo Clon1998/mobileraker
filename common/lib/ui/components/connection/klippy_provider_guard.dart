@@ -64,7 +64,7 @@ class KlippyProviderGuard extends HookConsumerWidget {
         )
             when !skipKlipperReady && !wasFetched =>
           _StateError(data: kInstance, machineUUID: machineUUID, onErrorChildren: klippyErrorChildren),
-        AsyncData(value: KlipperInstance(klippyState: KlipperState.unauthorized)) => const _StateUnauthorized(),
+        AsyncData(value: KlipperInstance(klippyState: KlipperState.unauthorized)) => _StateUnauthorized(machineUUID: machineUUID),
         AsyncError(:final error) => _ProviderError(machineUUID: machineUUID, error: error),
         _ => onConnected(context, machineUUID),
       },
@@ -144,7 +144,9 @@ class _StateError extends ConsumerWidget {
 }
 
 class _StateUnauthorized extends ConsumerWidget {
-  const _StateUnauthorized({super.key});
+  const _StateUnauthorized({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -159,7 +161,9 @@ class _StateUnauthorized extends ConsumerWidget {
             textAlign: TextAlign.center,
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              final machine = await ref.read(machineProvider(machineUUID).future);
+              if (machine == null) return;
               ref.read(goRouterProvider).pushNamed('printerEdit', extra: machine);
             },
             child: Text('components.nav_drawer.printer_settings'.tr()),

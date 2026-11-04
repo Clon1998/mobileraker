@@ -147,7 +147,6 @@ void main() {
 
   testWidgets(
     'unauthorized: the printer settings button opens the settings of this machine',
-    skip: true, // Finding: it pushes `extra: machine`, the top-level `machine()` provider function, not a Machine.
     (tester) async {
       Object? pushedExtra;
       final router = GoRouter(
