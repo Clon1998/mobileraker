@@ -154,7 +154,6 @@ void main() {
 
   testWidgets(
     'the keyboard offers a decimal separator when decimals are allowed',
-    skip: true, // Finding: keyboardType is always numberWithOptions(decimal: false), also with a fraction.
     (tester) async {
       await pumpDialog(tester, type: DialogType.numEdit, current: 0.5, max: 1, fraction: 2);
 

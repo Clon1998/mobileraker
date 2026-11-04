@@ -238,7 +238,7 @@ class _NumField extends StatelessWidget {
         controller: controller,
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => onSubmitted?.call(),
-        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+        keyboardType: TextInputType.numberWithOptions(signed: args.min < 0, decimal: args.fraction > 0),
         decoration: InputDecoration(
           border: const UnderlineInputBorder(),
           contentPadding: const EdgeInsets.all(8.0),
