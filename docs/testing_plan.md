@@ -177,6 +177,12 @@ Notes from building it:
 - Settings: "Group Slider Cards" (`AppSettingKeys.groupSliders`) is written by the settings page but read nowhere, so
   the switch has no effect (grouped sliders became a dashboard card).
 
+- Spool form (edit): clearing a number field (price, weights) can't remove the value. The empty field becomes `null`,
+  which `UpdateSpool` leaves out (`includeIfNull: false`), so an empty update is sent and the old value stays. Text
+  fields are fine (sent as ""). Test skipped: `spool_form_page_test.dart` "clearing a number removes it from the
+  spool". Minor: a spool whose `extra` is `null` (Spoolman without extra fields support) gets an update with
+  `extra: {}` even without changes.
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -251,7 +257,8 @@ dashboard layouts (compact and medium, normal and edit mode: live cards, preview
 and the full dashboard page (stored layout, page switching, edit mode, save through the real layout service, empty
 layout validation, supporter check, discard dialog, page removal limit). Full pages need `pageExtrasOverrides()` from
 `test/helpers/app_overrides.dart` (announcements, ads, consent). G-code details page (meta data, start print,
-Klipper state, Spoolman material/filament warnings)._
+Klipper state, Spoolman material/filament warnings) and the Spoolman spool form (create with filament picker and
+defaults, validation, edit with changed values only, no changes)._
 
 _Blocked: the settings page builds its developer section with `FirebaseCrashlytics.instance` (even off-screen), so it
 can't be pumped without Firebase. Reading Crashlytics through a provider would make the page testable (needs a small

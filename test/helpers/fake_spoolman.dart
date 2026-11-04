@@ -8,7 +8,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/misc.dart' show Override;
 import 'package:mobileraker_pro/spoolman/dto/get_extra_field.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/create_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/update_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
@@ -136,6 +138,22 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
 
   @override
   Future<List<String>> allMaterials() async => {for (final f in filaments) ?f.material}.toList();
+
+  /// Spools sent to [createSpool] / [updateSpool].
+  final List<CreateSpool> created = [];
+  final List<UpdateSpool> updated = [];
+
+  @override
+  Future<GetSpool> createSpool(CreateSpool spool) async {
+    created.add(spool);
+    return SpoolmanFixtures.spool(100 + created.length, spool.filament);
+  }
+
+  @override
+  Future<GetSpool> updateSpool(UpdateSpool spool) async {
+    updated.add(spool);
+    return spools.firstWhere((s) => s.id == spool.id);
+  }
 
   @override
   Future<List<String>> allLocations() async => {for (final s in spools) ?s.location}.toList();
