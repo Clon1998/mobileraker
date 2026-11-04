@@ -25,6 +25,7 @@ dependencies:
   package_info_plus: ^10.2.2
   responsive_framework: ^1.4.0
   shared_preferences: ^2.5.3
+  shared_preferences_platform_interface: ^2.4.1
   talker_flutter: ^5.2.0
   yaml: ^3.1.2
 

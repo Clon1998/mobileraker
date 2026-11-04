@@ -15,6 +15,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Records machine changes instead of writing them to Hive/Moonraker.
 class FakeMachineService extends Fake implements MachineService {
+  FakeMachineService({List<Machine> machines = const []}) : known = {for (final m in machines) m.uuid: m};
+
+  /// Machines returned by [fetchMachine].
+  final Map<String, Machine> known;
+
   final List<Machine> added = [];
   final List<Machine> updated = [];
   final List<Machine> removed = [];
@@ -22,6 +27,9 @@ class FakeMachineService extends Fake implements MachineService {
 
   /// Thrown by [updateMachine] if set.
   Object? updateError;
+
+  @override
+  Future<Machine?> fetchMachine(String uuid) async => known[uuid];
 
   @override
   Future<Machine> addMachine(Machine machine) async {

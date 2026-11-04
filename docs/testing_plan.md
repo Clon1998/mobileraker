@@ -236,7 +236,10 @@ Router-based (`pumpRouterApp`), services faked, a few flows per page instead of 
 
 _Done: printer edit page (prefill, save, validation, failing save, Klipper/connection states, delete,
 supporter theme), the printer add flow (mode, simple/advanced form, connection test results, add, limits) and the
-dashboard layouts (compact and medium, normal and edit mode: live cards, previews, delete, add, remove page, reorder)._
+dashboard layouts (compact and medium, normal and edit mode: live cards, previews, delete, add, remove page, reorder)
+and the full dashboard page (stored layout, page switching, edit mode, save through the real layout service, empty
+layout validation, supporter check, discard dialog, page removal limit). Full pages need `pageExtrasOverrides()` from
+`test/helpers/app_overrides.dart` (announcements, ads, consent)._
 
 ### Phase 5: later / optional
 

@@ -10,6 +10,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 import 'test_fonts.dart';
@@ -33,6 +35,7 @@ Future<void> setUpTestLocalization() async {
   _localizationReady = true;
   // ignore: invalid_use_of_visible_for_testing_member
   SharedPreferences.setMockInitialValues({});
+  SharedPreferencesAsyncPlatform.instance = InMemorySharedPreferencesAsync.empty(); // e.g. rate_my_app
   EasyLocalization.logger.enableLevels = [];
   await EasyLocalization.ensureInitialized();
 }
