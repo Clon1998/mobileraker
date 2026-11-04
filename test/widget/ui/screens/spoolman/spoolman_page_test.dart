@@ -160,9 +160,6 @@ void main() {
 
         expect(find.text('spoolman_details_spool page of 102'), findsOneWidget);
       },
-      // Finding: the embedded details' FAB has the default hero tag like the Spoolman page's FAB, so pushing a page
-      // from the pane fails with "multiple heroes share the same tag" (docs/testing_plan.md, Findings).
-      skip: true,
     );
 
     testWidgets(

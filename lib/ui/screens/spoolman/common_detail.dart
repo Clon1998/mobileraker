@@ -59,7 +59,11 @@ class SpoolmanDetailScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (EmbeddedSpoolmanDetail.of(context)) {
-      return Scaffold(appBar: appBar, body: body, floatingActionButton: floatingActionButton);
+      // No heroes: the FAB would share the default hero tag with the Spoolman page's FAB.
+      return HeroMode(
+        enabled: false,
+        child: Scaffold(appBar: appBar, body: body, floatingActionButton: floatingActionButton),
+      );
     }
     return RailScaffold(appBar: appBar, body: body, floatingActionButton: floatingActionButton);
   }
