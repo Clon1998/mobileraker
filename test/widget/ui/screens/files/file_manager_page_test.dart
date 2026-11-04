@@ -45,7 +45,11 @@ void main() {
     moonrakerFolderContentProvider.overrideWith((ref, args) {
       final path = args.$2;
       final content = filesByPath[path] ?? [];
-      return FolderContentWrapper(path, content.whereType<Folder>().toList(), content.where((f) => f is! Folder).toList());
+      return FolderContentWrapper(
+        path,
+        content.whereType<Folder>().toList(),
+        content.where((f) => f is! Folder).toList(),
+      );
     }),
   ];
 

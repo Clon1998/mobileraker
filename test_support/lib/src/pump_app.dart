@@ -23,9 +23,8 @@ const _english = Locale('en');
 final _defaultLight = ThemeData(useMaterial3: true);
 final _defaultDark = ThemeData(useMaterial3: true, brightness: Brightness.dark);
 
-TransitionBuilder? _directionBuilder(TextDirection? textDirection) => textDirection == null
-    ? null
-    : (context, child) => Directionality(textDirection: textDirection, child: child!);
+TransitionBuilder? _directionBuilder(TextDirection? textDirection) =>
+    textDirection == null ? null : (context, child) => Directionality(textDirection: textDirection, child: child!);
 
 extension PumpApp on WidgetTester {
   /// Pumps [widget] the way the app hosts its pages: a [ProviderScope] with [overrides], easy_localization with the
@@ -151,5 +150,4 @@ extension PumpApp on WidgetTester {
     await pump();
     await pump();
   }
-
 }

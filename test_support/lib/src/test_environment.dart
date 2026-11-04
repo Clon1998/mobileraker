@@ -12,6 +12,8 @@ import 'package:hive_ce/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
+import 'test_fonts.dart';
+
 bool _loggerReady = false;
 bool _localizationReady = false;
 
@@ -52,8 +54,8 @@ Future<void> clearTestHiveBoxes() async {
   }
 }
 
-/// Registers the shared setup for widget tests: quiet logger, localization, in-memory Hive boxes (cleared after
-/// every test).
+/// Registers the shared setup for widget tests: quiet logger, localization, real font metrics (see [loadTestFonts]),
+/// in-memory Hive boxes (cleared after every test).
 ///
 /// Call it first thing in `main()` (or in a `group`), not inside `setUp`/`setUpAll`:
 ///
@@ -70,6 +72,7 @@ void setUpWidgetTests() {
   setUpAll(() async {
     setUpTestLogger();
     await setUpTestLocalization();
+    await loadTestFonts();
     await openTestHiveBoxes();
   });
   tearDown(clearTestHiveBoxes);

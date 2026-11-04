@@ -22,7 +22,10 @@ void main() {
   });
 
   testWidgets('limits the width to the end of the medium breakpoint on a tablet', (tester) async {
-    await tester.pumpApp(const Center(child: ResponsiveLimit(child: content)), device: TestDevice.tablet);
+    await tester.pumpApp(
+      const Center(child: ResponsiveLimit(child: content)),
+      device: TestDevice.tablet,
+    );
 
     expect(contentWidth(tester), 840);
   });

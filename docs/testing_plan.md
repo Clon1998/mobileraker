@@ -82,6 +82,12 @@ void main() {
 
 Notes from building it:
 
+- `setUpWidgetTests` loads the bundled NotoSans as "Roboto" (`loadTestFonts`). With the default test font (square
+  glyphs, about twice as wide) layouts overflowed that fit on devices.
+- Scroll things below the fold into view before tapping: `await tester.ensureVisible(finder)`.
+- No formatter config in the repo, so `dart format` defaults to 80 columns; the code uses 120:
+  `dart format -l 120 <new files>`.
+
 - `tr()` has to run inside a `build` (e.g. a `Builder`), not while creating the widget passed to `pumpApp`, since the
   translations load during the first frames.
 - The Pixel Tablet in landscape (1280 wide) is wider than the last breakpoint (1200), so the breakpoint name is
@@ -104,6 +110,15 @@ Notes from building it:
 
 - `SliderOrTextInput`: tapping edit doesn't focus the text field (it requests focus while the field is still the
   hidden, focus-excluded side of the `AnimatedCrossFade`), so the user has to tap the field.
+- Spoolman list-detail (tablet width, spool in the pane): the side-by-side "Alternative spools" cards
+  (`IntrinsicHeight` + `Row(stretch)` in `spool_detail_page.dart`) are measured 56 px tall while their entries need
+  68 px, so `SpoolmanStaticPagination`'s column overflows by 12 px (also with short names, not a font artefact).
+  Test skipped: `spoolman_page_test.dart` "spool details next to the list on a tablet".
+- Spoolman list-detail: the embedded detail pages keep their FAB's hero (the G-code details disable it with
+  `HeroMode`), so pushing a page from the pane (e.g. a spool from a filament in the pane) fails with "multiple heroes
+  share the same tag". Test skipped: "a filament in the pane opens its spools as their own page".
+- `SpoolListEntry` (pro): the name column isn't `Flexible`, so long names/narrow lists overflow to the right
+  (seen with the test font before real fonts were loaded; plausible on devices with long names).
 - `SingleValueSelector(values: [])` fails its own assert (`selectedIndex <= values.length - 1`), so the
   "No Steps configured!" branch is unreachable in debug builds.
 
@@ -139,7 +154,7 @@ Data comes from public providers + fixtures; actions go to fake services.
   - Machine status: klippy states (ready, error, shutdown, disconnected) show the right message and actions
   - Macro groups: hidden/visible macros, macros with params open the dialog
 
-### Phase 3: layout and navigation (the foldable/tablet work) (_shell and Files done_)
+### Phase 3: layout and navigation (the foldable/tablet work) (_shell, Files and Spoolman done_)
 
 These are the tests that keep today's Duo/tablet work from regressing.
 

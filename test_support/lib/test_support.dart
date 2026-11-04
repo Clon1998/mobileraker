@@ -12,4 +12,5 @@ export 'src/fixtures.dart';
 export 'src/pump_app.dart';
 export 'src/test_device.dart';
 export 'src/test_environment.dart';
+export 'src/test_fonts.dart';
 export 'src/test_translations.dart';

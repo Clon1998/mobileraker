@@ -20,8 +20,10 @@ typedef RecordedRpcCall = ({String method, dynamic params});
 /// expect(client.calls.single, (method: 'printer.gcode.script', params: {'script': 'M220 S110'}));
 /// ```
 class FakeJsonRpcClient extends Fake implements JsonRpcClient {
-  FakeJsonRpcClient({this.clientType = ClientType.local, Map<String, Map<String, dynamic> Function(dynamic params)>? responses})
-    : responses = responses ?? {};
+  FakeJsonRpcClient({
+    this.clientType = ClientType.local,
+    Map<String, Map<String, dynamic> Function(dynamic params)>? responses,
+  }) : responses = responses ?? {};
 
   @override
   final ClientType clientType;

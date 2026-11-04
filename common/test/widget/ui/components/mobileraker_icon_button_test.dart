@@ -11,8 +11,7 @@ import 'package:test_support/test_support.dart';
 void main() {
   setUpWidgetTests();
 
-  Color? iconColor(WidgetTester tester) =>
-      IconTheme.of(tester.element(find.byIcon(Icons.thermostat))).color;
+  Color? iconColor(WidgetTester tester) => IconTheme.of(tester.element(find.byIcon(Icons.thermostat))).color;
 
   testWidgets('calls onPressed and onLongPressed', (tester) async {
     var taps = 0;
@@ -33,7 +32,9 @@ void main() {
   });
 
   testWidgets('uses the given colour when enabled and the disabled colour without onPressed', (tester) async {
-    await tester.pumpApp(MobilerakerIconButton(icon: const Icon(Icons.thermostat), color: Colors.red, onPressed: () {}));
+    await tester.pumpApp(
+      MobilerakerIconButton(icon: const Icon(Icons.thermostat), color: Colors.red, onPressed: () {}),
+    );
     expect(iconColor(tester), Colors.red);
 
     await tester.pumpApp(const MobilerakerIconButton(icon: Icon(Icons.thermostat), color: Colors.red));
@@ -41,7 +42,9 @@ void main() {
   });
 
   testWidgets('shows the tooltip on long press', (tester) async {
-    await tester.pumpApp(MobilerakerIconButton(icon: const Icon(Icons.thermostat), tooltip: 'Heaters', onPressed: () {}));
+    await tester.pumpApp(
+      MobilerakerIconButton(icon: const Icon(Icons.thermostat), tooltip: 'Heaters', onPressed: () {}),
+    );
 
     await tester.longPress(find.byIcon(Icons.thermostat));
     await tester.pumpAndSettle();

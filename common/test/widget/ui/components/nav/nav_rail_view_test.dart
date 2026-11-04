@@ -226,7 +226,9 @@ void main() {
       expect(tester.getRect(find.byType(Drawer)).right, TestDevice.duoInnerLandscape.size.width);
     }, variant: iOS);
 
-    testWidgets('switching between pages with and without FAB keeps the rail entries and menu in place', (tester) async {
+    testWidgets('switching between pages with and without FAB keeps the rail entries and menu in place', (
+      tester,
+    ) async {
       final router = await pumpShell(tester, device: TestDevice.duoInnerLandscape);
       final entryBefore = tester.getRect(_railEntry);
       final menuBefore = tester.getRect(_menuButton);

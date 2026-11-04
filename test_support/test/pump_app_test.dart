@@ -57,26 +57,21 @@ void main() {
     expect(tester.element(find.byType(SizedBox).first).foldStrip, isNull);
   });
 
-  testWidgets(
-    'iPhone Duo inner landscape reports the strip on the right',
-    (tester) async {
-      await tester.pumpApp(const SizedBox(), device: TestDevice.duoInnerLandscape);
+  testWidgets('iPhone Duo inner landscape reports the strip on the right', (tester) async {
+    await tester.pumpApp(const SizedBox(), device: TestDevice.duoInnerLandscape);
 
-      final strip = tester.element(find.byType(SizedBox).first).foldStrip;
-      expect(strip, isNotNull);
-      expect(strip!.side, FoldStripSide.right);
-      expect(strip.width, 84);
-    },
-    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
-  );
+    final strip = tester.element(find.byType(SizedBox).first).foldStrip;
+    expect(strip, isNotNull);
+    expect(strip!.side, FoldStripSide.right);
+    expect(strip.width, 84);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
 
   testWidgets('settings start at their defaults and can be seeded', (tester) async {
     await Hive.box('settingsbox').put(AppSettingKeys.confirmEmergencyStop.key, true);
 
     await tester.pumpApp(
       Consumer(
-        builder: (context, ref, _) =>
-            Text('${ref.watch(boolSettingProvider(AppSettingKeys.confirmEmergencyStop))}'),
+        builder: (context, ref, _) => Text('${ref.watch(boolSettingProvider(AppSettingKeys.confirmEmergencyStop))}'),
       ),
     );
 
@@ -90,9 +85,7 @@ void main() {
   testWidgets('a failing provider stays in its error state without retry timers', (tester) async {
     final failing = FutureProvider<int>((ref) => throw StateError('boom'));
 
-    await tester.pumpApp(
-      Consumer(builder: (context, ref, _) => Text(ref.watch(failing).hasError ? 'error' : 'other')),
-    );
+    await tester.pumpApp(Consumer(builder: (context, ref, _) => Text(ref.watch(failing).hasError ? 'error' : 'other')));
 
     expect(find.text('error'), findsOneWidget);
   });
