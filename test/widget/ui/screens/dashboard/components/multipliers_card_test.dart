@@ -84,8 +84,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
 
-    // PrinterService sends 'M220  S110' (two spaces, see docs/testing_plan.md Findings).
-    expect(scripts(), [matches(RegExp(r'^M220\s+S110$'))]);
+    expect(scripts(), ['M220 S110']);
     await tester.unmountApp();
   });
 

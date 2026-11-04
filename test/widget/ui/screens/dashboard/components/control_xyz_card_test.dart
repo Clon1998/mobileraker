@@ -155,7 +155,7 @@ void main() {
     await tester.tap(find.text('ALL'));
     await tester.pumpAndSettle();
 
-    expect(scripts(), ['G28 X Y', 'G28 Z', 'G28 ']);
+    expect(scripts(), ['G28 X Y', 'G28 Z', 'G28']);
     await tester.unmountApp();
   });
 

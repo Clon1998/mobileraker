@@ -123,7 +123,7 @@ void main() {
     expect(args.current, 0);
     expect(args.max, 150, reason: 'fallback without a configured max_temp');
     // PrinterService sends two spaces after SET_HEATER_TEMPERATURE (see docs/testing_plan.md Findings).
-    expect(scripts(), [matches(RegExp(r'^SET_HEATER_TEMPERATURE\s+HEATER=heater_bed TARGET=60$'))]);
+    expect(scripts(), ['SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=60']);
     await tester.unmountApp();
   });
 
@@ -133,7 +133,7 @@ void main() {
     await tester.longPress(buttonOf('Extruder'));
     await tester.pumpAndSettle();
 
-    expect(scripts(), [matches(RegExp(r'^SET_HEATER_TEMPERATURE\s+HEATER=extruder TARGET=0$'))]);
+    expect(scripts(), ['SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0']);
     await tester.unmountApp();
   });
 

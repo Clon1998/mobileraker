@@ -185,7 +185,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(dialogs.requests, hasLength(1));
-    expect(scripts(), ['PURGE_LINE '], reason: 'trailing space, see docs/testing_plan.md Findings');
+    expect(scripts(), ['PURGE_LINE']);
     await tester.unmountApp();
   });
 

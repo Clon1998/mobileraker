@@ -427,7 +427,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
             .where((e) => paramsMap[e]?.trim().isNotEmpty == true)
             .map((e) => '${e.toUpperCase()}=${paramsMap[e]}')
             .join(' ');
-        _printerService.gCode('${macro.macroName} $paramStr');
+        _printerService.gCode(paramStr.isEmpty ? macro.macroName : '${macro.macroName} $paramStr');
       }
     } else {
       HapticFeedback.selectionClick();

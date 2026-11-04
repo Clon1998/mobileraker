@@ -133,7 +133,7 @@ void main() {
     await settle(tester);
 
     // PrinterService sends two spaces after SET_FAN_SPEED (see docs/testing_plan.md Findings).
-    expect(scripts(), [matches(RegExp(r'^SET_FAN_SPEED\s+FAN=nevermore SPEED=0.40$'))]);
+    expect(scripts(), ['SET_FAN_SPEED FAN=nevermore SPEED=0.40']);
     await tester.unmountApp();
   });
 
@@ -169,7 +169,7 @@ void main() {
     await tester.longPress(buttonOf('Part Fan'));
     await settle(tester);
 
-    expect(scripts(), [matches(RegExp(r'^SET_FAN_SPEED\s+FAN=nevermore SPEED=1.00$')), 'M106 S0']);
+    expect(scripts(), ['SET_FAN_SPEED FAN=nevermore SPEED=1.00', 'M106 S0']);
     await tester.unmountApp();
   });
 

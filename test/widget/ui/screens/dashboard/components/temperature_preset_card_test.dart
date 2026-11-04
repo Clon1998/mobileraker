@@ -60,7 +60,7 @@ void main() {
   List<String> scripts() => [
     for (final c in rpc.calls)
       if (c.method == 'printer.gcode.script')
-        (c.params['script'] as String).replaceAll(RegExp(r'\s+'), ' '), // see Findings: double spaces
+        c.params['script'] as String,
   ];
 
   Finder buttonOf(String name) => find.descendant(

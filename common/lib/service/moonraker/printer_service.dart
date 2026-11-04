@@ -371,9 +371,9 @@ class PrinterService {
     if (axis.contains(PrinterAxis.E)) {
       throw const FormatException('E axis cant be homed');
     }
-    String gcode = 'G28 ';
+    String gcode = 'G28';
     if (axis.length < 3) {
-      gcode += axis.map((e) => e.name).join(' ');
+      gcode += ' ${axis.map((e) => e.name).join(' ')}';
     }
     return gCode(gcode);
   }
@@ -405,7 +405,7 @@ class PrinterService {
   }
 
   genericFanFan(String fanName, double perc) {
-    gCode('SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}');
+    gCode('SET_FAN_SPEED FAN=$fanName SPEED=${perc.toStringAsFixed(2)}');
   }
 
   Future<void> outputPin(String pinName, double value) async {
@@ -440,7 +440,7 @@ class PrinterService {
   }
 
   speedMultiplier(int speed) {
-    gCode('M220  S$speed');
+    gCode('M220 S$speed');
   }
 
   flowMultiplier(int flow) {
@@ -472,7 +472,7 @@ class PrinterService {
   }
 
   Future<bool> setHeaterTemperature(String heater, int target) {
-    return gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
+    return gCode('SET_HEATER_TEMPERATURE HEATER=$heater TARGET=$target');
   }
 
   setTemperatureFanTarget(String fan, int target) {
