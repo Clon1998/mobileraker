@@ -19,6 +19,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:flutter/material.dart';
@@ -180,8 +181,27 @@ class FakeDialogService extends Fake implements DialogService {
   }
 }
 
-/// The UI services the app provides in main() (snackbar and dialog service).
-List<Override> uiServiceOverrides({FakeSnackBarService? snackBars, FakeDialogService? dialogs}) => [
+/// Records bottom sheet configs instead of showing them; answers each with [result] (dismissed by default).
+class FakeBottomSheetService extends Fake implements BottomSheetService {
+  FakeBottomSheetService({BottomSheetResult? result}) : result = result ?? BottomSheetResult.dismissed();
+
+  BottomSheetResult result;
+  final List<BottomSheetConfig> shown = [];
+
+  @override
+  Future<BottomSheetResult> show(BottomSheetConfig config) async {
+    shown.add(config);
+    return result;
+  }
+}
+
+/// The UI services the app provides in main() (snackbar, dialog and bottom sheet service).
+List<Override> uiServiceOverrides({
+  FakeSnackBarService? snackBars,
+  FakeDialogService? dialogs,
+  FakeBottomSheetService? bottomSheets,
+}) => [
   snackBarServiceProvider.overrideWithValue(snackBars ?? FakeSnackBarService()),
   dialogServiceProvider.overrideWithValue(dialogs ?? FakeDialogService()),
+  bottomSheetServiceProvider.overrideWithValue(bottomSheets ?? FakeBottomSheetService()),
 ];

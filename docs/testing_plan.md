@@ -170,7 +170,7 @@ Data comes from public providers + fixtures; actions go to fake services.
   dark): each card's `preview()` renders without exceptions or overflows at phone and
   tablet widths, light and dark. Cheap and catches most layout regressions (there are ~18 cards).
 - **Per card**, the states and the main interaction (_done: Multipliers, Limits, Z offset, Firmware retraction, Machine status, Fans, Pins, Temperature +
-  presets, Macro groups, Control XYZ, Control extruder; open: bed mesh, webcam, grouped sliders, pro cards_):
+  presets, Macro groups, Control XYZ, Control extruder, Bed mesh; open: webcam, grouped sliders, pro cards_):
   - loading (skeleton) → data → error/"not available" (e.g. no fans configured)
   - Multipliers/Limits/Z-offset/Firmware retraction: change a value → correct G-code sent
   - Control XYZ / extruder: buttons disabled while printing or not homed, jog sends the right move
