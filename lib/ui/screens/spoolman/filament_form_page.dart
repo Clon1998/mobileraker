@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -133,7 +134,7 @@ class _FilamentFormPage extends HookConsumerWidget {
     final bedTempFocusNode = useFocusNode();
     final colorHexFocusNode = useFocusNode();
 
-    return Scaffold(
+    return RailScaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: _Fab(machineUUID: machineUUID),
       // Top aligned, a short form would otherwise be centered vertically.

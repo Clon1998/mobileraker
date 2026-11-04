@@ -17,6 +17,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -73,7 +74,7 @@ class ConfigFileDetailPage extends HookConsumerWidget {
       });
     });
 
-    return Scaffold(
+    return RailScaffold(
       backgroundColor: editorThemeRoot.backgroundColor,
       appBar: AppBar(
         title: Text(file.name, overflow: TextOverflow.fade),
@@ -207,6 +208,13 @@ class _Fab extends ConsumerWidget {
       ],
       spacing: 5,
       overlayOpacity: 0.5,
+      // In the fold strip (iPhone Duo) at the top of the screen; SpeedDial does not use the FAB theme by itself.
+      direction: RailScaffold.showsRailOf(context) ? SpeedDialDirection.down : SpeedDialDirection.up,
+      switchLabelPosition: RailScaffold.showsRailOf(context),
+      buttonSize:
+          Theme.of(context).floatingActionButtonTheme.sizeConstraints?.smallest.onlyLet((s) => !s.isEmpty) ??
+          const Size(56, 56),
+      elevation: Theme.of(context).floatingActionButtonTheme.elevation ?? 6,
       backgroundColor: model.isUploading ? themeData.disabledColor : null,
       child: model.isUploading ? const CircularProgressIndicator.adaptive() : null,
     );

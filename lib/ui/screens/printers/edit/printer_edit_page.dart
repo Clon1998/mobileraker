@@ -26,6 +26,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
@@ -91,7 +92,7 @@ class PrinterEditPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSaving = ref.watch(_isSaving).isPending;
-    return Scaffold(
+    return RailScaffold(
       appBar: AppBar(
         title: const Text(
           'pages.printer_edit.title',

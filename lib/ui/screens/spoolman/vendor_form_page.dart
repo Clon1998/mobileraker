@@ -5,6 +5,7 @@
 
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -86,7 +87,7 @@ class _VendorFormPage extends HookConsumerWidget {
     final spoolWeightFocusNode = useFocusNode();
     final commentFocusNode = useFocusNode();
 
-    return Scaffold(
+    return RailScaffold(
       appBar: _AppBar(machineUUID: machineUUID),
       floatingActionButton: _Fab(machineUUID: machineUUID),
       // Top aligned, a short form would otherwise be centered vertically.

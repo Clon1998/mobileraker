@@ -211,9 +211,11 @@ class _RailScope extends InheritedWidget {
   bool updateShouldNotify(_RailScope oldWidget) => slots != oldWidget.slots || showsRail != oldWidget.showsRail;
 }
 
-/// Drop-in replacement for the [Scaffold] of pages hosted by the [NavigationRailShell].
+/// Drop-in replacement for the [Scaffold] of pages, hosted by the [NavigationRailShell] or covering it.
 ///
 /// - Compact layouts (phones), or outside of the shell (e.g. pages covering it): builds a regular [Scaffold].
+/// - Outside of the shell on foldables with a fold strip (iPhone Duo): the FAB moves into the strip, the app bar and
+///   body take the remaining part of the window.
 /// - Larger layouts (tablets) or foldables with a fold strip, within the shell: hands [appBar], [drawer] and the rail
 ///   leading ([railLeading], defaults to the [floatingActionButton]) to the shell, which shows them while the page's
 ///   route is the current one, and only builds the body (incl. bottom navigation bar, but no FAB).
@@ -230,6 +232,7 @@ class RailScaffold extends StatefulWidget {
     this.floatingActionButtonLocation,
     this.bottomNavigationBar,
     this.railLeading,
+    this.backgroundColor,
   });
 
   final PreferredSizeWidget? appBar;
@@ -248,9 +251,14 @@ class RailScaffold extends StatefulWidget {
   /// the [floatingActionButton], only needed if the FAB differs in the rail.
   final Widget? railLeading;
 
-  /// Whether the [NavigationRailShell] shows the rail for the page of [context], i.e. the FAB is shown in the rail. Not the same as [BuildContextExtension.isLargerThanCompact]: foldables (iPhone Duo) show the
-  /// rail in their fold strip, also on compact layouts.
-  static bool showsRailOf(BuildContext context) => _RailScope.slotsOf(context) != null;
+  /// See [Scaffold.backgroundColor], also used for the fold strip of pages outside of the shell.
+  final Color? backgroundColor;
+
+  /// Whether the FAB of the page of [context] is shown in the rail, or in the fold strip for pages outside of the
+  /// shell. Not the same as [BuildContextExtension.isLargerThanCompact]: foldables (iPhone Duo) show the rail in their
+  /// fold strip, also on compact layouts.
+  static bool showsRailOf(BuildContext context) =>
+      _RailScope.slotsOf(context) != null || context.dependOnInheritedWidgetOfExactType<_StripPageScope>() != null;
 
   /// The leading for app bars of [RailScaffold]s, which an [AppBar] can not imply itself: a back button if the page
   /// is shown by the [NavigationRailShell] on larger layouts and can be popped. Null otherwise, so the [AppBar]
@@ -281,12 +289,17 @@ class _RailScaffoldState extends State<RailScaffold> {
     final slots = _RailScope.slotsOf(context);
     if (slots == null) {
       _slots = null;
+      // Within the shell, its rail would take the strip (no rail shown means there is none).
+      final strip = context.getInheritedWidgetOfExactType<_RailScope>() == null ? context.foldStrip : null;
+      if (strip != null) return _buildStripLayout(strip);
+
       return Scaffold(
         appBar: widget.appBar,
         drawer: widget.drawer,
         floatingActionButton: widget.floatingActionButton,
         floatingActionButtonLocation: widget.floatingActionButtonLocation,
         bottomNavigationBar: widget.bottomNavigationBar,
+        backgroundColor: widget.backgroundColor,
         body: widget.body,
       );
     }
@@ -297,6 +310,42 @@ class _RailScaffoldState extends State<RailScaffold> {
 
     // The FAB is shown in the rail instead.
     return Scaffold(bottomNavigationBar: widget.bottomNavigationBar, body: widget.body);
+  }
+
+  /// Pages outside of the shell on foldables: like the shell's strip layout, the page's main action (FAB) lives in the
+  /// strip, on its physical side, and the app bar and body take the remaining part of the window.
+  Widget _buildStripLayout(FoldStrip strip) {
+    final isLeft = strip.side == FoldStripSide.left;
+    final bar = _StripBar(
+      strip: strip,
+      color: widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+      fab: widget.railLeading ?? widget.floatingActionButton,
+    );
+
+    return _StripPageScope(
+      child: Row(
+        textDirection: TextDirection.ltr,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (isLeft) bar,
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeLeft: isLeft,
+              removeRight: !isLeft,
+              child: Scaffold(
+                appBar: widget.appBar,
+                drawer: widget.drawer,
+                bottomNavigationBar: widget.bottomNavigationBar,
+                backgroundColor: widget.backgroundColor,
+                body: widget.body,
+              ),
+            ),
+          ),
+          if (!isLeft) bar,
+        ],
+      ),
+    );
   }
 
   // The shell is an ancestor, hence it can not be rebuilt while this page is building. Publishing after the frame
@@ -333,16 +382,6 @@ class _Rail extends StatelessWidget {
   /// Width of the rail, excluding the horizontal safe area (M3 constraints).
   static const double width = 72;
 
-  /// iPhone Duo: the system centers the status cluster (and the items of native vertical bars) this far from the
-  /// window's edge, the rail's items are aligned with it.
-  static const double _stripItemCenterFromEdge = 48;
-
-  /// iPhone Duo: size of the rail's FAB in the strip, close to the status cluster's width (and Apple's min. touch size).
-  static const double _stripFabSize = 44;
-
-  /// iPhone Duo: size of the rail's icons in the strip.
-  static const double _stripIconSize = 22;
-
   final Widget? leading;
 
   /// The fold strip the rail fills, if any. Otherwise the rail is placed at the left edge, next to the safe area.
@@ -367,14 +406,8 @@ class _Rail extends StatelessWidget {
           }
         : null;
 
-    // The strip is the safe area itself; its top holds the status cluster/camera. Items in the strip are centered like
-    // the status cluster, i.e. a bit away from the window's edge.
-    final outerStripPadding = strip == null ? 0.0 : math.max(0.0, 2 * _stripItemCenterFromEdge - strip.width);
-    final safeAreaPadding = switch (strip?.side) {
-      null => EdgeInsets.only(left: paddingOf.left),
-      FoldStripSide.left => EdgeInsets.only(left: outerStripPadding),
-      FoldStripSide.right => EdgeInsets.only(right: outerStripPadding),
-    };
+    // The strip is the safe area itself; its top holds the status cluster/camera.
+    final safeAreaPadding = strip == null ? EdgeInsets.only(left: paddingOf.left) : _StripStyle.itemPadding(strip);
     final topPadding = strip?.topClearance ?? paddingOf.top;
     final bottomPadding = strip == null ? 0.0 : math.max(strip.bottomClearance, paddingOf.bottom);
 
@@ -386,20 +419,18 @@ class _Rail extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: CustomScrollView(
-                primary: false,
-                physics: const RangeMaintainingScrollPhysics(parent: ClampingScrollPhysics()),
-                slivers: [
-                  // Without a strip only non-zero if the current page has no app bar, keeps the rail out of the
-                  // status bar.
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: topPadding),
-                    sliver: SliverToBoxAdapter(
-                      child: _Leading(leading: leading, safeAreaPadding: safeAreaPadding),
-                    ),
-                  ),
-                  SliverFillRemaining(hasScrollBody: false, child: _Body(safeAreaPadding: safeAreaPadding)),
-                ],
+              // Outside of the scroll view, so scrolled entries never move below the status bar/cluster. Without a strip
+              // only non-zero if the current page has no app bar.
+              child: Padding(
+                padding: EdgeInsets.only(top: topPadding),
+                child: CustomScrollView(
+                  primary: false,
+                  physics: const RangeMaintainingScrollPhysics(parent: ClampingScrollPhysics()),
+                  slivers: [
+                    SliverToBoxAdapter(child: _Leading(leading: leading, safeAreaPadding: safeAreaPadding)),
+                    SliverFillRemaining(hasScrollBody: false, child: _Body(safeAreaPadding: safeAreaPadding)),
+                  ],
+                ),
               ),
             ),
             _Footer(
@@ -411,16 +442,47 @@ class _Rail extends StatelessWidget {
       ),
     );
     if (strip == null) return rail;
+    return _StripStyle(child: rail);
+  }
+}
 
-    // Smaller and flat in the strip, to match the system's status cluster above. The FAB is the page's rail leading, hence
-    // sized via the theme. Its tap target is not padded to 48, otherwise the rail's entries move when switching between
-    // pages with and without a FAB (44 is still Apple's min. touch size).
+/// Styles the items in an iPhone Duo fold strip (the rail, or the FAB of pages outside the shell): smaller and flat, to
+/// match the system's status cluster above them. FABs are provided by the pages, hence sized via the theme.
+class _StripStyle extends StatelessWidget {
+  const _StripStyle({required this.child});
+
+  /// The system centers the status cluster (and the items of native vertical bars) this far from the window's edge,
+  /// items in the strip are aligned with it.
+  static const double _itemCenterFromEdge = 48;
+
+  /// Size of FABs in the strip, close to the status cluster's width (and Apple's min. touch size).
+  static const double _fabSize = 44;
+
+  /// Size of icons in the strip.
+  static const double _iconSize = 22;
+
+  final Widget child;
+
+  /// Padding at the strip's outer edge that centers its items like the status cluster.
+  static EdgeInsets itemPadding(FoldStrip strip) {
+    final outer = math.max(0.0, 2 * _itemCenterFromEdge - strip.width);
+    return switch (strip.side) {
+      FoldStripSide.left => EdgeInsets.only(left: outer),
+      FoldStripSide.right => EdgeInsets.only(right: outer),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
     return Theme(
       data: themeData.copyWith(
+        // The FAB's tap target is not padded to 48, otherwise the rail's entries move when switching between pages
+        // with and without a FAB (44 is still Apple's min. touch size).
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         floatingActionButtonTheme: themeData.floatingActionButtonTheme.copyWith(
-          sizeConstraints: const BoxConstraints.tightFor(width: _stripFabSize, height: _stripFabSize),
-          iconSize: _stripIconSize,
+          sizeConstraints: const BoxConstraints.tightFor(width: _fabSize, height: _fabSize),
+          iconSize: _iconSize,
           // Flat, like the system's controls in the strip.
           elevation: 0,
           focusElevation: 0,
@@ -430,11 +492,48 @@ class _Rail extends StatelessWidget {
         ),
       ),
       child: IconTheme.merge(
-        data: const IconThemeData(size: _stripIconSize),
-        child: rail,
+        data: const IconThemeData(size: _iconSize),
+        child: child,
       ),
     );
   }
+}
+
+/// The fold strip of pages outside the shell (e.g. details or forms covering it): holds the page's FAB, its main
+/// action, at the top below the status cluster, like the vertical bar of native apps.
+class _StripBar extends StatelessWidget {
+  const _StripBar({required this.strip, required this.color, this.fab});
+
+  final FoldStrip strip;
+
+  final Color color;
+
+  final Widget? fab;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: strip.width,
+      child: Material(
+        color: color,
+        child: Padding(
+          padding: EdgeInsets.only(top: strip.topClearance + 16).add(_StripStyle.itemPadding(strip)),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: _StripStyle(child: fab ?? const SizedBox.shrink()),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Marks pages outside the shell that show their FAB in the fold strip, see [RailScaffold.showsRailOf].
+class _StripPageScope extends InheritedWidget {
+  const _StripPageScope({required super.child});
+
+  @override
+  bool updateShouldNotify(_StripPageScope oldWidget) => false;
 }
 
 class _Leading extends StatelessWidget {
