@@ -166,6 +166,14 @@ Notes from building it:
   (no "Remove Page" button). Test skipped: `dashboard_medium_layout_test.dart` "editing: pages can be removed on
   tablets too".
 
+- G-code details: the Print button stays enabled while another print runs. `canPrintCalc` checks
+  `state != printing || state != paused`, which is always true (should be `&&`). Test skipped:
+  `gcode_file_details_page_test.dart` "print is disabled while another print is running".
+- G-code details with Spoolman: clearing the active spool while the details are open throws (the listener calls
+  `spoolCalc(next.value!)`). Test skipped: "clearing the active spool while the details are open".
+- G-code details: the nozzle diameter is a list now, the tile shows "[0.4] mm" ("[] mm" when unknown). Test skipped:
+  "shows the nozzle diameter as a number".
+
 ## Phases (bottom up)
 
 ### Phase 1: leaf widgets (`common/lib/ui/components`) ✅
@@ -239,7 +247,8 @@ supporter theme), the printer add flow (mode, simple/advanced form, connection t
 dashboard layouts (compact and medium, normal and edit mode: live cards, previews, delete, add, remove page, reorder)
 and the full dashboard page (stored layout, page switching, edit mode, save through the real layout service, empty
 layout validation, supporter check, discard dialog, page removal limit). Full pages need `pageExtrasOverrides()` from
-`test/helpers/app_overrides.dart` (announcements, ads, consent)._
+`test/helpers/app_overrides.dart` (announcements, ads, consent). G-code details page (meta data, start print,
+Klipper state, Spoolman material/filament warnings)._
 
 ### Phase 5: later / optional
 

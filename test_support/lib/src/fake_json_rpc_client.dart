@@ -41,6 +41,9 @@ class FakeJsonRpcClient extends Fake implements JsonRpcClient {
   Uri get uri => Uri.parse('ws://printer.local/websocket');
 
   @override
+  Duration timeout = const Duration(seconds: 3);
+
+  @override
   ClientState curState = ClientState.connected;
 
   @override

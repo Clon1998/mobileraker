@@ -1,0 +1,196 @@
+/*
+ * Copyright (c) 2026. Patrick Schmidt.
+ * All rights reserved.
+ */
+
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/job_queue/job_queue_status.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
+import 'package:mobileraker_pro/job_queue/service/job_queue_service.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
+import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:test_support/test_support.dart';
+
+import '../../../../helpers/fake_spoolman.dart';
+
+void main() {
+  setUpWidgetTests();
+
+  final machine = Fixtures.machine();
+  late FakeJsonRpcClient rpc;
+
+  final benchy = GCodeFile(
+    name: 'benchy.gcode',
+    parentPath: 'gcodes/boats',
+    modified: 1700000000,
+    size: 2 * 1024 * 1024,
+    estimatedTime: 5400,
+    slicer: 'OrcaSlicer',
+    slicerVersion: '2.1',
+    nozzleDiameter: const [0.4],
+    layerHeight: 0.2,
+    firstLayerTempExtruder: 215,
+    firstLayerTempBed: 60,
+    filamentType: 'PETG',
+    filamentWeightTotal: 900,
+  );
+
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    KlipperState klippy = KlipperState.ready,
+    PrintState state = PrintState.standby,
+    List<String> components = const [],
+    ActiveSpool Function()? activeSpool,
+  }) async {
+    rpc = FakeJsonRpcClient(
+      responses: {
+        'server.job_queue.status': (_) => {'queued_jobs': [], 'queue_state': 'ready'},
+      },
+    );
+    final router = GoRouter(
+      initialLocation: '/details',
+      routes: [
+        GoRoute(path: '/dashboard', name: AppRoute.dashBoard.name, builder: (_, _) => const Text('dashboard')),
+        GoRoute(
+          path: '/details',
+          name: AppRoute.fileManager_exlorer_gcodeDetail.name,
+          builder: (_, _) => GCodeFileDetailPage(gcodeFile: benchy),
+        ),
+      ],
+    );
+    await tester.pumpRouterApp(
+      router,
+      overrides: [
+        ...uiServiceOverrides(),
+        ...remoteConfigOverrides(),
+        ...connectedMachineOverrides(
+          machine,
+          client: rpc,
+          klipper: Fixtures.klipper(state: klippy, components: components),
+          printer: Fixtures.printer(state: state),
+        ),
+        jobQueueProvider(machine.uuid).overrideWithValue(AsyncData(JobQueueStatus(queueState: QueueState.ready))),
+        if (activeSpool != null) activeSpoolProvider(machine.uuid).overrideWith(activeSpool),
+      ],
+    );
+    await tester.pumpAndSettle();
+  }
+
+  FloatingActionButton printButton(WidgetTester tester) =>
+      tester.widget<FloatingActionButton>(find.byType(FloatingActionButton));
+
+  testWidgets('shows the file details and its slicer meta data', (tester) async {
+    await pumpPage(tester);
+
+    expect(find.text('benchy.gcode'), findsWidgets);
+    expect(find.text('gcodes/boats/benchy.gcode'), findsOneWidget);
+    expect(find.text('OrcaSlicer (v2.1)'), findsOneWidget);
+    expect(find.textContaining('Type: PETG'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Layer Height'), 200, scrollable: find.byType(Scrollable).first);
+    expect(find.text('OrcaSlicer (v2.1)'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'Others: 0[.,]2')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.textContaining('Temperatures'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.textContaining('215'), findsWidgets, reason: 'first layer temperatures');
+    await tester.unmountApp();
+  });
+
+  testWidgets(
+    'shows the nozzle diameter as a number',
+    skip: true, // Finding: nozzleDiameter is a list now, the tile shows "[0.4] mm" (and "[] mm" when unknown).
+    (tester) async {
+      await pumpPage(tester);
+
+      expect(find.text('0.4 mm'), findsOneWidget);
+      await tester.unmountApp();
+    },
+  );
+
+  testWidgets('print starts the file and opens the dashboard', (tester) async {
+    await pumpPage(tester);
+
+    await tester.tap(find.text('Print'));
+    await tester.pumpAndSettle();
+
+    final start = rpc.calls.where((c) => c.method == 'printer.print.start');
+    expect(start.single.params, {'filename': 'boats/benchy.gcode'});
+    expect(find.text('dashboard'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('print is disabled while Klipper can not receive commands', (tester) async {
+    await pumpPage(tester, klippy: KlipperState.shutdown);
+
+    expect(printButton(tester).onPressed, isNull);
+    await tester.unmountApp();
+  });
+
+  testWidgets(
+    'print is disabled while another print is running',
+    skip: true, // Finding: canPrintCalc checks `state != printing || state != paused`, which is always true.
+    (tester) async {
+      await pumpPage(tester, state: PrintState.printing);
+
+      expect(printButton(tester).onPressed, isNull);
+      await tester.unmountApp();
+    },
+  );
+
+  group('with Spoolman', () {
+    testWidgets('warns about a different material and too little filament on the active spool', (tester) async {
+      final spool = SpoolmanFixtures.spool(1, SpoolmanFixtures.filament(1, 'Basic', material: 'PLA'), usedWeight: 800);
+      await pumpPage(tester, components: ['spoolman'], activeSpool: () => _FixedSpool(spool));
+
+      expect(find.text('Material Mismatch'), findsOneWidget);
+      expect(find.text('Insufficient filament'), findsOneWidget);
+      expect(find.textContaining('200'), findsWidgets, reason: '200 g left on the spool');
+      await tester.unmountApp();
+    });
+
+    testWidgets('no warnings when the active spool fits', (tester) async {
+      final spool = SpoolmanFixtures.spool(1, SpoolmanFixtures.filament(1, 'Basic', material: 'petg'), usedWeight: 0);
+      await pumpPage(tester, components: ['spoolman'], activeSpool: () => _FixedSpool(spool));
+
+      expect(find.text('Material Mismatch'), findsNothing, reason: 'material is compared ignoring case');
+      expect(find.text('Insufficient filament'), findsNothing);
+      await tester.unmountApp();
+    });
+
+    testWidgets(
+      'clearing the active spool while the details are open',
+      skip: true, // Finding: the active spool listener calls spoolCalc(next.value!) and throws on null.
+      (tester) async {
+        final spool = SpoolmanFixtures.spool(1, SpoolmanFixtures.filament(1, 'Basic'));
+        final active = _FixedSpool(spool);
+        await pumpPage(tester, components: ['spoolman'], activeSpool: () => active);
+
+        active.emit(null);
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        await tester.unmountApp();
+      },
+    );
+  });
+}
+
+class _FixedSpool extends ActiveSpool {
+  _FixedSpool(this.spool);
+
+  final GetSpool? spool;
+
+  @override
+  Stream<GetSpool?> build(String machineUUID) => Stream.value(spool);
+
+  void emit(GetSpool? value) => state = AsyncData(value);
+}
