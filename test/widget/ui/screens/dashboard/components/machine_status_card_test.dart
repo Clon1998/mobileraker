@@ -1,0 +1,180 @@
+/*
+ * Copyright (c) 2026. Patrick Schmidt.
+ * All rights reserved.
+ */
+
+import 'package:common/data/dto/machine/display_status.dart';
+import 'package:common/data/dto/machine/exclude_object.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/machine/print_stats.dart';
+import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/machine_status_card.dart';
+import 'package:test_support/test_support.dart';
+import 'package:vector_math/vector_math.dart' show Vector2;
+
+void main() {
+  setUpWidgetTests();
+
+  final machine = Fixtures.machine();
+  late FakeJsonRpcClient rpc;
+  late FakeDialogService dialogs;
+
+  Future<void> pumpCard(WidgetTester tester, {KlipperInstance? klipper, Printer? printer}) async {
+    rpc = FakeJsonRpcClient();
+    dialogs = FakeDialogService();
+    await tester.pumpApp(
+      SingleChildScrollView(child: MachineStatusCard(machineUUID: machine.uuid)),
+      overrides: [
+        ...uiServiceOverrides(dialogs: dialogs),
+        ...connectedMachineOverrides(machine, client: rpc, klipper: klipper, printer: printer),
+      ],
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Printer printing({String filename = 'benchy.gcode', ExcludeObject? excludeObject, String? m117}) =>
+      Fixtures.printer(state: PrintState.printing, filename: filename).copyWith(
+        excludeObject: excludeObject,
+        displayStatus: m117 == null ? null : DisplayStatus(message: m117),
+      );
+
+  List<String> scripts() => [
+    for (final c in rpc.calls)
+      if (c.method == 'printer.gcode.script') c.params['script'] as String,
+  ];
+
+  testWidgets('standby: shows the print state without actions', (tester) async {
+    await pumpCard(tester);
+
+    expect(find.text('Standby'), findsOneWidget);
+    expect(find.byType(ElevatedButton), findsNothing);
+    expect(find.byType(TextButton), findsNothing);
+    await tester.unmountApp();
+  });
+
+  testWidgets('printing: shows the file and the progress', (tester) async {
+    await pumpCard(tester, printer: printing());
+
+    expect(find.text('Printing'), findsOneWidget);
+    expect(find.text('benchy.gcode'), findsOneWidget);
+    expect(find.text('0%'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('error: shows the message and resets the print state', (tester) async {
+    final printer = Fixtures.printer();
+    await pumpCard(
+      tester,
+      printer: printer.copyWith(
+        print: const PrintStats(state: PrintState.error, message: 'Heater extruder not heating'),
+      ),
+    );
+
+    expect(find.text('Error'), findsOneWidget);
+    expect(find.text('Heater extruder not heating'), findsOneWidget);
+
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle();
+
+    expect(scripts(), ['SDCARD_RESET_FILE']);
+    await tester.unmountApp();
+  });
+
+  for (final state in [PrintState.complete, PrintState.cancelled]) {
+    testWidgets('${state.name}: the menu resets or reprints', (tester) async {
+      await pumpCard(
+        tester,
+        printer: Fixtures.printer(state: state, filename: 'benchy.gcode'),
+      );
+      expect(find.text('benchy.gcode'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Reset'));
+      await tester.pumpAndSettle();
+      expect(scripts(), ['SDCARD_RESET_FILE']);
+
+      await tester.tap(find.byIcon(Icons.more_vert));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Reprint'));
+      await tester.pumpAndSettle();
+      expect(rpc.calls.last.method, 'printer.print.start');
+      expect(rpc.calls.last.params, {'filename': 'benchy.gcode'});
+      await tester.unmountApp();
+    });
+  }
+
+  testWidgets('shutdown: shows the Klipper message and restarts Klipper or the firmware', (tester) async {
+    await pumpCard(
+      tester,
+      klipper: Fixtures.klipper(state: KlipperState.shutdown, stateMessage: 'MCU shutdown'),
+    );
+
+    expect(find.text('MCU shutdown'), findsOneWidget);
+    expect(find.byType(ElevatedButton), findsNWidgets(2));
+
+    await tester.tap(find.text('Restart Klipper'));
+    await tester.tap(find.text('Restart Firmware'));
+    await tester.pumpAndSettle();
+
+    expect(rpc.methods, containsAllInOrder(['machine.services.restart', 'printer.firmware_restart']));
+    expect(rpc.calls.firstWhere((c) => c.method == 'machine.services.restart').params, {'service': 'klipper'});
+    await tester.unmountApp();
+  });
+
+  testWidgets('disconnected: only offers to restart Klipper', (tester) async {
+    await pumpCard(tester, klipper: Fixtures.klipper(state: KlipperState.disconnected));
+
+    expect(find.textContaining('Moonraker cannot establish a connection with Klipper'), findsOneWidget);
+    expect(find.text('Restart Klipper'), findsOneWidget);
+    expect(find.text('Restart Firmware'), findsNothing);
+    await tester.unmountApp();
+  });
+
+  testWidgets('shows and clears the M117 message', (tester) async {
+    await pumpCard(tester, printer: printing(m117: 'Layer 3/120'));
+
+    expect(find.text('Layer 3/120'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Clear M117'));
+    await tester.pumpAndSettle();
+
+    expect(scripts(), ['M117 ']);
+    await tester.unmountApp();
+  });
+
+  testWidgets('exclude object: shows the current object and opens the dialog', (tester) async {
+    await pumpCard(
+      tester,
+      printer: printing(
+        excludeObject: ExcludeObject(
+          currentObject: 'part_1',
+          objects: [
+            ParsedObject(name: 'part_1', center: Vector2(10, 10), polygons: const []),
+            ParsedObject(name: 'part_2', center: Vector2(50, 50), polygons: const []),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('Current Object'), findsOneWidget);
+    expect(find.text('part_1'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Exclude Object from Print'));
+    await tester.pumpAndSettle();
+
+    expect(dialogs.requests.single.type, DialogType.excludeObject);
+    await tester.unmountApp();
+  });
+
+  testWidgets('exclude object is hidden without objects', (tester) async {
+    await pumpCard(tester, printer: printing(excludeObject: const ExcludeObject()));
+
+    expect(find.text('Current Object'), findsNothing);
+    await tester.unmountApp();
+  });
+}

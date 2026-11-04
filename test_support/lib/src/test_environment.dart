@@ -40,6 +40,9 @@ Future<void> setUpTestLocalization() async {
 /// The Hive box names the app reads synchronously via `Hive.box(...)`.
 const testHiveBoxes = ['settingsbox'];
 
+/// The in-memory settings box backing `SettingService` (cleared after each test).
+Box<dynamic> get testSettingsBox => Hive.box('settingsbox');
+
 /// Opens in-memory versions of the Hive boxes the app expects to be open.
 Future<void> openTestHiveBoxes() async {
   for (final name in testHiveBoxes) {
@@ -67,7 +70,7 @@ Future<void> clearTestHiveBoxes() async {
 /// }
 /// ```
 ///
-/// Seed settings in a test with `Hive.box('settingsbox').put(key, value)` before pumping.
+/// Seed settings in a test with `testSettingsBox.put(key, value)` before pumping.
 void setUpWidgetTests() {
   setUpAll(() async {
     setUpTestLogger();

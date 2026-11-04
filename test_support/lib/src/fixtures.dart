@@ -19,6 +19,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -134,7 +135,53 @@ class FakeSnackBarService extends Fake implements SnackBarService {
   ) => show(config);
 }
 
-/// The UI services the app provides in main() (currently the snackbar service).
-List<Override> uiServiceOverrides({FakeSnackBarService? snackBars}) => [
+/// Records dialog requests instead of showing them; answers each with [response] (null, like a dismissed dialog, by
+/// default).
+class FakeDialogService extends Fake implements DialogService {
+  FakeDialogService({this.response});
+
+  DialogResponse? response;
+  final List<DialogRequest> requests = [];
+
+  /// Confirm dialogs, recorded by title.
+  final List<String?> confirms = [];
+
+  @override
+  bool get isDialogOpen => false;
+
+  @override
+  Future<DialogResponse?> show(DialogRequest request) async {
+    requests.add(request);
+    return response;
+  }
+
+  @override
+  Future<DialogResponse?> showConfirm({
+    String? title,
+    String? body,
+    String? actionLabel,
+    String? dismissLabel,
+    Color? actionForegroundColor,
+    Color? actionBackgroundColor,
+  }) async {
+    confirms.add(title);
+    return response;
+  }
+
+  @override
+  Future<DialogResponse?> showDangerConfirm({
+    String? title,
+    String? body,
+    String? actionLabel,
+    String? dismissLabel,
+  }) async {
+    confirms.add(title);
+    return response;
+  }
+}
+
+/// The UI services the app provides in main() (snackbar and dialog service).
+List<Override> uiServiceOverrides({FakeSnackBarService? snackBars, FakeDialogService? dialogs}) => [
   snackBarServiceProvider.overrideWithValue(snackBars ?? FakeSnackBarService()),
+  dialogServiceProvider.overrideWithValue(dialogs ?? FakeDialogService()),
 ];
