@@ -128,6 +128,29 @@ Open:
   which `UpdateSpool` leaves out (`includeIfNull: false`), so an empty update is sent and the old value stays. Text
   fields are fine (sent as ""). Test skipped: `spool_form_page_test.dart` "clearing a number removes it from the
   spool".
+- Spool, filament and vendor forms with a decimal-comma locale (e.g. German): numbers are shown as "19,99" but
+  validated/parsed with `num.tryParse`, so "The value must be numeric" blocks saving any entry with a decimal value.
+  Tests skipped: "with a decimal comma, saving without changes makes no update" (spool, filament and vendor form).
+- Filament form: a 6-digit Spoolman color comes back from the color field as 8 digits (with alpha), so saving an
+  unchanged filament always sends `colorHex` instead of "No changes made!". Test skipped:
+  `filament_vendor_form_page_test.dart` "saving without changes makes no update".
+- Filament form: requires a vendor, Spoolman doesn't; filaments without vendor can't be edited. Test skipped: "a
+  filament without vendor can be edited".
+- Vendor form: there's no external ID field, so vendors with one (SpoolmanDB imports) always count as changed and get an
+  empty update. Test skipped: "saving without changes makes no update also for vendors with an external ID".
+- Spool details: the filament link uses `goNamed` (vendor and spools push), so back skips the spool page. Test
+  skipped: `spoolman_detail_pages_test.dart` "the filament opens its page, back returns to the spool".
+- File manager rename: the used names have the extension, the entered name doesn't, so renaming `benchy` to `cube`
+  passes validation and moves onto the existing `cube.gcode`. Test skipped: `file_manager_flows_test.dart` "rename
+  rejects the name of another file in the folder".
+- G-code details: a print state change sets `canStartPrint` without checking Klipper, so Print is enabled e.g. after
+  an error while Klipper is shut down. Test skipped: `gcode_file_details_page_test.dart` "print stays disabled when the
+  print ends while Klipper can not receive commands".
+- Spoolman card (pro): a filament without vendor, material or name shows "null – null" / "#7 null". Test skipped:
+  `spoolman_card_test.dart`.
+- G-code preview card (pro): without download progress it shows the raw key `components.gcode_preview.loading.progress`
+  (missing translation). Test skipped: `gcode_preview_card_test.dart` "shows what it does while the progress is
+  unknown".
 
 Fixed (2026-11-04, each with its test unskipped or added):
 
