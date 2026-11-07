@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/macros_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/macro/recent_macros.dart';
 import 'package:test_support/test_support.dart';
 
 import '../../../../helpers/sheet_router.dart';
@@ -85,6 +86,7 @@ void main() {
     String? groupUUID,
     List<MacroGroup>? groups,
     KlipperState klippy = KlipperState.ready,
+    String recent = '',
   }) async {
     rpc = FakeJsonRpcClient();
     await tester.openSheet(
@@ -105,6 +107,7 @@ void main() {
         machineSettingsProvider(
           machine.uuid,
         ).overrideWithValue(AsyncData(MachineSettings(macroGroups: groups ?? [printing, maintenance]))),
+        recentCommandNamesProvider(machine.uuid).overrideWithValue(recent),
       ],
     );
   }
@@ -327,5 +330,25 @@ void main() {
     await search(tester, 'purg lin');
 
     expect(names(tester).first, 'PURGE_LINE');
+  });
+
+  testWidgets('"Recent" lists the recently run visible macros, newest first', (tester) async {
+    // g28 is no macro, hidden_macro is hidden: both are skipped
+    await openSheet(tester, recent: 'g28 nozzle_wipe hidden_macro purge_line');
+
+    expect(groupChip('Recent'), findsOneWidget);
+    await tester.tap(groupChip('Recent'));
+    await tester.pumpAndSettle();
+
+    expect(names(tester), ['NOZZLE_WIPE', 'PURGE_LINE']);
+  });
+
+  testWidgets('"Recent" is hidden while nothing was run, and can be preselected', (tester) async {
+    await openSheet(tester);
+    expect(groupChip('Recent'), findsNothing);
+
+    await openSheet(tester, recent: 'load_filament', groupUUID: MacrosBottomSheetArgs.recentGroup);
+    expect(tester.widget<ChoiceChip>(groupChip('Recent')).selected, isTrue);
+    expect(names(tester), ['LOAD_FILAMENT']);
   });
 }

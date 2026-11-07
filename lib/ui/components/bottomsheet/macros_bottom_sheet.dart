@@ -23,6 +23,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/macro/macro_command.dart';
+import 'package:mobileraker/ui/components/macro/recent_macros.dart';
 import 'package:mobileraker/ui/components/macro/sent_feedback_icon.dart';
 import 'package:mobileraker/ui/components/macro/use_sent_feedback.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -32,8 +33,11 @@ class MacrosBottomSheetArgs {
 
   final String machineUUID;
 
-  /// The group to preselect, null shows the macros of all groups.
+  /// The group to preselect ([recentGroup] for the recently run macros), null shows the macros of all groups.
   final String? groupUUID;
+
+  /// Pseudo group of the recently run macros.
+  static const recentGroup = '__recent__';
 }
 
 /// Searchable list of all visible macros of a machine with a group filter. Macros with params (or with
@@ -74,17 +78,25 @@ class MacrosBottomSheet extends HookConsumerWidget {
       );
     }
 
-    // A preselected group might have been deleted in the meantime
+    final allVisible = _visibleMacros(groups, printState, configMacros);
+    final recent = recentMacros(ref.watch(recentCommandNamesProvider(machineUUID)), allVisible);
+    // A preselected group might have been deleted (or "Recent" emptied) in the meantime, both fall back to "All"
+    final showRecent = selectedGroup.value == MacrosBottomSheetArgs.recentGroup && recent.isNotEmpty;
     final group = groups.where((g) => g.uuid == selectedGroup.value).firstOrNull;
-    final available = _visibleMacros(group == null ? groups : [group], printState, configMacros);
+    final available = switch ((showRecent, group)) {
+      (true, _) => recent,
+      (false, final group?) => _visibleMacros([group], printState, configMacros),
+      _ => allVisible,
+    };
     final macros = query.isEmpty ? available : _search(available, configMacros, query);
 
     return SheetContentScaffold(
       topBar: _Header(
-        count: _visibleMacros(groups, printState, configMacros).length,
+        count: allVisible.length,
         search: search,
         groups: groups,
-        selectedGroup: group?.uuid,
+        hasRecent: recent.isNotEmpty,
+        selectedGroup: showRecent ? MacrosBottomSheetArgs.recentGroup : group?.uuid,
         onGroupSelected: (uuid) {
           selectedGroup.value = uuid;
           expanded.value = null;
@@ -113,6 +125,11 @@ class MacrosBottomSheet extends HookConsumerWidget {
                   (themeData.useMaterial3 ? const EdgeInsets.fromLTRB(12, 12, 0, 16) : EdgeInsets.zero) +
                   MediaQuery.viewPaddingOf(context).copyWith(top: 0),
               itemCount: macros.length,
+              // "Recent" reorders after a run: keep each row's state (expanded form, sent feedback) with its macro
+              findChildIndexCallback: (key) {
+                final index = macros.indexWhere((m) => ValueKey(m.configName) == key);
+                return index < 0 ? null : index;
+              },
               separatorBuilder: (_, _) => themeData.useMaterial3
                   ? const SizedBox(height: 6)
                   : const Divider(height: 0, indent: 16, endIndent: 16),
@@ -170,6 +187,7 @@ class _Header extends StatelessWidget {
     required this.count,
     required this.search,
     this.groups = const [],
+    this.hasRecent = false,
     this.selectedGroup,
     this.onGroupSelected,
   });
@@ -177,6 +195,7 @@ class _Header extends StatelessWidget {
   final int? count;
   final TextEditingController search;
   final List<MacroGroup> groups;
+  final bool hasRecent;
   final String? selectedGroup;
   final ValueChanged<String?>? onGroupSelected;
 
@@ -214,7 +233,7 @@ class _Header extends StatelessWidget {
               ),
             ),
           ),
-          if (groups.length > 1)
+          if (groups.length > 1 || hasRecent)
             SizedBox(
               height: 48,
               child: ListView(
@@ -223,6 +242,7 @@ class _Header extends StatelessWidget {
                 children: [
                   for (final (uuid, name) in [
                     (null, tr('bottom_sheets.macros.all')),
+                    if (hasRecent) (MacrosBottomSheetArgs.recentGroup, tr('bottom_sheets.macros.recent')),
                     ...groups.map((g) => (g.uuid, g.name)),
                   ])
                     Padding(

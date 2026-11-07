@@ -33,6 +33,7 @@ import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/macros_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
 import 'package:mobileraker/ui/components/macro/macro_command.dart';
+import 'package:mobileraker/ui/components/macro/recent_macros.dart';
 import 'package:mobileraker/ui/components/macro/sent_feedback_icon.dart';
 import 'package:mobileraker/ui/components/macro/use_sent_feedback.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -166,25 +167,33 @@ class _GroupChips extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
     final model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).requireValue;
-    final selected = model.selected;
-    final names = [for (final group in model.groups) group.name];
+    final hasRecent = model.recent.isNotEmpty;
+    // Recent first, then the groups
+    final chips = [
+      if (hasRecent) (tr('bottom_sheets.macros.recent'), model.showRecent, controller.onRecentSelected),
+      for (final (index, group) in model.groups.indexed)
+        (group.name, !model.showRecent && index == model.selected, () => controller.onGroupSelected(index)),
+    ];
 
     return AnimatedSizeAndFade(
-      child: names.length > 1
+      child: chips.length > 1
           ? SizedBox(
               height: 48,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.fromLTRB(15, 0, 15, 8),
-                itemCount: names.length,
+                itemCount: chips.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => ChoiceChip(
-                  label: Text(names[index]),
-                  selected: index == selected,
-                  showCheckmark: false,
-                  visualDensity: VisualDensity.compact,
-                  onSelected: (_) => controller.onGroupSelected(index),
-                ),
+                itemBuilder: (context, index) {
+                  final (label, selected, onSelected) = chips[index];
+                  return ChoiceChip(
+                    label: Text(label),
+                    selected: selected,
+                    showCheckmark: false,
+                    visualDensity: VisualDensity.compact,
+                    onSelected: (_) => onSelected(),
+                  );
+                },
               ),
             )
           : const SizedBox.shrink(),
@@ -200,26 +209,21 @@ class _SelectedGroup extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
-    final printState = ref.watch(
-      _macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState),
-    );
-    final group = ref
-        .watch(
-          _macroGroupCardControllerProvider(
-            machineUUID,
-          ).selectAs((value) => value.groups.elementAtOrNull(value.selected)),
-        )
-        .value;
+    final model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).requireValue;
+    final group = model.groups.elementAtOrNull(model.selected);
 
     if (group == null) return const SizedBox.shrink();
 
-    final macros = group.filtered(printState);
+    final showRecent = model.showRecent;
+    final macros = showRecent ? model.recent : group.filtered(model.printState);
+    final contentKey = showRecent ? 'recent' : group.uuid;
+    final sheetGroup = showRecent ? MacrosBottomSheetArgs.recentGroup : group.uuid;
 
     return AnimatedSizeAndFade(
       alignment: Alignment.topCenter,
       child: macros.isEmpty
           ? Padding(
-              key: ValueKey('empty-${group.uuid}'),
+              key: ValueKey('empty-$contentKey'),
               padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
               child: Text(
                 'pages.dashboard.control.macro_card.no_macros',
@@ -228,7 +232,7 @@ class _SelectedGroup extends ConsumerWidget {
               ).tr(),
             )
           : Padding(
-              key: ValueKey('group-${group.uuid}'),
+              key: ValueKey('group-$contentKey'),
               padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -249,9 +253,11 @@ class _SelectedGroup extends ConsumerWidget {
                       crossAxisSpacing: _tileSpacing,
                     ),
                     children: [
-                      for (final macro in shown) _MacroTile(machineUUID: machineUUID, macro: macro),
+                      // Keyed: "Recent" reorders after a run, the sent feedback must stay with its macro
+                      for (final macro in shown)
+                        _MacroTile(key: ValueKey(macro.configName), machineUUID: machineUUID, macro: macro),
                       if (overflow)
-                        _MoreTile(count: macros.length - shown.length, onTap: () => controller.openSheet(group.uuid)),
+                        _MoreTile(count: macros.length - shown.length, onTap: () => controller.openSheet(sheetGroup)),
                     ],
                   );
                 },
@@ -373,6 +379,9 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
+  /// Stored instead of a group index while "Recent" is selected.
+  static const _recentIndex = -1;
+
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.gCodeIndex, machineUUID + _componentUUID);
 
   String get _componentUUID => ref.read(dashboardCardUUIDProvider(machineUUID));
@@ -394,6 +403,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
     final printState = printStateAsync.requireValue;
     final groups = groupsAsync.requireValue;
     final configMacros = configMacrosAsync.requireValue;
+    // Not awaited: the card does not wait for the console history
+    final recentNames = ref.watch(recentCommandNamesProvider(machineUUID));
 
 
     final idx = state.whenData((value) => value.selected).value ?? initialIndex;
@@ -401,14 +412,23 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
       klippyCanReceiveCommands: klippyCanReceiveCommands,
       printState: printState,
       groups: groups,
+      // A stored "Recent" (-1) shows the first group whenever there is nothing recent
       selected: min(groups.length - 1, max(0, idx)),
       configMacros: configMacros,
+      recentNames: recentNames,
+      recentSelected: state.value?.recentSelected ?? initialIndex == _recentIndex,
     );
   }
 
   void onGroupSelected(int index) {
-    state = state.whenData((value) => value.copyWith(selected: index));
+    state = state.whenData((value) => value.copyWith(selected: index, recentSelected: false));
     _settingService.writeInt(_settingsKey, index);
+  }
+
+  void onRecentSelected() {
+    // The first group is the fallback while there is nothing recent (e.g. after a Moonraker restart)
+    state = state.whenData((value) => value.copyWith(recentSelected: true, selected: 0));
+    _settingService.writeInt(_settingsKey, _recentIndex);
   }
 
   void openSheet(String? groupUUID) {
@@ -483,6 +503,11 @@ class _MacroGroupCardPreviewController extends _MacroGroupCardController {
   }
 
   @override
+  void onRecentSelected() {
+    // Do nothing preview
+  }
+
+  @override
   void openSheet(String? groupUUID) {
     // Do nothing preview
   }
@@ -510,7 +535,18 @@ sealed class _Model with _$Model {
     required int selected,
     required List<MacroGroup> groups,
     required Map<String, ConfigGcodeMacro> configMacros, // Raw Macros available on the printer
+    @Default('') String recentNames, // See recentCommandNamesProvider
+    @Default(false) bool recentSelected, // Stored as group index -1
   }) = __Model;
 
   bool get showCard => groups.isNotEmpty;
+
+  /// The recently run macros that are visible in any group for the current print state.
+  List<GCodeMacro> get recent => recentMacros(recentNames, [
+    for (final group in groups)
+      for (final macro in group.filtered(printState))
+        if (configMacros.containsKey(macro.configName)) macro,
+  ]);
+
+  bool get showRecent => recentSelected && recent.isNotEmpty;
 }

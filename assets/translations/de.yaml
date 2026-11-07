@@ -1509,6 +1509,7 @@ bottom_sheets:
     all: Alle
     run: '{} ausführen'
     no_results: Kein Makro passt zur Suche
+    recent: Zuletzt
     sent: Gesendet
   job_queue_sheet:
     next: Nächster Druckauftrag

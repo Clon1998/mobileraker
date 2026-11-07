@@ -53,14 +53,15 @@
 
 - **Redesigned Macro Card**: Macros are now shown as a compact grid of tiles instead of a wall of chips, showing the
   macro names in a code font. Tiles of macros with parameters are marked with a tune icon. Groups are switched via
-  chips, and large groups are capped at three rows with a "+N more" tile. Tapping a macro still runs it right away
-  (or asks for its parameters), long press still skips the parameters. A short animation confirms that the macro was
-  sent.
+  chips, and large groups are capped at three rows with a "+N more" tile. A "Recent" chip shows the macros you ran
+  last, including those run from Mainsail, Fluidd or the console, and is remembered like a group (falling back to the
+  first group while nothing was run). Tapping a macro still runs it right away (or asks for its parameters), long
+  press still skips the parameters. A short animation confirms that the macro was sent.
 
 - **Macro Sheet**: The new "All" button on the macro card (and the "+N more" tile) opens a sheet listing every macro
-  with its description. It can be searched by name and description, with the best matches first, and filtered by
-  group. Macros with parameters expand right in the list to fill them in, with their defaults prefilled, instead of
-  opening a dialog.
+  with its description. It can be searched by name and description, with the best matches first, and filtered by group
+  or "Recent". Macros with parameters expand right in the list to fill them in, with their defaults prefilled, instead
+  of opening a dialog.
 
 - **Printer Status in the App Bar**: The app bar of the dashboard, console, file manager and Spoolman pages now shows
   the printer's name, with the page and the printer's state below it (e.g. "Dashboard · Printing 45%"). This covers

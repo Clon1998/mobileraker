@@ -20,6 +20,7 @@ import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/macros_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
+import 'package:mobileraker/ui/components/macro/recent_macros.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:test_support/test_support.dart';
 
@@ -68,6 +69,7 @@ void main() {
     PrintState state = PrintState.printing,
     KlipperState klippy = KlipperState.ready,
     DialogResponse? dialogResponse,
+    String recent = '',
   }) async {
     rpc = FakeJsonRpcClient();
     dialogs = FakeDialogService(response: dialogResponse);
@@ -86,6 +88,7 @@ void main() {
           machine.uuid,
         ).overrideWithValue(AsyncData(MachineSettings(macroGroups: groups ?? [printing, maintenance]))),
         dashboardCardUUIDProvider.overrideWith((ref, machineUUID) => 'card-1'),
+        recentCommandNamesProvider(machine.uuid).overrideWithValue(recent),
       ],
     );
     await tester.pumpAndSettle();
@@ -333,6 +336,56 @@ void main() {
       findsOneWidget,
       reason: 'back',
     );
+    await tester.unmountApp();
+  });
+
+  testWidgets('"Recent" is the first chip, the card opens on the stored group', (tester) async {
+    await pumpCard(tester, groups: [printing], recent: 'nozzle_wipe purge_line');
+
+    // Only one group, the "Recent" chip makes the chips show up
+    final chips = tester.widgetList<ChoiceChip>(find.byType(ChoiceChip)).toList();
+    expect([for (final c in chips) (c.label as Text).data], ['Recent', 'Printing']);
+    expect(tester.widget<ChoiceChip>(groupChip('Printing')).selected, isTrue);
+    await tester.unmountApp();
+  });
+
+  testWidgets('"Recent" shows the recently run macros and is remembered', (tester) async {
+    await pumpCard(tester, recent: 'load_filament purge_line');
+
+    await tester.tap(groupChip('Recent'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('LOAD_FILAMENT'), findsOneWidget);
+    expect(find.text('PURGE_LINE'), findsOneWidget);
+    expect(find.text('NOZZLE_WIPE'), findsNothing, reason: 'in the group but not run');
+    expect(testSettingsBox.get(CompositeKey.keyWithString(UtilityKeys.gCodeIndex, '${machine.uuid}card-1').key), -1);
+    await tester.unmountApp();
+  });
+
+  testWidgets('a remembered "Recent" opens on Recent', (tester) async {
+    await testSettingsBox.put(CompositeKey.keyWithString(UtilityKeys.gCodeIndex, '${machine.uuid}card-1').key, -1);
+    await pumpCard(tester, recent: 'nozzle_wipe');
+
+    expect(tester.widget<ChoiceChip>(groupChip('Recent')).selected, isTrue);
+    expect(find.text('NOZZLE_WIPE'), findsOneWidget);
+    expect(find.text('PURGE_LINE'), findsNothing);
+    await tester.unmountApp();
+  });
+
+  testWidgets('a remembered "Recent" without recent macros falls back to the first group', (tester) async {
+    await testSettingsBox.put(CompositeKey.keyWithString(UtilityKeys.gCodeIndex, '${machine.uuid}card-1').key, -1);
+    await pumpCard(tester);
+
+    expect(groupChip('Recent'), findsNothing);
+    expect(tester.widget<ChoiceChip>(groupChip('Printing')).selected, isTrue);
+    expect(find.text('PURGE_LINE'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('without recently run macros there is no "Recent" chip', (tester) async {
+    await pumpCard(tester, recent: 'g28 m117');
+
+    expect(groupChip('Recent'), findsNothing);
     await tester.unmountApp();
   });
 }

@@ -1637,6 +1637,7 @@ bottom_sheets:
     all: All
     run: Run {}
     no_results: No macro matches your search
+    recent: Recent
     sent: Sent
   job_queue_sheet:
     next: Next print job
