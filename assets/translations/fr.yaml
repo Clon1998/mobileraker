@@ -140,8 +140,6 @@ pages:
         retract: Rétracter
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude longueur"
         cold_extrude_error: L'extrudeur n'a pas atteint la temperature minimal d'extrusion de {}°C!
-      macro_card:
-        title: Gcode - Macros
       pin_card:
         pin_btn: Pin
       power_card:
