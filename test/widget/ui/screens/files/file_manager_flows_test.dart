@@ -297,9 +297,10 @@ void main() {
         await openFileActions(tester, benchy);
 
         // The dialog asks for the name without ".gcode", the used names have it.
-        expect(textInputArgs().validator!('cube'), isNotNull, reason: 'cube.gcode exists already');
+        final validator = textInputArgs().validator!;
+        expect(validator('cube'), 'File name already in use', reason: 'cube.gcode exists already');
+        expect(validator('benchy'), isNull, reason: 'its own name');
       },
-      skip: true, // Finding: the used names contain the extension, the entered name does not (overwrites cube.gcode).
     );
   });
 
