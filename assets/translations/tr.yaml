@@ -116,8 +116,6 @@ pages:
         retract: Geri çek
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude uzunluğu"
         cold_extrude_error: Ekstruder henüz {}°C'lik min_extrude_temp'e ulaşmadı!
-      macro_card:
-        title: Gcode - Makrolar
       pin_card:
         pin_btn: Sabitle
       power_card:
