@@ -29,7 +29,7 @@ class ActionBottomSheet extends ConsumerWidget {
       icon: const Icon(Icons.arrow_back),
       tooltip: MaterialLocalizations
           .of(context)
-          .closeButtonTooltip,
+          .backButtonTooltip,
       onPressed: context.pop,
     ).only((ModalRoute
         .of(context)

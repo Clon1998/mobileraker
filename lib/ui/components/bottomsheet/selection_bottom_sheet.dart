@@ -10,7 +10,6 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -45,8 +44,6 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
         selected.value = optionsSnapshot.data!.where((e) => e.selected).map((e) => e.value).toList();
       }
     }, [optionsSnapshot.connectionState]);
-
-    talker.warning('SelectionBottomSheet: ${optionsSnapshot}');
 
     return SheetContentScaffold(
       topBar: _Title(arguments: arguments, textEditingController: textCtl),
@@ -95,7 +92,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
   }
 }
 
-class _Title<T> extends HookWidget implements PreferredSizeWidget {
+class _Title<T> extends HookWidget {
   const _Title({super.key, required this.arguments, required this.textEditingController});
 
   final SelectionBottomSheetArgs<T> arguments;
@@ -109,14 +106,14 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
       icon: const Icon(Icons.arrow_back),
       tooltip: MaterialLocalizations
           .of(context)
-          .closeButtonTooltip,
+          .backButtonTooltip,
       onPressed: context.pop,
     ).only((ModalRoute
         .of(context)
         ?.impliesAppBarDismissal == true));
 
     return Column(
-      // mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ListTile(
@@ -151,11 +148,6 @@ class _Title<T> extends HookWidget implements PreferredSizeWidget {
         const Divider(height: 0),
       ],
     );
-  }
-
-  @override
-  Size get preferredSize {
-    return Size.fromHeight(kToolbarHeight + (arguments.showSearch ? 62 : 0) + (arguments.subtitle != null ? 15 : 0));
   }
 }
 
@@ -238,10 +230,7 @@ class _FilteredResults<T> extends StatelessWidget {
 
     return options
         .map(
-          (e) => (
-            e,
-            e.label.searchScore(term, searchTokens),
-          ).also((it) => talker.warning('Score: ${it.$2} for ${it.$1.label}')),
+          (e) => (e, e.label.searchScore(term, searchTokens)),
         )
         .where((e) => e.$2 > 150)
         .sortedBy<num>((e) => -e.$2) // Best match first
