@@ -79,8 +79,6 @@ pages:
         retract: Втягнути
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude довжина"
         cold_extrude_error: Екструдер не досяг min_extrude_temp з {}°C!
-      macro_card:
-        title: Gcode - Макроси
       pin_card:
         pin_btn: Пін
       power_card:
