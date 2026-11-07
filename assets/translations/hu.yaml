@@ -174,10 +174,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude hossza"
         cold_extrude_error: A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !
       macro_card:
-        title: G-kód - Makrók
         no_macros: Jelenleg nincsenek makrók ebben a csoportban
-        add_grp_hint: A makrók rendszerezéséhez különböző csoportokat hozhatsz létre. Csak menj a nyomtató beállításaihoz, és adj hozzá egy új csoportot.
-        show_all_tooltip: Összes makró mutatása
       pin_card:
         title_misc: Különböző
         pin_btn: Tű
