@@ -105,8 +105,6 @@ pages:
         retract: Trek terug
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude lengte"
         cold_extrude_error: Extruder het nog nie reach min_extrude_temp of {}°C bereik nie!
-      macro_card:
-        title: Gcode - Makro's
       pin_card:
         pin_btn: Pen
       power_card:
