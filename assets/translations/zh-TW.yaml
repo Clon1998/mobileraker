@@ -185,10 +185,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude 長度"
         cold_extrude_error: 擠出機尚未達到最低擠出溫度（ {}°C ）
       macro_card:
-        title: G-Code 巨集
         no_macros: 目前在此群組中沒有可見的巨集
-        add_grp_hint: 您可建立不同群組來編組您的巨集。只需至印表機設定中並新增群組。
-        show_all_tooltip: 顯示所有巨集
       pin_card:
         title_misc: 雜項
         pin_btn: Pin
