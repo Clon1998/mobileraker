@@ -6,8 +6,8 @@
 import 'package:flutter/material.dart';
 
 /// Row of a list sheet, like [SelectionBottomSheet]'s: on M3 rounded on the left and flush with the right edge, with a
-/// faint tint (use [SheetRow.listPadding] and [SheetRow.separator] for the list). M2 rows stay flat, divided by
-/// [SheetRow.separator].
+/// faint tint (use [SheetRow.listPadding] and [SheetRow.separator] for the list). M2 rows stay flat. Groups of rows are
+/// divided by [SheetRow.groupSeparator].
 class SheetRow extends StatelessWidget {
   const SheetRow({
     super.key,
@@ -33,10 +33,15 @@ class SheetRow extends StatelessWidget {
       (Theme.of(context).useMaterial3 ? const EdgeInsets.fromLTRB(12, 12, 0, 16) : EdgeInsets.zero) +
       MediaQuery.viewPaddingOf(context).copyWith(top: 0);
 
-  /// Between two [SheetRow]s: a gap on M3, a divider on M2.
-  static Widget separator(BuildContext context) => Theme.of(context).useMaterial3
-      ? const SizedBox(height: 6)
-      : const Divider(height: 0, indent: 16, endIndent: 16);
+  /// Between two [SheetRow]s: a gap on M3, nothing on M2 (like SelectionBottomSheet and the file actions sheet).
+  static Widget separator(BuildContext context) =>
+      Theme.of(context).useMaterial3 ? const SizedBox(height: 6) : const SizedBox.shrink();
+
+  /// Between two groups of [SheetRow]s, in place of [separator]. Like the file actions sheet: a divider starting at the
+  /// rows' text (row padding, a 24dp icon and the 16dp gap) and running to the right edge.
+  static Widget groupSeparator(BuildContext context) => Theme.of(context).useMaterial3
+      ? const Divider(height: 13, indent: 20 + 24 + 16)
+      : const Divider(height: 5, indent: 16 + 24 + 16);
 
   /// Padding of the row's content.
   static EdgeInsets contentPadding(BuildContext context) => Theme.of(context).useMaterial3

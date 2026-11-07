@@ -14,6 +14,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/sheet_row.dart';
 import 'package:common/ui/components/sheet_search_header.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/string_extension.dart';
@@ -131,9 +132,7 @@ class MacrosBottomSheet extends HookConsumerWidget {
                 final index = macros.indexWhere((m) => ValueKey(m.configName) == key);
                 return index < 0 ? null : index;
               },
-              separatorBuilder: (_, _) => themeData.useMaterial3
-                  ? const SizedBox(height: 6)
-                  : const Divider(height: 0, indent: 16, endIndent: 16),
+              separatorBuilder: (context, _) => SheetRow.separator(context),
               itemBuilder: (context, index) {
                 final macro = macros[index];
                 return _MacroTile(

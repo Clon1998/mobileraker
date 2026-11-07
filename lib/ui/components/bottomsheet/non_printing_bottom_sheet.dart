@@ -25,6 +25,9 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 
 final _actions = Mutation();
 
+/// Index of the first firmware/host action in the rows, the start of the second group.
+const _firstPowerAction = 2;
+
 /// Printer actions while not printing: the services and job queue sheets, then the firmware and host power actions.
 /// The power actions ask for confirmation, a long press skips it.
 class NonPrintingBottomSheet extends ConsumerWidget {
@@ -95,7 +98,14 @@ class NonPrintingBottomSheet extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (final (i, row) in rows.indexed) ...[if (i > 0) SheetRow.separator(context), row],
+            for (final (i, row) in rows.indexed) ...[
+              // The sheets to open, then the firmware/host actions
+              if (i == _firstPowerAction)
+                SheetRow.groupSeparator(context)
+              else if (i > 0)
+                SheetRow.separator(context),
+              row,
+            ],
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Text(
