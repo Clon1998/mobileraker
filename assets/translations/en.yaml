@@ -195,11 +195,10 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude length"
         cold_extrude_error: Extruder did not reach min_extrude_temp of {}°C yet!
       macro_card:
-        title: Gcode - Macros
+        title: Macros
         no_macros: No macros are currently visible in this group
-        add_grp_hint: You can create different groups to organize your macros. Just
-          go to the printer settings and add a new group.
-        show_all_tooltip: Show all macros
+        all: All
+        more: +{} more
       pin_card:
         title_misc: Miscellaneous
         pin_btn: Pin
@@ -1630,6 +1629,15 @@ dialogs:
       min: Enter a value of at least {}
       range: Enter a value between {} and {}
 bottom_sheets:
+  macros:
+    title: Macros
+    available:
+      one: '{} macro available'
+      other: '{} macros available'
+    all: All
+    run: Run {}
+    no_results: No macro matches your search
+    sent: Sent
   job_queue_sheet:
     next: Next print job
     empty: The job queue is empty. You can add jobs via the file browser.

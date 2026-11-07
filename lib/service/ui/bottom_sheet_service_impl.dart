@@ -11,6 +11,7 @@ import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/bottomsheet/macros_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/graph_settings_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/manage_services_bottom_sheet.dart';
@@ -48,6 +49,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   graphSettings,
   changeSettings,
   selectPrintJob,
+  macros,
 }
 
 BottomSheetService bottomSheetServiceImpl(Ref ref) => BottomSheetServiceImpl(ref);
@@ -287,6 +289,21 @@ class BottomSheetServiceImpl implements BottomSheetService {
           key: state.pageKey,
           name: state.name,
           child: SelectFileBottomSheet(args: state.extra as SelectFileBottomSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.macros.name,
+      path: '/sheet/macros',
+      pageBuilder: (context, state) {
+        assert(state.extra is MacrosBottomSheetArgs, 'Invalid extra data for MacrosBottomSheetArgs');
+
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: MacrosBottomSheet(args: state.extra as MacrosBottomSheetArgs),
         );
       },
     ),

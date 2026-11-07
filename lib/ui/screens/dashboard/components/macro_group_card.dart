@@ -17,20 +17,24 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_guard.dart';
-import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:extended_wrap/extended_wrap.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/bottomsheet/macros_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/dashboard_card.dart';
+import 'package:mobileraker/ui/components/macro/macro_command.dart';
+import 'package:mobileraker/ui/components/macro/sent_feedback_icon.dart';
+import 'package:mobileraker/ui/components/macro/use_sent_feedback.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -62,10 +66,8 @@ class MacroGroupCard extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _CardTitle(machineUUID: machineUUID),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: _SelectedGroup(machineUUID: machineUUID),
-            ),
+            _GroupChips(machineUUID: machineUUID),
+            _SelectedGroup(machineUUID: machineUUID),
           ],
         ),
       ),
@@ -99,25 +101,25 @@ class _MacroGroupLoading extends StatelessWidget {
     return Card(
       child: Shimmer.fromColors(
         baseColor: Colors.grey,
-        highlightColor: themeData.colorScheme.background,
+        highlightColor: themeData.colorScheme.surface,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             CardTitleSkeleton.trailingText(),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Wrap(
-                spacing: 5,
-                alignment: WrapAlignment.spaceEvenly,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: _tileSpacing,
+                crossAxisSpacing: _tileSpacing,
+                childAspectRatio: 3.4,
                 children: [
-                  Chip(label: SizedBox(width: 40), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 58), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 76), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 94), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 29), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 30), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 48), backgroundColor: Colors.white),
-                  Chip(label: SizedBox(width: 66), backgroundColor: Colors.white),
+                  for (var i = 0; i < 4; i++)
+                    DecoratedBox(
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(_tileRadius)),
+                    ),
                 ],
               ),
             ),
@@ -128,6 +130,11 @@ class _MacroGroupLoading extends StatelessWidget {
   }
 }
 
+const double _tileHeight = 48;
+const double _tileSpacing = 8;
+const double _tileRadius = 14;
+const int _maxRows = 3;
+
 class _CardTitle extends ConsumerWidget {
   const _CardTitle({super.key, required this.machineUUID});
 
@@ -135,200 +142,127 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
-    var model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).requireValue;
+    final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
 
     return ListTile(
       leading: const Icon(MaterialCommunityIcons.code_braces),
       title: const Text('pages.dashboard.control.macro_card.title').tr(),
-      trailing: switch (model.groups.length) {
-        == 1 => Tooltip(
-            triggerMode: TooltipTriggerMode.tap,
-            showDuration: const Duration(seconds: 5),
-            message: tr('pages.dashboard.control.macro_card.add_grp_hint'),
-            child: const Icon(Icons.help_outline),
-          ),
-        > 1 => DropdownButton(
-            value: model.selected,
-            items: model.groups
-                .mapIndexed((index, element) => DropdownMenuItem(
-                      value: index,
-                      child: Text(element.name),
-                    ))
-                .toList(),
-            onChanged: controller.onDropDownChanged,
-          ),
-        _ => null,
-      },
+      trailing: TextButton.icon(
+        onPressed: () => controller.openSheet(null),
+        icon: const Icon(Icons.apps, size: 18),
+        label: const Text('pages.dashboard.control.macro_card.all').tr(),
+      ),
     );
   }
 }
 
-class _SelectedGroup extends HookConsumerWidget {
+/// Filter chips for the groups, only shown if there is more than one.
+class _GroupChips extends ConsumerWidget {
+  const _GroupChips({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
+    final model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).requireValue;
+    final selected = model.selected;
+    final names = [for (final group in model.groups) group.name];
+
+    return AnimatedSizeAndFade(
+      child: names.length > 1
+          ? SizedBox(
+              height: 48,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(15, 0, 15, 8),
+                itemCount: names.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, index) => ChoiceChip(
+                  label: Text(names[index]),
+                  selected: index == selected,
+                  showCheckmark: false,
+                  visualDensity: VisualDensity.compact,
+                  onSelected: (_) => controller.onGroupSelected(index),
+                ),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+}
+
+class _SelectedGroup extends ConsumerWidget {
   const _SelectedGroup({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var printState =
-        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
-    var groupProvider = _macroGroupCardControllerProvider(machineUUID)
-        .selectAs((value) => value.groups.elementAtOrNull(value.selected));
-    var group = ref.watch(groupProvider).value;
+    final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
+    final printState = ref.watch(
+      _macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState),
+    );
+    final group = ref
+        .watch(
+          _macroGroupCardControllerProvider(
+            machineUUID,
+          ).selectAs((value) => value.groups.elementAtOrNull(value.selected)),
+        )
+        .value;
 
-    if (group == null) return const Text('No group found');
+    if (group == null) return const SizedBox.shrink();
 
-    final hadMoreMacrosSettingKey = CompositeKey.keyWithString(UiKeys.hadMoreMacros, '${group.uuid}-$machineUUID');
+    final macros = group.filtered(printState);
 
-    final showAll = useState(false);
+    return AnimatedSizeAndFade(
+      alignment: Alignment.topCenter,
+      child: macros.isEmpty
+          ? Padding(
+              key: ValueKey('empty-${group.uuid}'),
+              padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+              child: Text(
+                'pages.dashboard.control.macro_card.no_macros',
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ).tr(),
+            )
+          : Padding(
+              key: ValueKey('group-${group.uuid}'),
+              padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = (constraints.maxWidth / 150).floor().clamp(2, 4);
+                  final maxTiles = columns * _maxRows;
+                  // Keep the card compact, the rest is one tap away in the sheet
+                  final overflow = macros.length > maxTiles;
+                  final shown = overflow ? macros.take(maxTiles - 1).toList() : macros;
 
-    final hadShowAll = ref.read(boolSettingProvider(hadMoreMacrosSettingKey));
-    final showAllAvailable = useState(hadShowAll);
-
-    // Reset the showAll state when the group changes
-    useEffect(() {
-      showAll.value = false;
-      // showAllAvailable.value = false;
-    }, [group.uuid]);
-
-    useEffect(() {
-      final newVal = showAllAvailable.value || showAll.value;
-      if (hadShowAll == newVal) return;
-      ref.read(settingServiceProvider).writeBool(hadMoreMacrosSettingKey, newVal);
-    }, [group.uuid, showAllAvailable.value]);
-
-    const dur = kThemeAnimationDuration;
-    // final dur = const Duration(seconds: 5);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AnimatedSizeAndFade(
-          alignment: Alignment.topCenter,
-          sizeDuration: dur,
-          fadeDuration: dur,
-          // The column is required to make it stretch
-          child: group.hasMacros(printState)
-              ? Column(
-                  key: ValueKey('group-${group.uuid}'),
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _ChipsWrap(
-                      macros: group.filtered(printState),
-                      machineUUID: machineUUID,
-                      showAll: showAll.value,
-                      hasMoreMacros: (value) => showAllAvailable.value = value || showAll.value,
+                  return GridView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      mainAxisExtent: _tileHeight,
+                      mainAxisSpacing: _tileSpacing,
+                      crossAxisSpacing: _tileSpacing,
                     ),
-                  ],
-                )
-              : Center(
-                  key: ValueKey(group.uuid),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Text(
-                      'pages.dashboard.control.macro_card.no_macros',
-                      style: Theme.of(context).textTheme.bodySmall,
-                      textAlign: TextAlign.center,
-                    ).tr(),
-                  ),
-                ),
-        ),
-        AnimatedSizeAndFade(
-          alignment: Alignment.topCenter,
-          sizeDuration: dur,
-          fadeDuration: dur,
-          child: showAllAvailable.value && !showAll.value
-              ? MobilerakerIconButton(
-                  key: ValueKey('showAll-${group.uuid}'),
-                  padding: EdgeInsets.all(8),
-                  tooltip: tr('pages.dashboard.control.macro_card.show_all_tooltip'),
-                  onPressed: () => showAll.value = true,
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
+                    children: [
+                      for (final macro in shown) _MacroTile(machineUUID: machineUUID, macro: macro),
+                      if (overflow)
+                        _MoreTile(count: macros.length - shown.length, onTap: () => controller.openSheet(group.uuid)),
+                    ],
+                  );
+                },
+              ),
+            ),
     );
   }
 }
 
-class _ChipsWrap extends StatefulWidget {
-  const _ChipsWrap({
-    super.key,
-    required this.macros,
-    required this.machineUUID,
-    required this.showAll,
-    required this.hasMoreMacros,
-  });
-
-  final String machineUUID;
-
-  final List<GCodeMacro> macros;
-
-  final bool showAll;
-
-  final Function(bool) hasMoreMacros;
-
-  @override
-  State<_ChipsWrap> createState() => _ChipsWrapState();
-}
-
-class _ChipsWrapState extends State<_ChipsWrap> {
-  final GlobalKey<State<StatefulWidget>> _lastChildKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    checkVisibiltiy();
-  }
-
-  @override
-  void didUpdateWidget(_ChipsWrap oldWidget) {
-    if (const DeepCollectionEquality().equals(oldWidget.macros, widget.macros)) {
-      checkVisibiltiy();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    talker.info('Building _ChipsWrap - showAll: ${widget.showAll}');
-    return ExtendedWrap(
-      alignment: WrapAlignment.center,
-      spacing: 5,
-      maxLines: widget.showAll ? -1 >>> 1 : 3,
-      children: _getChildren(),
-    );
-  }
-
-  void checkVisibiltiy() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_lastChildKey.currentContext != null) {
-        final RenderBox renderBox = _lastChildKey.currentContext!.findRenderObject()! as RenderBox;
-        if (!renderBox.hasSize) return;
-        final Size size = renderBox.size;
-        widget.hasMoreMacros(size.width == 0 && size.height == 0);
-      }
-    });
-  }
-
-  List<Widget> _getChildren() {
-    final List<Widget> children = <Widget>[];
-
-    for (int i = 0; i < widget.macros.length; i++) {
-      children.add(_MacroChip(
-        key: (i == widget.macros.length - 1) ? _lastChildKey : null,
-        machineUUID: widget.machineUUID,
-        macro: widget.macros[i],
-      ));
-    }
-    return children;
-  }
-}
-
-class _MacroChip extends ConsumerWidget {
-  const _MacroChip({super.key, required this.machineUUID, required this.macro});
+class _MacroTile extends HookConsumerWidget {
+  const _MacroTile({super.key, required this.machineUUID, required this.macro});
 
   final String machineUUID;
   final GCodeMacro macro;
@@ -337,27 +271,92 @@ class _MacroChip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
 
-    final (configMacro, klippyCanReceiveCommands, printState) =
-        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectRequireValue((data) => (
-              data.configMacros[macro.configName],
-              data.klippyCanReceiveCommands,
-              data.printState,
-            )));
+    final (configMacro, enabled) = ref.watch(
+      _macroGroupCardControllerProvider(
+        machineUUID,
+      ).selectRequireValue((data) => (data.configMacros[macro.configName], data.klippyCanReceiveCommands)),
+    );
+
+    // The group already filters hidden/removed macros, but the printer might not know the macro (anymore)
+    if (configMacro == null) return const SizedBox.shrink();
 
     final themeData = Theme.of(context);
-    var enabled = klippyCanReceiveCommands;
-    //Note, the visibility is just an additional check. The group already filters out removed macros and the once that should not be shown while printing/are hidden
-    return Visibility(
-      visible: configMacro != null && macro.visible && macro.showForState.contains(printState),
-      child: GestureDetector(
-        onLongPress: enabled ? () => controller.onMacroLongPressed(configMacro!) : null,
-        child: ActionChip(
-          onPressed: enabled ? () => controller.onMacroPressed(configMacro!) : null,
-          label: Text(macro.beautifiedName),
-          labelStyle: TextStyle(
-            color: enabled ? themeData.colorScheme.onPrimary : themeData.disabledColor,
+    final colorScheme = themeData.colorScheme;
+    final foreground = enabled ? colorScheme.onSecondaryContainer : themeData.disabledColor;
+    final (sent, showSent) = useSentFeedback();
+
+    return Tooltip(
+      message: configMacro.userDescription ?? configMacro.macroName.toUpperCase(),
+      waitDuration: const Duration(milliseconds: 600),
+      child: Material(
+        color: enabled ? colorScheme.secondaryContainer : colorScheme.surfaceContainerHighest,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(_tileRadius)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: enabled
+              ? () async {
+                  if (await controller.onMacroPressed(configMacro) && context.mounted) showSent();
+                }
+              : null,
+          onLongPress: enabled
+              ? () {
+                  controller.onMacroLongPressed(configMacro);
+                  showSent();
+                }
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    macro.codeName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: macroNameStyle(themeData.textTheme.labelLarge?.copyWith(color: foreground)),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                SentFeedbackIcon(
+                  sent: sent,
+                  size: 18,
+                  color: foreground,
+                  // Only the send arrow flies off, the tune icon just fades
+                  idleFlies: configMacro.params.isEmpty,
+                  idle: Icon(configMacro.params.isEmpty ? Icons.send : Icons.tune, size: 18, color: foreground),
+                ),
+              ],
+            ),
           ),
-          backgroundColor: themeData.colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
+
+class _MoreTile extends StatelessWidget {
+  const _MoreTile({super.key, required this.count, required this.onTap});
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    return Material(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(_tileRadius),
+        side: BorderSide(color: themeData.colorScheme.outlineVariant),
+      ),
+      color: Colors.transparent,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Center(
+          child: Text(
+            tr('pages.dashboard.control.macro_card.more', args: [count.toString()]),
+            style: themeData.textTheme.labelLarge,
+          ),
         ),
       ),
     );
@@ -369,6 +368,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
   SettingService get _settingService => ref.read(settingServiceProvider);
 
   DialogService get _dialogService => ref.read(dialogServiceProvider);
+
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
 
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
@@ -405,37 +406,38 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
     );
   }
 
-  void onDropDownChanged(int? index) {
-    if (index == null) return;
+  void onGroupSelected(int index) {
     state = state.whenData((value) => value.copyWith(selected: index));
     _settingService.writeInt(_settingsKey, index);
   }
 
-  onMacroPressed(ConfigGcodeMacro macro) async {
+  void openSheet(String? groupUUID) {
+    _bottomSheetService.show(
+      BottomSheetConfig(
+        type: SheetType.macros,
+        data: MacrosBottomSheetArgs(machineUUID: machineUUID, groupUUID: groupUUID),
+      ),
+    );
+  }
+
+  /// Runs [macro], asking for its params (or a confirmation) first if needed. Returns whether it was sent.
+  Future<bool> onMacroPressed(ConfigGcodeMacro macro) async {
     var alwaysConfirm = _settingService.readBool(AppSettingKeys.confirmMacroExecution, false);
 
     if (macro.params.isNotEmpty || alwaysConfirm) {
-      DialogResponse? response = await _dialogService.show(
-        DialogRequest(type: DialogType.gcodeParams, data: macro),
-      );
+      DialogResponse? response = await _dialogService.show(DialogRequest(type: DialogType.gcodeParams, data: macro));
 
-      if (response?.confirmed == true) {
-        if (!ref.mounted) return;
-        var paramsMap = response!.data as Map<String, String>;
-
-        var paramStr = paramsMap.keys
-            .where((e) => paramsMap[e]?.trim().isNotEmpty == true)
-            .map((e) => '${e.toUpperCase()}=${paramsMap[e]}')
-            .join(' ');
-        _printerService.gCode(paramStr.isEmpty ? macro.macroName : '${macro.macroName} $paramStr');
-      }
+      if (response?.confirmed != true || !ref.mounted) return false;
+      final paramsMap = response!.data as Map<String, String>;
+      _printerService.gCode(macroCommand(macro.macroName, paramsMap));
     } else {
       HapticFeedback.selectionClick();
       _printerService.gCode(macro.macroName);
     }
+    return true;
   }
 
-  onMacroLongPressed(ConfigGcodeMacro macro) {
+  void onMacroLongPressed(ConfigGcodeMacro macro) {
     HapticFeedback.vibrate();
     _printerService.gCode(macro.macroName);
   }
@@ -476,17 +478,23 @@ class _MacroGroupCardPreviewController extends _MacroGroupCardController {
   }
 
   @override
-  void onDropDownChanged(int? index) {
+  void onGroupSelected(int index) {
     // Do nothing preview
   }
 
   @override
-  onMacroPressed(ConfigGcodeMacro macro) async {
+  void openSheet(String? groupUUID) {
     // Do nothing preview
   }
 
   @override
-  onMacroLongPressed(ConfigGcodeMacro macro) {
+  Future<bool> onMacroPressed(ConfigGcodeMacro macro) async {
+    // Nothing is sent in the preview, but show the feedback
+    return true;
+  }
+
+  @override
+  void onMacroLongPressed(ConfigGcodeMacro macro) {
     HapticFeedback.vibrate();
     // Do nothing preview
   }
