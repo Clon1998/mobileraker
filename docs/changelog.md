@@ -68,6 +68,12 @@
   the connection, Klipper (e.g. "Klipper shutdown") and print states and replaces the small status dot. Remote
   connections are still indicated by their icon.
 
+- **Spoolman Spool Selection**: The sheet to select the active spool got the same look as the macro sheet. Spools can
+  be searched by vendor, name, material, location or ID (e.g. "#7") and filtered by material. The active spool is
+  listed first, followed by the recently used ones, and each spool shows a bar of its remaining filament. The QR-Code
+  scanner moved from its own tab to a button in the search field. If the spool can not be set active, an error is
+  shown instead of the sheet loading forever. The Spoolman card shows the same remaining bar.
+
 ### Bug Fixes
 
 - **API Key Prompt**: The "Printer Settings" button on the screen asking for a Moonraker API key now opens the

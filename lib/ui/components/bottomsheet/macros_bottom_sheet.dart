@@ -14,6 +14,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/sheet_search_header.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -126,7 +127,7 @@ class MacrosBottomSheet extends HookConsumerWidget {
                   MediaQuery.viewPaddingOf(context).copyWith(top: 0),
               itemCount: macros.length,
               // "Recent" reorders after a run: keep each row's state (expanded form, sent feedback) with its macro
-              findChildIndexCallback: (key) {
+              findItemIndexCallback: (key) {
                 final index = macros.indexWhere((m) => ValueKey(m.configName) == key);
                 return index < 0 ? null : index;
               },
@@ -181,7 +182,7 @@ class MacrosBottomSheet extends HookConsumerWidget {
   }
 }
 
-/// Same structure as the other sheets' headers (e.g. [SelectionBottomSheet]): compact title tile, search, divider.
+/// The shared [SheetSearchHeader] with the group chips (All, Recent, the groups).
 class _Header extends StatelessWidget {
   const _Header({
     required this.count,
@@ -201,66 +202,24 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = Theme.of(context);
-    return Material(
-      color: Colors.transparent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            titleAlignment: ListTileTitleAlignment.center,
-            title: Text(tr('bottom_sheets.macros.title'), style: themeData.textTheme.headlineSmall),
-            subtitle: count == null
-                ? null
-                : Text(plural('bottom_sheets.macros.available', count!), style: themeData.textTheme.bodySmall),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextField(
-              controller: search,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  tooltip: tr('pages.files.search.clear_search'),
-                  icon: const Icon(Icons.clear),
-                  onPressed: search.clear,
-                ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+    return SheetSearchHeader(
+      title: tr('bottom_sheets.macros.title'),
+      subtitle: count == null ? null : plural('bottom_sheets.macros.available', count!),
+      search: search,
+      chips: [
+        if (groups.length > 1 || hasRecent)
+          for (final (uuid, name) in [
+            (null, tr('bottom_sheets.macros.all')),
+            if (hasRecent) (MacrosBottomSheetArgs.recentGroup, tr('bottom_sheets.macros.recent')),
+            ...groups.map((g) => (g.uuid, g.name)),
+          ])
+            ChoiceChip(
+              label: Text(name),
+              selected: selectedGroup == uuid,
+              showCheckmark: false,
+              onSelected: (_) => onGroupSelected?.call(uuid),
             ),
-          ),
-          if (groups.length > 1 || hasRecent)
-            SizedBox(
-              height: 48,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                children: [
-                  for (final (uuid, name) in [
-                    (null, tr('bottom_sheets.macros.all')),
-                    if (hasRecent) (MacrosBottomSheetArgs.recentGroup, tr('bottom_sheets.macros.recent')),
-                    ...groups.map((g) => (g.uuid, g.name)),
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(name),
-                        selected: selectedGroup == uuid,
-                        showCheckmark: false,
-                        onSelected: (_) => onGroupSelected?.call(uuid),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          const SizedBox(height: 8),
-          const Divider(height: 0),
-        ],
-      ),
+      ],
     );
   }
 }

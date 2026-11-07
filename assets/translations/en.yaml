@@ -1741,6 +1741,14 @@ bottom_sheets:
     cant_render: Rendering of the bed mesh for the printer's kinematics is not supported
       yet.
   select_spool:
+    title: Select Spool
+    available:
+      one: '{} spool'
+      other: '{} spools'
+    all: All
+    no_results: No spools match your search
+    active: Active spool
+    set_active_error: Could not set the active spool
     header:
       spools: Spools
       qr: QR-Code

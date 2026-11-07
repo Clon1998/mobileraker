@@ -1594,6 +1594,14 @@ bottom_sheets:
     clear_loaded_profile: Geladenes Profil zurücksetzen
     cant_render: Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch nicht unterstützt.
   select_spool:
+    title: Spule auswählen
+    available:
+      one: '{} Spule'
+      other: '{} Spulen'
+    all: Alle
+    no_results: Keine Spulen passen zur Suche
+    active: Aktive Spule
+    set_active_error: Die aktive Spule konnte nicht gesetzt werden
     header:
       spools: Spulen
       qr: QR-Code
