@@ -1512,6 +1512,12 @@ bottom_sheets:
     recent: Zuletzt
     sent: Gesendet
   job_queue_sheet:
+    jobs:
+      one: '{} Auftrag'
+      other: '{} Aufträge'
+    state:
+      running: Läuft
+      paused: Pausiert
     next: Nächster Druckauftrag
     empty: Die Job-Warteschlange ist leer. Über den Dateibrowser können Sie Aufträge hinzufügen.
     start_queue: Warteschlange starten
@@ -1613,7 +1619,28 @@ bottom_sheets:
     set_active: Aktivieren
     spool_id_not_found: 'Es konnte leider kein Spool mit der angegebenen ID #{} gefunden werden.'
   non_printing:
+    title: Druckeraktionen
+    long_press_hint: Halten Sie eine Aktion gedrückt, um die Bestätigung zu überspringen.
+    job_queue:
+      description: Drucke einreihen, die nacheinander laufen
+    fw_restart:
+      description: Startet Klipper und seine MCUs neu
+    host_restart:
+      title: Host neu starten
+      description: Startet den Host neu, z. B. einen Raspberry Pi
+    host_shutdown:
+      title: Host herunterfahren
+      description: Schaltet den Host aus, z. B. einen Raspberry Pi
     manage_service:
+      description: Klipper, Moonraker und andere starten, stoppen oder neu starten
+      available:
+        one: '{} Dienst'
+        other: '{} Dienste'
+      state:
+        active: Läuft
+        inactive: Gestoppt
+        deactivating: Wird gestoppt…
+        failed: Fehlgeschlagen
       title: Dienste verwalten
       no_services: Keine Dienste gefunden!
       provider_error: Fehler beim Laden der Dienste!

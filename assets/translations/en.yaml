@@ -1640,6 +1640,12 @@ bottom_sheets:
     recent: Recent
     sent: Sent
   job_queue_sheet:
+    jobs:
+      one: '{} job'
+      other: '{} jobs'
+    state:
+      running: Running
+      paused: Paused
     next: Next print job
     empty: The job queue is empty. You can add jobs via the file browser.
     start_queue: Start Queue
@@ -1760,7 +1766,28 @@ bottom_sheets:
     set_active: Set Active
     spool_id_not_found: 'Sorry, no spool was found with the specified ID #{}.'
   non_printing:
+    title: Printer Actions
+    long_press_hint: Long press an action to skip its confirmation.
+    job_queue:
+      description: Queue up prints to run one after another
+    fw_restart:
+      description: Restarts Klipper and its MCUs
+    host_restart:
+      title: Restart Host
+      description: Reboots the host, e.g. a Raspberry Pi
+    host_shutdown:
+      title: Shut Down Host
+      description: Powers off the host, e.g. a Raspberry Pi
     manage_service:
+      description: Start, stop or restart Klipper, Moonraker and others
+      available:
+        one: '{} service'
+        other: '{} services'
+      state:
+        active: Running
+        inactive: Stopped
+        deactivating: Stopping…
+        failed: Failed
       title: Manage Services
       no_services: No services found!
       provider_error: Error while fetching services

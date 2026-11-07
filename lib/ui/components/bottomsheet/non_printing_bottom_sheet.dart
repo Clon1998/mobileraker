@@ -3,16 +3,19 @@
  * All rights reserved.
  */
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/bottomsheet/confirmation_bottom_sheet.dart';
+import 'package:common/ui/components/sheet_row.dart';
+import 'package:common/ui/components/sheet_search_header.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -22,88 +25,83 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 
 final _actions = Mutation();
 
+/// Printer actions while not printing: the services and job queue sheets, then the firmware and host power actions.
+/// The power actions ask for confirmation, a long press skips it.
 class NonPrintingBottomSheet extends ConsumerWidget {
   const NonPrintingBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
+    final themeData = Theme.of(context);
+    final customColors = themeData.extension<CustomColors>();
+    final machineName = ref.watch(selectedMachineProvider).value?.name;
+
+    void action(String type) {
+      HapticFeedback.selectionClick();
+      _actions.run(ref, (tsx) => onPressButton(tsx, type));
+    }
+
+    void skipConfirm(String type) {
+      HapticFeedback.vibrate();
+      _actions.run(ref, (tsx) => onPressButton(tsx, type, false));
+    }
+
+    final rows = [
+      _ActionRow(
+        icon: Icons.miscellaneous_services_outlined,
+        title: tr('bottom_sheets.non_printing.manage_service.title'),
+        subtitle: tr('bottom_sheets.non_printing.manage_service.description'),
+        opensSheet: true,
+        onTap: () => context.pushNamed(SheetType.manageMachineServices.name),
+      ),
+      _ActionRow(
+        icon: Icons.queue_outlined,
+        title: tr('pages.paywall.benefits.job_queue_perk.title'),
+        subtitle: tr('bottom_sheets.non_printing.job_queue.description'),
+        opensSheet: true,
+        onTap: () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: ProSheetType.jobQueueMenu)),
+      ),
+      _ActionRow(
+        icon: Icons.memory,
+        title: '${tr('general.firmware')} ${tr('@.lower:general.restart')}',
+        subtitle: tr('bottom_sheets.non_printing.fw_restart.description'),
+        onTap: () => action('fw_restart'),
+        onLongPress: () => skipConfirm('fw_restart'),
+      ),
+      _ActionRow(
+        icon: Icons.restart_alt,
+        title: tr('bottom_sheets.non_printing.host_restart.title'),
+        subtitle: tr('bottom_sheets.non_printing.host_restart.description'),
+        color: customColors?.warning ?? Colors.orange,
+        onTap: () => action('pi_restart'),
+        onLongPress: () => skipConfirm('pi_restart'),
+      ),
+      _ActionRow(
+        icon: Icons.power_settings_new,
+        title: tr('bottom_sheets.non_printing.host_shutdown.title'),
+        subtitle: tr('bottom_sheets.non_printing.host_shutdown.description'),
+        color: customColors?.danger ?? Colors.red,
+        onTap: () => action('pi_shutdown'),
+        onLongPress: () => skipConfirm('pi_shutdown'),
+      ),
+    ];
+
     return SheetContentScaffold(
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(25, 15, 25, 0) + MediaQuery.viewPaddingOf(context),
+      topBar: SheetSearchHeader(title: tr('bottom_sheets.non_printing.title'), subtitle: machineName),
+      // Scrolls if the rows do not fit (landscape, large fonts)
+      body: SingleChildScrollView(
+        padding: SheetRow.listPadding(context),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  flex: 5,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_shutdown')),
-                      onLongPress: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_shutdown', false)),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
-                        foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
-                      ),
-                      child: AutoSizeText(tr('general.shutdown'), maxLines: 1),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(FontAwesome5Brands.raspberry_pi, color: themeData.colorScheme.onBackground),
-                ),
-                Flexible(
-                  flex: 5,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: themeData.extension<CustomColors>()?.warning ?? Colors.red,
-                        foregroundColor: themeData.extension<CustomColors>()?.onWarning ?? Colors.white,
-                      ),
-                      onPressed: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_restart')),
-                      onLongPress: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'pi_restart', false)),
-                      child: AutoSizeText(tr('general.restart'), maxLines: 1),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            OutlinedButton(
-              onPressed: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'fw_restart')),
-              onLongPress: () => _actions.run(ref, (tsx) => onPressButton(tsx, 'fw_restart', false)),
-              child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
-            ),
-            OutlinedButton(
-              onPressed: () => context.pushNamed(SheetType.manageMachineServices.name),
-              // onPressed: () => pageController.value = 1,
-              child: AutoSizeText(tr('bottom_sheets.non_printing.manage_service.title'), maxLines: 1),
-            ),
-            // OutlinedButton(
-            //   onPressed: _btnAction(context, klippyService.restartMoonraker),
-            //   child: Text('Moonraker ${tr('@.lower:general.restart')}'),
-            // ),
-            OutlinedButton(
-              onPressed: () =>
-                  ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: ProSheetType.jobQueueMenu)),
-              child: AutoSizeText(tr('pages.paywall.benefits.job_queue_perk.title'), maxLines: 1),
-            ),
-
-            /// Dont strech the button
+            for (final (i, row) in rows.indexed) ...[if (i > 0) SheetRow.separator(context), row],
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                child: TextButton.icon(
-                  label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: () => context.pop(),
-                ),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Text(
+                tr('bottom_sheets.non_printing.long_press_hint'),
+                textAlign: TextAlign.center,
+                style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.onSurfaceVariant),
               ),
             ),
           ],
@@ -146,5 +144,59 @@ class NonPrintingBottomSheet extends ConsumerWidget {
         talker.error('Unknown type: $type');
     }
     WidgetsBinding.instance.addPostFrameCallback((_) => router.pop());
+  }
+}
+
+/// Icon, title and description in a [SheetRow]. Rows that open another sheet end in a chevron; [color] tints the icon
+/// and title of the risky actions.
+class _ActionRow extends StatelessWidget {
+  const _ActionRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.onLongPress,
+    this.color,
+    this.opensSheet = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final Color? color;
+  final bool opensSheet;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final colorScheme = themeData.colorScheme;
+
+    return SheetRow(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Row(
+        children: [
+          Icon(icon, color: color ?? colorScheme.onSurfaceVariant),
+          const Gap(16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: themeData.textTheme.titleMedium?.copyWith(color: color)),
+                Text(
+                  subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          if (opensSheet) ...[const Gap(12), Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant)],
+        ],
+      ),
+    );
   }
 }

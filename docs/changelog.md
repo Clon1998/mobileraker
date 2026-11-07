@@ -74,6 +74,12 @@
   scanner moved from its own tab to a button in the search field. If the spool can not be set active, an error is
   shown instead of the sheet loading forever. The Spoolman card shows the same remaining bar.
 
+- **Printer Actions, Services, Job Queue and Confirmation Sheets**: These sheets got the same look as the macro sheet.
+  The printer actions (opened from the dashboard while not printing) are now a list with a short description for each
+  action, and note that a long press skips the confirmation. Manage Services shows the state of each service (e.g.
+  "Running", "Failed"). The job queue shows the number of jobs and the queue state in its header, with start/pause and
+  clear next to it, and longer file names. Confirmations show cancel and confirm side by side.
+
 ### Bug Fixes
 
 - **API Key Prompt**: The "Printer Settings" button on the screen asking for a Moonraker API key now opens the

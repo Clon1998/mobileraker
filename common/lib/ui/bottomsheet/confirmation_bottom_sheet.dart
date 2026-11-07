@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/components/sheet_search_header.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -14,74 +15,72 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 
 part 'confirmation_bottom_sheet.freezed.dart';
 
+/// Asks to confirm an action: the shared sheet header with the [ConfirmationBottomSheetArgs.title], the description,
+/// an optional hint and cancel/confirm buttons. Pops with [BottomSheetResult.confirmed] or [BottomSheetResult.dismissed].
 class ConfirmationBottomSheet extends ConsumerWidget {
-  const ConfirmationBottomSheet({
-    super.key,
-    required this.args,
-  });
+  const ConfirmationBottomSheet({super.key, required this.args});
 
   final ConfirmationBottomSheetArgs args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
-    var cc = themeData.extension<CustomColors>();
-
-    final body = Padding(
-      padding: const EdgeInsets.fromLTRB(25, 10, 25, 00),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            args.title,
-            style: themeData.textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 5),
-          Text(args.description, style: themeData.textTheme.titleSmall),
-          const SizedBox(height: 10),
-          if (args.hint != null) Text(args.hint!, style: themeData.textTheme.bodySmall, textAlign: TextAlign.center),
-        ],
-      ),
-    );
+    final themeData = Theme.of(context);
+    final colorScheme = themeData.colorScheme;
+    final cc = themeData.extension<CustomColors>();
+    final buttonSize = const Size.fromHeight(48);
 
     return SheetContentScaffold(
-      body: body,
+      topBar: SheetSearchHeader(title: args.title),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(args.description, style: themeData.textTheme.bodyLarge),
+            if (args.hint != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.lightbulb_outline, size: 16, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      args.hint!,
+                      style: themeData.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
       bottomBarVisibility: BottomBarVisibility.always(),
       bottomBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (ModalRoute
-                  .of(context)
-                  ?.impliesAppBarDismissal == true)
-                TextButton.icon(
-                  label: Text(MaterialLocalizations
-                      .of(context)
-                      .backButtonTooltip),
-                  icon: const Icon(Icons.keyboard_arrow_left),
+              Expanded(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(minimumSize: buttonSize),
                   onPressed: () => context.pop(BottomSheetResult.dismissed()),
+                  child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
                 ),
-              if (ModalRoute
-                  .of(context)
-                  ?.impliesAppBarDismissal != true)
-                TextButton.icon(
-                  label: Text(MaterialLocalizations
-                      .of(context)
-                      .closeButtonTooltip),
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: () => context.pop(BottomSheetResult.dismissed()),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: buttonSize,
+                    backgroundColor: args.danger ? cc?.danger : null,
+                    foregroundColor: args.danger ? cc?.onDanger : null,
+                  ),
+                  onPressed: () => context.pop(BottomSheetResult.confirmed()),
+                  child: Text(args.actionLabel ?? tr('general.confirm')),
                 ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: args.danger ? cc?.danger : null,
-                  foregroundColor: args.danger ? cc?.onDanger : null,
-                ),
-                onPressed: () => context.pop(BottomSheetResult.confirmed()),
-                child: Text(args.actionLabel ?? tr('general.confirm')),
               ),
             ],
           ),

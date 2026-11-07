@@ -12,6 +12,8 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/bottomsheet/confirmation_bottom_sheet.dart';
 import 'package:common/ui/components/async_button_.dart';
+import 'package:common/ui/components/sheet_row.dart';
+import 'package:common/ui/components/sheet_search_header.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/misc.dart';
@@ -24,70 +26,37 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 
+/// Services of the machine's host (Klipper, Moonraker, …) with their state and start/restart/stop. The actions ask for
+/// confirmation, a long press skips it.
 class ManageServicesBottomSheet extends ConsumerWidget {
   const ManageServicesBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var systemInfo = ref.watch(selectedKlipperSystemInfoProvider);
-
-
-    final title = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // const Gap(10),
-        ListTile(
-          visualDensity: VisualDensity.compact,
-          title: const Text('bottom_sheets.non_printing.manage_service.title').tr(),
-        ),
-      ],
-    );
+    final systemInfo = ref.watch(selectedKlipperSystemInfoProvider);
+    final count = systemInfo.value?.serviceState.length;
 
     final body = switch (systemInfo) {
-      AsyncValue(hasValue: true, :final value?) => _ServiceList(
-          key: const Key('systemInfoReady'),
-          systemInfo: value,
-        ),
+      AsyncValue(hasValue: true, :final value?) => _ServiceList(key: const Key('systemInfoReady'), systemInfo: value),
       AsyncLoading() => const _ServiceListShimmer(key: Key('systemInfoLoading')),
-      AsyncError(:final error) =>
-          _SystemInfoProviderError(key: const Key('systemInfoError'), error: error),
+      AsyncError(:final error) => _SystemInfoProviderError(key: const Key('systemInfoError'), error: error),
       _ => const SizedBox.shrink(),
     };
 
     return SheetContentScaffold(
-      topBar: title,
-      body: AnimatedSizeAndFade(child: body),
-      bottomBarVisibility: BottomBarVisibility.always(),
-      bottomBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (ModalRoute
-                  .of(context)
-                  ?.impliesAppBarDismissal == true)
-                TextButton.icon(
-                  label: Text(MaterialLocalizations
-                      .of(context)
-                      .backButtonTooltip),
-                  icon: const Icon(Icons.keyboard_arrow_left),
-                  onPressed: context.pop,
-                ),
-              if (ModalRoute
-                  .of(context)
-                  ?.impliesAppBarDismissal != true)
-                TextButton.icon(
-                  label: Text(MaterialLocalizations
-                      .of(context)
-                      .closeButtonTooltip),
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  onPressed: context.pop,
-                ),
-            ],
-          ),
-        ),
+      topBar: SheetSearchHeader(
+        // Opened from the printer actions sheet: back to it
+        leading: ModalRoute.of(context)?.impliesAppBarDismissal == true
+            ? IconButton(
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                icon: const BackButtonIcon(),
+                onPressed: context.pop,
+              )
+            : null,
+        title: tr('bottom_sheets.non_printing.manage_service.title'),
+        subtitle: count == null ? null : plural('bottom_sheets.non_printing.manage_service.available', count),
       ),
+      body: AnimatedSizeAndFade(child: body),
     );
   }
 }
@@ -99,69 +68,102 @@ class _ServiceList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
+    final themeData = Theme.of(context);
     if (systemInfo.serviceState.isEmpty) {
-      return Center(
-        child: Text('bottom_sheets.non_printing.manage_service.no_services', style: themeData.textTheme.bodySmall).tr(),
+      return Padding(
+        padding: const EdgeInsets.all(32),
+        child: Text(
+          'bottom_sheets.non_printing.manage_service.no_services',
+          textAlign: TextAlign.center,
+          style: themeData.textTheme.bodyMedium?.copyWith(color: themeData.colorScheme.onSurfaceVariant),
+        ).tr(),
       );
     }
-    var klippyService = ref.watch(klipperServiceSelectedProvider);
+    final services = systemInfo.serviceState.values.toList();
 
-    return ListView(
+    return ListView.separated(
       restorationId: 'npMsList',
-      padding: const EdgeInsets.symmetric(horizontal: 25),
+      padding: SheetRow.listPadding(context),
+      // Only a handful of services: the sheet fits them instead of taking the full height
       shrinkWrap: true,
-      // mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var entry in systemInfo.serviceState.entries)
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(beautifyName(entry.value.name), style: themeData.textTheme.labelLarge),
-                  ],
-                ),
-              ),
-              if (entry.value.activeState != ServiceState.active)
-                AsyncIconButton(
-                  onPressed: () => _confirmation(
-                      context, () => klippyService.startService(entry.value.name), 'service_start', entry.value.name),
-                  onLongPressed: () => klippyService.startService(entry.value.name),
-                  icon: const Icon(Icons.play_arrow),
-                  color: themeData.extension<CustomColors>()?.success ?? Colors.green,
-                  tooltip: tr('general.start'),
-                ),
-              if (entry.value.activeState != ServiceState.inactive)
-                AsyncIconButton(
-                  onPressed: () => _confirmation(context, () => klippyService.restartService(entry.value.name),
-                      'service_restart', entry.value.name),
-                  onLongPressed: () => klippyService.restartService(entry.value.name),
-                  icon: const Icon(Icons.restart_alt),
-                  color: themeData.colorScheme.primary,
-                  tooltip: tr('general.restart'),
-                ),
-              AsyncIconButton(
-                onPressed: (entry.value.activeState != ServiceState.active)
-                    ? null
-                    : () => _confirmation(
-                        context, () => klippyService.stopService(entry.value.name), 'service_stop', entry.value.name),
-                onLongPressed: (entry.value.activeState != ServiceState.active)
-                    ? null
-                    : () => klippyService.stopService(entry.value.name),
-                icon: const Icon(Icons.stop),
-                color: themeData.extension<CustomColors>()?.danger ?? Colors.red,
-                tooltip: tr('general.stop'),
-              ),
-            ],
-          ),
+      itemCount: services.length,
+      separatorBuilder: (context, _) => SheetRow.separator(context),
+      itemBuilder: (context, index) => _ServiceRow(key: ValueKey(services[index].name), service: services[index]),
+    );
+  }
+}
 
-        // ListTile(
-        //   subtitle: Text('State: ${entry.value.activeState}, SubState: ${entry.value.subState}'),
-        // ),
-      ],
+class _ServiceRow extends ConsumerWidget {
+  const _ServiceRow({super.key, required this.service});
+
+  final ServiceStatus service;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
+    final colorScheme = themeData.colorScheme;
+    final customColors = themeData.extension<CustomColors>();
+    final klippyService = ref.watch(klipperServiceSelectedProvider);
+    final name = service.name;
+    final state = service.activeState;
+    final failed = service.subState == 'failed';
+
+    final (stateLabel, stateColor) = switch (state) {
+      _ when failed => (tr('bottom_sheets.non_printing.manage_service.state.failed'), customColors?.danger ?? Colors.red),
+      ServiceState.active => (
+        tr('bottom_sheets.non_printing.manage_service.state.active'),
+        customColors?.success ?? Colors.green,
+      ),
+      ServiceState.deactivating => (
+        tr('bottom_sheets.non_printing.manage_service.state.deactivating'),
+        customColors?.warning ?? Colors.orange,
+      ),
+      ServiceState.inactive => (
+        tr('bottom_sheets.non_printing.manage_service.state.inactive'),
+        colorScheme.onSurfaceVariant,
+      ),
+      ServiceState.unknown => (service.subState, colorScheme.onSurfaceVariant),
+    };
+
+    return SheetRow(
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(beautifyName(name), style: themeData.textTheme.titleMedium),
+                Text(stateLabel, style: themeData.textTheme.bodySmall?.copyWith(color: stateColor)),
+              ],
+            ),
+          ),
+          if (state != ServiceState.active)
+            AsyncIconButton(
+              onPressed: () => _confirmation(context, () => klippyService.startService(name), 'service_start', name),
+              onLongPressed: () => klippyService.startService(name),
+              icon: const Icon(Icons.play_arrow),
+              color: customColors?.success ?? Colors.green,
+              tooltip: tr('general.start'),
+            ),
+          if (state != ServiceState.inactive)
+            AsyncIconButton(
+              onPressed: () => _confirmation(context, () => klippyService.restartService(name), 'service_restart', name),
+              onLongPressed: () => klippyService.restartService(name),
+              icon: const Icon(Icons.restart_alt),
+              color: colorScheme.primary,
+              tooltip: tr('general.restart'),
+            ),
+          AsyncIconButton(
+            onPressed: state != ServiceState.active
+                ? null
+                : () => _confirmation(context, () => klippyService.stopService(name), 'service_stop', name),
+            onLongPressed: state != ServiceState.active ? null : () => klippyService.stopService(name),
+            icon: const Icon(Icons.stop),
+            color: customColors?.danger ?? Colors.red,
+            tooltip: tr('general.stop'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -175,10 +177,7 @@ class _ServiceList extends ConsumerWidget {
       ),
     );
 
-    if (result?.confirmed == true) {
-      toCall();
-      // if (context.mounted) context.pop();
-    }
+    if (result?.confirmed == true) toCall();
   }
 }
 
@@ -192,7 +191,7 @@ class _ServiceListShimmer extends StatelessWidget {
       baseColor: Colors.grey,
       highlightColor: themeData.colorScheme.background,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
+        padding: SheetRow.listPadding(context) + SheetRow.contentPadding(context).copyWith(top: 0, bottom: 0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

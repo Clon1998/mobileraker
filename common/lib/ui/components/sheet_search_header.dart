@@ -6,21 +6,32 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-/// Header of the searchable sheets (macros, spools): compact title tile with an optional count, an outlined search
-/// field, an optional row of filter chips and a divider. Same structure as [SelectionBottomSheet]'s header.
+/// Header of the list sheets (macros, spools, services, …): compact title tile with an optional subtitle (e.g. a count),
+/// an optional outlined search field, an optional row of filter chips and a divider. Same structure as
+/// [SelectionBottomSheet]'s header.
 class SheetSearchHeader extends StatelessWidget {
   const SheetSearchHeader({
     super.key,
     required this.title,
     this.subtitle,
-    required this.search,
+    this.leading,
+    this.trailing,
+    this.search,
     this.searchAction,
     this.chips = const [],
   });
 
   final String title;
   final String? subtitle;
-  final TextEditingController search;
+
+  /// E.g. a back button for sheets pushed on top of another one.
+  final Widget? leading;
+
+  /// E.g. actions on the whole list.
+  final Widget? trailing;
+
+  /// The search field is only shown with a controller.
+  final TextEditingController? search;
 
   /// Shown at the end of the search field while it is empty, replaced by the clear button once there is text.
   /// Without it the clear button is always shown.
@@ -32,11 +43,7 @@ class SheetSearchHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
-    final clear = IconButton(
-      tooltip: tr('pages.files.search.clear_search'),
-      icon: const Icon(Icons.clear),
-      onPressed: search.clear,
-    );
+    final search = this.search;
 
     return Material(
       color: Colors.transparent,
@@ -46,31 +53,13 @@ class SheetSearchHeader extends StatelessWidget {
         children: [
           ListTile(
             visualDensity: VisualDensity.compact,
+            leading: leading,
+            trailing: trailing,
             titleAlignment: ListTileTitleAlignment.center,
             title: Text(title, style: themeData.textTheme.headlineSmall),
             subtitle: subtitle == null ? null : Text(subtitle!, style: themeData.textTheme.bodySmall),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: TextField(
-              controller: search,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: searchAction == null
-                    ? clear
-                    : ValueListenableBuilder(
-                        valueListenable: search,
-                        builder: (context, value, _) => AnimatedSwitcher(
-                          duration: kThemeAnimationDuration,
-                          child: value.text.isEmpty ? KeyedSubtree(key: const ValueKey('action'), child: searchAction!) : clear,
-                        ),
-                      ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-          ),
+          if (search != null) _searchField(context, search),
           if (chips.isNotEmpty)
             SizedBox(
               height: 48,
@@ -85,6 +74,35 @@ class SheetSearchHeader extends StatelessWidget {
           const SizedBox(height: 8),
           const Divider(height: 0),
         ],
+      ),
+    );
+  }
+
+  Widget _searchField(BuildContext context, TextEditingController search) {
+    final clear = IconButton(
+      tooltip: tr('pages.files.search.clear_search'),
+      icon: const Icon(Icons.clear),
+      onPressed: search.clear,
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: TextField(
+        controller: search,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: '${MaterialLocalizations.of(context).searchFieldLabel}…',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: searchAction == null
+              ? clear
+              : ValueListenableBuilder(
+                  valueListenable: search,
+                  builder: (context, value, _) => AnimatedSwitcher(
+                    duration: kThemeAnimationDuration,
+                    child: value.text.isEmpty ? KeyedSubtree(key: const ValueKey('action'), child: searchAction!) : clear,
+                  ),
+                ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
       ),
     );
   }
