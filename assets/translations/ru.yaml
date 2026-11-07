@@ -185,10 +185,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude длина"
         cold_extrude_error: Экструдер не достиг min_extrude_temp из {}°C!
       macro_card:
-        title: Gcode - Макросы
         no_macros: В настоящее время в этой группе нет макросов
-        add_grp_hint: Вы можете создавать разные группы для организации макросов. Просто откройте настройки принтера и добавьте новую группу.
-        show_all_tooltip: Показать все макросы
       pin_card:
         title_misc: Разное
         pin_btn: Pin
