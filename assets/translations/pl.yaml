@@ -171,10 +171,7 @@ pages:
         extrude: Ekstruzja
         retract: Retrakcja
       macro_card:
-        title: Gcode - Makra
         no_macros: W tej grupie nie widać obecnie żadnych makr
-        add_grp_hint: Możesz tworzyć różne grupy, aby organizować swoje makra. Po prostu przejdź do ustawień drukarki i dodaj nową grupę.
-        show_all_tooltip: Pokaż wszystkie makra
       pin_card:
         title_misc: Różne
         pin_btn: Przypnij
