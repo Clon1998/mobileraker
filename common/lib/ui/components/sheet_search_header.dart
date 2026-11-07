@@ -53,6 +53,10 @@ class SheetSearchHeader extends StatelessWidget {
         children: [
           ListTile(
             visualDensity: VisualDensity.compact,
+            // Icon buttons bring 12dp of padding: trim the tile's 16dp so their icons line up at 16dp like the titles
+            // of the other sheets (and like an AppBar's back button)
+            contentPadding: EdgeInsetsDirectional.only(start: leading == null ? 16 : 4, end: trailing == null ? 16 : 4),
+            horizontalTitleGap: leading == null ? null : 8,
             leading: leading,
             trailing: trailing,
             titleAlignment: ListTileTitleAlignment.center,
@@ -71,7 +75,8 @@ class SheetSearchHeader extends StatelessWidget {
                 ],
               ),
             ),
-          const SizedBox(height: 8),
+          // Like SelectionBottomSheet: the divider follows the title right away, only a search field or chips get a gap
+          if (search != null || chips.isNotEmpty) const SizedBox(height: 8),
           const Divider(height: 0),
         ],
       ),
