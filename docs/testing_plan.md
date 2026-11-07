@@ -111,46 +111,35 @@ Notes from building it:
 - `common`: `historical_print_job_marshalling_test.dart` (HistoricalPrintJob fromJson),
   `printer_service_test.dart` (JRPC timeout during build …).
 - App: `spectrum_analyzer_test.dart` calls the real `setupLogger()` (needs path_provider) in `setUpAll`.
+- Pro: `gcode_parser_test.dart` "getArgsFromMacroCommandArgs quouted args" and "parseLine Macro Command".
 
 ### Findings from the tests so far
 
 Open:
 
-- Spoolman list-detail (tablet width, spool in the pane): the side-by-side "Alternative spools" cards
-  (`IntrinsicHeight` + `Row(stretch)` in `spool_detail_page.dart`) are measured 56 px tall while their entries need
-  68 px, so `SpoolmanStaticPagination`'s column overflows by 12 px (also with short names, not a font artefact).
-  Test skipped: `spoolman_page_test.dart` "spool details next to the list on a tablet".
 - Dashboard edit mode on tablets (medium layout): pages can't be added, removed or given another icon. The add page
   "+" and the icon editing live in the bottom navigation bar (phones only) and the medium layout ignores `onRemove`
   (no "Remove Page" button). Test skipped: `dashboard_medium_layout_test.dart` "editing: pages can be removed on
   tablets too".
-- Spool form (edit): clearing a number field (price, weights) can't remove the value. The empty field becomes `null`,
-  which `UpdateSpool` leaves out (`includeIfNull: false`), so an empty update is sent and the old value stays. Text
-  fields are fine (sent as ""). Test skipped: `spool_form_page_test.dart` "clearing a number removes it from the
-  spool".
-- Spool, filament and vendor forms with a decimal-comma locale (e.g. German): numbers are shown as "19,99" but
-  validated/parsed with `num.tryParse`, so "The value must be numeric" blocks saving any entry with a decimal value.
-  Tests skipped: "with a decimal comma, saving without changes makes no update" (spool, filament and vendor form).
-- Filament form: a 6-digit Spoolman color comes back from the color field as 8 digits (with alpha), so saving an
-  unchanged filament always sends `colorHex` instead of "No changes made!". Test skipped:
-  `filament_vendor_form_page_test.dart` "saving without changes makes no update".
-- Filament form: requires a vendor, Spoolman doesn't; filaments without vendor can't be edited. Test skipped: "a
-  filament without vendor can be edited".
-- Vendor form: there's no external ID field, so vendors with one (SpoolmanDB imports) always count as changed and get an
-  empty update. Test skipped: "saving without changes makes no update also for vendors with an external ID".
-- Spool details: the filament link uses `goNamed` (vendor and spools push), so back skips the spool page. Test
-  skipped: `spoolman_detail_pages_test.dart` "the filament opens its page, back returns to the spool".
-- File manager rename: the used names have the extension, the entered name doesn't, so renaming `benchy` to `cube`
-  passes validation and moves onto the existing `cube.gcode`. Test skipped: `file_manager_flows_test.dart` "rename
-  rejects the name of another file in the folder".
-- G-code details: a print state change sets `canStartPrint` without checking Klipper, so Print is enabled e.g. after
-  an error while Klipper is shut down. Test skipped: `gcode_file_details_page_test.dart` "print stays disabled when the
-  print ends while Klipper can not receive commands".
-- Spoolman card (pro): a filament without vendor, material or name shows "null – null" / "#7 null". Test skipped:
-  `spoolman_card_test.dart`.
-- G-code preview card (pro): without download progress it shows the raw key `components.gcode_preview.loading.progress`
-  (missing translation). Test skipped: `gcode_preview_card_test.dart` "shows what it does while the progress is
-  unknown".
+
+Fixed (2026-11-07, each with its test unskipped or added):
+
+- Spool, filament and vendor forms with a decimal-comma locale: numbers are read with `FormNumberParser` (the
+  locale's decimal separator and the dot), so "19,99" passes and saves.
+- Spool, filament and vendor forms: an emptied number (or date, color, vendor) field clears the value. The update
+  DTOs list such fields in `cleared`, `toPatchJson()` sends them as null (Spoolman applies only the keys sent:
+  missing keeps, null clears).
+- Filament form: an opaque color is compared and sent with 6 digits, an unchanged filament makes no update.
+- Filament form: the vendor is optional (as in Spoolman) and can be removed.
+- Vendor form: the external ID (no field in the form) is no longer part of the update.
+- Spool details: the filament link pushes, back returns to the spool.
+- Spoolman list-detail on tablets: the side-by-side "Alternative spools" cards are top aligned instead of
+  `IntrinsicHeight` + stretch, no overflow.
+- File manager rename: the entered name is checked with the extension ("File name already in use"); the caller's
+  name list is no longer modified.
+- G-code details: a print state change only enables Print while Klipper can receive commands.
+- Spoolman card (pro): a filament without vendor, material or name leaves them out instead of showing "null".
+- G-code preview card (pro): without progress it shows "Loading cached preview…" (`loading.cache`).
 
 Fixed (2026-11-04, each with its test unskipped or added):
 
