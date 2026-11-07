@@ -99,7 +99,7 @@
 
 - **Minor Fixes**: Various smaller fixes to the file details, Spoolman (forms, detail pane, long names), dashboard
   cards on narrow phones, the firmware retraction and fan cards, number and text inputs, the search order in
-  selection lists and the formatting of sent G-code commands. The unused "Group Slider Cards" setting was removed.
+  selection lists, the header of selection lists with large fonts and the formatting of sent G-code commands. The unused "Group Slider Cards" setting was removed.
 
 ## [2.9.14] - 2026-10-03
 
