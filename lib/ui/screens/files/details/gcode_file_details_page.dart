@@ -659,9 +659,11 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   _Model build() {
     ref.keepAliveFor();
     talker.info('Buildign GCodeFileDetailsController');
-    canPrintCalc(PrintState? d) => d != null && d != PrintState.printing && d != PrintState.paused;
     final gCodeFile = ref.watch(_gcodeProvider);
     final klippy = ref.watch(klipperProvider(machineUUID)).value;
+    // Klipper is watched (a change rebuilds), the print state is listened to; both decide.
+    canPrintCalc(PrintState? d) =>
+        klippy?.klippyCanReceiveCommands == true && d != null && d != PrintState.printing && d != PrintState.paused;
     final printer = ref.read(printerProvider(machineUUID)).value;
     ref.listen(printerProvider(machineUUID), (previous, next) {
       if (previous?.value?.print.state != next.value?.print.state) {
@@ -716,7 +718,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
 
     return _Model(
       file: gCodeFile,
-      canStartPrint: klippy?.klippyCanReceiveCommands == true && canPrintCalc(printer?.print.state),
+      canStartPrint: canPrintCalc(printer?.print.state),
       machineUUID: machineUUID,
       insufficientFilament: insufficientFilament,
       materialMissmatch: materialMissmatch,

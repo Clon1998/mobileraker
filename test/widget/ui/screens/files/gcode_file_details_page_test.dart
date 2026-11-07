@@ -181,7 +181,6 @@ void main() {
       expect(printButton(tester).onPressed, isNull);
       await tester.unmountApp();
     },
-    skip: true, // Finding: a print state change re-enables print without checking Klipper (see canPrintCalc listener).
   );
 
   group('actions', () {
