@@ -174,10 +174,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude délka"
         cold_extrude_error: Extrudér ještě nedosáhl min_extrude_temp {}°C!
       macro_card:
-        title: G-Kódy - Makra
         no_macros: V této skupině nejsou momentálně viditelná žádná makra
-        add_grp_hint: Můžete vytvořit různé skupiny pro uspořádání maker. Stačí jít do nastavení tiskárny a přidat novou skupinu.
-        show_all_tooltip: Zobrazit všechna makra
       pin_card:
         title_misc: Ostatní
         pin_btn: Pin
