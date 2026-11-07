@@ -81,8 +81,6 @@ pages:
         extrude: Extrudează
         retract: Retractează
         cold_extrude_error: Extruderul nu a atins încă temperatura de min_extrude_temp {}°C !
-      macro_card:
-        title: Gcode - Macro-uri
       power_card:
         title: Panou Alimentare
       multipl_card:
