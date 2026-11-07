@@ -174,10 +174,7 @@ pages:
         extrude_len: "Comprimento de Extrusão"
         cold_extrude_error: Extrusora muito fria. Não atingiu a temperatura mínima de {}°C!
       macro_card:
-        title: Gcode - Macros
         no_macros: Nenhuma macro visível neste grupo no momento
-        add_grp_hint: Você pode criar diferentes grupos para organizar suas macros. Vá para as configurações da impressora e adicione um novo grupo.
-        show_all_tooltip: Mostrar todas as macros
       pin_card:
         title_misc: Diversos
         pin_btn: Pino
