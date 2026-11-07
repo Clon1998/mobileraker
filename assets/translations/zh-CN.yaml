@@ -180,10 +180,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude长度"
         cold_extrude_error: 挤出机还没有达到{}°C的最低挤出温度！
       macro_card:
-        title: 宏指令
         no_macros: 当前在该分类中没有可用的宏
-        add_grp_hint: 您可以创建不同的分类来整理您的宏。只需前往打印机设置并添加一个新的分类。
-        show_all_tooltip: 显示所有分类
       pin_card:
         title_misc: 其它
         pin_btn: 别针
