@@ -194,10 +194,10 @@ pages:
         extrude_len: "Extrudiere Länge"
         cold_extrude_error: Extruder zu kalt.  min_extrode_temp von {}°C noch nicht erreicht!
       macro_card:
-        title: Gcode - Macros
+        title: Makros
         no_macros: In dieser Gruppe sind derzeit keine Makros sichtbar
-        add_grp_hint: Sie können verschiedene Gruppen erstellen, um Ihre Makros zu verwalten. Dazu öffnen Sie die Druckereinstellungen und legen eine eigene Gruppen an.
-        show_all_tooltip: Alle Makros anzeigen
+        all: Alle
+        more: +{} weitere
       pin_card:
         title_misc: Verschiedenes
         pin_btn: Pin
@@ -1155,6 +1155,11 @@ pages:
     title: Temperaturverlauf
     chart_y_axis: Temperatur [°C]
 components:
+  machine_status:
+    connection_error: Verbindung fehlgeschlagen
+    klipper_disconnected: Klipper getrennt
+    klipper_error: Klipper-Fehler
+    klipper_shutdown: Klipper heruntergefahren
   app_version_display:
     version: 'Version:'
     installed_version: 'Installierte Version:'
@@ -1496,6 +1501,16 @@ dialogs:
       min: Gib einen Wert größer als {} ein
       range: Gib einen Wert zwischen {} und {} ein
 bottom_sheets:
+  macros:
+    title: Makros
+    available:
+      one: '{} Makro verfügbar'
+      other: '{} Makros verfügbar'
+    all: Alle
+    run: '{} ausführen'
+    no_results: Kein Makro passt zur Suche
+    recent: Zuletzt
+    sent: Gesendet
   job_queue_sheet:
     next: Nächster Druckauftrag
     empty: Die Job-Warteschlange ist leer. Über den Dateibrowser können Sie Aufträge hinzufügen.
