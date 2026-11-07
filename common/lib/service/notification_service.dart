@@ -147,11 +147,8 @@ class NotificationService {
   }
 
   void onMachineAdded(Machine machine) {
-    // Channels wont work since the group needs to be created first!
-    // List<NotificationChannel> channelsOfmachines = _channelsForMachine(machine);
-    // for (var channels in channelsOfmachines) {
-    //   _notifyAPI.setChannel(channels);
-    // }
+    // The machine's notification channels are created by _initializeNotifyApi (see _initializeMachineRepoListener),
+    // since a channel needs its group and groups can only be created via initialize.
     _registerLocalMessageHandlingForMachine(machine);
     talker.info('Added stream-listener for ${machine.logName}');
   }
@@ -221,10 +218,17 @@ class NotificationService {
       final prevUuids = prevMachines.map((m) => m.uuid).toSet();
       final nextUuids = nextMachines.map((m) => m.uuid).toSet();
 
-      for (final uuid in nextUuids.difference(prevUuids)) {
+      final added = nextUuids.difference(prevUuids);
+      for (final uuid in added) {
         final machine = nextMachines.firstWhere((m) => m.uuid == uuid);
         talker.info('Machine added: ${machine.logName}');
         onMachineAdded(machine);
+      }
+      if (added.isNotEmpty) {
+        // Without its channels, Android drops the machine's push notifications until the next app start.
+        _initializeNotifyApi(nextMachines).catchError((Object e, StackTrace s) {
+          talker.warning('Could not create the notification channels for new machines', e, s);
+        });
       }
 
       for (final uuid in prevUuids.difference(nextUuids)) {

@@ -80,6 +80,10 @@
 - **Temperature Presets**: Applying a preset on a printer without a heated bed no longer tries to set a bed
   temperature, which Klipper rejected with an error.
 
+- **Notifications of New Printers (Android)**: Notifications of a newly added printer now show up right away.
+  Previously Android dropped them until the app was restarted, as the printer's notification channels were only
+  created on app start.
+
 - **Minor Fixes**: Various smaller fixes to the file details, Spoolman (forms, detail pane, long names), dashboard
   cards on narrow phones, the firmware retraction and fan cards, number and text inputs, the search order in
   selection lists and the formatting of sent G-code commands. The unused "Group Slider Cards" setting was removed.
