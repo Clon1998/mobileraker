@@ -27,6 +27,8 @@ import 'package:test_support/test_support.dart';
 import '../../../../helpers/app_overrides.dart';
 
 void main() {
+  // The status card's state; the app bar subtitle shows the same text
+  final statusCardState = find.byKey(const ValueKey('klippyState'));
   setUpWidgetTests();
 
   late Machine machine;
@@ -87,7 +89,7 @@ void main() {
   }
 
   Future<void> startEditing(WidgetTester tester) async {
-    await tester.longPress(find.text('Standby'));
+    await tester.longPress(statusCardState);
     await tester.pumpAndSettle();
   }
 
@@ -114,13 +116,13 @@ void main() {
   testWidgets('shows the first page of the stored layout, the bottom bar switches pages', (tester) async {
     await pumpPage(tester);
 
-    expect(find.text('Standby'), findsOneWidget);
+    expect(statusCardState, findsOneWidget);
     expect(find.byIcon(Icons.tune), findsOneWidget, reason: 'idle FAB');
 
     await tapPage(tester, 1);
 
     expect(find.text('Limits').hitTestable(), findsOneWidget);
-    expect(find.text('Standby').hitTestable(), findsNothing);
+    expect(statusCardState.hitTestable(), findsNothing);
     await tester.unmountApp();
   });
 
@@ -199,7 +201,7 @@ void main() {
 
     expect(dialogs.confirms.single, 'Discard changes?');
     expect(find.text('Personalize Dashboard'), findsNothing);
-    expect(find.text('Standby'), findsOneWidget, reason: 'the removed card is back');
+    expect(statusCardState, findsOneWidget, reason: 'the removed card is back');
     expect(machines.updated, isEmpty);
     await tester.unmountApp();
   });

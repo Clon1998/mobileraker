@@ -1155,6 +1155,11 @@ pages:
     title: Temperaturverlauf
     chart_y_axis: Temperatur [°C]
 components:
+  machine_status:
+    connection_error: Verbindung fehlgeschlagen
+    klipper_disconnected: Klipper getrennt
+    klipper_error: Klipper-Fehler
+    klipper_shutdown: Klipper heruntergefahren
   app_version_display:
     version: 'Version:'
     installed_version: 'Installierte Version:'

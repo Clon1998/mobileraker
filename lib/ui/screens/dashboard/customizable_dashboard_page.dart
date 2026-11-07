@@ -580,7 +580,8 @@ class _PrinterAppBar extends ConsumerWidget {
       ),
       _ => SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
-        actions: <Widget>[MachineStateIndicator(machine), const EmergencyStopButton()],
+        status: MachineStatusLabel(machine),
+        actions: <Widget>[const EmergencyStopButton()],
       ),
     };
   }

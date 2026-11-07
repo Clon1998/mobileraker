@@ -1267,6 +1267,11 @@ pages:
     title: Temperature Chart
     chart_y_axis: Temperature [°C]
 components:
+  machine_status:
+    connection_error: Connection failed
+    klipper_disconnected: Klipper disconnected
+    klipper_error: Klipper error
+    klipper_shutdown: Klipper shutdown
   app_version_display:
     version: 'Version:'
     installed_version: 'Installed Version:'

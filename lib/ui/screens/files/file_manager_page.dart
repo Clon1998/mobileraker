@@ -59,6 +59,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/file_interaction_service.dart';
+import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/job_queue_fab.dart';
@@ -173,7 +174,12 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         ];
 
         final defaultBar = isRoot
-            ? SwitchPrinterAppBar(key: const Key('file_manager_app_bar'), title: title.capitalize(), actions: actions)
+            ? SwitchPrinterAppBar(
+                key: const Key('file_manager_app_bar'),
+                title: title.capitalize(),
+                status: MachineStatusLabel(selMachine),
+                actions: actions,
+              )
             : AppBar(
                 key: const Key('file_manager_app_bar'),
                 leading: leading,

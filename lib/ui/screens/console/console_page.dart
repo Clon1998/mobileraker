@@ -8,6 +8,7 @@ import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -36,7 +37,8 @@ class ConsolePage extends ConsumerWidget {
     return RailScaffold(
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
-        actions: [MachineStateIndicator(ref.watch(selectedMachineProvider).value), const EmergencyStopButton()],
+        status: ref.watch(selectedMachineProvider).value?.let(MachineStatusLabel.new),
+        actions: [const EmergencyStopButton()],
       ),
       drawer: const NavigationDrawerWidget(),
       body: body,

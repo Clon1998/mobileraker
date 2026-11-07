@@ -74,15 +74,8 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SwitchPrinterAppBar(
       title: 'Spoolman',
-      actions: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: MachineStateIndicator(
-            ref.watch(selectedMachineProvider).valueOrFullNull,
-          ),
-        ),
-        // const FileSortModeSelector(),
-      ],
+      status: ref.watch(selectedMachineProvider).valueOrFullNull?.let(MachineStatusLabel.new),
+      actions: const <Widget>[],
     );
   }
 
