@@ -41,6 +41,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../printers/components/section_header.dart';
+import 'form_number_parser.dart';
 
 part 'spool_form_page.freezed.dart';
 part 'spool_form_page.g.dart';
@@ -113,6 +114,7 @@ class _SpoolFormPage extends HookConsumerWidget {
 
     // This formatter is NOT using decimal (thousands) separator e.g. 1000.00
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
+    final numberParser = FormNumberParser(context.locale.toStringWithSeparator());
 
     final controller = ref.watch(_spoolFormPageControllerProvider(machineUUID).notifier);
     final (sourceSpool, selectedFilament, mode, saving) = ref.watch(_spoolFormPageControllerProvider(machineUUID)
@@ -187,7 +189,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                     FormBuilderTextField(
                       name: _SpoolFormFormComponent.price.name,
                       initialValue: sourceSpool?.price?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: priceFocusNode,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -201,13 +203,12 @@ class _SpoolFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_SpoolFormFormComponent.price.name, priceFocusNode, initialWeightFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
                     FormBuilderTextField(
                       name: _SpoolFormFormComponent.initialWeight.name,
                       initialValue: sourceSpool?.initialWeight?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: initialWeightFocusNode,
                       keyboardType: TextInputType.number,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -221,13 +222,12 @@ class _SpoolFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) => focusNext(
                           _SpoolFormFormComponent.initialWeight.name, initialWeightFocusNode, emptyWeightFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
                     FormBuilderTextField(
                       name: _SpoolFormFormComponent.emptyWeight.name,
                       initialValue: sourceSpool?.spoolWeight?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: emptyWeightFocusNode,
                       keyboardType: TextInputType.number,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -242,13 +242,12 @@ class _SpoolFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_SpoolFormFormComponent.emptyWeight.name, emptyWeightFocusNode, usedFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
                     FormBuilderTextField(
                       name: _SpoolFormFormComponent.used.name,
                       initialValue: sourceSpool?.usedWeight.let(numFormatInputs.format).only(mode == _FormMode.update),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: usedFocusNode,
                       keyboardType: TextInputType.number,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -262,8 +261,7 @@ class _SpoolFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_SpoolFormFormComponent.used.name, usedFocusNode, locationFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
 
                     // Usage Details
@@ -676,6 +674,14 @@ class _SpoolFormPageController extends _$SpoolFormPageController {
       lotNr: source.lotNr == lotNr ? null : lotNr,
       comment: source.comment == comment ? null : comment,
       extra: extraIsSame ? null : extras,
+      // A field emptied in the form is cleared, a null field would be left out and keep its value.
+      cleared: {
+        if (firstUsed == null && source.firstUsed != null) 'first_used',
+        if (lastUsed == null && source.lastUsed != null) 'last_used',
+        if (initialWeight == null && source.initialWeight != null) 'initial_weight',
+        if (spoolWeight == null && source.spoolWeight != null) 'spool_weight',
+        if (price == null && source.price != null) 'price',
+      },
     );
   }
 }

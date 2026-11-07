@@ -174,14 +174,14 @@ class _SpoolDetailPage extends HookConsumerWidget {
               LayoutBuilder(
                 builder: (context, constraints) => constraints.maxWidth <= 600
                     ? Column(children: [sameFilamentSpoolList, sameMaterialSpoolList])
-                    : IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Flexible(child: sameMaterialSpoolList),
-                            Flexible(child: sameFilamentSpoolList),
-                          ],
-                        ),
+                    // Top aligned, not stretched to the same height: IntrinsicHeight measured the spool entries
+                    // shorter than they are and the lists overflowed.
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(child: sameMaterialSpoolList),
+                          Flexible(child: sameFilamentSpoolList),
+                        ],
                       ),
               ),
             ],

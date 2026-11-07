@@ -203,19 +203,18 @@ void main() {
         expect(spoolman.updated, isEmpty);
         expect(popped, hasLength(1), reason: 'the form closes');
       },
-      skip: true, // Finding: numbers are shown with the locale's comma, the validator rejects them; no save.
     );
 
     testWidgets(
       'clearing a number removes it from the spool',
-      skip: true, // Finding: the cleared price is null, which UpdateSpool leaves out (includeIfNull: false); it stays.
       (tester) async {
         await pumpForm(tester, initialSpool: existing);
 
         await tester.enterText(field('Price'), '');
         await save(tester);
 
-        expect(spoolman.updated.single.toJson(), containsPair('price', null));
+        expect(spoolman.updated.single.toPatchJson(), containsPair('price', null));
+        expect(spoolman.updated.single.toPatchJson(), isNot(contains('initial_weight')), reason: 'unchanged');
       },
     );
   });

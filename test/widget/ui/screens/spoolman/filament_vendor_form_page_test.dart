@@ -121,14 +121,25 @@ void main() {
         expect(spoolman.createdFilaments.single.vendor, polymaker);
       });
 
-      testWidgets('asks for a vendor', (tester) async {
+      testWidgets('a vendor is optional, as in Spoolman', (tester) async {
         await pumpForm(tester, filamentForm());
 
         await tester.enterText(field('Density'), '1.24');
         await save(tester);
 
-        expect(find.text('This field cannot be empty.'), findsOneWidget);
-        expect(spoolman.createdFilaments, isEmpty);
+        expect(spoolman.createdFilaments.single.vendor, isNull);
+        expect(spoolman.createdFilaments.single.toJson(), containsPair('vendor_id', null));
+      });
+
+      testWidgets('accepts a decimal comma in German', (tester) async {
+        await pumpForm(tester, filamentForm(vendor: prusa), locale: const Locale('de'));
+
+        await tester.enterText(field('Dichte'), '1,27');
+        await tester.enterText(field('Preis'), '24.5');
+        await save(tester);
+
+        expect(spoolman.createdFilaments.single.density, 1.27);
+        expect(spoolman.createdFilaments.single.price, 24.5, reason: 'the dot is taken too');
       });
 
       testWidgets('a copy creates a new filament with the values of the original', (tester) async {
@@ -168,7 +179,6 @@ void main() {
           expect(snackBars.shown.single.title, 'No changes made!');
           expect(popped, hasLength(1));
         },
-        skip: true, // Finding: the 6-digit color comes back from the color field with alpha (8 digits), a change.
       );
 
       testWidgets('saving without changes makes no update for a color with alpha', (tester) async {
@@ -204,6 +214,26 @@ void main() {
         expect(snackBars.shown.single.title, 'Filament updated!');
       });
 
+      testWidgets('the vendor can be removed', (tester) async {
+        await pumpForm(tester, filamentForm(filament: galaxyBlack));
+
+        await tester.tap(find.byTooltip('Clear'));
+        await tester.pumpAndSettle();
+        expect(find.text('Prusament'), findsNothing);
+        await save(tester);
+
+        expect(spoolman.updatedFilaments.single.toPatchJson(), {'vendor_id': null});
+      });
+
+      testWidgets('clearing a number removes it from the filament', (tester) async {
+        await pumpForm(tester, filamentForm(filament: galaxyBlack));
+
+        await tester.enterText(field('Price'), '');
+        await save(tester);
+
+        expect(spoolman.updatedFilaments.single.toPatchJson(), {'price': null});
+      });
+
       testWidgets('a new vendor is sent', (tester) async {
         await pumpForm(tester, filamentForm(filament: galaxyBlack));
         sheets.result = BottomSheetResult.confirmed(polymaker);
@@ -226,7 +256,6 @@ void main() {
 
           expect(spoolman.updatedFilaments.single.comment, 'No idea who made it');
         },
-        skip: true, // Finding: the form requires a vendor, Spoolman does not; such filaments can not be edited.
       );
 
       testWidgets(
@@ -244,7 +273,6 @@ void main() {
           expect(spoolman.updatedFilaments, isEmpty);
           expect(popped, hasLength(1), reason: 'the form closes');
         },
-        skip: true, // Finding: numbers are shown with the locale's comma, the validator rejects them; no save.
       );
     });
   });
@@ -308,6 +336,15 @@ void main() {
       expect(snackBars.shown.single.title, 'Manufacturer updated!');
     });
 
+    testWidgets('clearing the spool weight removes it from the vendor', (tester) async {
+      await pumpForm(tester, vendorForm(vendor: prusa));
+
+      await tester.enterText(field('Spool Weight'), '');
+      await save(tester);
+
+      expect(spoolman.updatedVendors.single.toPatchJson(), {'empty_spool_weight': null});
+    });
+
     testWidgets('saving without changes makes no update', (tester) async {
       await pumpForm(tester, vendorForm(vendor: prusa));
 
@@ -336,7 +373,6 @@ void main() {
         expect(spoolman.updatedVendors, isEmpty);
         expect(snackBars.shown.single.title, 'No changes made!');
       },
-      skip: true, // Finding: the missing external ID field counts as a change, an empty update is sent.
     );
 
     testWidgets(
@@ -350,7 +386,6 @@ void main() {
         expect(spoolman.updatedVendors, isEmpty);
         expect(popped, hasLength(1), reason: 'the form closes');
       },
-      skip: true, // Finding: numbers are shown with the locale's comma, the validator rejects them; no save.
     );
   });
 }

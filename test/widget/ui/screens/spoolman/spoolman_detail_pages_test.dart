@@ -284,7 +284,6 @@ void main() {
         await tester.pumpAndSettle();
         expect(onSpoolPage, findsOneWidget);
       },
-      skip: true, // Finding: filaments open with goNamed (spools and vendors push), dropping the spool page.
     );
   });
 

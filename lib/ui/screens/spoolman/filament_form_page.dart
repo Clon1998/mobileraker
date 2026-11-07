@@ -36,6 +36,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../components/bottomsheet/selection_bottom_sheet.dart';
 import '../printers/components/section_header.dart';
+import 'form_number_parser.dart';
 
 part 'filament_form_page.freezed.dart';
 part 'filament_form_page.g.dart';
@@ -111,6 +112,7 @@ class _FilamentFormPage extends HookConsumerWidget {
         _filamentFormPageControllerProvider(machineUUID).select((d) => (d.selectedVendor, d.source, d.isSaving)));
 
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
+    final numberParser = FormNumberParser(context.locale.toStringWithSeparator());
 
     useEffect(
       () {
@@ -169,7 +171,17 @@ class _FilamentFormPage extends HookConsumerWidget {
                       focusNode: vendorFocusNode,
                       readOnly: true,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(labelText: 'pages.spoolman.vendor.one'.tr()),
+                      // Spoolman does not require a vendor for filaments.
+                      decoration: InputDecoration(
+                        labelText: 'pages.spoolman.vendor.one'.tr(),
+                        suffixIcon: selectedVendor == null
+                            ? null
+                            : IconButton(
+                                tooltip: tr('general.clear'),
+                                icon: const Icon(Icons.clear),
+                                onPressed: controller.onClearVendor.unless(saving),
+                              ),
+                      ),
                       onSubmitted: (txt) =>
                           focusNext(_FilamentFormFormComponent.vendor.name, vendorFocusNode, materialFocusNode),
                       onTap: controller.onTapVendorSelection,
@@ -209,7 +221,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                     FormBuilderTextField(
                       name: _FilamentFormFormComponent.price.name,
                       initialValue: sourceFilament?.price?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: priceFocusNode,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -222,14 +234,13 @@ class _FilamentFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_FilamentFormFormComponent.price.name, priceFocusNode, diameterFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
                     //Physical Properties
                     SectionHeader(title: tr('pages.spoolman.property_sections.physical')),
                     FormBuilderTextField(
                       name: _FilamentFormFormComponent.diameter.name,
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       initialValue: sourceFilament?.diameter.let(numFormatInputs.format) ?? '1.75',
                       focusNode: diameterFocusNode,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -239,13 +250,12 @@ class _FilamentFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_FilamentFormFormComponent.diameter.name, diameterFocusNode, densityFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator: FormBuilderValidators.compose(
-                          [FormBuilderValidators.required(), FormBuilderValidators.numeric()]),
+                      validator: numberParser.validator(required: true),
                     ),
                     FormBuilderTextField(
                       name: _FilamentFormFormComponent.density.name,
                       initialValue: sourceFilament?.density.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: densityFocusNode,
                       keyboardType: TextInputType.numberWithOptions(decimal: true),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -254,13 +264,12 @@ class _FilamentFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_FilamentFormFormComponent.density.name, densityFocusNode, weightFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator: FormBuilderValidators.compose(
-                          [FormBuilderValidators.required(), FormBuilderValidators.numeric()]),
+                      validator: numberParser.validator(required: true),
                     ),
                     FormBuilderTextField(
                       name: _FilamentFormFormComponent.weight.name,
                       initialValue: sourceFilament?.weight?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: weightFocusNode,
                       keyboardType: TextInputType.number,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -273,13 +282,12 @@ class _FilamentFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) =>
                           focusNext(_FilamentFormFormComponent.weight.name, weightFocusNode, spoolWeightFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
                     FormBuilderTextField(
                       name: _FilamentFormFormComponent.spoolWeight.name,
                       initialValue: sourceFilament?.spoolWeight?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: spoolWeightFocusNode,
                       keyboardType: TextInputType.number,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -292,8 +300,7 @@ class _FilamentFormPage extends HookConsumerWidget {
                       onSubmitted: (txt) => focusNext(
                           _FilamentFormFormComponent.spoolWeight.name, spoolWeightFocusNode, extruderTempFocusNode),
                       textInputAction: TextInputAction.next,
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                     ),
 
                     // Temperature Settings
@@ -387,20 +394,13 @@ class _Fab extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_filamentFormPageControllerProvider(machineUUID).notifier);
 
-    final (isSaving, selectedVendor) = ref.watch(
-        _filamentFormPageControllerProvider(machineUUID).select((model) => (model.isSaving, model.selectedVendor)));
+    final isSaving = ref.watch(_filamentFormPageControllerProvider(machineUUID).select((model) => model.isSaving));
 
     final themeData = Theme.of(context);
 
     return FloatingActionButton(
       onPressed: () {
         var formValid = _formKey.currentState?.saveAndValidate();
-        if (selectedVendor == null) {
-          final fLocale = FormBuilderLocalizations.of(context);
-
-          _formKey.currentState?.fields[_FilamentFormFormComponent.vendor.name]?.invalidate(fLocale.requiredErrorText);
-          return;
-        }
         if (formValid == true) {
           controller.onFormSubmitted(_formKey.currentState?.value);
         }
@@ -457,14 +457,18 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       mode: mode,
       source: source,
       vendors: vendors,
-      selectedVendor: stateOrNull?.selectedVendor ?? source?.vendor ?? initialVendor,
+      // Once built, keep the user's choice; also a cleared vendor, which the reload of the vendors must not undo.
+      selectedVendor: switch (stateOrNull) {
+        final _Model prev => prev.selectedVendor,
+        null => source?.vendor ?? initialVendor,
+      },
     );
   }
 
   Future<void> onFormSubmitted(Map<String, dynamic>? formData) async {
     talker.info('[FilamentFormPageController($machineUUID)] onFormSubmitted');
-    if (formData == null || state.selectedVendor == null) {
-      talker.warning('[FilamentFormPageController($machineUUID)] onFormSubmitted: formData or selectedVendor is null');
+    if (formData == null) {
+      talker.warning('[FilamentFormPageController($machineUUID)] onFormSubmitted: formData is null');
       return;
     }
 
@@ -473,10 +477,10 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     switch (state.mode) {
       case _FormMode.create:
       case _FormMode.copy:
-        _create(formData, state.selectedVendor!);
+        _create(formData, state.selectedVendor);
         break;
       case _FormMode.update:
-        _update(formData, state.selectedVendor!);
+        _update(formData, state.selectedVendor);
         break;
     }
   }
@@ -502,7 +506,11 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     state = state.copyWith(selectedVendor: res.data as GetVendor);
   }
 
-  Future<void> _create(Map<String, dynamic> formData, GetVendor vendor) async {
+  void onClearVendor() {
+    state = state.copyWith(selectedVendor: null);
+  }
+
+  Future<void> _create(Map<String, dynamic> formData, GetVendor? vendor) async {
     final dto = _createDtoFromForm(formData, vendor);
     talker.info('[FilamentFormPageController($machineUUID)] Create DTO: $dto');
     final entityName = tr('pages.spoolman.filament.one');
@@ -526,7 +534,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     }
   }
 
-  Future<void> _update(Map<String, dynamic> formData, GetVendor vendor) async {
+  Future<void> _update(Map<String, dynamic> formData, GetVendor? vendor) async {
     final dto = _updateDtoFromForm(formData, vendor, state.source!);
     talker.info('[FilamentFormPageController($machineUUID)] Update DTO: $dto');
     final entityName = tr('pages.spoolman.filament.one');
@@ -562,7 +570,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     }
   }
 
-  CreateFilament _createDtoFromForm(Map<String, dynamic> formData, GetVendor vendor) {
+  CreateFilament _createDtoFromForm(Map<String, dynamic> formData, GetVendor? vendor) {
     return CreateFilament(
       name: formData[_FilamentFormFormComponent.name.name],
       vendor: vendor,
@@ -571,17 +579,17 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       density: formData[_FilamentFormFormComponent.density.name],
       diameter: formData[_FilamentFormFormComponent.diameter.name],
       weight: formData[_FilamentFormFormComponent.weight.name],
-      spoolWeight: formData[_FilamentFormFormComponent.spoolWeight.name] ?? vendor.spoolWeight,
+      spoolWeight: formData[_FilamentFormFormComponent.spoolWeight.name] ?? vendor?.spoolWeight,
       articleNumber: formData[_FilamentFormFormComponent.articleNumber.name],
       settingsExtruderTemp: formData[_FilamentFormFormComponent.extruderTemp.name],
       settingsBedTemp: formData[_FilamentFormFormComponent.bedTemp.name],
-      colorHex: (formData[_FilamentFormFormComponent.colorHex.name] as Color?)?.hexCode,
+      colorHex: _spoolmanColorHex(formData[_FilamentFormFormComponent.colorHex.name] as Color?),
       comment: formData[_FilamentFormFormComponent.comment.name],
       extra: formData.extractExtraFields(),
     );
   }
 
-  UpdateFilament? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor vendor, GetFilament source) {
+  UpdateFilament? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor? vendor, GetFilament source) {
     final name = formData[_FilamentFormFormComponent.name.name];
     final material = formData[_FilamentFormFormComponent.material.name];
     final price = formData[_FilamentFormFormComponent.price.name];
@@ -593,7 +601,8 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     final comment = formData[_FilamentFormFormComponent.comment.name];
     final extruderTemp = formData[_FilamentFormFormComponent.extruderTemp.name];
     final bedTemp = formData[_FilamentFormFormComponent.bedTemp.name];
-    final colorHex = (formData[_FilamentFormFormComponent.colorHex.name] as Color?)?.hexCode;
+    final colorHex = _spoolmanColorHex(formData[_FilamentFormFormComponent.colorHex.name] as Color?);
+    final colorIsSame = colorHex?.toUpperCase() == _normalizeColorHex(source.colorHex)?.toUpperCase();
 
     // Extra field values:
     final extras = formData.extractExtraFields();
@@ -601,7 +610,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     // If no changes were made, return null
     // Without extra fields Spoolman may send none at all (null), the form then has none either.
     final extraIsSame = DeepCollectionEquality().equals(extras, source.extra ?? const {});
-    if (vendor.id == source.vendor?.id &&
+    if (vendor?.id == source.vendor?.id &&
         name == source.name &&
         material == source.material &&
         price == source.price &&
@@ -613,7 +622,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
         comment == source.comment &&
         extruderTemp == source.settingsExtruderTemp &&
         bedTemp == source.settingsBedTemp &&
-        colorHex == source.colorHex &&
+        colorIsSame &&
         extraIsSame) {
       return null;
     }
@@ -621,7 +630,7 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
     return UpdateFilament(
       id: source.id,
       name: source.name == name ? null : name,
-      vendor: source.vendor?.id == vendor.id ? null : vendor,
+      vendor: source.vendor?.id == vendor?.id ? null : vendor,
       material: source.material == material ? null : material,
       price: source.price == price ? null : price,
       density: source.density == density ? null : density,
@@ -632,9 +641,29 @@ class _FilamentFormPageController extends _$FilamentFormPageController {
       comment: source.comment == comment ? null : comment,
       settingsExtruderTemp: source.settingsExtruderTemp == extruderTemp ? null : extruderTemp,
       settingsBedTemp: source.settingsBedTemp == bedTemp ? null : bedTemp,
-      colorHex: source.colorHex == colorHex ? null : colorHex,
+      colorHex: colorIsSame ? null : colorHex,
       extra: extraIsSame ? null : extras,
+      // A field emptied in the form is cleared, a null field would be left out and keep its value.
+      cleared: {
+        if (vendor == null && source.vendor != null) 'vendor_id',
+        if (price == null && source.price != null) 'price',
+        if (weight == null && source.weight != null) 'weight',
+        if (spoolWeight == null && source.spoolWeight != null) 'spool_weight',
+        if (extruderTemp == null && source.settingsExtruderTemp != null) 'settings_extruder_temp',
+        if (bedTemp == null && source.settingsBedTemp != null) 'settings_bed_temp',
+        if (colorHex == null && source.colorHex != null) 'color_hex',
+      },
     );
+  }
+
+  /// The color as Spoolman stores it: 6 digits for an opaque color, 8 (alpha first here, the DTO moves it to the
+  /// back) only with transparency. The color field always adds the alpha.
+  String? _spoolmanColorHex(Color? color) => _normalizeColorHex(color?.hexCode);
+
+  String? _normalizeColorHex(String? hex) {
+    if (hex == null) return null;
+    if (hex.length == 8 && hex.toUpperCase().startsWith('FF')) return hex.substring(2);
+    return hex;
   }
 }
 

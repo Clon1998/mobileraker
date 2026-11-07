@@ -27,6 +27,7 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_form.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../printers/components/section_header.dart';
+import 'form_number_parser.dart';
 
 part 'vendor_form_page.freezed.dart';
 part 'vendor_form_page.g.dart';
@@ -82,6 +83,7 @@ class _VendorFormPage extends HookConsumerWidget {
         ref.watch(_vendorFormPageControllerProvider(machineUUID).select((model) => (model.source, model.isSaving)));
 
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
+    final numberParser = FormNumberParser(context.locale.toStringWithSeparator());
 
     final nameFocusNode = useFocusNode();
     final spoolWeightFocusNode = useFocusNode();
@@ -119,7 +121,7 @@ class _VendorFormPage extends HookConsumerWidget {
                     FormBuilderTextField(
                       name: _VendorFormFormComponent.spoolWeight.name,
                       initialValue: sourceVendor?.spoolWeight?.let(numFormatInputs.format),
-                      valueTransformer: (text) => text?.let(double.tryParse),
+                      valueTransformer: numberParser.tryParse,
                       focusNode: spoolWeightFocusNode,
                       keyboardType: TextInputType.number,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -129,8 +131,7 @@ class _VendorFormPage extends HookConsumerWidget {
                         helperText: tr('pages.spoolman.vendor_form.helper.empty_weight'),
                         helperMaxLines: 100,
                       ),
-                      validator:
-                          FormBuilderValidators.compose([FormBuilderValidators.numeric(checkNullOrEmpty: false)]),
+                      validator: numberParser.validator(),
                       onSubmitted: (txt) =>
                           focusNext(_VendorFormFormComponent.spoolWeight.name, spoolWeightFocusNode, commentFocusNode),
                       textInputAction: TextInputAction.next,
@@ -325,8 +326,9 @@ class _VendorFormPageController extends _$VendorFormPageController {
   UpdateVendor? _updateDtoFromForm(Map<String, dynamic> formData, GetVendor source) {
     final name = formData[_VendorFormFormComponent.name.name];
     final spoolWeight = formData[_VendorFormFormComponent.spoolWeight.name];
-    final externalId = formData[_VendorFormFormComponent.externalId.name];
     final comment = formData[_VendorFormFormComponent.comment.name];
+
+    // The form has no field for the external ID (set for vendors imported from SpoolmanDB), it stays as it is.
 
     // Extra field values:
     final extras = formData.extractExtraFields();
@@ -336,7 +338,6 @@ class _VendorFormPageController extends _$VendorFormPageController {
     final extraIsSame = DeepCollectionEquality().equals(extras, source.extra ?? const {});
     if (name == source.name &&
         spoolWeight == source.spoolWeight &&
-        externalId == source.externalId &&
         comment == source.comment &&
         extraIsSame) {
       return null;
@@ -347,8 +348,9 @@ class _VendorFormPageController extends _$VendorFormPageController {
       name: source.name == name ? null : name,
       spoolWeight: source.spoolWeight == spoolWeight ? null : spoolWeight,
       comment: source.comment == comment ? null : comment,
-      externalId: source.externalId == externalId ? null : externalId,
       extra: extraIsSame ? null : extras,
+      // An emptied spool weight is cleared, a null field would be left out and keep its value.
+      cleared: {if (spoolWeight == null && source.spoolWeight != null) 'empty_spool_weight'},
     );
   }
 }

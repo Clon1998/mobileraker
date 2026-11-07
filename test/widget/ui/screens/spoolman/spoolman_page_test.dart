@@ -171,7 +171,6 @@ void main() {
 
         expect(spoolInfoId(100), findsOneWidget);
       },
-      skip: true, // Finding: the side-by-side related-spool cards overflow by 12 px (docs/testing_plan.md, Findings).
     );
   });
 }

@@ -116,7 +116,7 @@ mixin CommonSpoolmanDetailPagesController<State> {
         goRouterRef.pushNamed(ProRoutes.spoolman_details_spool.name, extra: [machineUUID, spool]);
         break;
       case GetFilament filament:
-        goRouterRef.goNamed(ProRoutes.spoolman_details_filament.name, extra: [machineUUID, filament]);
+        goRouterRef.pushNamed(ProRoutes.spoolman_details_filament.name, extra: [machineUUID, filament]);
         break;
       case GetVendor vendor:
         goRouterRef.pushNamed(ProRoutes.spoolman_details_vendor.name, extra: [machineUUID, vendor]);
