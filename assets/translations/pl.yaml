@@ -979,9 +979,6 @@ dialogs:
     subtitle: Tutaj możesz bezpośrednio dodać lub usunąć filament ze szpuli. Dodatnia wartość spowoduje odjęcie filamentu, ujemna wartość spowoduje jego dodanie.
     input_label: Wpisz ilość
     submit_label: Dostosuj
-    tooltip:
-      weight: Przełącz na tryb wagi
-      length: Przełącz na tryb długości
 bottom_sheets:
   job_queue_sheet:
     start_queue: Uruchom kolejkę
