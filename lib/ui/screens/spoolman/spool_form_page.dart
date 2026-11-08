@@ -7,6 +7,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/date_format_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -115,6 +116,10 @@ class _SpoolFormPage extends HookConsumerWidget {
     // This formatter is NOT using decimal (thousands) separator e.g. 1000.00
     final numFormatInputs = NumberFormat('0.##', context.locale.toStringWithSeparator());
     final numberParser = FormNumberParser(context.locale.toStringWithSeparator());
+    // Without the locale DateFormat (and the picker) use Intl's default locale, which is en_US
+    final dateFormat = ref
+        .watch(dateFormatServiceProvider)
+        .add_Hm(DateFormat.yMMMd(context.locale.toStringWithSeparator()));
 
     final controller = ref.watch(_spoolFormPageControllerProvider(machineUUID).notifier);
     final (sourceSpool, selectedFilament, mode, saving) = ref.watch(_spoolFormPageControllerProvider(machineUUID)
@@ -269,6 +274,8 @@ class _SpoolFormPage extends HookConsumerWidget {
                     FormBuilderDateTimePicker(
                       name: _SpoolFormFormComponent.firstUsed.name,
                       initialValue: sourceSpool?.firstUsed,
+                      format: dateFormat,
+                      locale: context.locale,
                       focusNode: firstUsedFocusNode,
                       keyboardType: TextInputType.datetime,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -282,6 +289,8 @@ class _SpoolFormPage extends HookConsumerWidget {
                     FormBuilderDateTimePicker(
                       name: _SpoolFormFormComponent.lastUsed.name,
                       initialValue: sourceSpool?.lastUsed,
+                      format: dateFormat,
+                      locale: context.locale,
                       focusNode: lastUsedFocusNode,
                       keyboardType: TextInputType.datetime,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
