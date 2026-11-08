@@ -51,6 +51,9 @@ class _ProviderError extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     talker.warning('Showing PrinterProviderGuard.error for $machineUUID: $error');
+    // While a retry runs, Riverpod keeps the previous error on the provider (AsyncError with isLoading), so without
+    // this the screen would not change at all until the retry fails/succeeds.
+    final retrying = ref.watch(printerProvider(machineUUID).select((it) => it.isLoading));
 
     String title = 'Error while fetching Printer Data';
     String message = error.toString();
@@ -69,11 +72,22 @@ class _ProviderError extends ConsumerWidget {
           title: Text(title),
           body: Text(message),
           action: TextButton.icon(
-            onPressed: () {
-              talker.info('Invalidating printer provider, to retry printer fetching');
-              ref.invalidate(printerProvider(machineUUID));
-            },
-            icon: const Icon(Icons.restart_alt_outlined),
+            onPressed: retrying
+                ? null
+                : () {
+                    talker.info('Invalidating printer provider, to retry printer fetching');
+                    ref.invalidate(printerProvider(machineUUID));
+                  },
+            icon: AnimatedSwitcher(
+              duration: kThemeAnimationDuration,
+              child: retrying
+                  ? const SizedBox.square(
+                      key: Key('ppErrRetrying'),
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.restart_alt_outlined),
+            ),
             label: const Text('general.retry').tr(),
           ),
         ),

@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -61,6 +63,26 @@ void main() {
     expect(printer!.builds, 2);
   });
 
+  testWidgets('shows that a retry is running and blocks a second tap', (tester) async {
+    final printer = await pumpGuard(tester, error: StateError('boom'));
+    final pending = Completer<Printer>();
+    printer!.next = pending.future;
+
+    await tester.tap(find.text('Retry'));
+    await tester.pump();
+
+    expect(find.byKey(const Key('ppErrRetrying')), findsOneWidget);
+    await tester.tap(find.text('Retry'));
+    await tester.pump();
+    expect(printer.builds, 2);
+
+    pending.completeError(StateError('still down'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('ppErrRetrying')), findsNothing);
+    expect(find.textContaining('still down'), findsOneWidget);
+  });
+
   testWidgets('starts the temperature history for the machine', (tester) async {
     await pumpGuard(tester);
 
@@ -74,10 +96,12 @@ class _FailingPrinter extends PrinterNotifier {
 
   final Object error;
   int builds = 0;
+  Future<Printer>? next;
 
   @override
   Future<Printer> build(String machineUUID) async {
     builds++;
+    if (next case final pending?) return pending;
     throw error;
   }
 }
