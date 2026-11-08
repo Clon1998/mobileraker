@@ -258,7 +258,12 @@ class _Entry<T> extends HookWidget {
     return Material(
       color: Colors.transparent,
       child: Padding(
-        padding: themeData.useMaterial3 ? const EdgeInsets.only(left: 12.0) : EdgeInsets.zero,
+        // In multi-select, adjacent selected M3 pills would merge into one block, so space them out vertically.
+        padding: switch ((themeData.useMaterial3, selectedNotifier != null)) {
+          (true, true) => const EdgeInsets.only(left: 12.0, top: 2, bottom: 2),
+          (true, false) => const EdgeInsets.only(left: 12.0),
+          _ => EdgeInsets.zero,
+        },
         child: ListTile(
           enabled: option.enabled,
           selected: isSelected,
