@@ -14,7 +14,6 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/components/warning_card.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -300,6 +299,8 @@ class _SpoolInfo extends ConsumerWidget {
           ),
         ),
       ),
+      PropertyWithTitle.text(title: tr('pages.spoolman.properties.location'), property: spool.location ?? '–'),
+      PropertyWithTitle.text(title: tr('pages.spoolman.properties.lot_number'), property: spool.lotNr ?? '–'),
       PropertyWithTitle.text(
         title: tr('pages.spoolman.properties.diameter'),
         property: spool.filament.diameter.let(numberFormatDouble.formatMillimeters),
@@ -344,8 +345,6 @@ class _SpoolInfo extends ConsumerWidget {
         title: tr('pages.spoolman.properties.used_length'),
         property: spool.usedLength.let(numberFormatDouble.formatMillimeters),
       ),
-      PropertyWithTitle.text(title: tr('pages.spoolman.properties.location'), property: spool.location ?? '–'),
-      PropertyWithTitle.text(title: tr('pages.spoolman.properties.lot_number'), property: spool.lotNr ?? '–'),
     ];
 
     return Card(
