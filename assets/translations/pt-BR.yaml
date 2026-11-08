@@ -1277,9 +1277,6 @@ dialogs:
     subtitle: Adicione ou subtraia filamento do carretel. Um valor positivo consumirá filamento, um valor negativo adicionará.
     input_label: Quantidade de Ajuste
     submit_label: Ajustar
-    tooltip:
-      weight: Mudar para modo de peso
-      length: Mudar para modo de comprimento
   num_range_dialog:
     helper:
       min: Insira um valor de pelo menos {}
