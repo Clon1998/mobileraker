@@ -1621,9 +1621,22 @@ dialogs:
     subtitle: Add or subtract filament from the spool. A positive value will consume filament, a negative value will add it.
     input_label: Adjust Amount
     submit_label: Adjust
-    tooltip:
-      weight: Switch to weight mode
-      length: Switch to length mode
+    mode:
+      weight: Weight
+      length: Length
+      measured: Measured
+    measured:
+      subtitle: Put the spool with its filament on a scale and enter the weight shown. Spoolman subtracts the empty spool weight and books the difference as used filament.
+      input_label: Gross weight
+      positive: Enter a weight greater than 0
+      tare: 'Empty spool: {} g ({})'
+      remaining: '≈ {} g filament left'
+      tare_source:
+        spool: from the spool
+        filament: from the filament
+        vendor: from the manufacturer
+      no_tare: No empty spool weight is set for this spool or its filament, so Spoolman can't compute the remaining filament. Add one to the spool or filament first.
+      no_initial_weight: Neither the spool nor its filament has a filament weight, so Spoolman can't compute the remaining filament. Add one to the spool or filament first.
   num_range_dialog:
     helper:
       min: Enter a value of at least {}

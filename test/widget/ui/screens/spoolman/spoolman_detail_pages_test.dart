@@ -20,6 +20,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
+import 'package:mobileraker_pro/spoolman/ui/adjust_spool_filament_dialog.dart';
 import 'package:test_support/test_support.dart';
 
 import '../../../../helpers/fake_spoolman.dart';
@@ -221,6 +222,19 @@ void main() {
       await runAction(tester, SpoolSpoolmanSheetAction.adjustFilament);
 
       expect(spoolman.actions, ['adjust 7 length 250.0']);
+    });
+
+    testWidgets('a measured gross weight weighs the spool', (tester) async {
+      dialogs.response = DialogResponse.confirmed((1234.5, 'measured'));
+      await pumpDetails(tester, spool);
+
+      await runAction(tester, SpoolSpoolmanSheetAction.adjustFilament);
+
+      final args = dialogs.requests.single.data as AdjustSpoolFilamentArgs;
+      expect(args.machineUUID, machine.uuid);
+      expect(args.spool.id, 7);
+      expect(spoolman.actions, ['measure 7 1234.5']);
+      expect(snackBars.shown.single.title, 'Spool updated!');
     });
 
     testWidgets('edit opens the form with the spool', (tester) async {

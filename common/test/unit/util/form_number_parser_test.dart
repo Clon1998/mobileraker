@@ -4,7 +4,7 @@
  */
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobileraker/ui/screens/spoolman/form_number_parser.dart';
+import 'package:common/util/form_number_parser.dart';
 
 void main() {
   group('English', () {

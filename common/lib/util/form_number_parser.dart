@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:easy_localization/easy_localization.dart' show NumberFormat;
 import 'package:flutter/widgets.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:intl/intl.dart';
 
 /// Reads the numbers typed into the Spoolman forms.
 ///

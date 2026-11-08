@@ -13,6 +13,7 @@ import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/form_number_parser.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -36,7 +37,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 import '../../components/bottomsheet/selection_bottom_sheet.dart';
 import '../printers/components/section_header.dart';
-import 'form_number_parser.dart';
 
 part 'filament_form_page.freezed.dart';
 part 'filament_form_page.g.dart';

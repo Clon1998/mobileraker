@@ -74,6 +74,12 @@
   scanner moved from its own tab to a button in the search field. If the spool can not be set active, an error is
   shown instead of the sheet loading forever. The Spoolman card shows the same remaining bar.
 
+- **Weigh a Spool**: The "Adjust Spool Filament" dialog has a new "Measured" mode next to weight and length. Put the
+  spool on a scale and enter its gross weight; Spoolman subtracts the empty spool weight and books the difference as
+  used filament. The dialog shows which empty spool weight is used (spool, filament or, from Spoolman v0.27.1, the
+  manufacturer) and the filament left. If no empty spool weight is set, it explains why instead of sending a wrong
+  value. Decimal commas are accepted.
+
 - **Printer Actions, Services, Job Queue and Confirmation Sheets**: These sheets got the same look as the macro sheet.
   The printer actions (opened from the dashboard while not printing) are now a list with a short description for each
   action, and note that a long press skips the confirmation. Manage Services shows the state of each service (e.g.

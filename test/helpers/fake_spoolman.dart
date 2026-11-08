@@ -239,6 +239,12 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
     actions.add('adjust ${spool.id} ${length != null ? 'length $length' : 'weight $weight'}');
     return spool;
   }
+
+  @override
+  Future<GetSpool> measureSpool({required GetSpool spool, required double grossWeight}) async {
+    actions.add('measure ${spool.id} $grossWeight');
+    return spool;
+  }
 }
 
 /// A fixed active spool (none by default), without the provider's 30 s refresh timer.

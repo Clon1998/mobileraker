@@ -33,6 +33,7 @@ import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/ui/adjust_spool_filament_dialog.dart';
 import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
@@ -600,7 +601,12 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
     final spool = state.spool;
 
     // Open dialog to select the amount to consume
-    final res = await dialogServiceRef.show(DialogRequest(type: ProDialogType.consumeSpool));
+    final res = await dialogServiceRef.show(
+      DialogRequest(
+        type: ProDialogType.consumeSpool,
+        data: AdjustSpoolFilamentArgs(machineUUID: machineUUID, spool: spool),
+      ),
+    );
 
     if (res?.confirmed != true) return;
     try {
@@ -612,6 +618,10 @@ class _SpoolDetailPageController extends _$SpoolDetailPageController with Common
         case (num() && final amount, 'g'):
           talker.info('Consuming $amount g of filament');
           await spoolmanServiceRef.adjustFilamentOnSpool(spool: spool, weight: amount.toDouble());
+          break;
+        case (num() && final grossWeight, AdjustSpoolFilamentDialog.measuredUnit):
+          talker.info('Measured the spool at a gross weight of $grossWeight g');
+          await spoolmanServiceRef.measureSpool(spool: spool, grossWeight: grossWeight.toDouble());
           break;
       }
       // required to wait for rebuild of provider...
