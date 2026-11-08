@@ -258,7 +258,7 @@ void main() {
     verify(rpc.sendJRpcMethod('printer.objects.list')).called(1);
   });
 
-  test('JRPC timeout during build puts provider in error state and shows snackbar', () async {
+  test('JRPC timeout during build puts provider in error state without a snackbar', () async {
     final rpc = makeRpc();
     when(rpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
       (_) async => throw JRpcTimeoutError('printer.objects.list timed out'),
@@ -279,7 +279,8 @@ void main() {
 
     expect(result.hasError, isTrue);
     expect(result.error, isA<MobilerakerException>());
-    verify(snackBar.showForMachine(uuid, any)).called(greaterThanOrEqualTo(1));
+    // The PrinterProviderGuard shows the timeout with a retry button, a snackbar would only duplicate it.
+    verifyNever(snackBar.showForMachine(uuid, any));
   }, timeout: const Timeout(Duration(seconds: 10)));
 
   test('returns to loading when klippy disconnects after printer is loaded', () async {

@@ -94,12 +94,8 @@ class PrinterNotifier extends _$PrinterNotifier {
       return builder.build();
     } on JRpcTimeoutError catch (e, s) {
       talker.error('$_logTag Timeout while refreshing printer $machineUUID...', e);
-      _showExceptionSnackbar(
-        e,
-        s,
-        title: 'Refresh Printer Error',
-        message: 'Timeout while trying to refresh printer',
-      );
+      // No snackbar: a timeout is an expected outcome on slow connections and the PrinterProviderGuard already shows
+      // it together with a retry button.
       throw MobilerakerException('Timeout while trying to refresh printer', parentException: e, parentStack: s);
     } on JRpcError catch (e, s) {
       talker.error('$_logTag Unable to refresh Printer $machineUUID...', e, s);
