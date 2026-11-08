@@ -1493,9 +1493,6 @@ dialogs:
     subtitle: Filament von der Spule hinzufügen oder entfernen. Ein positiver Wert verbraucht Filament, ein negativer Wert fügt es hinzu.
     input_label: Anpassung
     submit_label: Anpassen
-    tooltip:
-      weight: Wechseln Sie zum Gewichtsmodus
-      length: Wechseln Sie zum Längenmodus
   num_range_dialog:
     helper:
       min: Gib einen Wert größer als {} ein
