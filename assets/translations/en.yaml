@@ -1223,6 +1223,29 @@ pages:
       info_card: Manufacturer Info
     filament_details:
       info_card: Filament Info
+    tags:
+      title: NFC Tags
+      link: Link Tag
+      unlink: Unlink
+      empty: No tag linked yet. Link a sticker or the spool's own tag to find it by tapping your phone to it.
+      added: Linked {}
+      scan:
+        title: Scan a Tag
+        hint: Hold the tag to the back of your phone.
+        ios_hint: Hold your iPhone near the tag.
+        disabled: NFC is turned off. Turn it on in the system settings to scan tags.
+      linked: Tag linked
+      unlinked: Tag unlinked
+      error: 'Could not update the tag: {}'
+      move:
+        title: Tag already in use
+        spool: 'This tag is linked to spool #{} ({}). Move it here?'
+        filament: 'This tag is linked to the filament {}. Move it here?'
+        unknown: This tag is linked to another spool or filament. Move it here?
+        action: Move
+      unlink_confirm:
+        title: Unlink tag?
+        body: Scanning {} will no longer find this {}.
     spool_details:
       page_title: Spool {}
       info_card: Spool Info
@@ -1771,6 +1794,7 @@ bottom_sheets:
     header:
       spools: Spools
       qr: QR-Code
+      nfc: NFC Tag
     no_spools: No spools found. Please add a spools to Spoolman
     error: 'An error occured while trying to load spools: {}'
     qr_loading: Loading QR Scanner…
@@ -1778,6 +1802,10 @@ bottom_sheets:
     scan_again: Scan Again
     set_active: Set Active
     spool_id_not_found: 'Sorry, no spool was found with the specified ID #{}.'
+    nfc:
+      no_match: 'No spool or filament is linked to the tag {}.'
+      filament_spools: 'The tag belongs to the filament {}. Pick one of its spools:'
+      filament_no_spools: 'The tag belongs to the filament {}, which has no spools.'
   non_printing:
     title: Printer Actions
     long_press_hint: Long press an action to skip its confirmation.

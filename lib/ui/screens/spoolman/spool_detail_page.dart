@@ -38,6 +38,7 @@ import 'package:mobileraker_pro/spoolman/ui/extra_fields_view.dart';
 import 'package:mobileraker_pro/spoolman/ui/property_with_title.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_static_pagination.dart';
+import 'package:mobileraker_pro/spoolman/ui/spoolman_tags_card.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -170,6 +171,7 @@ class _SpoolDetailPage extends HookConsumerWidget {
                 subtitle: const Text('pages.spoolman.spool_details.archived_warning.body').tr(),
               ),
               _SpoolInfo(machineUUID: machineUUID),
+              SpoolmanTagsCard(machineUUID: machineUUID, entity: spool),
               // Side by side only with enough room, by the available width (the details may be shown in the detail
               // pane of the Spoolman page).
               LayoutBuilder(

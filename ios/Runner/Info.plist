@@ -56,6 +56,8 @@
 	<string>12.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NFCReaderUsageDescription</key>
+	<string>Mobileraker reads the ID of an NFC tag on a filament spool to find the spool in Spoolman, or to link the tag to a spool.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Mobileraker uses your camera to scan the setup QR code shown on your printer's screen or web interface, so it can read the printer's address and API key and add it to the app without you typing them in manually.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -182,6 +184,10 @@
 				</array>
 			</dict>
 		</dict>
+	</array>
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array>
+		<string>D2760000850101</string>
 	</array>
 </dict>
 </plist>

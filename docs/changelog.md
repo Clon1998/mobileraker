@@ -80,6 +80,12 @@
   manufacturer) and the filament left. If no empty spool weight is set, it explains why instead of sending a wrong
   value. Decimal commas are accepted.
 
+- **Spoolman NFC Tags**: With Spoolman v0.27.0 or newer, spools and filaments can be linked to NFC tags, e.g. an NTAG
+  sticker or the tag a spool comes with. The spool and filament details list the linked tags, link a new one by
+  holding it to the phone and unlink them. A tag already linked elsewhere can be moved. The spool selection has an NFC
+  button next to the QR scanner: a spool's tag shows that spool to set active, a filament's tag lists its spools. Only
+  shown on phones with NFC.
+
 - **Printer Actions, Services, Job Queue and Confirmation Sheets**: These sheets got the same look as the macro sheet.
   The printer actions (opened from the dashboard while not printing) are now a list with a short description for each
   action, and note that a long press skips the confirmation. Manage Services shows the state of each service (e.g.
@@ -87,6 +93,9 @@
   clear next to it, and longer file names. Confirmations show cancel and confirm side by side.
 
 ### Bug Fixes
+
+- **Spoolman Date Fields**: The first/last used fields of the spool form and date extra fields used the US date format
+  instead of the app's language and ignored the 12/24 h setting.
 
 - **API Key Prompt**: The "Printer Settings" button on the screen asking for a Moonraker API key now opens the
   printer's settings instead of doing nothing.
