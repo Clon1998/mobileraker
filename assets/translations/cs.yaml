@@ -1305,9 +1305,6 @@ dialogs:
     subtitle: Přidat nebo odečíst vlákno od cívky. Pozitivní hodnota bude spotřebovávat vlákno, přidá ho záporná hodnota.
     input_label: Upravit množství
     submit_label: Seřídit
-    tooltip:
-      weight: Přepnout do režimu hmotnosti
-      length: Přepnout do režimu délky
   num_range_dialog:
     helper:
       min: Zadejte hodnotu alespoň {}
