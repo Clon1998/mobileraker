@@ -1370,9 +1370,6 @@ dialogs:
     subtitle: 增加或減少料盤上的耗材數值。正值代表消耗耗材，負值代表增加耗材。
     input_label: 調整數量
     submit_label: 調整
-    tooltip:
-      weight: 切換至重量模式
-      length: 切換至長度模式
   num_range_dialog:
     helper:
       min: 輸入至少 {} 的數值
