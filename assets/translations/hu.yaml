@@ -1299,9 +1299,6 @@ dialogs:
     subtitle: Szál hozzáadása vagy kivonása az orsóról. A pozitív érték a szál fogyasztását, a negatív érték a hozzáadását eredményezi.
     input_label: Összeg megadása
     submit_label: Beállítás
-    tooltip:
-      weight: Súly módra váltás
-      length: Hosszúság módra váltás
   num_range_dialog:
     helper:
       min: Adj meg legalább egy értéket {}
