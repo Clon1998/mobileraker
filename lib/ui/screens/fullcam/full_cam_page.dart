@@ -27,6 +27,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/selection_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
+import 'package:mobileraker/ui/components/double_tap_zoom_viewer.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 import 'package:mobileraker/util/extensions/temperature_sensor_extension.dart';
@@ -63,9 +64,7 @@ class _FullCamView extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            InteractiveViewer(
-              constrained: true,
-              maxScale: 10,
+            DoubleTapZoomViewer(
               child: SizedBox.expand(
                 child: Center(
                   child: Webcam(

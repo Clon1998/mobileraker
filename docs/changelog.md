@@ -23,6 +23,9 @@
   reading (and target, if it has one) in the selection. By default the tools, the bed and a sensor named "chamber"
   are shown. The selection is saved per printer. [#398](https://github.com/Clon1998/mobileraker/issues/398)
 
+- **Double Tap to Zoom**: Double tap the fullscreen webcam to smoothly zoom in on the tapped spot, double tap again to
+  zoom back out. Pinch to zoom still works as before.
+
 - **Webcam Unavailable State**: An unreachable webcam now shows a clear "Webcam unavailable" message with the likely
   reason (HTTP error, timeout, unreachable) and a retry button, instead of raw error details.
   [#424](https://github.com/Clon1998/mobileraker/issues/424)
