@@ -368,13 +368,7 @@ pages:
           other: Pliki zostały pomyślnie dodane do kolejki wydruku.
       spoolman_warnings:
         insufficient_filament_title: Niewystarczająca ilość filamentu
-        insufficient_filament_body: |-
-          Aktywna szpula ma tylko {} pozostałego filamentu, co nie wystarcza do tego pliku.
-          Dotknij, aby zmienić aktywną szpulę.
         material_mismatch_title: Niedopasowanie materiałów
-        material_mismatch_body: |-
-          Materiał pliku {} nie pasuje do materiału aktywnej szpuli {}.
-          Dotknij, aby zmienić aktywną szpulę.
   setting:
     title: Ustawienia aplikacji
     general:
@@ -531,10 +525,6 @@ pages:
         other: Dodano połączenie zdalne.
     wifi_access_warning:
       title: Informacje Wi-Fi niedostępne
-      subtitle: |-
-        Aby określić, czy Mobileraker powinien używać zdalnego połączenia, przyznaj dostęp do lokalizacji. Umożliwi to aplikacji pobranie nazwy bieżącej sieci Wi-Fi.
-
-        Dotknij, aby przyznać uprawnienia.
     local_ssid:
       section_header: Inteligentne przełączanie
       no_ssids: Nie dodano nazwy sieci WiFi!
@@ -720,10 +710,6 @@ pages:
     target: 'Cel: {} Hz na odcinku {} mm'
     permissionWarning:
       title: Wymagane uprawnienia dostępu do mikrofonu
-      subtitle: |-
-        Stroik pasków używa mikrofonu telefonu do analizy częstotliwości pasków.
-
-        Dotknij, aby udzielić uprawnienia.
   spoolman:
     title: Spoolman
     not_available: "Spoolman nie jest dostępny dla tej drukarki. \nUpewnij się, że Spoolman jest zainstalowany i włączony na Twojej drukarce."
