@@ -64,6 +64,7 @@ void main() {
     List<String> components = const [],
     ActiveSpool Function()? activeSpool,
     GCodeFile? file,
+    bool fromList = false,
     bool supporter = true,
     PrinterNotifier Function()? printerNotifier,
   }) async {
@@ -77,8 +78,23 @@ void main() {
     dialogs = FakeDialogService();
     snackBars = FakeSnackBarService();
     final router = GoRouter(
-      initialLocation: '/details',
+      initialLocation: fromList ? '/list' : '/details',
       routes: [
+        // Like the file list: the thumbnail of the file is a Hero that flies into the details.
+        GoRoute(
+          path: '/list',
+          builder: (context, _) => Scaffold(
+            body: Center(
+              child: GestureDetector(
+                onTap: () => context.pushNamed(AppRoute.fileManager_exlorer_gcodeDetail.name),
+                child: Hero(
+                  tag: 'gCodeImage-${(file ?? benchy).hashCode}',
+                  child: const SizedBox.square(dimension: 40, child: Text('thumb')),
+                ),
+              ),
+            ),
+          ),
+        ),
         GoRoute(path: '/dashboard', name: AppRoute.dashBoard.name, builder: (_, _) => const Text('dashboard')),
         GoRoute(
           path: '/details',
@@ -109,24 +125,86 @@ void main() {
   }
 
   FloatingActionButton printButton(WidgetTester tester) =>
-      tester.widget<FloatingActionButton>(find.byType(FloatingActionButton));
+      tester.widget<FloatingActionButton>(find.byKey(const Key('printFab')));
+
+  FloatingActionButton preheatButton(WidgetTester tester) =>
+      tester.widget<FloatingActionButton>(find.byKey(const Key('preheatFab')));
 
   testWidgets('shows the file details and its slicer meta data', (tester) async {
     await pumpPage(tester);
 
-    expect(find.text('benchy.gcode'), findsWidgets);
-    expect(find.text('gcodes/boats/benchy.gcode'), findsOneWidget);
-    expect(find.text('OrcaSlicer (v2.1)'), findsOneWidget);
-    expect(find.textContaining('Type: PETG'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Layer Height'), 200, scrollable: find.byType(Scrollable).first);
-    expect(find.text('OrcaSlicer (v2.1)'), findsOneWidget);
-    expect(find.textContaining(RegExp(r'Others: 0[.,]2')), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.textContaining('Temperatures'),
-      200,
-      scrollable: find.byType(Scrollable).first,
+    final scrollable = find.byType(Scrollable).first;
+    expect(find.text('benchy'), findsWidgets, reason: 'name without the extension as the headline');
+    expect(find.text('benchy.gcode'), findsOneWidget);
+    expect(find.text('1h 30m'), findsOneWidget, reason: 'estimated time tile');
+    expect(find.text('OrcaSlicer 2.1'), findsOneWidget, reason: 'slicer chip');
+    expect(find.text('Not printed yet'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('OrcaSlicer (v2.1)'), 200, scrollable: scrollable);
+    expect(find.text('PETG'), findsWidgets);
+    await tester.scrollUntilVisible(find.text('Layer Height'), 200, scrollable: scrollable);
+    expect(find.textContaining(RegExp(r'^0[.,]20 mm$')), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('215 °C'), 200, scrollable: scrollable);
+    expect(find.text('60 °C'), findsOneWidget, reason: 'first layer temperatures');
+    await tester.scrollUntilVisible(find.text('gcodes/boats/benchy.gcode'), 200, scrollable: scrollable);
+    expect(find.text('7 fields'), findsNothing, reason: 'scrolled away');
+    await tester.unmountApp();
+  });
+
+  testWidgets('opens from a list with the thumbnail flying into the preview', (tester) async {
+    await pumpPage(tester, fromList: true);
+
+    await tester.tap(find.text('thumb'));
+    await tester.pump();
+    // Mid flight the preview is built in the overlay, outside of the page's ProviderScope.
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(tester.takeException(), isNull);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('benchy.gcode'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('details leave out what the file does not know', (tester) async {
+    await pumpPage(
+      tester,
+      file: const GCodeFile(name: 'bare.gcode', parentPath: 'gcodes', modified: 1700000000, size: 1024),
     );
-    expect(find.textContaining('215'), findsWidgets, reason: 'first layer temperatures');
+
+    expect(find.text('3 fields'), findsOneWidget, reason: 'path, size and modified');
+    expect(find.text('Layer Height'), findsNothing);
+    expect(find.text('Unknown'), findsNWidgets(2), reason: 'both summary tiles');
+    await tester.unmountApp();
+  });
+
+  testWidgets('a printed file shows when it was printed last and offers to print again', (tester) async {
+    await pumpPage(tester, file: benchy.copyWith(printStartTime: 1700000500));
+
+    expect(find.text('Last Printed'), findsOneWidget);
+    expect(find.text('Not printed yet'), findsNothing);
+    expect(find.text('Print again'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('the preheat button asks first, then starts preheating', (tester) async {
+    await pumpPage(tester);
+    dialogs.response = DialogResponse.confirmed();
+
+    await tester.tap(find.byKey(const Key('preheatFab')));
+    await tester.pumpAndSettle();
+
+    expect(dialogs.confirms.single, 'Preheat ?');
+    expect(snackBars.shown.single.title, 'Started Preheating');
+    await tester.unmountApp();
+  });
+
+  testWidgets('the preheat button is disabled without a bed temperature or while printing', (tester) async {
+    await pumpPage(tester, file: benchy.copyWith(firstLayerTempBed: null));
+    expect(preheatButton(tester).onPressed, isNull);
+    await tester.unmountApp();
+
+    await pumpPage(tester, state: PrintState.printing);
+    expect(preheatButton(tester).onPressed, isNull);
     await tester.unmountApp();
   });
 
@@ -301,6 +379,7 @@ void main() {
 
       expect(find.text('Material Mismatch'), findsOneWidget);
       expect(find.text('Insufficient filament'), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, 'Change spool'), findsNWidgets(2));
       expect(find.textContaining('200'), findsWidgets, reason: '200 g left on the spool');
       await tester.unmountApp();
     });

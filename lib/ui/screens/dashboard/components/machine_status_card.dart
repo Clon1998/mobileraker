@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:common/data/dto/history/historical_print_job.dart';
@@ -577,14 +578,49 @@ class _PrintAgain extends ConsumerWidget {
   }
 }
 
-class _RecentFile extends StatelessWidget {
+class _RecentFile extends StatefulWidget {
   const _RecentFile({super.key, required this.machineUUID, required this.job});
 
   final String machineUUID;
   final HistoricalPrintJob job;
 
   @override
+  State<_RecentFile> createState() => _RecentFileState();
+}
+
+class _RecentFileState extends State<_RecentFile> {
+  /// Whether the thumbnail is the hero that flies into the file's details. Only while they are opened from this tile:
+  /// The same file might also be shown by another card or tab, and a route must not have two heroes with the same tag.
+  bool _hero = false;
+
+  Timer? _heroReset;
+
+  @override
+  void dispose() {
+    _heroReset?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _openDetails() async {
+    final job = widget.job;
+    _heroReset?.cancel();
+    setState(() => _hero = true);
+    // The details show the file's settings, spool warnings and the button to start the print.
+    await context.pushNamed(
+      AppRoute.fileManager_exlorer_gcodeDetail.name,
+      pathParameters: {'path': job.metadata.parentPath},
+      extra: job.metadata,
+    );
+    // Stays the hero until the thumbnail flew back.
+    _heroReset = Timer(const Duration(seconds: 1), () {
+      if (mounted) setState(() => _hero = false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final machineUUID = widget.machineUUID;
+    final job = widget.job;
     final themeData = Theme.of(context);
     // The time the slicer estimated tells more about a file than how long its last (maybe cancelled) job took.
     final duration = job.metadata.estimatedTime ?? job.printDuration;
@@ -599,12 +635,7 @@ class _RecentFile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          // The details show the file's settings, spool warnings and the button to start the print.
-          onTap: () => context.pushNamed(
-            AppRoute.fileManager_exlorer_gcodeDetail.name,
-            pathParameters: {'path': job.metadata.parentPath},
-            extra: job.metadata,
-          ),
+          onTap: _openDetails,
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -612,8 +643,10 @@ class _RecentFile extends StatelessWidget {
                 Expanded(
                   child: AspectRatio(
                     aspectRatio: 1,
-                    // No hero: The same file might also be shown by another card or tab.
-                    child: RemoteFileIcon(machineUUID: machineUUID, file: job.metadata, useHero: false),
+                    child: HeroMode(
+                      enabled: _hero,
+                      child: RemoteFileIcon(machineUUID: machineUUID, file: job.metadata),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 6),

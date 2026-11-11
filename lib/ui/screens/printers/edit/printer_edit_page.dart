@@ -427,6 +427,7 @@ class _Body extends ConsumerWidget {
                       title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
                       subtitle: const Text('pages.printer_edit.wifi_access_warning.subtitle').tr(),
                       leadingIcon: const Icon(Icons.wifi_off_outlined),
+                      actionLabel: const Text('general.grant_permission').tr(),
                       onTap: () async {
                         var lastStatus = status;
                         if (lastStatus?.isGranted == true) return;

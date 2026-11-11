@@ -15,6 +15,7 @@ class WarningCard extends ConsumerWidget {
     this.title,
     this.subtitle,
     this.leadingIcon,
+    this.actionLabel,
     this.margin = const EdgeInsets.only(top: 16),
   });
 
@@ -23,6 +24,10 @@ class WarningCard extends ConsumerWidget {
   final Widget? title;
   final Widget? subtitle;
   final Widget? leadingIcon;
+
+  /// Label of a button below the text that does the same as tapping the card ([onTap]), so the text does not have to
+  /// explain that the card can be tapped. Only shown while there is an [onTap].
+  final Widget? actionLabel;
 
   final EdgeInsets margin;
 
@@ -40,23 +45,50 @@ class WarningCard extends ConsumerWidget {
         child: show
             ? Padding(
                 padding: margin,
-                child: ListTile(
-                  tileColor: themeData.colorScheme.errorContainer,
-                  textColor: themeData.colorScheme.onErrorContainer,
-                  iconColor: themeData.colorScheme.onErrorContainer,
-                  onTap: onTap,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                  ),
-                  leading: leadingIcon?.let((it) => IconTheme(
-                        data: themeData.iconTheme.copyWith(
-                          color: themeData.colorScheme.onErrorContainer,
-                          size: 40,
+                child: Material(
+                  color: themeData.colorScheme.errorContainer,
+                  clipBehavior: Clip.antiAlias,
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                  child: InkWell(
+                    onTap: onTap,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ListTile(
+                          tileColor: themeData.colorScheme.errorContainer,
+                          textColor: themeData.colorScheme.onErrorContainer,
+                          iconColor: themeData.colorScheme.onErrorContainer,
+                          leading: leadingIcon?.let(
+                            (it) => IconTheme(
+                              data: themeData.iconTheme.copyWith(
+                                color: themeData.colorScheme.onErrorContainer,
+                                size: 40,
+                              ),
+                              child: it,
+                            ),
+                          ),
+                          title: title,
+                          subtitle: subtitle,
                         ),
-                        child: it,
-                      )),
-                  title: title,
-                  subtitle: subtitle,
+                        if (actionLabel != null && onTap != null)
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: Padding(
+                              padding: const EdgeInsetsDirectional.only(end: 12, bottom: 10),
+                              child: OutlinedButton(
+                                onPressed: onTap,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: themeData.colorScheme.onErrorContainer,
+                                  side: BorderSide(color: themeData.colorScheme.onErrorContainer),
+                                ),
+                                child: actionLabel!,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               )
             : const SizedBox.shrink(),

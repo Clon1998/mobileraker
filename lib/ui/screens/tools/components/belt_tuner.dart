@@ -179,6 +179,7 @@ class _PeakFrequency extends HookConsumerWidget {
           title: const Text('pages.beltTuner.permissionWarning.title').tr(),
           subtitle: const Text('pages.beltTuner.permissionWarning.subtitle').tr(),
           leadingIcon: const Icon(Icons.mic_off),
+          actionLabel: const Text('general.grant_permission').tr(),
           onTap: controller.requestPermission,
         ),
         Text(

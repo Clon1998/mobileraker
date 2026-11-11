@@ -32,6 +32,23 @@ void main() {
     expect(taps, 1);
   });
 
+  testWidgets('the action button does the same as tapping the card', (tester) async {
+    var taps = 0;
+    await tester.pumpApp(
+      WarningCard(title: const Text('Wrong spool'), actionLabel: const Text('Change spool'), onTap: () => taps++),
+    );
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Change spool'));
+
+    expect(taps, 1);
+  });
+
+  testWidgets('no action button without an onTap', (tester) async {
+    await tester.pumpApp(const WarningCard(title: Text('Wrong spool'), actionLabel: Text('Change spool')));
+
+    expect(find.text('Change spool'), findsNothing);
+  });
+
   testWidgets('animates away when show becomes false', (tester) async {
     await tester.pumpApp(const WarningCard(title: Text('Warning')));
     expect(find.text('Warning'), findsOneWidget);

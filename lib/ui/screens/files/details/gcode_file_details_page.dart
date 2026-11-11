@@ -24,6 +24,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/warning_card.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
@@ -32,10 +33,8 @@ import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/path_utils.dart';
-import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
@@ -104,7 +103,7 @@ class _EmbeddedGCodeFileDetails extends StatelessWidget {
 }
 
 class _GCodeFileDetailPage extends StatelessWidget {
-  const _GCodeFileDetailPage({super.key});
+  const _GCodeFileDetailPage();
 
   @override
   Widget build(BuildContext context) {
@@ -117,487 +116,786 @@ class _GCodeFileDetailPage extends StatelessWidget {
   }
 }
 
-class _CompactBody extends HookConsumerWidget {
-  const _CompactBody({super.key});
+/// Space below the content, so the FABs never cover the last card.
+const double _fabClearance = 96;
+
+class _CompactBody extends ConsumerWidget {
+  const _CompactBody();
+
+  static const double _expandedHeight = 240;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final animCtrler = useAnimationController(duration: const Duration(milliseconds: 400))..forward();
-
-    talker.warning('Rebuilding _GCodeFileDetailPage');
     final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
-    final model = ref.watch(_gCodeFileDetailsControllerProvider);
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
+    final themeData = Theme.of(context);
 
-    final cacheManager = ref.watch(httpCacheManagerProvider(model.machineUUID));
-
-    final machineUri = ref.watch(previewImageUriProvider);
-
-    final bigImageUri = model.file.constructBigImageUri(machineUri);
-
-    final dateFormatService = ref.watch(dateFormatServiceProvider);
-    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
-    final dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
-    final numFormat =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+    final canPop = !_EmbeddedScope.of(context) && (ModalRoute.of(context)?.impliesAppBarDismissal ?? false);
+    final backdrop = Color.alphaBlend(
+      themeData.colorScheme.onSurface.withValues(alpha: 0.05),
+      themeData.scaffoldBackgroundColor,
+    );
 
     return CustomScrollView(
       slivers: [
-        SliverLayoutBuilder(builder: (context, constraints) {
-          return SliverAppBar(
-            automaticallyImplyLeading: !_EmbeddedScope.of(context),
-            expandedHeight: 220,
-            floating: true,
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.pin,
-              background: Stack(alignment: Alignment.center, children: [
-                Hero(
-                  transitionOnUserGestures: true,
-                  tag: 'gCodeImage-${model.file.hashCode}',
-                  child: IconTheme(
-                    data: IconThemeData(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    child: (bigImageUri != null)
-                        ? CachedNetworkImage(
-                            cacheManager: cacheManager,
-                            imageUrl: bigImageUri.toString(),
-                            cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
-                            httpHeaders: ref.watch(previewImageHttpHeaderProvider),
-                            imageBuilder: (context, imageProvider) => Image(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                            placeholder: (context, url) => const Icon(Icons.insert_drive_file),
-                            errorWidget: (context, url, error) => const Icon(Icons.file_present),
-                          )
-                        : const Icon(Icons.insert_drive_file),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SizeTransition(
-                    sizeFactor: animCtrler.view,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(8.0),
-                        ),
-                        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-                      ),
-                      child: Text(
-                        model.file.name,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 5,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
-                      ),
-                    ),
-                  ),
-                ),
-              ]),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () {
-                  final size = MediaQuery.sizeOf(context);
-                  final Rect pos = Rect.fromLTWH(
-                      size.width - 48, // 48 pixels from right edge
-                      0, // Top position
-                      48, // Width of 48 pixels
-                      48 // Height of 48 pixels
-                      );
+        SliverLayoutBuilder(
+          builder: (context, constraints) {
+            // The preview scrolled (almost) out of view: the bar takes over and shows what file this is.
+            final collapsed = constraints.scrollOffset > _expandedHeight - kToolbarHeight - 24;
+            // On top of the preview the buttons need a scrim of their own to stay readable.
+            final buttonStyle = collapsed
+                ? null
+                : IconButton.styleFrom(
+                    backgroundColor: Colors.black.withValues(alpha: 0.35),
+                    foregroundColor: Colors.white,
+                  );
 
-                  controller.onActionsTap(pos);
-                },
+            return SliverAppBar(
+              pinned: true,
+              expandedHeight: _expandedHeight,
+              automaticallyImplyLeading: false,
+              leading: canPop ? Center(child: BackButton(style: buttonStyle)) : null,
+              titleSpacing: canPop ? 0 : null,
+              title: IgnorePointer(
+                ignoring: !collapsed,
+                child: AnimatedOpacity(
+                  opacity: collapsed ? 1 : 0,
+                  duration: kThemeAnimationDuration,
+                  child: const _CollapsedTitle(),
+                ),
               ),
-            ],
-          );
-        }),
-        SliverToBoxAdapter(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            // if (model.materialMissmatch != null)
-            WarningCard(
-              show: model.materialMissmatch != null,
-              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              leadingIcon: const Icon(Icons.layers_clear),
-              // leadingIcon: Icon(Icons.layers_clear),
-              title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
-              subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
-                  .tr(args: [model.file.filamentTypes.join(', '), model.materialMissmatch ?? '--']),
-            ),
-            // if (model.insufficientFilament != null)
-            WarningCard(
-              show: model.insufficientFilament != null,
-              onTap: model.canStartPrint ? controller.changeActiveSpool : null,
-              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              leadingIcon: const Icon(Icons.scale),
-              title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
-              subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                  .tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
-            ),
-            Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    leading: const Icon(
-                      MaterialCommunityIcons.printer_3d_nozzle_outline,
+              actions: [
+                Builder(
+                  builder: (context) => IconButton(
+                    style: buttonStyle,
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {
+                      final box = context.findRenderObject() as RenderBox?;
+                      if (box == null) return;
+                      controller.onActionsTap(box.localToGlobal(Offset.zero) & box.size);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.pin,
+                background: ColoredBox(
+                  color: backdrop,
+                  child: SafeArea(
+                    bottom: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: Hero(
+                        transitionOnUserGestures: true,
+                        tag: 'gCodeImage-${file.hashCode}',
+                        child: _PreviewImage(file: file, machineUUID: machineUUID, iconSize: 72),
+                      ),
                     ),
-                    title: const Text('pages.setting.general.title').tr(),
                   ),
-                  const Divider(),
-                  _PropertyTile(
-                    title: 'pages.files.details.general_card.path'.tr(),
-                    subtitle: model.file.absolutPath,
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.sort_by.file_size'.tr(),
-                    subtitle: model.file.size?.let(numFormat.formatFileSize) ?? 'general.unknown'.tr(),
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.general_card.last_mod'.tr(),
-                    subtitle: model.file.modifiedDate?.let(dateFormatGeneral.format) ?? 'general.unknown'.tr(),
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.general_card.last_printed'.tr(),
-                    subtitle: (model.file.printStartTime != null)
-                        ? dateFormatGeneral.format(model.file.lastPrintDate!)
-                        : 'pages.files.details.general_card.no_data'.tr(),
-                  ),
-                ],
+                ),
               ),
+            );
+          },
+        ),
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(4, 0, 4, _fabClearance + MediaQuery.paddingOf(context).bottom),
+          sliver: const SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [_Header(), _SpoolWarnings(), _SummaryTiles(), _HistoryCard(), _DetailsCard()],
             ),
-            Card(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    leading: const Icon(AntDesign.tags),
-                    title: const Text('pages.files.details.meta_card.title').tr(),
-                  ),
-                  const Divider(),
-                  _PropertyTile(
-                    title: 'pages.files.details.meta_card.filament'.tr(),
-                    subtitle: [
-                      '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentTypes.isEmpty ? tr('general.unknown') : model.file.filamentTypes.join(', ')}',
-                      '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentNames.isEmpty ? tr('general.unknown') : model.file.filamentNames.join(', ')}',
-                      if (model.file.filamentWeightTotal != null)
-                        '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
-                      if (model.file.filamentTotal != null)
-                        '${tr('pages.files.details.meta_card.filament_length')}: ${numFormat.formatMillimeters(model.file.filamentTotal!)}',
-                    ].join('\n'),
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.meta_card.est_print_time'.tr(),
-                    subtitle:
-                        '${secondsToDurationText(model.file.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.meta_card.slicer'.tr(),
-                    subtitle: model.file.slicerAndVersion,
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                    subtitle: _nozzleDiameterText(context, model.file.nozzleDiameter),
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.meta_card.layer_higher'.tr(),
-                    subtitle:
-                        '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
-                        '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
-                  ),
-                  _PropertyTile(
-                    title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
-                    subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
-                      model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                      model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                    ]),
-                  ),
-                ],
-              ),
-            ),
-            // Card(
-            //   child: Column(
-            //     mainAxisSize: MainAxisSize.min,
-            //     children: <Widget>[
-            //       ListTile(
-            //         leading: Icon(MaterialCommunityIcons.chart_bar),
-            //         title: Text('pages.files.details.stat_card.title').tr(),
-            //       ),
-            //       Divider(),
-            //       Placeholder(
-            //
-            //       )
-            //     ],
-            //   ),
-            // ),
-            const SizedBox(height: 80),
-            // Safe Area was not working, added a top padding
-          ]),
+          ),
         ),
       ],
     );
   }
 }
 
-class _MediumBody extends HookConsumerWidget {
-  const _MediumBody({super.key});
+class _MediumBody extends StatelessWidget {
+  const _MediumBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(4, 4, 4, _fabClearance + MediaQuery.paddingOf(context).bottom),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [_PreviewCard(), _Header(), _SummaryTiles()],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [_SpoolWarnings(), _HistoryCard(), _DetailsCard()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The big thumbnail of the file, or a file icon if it has none.
+///
+/// Takes the file instead of watching the page's (scoped) providers: as the child of a [Hero] it is built in the
+/// navigator's overlay during the flight, outside of the page's [ProviderScope].
+class _PreviewImage extends ConsumerWidget {
+  const _PreviewImage({required this.file, required this.machineUUID, this.iconSize = 24});
+
+  final GCodeFile file;
+
+  final String machineUUID;
+
+  final double iconSize;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    talker.warning('Rebuilding _GCodeFileDetailPage');
-    final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
-    final model = ref.watch(_gCodeFileDetailsControllerProvider);
+    final bigImageUri = file.constructBigImageUri(ref.watch(previewImageUriProvider));
 
-    final cacheManager = ref.watch(httpCacheManagerProvider(model.machineUUID));
+    final fallback = Center(
+      child: Icon(Icons.insert_drive_file_outlined, size: iconSize, color: Theme.of(context).disabledColor),
+    );
+    if (bigImageUri == null) return fallback;
 
-    final machineUri = ref.watch(previewImageUriProvider);
+    return CachedNetworkImage(
+      cacheManager: ref.watch(httpCacheManagerProvider(machineUUID)),
+      imageUrl: bigImageUri.toString(),
+      cacheKey: '${bigImageUri.hashCode}-${file.hashCode}',
+      httpHeaders: ref.watch(previewImageHttpHeaderProvider),
+      imageBuilder: (context, imageProvider) =>
+          Image(image: imageProvider, fit: BoxFit.contain, width: double.infinity, height: double.infinity),
+      placeholder: (context, url) => fallback,
+      errorWidget: (context, url, error) => fallback,
+    );
+  }
+}
 
-    final bigImageUri = model.file.constructBigImageUri(machineUri);
+/// The preview on larger layouts, where there is no collapsing app bar.
+class _PreviewCard extends ConsumerWidget {
+  const _PreviewCard();
 
-    final dateFormatService = ref.watch(dateFormatServiceProvider);
-    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
-    final dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
-    final numFormat =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        talker.info('Constraints ${constraints.widthConstraints()}');
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        height: max(MediaQuery.sizeOf(context).height / 3, 250),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Hero(
+            transitionOnUserGestures: true,
+            tag: 'gCodeImage-${file.hashCode}',
+            child: _PreviewImage(file: file, machineUUID: machineUUID, iconSize: 72),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-        final maxWidthCard = constraints.maxWidth / 2;
+/// Thumbnail, name and the key facts of the file, shown in the app bar once the preview is scrolled away.
+class _CollapsedTitle extends ConsumerWidget {
+  const _CollapsedTitle();
 
-        return SingleChildScrollView(
-          child: Row(
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
+    final titleStyle = DefaultTextStyle.of(context).style;
+    final facts = [
+      if (file.filamentTypes.isNotEmpty) file.filamentTypes.join(', '),
+      if (file.estimatedTime != null) _durationText(file.estimatedTime!),
+    ];
+
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: (titleStyle.color ?? Colors.white).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: _PreviewImage(file: file, machineUUID: machineUUID, iconSize: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: maxWidthCard,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: SizedBox(
-                        height: max(MediaQuery.sizeOf(context).height / 3, 250),
-                        child: Card(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                leading: const Icon(
-                                  FontAwesome5Regular.image,
-                                ),
-                                title: const Text('general.preview').tr(),
-                              ),
-                              const Divider(),
-                              Flexible(
-                                child: Hero(
-                                  transitionOnUserGestures: true,
-                                  tag: 'gCodeImage-${model.file.hashCode}',
-                                  child: IconTheme(
-                                    data: IconThemeData(
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                    child: (bigImageUri != null)
-                                        ? CachedNetworkImage(
-                                            cacheManager: cacheManager,
-                                            imageUrl: bigImageUri.toString(),
-                                            cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
-                                            httpHeaders: ref.watch(previewImageHttpHeaderProvider),
-                                            imageBuilder: (context, imageProvider) => Image(
-                                              image: imageProvider,
-                                              fit: BoxFit.contain,
-                                              width: double.infinity,
-                                            ),
-                                            placeholder: (context, url) => const Icon(Icons.insert_drive_file),
-                                            errorWidget: (context, url, error) => const Icon(Icons.file_present),
-                                          )
-                                        : const Icon(Icons.insert_drive_file),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Card(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ListTile(
-                            leading: const Icon(
-                              MaterialCommunityIcons.printer_3d_nozzle_outline,
-                            ),
-                            title: const Text('pages.setting.general.title').tr(),
-                          ),
-                          const Divider(),
-                          _PropertyTile(
-                            title: 'pages.files.details.general_card.path'.tr(),
-                            subtitle: model.file.absolutPath,
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.general_card.last_mod'.tr(),
-                            subtitle: model.file.modifiedDate?.let(dateFormatGeneral.format) ?? 'general.unknown'.tr(),
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.general_card.last_printed'.tr(),
-                            subtitle: (model.file.printStartTime != null)
-                                ? dateFormatGeneral.format(model.file.lastPrintDate!)
-                                : 'pages.files.details.general_card.no_data'.tr(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              Text(
+                _displayName(file),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: titleStyle.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              SizedBox(
-                width: maxWidthCard,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WarningCard(
-                      show: model.materialMissmatch != null,
-                      onTap: model.canStartPrint ? controller.changeActiveSpool : null,
-                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                      leadingIcon: const Icon(Icons.layers_clear),
-                      // leadingIcon: Icon(Icons.layers_clear),
-                      title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
-                      subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
-                          .tr(args: [model.file.filamentTypes.join(', '), model.materialMissmatch ?? '--']),
-                    ),
-                    WarningCard(
-                      show: model.insufficientFilament != null,
-                      onTap: model.canStartPrint ? controller.changeActiveSpool : null,
-                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                      leadingIcon: const Icon(Icons.scale),
-                      title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
-                      subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
-                          .tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
-                    ),
-                    Card(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          ListTile(
-                            leading: const Icon(AntDesign.tags),
-                            title: const Text('pages.files.details.meta_card.title').tr(),
-                          ),
-                          const Divider(),
-                          _PropertyTile(
-                            title: 'pages.files.details.meta_card.filament'.tr(),
-                            subtitle: [
-                              '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentTypes.isEmpty ? tr('general.unknown') : model.file.filamentTypes.join(', ')}',
-                              '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentNames.isEmpty ? tr('general.unknown') : model.file.filamentNames.join(', ')}',
-                              if (model.file.filamentWeightTotal != null)
-                                '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
-                              if (model.file.filamentTotal != null)
-                                '${tr('pages.files.details.meta_card.filament_length')}: ${numFormat.formatMillimeters(model.file.filamentTotal!)}',
-                            ].join('\n'),
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.meta_card.est_print_time'.tr(),
-                            subtitle:
-                                '${secondsToDurationText(model.file.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.meta_card.slicer'.tr(),
-                            subtitle: model.file.slicerAndVersion,
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                            subtitle: _nozzleDiameterText(context, model.file.nozzleDiameter),
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.meta_card.layer_higher'.tr(),
-                            subtitle:
-                                '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
-                                '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
-                          ),
-                          _PropertyTile(
-                            title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
-                            subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
-                              model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                              model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                            ]),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              if (facts.isNotEmpty)
+                Text(
+                  facts.join(' · '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: titleStyle.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: titleStyle.color?.withValues(alpha: 0.7),
+                  ),
                 ),
-              ),
             ],
           ),
-        );
-      },
+        ),
+      ],
+    );
+  }
+}
+
+/// Name of the file and its most important properties as chips.
+class _Header extends ConsumerWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final themeData = Theme.of(context);
+    final slicer = [?file.slicer, ?file.slicerVersion].join(' ');
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _displayName(file),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 2),
+          Text(file.name, style: themeData.textTheme.bodySmall),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              if (file.filamentTypes.isNotEmpty)
+                _Chip(label: file.filamentTypes.join(', '), dotColor: _filamentColor(file) ?? themeData.colorScheme.onSurface),
+              if (file.nozzleDiameter.isNotEmpty)
+                _Chip(
+                  label: tr(
+                    'pages.files.details.header.nozzle_chip',
+                    args: [_nozzleDiameterText(context, file.nozzleDiameter)],
+                  ),
+                ),
+              if (slicer.isNotEmpty) _Chip(label: slicer),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip({required this.label, this.dotColor});
+
+  final String label;
+
+  final Color? dotColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      avatar: dotColor == null ? null : Icon(Icons.circle, size: 10, color: dotColor),
+      label: Text(label),
+    );
+  }
+}
+
+/// Warnings about the active Spoolman spool not fitting the file.
+class _SpoolWarnings extends ConsumerWidget {
+  const _SpoolWarnings();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    final model = ref.watch(_gCodeFileDetailsControllerProvider);
+    final numFormat = NumberFormat.decimalPatternDigits(
+      locale: context.locale.toStringWithSeparator(),
+      decimalDigits: 2,
+    );
+    final onChangeSpool = model.canStartPrint ? controller.changeActiveSpool : null;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        WarningCard(
+          show: model.materialMissmatch != null,
+          onTap: onChangeSpool,
+          actionLabel: const Text('pages.files.details.spoolman_warnings.change_spool').tr(),
+          margin: const EdgeInsets.all(4),
+          leadingIcon: const Icon(Icons.layers_clear),
+          title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
+          subtitle: const Text(
+            'pages.files.details.spoolman_warnings.material_mismatch_body',
+          ).tr(args: [model.file.filamentTypes.join(', '), model.materialMissmatch ?? '--']),
+        ),
+        WarningCard(
+          show: model.insufficientFilament != null,
+          onTap: onChangeSpool,
+          actionLabel: const Text('pages.files.details.spoolman_warnings.change_spool').tr(),
+          margin: const EdgeInsets.all(4),
+          leadingIcon: const Icon(Icons.scale),
+          title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
+          subtitle: const Text(
+            'pages.files.details.spoolman_warnings.insufficient_filament_body',
+          ).tr(args: [model.insufficientFilament?.let(numFormat.formatGrams) ?? '--']),
+        ),
+      ],
+    );
+  }
+}
+
+/// The two numbers one wants to know before starting a print: how long it takes and how much filament it needs.
+class _SummaryTiles extends ConsumerWidget {
+  const _SummaryTiles();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final locale = context.locale.toStringWithSeparator();
+    final numFormat = NumberFormat.decimalPatternDigits(locale: locale, decimalDigits: 1);
+    final lengthFormat = NumberFormat.decimalPatternDigits(locale: locale, decimalDigits: 2);
+
+    String? doneAround;
+    if (file.estimatedTime != null) {
+      final now = DateTime.now();
+      final eta = now.add(Duration(seconds: file.estimatedTime!.toInt()));
+      final sameDay = eta.year == now.year && eta.month == now.month && eta.day == now.day;
+      final format = sameDay ? dateFormatService.Hm() : dateFormatService.add_Hm(DateFormat.MMMEd());
+      doneAround = tr('pages.files.details.summary.done_around', args: [format.format(eta)]);
+    }
+
+    final weight = file.filamentWeightTotal?.let(numFormat.formatGrams);
+    final length = file.filamentTotal?.let(lengthFormat.formatMillimeters);
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _SummaryTile(
+              icon: Icons.timer_outlined,
+              label: tr('pages.files.details.summary.est_time'),
+              value: file.estimatedTime?.let(_durationText) ?? tr('general.unknown'),
+              hint: doneAround,
+            ),
+          ),
+          Expanded(
+            child: _SummaryTile(
+              icon: Icons.album_outlined,
+              label: tr('pages.files.details.meta_card.filament'),
+              value: weight ?? length ?? tr('general.unknown'),
+              hint: weight != null ? length : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryTile extends StatelessWidget {
+  const _SummaryTile({required this.icon, required this.label, required this.value, this.hint});
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final muted = themeData.textTheme.bodySmall;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 14, color: muted?.color),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(value, style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            ),
+            if (hint != null) ...[
+              const SizedBox(height: 2),
+              Text(hint!, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The runs of this file. For now only whether (and when) it was printed, the list of runs is still to come.
+class _HistoryCard extends ConsumerWidget {
+  const _HistoryCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final printerName = ref.watch(selectedMachineProvider.select((data) => data.value?.name));
+    final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMMMd());
+    final themeData = Theme.of(context);
+    final lastPrinted = file.lastPrintDate;
+
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(leading: const Icon(Icons.history), title: const Text('pages.history.title').tr()),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: themeData.colorScheme.onSurface.withValues(alpha: 0.2)),
+                  ),
+                  child: Icon(
+                    lastPrinted == null ? Icons.hourglass_empty : Icons.event_available,
+                    size: 20,
+                    color: themeData.textTheme.bodySmall?.color,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        lastPrinted == null
+                            ? tr('pages.files.details.history_card.not_printed_title')
+                            : tr('pages.files.details.general_card.last_printed'),
+                        style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        lastPrinted == null
+                            ? tr(
+                                'pages.files.details.history_card.not_printed_body',
+                                args: [printerName ?? '--'],
+                              )
+                            : dateFormat.format(lastPrinted),
+                        style: themeData.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Everything the slicer and Moonraker know about the file, grouped. Unknown values are left out.
+class _DetailsCard extends ConsumerWidget {
+  const _DetailsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMMMd());
+    final numFormat = NumberFormat.decimalPatternDigits(
+      locale: context.locale.toStringWithSeparator(),
+      decimalDigits: 2,
+    );
+    final themeData = Theme.of(context);
+
+    String mm(double value) => '${numFormat.format(value)} mm';
+    String celsius(double value) => '${value.toStringAsFixed(0)} °C';
+    const meta = 'pages.files.details.meta_card';
+
+    final sections = <(String, List<(String, String?)>)>[
+      (
+        tr('$meta.filament'),
+        [
+          (tr('$meta.filament_type'), file.filamentTypes.isEmpty ? null : file.filamentTypes.join(', ')),
+          (tr('$meta.filament_name'), file.filamentNames.isEmpty ? null : file.filamentNames.join(', ')),
+          (tr('$meta.filament_weight'), file.filamentWeightTotal?.let(numFormat.formatGrams)),
+          (tr('$meta.filament_length'), file.filamentTotal?.let(numFormat.formatMillimeters)),
+          (tr('$meta.filament_changes'), file.filamentChangeCount?.let((it) => it > 0 ? '$it' : null)),
+        ],
+      ),
+      (
+        tr('$meta.slicing'),
+        [
+          (tr('$meta.slicer'), file.slicer == null ? null : file.slicerAndVersion),
+          (
+            tr('$meta.nozzle_diameter'),
+            file.nozzleDiameter.isEmpty ? null : _nozzleDiameterText(context, file.nozzleDiameter),
+          ),
+          (tr('$meta.first_layer'), file.firstLayerHeight?.let(mm)),
+          (tr('$meta.layer_higher'), file.layerHeight?.let(mm)),
+          (tr('$meta.layer_count'), file.layerCount?.toString()),
+          (tr('$meta.object_height'), file.objectHeight?.let(mm)),
+        ],
+      ),
+      (
+        tr('$meta.first_layer_temps'),
+        [
+          (tr('pages.dashboard.general.temp_card.hotend'), file.firstLayerTempExtruder?.let(celsius)),
+          (tr('pages.dashboard.general.temp_card.bed'), file.firstLayerTempBed?.let(celsius)),
+          (tr('$meta.chamber'), file.chamberTemp?.let((it) => it > 0 ? celsius(it) : null)),
+        ],
+      ),
+      (
+        tr('$meta.file'),
+        [
+          (tr('pages.files.details.general_card.path'), file.absolutPath),
+          (tr('pages.files.sort_by.file_size'), numFormat.formatFileSize(file.size)),
+          (tr('pages.files.details.general_card.last_mod'), file.modifiedDate?.let(dateFormat.format)),
+        ],
+      ),
+    ];
+
+    final known = [
+      for (final (title, rows) in sections)
+        (
+          title,
+          [
+            for (final (label, value) in rows)
+              if (value != null) (label, value),
+          ],
+        ),
+    ].where((section) => section.$2.isNotEmpty).toList();
+    final fieldCount = known.fold(0, (sum, section) => sum + section.$2.length);
+
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.sell_outlined),
+            title: const Text('general.details').tr(),
+            trailing: Text(plural('$meta.fields', fieldCount), style: themeData.textTheme.bodySmall),
+          ),
+          const Divider(height: 1),
+          for (final (title, rows) in known) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
+              child: Text(
+                title.toUpperCase(),
+                style: themeData.textTheme.labelMedium?.copyWith(
+                  color: themeData.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ),
+            for (final (i, (label, value)) in rows.indexed) ...[
+              if (i > 0) const Divider(height: 1, indent: 16, endIndent: 16),
+              _DetailRow(label: label, value: value),
+            ],
+          ],
+          const SizedBox(height: 6),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: textTheme.bodyMedium?.copyWith(color: textTheme.bodySmall?.color)),
+          const SizedBox(width: 24),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({super.key});
+  const _AppBar();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(_gCodeFileDetailsControllerProvider);
     final controller = ref.read(_gCodeFileDetailsControllerProvider.notifier);
 
-    return AppBar(automaticallyImplyLeading: !_EmbeddedScope.of(context), title: Text(model.file.name), actions: [
-      IconButton(
-        icon: const Icon(Icons.more_vert),
-        onPressed: () {
-          final box = context.findRenderObject() as RenderBox?;
-          final pos = box!.localToGlobal(Offset.zero) & box.size;
+    return AppBar(
+      automaticallyImplyLeading: !_EmbeddedScope.of(context),
+      title: Text(model.file.name),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.more_vert),
+          onPressed: () {
+            final box = context.findRenderObject() as RenderBox?;
+            final pos = box!.localToGlobal(Offset.zero) & box.size;
 
-          controller.onActionsTap(pos);
-        },
-      ),
-    ]);
+            controller.onActionsTap(pos);
+          },
+        ),
+      ],
+    );
   }
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
+/// The actions of the file: Print as the main FAB, preheat as its smaller companion.
 class _Fab extends ConsumerWidget {
-  const _Fab({super.key});
+  const _Fab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     final canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.canStartPrint));
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    // Same rule as the file's action menu: the bed temperature of the file is what gets preheated.
+    final canPreheat = canStartPrint && file.firstLayerTempBed != null;
 
-    final backgroundColor = (canStartPrint) ? null : Theme.of(context).disabledColor;
-    const icon = Icon(MaterialCommunityIcons.printer_3d_nozzle);
+    final themeData = Theme.of(context);
+    final disabledColor = themeData.disabledColor;
+    final printLabel = tr(file.printStartTime != null ? 'pages.history.actions.print_again' : 'general.print');
+    final preheatLabel = tr('pages.files.gcode_file_actions.preheat');
+    const printIcon = Icon(MaterialCommunityIcons.printer_3d_nozzle);
+    const preheatIcon = Icon(MobilerakerIcons.nozzle_heat);
+    final preheatBackground = canPreheat ? themeData.colorScheme.secondaryContainer : disabledColor;
+    final preheatForeground = themeData.colorScheme.onSecondaryContainer.only(canPreheat);
 
-    // Has to fit the width of the fold strip (iPhone Duo).
+    // Has to fit the width of the rail/the fold strip (iPhone Duo).
     if (!_EmbeddedScope.of(context) && RailScaffold.showsRailOf(context)) {
-      return FloatingActionButton(
-        backgroundColor: backgroundColor,
-        onPressed: controller.onStartPrintTap.only(canStartPrint),
-        tooltip: tr('general.print'),
-        child: icon,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            key: const Key('printFab'),
+            backgroundColor: disabledColor.unless(canStartPrint),
+            onPressed: controller.onStartPrintTap.only(canStartPrint),
+            tooltip: printLabel,
+            child: printIcon,
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.small(
+            key: const Key('preheatFab'),
+            heroTag: null,
+            backgroundColor: preheatBackground,
+            foregroundColor: preheatForeground,
+            onPressed: controller.onPreheatTap.only(canPreheat),
+            tooltip: preheatLabel,
+            child: preheatIcon,
+          ),
+        ],
       );
     }
 
-    return FloatingActionButton.extended(
-      backgroundColor: backgroundColor,
-      onPressed: controller.onStartPrintTap.only(canStartPrint),
-      icon: icon,
-      label: const Text('general.print').tr(),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            key: const Key('preheatFab'),
+            heroTag: null,
+            backgroundColor: preheatBackground,
+            foregroundColor: preheatForeground,
+            onPressed: controller.onPreheatTap.only(canPreheat),
+            icon: preheatIcon,
+            label: Text(preheatLabel),
+          ),
+          const SizedBox(width: 12),
+          FloatingActionButton.extended(
+            key: const Key('printFab'),
+            backgroundColor: disabledColor.unless(canStartPrint),
+            onPressed: controller.onStartPrintTap.only(canStartPrint),
+            icon: printIcon,
+            label: Text(printLabel),
+          ),
+        ],
+      ),
     );
   }
+}
+
+/// The name of the file without its G-Code extension: `Voron_cube_PLA.gcode` -> `Voron_cube_PLA`
+String _displayName(GCodeFile file) {
+  final name = file.name;
+  final dot = name.lastIndexOf('.');
+  if (dot <= 0) return name;
+  return const {'.gcode', '.g', '.gc', '.gco', '.ufp'}.contains(name.substring(dot).toLowerCase())
+      ? name.substring(0, dot)
+      : name;
+}
+
+/// `2d 3h`, `1h 34m`, `35m 3s`, `42s`
+String _durationText(num seconds) {
+  final d = Duration(seconds: seconds.round());
+  if (d.inDays > 0) return '${d.inDays}d ${d.inHours.remainder(24)}h';
+  if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}m';
+  if (d.inMinutes > 0) return '${d.inMinutes}m ${d.inSeconds.remainder(60)}s';
+  return '${d.inSeconds}s';
+}
+
+/// The slicer's color (`#RRGGBB`) of the first filament of the file, if it is known.
+Color? _filamentColor(GCodeFile file) {
+  final hex = file.filamentColors?.firstOrNull?.replaceFirst('#', '');
+  if (hex == null || hex.length != 6) return null;
+  return int.tryParse(hex, radix: 16)?.let((it) => Color(0xFF000000 | it));
 }
 
 /// The nozzle diameter(s) of a file, e.g. "0.4 mm" or "0.4, 0.6 mm" for multiple tools.
@@ -605,31 +903,6 @@ String _nozzleDiameterText(BuildContext context, List<double> diameters) {
   if (diameters.isEmpty) return tr('general.unknown');
   final format = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
   return '${diameters.map(format.format).join(', ')} mm';
-}
-
-class _PropertyTile extends StatelessWidget {
-  final String title;
-  final String subtitle;
-
-  const _PropertyTile({super.key, required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    var textTheme = Theme.of(context).textTheme;
-    var subtitleTheme = textTheme.bodyMedium?.copyWith(fontSize: 13, color: textTheme.bodySmall?.color);
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(title, textAlign: TextAlign.left),
-          const SizedBox(height: 2),
-          Text(subtitle, style: subtitleTheme, textAlign: TextAlign.left),
-        ],
-      ),
-    );
-  }
 }
 
 @Riverpod(dependencies: [])
@@ -736,6 +1009,18 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   Future<void> onStartPrintTap() async {
     await for (var event in _fileInteractionService.submitJobAction(state.file)) {
       talker.info('[GCodeFileDetailsController] onStartPrintTap File-interaction-event: $event');
+    }
+  }
+
+  Future<void> onPreheatTap() async {
+    // The service is auto disposed and reads other providers after its confirm dialog, so it is kept alive meanwhile.
+    final service = ref.listen(fileInteractionServiceProvider(machineUUID), (_, _) {});
+    try {
+      await for (var event in service.read().preheatAction(state.file)) {
+        talker.info('[GCodeFileDetailsController] onPreheatTap File-interaction-event: $event');
+      }
+    } finally {
+      service.close();
     }
   }
 

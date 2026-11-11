@@ -19,6 +19,7 @@ general:
   fetching: Fetching
   loading: Loading
   unknown: Unknown
+  grant_permission: Grant permission
   disabled: Disabled
   confirm: Confirm
   cancel: Cancel
@@ -398,8 +399,25 @@ pages:
         last_mod: Last Modified
         last_printed: Last Printed
         no_data: No data
+      header:
+        nozzle_chip: "{} nozzle"
+      summary:
+        est_time: Estimated time
+        done_around: Done around {}
+      history_card:
+        not_printed_title: Not printed yet
+        not_printed_body: Every run of this file on {} will appear here.
       meta_card:
         title: GCode Meta Data
+        fields:
+          one: "{} field"
+          other: "{} fields"
+        slicing: Slicing
+        file: File
+        filament_changes: Filament changes
+        layer_count: Layers
+        object_height: Object height
+        chamber: Chamber
         filament: Filament
         filament_type: Type
         filament_name: Name
@@ -434,14 +452,13 @@ pages:
           1: The file was successfully added to the print queue.
           other: The files were successfully added to the print queue.
       spoolman_warnings:
+        change_spool: Change spool
         insufficient_filament_title: Insufficient filament
         insufficient_filament_body: |-
           The active spool only has {} filament left, which is not enough for this file.
-          Tap to change the active spool.
         material_mismatch_title: Material Mismatch
         material_mismatch_body: |-
           The file's material {} does not match the active spool's material {}.
-          Tap to change the active spool.
   setting:
     title: App - Settings
     general:
@@ -805,8 +822,6 @@ pages:
       title: WiFi Information Unavailable
       subtitle: |-
         To determine if Mobileraker should use the remote connection, grant location access. This allows the app to fetch the name of the current WiFi Network.
-
-        Tap to grant the permission.
     local_ssid:
       section_header: Smart Switching
       no_ssids: No WiFi name added!
@@ -1167,8 +1182,6 @@ pages:
       title: Microphone permission required
       subtitle: |-
         The belt tuner uses your phone's microphone to analyze the frequency of your belts.
-
-        Tap to grant the permission.
   spoolman:
     detail_pane_hint: Select an entry to see its details
     title: Spoolman
