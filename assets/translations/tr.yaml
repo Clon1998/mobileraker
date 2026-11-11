@@ -116,8 +116,6 @@ pages:
         retract: Geri çek
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude uzunluğu"
         cold_extrude_error: Ekstruder henüz {}°C'lik min_extrude_temp'e ulaşmadı!
-      macro_card:
-        title: Gcode - Makrolar
       pin_card:
         pin_btn: Sabitle
       power_card:
@@ -315,8 +313,6 @@ pages:
       body: Değişiklikleri uygulamak için yazıcıyı kaydettiğinizden emin olun.
     wifi_access_warning:
       title: WiFi Bilgisi Mevcut Değil
-      subtitle: |-
-        Mobileraker'ın uzak bağlantıyı kullanıp kullanmayacağını belirlemek için konum erişimine izin verin.
     local_ssid:
       section_header: Akıllı Anahtarlama
       no_ssids: WiFi adı eklenmedi!
@@ -577,7 +573,6 @@ notifications:
       desc: Yazdırma ilerlemesine ilişkin bildirimler.
       title: '{} işleminin yazdırılma durumu'
 form_validators:
-  simple_url: 'Giriş yalnızca URL bileşenlerine izin verir: Ana Bilgisayar Adı ve Bağlantı Noktası'
   disallow_mdns: mDNS (.local) adresleri desteklenmez
 date:
   year:

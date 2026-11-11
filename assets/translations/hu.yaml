@@ -174,10 +174,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude hossza"
         cold_extrude_error: A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !
       macro_card:
-        title: G-kód - Makrók
         no_macros: Jelenleg nincsenek makrók ebben a csoportban
-        add_grp_hint: A makrók rendszerezéséhez különböző csoportokat hozhatsz létre. Csak menj a nyomtató beállításaihoz, és adj hozzá egy új csoportot.
-        show_all_tooltip: Összes makró mutatása
       pin_card:
         title_misc: Különböző
         pin_btn: Tű
@@ -388,13 +385,7 @@ pages:
           other: A fájlok sikeresen hozzá lettek adva a nyomtatási sorhoz.
       spoolman_warnings:
         insufficient_filament_title: Elégtelen nyomtatószál
-        insufficient_filament_body: |-
-          Az aktív orsón már csak {} szál maradt, ami nem elég ehhez a fájlhoz.
-          Érintsd meg a gombot az aktív orsó megváltoztatásához.
         material_mismatch_title: Anyagi eltérés
-        material_mismatch_body: |-
-          A fájl {} anyaga nem egyezik az aktív orsó {} anyagával.
-          Érintsd meg a gombot az aktív orsó megváltoztatásához.
   setting:
     title: Alkalmazás - Beállítások
     general:
@@ -637,10 +628,6 @@ pages:
       body: Mentsd el a nyomtatót a módosítások alkalmazásához.
     wifi_access_warning:
       title: WiFi információ nem érhető el
-      subtitle: |-
-        Annak meghatározásához, hogy a Mobilerakernek használnia kell-e a távoli kapcsolatot, engedélyezd a helyhozzáférést. Ez lehetővé teszi az alkalmazás számára, hogy lekérje az aktuális WiFi hálózat nevét.
-
-        Koppints az engedély megadásához.
     local_ssid:
       section_header: Intelligens váltás
       no_ssids: Nincs hozzáadva WiFi név!
@@ -869,10 +856,6 @@ pages:
     target: 'Cél: {} Hz több mint {} mm'
     permissionWarning:
       title: Mikrofon engedély szükséges
-      subtitle: |-
-        A szíjhangoló a telefon mikrofonját használja az szíjak frekvenciájának elemzésére.
-
-        Érintsd meg az engedély megadásához.
   spoolman:
     title: Orsómester
     not_available: "Orsómester nem érhető el ehhez a nyomtatóhoz. \nKérjük, győződj meg róla, hogy az Orsómester telepítve és engedélyezve van a nyomtatón."
@@ -1302,9 +1285,6 @@ dialogs:
     subtitle: Szál hozzáadása vagy kivonása az orsóról. A pozitív érték a szál fogyasztását, a negatív érték a hozzáadását eredményezi.
     input_label: Összeg megadása
     submit_label: Beállítás
-    tooltip:
-      weight: Súly módra váltás
-      length: Hosszúság módra váltás
   num_range_dialog:
     helper:
       min: Adj meg legalább egy értéket {}
@@ -1519,7 +1499,6 @@ notifications:
       desc: Értesítések a nyomtatás előrehaladásáról.
       title: Nyomtatás folyamata {}
 form_validators:
-  simple_url: 'A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port'
   disallow_mdns: Az MDNs (.local) címek nem támogatottak.
   file_name_in_use: Fájlnév már használatban van
   min_before_max: A minimális értéknek kisebbnek vagy egyenlőnek kell lennie a maximális értékkel

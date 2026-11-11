@@ -427,13 +427,7 @@ pages:
           other: Die Dateien wurden erfolgreich zur Druckwarteschlange hinzugefügt.
       spoolman_warnings:
         insufficient_filament_title: Unzureichendes Filament
-        insufficient_filament_body: |-
-          Die aktiven Spule hat nur noch {} Filament, was nicht ausreicht um die Datei zu drucken.
-          Tippen Sie, um die aktive Spule zu wechseln.
         material_mismatch_title: Materialwarnung
-        material_mismatch_body: |-
-          Das Material der Datei {} stimmt nicht mit dem Material der aktiven Spule {} überein.
-          Tippen Sie, um die aktive Spule zu ändern.
   setting:
     title: App - Einstellungen
     general:
@@ -772,10 +766,6 @@ pages:
       body: Um die Änderungen zu übernehmen, speichern sie den Drucker.
     wifi_access_warning:
       title: WiFi-Informationen nicht verfügbar
-      subtitle: |-
-        Um festzustellen, ob Mobileraker die Fernzugriffs-Verbindung nutzen soll, gewähren Sie Mobileraker Standortzugriff. Dies erlaubt es der App, den Namen des aktuellen WiFi-Netzwerks abzurufen.
-
-        Tippen Sie, um die Erlaubnis zu erteilen.
     local_ssid:
       section_header: Smart Switching
       no_ssids: Kein WiFi-Name hinzugefügt!
@@ -1015,10 +1005,6 @@ pages:
     target: 'Ziel: {} Hz über {} mm'
     permissionWarning:
       title: Berechtigung für das Mikrofon erforderlich
-      subtitle: |-
-        Der Zahnriemen-Tuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Zahnriemen zu analysieren.
-
-        Tippen Sie, um die Erlaubnis zu erteilen.
   spoolman:
     detail_pane_hint: Wähle einen Eintrag aus, um seine Details zu sehen
     title: Spoolman
@@ -1493,9 +1479,6 @@ dialogs:
     subtitle: Filament von der Spule hinzufügen oder entfernen. Ein positiver Wert verbraucht Filament, ein negativer Wert fügt es hinzu.
     input_label: Anpassung
     submit_label: Anpassen
-    tooltip:
-      weight: Wechseln Sie zum Gewichtsmodus
-      length: Wechseln Sie zum Längenmodus
   num_range_dialog:
     helper:
       min: Gib einen Wert größer als {} ein

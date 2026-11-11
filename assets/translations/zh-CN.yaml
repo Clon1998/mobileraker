@@ -180,10 +180,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude长度"
         cold_extrude_error: 挤出机还没有达到{}°C的最低挤出温度！
       macro_card:
-        title: 宏指令
         no_macros: 当前在该分类中没有可用的宏
-        add_grp_hint: 您可以创建不同的分类来整理您的宏。只需前往打印机设置并添加一个新的分类。
-        show_all_tooltip: 显示所有分类
       pin_card:
         title_misc: 其它
         pin_btn: 别针
@@ -410,11 +407,7 @@ pages:
           other: 文件已成功添加到打印队列。
       spoolman_warnings:
         insufficient_filament_title: 耗材不足
-        insufficient_filament_body: |-
-          当前使用的耗材只剩下{}，不足以打印该模型，请更换耗材！
         material_mismatch_title: 材料不匹配
-        material_mismatch_body: |-
-          此模型使用的材料 {} 与当前料盘材料 {} 不相符，请更换要使用的耗材！
   setting:
     title: 应用设置
     general:
@@ -719,10 +712,6 @@ pages:
       body: 请务必保存打印机应用更改。
     wifi_access_warning:
       title: WiFi信息不可用
-      subtitle: |-
-        确保Mobileraker远程连接，请授权位置读取权限。这样APP将可以获取当前的WiFi名称。
-
-        点击以授权权限。
     local_ssid:
       section_header: 智能切换
       no_ssids: 未添加WiFi名称！
@@ -850,10 +839,6 @@ pages:
     target: "目标：{} Hz于{} mm\n"
     permissionWarning:
       title: 需要麦克风权限
-      subtitle: |-
-        皮带调节器使用您的手机麦克风来分析皮带的共振频率。
-
-        点击授予权限。
   spoolman:
     title: Spoolman
     not_available: "Spoolman 在这台打印机上不可用。\n请确保 Spoolman 已经安装并启用在您的打印机上。\n"
@@ -1245,9 +1230,6 @@ dialogs:
     subtitle: 从料盘中增加或减少耗材。正值会消耗耗材，负值会增加耗材。
     input_label: 调整数量
     submit_label: 调整
-    tooltip:
-      weight: 切换至重量模式
-      length: 切换至长度模式
   num_range_dialog:
     helper:
       min: 输入至少 {} 的数值
@@ -1424,7 +1406,6 @@ notifications:
       desc: 有关打印进度的通知。
       title: 打印{}的进度
 form_validators:
-  simple_url: '输入仅允许 URL 组件： 主机名和端口'
   disallow_mdns: 不支持 mDNS (.local) 地址
   file_name_in_use: 文件名已被使用
 date:

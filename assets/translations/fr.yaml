@@ -140,8 +140,6 @@ pages:
         retract: Rétracter
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude longueur"
         cold_extrude_error: L'extrudeur n'a pas atteint la temperature minimal d'extrusion de {}°C!
-      macro_card:
-        title: Gcode - Macros
       pin_card:
         pin_btn: Pin
       power_card:
@@ -220,13 +218,7 @@ pages:
           Bed: {}°C
       spoolman_warnings:
         insufficient_filament_title: Filament insuffisant
-        insufficient_filament_body: |-
-          La bobine active n'a plus que {} filament, ce qui n'est pas suffisant pour ce fichier.
-          Cliquer pour changer de bobine
         material_mismatch_title: Incompatibilité des matériaux
-        material_mismatch_body: |-
-          Le fichier des matériaux {} ne correspond pas au matériel de la bobine {}.
-          Cliquer pour changer la bobine active.
   setting:
     title: Paramètres de l'application
     general:
@@ -377,10 +369,6 @@ pages:
       body: Veillez à enregistrer l'imprimante pour appliquer les modifications.
     wifi_access_warning:
       title: Informations sur le WiFi non disponibles
-      subtitle: |-
-        Pour déterminer si Mobileraker doit utiliser la connexion à distance, accordez l'accès à la localisation. Cela permet à l'application d'obtenir le nom du réseau WiFi actuel.
-
-        Tapez sur pour accorder la permission.
     local_ssid:
       section_header: Commutation intelligente
       no_ssids: Aucun nom WiFi n'a été ajouté !
@@ -487,10 +475,6 @@ pages:
     target: 'Objectif : {} Hz sur {} mm'
     permissionWarning:
       title: Autorisation du micro requise
-      subtitle: |-
-        L'accordeur de ceinture utilise le microphone de votre téléphone pour analyser la fréquence de vos ceintures.
-
-        Appuyez pour accorder la permission.
 components:
   app_version_display:
     version: 'Version:'
@@ -706,7 +690,6 @@ notifications:
       desc: Notifications concernant la progression de l'impression.
       title: Progression de l'impression {}
 form_validators:
-  simple_url: 'La saisie n''autorise que les composants URL : Nom d''hôte et Port'
   disallow_mdns: Les adresses mDNS (.local) ne sont pas prises en charge.
 date:
   year:

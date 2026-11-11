@@ -185,10 +185,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude 長度"
         cold_extrude_error: 擠出機尚未達到最低擠出溫度（ {}°C ）
       macro_card:
-        title: G-Code 巨集
         no_macros: 目前在此群組中沒有可見的巨集
-        add_grp_hint: 您可建立不同群組來編組您的巨集。只需至印表機設定中並新增群組。
-        show_all_tooltip: 顯示所有巨集
       pin_card:
         title_misc: 雜項
         pin_btn: Pin
@@ -399,13 +396,7 @@ pages:
           other: 檔案已成功加入至列印佇列
       spoolman_warnings:
         insufficient_filament_title: 耗材不足
-        insufficient_filament_body: |-
-          當前料盤僅剩 {} 耗材，不足以完成此檔案。
-          點擊以更換當前料盤。
         material_mismatch_title: 材質不相符
-        material_mismatch_body: |-
-          檔案要求的材質 {} 與目前料盤的材質 {} 不符。
-          點擊以更換當前料盤。
   setting:
     title: App 設定
     general:
@@ -667,10 +658,6 @@ pages:
       body: 請確認儲存列表機設置以套用變更。
     wifi_access_warning:
       title: WiFi資訊不可用
-      subtitle: |-
-        若要判斷 Mobileraker 是否應使用遠端連線，請授予位置存取權限。這能讓應用程式獲取目前 Wi-Fi 網路的名稱。
-
-        點擊以授予權限。
     local_ssid:
       section_header: 智慧切換
       no_ssids: 未加入 WiFi 名稱！
@@ -901,10 +888,6 @@ pages:
     target: '目標：{} Hz於 {} mm'
     permissionWarning:
       title: 需要麥克風權限
-      subtitle: |-
-        皮帶調整器使用您的裝置麥克風來分析皮帶的頻率。
-
-        點擊授予權限。
   spoolman:
     title: Spoolman
     not_available: "Spoolman 在這台列印機上不可用。\n請確保 Spoolman 已經安裝並啟用在您的列印機上。"
@@ -1373,9 +1356,6 @@ dialogs:
     subtitle: 增加或減少料盤上的耗材數值。正值代表消耗耗材，負值代表增加耗材。
     input_label: 調整數量
     submit_label: 調整
-    tooltip:
-      weight: 切換至重量模式
-      length: 切換至長度模式
   num_range_dialog:
     helper:
       min: 輸入至少 {} 的數值
@@ -1590,7 +1570,6 @@ notifications:
       desc: 有關列印進度的通知。
       title: 列印進度： {}
 form_validators:
-  simple_url: '輸入僅允許 URL元件：主機名稱和連接埠。'
   disallow_mdns: 不支援 mDNS (.local) 位址
   file_name_in_use: 檔案名稱已經在使用中
   min_before_max: 最小值必須小於或等於最大值

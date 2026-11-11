@@ -174,10 +174,7 @@ pages:
         extrude_len: "@:pages.dashboard.control.extrude_card.extrude délka"
         cold_extrude_error: Extrudér ještě nedosáhl min_extrude_temp {}°C!
       macro_card:
-        title: G-Kódy - Makra
         no_macros: V této skupině nejsou momentálně viditelná žádná makra
-        add_grp_hint: Můžete vytvořit různé skupiny pro uspořádání maker. Stačí jít do nastavení tiskárny a přidat novou skupinu.
-        show_all_tooltip: Zobrazit všechna makra
       pin_card:
         title_misc: Ostatní
         pin_btn: Pin
@@ -386,13 +383,7 @@ pages:
           other: Soubory byly úspěšně přidány do tiskové fronty.
       spoolman_warnings:
         insufficient_filament_title: Nedostatek filamentu
-        insufficient_filament_body: |-
-          Aktivní cívka má pouze {} vlákna, což pro tento soubor nestačí.
-          Kliknutím změníte aktivní cívku.
         material_mismatch_title: Neshoda materiálu
-        material_mismatch_body: |-
-          Materiál souboru {} neodpovídá materiálu aktivní cívky{}.
-          Kliknutím změníte aktivní cívku.
   setting:
     title: Aplikace - Nastavení
     general:
@@ -643,10 +634,6 @@ pages:
       body: Nezapomeňte uložit tiskárnu pro aplikaci změn.
     wifi_access_warning:
       title: Informace o WiFi nejsou k dispozici
-      subtitle: |-
-        Pro určení, zda by měl Mobileraker používat dálkové připojení, povolte přístup k poloze. Toto umožňuje aplikaci načíst název aktuální WiFi Network.
-
-        Klepnutím udělíte oprávnění.
     local_ssid:
       section_header: Chytré přepínání
       no_ssids: Nebylo přidáno žádné jméno WiFi!
@@ -875,10 +862,6 @@ pages:
     target: 'Cíl: {} Hz nad {} mm'
     permissionWarning:
       title: Je vyžadováno oprávnění k mikrofonu
-      subtitle: |-
-        Dotahovač řemenů používá mikrofon vašeho telefonu pro analýzu frekvence vibrací řemenů.
-
-        Klikněte pro udělení oprávnění.
   spoolman:
     title: Spoolman
     not_available: "Spoolman není pro tuto tiskárnu k dispozici. \nUjistěte se, že Spoolman je nainstalován a povolen ve vaší tiskárně."
@@ -1308,9 +1291,6 @@ dialogs:
     subtitle: Přidat nebo odečíst vlákno od cívky. Pozitivní hodnota bude spotřebovávat vlákno, přidá ho záporná hodnota.
     input_label: Upravit množství
     submit_label: Seřídit
-    tooltip:
-      weight: Přepnout do režimu hmotnosti
-      length: Přepnout do režimu délky
   num_range_dialog:
     helper:
       min: Zadejte hodnotu alespoň {}
@@ -1525,7 +1505,6 @@ notifications:
       desc: Oznámení týkající se postupu tisku.
       title: Postup tisku {}
 form_validators:
-  simple_url: 'Vstup povoluje pouze komponenty URL: název hostitele a port'
   disallow_mdns: mDNS (.local) adresy nejsou podporovány
   file_name_in_use: Název souboru je již používán
   min_before_max: Minimální hodnota musí být menší nebo rovna maximální hodnotě

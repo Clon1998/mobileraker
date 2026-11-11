@@ -174,10 +174,7 @@ pages:
         extrude_len: "Comprimento de Extrusão"
         cold_extrude_error: Extrusora muito fria. Não atingiu a temperatura mínima de {}°C!
       macro_card:
-        title: Gcode - Macros
         no_macros: Nenhuma macro visível neste grupo no momento
-        add_grp_hint: Você pode criar diferentes grupos para organizar suas macros. Vá para as configurações da impressora e adicione um novo grupo.
-        show_all_tooltip: Mostrar todas as macros
       pin_card:
         title_misc: Diversos
         pin_btn: Pino
@@ -379,13 +376,7 @@ pages:
           other: Os arquivos foram adicionados com sucesso à fila de impressão.
       spoolman_warnings:
         insufficient_filament_title: Filamento insuficiente
-        insufficient_filament_body: |-
-          O carretel ativo possui apenas {} de filamento restante, o que não é suficiente para este arquivo.
-          Toque para alterar o carretel ativo.
         material_mismatch_title: Incompatibilidade de Material
-        material_mismatch_body: |-
-          O material do arquivo {} não corresponde ao material do carretel ativo {}.
-          Toque para alterar o carretel ativo.
   setting:
     title: Configurações do Aplicativo
     general:
@@ -617,10 +608,6 @@ pages:
       body: Certifique-se de salvar a impressora para aplicar as alterações.
     wifi_access_warning:
       title: Informações de Wi-Fi Indisponíveis
-      subtitle: |-
-        Para determinar se o Mobileraker deve usar a conexão remota, conceda acesso à localização. Isso permite que o aplicativo obtenha o nome da rede Wi-Fi atual.
-
-        Toque para conceder a permissão.
     local_ssid:
       section_header: Troca Inteligente
       no_ssids: Nenhum nome de Wi-Fi adicionado!
@@ -849,10 +836,6 @@ pages:
     target: 'Alvo: {} Hz sobre {} mm'
     permissionWarning:
       title: Permissão de microfone necessária
-      subtitle: |-
-        O afinador de correia usa o microfone do seu telefone para analisar a frequência das suas correias.
-
-        Toque para conceder a permissão.
   spoolman:
     title: Spoolman
     not_available: "O Spoolman não está disponível para esta impressora. \nCertifique-se de que o Spoolman está instalado e ativado em sua impressora."
@@ -1280,9 +1263,6 @@ dialogs:
     subtitle: Adicione ou subtraia filamento do carretel. Um valor positivo consumirá filamento, um valor negativo adicionará.
     input_label: Quantidade de Ajuste
     submit_label: Ajustar
-    tooltip:
-      weight: Mudar para modo de peso
-      length: Mudar para modo de comprimento
   num_range_dialog:
     helper:
       min: Insira um valor de pelo menos {}
@@ -1491,7 +1471,6 @@ notifications:
       desc: Notificações de progresso de impressão.
       title: Progresso de Impressão de {}
 form_validators:
-  simple_url: 'A entrada permite apenas componentes de URL: Nome do Host e Porta'
   disallow_mdns: Endereços mDNS (.local) não são suportados
   file_name_in_use: Nome do arquivo já está em uso
   min_before_max: O valor mínimo deve ser menor ou igual ao valor máximo
