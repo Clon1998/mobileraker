@@ -65,6 +65,8 @@ void main() {
     ActiveSpool Function()? activeSpool,
     GCodeFile? file,
     bool fromList = false,
+    // The jobs of Moonraker's history, null if the history component is not available.
+    List<Map<String, dynamic>>? jobs = const [],
     bool supporter = true,
     PrinterNotifier Function()? printerNotifier,
   }) async {
@@ -72,6 +74,7 @@ void main() {
       responses: {
         'server.job_queue.status': (_) => {'queued_jobs': [], 'queue_state': 'ready'},
         'server.job_queue.post_job': (_) => {'queued_jobs': [], 'queue_state': 'ready'},
+        if (jobs != null) 'server.history.list': (_) => {'count': jobs.length, 'jobs': jobs},
       },
     );
     sheets = FakeBottomSheetService();
@@ -124,6 +127,27 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Map<String, dynamic> job(
+    String id,
+    String status, {
+    String filename = 'boats/benchy.gcode',
+    double printDuration = 5415,
+    double filamentUsed = 14900,
+  }) => {
+    'job_id': id,
+    'user': '_TRUSTED_USER_',
+    'filename': filename,
+    'status': status,
+    'start_time': 1700001000.0 + int.parse(id) * 3600,
+    'end_time': 1700001000.0 + int.parse(id) * 3600 + printDuration,
+    'print_duration': printDuration,
+    'total_duration': printDuration + 60,
+    'filament_used': filamentUsed,
+    'metadata': {'size': 1, 'modified': 1.0, 'estimated_time': 5400.0, 'filament_total': 15000.0},
+    'auxiliary_data': [],
+    'exists': true,
+  };
+
   FloatingActionButton printButton(WidgetTester tester) =>
       tester.widget<FloatingActionButton>(find.byKey(const Key('printFab')));
 
@@ -165,6 +189,54 @@ void main() {
     await tester.unmountApp();
   });
 
+  testWidgets('multi material files get a chip per material and list every material once', (tester) async {
+    await pumpPage(
+      tester,
+      file: benchy.copyWith(
+        // The slicer lists all 4 tools of the printer, the print uses 3 of them.
+        filamentTypes: const ['PLA', 'PLA', 'PETG', 'ABS'],
+        filamentNames: const ['Generic PLA', 'Generic PLA', 'Generic PETG', 'Generic ABS'],
+        filamentColors: const ['#FF0000', '#00FF00', '#0000FF', '#FFFFFF'],
+        nozzleDiameter: const [0.4, 0.4, 0.4, 0.4],
+        referencedTools: const [0, 1, 2],
+      ),
+    );
+
+    expect(find.widgetWithText(Chip, '2× PLA'), findsOneWidget);
+    await tester.tap(find.widgetWithText(Chip, '2× PLA'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.textContaining('Generic PLA', findRichText: true), findsWidgets, reason: 'tooltip of the chip');
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(Chip, 'PETG'), findsOneWidget);
+    expect(find.widgetWithText(Chip, 'ABS'), findsNothing, reason: 'its tool is not used');
+    expect(find.widgetWithText(Chip, '0.4 mm nozzle'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Generic PLA, Generic PETG'), 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(find.text('PLA, PETG'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('a single material print of a multi tool printer only shows the filament it uses', (tester) async {
+    await pumpPage(
+      tester,
+      file: benchy.copyWith(
+        filamentTypes: const ['PETG', 'PLA', 'PLA', 'PLA'],
+        filamentNames: const ['Taupe PETG', 'Generic PLA', 'Generic PLA', 'Generic PLA'],
+        filamentColors: const ['#979188', '#F0F0F0', '#FFFF00', '#ED1C24'],
+        // No referenced tools, but only the last tool uses filament.
+        filamentWeights: const [0, 0, 0, 17.66],
+      ),
+    );
+
+    expect(find.widgetWithText(Chip, 'PLA'), findsOneWidget);
+    expect(find.widgetWithText(Chip, 'PETG'), findsNothing);
+    expect(find.textContaining('×'), findsNothing);
+    await tester.scrollUntilVisible(find.text('Generic PLA'), 200, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Taupe PETG'), findsNothing);
+    await tester.unmountApp();
+  });
+
   testWidgets('details leave out what the file does not know', (tester) async {
     await pumpPage(
       tester,
@@ -177,12 +249,74 @@ void main() {
     await tester.unmountApp();
   });
 
-  testWidgets('a printed file shows when it was printed last and offers to print again', (tester) async {
-    await pumpPage(tester, file: benchy.copyWith(printStartTime: 1700000500));
+  testWidgets('without the history a printed file shows when it was printed last and offers to print again', (
+    tester,
+  ) async {
+    await pumpPage(tester, file: benchy.copyWith(printStartTime: 1700000500), jobs: null);
 
-    expect(find.text('Last Printed'), findsOneWidget);
+    expect(find.text('Last Printed'), findsWidgets, reason: 'history card and details');
     expect(find.text('Not printed yet'), findsNothing);
     expect(find.text('Print again'), findsOneWidget);
+    await tester.unmountApp();
+  });
+
+  testWidgets('shows the runs of the file, not those of other files', (tester) async {
+    await pumpPage(
+      tester,
+      jobs: [
+        job('3', 'completed'),
+        job('2', 'cancelled', printDuration: 2832, filamentUsed: 12300),
+        job('1', 'completed', filename: 'other.gcode'),
+      ],
+    );
+
+    expect(find.text('2 runs'), findsOneWidget);
+    expect(find.text('1 / 2'), findsOneWidget, reason: 'completed runs');
+    expect(find.text('2h 17m'), findsOneWidget, reason: 'print time of both runs');
+    expect(find.text('Cancelled'), findsOneWidget);
+    expect(find.text('15s longer than the slicer estimate'), findsOneWidget);
+    expect(find.text('~82%'), findsOneWidget, reason: 'filament the cancelled run used');
+    expect(find.text('Not printed yet'), findsNothing);
+    expect(find.text('Print again'), findsOneWidget, reason: 'the file itself does not know it was printed');
+    final list = rpc.calls.singleWhere((c) => c.method == 'server.history.list');
+    expect((list.params as Map)['since'], 1700000000, reason: 'the file can not have been printed before it changed');
+    await tester.unmountApp();
+  });
+
+  testWidgets('the history is only searched around the last print of the file', (tester) async {
+    await pumpPage(
+      tester,
+      // Printed 100h after it was modified.
+      file: benchy.copyWith(printStartTime: 1700001000 + 100 * 3600),
+      jobs: [job('100', 'completed'), job('99', 'cancelled'), job('3', 'completed')],
+    );
+
+    final list = rpc.calls.singleWhere((c) => c.method == 'server.history.list');
+    expect((list.params as Map)['since'], 1700001000 + 52 * 3600, reason: '48h before the last print');
+    expect(find.text('2 runs'), findsOneWidget, reason: 'the run 4 days earlier is not part of the recent runs');
+    await tester.unmountApp();
+  });
+
+  testWidgets('files that do not know their last print get the same recent runs', (tester) async {
+    await pumpPage(tester, jobs: [job('100', 'completed'), job('99', 'cancelled'), job('3', 'completed')]);
+
+    expect(find.text('2 runs'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Last Printed'), 200, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Last Printed'), findsOneWidget, reason: 'taken from the most recent run');
+    await tester.unmountApp();
+  });
+
+  testWidgets('older runs are folded away until expanded', (tester) async {
+    await pumpPage(tester, jobs: [for (var i = 5; i >= 1; i--) job('$i', i.isEven ? 'error' : 'completed')]);
+
+    expect(find.text('5 runs'), findsOneWidget);
+    expect(find.text('Failed'), findsOneWidget, reason: 'only the 3 most recent runs: completed, failed, completed');
+
+    // Invoked directly: depending on the scroll position the row is below the FABs.
+    tester.widget<InkWell>(find.ancestor(of: find.text('2 more attempts'), matching: find.byType(InkWell)).first).onTap!();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Failed'), findsNWidgets(2));
     await tester.unmountApp();
   });
 

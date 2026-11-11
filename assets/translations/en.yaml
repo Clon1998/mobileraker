@@ -407,6 +407,12 @@ pages:
       history_card:
         not_printed_title: Not printed yet
         not_printed_body: Every run of this file on {} will appear here.
+        runs:
+          one: "{} run"
+          other: "{} runs"
+        longer_than_estimate: "{} longer than the slicer estimate"
+        shorter_than_estimate: "{} shorter than the slicer estimate"
+        open_history: Open in Print History
       meta_card:
         title: GCode Meta Data
         fields:

@@ -11,23 +11,27 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
+import 'package:common/data/dto/history/historical_print_job.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/moonraker/history_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/historical_print_job_extension.dart';
 import 'package:common/util/extensions/number_format_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -35,11 +39,13 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/path_utils.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/file_interaction_service.dart';
+import 'package:mobileraker/ui/screens/history/job_formatting.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
@@ -312,7 +318,7 @@ class _CollapsedTitle extends ConsumerWidget {
     final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
     final titleStyle = DefaultTextStyle.of(context).style;
     final facts = [
-      if (file.filamentTypes.isNotEmpty) file.filamentTypes.join(', '),
+      if (file.filamentTypes.isNotEmpty) _materials(file).keys.join(', '),
       if (file.estimatedTime != null) _durationText(file.estimatedTime!),
     ];
 
@@ -368,6 +374,14 @@ class _Header extends ConsumerWidget {
     final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
     final themeData = Theme.of(context);
     final slicer = [?file.slicer, ?file.slicerVersion].join(' ');
+    // What the Tooltip itself uses for its text.
+    final tooltipForeground =
+        TooltipTheme.of(context).textStyle?.color ??
+        (themeData.brightness == Brightness.dark ? Colors.black : Colors.white);
+    final weightFormat = NumberFormat.decimalPatternDigits(
+      locale: context.locale.toStringWithSeparator(),
+      decimalDigits: 1,
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
@@ -387,8 +401,42 @@ class _Header extends ConsumerWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              if (file.filamentTypes.isNotEmpty)
-                _Chip(label: file.filamentTypes.join(', '), dotColor: _filamentColor(file) ?? themeData.colorScheme.onSurface),
+              // One chip per material. Multi material prints list a filament per tool, often the same material in
+              // different colors.
+              for (final MapEntry(key: material, value: filaments) in _materials(file).entries)
+                _Chip(
+                  label: filaments.length > 1 ? '${filaments.length}× $material' : material,
+                  dotColors: [
+                    for (final filament in filaments.take(_Chip.maxDots))
+                      filament.color ?? themeData.colorScheme.onSurface,
+                  ],
+                  // Which filaments these are: the slicer profile and what the print uses of each.
+                  tooltip: filaments.any((filament) => filament.name != null)
+                      ? TextSpan(
+                          children: [
+                            for (final (i, filament) in filaments.indexed) ...[
+                              if (i > 0) const TextSpan(text: '\n'),
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.only(end: 6),
+                                  child: _FilamentDot(
+                                    color: filament.color ?? tooltipForeground,
+                                    outline: tooltipForeground,
+                                  ),
+                                ),
+                              ),
+                              TextSpan(
+                                text: [
+                                  filament.name ?? material,
+                                  ?filament.weight?.let(weightFormat.formatGrams),
+                                ].join(' · '),
+                              ),
+                            ],
+                          ],
+                        )
+                      : null,
+                ),
               if (file.nozzleDiameter.isNotEmpty)
                 _Chip(
                   label: tr(
@@ -406,19 +454,84 @@ class _Header extends ConsumerWidget {
 }
 
 class _Chip extends StatelessWidget {
-  const _Chip({required this.label, this.dotColor});
+  const _Chip({required this.label, this.dotColors = const [], this.tooltip});
+
+  /// More dots than this do not tell more, the label has the count.
+  static const int maxDots = 4;
 
   final String label;
 
-  final Color? dotColor;
+  /// The colors of the filaments the chip stands for, shown as overlapping dots in front of the label.
+  final List<Color> dotColors;
+
+  /// More about what the chip stands for, shown when the chip is tapped.
+  final InlineSpan? tooltip;
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
+    final themeData = Theme.of(context);
+    const double dot = 10;
+    const double step = 7;
+
+    final chip = Chip(
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      avatar: dotColor == null ? null : Icon(Icons.circle, size: 10, color: dotColor),
-      label: Text(label),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (dotColors.isNotEmpty) ...[
+            SizedBox(
+              width: dot + step * (dotColors.length - 1),
+              height: dot,
+              child: Stack(
+                children: [
+                  for (final (i, color) in dotColors.indexed)
+                    PositionedDirectional(
+                      start: step * i,
+                      child: _FilamentDot(color: color, outline: themeData.colorScheme.onSurface, size: dot),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
+    if (tooltip == null) return chip;
+
+    return Tooltip(
+      richMessage: tooltip,
+      triggerMode: TooltipTriggerMode.tap,
+      showDuration: const Duration(seconds: 4),
+      child: chip,
+    );
+  }
+}
+
+/// The color of a filament as a dot. Its outline keeps overlapping dots apart and a filament in the color of the
+/// background visible.
+class _FilamentDot extends StatelessWidget {
+  const _FilamentDot({required this.color, required this.outline, this.size = 10});
+
+  final Color color;
+
+  /// The color the outline is derived from, i.e. the foreground color of what the dot is shown on.
+  final Color outline;
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: outline.withValues(alpha: 0.6)),
+      ),
     );
   }
 }
@@ -449,7 +562,7 @@ class _SpoolWarnings extends ConsumerWidget {
           title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
           subtitle: const Text(
             'pages.files.details.spoolman_warnings.material_mismatch_body',
-          ).tr(args: [model.file.filamentTypes.join(', '), model.materialMissmatch ?? '--']),
+          ).tr(args: [model.file.filamentTypes.toSet().join(', '), model.materialMissmatch ?? '--']),
         ),
         WarningCard(
           show: model.insufficientFilament != null,
@@ -530,30 +643,301 @@ class _SummaryTile extends StatelessWidget {
     final themeData = Theme.of(context);
     final muted = themeData.textTheme.bodySmall;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Tooltip(
+      message: [label, value, ?hint].join('\n'),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 14, color: muted?.color),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(value, style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              ),
+              // Wraps instead of being cut off: an ETA on another day includes the date.
+              if (hint != null) ...[
+                const SizedBox(height: 2),
+                Text(hint!, style: muted),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The recent runs of this file (see [fileJobHistoryProvider]): how many of them completed, what they used and how
+/// each of them went.
+class _HistoryCard extends HookConsumerWidget {
+  const _HistoryCard();
+
+  /// The runs shown before the older ones have to be expanded.
+  static const int _collapsedRuns = 3;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
+    final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
+    final history = ref.watch(
+      fileJobHistoryProvider(
+        machineUUID,
+        file.pathForPrint,
+        since: file.modifiedDate,
+        lastPrinted: file.lastPrintDate,
+      ),
+    );
+    final printerName = ref.watch(selectedMachineProvider.select((data) => data.value?.name));
+    final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMMMd());
+    final expanded = useState(false);
+    final themeData = Theme.of(context);
+    final runs = history.value;
+    final lastPrinted = file.lastPrintDate;
+
+    final Widget body;
+    if (runs != null && runs.isNotEmpty) {
+      final older = runs.skip(_collapsedRuns).toList();
+      body = Column(
+        key: const Key('runs'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _RunTotals(runs: runs),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 14, color: muted?.color),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+                for (final (i, job) in runs.take(_collapsedRuns).indexed)
+                  _Run(
+                    key: ValueKey(job.jobId),
+                    job: job,
+                    file: file,
+                    isLast: i == runs.length - 1 || (!expanded.value && i == _collapsedRuns - 1),
+                  ),
+                AnimatedSizeAndFade(
+                  sizeDuration: kThemeAnimationDuration,
+                  fadeDuration: kThemeAnimationDuration,
+                  alignment: Alignment.topCenter,
+                  child: expanded.value
+                      ? Column(
+                          key: const Key('olderRuns'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (final (i, job) in older.indexed)
+                              _Run(key: ValueKey(job.jobId), job: job, file: file, isLast: i == older.length - 1),
+                          ],
+                        )
+                      : const SizedBox(key: Key('noOlderRuns'), width: double.infinity),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(value, style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          ),
+          if (older.isNotEmpty)
+            InkWell(
+              onTap: () => expanded.value = !expanded.value,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    Icon(Icons.replay, size: 18, color: themeData.textTheme.bodySmall?.color),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        plural('pages.history.earlier_attempts', older.length),
+                        style: themeData.textTheme.bodyMedium,
+                      ),
+                    ),
+                    AnimatedRotation(
+                      turns: expanded.value ? 0.5 : 0,
+                      duration: kThemeAnimationDuration,
+                      child: Icon(Icons.expand_more, color: themeData.textTheme.bodySmall?.color),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            if (hint != null) ...[
-              const SizedBox(height: 2),
-              Text(hint!, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+          const Divider(height: 1),
+          InkWell(
+            onTap: () => context.goNamed(AppRoute.history.name),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'pages.files.details.history_card.open_history',
+                    style: themeData.textTheme.labelLarge?.copyWith(color: themeData.colorScheme.primary),
+                  ).tr(),
+                  Icon(Icons.chevron_right, size: 18, color: themeData.colorScheme.primary),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (runs != null) {
+      body = _HistoryHint(
+        key: const Key('notPrinted'),
+        icon: const Icon(Icons.hourglass_empty, size: 20),
+        title: tr('pages.files.details.history_card.not_printed_title'),
+        body: tr('pages.files.details.history_card.not_printed_body', args: [printerName ?? '--']),
+      );
+    } else if (history.hasError && lastPrinted != null) {
+      // Without the history (e.g. the component is disabled) the file still knows when it was printed last.
+      body = _HistoryHint(
+        key: const Key('lastPrinted'),
+        icon: const Icon(Icons.event_available, size: 20),
+        title: tr('pages.files.details.general_card.last_printed'),
+        body: dateFormat.format(lastPrinted),
+      );
+    } else if (history.hasError) {
+      body = _HistoryHint(
+        key: const Key('historyError'),
+        icon: const Icon(Icons.history_toggle_off, size: 20),
+        title: tr('pages.history.provider_error.title'),
+        body: tr('pages.history.provider_error.body'),
+      );
+    } else {
+      body = _HistoryHint(
+        key: const Key('historyLoading'),
+        icon: const SizedBox.square(dimension: 18, child: CircularProgressIndicator.adaptive(strokeWidth: 2)),
+        title: tr('general.loading'),
+        body: tr('pages.history.title'),
+      );
+    }
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('pages.history.title').tr(),
+            trailing: runs == null || runs.isEmpty
+                ? null
+                : Text(
+                    plural('pages.files.details.history_card.runs', runs.length),
+                    style: themeData.textTheme.bodySmall,
+                  ),
+          ),
+          const Divider(height: 1),
+          AnimatedSizeAndFade(
+            sizeDuration: kThemeAnimationDuration,
+            fadeDuration: kThemeAnimationDuration,
+            alignment: Alignment.topCenter,
+            child: body,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A single line about the history while there are no runs to show.
+class _HistoryHint extends StatelessWidget {
+  const _HistoryHint({super.key, required this.icon, required this.title, required this.body});
+
+  final Widget icon;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: themeData.colorScheme.onSurface.withValues(alpha: 0.2)),
+            ),
+            child: IconTheme.merge(
+              data: IconThemeData(color: themeData.textTheme.bodySmall?.color),
+              child: icon,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 2),
+                Text(body, style: themeData.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// What all runs of the file add up to.
+class _RunTotals extends StatelessWidget {
+  const _RunTotals({required this.runs});
+
+  final List<HistoricalPrintJob> runs;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final completed = runs.where((job) => job.outcome == JobOutcome.completed).length;
+    final stats = [
+      (tr('pages.history.filter.completed'), '$completed / ${runs.length}'),
+      (tr('pages.history.stats.print_time'), jobDurationText(runs.fold(0.0, (sum, job) => sum + job.printDuration))),
+      (
+        tr('pages.history.stats.filament'),
+        jobFilamentText(context, runs.fold(0.0, (sum, job) => sum + job.filamentUsed)),
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            for (final (i, (label, value)) in stats.indexed) ...[
+              if (i > 0) const VerticalDivider(width: 1, indent: 4, endIndent: 4),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          value,
+                          style: themeData.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: themeData.textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ],
         ),
@@ -562,66 +946,129 @@ class _SummaryTile extends StatelessWidget {
   }
 }
 
-/// The runs of this file. For now only whether (and when) it was printed, the list of runs is still to come.
-class _HistoryCard extends ConsumerWidget {
-  const _HistoryCard();
+/// A single run of the file in the timeline of the [_HistoryCard].
+class _Run extends ConsumerWidget {
+  const _Run({super.key, required this.job, required this.file, required this.isLast});
+
+  final HistoricalPrintJob job;
+
+  final GCodeFile file;
+
+  /// Whether this is the last run shown, i.e. the timeline ends here.
+  final bool isLast;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
-    final printerName = ref.watch(selectedMachineProvider.select((data) => data.value?.name));
-    final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMMMd());
     final themeData = Theme.of(context);
-    final lastPrinted = file.lastPrintDate;
+    final muted = themeData.textTheme.bodySmall;
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final (statusColor, statusIcon) = jobStatusStyle(themeData, job);
 
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    final start = job.startTime;
+    final date = start.year == DateTime.now().year
+        ? '${DateFormat.MMMEd().format(start)} · ${dateFormatService.Hm().format(start)}'
+        : dateFormatService.add_Hm(DateFormat.yMMMd()).format(start);
+
+    final usage = [
+      if (job.printDuration >= 1) jobDurationText(job.printDuration),
+      if (job.filamentUsed >= 10) jobFilamentText(context, job.filamentUsed),
+    ].join(' · ');
+
+    // Each job keeps the metadata the file had when it was printed.
+    final estimate = job.metadata.estimatedTime ?? file.estimatedTime;
+    String? comparedToEstimate;
+    double? progress;
+    switch (job.outcome) {
+      case JobOutcome.completed when estimate != null:
+        final diff = job.printDuration - estimate;
+        if (diff.abs() >= 1) {
+          comparedToEstimate = tr(
+            'pages.files.details.history_card.${diff > 0 ? 'longer' : 'shorter'}_than_estimate',
+            args: [jobDurationText(diff.abs())],
+          );
+        }
+      case JobOutcome.cancelled || JobOutcome.failed:
+        // The filament tells how far a print got, the time also covers heating up and pauses.
+        final filamentTotal = job.metadata.filamentTotal ?? file.filamentTotal;
+        if (filamentTotal != null && filamentTotal > 0) {
+          progress = job.filamentUsed / filamentTotal;
+        } else if (estimate != null && estimate > 0) {
+          progress = job.printDuration / estimate;
+        }
+        progress = progress?.clamp(0, 1).toDouble();
+        // Runs that were stopped before they really started have nothing to show.
+        if (progress != null && progress < 0.01) progress = null;
+      default:
+    }
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(leading: const Icon(Icons.history), title: const Text('pages.history.title').tr()),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: themeData.colorScheme.onSurface.withValues(alpha: 0.2)),
-                  ),
-                  child: Icon(
-                    lastPrinted == null ? Icons.hourglass_empty : Icons.event_available,
-                    size: 20,
-                    color: themeData.textTheme.bodySmall?.color,
+          Column(
+            children: [
+              Icon(statusIcon, size: 22, color: statusColor),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 2),
+                    color: themeData.colorScheme.onSurface.withValues(alpha: 0.15),
                   ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        lastPrinted == null
-                            ? tr('pages.files.details.history_card.not_printed_title')
-                            : tr('pages.files.details.general_card.last_printed'),
-                        style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          jobStatusLabel(job),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: themeData.textTheme.titleSmall?.copyWith(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        lastPrinted == null
-                            ? tr(
-                                'pages.files.details.history_card.not_printed_body',
-                                args: [printerName ?? '--'],
-                              )
-                            : dateFormat.format(lastPrinted),
-                        style: themeData.textTheme.bodySmall,
-                      ),
+                      const SizedBox(width: 8),
+                      Text(date, style: muted),
                     ],
                   ),
-                ),
-              ],
+                  if (usage.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(usage, style: themeData.textTheme.bodyMedium),
+                  ],
+                  if (comparedToEstimate != null) ...[
+                    const SizedBox(height: 2),
+                    Text(comparedToEstimate, style: muted),
+                  ],
+                  if (progress != null) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 4,
+                            borderRadius: BorderRadius.circular(2),
+                            color: statusColor,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text('~${(progress * 100).round()}%', style: muted),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ],
@@ -643,6 +1090,18 @@ class _DetailsCard extends ConsumerWidget {
       decimalDigits: 2,
     );
     final themeData = Theme.of(context);
+    final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
+    // Files opened from the history do not know when they were printed last, the history does.
+    final lastPrinted =
+        file.lastPrintDate ??
+        ref.watch(
+          fileJobHistoryProvider(
+            machineUUID,
+            file.pathForPrint,
+            since: file.modifiedDate,
+            lastPrinted: file.lastPrintDate,
+          ).select((value) => value.value?.firstOrNull?.startTime),
+        );
 
     String mm(double value) => '${numFormat.format(value)} mm';
     String celsius(double value) => '${value.toStringAsFixed(0)} °C';
@@ -652,8 +1111,8 @@ class _DetailsCard extends ConsumerWidget {
       (
         tr('$meta.filament'),
         [
-          (tr('$meta.filament_type'), file.filamentTypes.isEmpty ? null : file.filamentTypes.join(', ')),
-          (tr('$meta.filament_name'), file.filamentNames.isEmpty ? null : file.filamentNames.join(', ')),
+          (tr('$meta.filament_type'), file.filamentTypes.isEmpty ? null : _materials(file).keys.join(', ')),
+          (tr('$meta.filament_name'), file.filamentNames.isEmpty ? null : _filamentNames(file).join(', ')),
           (tr('$meta.filament_weight'), file.filamentWeightTotal?.let(numFormat.formatGrams)),
           (tr('$meta.filament_length'), file.filamentTotal?.let(numFormat.formatMillimeters)),
           (tr('$meta.filament_changes'), file.filamentChangeCount?.let((it) => it > 0 ? '$it' : null)),
@@ -687,6 +1146,7 @@ class _DetailsCard extends ConsumerWidget {
           (tr('pages.files.details.general_card.path'), file.absolutPath),
           (tr('pages.files.sort_by.file_size'), numFormat.formatFileSize(file.size)),
           (tr('pages.files.details.general_card.last_mod'), file.modifiedDate?.let(dateFormat.format)),
+          (tr('pages.files.details.general_card.last_printed'), lastPrinted?.let(dateFormat.format)),
         ],
       ),
     ];
@@ -811,7 +1271,19 @@ class _Fab extends ConsumerWidget {
 
     final themeData = Theme.of(context);
     final disabledColor = themeData.disabledColor;
-    final printLabel = tr(file.printStartTime != null ? 'pages.history.actions.print_again' : 'general.print');
+    final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
+    // The file only knows about its last print if Moonraker listed it, not if it was opened from the history.
+    final printedBefore =
+        file.printStartTime != null ||
+        ref.watch(
+          fileJobHistoryProvider(
+            machineUUID,
+            file.pathForPrint,
+            since: file.modifiedDate,
+            lastPrinted: file.lastPrintDate,
+          ).select((value) => value.value?.isNotEmpty ?? false),
+        );
+    final printLabel = tr(printedBefore ? 'pages.history.actions.print_again' : 'general.print');
     final preheatLabel = tr('pages.files.gcode_file_actions.preheat');
     const printIcon = Icon(MaterialCommunityIcons.printer_3d_nozzle);
     const preheatIcon = Icon(MobilerakerIcons.nozzle_heat);
@@ -891,18 +1363,68 @@ String _durationText(num seconds) {
   return '${d.inSeconds}s';
 }
 
-/// The slicer's color (`#RRGGBB`) of the first filament of the file, if it is known.
-Color? _filamentColor(GCodeFile file) {
-  final hex = file.filamentColors?.firstOrNull?.replaceFirst('#', '');
-  if (hex == null || hex.length != 6) return null;
+/// The tools (indexes of the per filament lists of the file) the print uses.
+///
+/// Slicers list the filament of every tool that is set up, also for a print that only uses one of them. Which ones
+/// are used is told by the tools the file references or, if it does not, by the tools that use any filament.
+List<int> _usedTools(GCodeFile file) {
+  final count = file.filamentTypes.length;
+  final referenced = file.referencedTools;
+  if (referenced != null && referenced.isNotEmpty && referenced.every((tool) => tool >= 0 && tool < count)) {
+    return referenced;
+  }
+  final weights = file.filamentWeights;
+  if (weights != null && weights.length == count && weights.any((weight) => weight > 0)) {
+    return [
+      for (final (tool, weight) in weights.indexed)
+        if (weight > 0) tool,
+    ];
+  }
+  return [for (var tool = 0; tool < count; tool++) tool];
+}
+
+/// A filament the print uses, as far as the file knows it.
+typedef _Filament = ({Color? color, String? name, double? weight});
+
+/// The materials of the filaments the print uses, each with its filaments. In the order of the tools.
+Map<String, List<_Filament>> _materials(GCodeFile file) {
+  final types = file.filamentTypes;
+  final colors = file.filamentColors ?? const <String>[];
+  final weights = file.filamentWeights ?? const <double>[];
+  // Only if there is a name per tool, it is known which one belongs to which filament.
+  final names = file.filamentNames.length == types.length ? file.filamentNames : const <String>[];
+
+  final materials = <String, List<_Filament>>{};
+  for (final tool in _usedTools(file)) {
+    (materials[types[tool]] ??= []).add((
+      color: tool < colors.length ? _parseColor(colors[tool]) : null,
+      name: tool < names.length ? names[tool] : null,
+      weight: tool < weights.length && weights[tool] > 0 ? weights[tool] : null,
+    ));
+  }
+  return materials;
+}
+
+/// The names (slicer profiles) of the filaments the print uses, each one once.
+List<String> _filamentNames(GCodeFile file) {
+  final names = file.filamentNames;
+  // Not a name per tool: nothing to pick from.
+  if (names.length != file.filamentTypes.length) return names.toSet().toList();
+  return {for (final tool in _usedTools(file)) names[tool]}.toList();
+}
+
+/// A color in the `#RRGGBB` format of the slicers.
+Color? _parseColor(String color) {
+  final hex = color.trim().replaceFirst('#', '');
+  if (hex.length != 6) return null;
   return int.tryParse(hex, radix: 16)?.let((it) => Color(0xFF000000 | it));
 }
 
-/// The nozzle diameter(s) of a file, e.g. "0.4 mm" or "0.4, 0.6 mm" for multiple tools.
+/// The nozzle diameter(s) of a file, e.g. "0.4 mm" or "0.4, 0.6 mm" for tools with different nozzles.
 String _nozzleDiameterText(BuildContext context, List<double> diameters) {
   if (diameters.isEmpty) return tr('general.unknown');
   final format = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
-  return '${diameters.map(format.format).join(', ')} mm';
+  return '${diameters.toSet().map(format.format).join(', ')} mm';
 }
 
 @Riverpod(dependencies: [])

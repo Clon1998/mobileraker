@@ -28,7 +28,6 @@ import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
-import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/historical_print_job_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -45,6 +44,7 @@ import 'package:mobileraker/ui/components/connection/machine_connection_guard.da
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_icon.dart';
+import 'package:mobileraker/ui/screens/history/job_formatting.dart';
 
 /// The amount of jobs loaded per step, also Moonraker's default limit. Hence, the first step shares its request with
 /// the dashboard's status card.
@@ -279,22 +279,6 @@ class _ProviderError extends StatelessWidget {
   }
 }
 
-/// `2h 5m`, `31m 41s`, `46s`
-String _duration(num seconds) {
-  final d = Duration(seconds: seconds.round());
-  if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}m';
-  if (d.inMinutes > 0) return '${d.inMinutes}m ${d.inSeconds.remainder(60)}s';
-  return '${d.inSeconds}s';
-}
-
-/// `528 m`, `1.2 km`
-String _filament(BuildContext context, double mm, {bool precise = true}) {
-  final format = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
-  final meters = mm / 1000;
-  if (meters >= 1000) return '${format.format(meters / 1000)} km';
-  return precise ? '${format.format(meters)} m' : '${meters.round()} m';
-}
-
 /// The lifetime totals of the printer.
 class _TotalsCard extends StatelessWidget {
   const _TotalsCard({super.key, required this.totals});
@@ -306,7 +290,7 @@ class _TotalsCard extends StatelessWidget {
     final stats = [
       (tr('pages.history.stats.prints'), '${totals.totalJobs}'),
       (tr('pages.history.stats.print_time'), _hours(totals.totalPrintTime)),
-      (tr('pages.history.stats.filament'), _filament(context, totals.totalFilamentUsed, precise: false)),
+      (tr('pages.history.stats.filament'), jobFilamentText(context, totals.totalFilamentUsed, precise: false)),
       (tr('pages.history.stats.longest_print'), _hours(totals.longestPrint)),
     ];
     final themeData = Theme.of(context);
@@ -452,8 +436,8 @@ class _DayHeader extends StatelessWidget {
     final filament = jobs.fold(0.0, (sum, job) => sum + job.filamentUsed);
     final summary = [
       plural('pages.history.day_prints', jobs.length),
-      if (printTime >= 60) _duration(printTime),
-      if (filament >= 10) _filament(context, filament),
+      if (printTime >= 60) jobDurationText(printTime),
+      if (filament >= 10) jobFilamentText(context, filament),
     ].join(' · ');
 
     return Padding(
@@ -513,30 +497,6 @@ class _LoadMoreState extends State<_LoadMore> {
   }
 }
 
-const _knownStatus = {
-  'completed',
-  'cancelled',
-  'in_progress',
-  'error',
-  'klippy_shutdown',
-  'klippy_disconnect',
-  'server_exit',
-  'interrupted',
-};
-
-String _statusLabel(HistoricalPrintJob job) =>
-    tr('pages.history.status.${_knownStatus.contains(job.status) ? job.status : 'error'}');
-
-(Color? color, IconData icon) _statusStyle(ThemeData themeData, HistoricalPrintJob job) {
-  final customColors = themeData.extension<CustomColors>();
-  return switch (job.outcome) {
-    JobOutcome.completed => (customColors?.success ?? Colors.green, Icons.check_circle),
-    JobOutcome.cancelled => (themeData.textTheme.bodySmall?.color, Icons.cancel),
-    JobOutcome.failed => (themeData.colorScheme.error, Icons.error),
-    JobOutcome.inProgress => (customColors?.info ?? themeData.colorScheme.primary, Icons.play_circle),
-  };
-}
-
 Widget _thumbnail(ThemeData themeData, String machineUUID, HistoricalPrintJob job) => job.exists
     // No hero: A file is usually listed more than once.
     ? RemoteFileIcon(machineUUID: machineUUID, file: job.metadata, useHero: false)
@@ -564,7 +524,7 @@ class _JobCard extends HookConsumerWidget {
     final themeData = Theme.of(context);
     final timeFormat = ref.watch(dateFormatServiceProvider).Hm();
     final expanded = useState(false);
-    final (statusColor, statusIcon) = _statusStyle(themeData, job);
+    final (statusColor, statusIcon) = jobStatusStyle(themeData, job);
     final materials = job.materials;
 
     return Card(
@@ -632,10 +592,10 @@ class _JobCard extends HookConsumerWidget {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: _statusLabel(job),
+                                text: jobStatusLabel(job),
                                 style: TextStyle(color: statusColor, fontWeight: FontWeight.w600),
                               ),
-                              if (job.printDuration >= 1) TextSpan(text: '  ·  ${_duration(job.printDuration)}'),
+                              if (job.printDuration >= 1) TextSpan(text: '  ·  ${jobDurationText(job.printDuration)}'),
                             ],
                           ),
                           maxLines: 1,
@@ -646,7 +606,7 @@ class _JobCard extends HookConsumerWidget {
                         Row(
                           children: [
                             if (job.filamentUsed >= 10) ...[
-                              Text(_filament(context, job.filamentUsed), style: themeData.textTheme.bodySmall),
+                              Text(jobFilamentText(context, job.filamentUsed), style: themeData.textTheme.bodySmall),
                               const SizedBox(width: 8),
                             ],
                             if (materials != null)
@@ -733,7 +693,7 @@ class _Attempt extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
     final timeFormat = ref.watch(dateFormatServiceProvider).Hm();
-    final (statusColor, statusIcon) = _statusStyle(themeData, job);
+    final (statusColor, statusIcon) = jobStatusStyle(themeData, job);
 
     return InkWell(
       onTap: () => _showJobActions(ref, machineUUID, job),
@@ -746,9 +706,9 @@ class _Attempt extends ConsumerWidget {
             Expanded(
               child: Text(
                 [
-                  _statusLabel(job),
-                  if (job.printDuration >= 1) _duration(job.printDuration),
-                  if (job.filamentUsed >= 10) _filament(context, job.filamentUsed),
+                  jobStatusLabel(job),
+                  if (job.printDuration >= 1) jobDurationText(job.printDuration),
+                  if (job.filamentUsed >= 10) jobFilamentText(context, job.filamentUsed),
                 ].join(' · '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -792,7 +752,7 @@ Future<void> _showJobActions(WidgetRef ref, String machineUUID, HistoricalPrintJ
       data: ActionBottomSheetArgs(
         title: Text(job.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
-          [_statusLabel(job), startTime, if (!job.exists) tr('pages.history.file_deleted')].join(' · '),
+          [jobStatusLabel(job), startTime, if (!job.exists) tr('pages.history.file_deleted')].join(' · '),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),

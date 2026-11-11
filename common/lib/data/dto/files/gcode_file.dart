@@ -106,7 +106,8 @@ sealed class GCodeFile with _$GCodeFile, RemoteFile {
     double? chamberTemp,
     // The name of each filament used by the print, a single entry for single material prints.
     @JsonKey(name: 'filament_name', readValue: _readStringList) @Default([]) List<String> filamentNames,
-    List<String>? filamentColors, // #List of filament colors used in #RRGGBB format. TODO: Convert to Color object
+    // The color of each filament used by the print in #RRGGBB format.
+    @JsonKey(readValue: _readFilamentColors) List<String>? filamentColors,
     List<String>? extruderColors, // List of slicer defined extruder colors for the print.
     List<int>? filamentTemps, // List of base temperatures for filaments, in Celsius.
     // The type (PLA, PETG, ...) of each filament used by the print, a single entry for single material prints.
@@ -114,7 +115,8 @@ sealed class GCodeFile with _$GCodeFile, RemoteFile {
     double? filamentTotal,
     int? filamentChangeCount, // The number of filament changes in the print.
     double? filamentWeightTotal,
-    List<double>? filamentWeights, //List of weights in grams used by each tool in the print.
+    // The weight in grams used by each tool in the print.
+    @JsonKey(readValue: _readFilamentWeights) List<double>? filamentWeights,
     int? mmuPrint, // Identifies a multimaterial print with single extruder.
     List<int>? referencedTools, // List of tool numbers used in the print.
     @JsonKey(fromJson: _sortedThumbnails) @Default([]) List<GCodeThumbnail> thumbnails,
@@ -158,6 +160,19 @@ sealed class GCodeFile with _$GCodeFile, RemoteFile {
 /// and old versions), a `;` separated string (`PLA;PETG`), a stringified list (`["PLA", "PETG"]`) or an actual list.
 List<String> _readStringList(Map json, String key) => parseMetadataStringList(json[key]);
 
+/// The colors are reported as `filament_colors` (a list, Moonraker) or `filament_colour` (a `;` separated string,
+/// e.g. Snapmaker's Moonraker).
+Object? _readFilamentColors(Map json, String key) {
+  final colors = parseMetadataStringList(json[key] ?? json['filament_colour']);
+  return colors.isEmpty ? null : colors;
+}
+
+/// The weights are reported as `filament_weights` (Moonraker) or `filament_weight` (e.g. Snapmaker's Moonraker).
+Object? _readFilamentWeights(Map json, String key) {
+  final weights = json[key] ?? json['filament_weight'];
+  return weights is List ? weights : null;
+}
+
 /// See [_readStringList], also used for values that were stored in their raw form (file cache).
 List<String> parseMetadataStringList(Object? value) {
   Iterable<Object?> parts;
@@ -178,7 +193,7 @@ List<String> parseMetadataStringList(Object? value) {
   }
   return [
     for (final part in parts)
-      if (part != null && '$part'.trim().isNotEmpty) '$part'.trim(),
+      if (part != null && _unquote('$part').isNotEmpty) _unquote('$part'),
   ];
 }
 
@@ -186,3 +201,11 @@ List<GCodeThumbnail> _sortedThumbnails(List<dynamic> list) => list
     .map((e) => GCodeThumbnail.fromJson(e as Map<String, dynamic>))
     .sortedBy<num>((element) => element.pixels)
     .toList();
+
+/// Some slicers quote the values of a `;` separated list (`A";"B";"C`), which leaves stray quotes on its parts.
+String _unquote(String value) {
+  var result = value.trim();
+  if (result.startsWith('"')) result = result.substring(1);
+  if (result.endsWith('"')) result = result.substring(0, result.length - 1);
+  return result.trim();
+}
