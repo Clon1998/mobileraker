@@ -313,8 +313,6 @@ pages:
       body: Değişiklikleri uygulamak için yazıcıyı kaydettiğinizden emin olun.
     wifi_access_warning:
       title: WiFi Bilgisi Mevcut Değil
-      subtitle: |-
-        Mobileraker'ın uzak bağlantıyı kullanıp kullanmayacağını belirlemek için konum erişimine izin verin.
     local_ssid:
       section_header: Akıllı Anahtarlama
       no_ssids: WiFi adı eklenmedi!
