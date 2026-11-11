@@ -383,13 +383,7 @@ pages:
           other: Soubory byly úspěšně přidány do tiskové fronty.
       spoolman_warnings:
         insufficient_filament_title: Nedostatek filamentu
-        insufficient_filament_body: |-
-          Aktivní cívka má pouze {} vlákna, což pro tento soubor nestačí.
-          Kliknutím změníte aktivní cívku.
         material_mismatch_title: Neshoda materiálu
-        material_mismatch_body: |-
-          Materiál souboru {} neodpovídá materiálu aktivní cívky{}.
-          Kliknutím změníte aktivní cívku.
   setting:
     title: Aplikace - Nastavení
     general:
@@ -640,10 +634,6 @@ pages:
       body: Nezapomeňte uložit tiskárnu pro aplikaci změn.
     wifi_access_warning:
       title: Informace o WiFi nejsou k dispozici
-      subtitle: |-
-        Pro určení, zda by měl Mobileraker používat dálkové připojení, povolte přístup k poloze. Toto umožňuje aplikaci načíst název aktuální WiFi Network.
-
-        Klepnutím udělíte oprávnění.
     local_ssid:
       section_header: Chytré přepínání
       no_ssids: Nebylo přidáno žádné jméno WiFi!
@@ -872,10 +862,6 @@ pages:
     target: 'Cíl: {} Hz nad {} mm'
     permissionWarning:
       title: Je vyžadováno oprávnění k mikrofonu
-      subtitle: |-
-        Dotahovač řemenů používá mikrofon vašeho telefonu pro analýzu frekvence vibrací řemenů.
-
-        Klikněte pro udělení oprávnění.
   spoolman:
     title: Spoolman
     not_available: "Spoolman není pro tuto tiskárnu k dispozici. \nUjistěte se, že Spoolman je nainstalován a povolen ve vaší tiskárně."
