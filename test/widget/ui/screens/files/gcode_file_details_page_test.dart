@@ -149,10 +149,7 @@ void main() {
   };
 
   FloatingActionButton printButton(WidgetTester tester) =>
-      tester.widget<FloatingActionButton>(find.byKey(const Key('printFab')));
-
-  FloatingActionButton preheatButton(WidgetTester tester) =>
-      tester.widget<FloatingActionButton>(find.byKey(const Key('preheatFab')));
+      tester.widget<FloatingActionButton>(find.byType(FloatingActionButton));
 
   testWidgets('shows the file details and its slicer meta data', (tester) async {
     await pumpPage(tester);
@@ -317,28 +314,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Failed'), findsNWidgets(2));
-    await tester.unmountApp();
-  });
-
-  testWidgets('the preheat button asks first, then starts preheating', (tester) async {
-    await pumpPage(tester);
-    dialogs.response = DialogResponse.confirmed();
-
-    await tester.tap(find.byKey(const Key('preheatFab')));
-    await tester.pumpAndSettle();
-
-    expect(dialogs.confirms.single, 'Preheat ?');
-    expect(snackBars.shown.single.title, 'Started Preheating');
-    await tester.unmountApp();
-  });
-
-  testWidgets('the preheat button is disabled without a bed temperature or while printing', (tester) async {
-    await pumpPage(tester, file: benchy.copyWith(firstLayerTempBed: null));
-    expect(preheatButton(tester).onPressed, isNull);
-    await tester.unmountApp();
-
-    await pumpPage(tester, state: PrintState.printing);
-    expect(preheatButton(tester).onPressed, isNull);
     await tester.unmountApp();
   });
 

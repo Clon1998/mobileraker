@@ -27,7 +27,6 @@ import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/warning_card.dart';
-import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
@@ -318,7 +317,7 @@ class _CollapsedTitle extends ConsumerWidget {
     final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
     final titleStyle = DefaultTextStyle.of(context).style;
     final facts = [
-      if (file.filamentTypes.isNotEmpty) _materials(file).keys.join(', '),
+      if (file.filamentTypes.isNotEmpty) file.usedMaterials.keys.join(', '),
       if (file.estimatedTime != null) _durationText(file.estimatedTime!),
     ];
 
@@ -403,7 +402,7 @@ class _Header extends ConsumerWidget {
             children: [
               // One chip per material. Multi material prints list a filament per tool, often the same material in
               // different colors.
-              for (final MapEntry(key: material, value: filaments) in _materials(file).entries)
+              for (final MapEntry(key: material, value: filaments) in file.usedMaterials.entries)
                 _Chip(
                   label: filaments.length > 1 ? '${filaments.length}× $material' : material,
                   dotColors: [
@@ -1111,8 +1110,8 @@ class _DetailsCard extends ConsumerWidget {
       (
         tr('$meta.filament'),
         [
-          (tr('$meta.filament_type'), file.filamentTypes.isEmpty ? null : _materials(file).keys.join(', ')),
-          (tr('$meta.filament_name'), file.filamentNames.isEmpty ? null : _filamentNames(file).join(', ')),
+          (tr('$meta.filament_type'), file.filamentTypes.isEmpty ? null : file.usedMaterials.keys.join(', ')),
+          (tr('$meta.filament_name'), file.filamentNames.isEmpty ? null : file.usedFilamentNames.join(', ')),
           (tr('$meta.filament_weight'), file.filamentWeightTotal?.let(numFormat.formatGrams)),
           (tr('$meta.filament_length'), file.filamentTotal?.let(numFormat.formatMillimeters)),
           (tr('$meta.filament_changes'), file.filamentChangeCount?.let((it) => it > 0 ? '$it' : null)),
@@ -1257,7 +1256,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-/// The actions of the file: Print as the main FAB, preheat as its smaller companion.
+/// Starts the print, the main action of the page. Everything else is in the menu of the app bar.
 class _Fab extends ConsumerWidget {
   const _Fab();
 
@@ -1266,11 +1265,6 @@ class _Fab extends ConsumerWidget {
     final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
     final canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.canStartPrint));
     final file = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.file));
-    // Same rule as the file's action menu: the bed temperature of the file is what gets preheated.
-    final canPreheat = canStartPrint && file.firstLayerTempBed != null;
-
-    final themeData = Theme.of(context);
-    final disabledColor = themeData.disabledColor;
     final machineUUID = ref.watch(_gCodeFileDetailsControllerProvider.select((value) => value.machineUUID));
     // The file only knows about its last print if Moonraker listed it, not if it was opened from the history.
     final printedBefore =
@@ -1284,62 +1278,24 @@ class _Fab extends ConsumerWidget {
           ).select((value) => value.value?.isNotEmpty ?? false),
         );
     final printLabel = tr(printedBefore ? 'pages.history.actions.print_again' : 'general.print');
-    final preheatLabel = tr('pages.files.gcode_file_actions.preheat');
-    const printIcon = Icon(MaterialCommunityIcons.printer_3d_nozzle);
-    const preheatIcon = Icon(MobilerakerIcons.nozzle_heat);
-    final preheatBackground = canPreheat ? themeData.colorScheme.secondaryContainer : disabledColor;
-    final preheatForeground = themeData.colorScheme.onSecondaryContainer.only(canPreheat);
+    final backgroundColor = Theme.of(context).disabledColor.unless(canStartPrint);
+    const icon = Icon(MaterialCommunityIcons.printer_3d_nozzle);
 
     // Has to fit the width of the rail/the fold strip (iPhone Duo).
     if (!_EmbeddedScope.of(context) && RailScaffold.showsRailOf(context)) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            key: const Key('printFab'),
-            backgroundColor: disabledColor.unless(canStartPrint),
-            onPressed: controller.onStartPrintTap.only(canStartPrint),
-            tooltip: printLabel,
-            child: printIcon,
-          ),
-          const SizedBox(height: 8),
-          FloatingActionButton.small(
-            key: const Key('preheatFab'),
-            heroTag: null,
-            backgroundColor: preheatBackground,
-            foregroundColor: preheatForeground,
-            onPressed: controller.onPreheatTap.only(canPreheat),
-            tooltip: preheatLabel,
-            child: preheatIcon,
-          ),
-        ],
+      return FloatingActionButton(
+        backgroundColor: backgroundColor,
+        onPressed: controller.onStartPrintTap.only(canStartPrint),
+        tooltip: printLabel,
+        child: icon,
       );
     }
 
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.extended(
-            key: const Key('preheatFab'),
-            heroTag: null,
-            backgroundColor: preheatBackground,
-            foregroundColor: preheatForeground,
-            onPressed: controller.onPreheatTap.only(canPreheat),
-            icon: preheatIcon,
-            label: Text(preheatLabel),
-          ),
-          const SizedBox(width: 12),
-          FloatingActionButton.extended(
-            key: const Key('printFab'),
-            backgroundColor: disabledColor.unless(canStartPrint),
-            onPressed: controller.onStartPrintTap.only(canStartPrint),
-            icon: printIcon,
-            label: Text(printLabel),
-          ),
-        ],
-      ),
+    return FloatingActionButton.extended(
+      backgroundColor: backgroundColor,
+      onPressed: controller.onStartPrintTap.only(canStartPrint),
+      icon: icon,
+      label: Text(printLabel),
     );
   }
 }
@@ -1361,63 +1317,6 @@ String _durationText(num seconds) {
   if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}m';
   if (d.inMinutes > 0) return '${d.inMinutes}m ${d.inSeconds.remainder(60)}s';
   return '${d.inSeconds}s';
-}
-
-/// The tools (indexes of the per filament lists of the file) the print uses.
-///
-/// Slicers list the filament of every tool that is set up, also for a print that only uses one of them. Which ones
-/// are used is told by the tools the file references or, if it does not, by the tools that use any filament.
-List<int> _usedTools(GCodeFile file) {
-  final count = file.filamentTypes.length;
-  final referenced = file.referencedTools;
-  if (referenced != null && referenced.isNotEmpty && referenced.every((tool) => tool >= 0 && tool < count)) {
-    return referenced;
-  }
-  final weights = file.filamentWeights;
-  if (weights != null && weights.length == count && weights.any((weight) => weight > 0)) {
-    return [
-      for (final (tool, weight) in weights.indexed)
-        if (weight > 0) tool,
-    ];
-  }
-  return [for (var tool = 0; tool < count; tool++) tool];
-}
-
-/// A filament the print uses, as far as the file knows it.
-typedef _Filament = ({Color? color, String? name, double? weight});
-
-/// The materials of the filaments the print uses, each with its filaments. In the order of the tools.
-Map<String, List<_Filament>> _materials(GCodeFile file) {
-  final types = file.filamentTypes;
-  final colors = file.filamentColors ?? const <String>[];
-  final weights = file.filamentWeights ?? const <double>[];
-  // Only if there is a name per tool, it is known which one belongs to which filament.
-  final names = file.filamentNames.length == types.length ? file.filamentNames : const <String>[];
-
-  final materials = <String, List<_Filament>>{};
-  for (final tool in _usedTools(file)) {
-    (materials[types[tool]] ??= []).add((
-      color: tool < colors.length ? _parseColor(colors[tool]) : null,
-      name: tool < names.length ? names[tool] : null,
-      weight: tool < weights.length && weights[tool] > 0 ? weights[tool] : null,
-    ));
-  }
-  return materials;
-}
-
-/// The names (slicer profiles) of the filaments the print uses, each one once.
-List<String> _filamentNames(GCodeFile file) {
-  final names = file.filamentNames;
-  // Not a name per tool: nothing to pick from.
-  if (names.length != file.filamentTypes.length) return names.toSet().toList();
-  return {for (final tool in _usedTools(file)) names[tool]}.toList();
-}
-
-/// A color in the `#RRGGBB` format of the slicers.
-Color? _parseColor(String color) {
-  final hex = color.trim().replaceFirst('#', '');
-  if (hex.length != 6) return null;
-  return int.tryParse(hex, radix: 16)?.let((it) => Color(0xFF000000 | it));
 }
 
 /// The nozzle diameter(s) of a file, e.g. "0.4 mm" or "0.4, 0.6 mm" for tools with different nozzles.
@@ -1531,18 +1430,6 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
   Future<void> onStartPrintTap() async {
     await for (var event in _fileInteractionService.submitJobAction(state.file)) {
       talker.info('[GCodeFileDetailsController] onStartPrintTap File-interaction-event: $event');
-    }
-  }
-
-  Future<void> onPreheatTap() async {
-    // The service is auto disposed and reads other providers after its confirm dialog, so it is kept alive meanwhile.
-    final service = ref.listen(fileInteractionServiceProvider(machineUUID), (_, _) {});
-    try {
-      await for (var event in service.read().preheatAction(state.file)) {
-        talker.info('[GCodeFileDetailsController] onPreheatTap File-interaction-event: $event');
-      }
-    } finally {
-      service.close();
     }
   }
 
