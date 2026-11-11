@@ -35,6 +35,7 @@ import 'package:mobileraker/ui/screens/files/fleet_print/fleet_print_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/gcode_preview/gcode_preview_page.dart';
 import 'package:mobileraker/ui/screens/graph/graph_page.dart';
+import 'package:mobileraker/ui/screens/history/history_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
@@ -89,6 +90,7 @@ enum AppRoute implements RouteDefinitionMixin {
   groupConsole,
   qrScanner,
   console,
+  history,
   settings,
   settings_appearance,
   settings_appearance_customThemeNew,
@@ -329,6 +331,11 @@ GoRouter goRouterImpl(Ref ref) {
             path: '/console',
             name: AppRoute.console.name,
             pageBuilder: railDestination(ref, (context, state) => const ConsolePage()),
+          ),
+          GoRoute(
+            path: '/history',
+            name: AppRoute.history.name,
+            pageBuilder: railDestination(ref, (context, state) => const HistoryPage()),
           ),
           GoRoute(
             path: '/faq',

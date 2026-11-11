@@ -20,6 +20,8 @@ import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/moonraker/history_service.dart';
+import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
@@ -233,6 +235,13 @@ class _BodyState extends ConsumerState<_Body> {
   Widget build(BuildContext context) {
     var asyncModel = ref.watch(_dashboardPageControllerProvider(machineUUID));
     var controller = ref.watch(_dashboardPageControllerProvider(machineUUID).notifier);
+
+    // The cards are not kept alive, so a card that is scrolled out of view (or whose tab is left) drops its providers.
+    // Data that has to be fetched from the printer is therefore kept alive as long as the dashboard is shown. Otherwise
+    // such a card would show its loading state and animate/jump each time it comes back into view.
+    ref.listen(klippySystemInfoProvider(machineUUID), (_, _) {}); // Tool selector of the extruder card
+    final hasHistory = ref.watch(klipperProvider(machineUUID).select((d) => d.value?.hasHistoryComponent ?? false));
+    if (hasHistory) ref.listen(jobHistoryProvider(machineUUID, null), (_, _) {}); // Print again of the status card
 
     return AsyncValueWidget(
       debugLabel: 'DashboardPageController-$machineUUID',

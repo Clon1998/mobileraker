@@ -32,8 +32,8 @@ void main() {
     expect(obj.firstLayerTempBed, 110);
     expect(obj.firstLayerTempExtruder, 285);
     expect(obj.chamberTemp, 50);
-    expect(obj.filamentName, 'AzurFilm ABS+ @VORON');
-    expect(obj.filamentType, 'ABS');
+    expect(obj.filamentNames, ['AzurFilm ABS+ @VORON']);
+    expect(obj.filamentTypes, ['ABS']);
     expect(obj.filamentTotal, 7251.81);
     expect(obj.filamentWeightTotal, 18.84);
 

@@ -49,7 +49,7 @@ void main() {
     layerHeight: 0.2,
     firstLayerTempExtruder: 215,
     firstLayerTempBed: 60,
-    filamentType: 'PETG',
+    filamentTypes: const ['PETG'],
     filamentWeightTotal: 900,
   );
 

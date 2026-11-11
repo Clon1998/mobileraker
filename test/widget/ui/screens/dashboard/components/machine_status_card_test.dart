@@ -3,12 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/history/historical_print_job.dart';
 import 'package:common/data/dto/machine/display_status.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/service/moonraker/history_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -23,7 +25,12 @@ void main() {
   late FakeJsonRpcClient rpc;
   late FakeDialogService dialogs;
 
-  Future<void> pumpCard(WidgetTester tester, {KlipperInstance? klipper, Printer? printer}) async {
+  Future<void> pumpCard(
+    WidgetTester tester, {
+    KlipperInstance? klipper,
+    Printer? printer,
+    List<HistoricalPrintJob>? jobs,
+  }) async {
     rpc = FakeJsonRpcClient();
     dialogs = FakeDialogService();
     await tester.pumpApp(
@@ -31,6 +38,7 @@ void main() {
       overrides: [
         ...uiServiceOverrides(dialogs: dialogs),
         ...connectedMachineOverrides(machine, client: rpc, klipper: klipper, printer: printer),
+        if (jobs != null) jobHistoryProvider(machine.uuid, null).overrideWith((ref) => jobs),
       ],
     );
     await tester.pumpAndSettle();
@@ -53,6 +61,49 @@ void main() {
     expect(find.text('Standby'), findsOneWidget);
     expect(find.byType(ElevatedButton), findsNothing);
     expect(find.byType(TextButton), findsNothing);
+    await tester.unmountApp();
+  });
+
+  HistoricalPrintJob job(String id, String filename, {bool exists = true}) => HistoricalPrintJob.fromJson({
+    'job_id': id,
+    'user': '_TRUSTED_USER_',
+    'filename': filename,
+    'status': 'completed',
+    'start_time': 1762761600.0,
+    'end_time': 1762765200.0,
+    'print_duration': 100.0,
+    'total_duration': 120.0,
+    'filament_used': 1000.0,
+    'metadata': {'size': 1, 'modified': 1.0, 'filament_type': 'PLA', 'estimated_time': 5280.0},
+    'auxiliary_data': [],
+    'exists': exists,
+  });
+
+  testWidgets('standby: offers the recently printed files once', (tester) async {
+    await pumpCard(
+      tester,
+      jobs: [
+        job('4', 'benchy.gcode'),
+        job('3', 'deleted.gcode', exists: false),
+        job('2', 'benchy.gcode'),
+        job('1', 'folder/cube.gcode'),
+      ],
+    );
+
+    expect(find.text('Print again'), findsOneWidget);
+    expect(find.text('History'), findsOneWidget);
+    expect(find.text('benchy'), findsOneWidget);
+    expect(find.text('cube'), findsOneWidget);
+    expect(find.text('deleted'), findsNothing);
+    expect(find.text('PLA · 1h 28m'), findsNWidgets(2));
+    await tester.unmountApp();
+  });
+
+  testWidgets('printing: does not offer to print again', (tester) async {
+    await pumpCard(tester, printer: printing(), jobs: [job('1', 'cube.gcode')]);
+
+    expect(find.text('Print again'), findsNothing);
+    expect(find.text('cube'), findsNothing);
     await tester.unmountApp();
   });
 

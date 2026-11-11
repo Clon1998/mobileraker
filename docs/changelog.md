@@ -28,6 +28,13 @@
 
 - **Webcam Unavailable State**: An unreachable webcam now shows a clear "Webcam unavailable" message with the likely
   reason (HTTP error, timeout, unreachable) and a retry button, instead of raw error details.
+
+- **Print History**: A new page in the navigation shows the printer's print history with its lifetime totals. Prints
+  are grouped by day, repeated attempts of the same file are folded into a single entry, and the list can be
+  filtered, sorted and searched. Tap a print to print it again, open its file details or remove it from the history.
+
+- **Print Again**: While no print is running, the dashboard's status card offers the most recently printed files for
+  a quick reprint, along with a shortcut to the print history.
   [#424](https://github.com/Clon1998/mobileraker/issues/424)
 
 - **Hide Webcam Card**: The dashboard webcam card can now be collapsed by tapping its webcam icon. The stream stops

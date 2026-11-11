@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:common/data/converters/double_list_converter.dart';
 import 'package:common/data/converters/string_double_converter.dart';
@@ -102,11 +104,13 @@ sealed class GCodeFile with _$GCodeFile, RemoteFile {
     @JsonKey(name: 'first_layer_bed_temp') double? firstLayerTempBed,
     @JsonKey(name: 'first_layer_extr_temp') double? firstLayerTempExtruder,
     double? chamberTemp,
-    String? filamentName,
+    // The name of each filament used by the print, a single entry for single material prints.
+    @JsonKey(name: 'filament_name', readValue: _readStringList) @Default([]) List<String> filamentNames,
     List<String>? filamentColors, // #List of filament colors used in #RRGGBB format. TODO: Convert to Color object
     List<String>? extruderColors, // List of slicer defined extruder colors for the print.
     List<int>? filamentTemps, // List of base temperatures for filaments, in Celsius.
-    String? filamentType,
+    // The type (PLA, PETG, ...) of each filament used by the print, a single entry for single material prints.
+    @JsonKey(name: 'filament_type', readValue: _readStringList) @Default([]) List<String> filamentTypes,
     double? filamentTotal,
     int? filamentChangeCount, // The number of filament changes in the print.
     double? filamentWeightTotal,
@@ -146,6 +150,36 @@ sealed class GCodeFile with _$GCodeFile, RemoteFile {
     split.add(name);
     return split.join('/');
   }
+}
+
+/// Reads a value that Moonraker reports per filament/tool as a list of strings.
+///
+/// Depending on the Moonraker version and the slicer it is reported as a single value (`PLA`, single material prints
+/// and old versions), a `;` separated string (`PLA;PETG`), a stringified list (`["PLA", "PETG"]`) or an actual list.
+List<String> _readStringList(Map json, String key) => parseMetadataStringList(json[key]);
+
+/// See [_readStringList], also used for values that were stored in their raw form (file cache).
+List<String> parseMetadataStringList(Object? value) {
+  Iterable<Object?> parts;
+  if (value == null) {
+    return const [];
+  } else if (value is List) {
+    parts = value;
+  } else {
+    final raw = '$value'.trim();
+    parts = raw.split(';');
+    if (raw.startsWith('[') && raw.endsWith(']')) {
+      try {
+        parts = jsonDecode(raw) as List;
+      } on FormatException {
+        // Not a list after all, keep the `;` separated parts.
+      }
+    }
+  }
+  return [
+    for (final part in parts)
+      if (part != null && '$part'.trim().isNotEmpty) '$part'.trim(),
+  ];
 }
 
 List<GCodeThumbnail> _sortedThumbnails(List<dynamic> list) => list

@@ -84,7 +84,8 @@ sealed class HistoricalPrintJob with _$HistoricalPrintJob {
     required String filename,
     required String status,
     @UnixDateTimeConverter() required DateTime startTime,
-    @UnixDateTimeConverter() required DateTime endTime,
+    // Null while the job is still in progress.
+    @UnixDateTimeConverter() DateTime? endTime,
     required double printDuration,
     required double totalDuration,
     required double filamentUsed,
@@ -109,7 +110,9 @@ GCodeFile _parseGCodeFileMetadata(Map<String, dynamic> raw) {
 
   final fileName = parts.removeLast();
 
-  return GCodeFile.fromMetaData(fileName, parts.join('/'), raw);
+  // Moonraker sends `"metadata": {}` if it never had metadata for the file. A single job like that must not make the
+  // whole list unparsable.
+  return GCodeFile.fromMetaData(fileName, parts.join('/'), {'modified': 0, 'size': 0, ...raw});
 }
 
 DateTime? _parseFromEpochSeconds(Map values, String key) {

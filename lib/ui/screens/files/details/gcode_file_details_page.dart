@@ -233,7 +233,7 @@ class _CompactBody extends HookConsumerWidget {
               // leadingIcon: Icon(Icons.layers_clear),
               title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
               subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
-                  .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
+                  .tr(args: [model.file.filamentTypes.join(', '), model.materialMissmatch ?? '--']),
             ),
             // if (model.insufficientFilament != null)
             WarningCard(
@@ -288,8 +288,8 @@ class _CompactBody extends HookConsumerWidget {
                   _PropertyTile(
                     title: 'pages.files.details.meta_card.filament'.tr(),
                     subtitle: [
-                      '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
-                      '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                      '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentTypes.isEmpty ? tr('general.unknown') : model.file.filamentTypes.join(', ')}',
+                      '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentNames.isEmpty ? tr('general.unknown') : model.file.filamentNames.join(', ')}',
                       if (model.file.filamentWeightTotal != null)
                         '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
                       if (model.file.filamentTotal != null)
@@ -474,7 +474,7 @@ class _MediumBody extends HookConsumerWidget {
                       // leadingIcon: Icon(Icons.layers_clear),
                       title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
                       subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
-                          .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
+                          .tr(args: [model.file.filamentTypes.join(', '), model.materialMissmatch ?? '--']),
                     ),
                     WarningCard(
                       show: model.insufficientFilament != null,
@@ -497,8 +497,8 @@ class _MediumBody extends HookConsumerWidget {
                           _PropertyTile(
                             title: 'pages.files.details.meta_card.filament'.tr(),
                             subtitle: [
-                              '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
-                              '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                              '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentTypes.isEmpty ? tr('general.unknown') : model.file.filamentTypes.join(', ')}',
+                              '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentNames.isEmpty ? tr('general.unknown') : model.file.filamentNames.join(', ')}',
                               if (model.file.filamentWeightTotal != null)
                                 '${tr('pages.files.details.meta_card.filament_weight')}: ${numFormat.formatGrams(model.file.filamentWeightTotal!)}',
                               if (model.file.filamentTotal != null)
@@ -678,8 +678,9 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
       double? insufficientFilament;
       String? materialMissmatch;
       if (spool.filament.material != null &&
-          gCodeFile.filamentType != null &&
-          !equalsIgnoreAsciiCase(gCodeFile.filamentType!.trim(), spool.filament.material!.trim())) {
+          gCodeFile.filamentTypes.isNotEmpty &&
+          // For multi material prints the spool has to match one of the materials.
+          gCodeFile.filamentTypes.none((type) => equalsIgnoreAsciiCase(type, spool.filament.material!.trim()))) {
         materialMissmatch = spool.filament.material?.trim();
       }
 

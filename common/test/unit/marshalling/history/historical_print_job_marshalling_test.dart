@@ -34,14 +34,14 @@ void main() {
     expect(obj.metadata.layerCount, 240);
     expect(obj.metadata.objectHeight, 48);
     expect(obj.metadata.estimatedTime, 4268);
-    expect(obj.metadata.nozzleDiameter, 0.4);
+    expect(obj.metadata.nozzleDiameter, [0.4]);
     expect(obj.metadata.layerHeight, 0.2);
     expect(obj.metadata.firstLayerHeight, 0.2);
     expect(obj.metadata.firstLayerTempExtruder, 245);
     expect(obj.metadata.firstLayerTempBed, 110);
     expect(obj.metadata.chamberTemp, 0);
-    expect(obj.metadata.filamentName, 'PM ABS Marbel');
-    expect(obj.metadata.filamentType, 'ABS');
+    expect(obj.metadata.filamentNames, ['PM ABS Marbel']);
+    expect(obj.metadata.filamentTypes, ['ABS']);
     expect(obj.metadata.filamentTotal, 4935.22);
     expect(obj.metadata.filamentWeightTotal, 12.82);
     expect(obj.metadata.thumbnails.length, 2);

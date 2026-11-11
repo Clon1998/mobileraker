@@ -156,7 +156,7 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
                   ],
                 )
               : null,
-          trailing: lastJob != null
+          trailing: lastJob?.endTime != null
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -168,7 +168,7 @@ class _JobCompleteCancelledBody extends ConsumerWidget {
                     ),
                     Gap(4),
                     Text(
-                      dateFormat(lastJob.endTime),
+                      dateFormat(lastJob!.endTime!),
                       style: themeData.textTheme.bodySmall,
                     ),
                   ],
@@ -281,7 +281,7 @@ class _JobStandbyBody extends ConsumerWidget {
             if (!hasWebcam) PrintStateChip(printState: PrintState.standby),
           ],
         ),
-        if (lastJob?.endTime != null) Text(lastActivity(lastJob!.endTime), style: themeData.textTheme.bodySmall),
+        if (lastJob?.endTime != null) Text(lastActivity(lastJob!.endTime!), style: themeData.textTheme.bodySmall),
         _Actions(machine: machine),
       ],
     );

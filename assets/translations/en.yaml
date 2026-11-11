@@ -107,6 +107,8 @@ pages:
           Filament: {filament}
         remaining: Remaining
         print_time: Print Time
+        print_again: Print again
+        history: History
       cam_card:
         webcam: Webcam
         fullscreen: Fullscreen
@@ -917,6 +919,52 @@ pages:
       title: Error fetching Console Data
       body: An error occurred while trying to fetch the console data. Please retry
         later!
+  history:
+    title: Print History
+    search_hint: Search prints
+    stats:
+      prints: Prints
+      print_time: Print time
+      filament: Filament
+      longest_print: Longest
+    filter:
+      all: All
+      completed: Completed
+      unfinished: Unfinished
+    sort_by:
+      date: Date
+      print_duration: Print time
+      filament_used: Filament used
+    day_prints:
+      one: "{} print"
+      other: "{} prints"
+    earlier_attempts:
+      one: "{} more attempt"
+      other: "{} more attempts"
+    status:
+      completed: Completed
+      cancelled: Cancelled
+      in_progress: Printing now
+      error: Failed
+      klippy_shutdown: Klipper shut down
+      klippy_disconnect: Klipper disconnected
+      server_exit: Moonraker restarted
+      interrupted: Interrupted
+    actions:
+      print_again: Print again
+      open_file: Show file details
+      remove: Remove from history
+    file_deleted: File was deleted
+    remove_dialog:
+      title: Remove from history?
+      body: The history entry of "{}" will be removed. The file itself is not deleted.
+    remove_failed: Could not remove the entry from the history.
+    empty: No prints yet. They show up here once a print was started.
+    empty_filter: No prints match.
+    provider_error:
+      title: Error fetching Print History
+      body: An error occurred while trying to fetch the print history. Please verify
+        that the history component is enabled in Moonraker.
   overview:
     title: Overview
     fetching_machines: "@:general.fetching machines…"

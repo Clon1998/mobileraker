@@ -45,6 +45,8 @@ sealed class KlipperInstance with _$KlipperInstance {
 
   bool get hasPowerComponent => components.contains('power');
 
+  bool get hasHistoryComponent => components.contains('history');
+
   factory KlipperInstance.fromJson(Map<String, dynamic> json) => _$KlipperInstanceFromJson(json);
 
   factory KlipperInstance.partialUpdate(

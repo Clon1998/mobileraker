@@ -55,6 +55,7 @@ class NavWidgetController extends _$NavWidgetController {
         route: '/files/gcodes',
         routeMatcher: r'^\/files(\/)?.*$',
       ),
+      NavEntry(label: tr('pages.history.title'), icon: Icons.manage_history, route: '/history'),
       if (showSpoolman) NavEntry(label: tr('pages.spoolman.title'), icon: Entypo.database, route: '/spoolman'),
       if (kDebugMode) const NavEntry(label: 'Debug', icon: Icons.engineering_outlined, route: '/dev'),
       NavEntry.divider(),

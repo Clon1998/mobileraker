@@ -3,9 +3,13 @@
  * All rights reserved.
  */
 
+import 'dart:math';
+
+import 'package:common/data/dto/history/historical_print_job.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/service/moonraker/history_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -16,6 +20,7 @@ import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/historical_print_job_extension.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -24,7 +29,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/ui/screens/files/components/remote_file_icon.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
@@ -89,6 +97,7 @@ class MachineStatusCard extends HookConsumerWidget {
                     : const SizedBox.shrink(key: Key('NoTable')),
               );
             }),
+            _PrintAgain(machineUUID: machineUUID),
           ],
         ),
       ),
@@ -107,6 +116,8 @@ class _MachineStatusCardPreview extends HookWidget {
     return ProviderScope(
       overrides: [
         _machineStatusCardControllerProvider(_machineUUID).overrideWith(_MachineStatusCardPreviewController.new),
+        // The preview has no printer to fetch a history from.
+        jobHistoryProvider(_machineUUID, null).overrideWith((ref) => const <HistoricalPrintJob>[]),
       ],
       child: const MachineStatusCard(machineUUID: _machineUUID),
     );
@@ -476,6 +487,156 @@ class _ExcludeObject extends ConsumerWidget {
   }
 }
 
+/// The most recently printed files, offered while the printer is able to start a print.
+class _PrintAgain extends ConsumerWidget {
+  const _PrintAgain({super.key, required this.machineUUID});
+
+  /// The min width a file needs, used to decide how many files fit.
+  static const double _minTileWidth = 104;
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final canPrint = ref.watch(
+      _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.canStartPrint),
+    );
+    // The history is only requested once it is needed. A printer without the history component just shows nothing.
+    final jobs = canPrint ? ref.watch(jobHistoryProvider(machineUUID, null)).value : null;
+
+    final Widget child;
+    if (jobs == null || jobs.every((job) => !job.exists)) {
+      child = const SizedBox.shrink(key: Key('NoPrintAgain'));
+    } else {
+      final themeData = Theme.of(context);
+      child = Column(
+        key: const Key('PrintAgain'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(thickness: 1, height: 0),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'pages.dashboard.general.print_card.print_again',
+                    style: themeData.textTheme.titleSmall,
+                  ).tr(),
+                ),
+                TextButton(
+                  onPressed: () => context.goNamed(AppRoute.history.name),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('pages.dashboard.general.print_card.history').tr(),
+                      const Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final count = (constraints.maxWidth / _minTileWidth).floor().clamp(1, 6);
+                final recent = jobs.recentDistinct(max: count);
+
+                return SizedBox(
+                  height: 116,
+                  child: Row(
+                    children: [
+                      for (final (i, job) in recent.indexed) ...[
+                        if (i > 0) const SizedBox(width: 8),
+                        Expanded(
+                          child: _RecentFile(key: ValueKey(job.filename), machineUUID: machineUUID, job: job),
+                        ),
+                      ],
+                      // Keeps the size of the files, if there are less than fit.
+                      for (var i = recent.length; i < min(count, 3); i++) ...[
+                        const SizedBox(width: 8),
+                        const Spacer(),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    }
+
+    return AnimatedSizeAndFade(
+      sizeDuration: kThemeAnimationDuration,
+      fadeDuration: kThemeAnimationDuration,
+      child: child,
+    );
+  }
+}
+
+class _RecentFile extends StatelessWidget {
+  const _RecentFile({super.key, required this.machineUUID, required this.job});
+
+  final String machineUUID;
+  final HistoricalPrintJob job;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    // The time the slicer estimated tells more about a file than how long its last (maybe cancelled) job took.
+    final duration = job.metadata.estimatedTime ?? job.printDuration;
+    final subtitle = [?job.materials, if (duration >= 1) _shortDuration(duration)].join(' · ');
+    final name = job.displayName;
+
+    return Semantics(
+      button: true,
+      label: '${tr('pages.dashboard.general.print_card.print_again')}: $name',
+      child: Material(
+        color: themeData.colorScheme.onSurface.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          // The details show the file's settings, spool warnings and the button to start the print.
+          onTap: () => context.pushNamed(
+            AppRoute.fileManager_exlorer_gcodeDetail.name,
+            pathParameters: {'path': job.metadata.parentPath},
+            extra: job.metadata,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    // No hero: The same file might also be shown by another card or tab.
+                    child: RemoteFileIcon(machineUUID: machineUUID, file: job.metadata, useHero: false),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: themeData.textTheme.labelLarge),
+                if (subtitle.isNotEmpty)
+                  Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: themeData.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// `1h 28m`, `35m`, `45s`
+  static String _shortDuration(double seconds) {
+    final d = Duration(seconds: seconds.round());
+    if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}m';
+    if (d.inMinutes > 0) return '${d.inMinutes}m';
+    return '${d.inSeconds}s';
+  }
+}
+
 @riverpod
 class _MachineStatusCardController extends _$MachineStatusCardController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
@@ -594,6 +755,9 @@ sealed class _Model with _$Model {
   bool get showExcludeObject => klippyCanReceiveCommands && isPrintingOrPaused && excludeObject?.available == true;
 
   bool get showToolheadTable => klippyCanReceiveCommands && (isPrintingOrPaused || isCompleteOrCancelled);
+
+  /// Whether a new print can be started: Klipper is ready and no print is active.
+  bool get canStartPrint => klippyCanReceiveCommands && !isPrintingOrPaused;
 
   bool get klippyCanReceiveCommands => klipperState == KlipperState.ready && klippyConnected;
 }
