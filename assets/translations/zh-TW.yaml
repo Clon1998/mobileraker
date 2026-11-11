@@ -396,13 +396,7 @@ pages:
           other: 檔案已成功加入至列印佇列
       spoolman_warnings:
         insufficient_filament_title: 耗材不足
-        insufficient_filament_body: |-
-          當前料盤僅剩 {} 耗材，不足以完成此檔案。
-          點擊以更換當前料盤。
         material_mismatch_title: 材質不相符
-        material_mismatch_body: |-
-          檔案要求的材質 {} 與目前料盤的材質 {} 不符。
-          點擊以更換當前料盤。
   setting:
     title: App 設定
     general:
@@ -664,10 +658,6 @@ pages:
       body: 請確認儲存列表機設置以套用變更。
     wifi_access_warning:
       title: WiFi資訊不可用
-      subtitle: |-
-        若要判斷 Mobileraker 是否應使用遠端連線，請授予位置存取權限。這能讓應用程式獲取目前 Wi-Fi 網路的名稱。
-
-        點擊以授予權限。
     local_ssid:
       section_header: 智慧切換
       no_ssids: 未加入 WiFi 名稱！
@@ -898,10 +888,6 @@ pages:
     target: '目標：{} Hz於 {} mm'
     permissionWarning:
       title: 需要麥克風權限
-      subtitle: |-
-        皮帶調整器使用您的裝置麥克風來分析皮帶的頻率。
-
-        點擊授予權限。
   spoolman:
     title: Spoolman
     not_available: "Spoolman 在這台列印機上不可用。\n請確保 Spoolman 已經安裝並啟用在您的列印機上。"
