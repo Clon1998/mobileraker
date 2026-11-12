@@ -410,6 +410,11 @@ pages:
         runs:
           one: "{} run"
           other: "{} runs"
+        run_status:
+          completed: Print completed
+          cancelled: Print cancelled
+          failed: Print failed
+          inProgress: Printing now
         longer_than_estimate: "{} longer than the slicer estimate"
         shorter_than_estimate: "{} shorter than the slicer estimate"
         open_history: Open in Print History
@@ -1986,6 +1991,8 @@ bottom_sheets:
     all: All
     no_results: No spools match your search
     active: Active spool
+    remaining: '{} left'
+    of_total: 'of {}'
     set_active_error: Could not set the active spool
     header:
       spools: Spools

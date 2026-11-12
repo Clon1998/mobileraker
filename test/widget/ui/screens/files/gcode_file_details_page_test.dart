@@ -270,7 +270,8 @@ void main() {
     expect(find.text('2 runs'), findsOneWidget);
     expect(find.text('1 / 2'), findsOneWidget, reason: 'completed runs');
     expect(find.text('2h 17m'), findsOneWidget, reason: 'print time of both runs');
-    expect(find.text('Cancelled'), findsOneWidget);
+    expect(find.text('Print completed'), findsOneWidget);
+    expect(find.text('Print cancelled'), findsOneWidget);
     expect(find.text('15s longer than the slicer estimate'), findsOneWidget);
     expect(find.text('~82%'), findsOneWidget, reason: 'filament the cancelled run used');
     expect(find.text('Not printed yet'), findsNothing);
@@ -307,13 +308,31 @@ void main() {
     await pumpPage(tester, jobs: [for (var i = 5; i >= 1; i--) job('$i', i.isEven ? 'error' : 'completed')]);
 
     expect(find.text('5 runs'), findsOneWidget);
-    expect(find.text('Failed'), findsOneWidget, reason: 'only the 3 most recent runs: completed, failed, completed');
+    expect(find.text('Print failed'), findsOneWidget, reason: 'only the 3 most recent runs: completed, failed, completed');
 
     // Invoked directly: depending on the scroll position the row is below the FABs.
     tester.widget<InkWell>(find.ancestor(of: find.text('2 more attempts'), matching: find.byType(InkWell)).first).onTap!();
     await tester.pumpAndSettle();
 
-    expect(find.text('Failed'), findsNWidgets(2));
+    expect(find.text('Print failed'), findsNWidgets(2));
+    await tester.unmountApp();
+  });
+
+  testWidgets('each run says what happened to the print, also if all of them failed', (tester) async {
+    await pumpPage(
+      tester,
+      jobs: [
+        job('3', 'klippy_shutdown', printDuration: 600, filamentUsed: 2000),
+        job('2', 'error', printDuration: 600, filamentUsed: 2000),
+        job('1', 'in_progress'),
+      ],
+    );
+
+    expect(find.text('0 / 3'), findsOneWidget);
+    expect(find.text('Print failed'), findsNWidgets(2));
+    expect(find.text('Printing now'), findsOneWidget);
+    expect(find.text('Failed'), findsNothing, reason: 'not just the bare status');
+    expect(find.textContaining('Klipper shut down · 10m 0s'), findsOneWidget, reason: 'why it failed, if known');
     await tester.unmountApp();
   });
 

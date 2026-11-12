@@ -968,7 +968,10 @@ class _Run extends ConsumerWidget {
         ? '${DateFormat.MMMEd().format(start)} · ${dateFormatService.Hm().format(start)}'
         : dateFormatService.add_Hm(DateFormat.yMMMd()).format(start);
 
+    // The title says what happened to the print, why it failed (if Moonraker knows more than "error") leads the details.
+    final title = tr('pages.files.details.history_card.run_status.${job.outcome.name}');
     final usage = [
+      if (job.outcome == JobOutcome.failed && job.status != 'error') jobStatusLabel(job),
       if (job.printDuration >= 1) jobDurationText(job.printDuration),
       if (job.filamentUsed >= 10) jobFilamentText(context, job.filamentUsed),
     ].join(' · ');
@@ -1028,7 +1031,7 @@ class _Run extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          jobStatusLabel(job),
+                          title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: themeData.textTheme.titleSmall?.copyWith(

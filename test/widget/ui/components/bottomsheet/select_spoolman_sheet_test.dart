@@ -3,11 +3,14 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/dto/pagination_result.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
@@ -18,6 +21,7 @@ import 'package:mobileraker_pro/spoolman/nfc/nfc_tag_reader.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/spoolman_server_info.dart';
 import 'package:mobileraker_pro/spoolman/ui/select_spoolman_sheet.dart';
+import 'package:mobileraker_pro/spoolman/ui/spool_list_entry_shimmer.dart';
 import 'package:test_support/test_support.dart';
 
 import '../../../../helpers/sheet_router.dart';
@@ -34,6 +38,9 @@ void main() {
     String material = 'PLA',
     String? location,
     DateTime? lastUsed,
+    double? initialWeight,
+    double? filamentWeight = 1000,
+    double used = 250,
   }) => GetSpool(
     id: id,
     registered: DateTime(2025),
@@ -46,11 +53,12 @@ void main() {
       material: material,
       density: 1.24,
       diameter: 1.75,
-      weight: 1000,
+      weight: filamentWeight,
       colorHex: 'FF0000',
     ),
-    usedWeight: 250,
-    remainingWeight: 750,
+    initialWeight: initialWeight,
+    usedWeight: used,
+    remainingWeight: (initialWeight ?? filamentWeight)?.let((it) => it - used),
     usedLength: 82500,
     location: location,
     archived: false,
@@ -72,6 +80,8 @@ void main() {
     List<GetSpool>? list,
     NfcTagReader? reader,
     String spoolmanVersion = '0.27.1',
+    // The spools are only loaded once it completes.
+    Completer<void>? loading,
   }) async {
     service = _FakeSpoolmanService(list ?? spools);
     snackBars = FakeSnackBarService();
@@ -82,6 +92,7 @@ void main() {
         dialogServiceProvider.overrideWithValue(FakeDialogService()),
         spoolmanServiceProvider(machine.uuid).overrideWithValue(service),
         spoolListProvider(machine.uuid).overrideWith((ref) async {
+          await loading?.future;
           final items = list ?? spools;
           return PaginationResult(items, items.length, 0, 1000);
         }),
@@ -89,6 +100,8 @@ void main() {
         spoolmanServerInfoProvider(machine.uuid).overrideWith((ref) async => _serverInfo(spoolmanVersion)),
         nfcTagReaderProvider.overrideWithValue(reader ?? _FakeReader(nfc: NfcState.unsupported)),
       ],
+      // The placeholders shimmer endlessly.
+      settle: loading == null,
     );
   }
 
@@ -118,8 +131,48 @@ void main() {
 
     expect(find.text('#1 Galaxy Black', findRichText: true), findsOneWidget);
     expect(find.text('Prusament – PLA · Dry box'), findsOneWidget);
-    expect(find.text('750 g'), findsNWidgets(4));
+    expect(find.text('750 g left'), findsNWidgets(4));
+    expect(find.text('of 1 kg'), findsNWidgets(4), reason: 'what the full spool had');
     expect(find.byType(LinearProgressIndicator), findsNWidgets(4));
+  });
+
+  testWidgets('the weight of a full spool is its own initial weight, otherwise that of the filament', (tester) async {
+    await openSheet(
+      tester,
+      list: [
+        spool(1, 'Refill', initialWeight: 2500, used: 1250),
+        spool(2, 'Unknown', filamentWeight: null),
+      ],
+    );
+
+    expect(find.text('1.3 kg left'), findsOneWidget);
+    expect(find.text('of 2.5 kg'), findsOneWidget);
+    // Nothing is known about the second spool: no bar, no weights.
+    expect(find.textContaining(' left'), findsOneWidget);
+    expect(find.textContaining('of '), findsOneWidget);
+  });
+
+  testWidgets('the spools are a lazy sliver list', (tester) async {
+    await openSheet(tester, list: [for (var i = 1; i <= 60; i++) spool(i, 'Spool $i')]);
+
+    expect(find.byType(CustomScrollView), findsOneWidget);
+    expect(find.byType(ListView), findsNothing);
+    expect(ids(tester).length, lessThan(60), reason: 'only the rows in view are built');
+  });
+
+  testWidgets('shows placeholder rows instead of a spinner while the spools are loaded', (tester) async {
+    final loading = Completer<void>();
+    await openSheet(tester, loading: loading);
+
+    expect(find.byType(SpoolListEntryShimmer), findsWidgets);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(SpoolTile), findsNothing);
+
+    loading.complete();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SpoolListEntryShimmer), findsNothing);
+    expect(ids(tester), [3, 2, 4, 1]);
   });
 
   testWidgets('filters by material, the most common first', (tester) async {
