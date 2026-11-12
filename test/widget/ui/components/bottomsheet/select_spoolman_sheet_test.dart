@@ -150,6 +150,17 @@ void main() {
     // Nothing is known about the second spool: no bar, no weights.
     expect(find.textContaining(' left'), findsOneWidget);
     expect(find.textContaining('of '), findsOneWidget);
+    expect(
+      tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value,
+      0.5,
+      reason: 'the bar is based on the initial weight, not the 1 kg of the filament',
+    );
+
+    // A spool with an initial weight whose filament has no weight still gets its bar.
+    await tester.unmountApp();
+    await openSheet(tester, list: [spool(3, 'Own weight', initialWeight: 1000, filamentWeight: null, used: 100)]);
+    expect(find.text('900 g left'), findsOneWidget);
+    expect(tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator)).value, 0.9);
   });
 
   testWidgets('the spools are a lazy sliver list', (tester) async {
