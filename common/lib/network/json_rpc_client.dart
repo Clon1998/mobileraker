@@ -187,7 +187,10 @@ class JsonRpcClient {
     _pendingRequests[mId] = _Request(method, completer, StackTrace.current);
 
     talker.debug('$logPrefix Sending(Blocking) for method "$method" with ID $mId');
-    _send(jsonEncode(jsonRpc));
+    _send(
+      jsonEncode(jsonRpc),
+      logAs: _sensitiveMethods.contains(method) ? jsonEncode({...jsonRpc, 'params': '<redacted>'}) : null,
+    );
     // If the timeout is zero, dont enforce a timeout
     if (timeout == Duration.zero) {
       return completer.future;
@@ -305,9 +308,12 @@ class JsonRpcClient {
   Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) =>
       {'jsonrpc': '2.0', 'id': _idCounter++, 'method': method, if (params != null) 'params': params};
 
-  /// Sends a message to the server
-  _send(String message) {
-    talker.debug('$logPrefix >>> $message');
+  /// Methods whose params (passwords) must not end up in the log.
+  static const Set<String> _sensitiveMethods = {'machine.sudo.password'};
+
+  /// Sends a message to the server, [logAs] is logged in place of the message if given.
+  _send(String message, {String? logAs}) {
+    talker.debug('$logPrefix >>> ${logAs ?? message}');
     _channel?.sink.add(message);
   }
 

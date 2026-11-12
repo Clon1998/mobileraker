@@ -57,6 +57,7 @@ class NavWidgetController extends _$NavWidgetController {
       ),
       NavEntry(label: tr('pages.history.title'), icon: Icons.manage_history, route: '/history'),
       if (showSpoolman) NavEntry(label: tr('pages.spoolman.title'), icon: Entypo.database, route: '/spoolman'),
+      NavEntry(label: tr('pages.updates.title'), icon: Icons.system_update_alt, route: '/updates'),
       if (kDebugMode) const NavEntry(label: 'Debug', icon: Icons.engineering_outlined, route: '/dev'),
       NavEntry.divider(),
       NavEntry(label: tr('pages.setting.title'), icon: Icons.build, route: '/setting'),

@@ -55,6 +55,7 @@ import 'package:mobileraker/ui/screens/spoolman/vendor_detail_page.dart';
 import 'package:mobileraker/ui/screens/themes/appearance_page.dart';
 import 'package:mobileraker/ui/screens/themes/custom_theme_editor_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
+import 'package:mobileraker/ui/screens/updates/update_manager_page.dart';
 import 'package:mobileraker_pro/custom_themes/data/model/custom_theme_pack.dart';
 import 'package:mobileraker_pro/printer_groups/data/model/printer_group.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
@@ -91,6 +92,7 @@ enum AppRoute implements RouteDefinitionMixin {
   qrScanner,
   console,
   history,
+  updates,
   settings,
   settings_appearance,
   settings_appearance_customThemeNew,
@@ -336,6 +338,11 @@ GoRouter goRouterImpl(Ref ref) {
             path: '/history',
             name: AppRoute.history.name,
             pageBuilder: railDestination(ref, (context, state) => const HistoryPage()),
+          ),
+          GoRoute(
+            path: '/updates',
+            name: AppRoute.updates.name,
+            pageBuilder: railDestination(ref, (context, state) => const UpdateManagerPage()),
           ),
           GoRoute(
             path: '/faq',

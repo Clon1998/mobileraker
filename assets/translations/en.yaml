@@ -986,6 +986,88 @@ pages:
       title: Error fetching Print History
       body: An error occurred while trying to fetch the print history. Please verify
         that the history component is enabled in Moonraker.
+  updates:
+    title: Update Manager
+    system_packages: System packages
+    check_for_updates: Check for updates
+    check_failed: Could not check for updates
+    update: Update
+    update_all: Update all
+    update_all_one_tap: Update all in one tap
+    update_all_hint: Supporter feature. You can still update each item below for free.
+    recover: Recover…
+    packages:
+      one: "{} system package"
+      other: "{} system packages"
+    packages_short:
+      one: "{} package"
+      other: "{} packages"
+    no_packages: No packages to update
+    show_packages: Show packages
+    commits_behind:
+      one: "{} commit behind"
+      other: "{} commits behind"
+    more_commits:
+      one: "and {} more commit"
+      other: "and {} more commits"
+    more_packages:
+      one: "and {} more"
+      other: "and {} more"
+    github_rate: "GitHub API: {} of {} checks left this hour"
+    summary:
+      available:
+        one: "{} update available"
+        other: "{} updates available"
+      up_to_date: Everything is up to date
+      up_to_date_body: All software is on its latest version.
+    sections:
+      attention: Needs attention
+      available: Updates available
+      up_to_date: Up to date
+    printing:
+      title: Paused while printing
+      body: Moonraker blocks updates and checks until the print is done. You can still
+        look at everything here.
+    busy:
+      title: Update in progress
+      body: Wait for it to finish before you start another one.
+      show_log: Show log
+    issue:
+      corrupt:
+        title: Repo is corrupt
+        body: The local repo is broken and cannot be updated. A hard recover deletes
+          it and clones it again.
+      dirty:
+        title: Local changes detected
+        body: Files of the repo were modified, so Moonraker does not update it. A soft
+          recover resets them.
+      invalid:
+        title: Updates are disabled
+        body: Moonraker found a problem with this software and does not update it.
+      error:
+        title: Last update failed
+        body: Moonraker reported an error for this software.
+    sudo:
+      title: Sudo password required
+      body: Moonraker needs the sudo password to continue.
+      enter: Enter
+    actions:
+      update: Update
+      refresh: Check for updates
+      rollback: Roll back
+      recover: Recover…
+      open_repo: Open on GitHub
+    rollback_dialog:
+      title: "Roll back {}?"
+      body: "{} goes back to {}, the version before its last update."
+    not_configured:
+      title: Update manager is not set up
+      body: Add the [update_manager] section to your moonraker.conf to manage updates
+        from here.
+    provider_error:
+      title: Error fetching updates
+      body: An error occurred while trying to read the update manager. Please retry
+        later!
   overview:
     title: Overview
     fetching_machines: "@:general.fetching machines…"
@@ -1423,6 +1505,10 @@ components:
     graph_page: Sorry, the Temperature-History page is only available to Supporters.
     snapshot_webcam: Sorry, notification snapshots are only available to Supporters.
     custom_themes: Create fully custom themes with your own colors and logo.
+    update_all: Updating everything in one tap is only available to Supporters. You
+      can still update each software on its own for free.
+    update_rollback: Sorry, rolling back to the previous version is only available
+      to Supporters.
   machine_deletion_warning:
     title: Machine Deletion
     subtitle: It seems like you are not a Supporter. Only supports can have more than
@@ -1526,6 +1612,15 @@ components:
   segment_form_field:
     duplicate_error: Value already present.
 dialogs:
+  sudo_password:
+    title: Sudo password
+    label: Password of the host's user
+    label_user: Password of "{}"
+    helper: Sent to Moonraker only, which keeps it until it restarts. The app does
+      not store it.
+    action: Send
+    accepted: Sudo password accepted
+    failed: Sudo request failed
   rate_my_app:
     title: Rate Mobileraker?
     message: If you like Mobileraker and want to support the development, please consider
@@ -1732,6 +1827,37 @@ dialogs:
       min: Enter a value of at least {}
       range: Enter a value between {} and {}
 bottom_sheets:
+  update_log:
+    title:
+      running:
+        upgrade: "Updating {}"
+        recover: "Recovering {}"
+        rollback: "Rolling back {}"
+      finished:
+        upgrade: Update finished
+        recover: Recovery finished
+        rollback: Rollback finished
+      failed:
+        upgrade: Update failed
+        recover: Recovery failed
+        rollback: Rollback failed
+    step: "{} of {}"
+    hint: You can close this. The update keeps running on the printer.
+    waiting: Waiting for Moonraker…
+    copy: Copy log
+    copied: Log copied to the clipboard.
+  update_recover:
+    title: "Fix {}"
+    subtitle: Pick how far to go.
+    recommended: Recommended
+    soft:
+      title: Soft recover
+      body: Runs git reset. Throws away local changes and keeps the repo.
+    hard:
+      title: Hard recover
+      body: Deletes the repo and clones it again. For corrupt repos. Takes longer.
+    supporter: Recover, roll back and update all in one tap are for Supporters. Your
+      support keeps Mobileraker going.
   macros:
     title: Macros
     available:

@@ -4,6 +4,15 @@
 
 ### Enhancements
 
+- **Update Manager**: A new page for Moonraker's update manager. It lists the software registered on your printer
+  (Klipper, Moonraker, web interfaces, system packages, …) with the installed and the available version, the commits
+  an update brings and anything that needs attention, like a repo with local changes. Update a single software with
+  one tap and follow the live log while it runs. Updates are blocked while printing, just like Moonraker does. If an
+  update needs the sudo password of the host, the app asks for it and hands it to Moonraker.
+
+  *Note: Updating everything in one tap, rolling back to the previous version and recovering a broken repo are
+  available exclusively for "Supporters".*
+
 - **WebRTC via OctoEverywhere & Remote Connections**: WebRTC webcams using camera-streamer (e.g. Crowsnest) now work
   through OctoEverywhere and other remote connections. The app now requests a STUN server like Mainsail does, which
   allows the stream to reach your device from outside your local network. Older camera-streamer versions that do not

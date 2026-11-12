@@ -24,6 +24,8 @@ sealed class TextInputDialogArguments with _$TextInputDialogArguments {
     String? hintText,
     String? suffixText,
     ValueTransformer<String?>? valueTransformer,
+    // For passwords: the input is hidden and neither suggested nor learned by the keyboard.
+    @Default(false) bool obscureText,
   }) = _TextInputDialogArguments;
 }
 
@@ -71,7 +73,10 @@ class TextInputDialog extends HookWidget {
               validator: dialogArgs.validator,
               initialValue: dialogArgs.initialValue,
               name: 'newValue',
-              keyboardType: TextInputType.text,
+              keyboardType: dialogArgs.obscureText ? TextInputType.visiblePassword : TextInputType.text,
+              obscureText: dialogArgs.obscureText,
+              autocorrect: !dialogArgs.obscureText,
+              enableSuggestions: !dialogArgs.obscureText,
               valueTransformer: dialogArgs.valueTransformer,
               onChanged: (value) {
                 isValid.value = formKey.value.currentState!.saveAndValidate();

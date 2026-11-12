@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/update_manager/updater_info.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -18,6 +19,8 @@ import 'package:mobileraker/ui/components/bottomsheet/manage_services_bottom_she
 import 'package:mobileraker/ui/components/bottomsheet/select_file_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/update_log_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/update_recover_bottom_sheet.dart';
 import 'package:mobileraker_pro/job_queue/ui/job_queue_sheet.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/spoolman/ui/select_spoolman_sheet.dart';
@@ -50,6 +53,8 @@ enum SheetType implements BottomSheetIdentifierMixin {
   changeSettings,
   selectPrintJob,
   macros,
+  updateRecover,
+  updateLog,
 }
 
 BottomSheetService bottomSheetServiceImpl(Ref ref) => BottomSheetServiceImpl(ref);
@@ -319,6 +324,35 @@ class BottomSheetServiceImpl implements BottomSheetService {
           key: state.pageKey,
           name: state.name,
           child: SettingsBottomSheet(arguments: state.extra as SettingsBottomSheetArgs),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.updateRecover.name,
+      path: '/sheet/update-recover',
+      pageBuilder: (context, state) {
+        assert(state.extra is UpdaterInfo, 'Invalid extra data for UpdaterInfo');
+
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: UpdateRecoverBottomSheet(updater: state.extra as UpdaterInfo),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.updateLog.name,
+      path: '/sheet/update-log',
+      pageBuilder: (context, state) {
+        assert(state.extra is String, 'Invalid extra data for String');
+
+        // SheetContentScaffold, the log scrolls on its own
+        return PagedSheetPage(
+          key: state.pageKey,
+          name: state.name,
+          child: UpdateLogBottomSheet(machineUUID: state.extra as String),
         );
       },
     ),
