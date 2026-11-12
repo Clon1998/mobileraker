@@ -21,6 +21,7 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/dialog/text_input/text_input_dialog.dart';
 import 'package:mobileraker/ui/screens/updates/update_manager_page.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart' show SmartRefresher;
 import 'package:test_support/test_support.dart';
 
 void main() {
@@ -124,6 +125,19 @@ void main() {
     await tester.scrollUntilVisible(find.text('Up to date'), 200, scrollable: scrollable);
     expect(find.text('Moonraker'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('GitHub API: 54 of 60 checks left this hour'), 200, scrollable: scrollable);
+    await tester.unmountApp();
+  });
+
+  testWidgets('pull to refresh reloads the status, like the other pages', (tester) async {
+    await pumpPage(tester);
+    expect(find.byType(SmartRefresher), findsOneWidget);
+    final before = callsOf('machine.update.status').length;
+
+    await tester.drag(find.text('3 updates available'), const Offset(0, 300));
+    await tester.pumpAndSettle();
+
+    expect(callsOf('machine.update.status'), hasLength(before + 1));
+    expect(find.text('3 updates available'), findsOneWidget);
     await tester.unmountApp();
   });
 

@@ -38,8 +38,20 @@ Future<List<HistoricalPrintJob>> jobHistory(Ref ref, String machineUUID, History
     ref.invalidateSelf();
   });
 
-  return service.getJobList(params);
+  // Kept for a while after the last listener is gone, so the dashboard and the history page show up without a
+  // request (and without growing once it completed) when the user switches back to them. A failed request is not kept.
+  final link = ref.keepAliveFor(historyKeepAlive);
+  try {
+    return await service.getJobList(params);
+  } catch (_) {
+    link.close();
+    rethrow;
+  }
 }
+
+/// How long [jobHistoryProvider] and [historyTotalsProvider] keep their data once nobody listens to them anymore.
+/// They stay up to date in the meantime: a change of the history that was missed is fetched once they are used again.
+const Duration historyKeepAlive = Duration(minutes: 5);
 
 /// The lifetime totals of the printer, refreshed whenever a job starts or ends.
 @riverpod
@@ -53,7 +65,13 @@ Future<HistoryTotals> historyTotals(Ref ref, String machineUUID) async {
     ref.invalidateSelf();
   });
 
-  return service.getTotals();
+  final link = ref.keepAliveFor(historyKeepAlive);
+  try {
+    return await service.getTotals();
+  } catch (_) {
+    link.close();
+    rethrow;
+  }
 }
 
 /// The recent jobs that printed the file [filename] (its path within the gcodes root), most recent first: the last

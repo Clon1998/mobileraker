@@ -45,6 +45,7 @@ import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_icon.dart';
 import 'package:mobileraker/ui/screens/history/job_formatting.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 /// The amount of jobs loaded per step, also Moonraker's default limit. Hence, the first step shares its request with
 /// the dashboard's status card.
@@ -133,6 +134,8 @@ class _HistoryBody extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
     final filter = useState(_HistoryFilter.all);
     final sort = useState(_defaultSort);
     final limit = useState(_pageSize);
@@ -163,8 +166,10 @@ class _HistoryBody extends HookConsumerWidget {
         .where((job) => needle.isEmpty || job.displayName.toLowerCase().contains(needle))
         .toList();
     if (!sortedByDate) shown.sort(_comparator(sort.value));
-    final hasMore = jobs.length >= limit.value;
-    final isLoadingMore = jobsAsync.isLoading;
+    // A step is a new request (the jobs we got so far stay visible), a refresh reloads the current one.
+    final isLoading = jobsAsync.isLoading;
+    final hasMore = jobsAsync.hasValue ? jobs.length >= limit.value : isLoading;
+    final loadFailed = jobsAsync.hasError && !isLoading;
 
     Future<void> pickSort() async {
       final res = await ref
@@ -178,24 +183,8 @@ class _HistoryBody extends HookConsumerWidget {
       if (res.confirmed && res.data is SortConfiguration) sort.value = res.data as SortConfiguration;
     }
 
-    // A flat list of the rows, so the jobs are built lazily.
+    // A flat list of the job rows, so they are built lazily.
     final rows = <Widget Function(BuildContext)>[
-      if (totals != null && totals.totalJobs > 0) (_) => _TotalsCard(totals: totals),
-      (_) => _FilterBar(
-        selected: filter.value,
-        onSelected: (f) => filter.value = f,
-        sort: sort.value,
-        onTapSort: pickSort,
-      ),
-      if (shown.isEmpty && !hasMore)
-        (ctx) => Padding(
-          padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
-          child: Text(
-            jobs.isEmpty ? 'pages.history.empty' : 'pages.history.empty_filter',
-            textAlign: TextAlign.center,
-            style: Theme.of(ctx).textTheme.bodySmall,
-          ).tr(),
-        ),
       if (sortedByDate)
         for (final (day, dayJobs) in shown.groupedByDay()) ...[
           (_) => _DayHeader(day: day, jobs: dayJobs),
@@ -206,31 +195,70 @@ class _HistoryBody extends HookConsumerWidget {
       else
         for (final job in shown)
           (_) => _JobCard(key: ValueKey(job.jobId), machineUUID: machineUUID, job: job, showDate: true),
-      // Older jobs are loaded once the end of the list comes into view. Keyed, to also continue if a step did not add
-      // a job that matches the filter.
-      if (hasMore)
-        (_) => _LoadMore(
-          key: ValueKey(limit.value),
-          onLoad: () {
-            if (!isLoadingMore) limit.value += _pageSize;
-          },
-        ),
     ];
+
+    // Tells what is beyond the last job: older ones (that are being loaded), a failed request or nothing.
+    final Widget? footer;
+    if (loadFailed) {
+      footer = _LoadMoreFailed(onRetry: () => ref.invalidate(jobHistoryProvider(machineUUID, params)));
+    } else if (hasMore) {
+      // Older jobs are loaded once the end of the list comes into view. This continues for as long as it stays in
+      // view, e.g. if a step did not add a job that matches the filter.
+      footer = _LoadMore(loading: isLoading, onLoad: () => limit.value += _pageSize);
+    } else if (shown.isNotEmpty) {
+      footer = const _EndReached();
+    } else {
+      footer = null;
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
 
-        return RefreshIndicator.adaptive(
+        return SmartRefresher(
+          controller: refreshController,
           onRefresh: () {
             ref.invalidate(historyTotalsProvider(machineUUID));
-            return ref.refresh(jobHistoryProvider(machineUUID, params).future);
+            ref
+                .refresh(jobHistoryProvider(machineUUID, params).future)
+                .then((_) => refreshController.refreshCompleted(), onError: (_, _) => refreshController.refreshFailed());
           },
-          child: ListView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, MediaQuery.viewPaddingOf(context).bottom + 16),
-            itemCount: rows.length,
-            itemBuilder: (context, index) => rows[index](context),
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, MediaQuery.viewPaddingOf(context).bottom + 16),
+                sliver: SliverMainAxisGroup(
+                  slivers: [
+                    if (totals != null && totals.totalJobs > 0) SliverToBoxAdapter(child: _TotalsCard(totals: totals)),
+                    SliverToBoxAdapter(
+                      child: _FilterBar(
+                        selected: filter.value,
+                        onSelected: (f) => filter.value = f,
+                        sort: sort.value,
+                        onTapSort: pickSort,
+                      ),
+                    ),
+                    if (shown.isEmpty && !hasMore && !loadFailed)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+                          child: Text(
+                            jobs.isEmpty ? 'pages.history.empty' : 'pages.history.empty_filter',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ).tr(),
+                        ),
+                      ),
+                    // The footer is the last item of the lazy list: It is only built (which loads the older jobs) once
+                    // it comes into view. A sliver of its own would always be built.
+                    SliverList.builder(
+                      itemCount: rows.length + (footer != null ? 1 : 0),
+                      itemBuilder: (context, index) => index < rows.length ? rows[index](context) : footer,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -469,9 +497,13 @@ class _DayHeader extends StatelessWidget {
   }
 }
 
-/// Shown at the end of the list while there are older jobs, requests them as soon as it is built (comes into view).
+/// Shown at the end of the list while there are older jobs, requests them as soon as it is built (comes into view) and
+/// again whenever a step completed while it is still there.
 class _LoadMore extends StatefulWidget {
-  const _LoadMore({super.key, required this.onLoad});
+  const _LoadMore({super.key, required this.loading, required this.onLoad});
+
+  /// Whether jobs are being loaded right now, no further ones are requested meanwhile.
+  final bool loading;
 
   final VoidCallback onLoad;
 
@@ -483,16 +515,81 @@ class _LoadMoreState extends State<_LoadMore> {
   @override
   void initState() {
     super.initState();
+    _requestMore();
+  }
+
+  @override
+  void didUpdateWidget(_LoadMore oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.loading && !widget.loading) _requestMore();
+  }
+
+  void _requestMore() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.onLoad();
+      if (mounted && !widget.loading) widget.onLoad();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 16),
-      child: Center(child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+          const SizedBox(width: 12),
+          Text('pages.history.loading_more', style: Theme.of(context).textTheme.bodySmall).tr(),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown at the end of the list if the older jobs could not be loaded.
+class _LoadMoreFailed extends StatelessWidget {
+  const _LoadMoreFailed({super.key, required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, size: 18, color: themeData.colorScheme.error),
+          const SizedBox(width: 10),
+          Expanded(child: Text('pages.history.load_more_failed', style: themeData.textTheme.bodySmall).tr()),
+          TextButton(onPressed: onRetry, child: const Text('general.retry').tr()),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown at the end of the list once all jobs of the history are loaded.
+class _EndReached extends StatelessWidget {
+  const _EndReached({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text('pages.history.end_reached', style: themeData.textTheme.bodySmall).tr(),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
     );
   }
 }

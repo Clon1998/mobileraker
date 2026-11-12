@@ -44,6 +44,7 @@ import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/updates/sudo_password_prompt.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The max width of the content on larger screens.
@@ -130,13 +131,16 @@ Future<void> _refresh(ProviderContainer container, String machineUUID, [String? 
   }
 }
 
-class _Body extends ConsumerWidget {
+class _Body extends HookConsumerWidget {
   const _Body({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final refreshController = useMemoized(() => RefreshController(), const []);
+    useEffect(() => refreshController.dispose, const []);
+
     final configured =
         ref.watch(klipperProvider(machineUUID).selectAs((d) => d.hasUpdateManagerComponent)).value ?? true;
     final statusAsync = ref.watch(updateManagerStatusProvider(machineUUID));
@@ -257,10 +261,12 @@ class _Body extends ConsumerWidget {
       builder: (context, constraints) {
         final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
 
-        return RefreshIndicator.adaptive(
-          onRefresh: () => ref.refresh(updateManagerStatusProvider(machineUUID).future),
+        return SmartRefresher(
+          controller: refreshController,
+          onRefresh: () => ref
+              .refresh(updateManagerStatusProvider(machineUUID).future)
+              .then((_) => refreshController.refreshCompleted(), onError: (_, _) => refreshController.refreshFailed()),
           child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, MediaQuery.viewPaddingOf(context).bottom + 16),
             children: rows,
           ),

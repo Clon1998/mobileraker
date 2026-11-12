@@ -982,6 +982,9 @@ pages:
     remove_failed: Could not remove the entry from the history.
     empty: No prints yet. They show up here once a print was started.
     empty_filter: No prints match.
+    loading_more: Loading older prints…
+    load_more_failed: Could not load older prints.
+    end_reached: No older prints
     provider_error:
       title: Error fetching Print History
       body: An error occurred while trying to fetch the print history. Please verify

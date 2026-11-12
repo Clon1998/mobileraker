@@ -64,7 +64,7 @@ void main() {
     await tester.unmountApp();
   });
 
-  HistoricalPrintJob job(String id, String filename, {bool exists = true}) => HistoricalPrintJob.fromJson({
+  Map<String, dynamic> jobJson(String id, String filename, {bool exists = true}) => {
     'job_id': id,
     'user': '_TRUSTED_USER_',
     'filename': filename,
@@ -77,7 +77,10 @@ void main() {
     'metadata': {'size': 1, 'modified': 1.0, 'filament_type': 'PLA', 'estimated_time': 5280.0},
     'auxiliary_data': [],
     'exists': exists,
-  });
+  };
+
+  HistoricalPrintJob job(String id, String filename, {bool exists = true}) =>
+      HistoricalPrintJob.fromJson(jobJson(id, filename, exists: exists));
 
   testWidgets('standby: offers the recently printed files once', (tester) async {
     await pumpCard(
@@ -96,6 +99,48 @@ void main() {
     expect(find.text('cube'), findsOneWidget);
     expect(find.text('deleted'), findsNothing);
     expect(find.text('PLA · 1h 28m'), findsNWidgets(2));
+    await tester.unmountApp();
+  });
+
+  testWidgets('standby: print again is back right away after the card was gone for a while', (tester) async {
+    rpc = FakeJsonRpcClient(
+      responses: {
+        'server.history.list': (_) => {
+          'jobs': [jobJson('1', 'cube.gcode')],
+        },
+      },
+    );
+    final shown = ValueNotifier(true);
+    addTearDown(shown.dispose);
+    await tester.pumpApp(
+      ValueListenableBuilder(
+        valueListenable: shown,
+        builder: (_, show, _) => show
+            ? SingleChildScrollView(child: MachineStatusCard(machineUUID: machine.uuid))
+            : const Text('Other page'),
+      ),
+      overrides: [...uiServiceOverrides(), ...connectedMachineOverrides(machine, client: rpc)],
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('cube'), findsOneWidget);
+
+    // Like switching to another page and back to the dashboard.
+    shown.value = false;
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(minutes: 1));
+    expect(find.text('cube'), findsNothing);
+    shown.value = true;
+    var frames = 0;
+    while (find.text('Standby').evaluate().isEmpty && frames++ < 10) {
+      await tester.pump();
+    }
+
+    expect(find.text('Standby'), findsOneWidget);
+    expect(find.text('Print again'), findsOneWidget, reason: 'there with the card, which does not grow later');
+    expect(find.text('cube'), findsOneWidget);
+    expect(tester.getSize(find.byKey(const Key('PrintAgain'))).height, greaterThan(100), reason: 'at its full size');
+    await tester.pumpAndSettle();
+    expect(rpc.methods.where((m) => m == 'server.history.list'), hasLength(1), reason: 'the history is still kept');
     await tester.unmountApp();
   });
 
