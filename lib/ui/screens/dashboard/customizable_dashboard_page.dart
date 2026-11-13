@@ -30,6 +30,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
+import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/nav/nav_widget_controller.dart';
@@ -52,6 +53,7 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
+import 'package:mobileraker/ui/components/demo/demo_printer_widgets.dart';
 import 'package:mobileraker/ui/components/dialog/text_input/text_input_dialog.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
@@ -83,6 +85,7 @@ const _staticWidgets = [
     animated: false,
     placeholder: true,
   ),
+  DemoPrinterBanner(key: Key('DemoPrinterBanner')),
   RemoteAnnouncements(key: Key('RemoteAnnouncements')),
   MachineDeletionWarning(key: Key('MachineDeletionWarning')),
   SupporterAd(key: Key('SupporterAd')),
@@ -574,7 +577,7 @@ class _PrinterAppBar extends ConsumerWidget {
       AsyncData(value: _Model(isEditing: true)) => AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: controller.cancelEditMode),
         centerTitle: false,
-        title: const Text('pages.customizing_dashboard.title').tr(),
+        title: TitleWithDemoProBadge(title: const Text('pages.customizing_dashboard.title').tr()),
         actions: [
           IconButton(onPressed: controller.saveCurrentLayout, icon: Icon(Icons.save), tooltip: tr('general.save')),
           IconButton(
@@ -709,7 +712,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void saveCurrentLayout() {
-    var isSupporter = ref.read(isSupporterProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider);
 
     if (!isSupporter) {
       _snackbarService.show(
@@ -730,7 +733,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void resetCurrentLayout() {
-    var isSupporter = ref.read(isSupporterProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider);
 
     if (!isSupporter) {
       _snackbarService.show(
@@ -767,7 +770,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void renameCurrentLayout() async {
-    var isSupporter = ref.read(isSupporterProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider);
 
     if (!isSupporter) {
       _snackbarService.show(
@@ -815,7 +818,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void exportCurrentLayout(Rect origin) {
-    var isSupporter = ref.read(isSupporterProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider);
 
     if (!isSupporter) {
       _snackbarService.show(

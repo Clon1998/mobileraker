@@ -17,6 +17,7 @@ import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/http_client_factory.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/demo/demo_printer.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
@@ -61,7 +62,8 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     var isSupporter = ref.watch(isSupporterProvider);
     var maxNonSupporterMachines = ref.watch(remoteConfigIntProvider('non_suporters_max_printers'));
     if (!isSupporter && maxNonSupporterMachines > 0) {
-      ref.read(allMachinesProvider.selectAsync((data) => data.length)).then((value) {
+      // The demo printer never counts towards the limit.
+      ref.read(allMachinesProvider.selectAsync((data) => data.where((m) => !m.isDemo).length)).then((value) {
         if (value >= maxNonSupporterMachines) {
           state = state.copyWith(
             nonSupporterError: tr(

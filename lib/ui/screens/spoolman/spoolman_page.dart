@@ -12,6 +12,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/responsive_limit.dart';
@@ -75,7 +76,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
     return SwitchPrinterAppBar(
       title: 'Spoolman',
       status: ref.watch(selectedMachineProvider).valueOrFullNull?.let(MachineStatusLabel.new),
-      actions: const <Widget>[],
+      actions: const <Widget>[DemoProBadge()],
     );
   }
 
@@ -125,7 +126,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isSupporter = ref.watch(isSupporterProvider);
+    var isSupporter = ref.watch(canUseProFeaturesProvider);
     if (!isSupporter && ref.watch(remoteConfigBoolProvider('spoolman_page_pay'))) {
       return Center(
         child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.spoolman_page').tr()),

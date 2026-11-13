@@ -15,6 +15,7 @@ import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/demo/demo_printer.dart';
 import 'package:common/service/machine_last_seen_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -117,7 +118,9 @@ class AllMachines extends _$AllMachines {
       await settingService.delete(UtilityKeys.nonSupporterMachineCleanup);
     }
 
-    if (isSupporter || maxNonSupporterMachines <= 0 || machines.length <= maxNonSupporterMachines) {
+    // The demo printer is free and never counts towards the limit.
+    final realMachineCount = machines.where((m) => !m.isDemo).length;
+    if (isSupporter || maxNonSupporterMachines <= 0 || realMachineCount <= maxNonSupporterMachines) {
       return machines;
     }
 
@@ -134,7 +137,11 @@ class AllMachines extends _$AllMachines {
     if (cleanupDate.isBefore(DateTime.now())) {
       // if (cleanupDate.difference(DateTime.now()).inDays >= 0) {
       var oLen = machines.length;
-      machines = machines.sublist(0, maxNonSupporterMachines);
+      var kept = 0;
+      machines = [
+        for (final m in machines)
+          if (m.isDemo || kept++ < maxNonSupporterMachines) m,
+      ];
       talker.info(
         'Hiding machines from user since he is not a supporter! Original len was $oLen, new length is ${machines.length}',
       );
@@ -170,6 +177,8 @@ Future<List<Machine>> machinesWithoutCompanion(Ref ref) async {
 
   List<Machine> noCompanion = [];
   for (var machine in allMachines) {
+    // The demo printer has no companion to install.
+    if (machine.isDemo) continue;
     try {
       var meta = await machineService.fetchCompanionMetaData(machine);
       if (meta == null) noCompanion.add(machine);
@@ -300,19 +309,18 @@ class MachineService {
       talker.warning('Was unable to delete FCM settings from machine that is about to get deleted...', e);
     }
 
+    // Move the selection away first: screens of the selected machine (e.g. its dashboard) would otherwise rebuild
+    // against a machine that no longer exists and fail.
+    if (_selectedMachineService.isSelectedMachine(machine)) {
+      talker.info('Machine ${machine.uuid} that is about to be removed is the active machine... move to next one...');
+      final remainingPrinters = (await _machineRepo.fetchAll()).where((m) => m.uuid != machine.uuid);
+      await _selectedMachineService.selectMachine(remainingPrinters.firstOrNull);
+    }
+
     await _machineRepo.remove(machine.uuid);
     var firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'remove_machine');
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
-
-    if (_selectedMachineService.isSelectedMachine(machine)) {
-      talker.info('Removed Machine ${machine.uuid} is active machine... move to next one...');
-      List<Machine> remainingPrinters = await _machineRepo.fetchAll();
-
-      Machine? nextMachine = remainingPrinters.isNotEmpty ? remainingPrinters.first : null;
-
-      await _selectedMachineService.selectMachine(nextMachine);
-    }
 
     /// Replace the manual invalidation. The machineProvider is now not kept alive, only up to 30 sec so
     /// It automatically invalidates itself after that if not used anymore.

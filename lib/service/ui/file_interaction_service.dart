@@ -65,7 +65,7 @@ FileInteractionService fileInteractionService(Ref ref, String machineUUID) {
     ref.watch(jobQueueServiceProvider(machineUUID)),
     ref.watch(printerServiceProvider(machineUUID)),
     ref.watch(goRouterProvider),
-    ref.watch(isSupporterProvider),
+    ref.watch(canUseProFeaturesProvider),
   );
 }
 

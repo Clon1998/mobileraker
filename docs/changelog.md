@@ -4,6 +4,12 @@
 
 ### Enhancements
 
+- **Demo Printer**: No printer at hand? The welcome screen now offers a demo printer that is simulated inside the
+  app, so you can explore Mobileraker without a printer. It runs a print, and its temperatures, fans, LEDs, files,
+  console, history, power devices, update manager, job queue and Spoolman all respond like a real one. Nothing you do
+  on it reaches a real printer. Pro features are unlocked on the demo printer so you can try them, marked with a PRO
+  badge. The demo printer does not count towards the printer limit and can be removed from its dashboard.
+
 - **Update Manager**: A new page for Moonraker's update manager. It lists the software registered on your printer
   (Klipper, Moonraker, web interfaces, system packages, …) with the installed and the available version, the commits
   an update brings and anything that needs attention, like a repo with local changes. Update a single software with

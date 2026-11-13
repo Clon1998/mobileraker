@@ -1493,6 +1493,19 @@ components:
   supporter_add:
     title: Like Mobileraker?
     subtitle: Tap me! To learn how you can support the development!
+  demo_printer:
+    name: Demo printer
+    try_hint: No printer at hand? Explore Mobileraker with a simulated one.
+    try_button: Try the demo printer
+    banner_title: You're using the demo printer
+    banner_body: This printer is simulated inside the app, nothing you do here reaches
+      a real printer. Pro features are unlocked so you can try them, look for the PRO
+      badge.
+    add_own: Add your printer
+    remove: Remove demo
+    pro_badge: PRO
+    pro_tooltip: Supporter feature, unlocked on the demo printer
+    webcam: Demo camera
   supporter_only_feature:
     dialog_title: Supporter Only Feature
     button: Become a Mobileraker Supporter

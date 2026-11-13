@@ -9,6 +9,7 @@ import 'package:common/network/http_client_factory.dart';
 import 'package:common/network/interceptor/mobileraker_dio_interceptor.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/demo/demo_printer.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/util/extensions/dio_options_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -36,6 +37,12 @@ Dio dioClient(Ref ref, String machineUUID) {
   dio.interceptors.add(RetryInterceptor(dio: dio));
   dio.interceptors.add(MobilerakerDioInterceptor());
   ref.onDispose(dio.close);
+
+  // The demo printer's files come from the in-app simulator.
+  if (isDemoMachine(machineUUID)) {
+    dio.httpClientAdapter = DemoHttpClientAdapter(ref.watch(demoMoonrakerProvider));
+    return dio;
+  }
 
   final httpClientFactory = ref.watch(httpClientFactoryProvider);
   final httpClient = httpClientFactory.fromBaseOptions(baseOptions);

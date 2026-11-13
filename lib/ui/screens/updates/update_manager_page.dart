@@ -23,6 +23,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_button_.dart';
+import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
@@ -145,7 +146,7 @@ class _Body extends HookConsumerWidget {
         ref.watch(klipperProvider(machineUUID).selectAs((d) => d.hasUpdateManagerComponent)).value ?? true;
     final statusAsync = ref.watch(updateManagerStatusProvider(machineUUID));
     final blockers = _watchBlockers(ref, machineUUID);
-    final isSupporter = ref.watch(isSupporterProvider);
+    final isSupporter = ref.watch(canUseProFeaturesProvider);
     final sudoRequest = ref.watch(sudoRequestProvider(machineUUID)).value;
     // The software Moonraker is working on right now, it offers the live log.
     final updating = ref.watch(updateProgressProvider(machineUUID).select((d) => d.isRunning ? d.current : null));
@@ -472,7 +473,7 @@ class _SummaryCard extends ConsumerWidget {
                   style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                   onPressed: blocked ? null : () => _start(_containerOf(ref), machineUUID, (it) => it.upgrade()),
                   icon: const Icon(Icons.download),
-                  label: const Text('pages.updates.update_all').tr(),
+                  label: TitleWithDemoProBadge(title: const Text('pages.updates.update_all').tr()),
                 )
               else ...[
                 OutlinedButton.icon(
@@ -721,6 +722,7 @@ class _UpdaterCard extends HookConsumerWidget {
                 children: [
                   if (!isSupporter) ...[const Icon(Icons.lock_outline, size: 16), const SizedBox(width: 6)],
                   const Text('pages.updates.recover').tr(),
+                  const DemoProBadge(),
                 ],
               ),
             ),

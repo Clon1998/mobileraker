@@ -10,6 +10,7 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/service/demo/demo_printer.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -26,6 +27,13 @@ part 'jrpc_client_provider.g.dart';
 
 @riverpod
 JsonRpcClient _jsonRpcClient(Ref ref, String machineUUID, ClientType type) {
+  // The demo printer talks to the in-app simulator instead of a websocket.
+  if (isDemoMachine(machineUUID)) {
+    final demoClient = DemoJsonRpcClient(ref.watch(demoMoonrakerProvider));
+    ref.onDispose(demoClient.dispose);
+    return demoClient;
+  }
+
   // baseOptionsProvider selects only connection-relevant machine fields and throws if the machine
   // does not exist, so no separate machineProvider watch is needed here.
   final clientOptions = ref.watch(baseOptionsProvider(machineUUID, type));

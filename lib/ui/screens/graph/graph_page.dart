@@ -12,6 +12,7 @@ import 'package:common/service/moonraker/temperature_store_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -57,7 +58,7 @@ class _GraphPage extends ConsumerWidget {
     final controller = ref.watch(_graphPageControllerProvider(machineUUID).notifier);
     return Scaffold(
       appBar: AppBar(
-        title: Text('pages.temp_chart.title').tr(),
+        title: TitleWithDemoProBadge(title: Text('pages.temp_chart.title').tr()),
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {
@@ -83,7 +84,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isSupporter = ref.watch(isSupporterProvider);
+    var isSupporter = ref.watch(canUseProFeaturesProvider);
     if (!isSupporter && ref.watch(remoteConfigBoolProvider('graph_page_pay'))) {
       return Center(
         child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.graph_page').tr()),

@@ -28,6 +28,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
+import 'package:mobileraker/ui/components/demo/demo_printer_widgets.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcam_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -210,6 +211,20 @@ class _WelcomeMessage extends StatelessWidget {
             onPressed: () => context.pushNamed(AppRoute.printerAdd.name),
             icon: const Icon(Icons.add),
             label: const Text('pages.overview.add_machine').tr(),
+          ),
+          const SizedBox(height: 16),
+          // No printer at hand: a simulated one shows how the app works.
+          Text(
+            'components.demo_printer.try_hint',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ).tr(),
+          Consumer(
+            builder: (context, ref, _) => TextButton.icon(
+              onPressed: () => addDemoPrinter(ref),
+              icon: const Icon(Icons.science_outlined),
+              label: const Text('components.demo_printer.try_button').tr(),
+            ),
           ),
           // const Spacer(),
         ],

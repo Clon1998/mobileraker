@@ -10,6 +10,7 @@ import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -36,7 +37,7 @@ class GCodePreviewPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: Text(file.name)),
+      appBar: AppBar(title: Text(file.name), actions: const [DemoProBadge(), SizedBox(width: 8)]),
       body: SafeArea(
         child: _Body(machineUUID: machineUUID, file: file, live: live),
       ),
@@ -53,7 +54,7 @@ class _Body extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSup = ref.watch(isSupporterProvider);
+    final isSup = ref.watch(canUseProFeaturesProvider);
     if (!isSup) {
       return Center(
         child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.gcode_preview').tr()),
