@@ -427,7 +427,13 @@ pages:
           other: Die Dateien wurden erfolgreich zur Druckwarteschlange hinzugefügt.
       spoolman_warnings:
         insufficient_filament_title: Unzureichendes Filament
+        insufficient_filament_body: |-
+          Die aktiven Spule hat nur noch {} Filament, was nicht ausreicht um die Datei zu drucken.
+          Tippen Sie, um die aktive Spule zu wechseln.
         material_mismatch_title: Materialwarnung
+        material_mismatch_body: |-
+          Das Material der Datei {} stimmt nicht mit dem Material der aktiven Spule {} überein.
+          Tippen Sie, um die aktive Spule zu ändern.
   setting:
     title: App - Einstellungen
     general:
@@ -766,6 +772,10 @@ pages:
       body: Um die Änderungen zu übernehmen, speichern sie den Drucker.
     wifi_access_warning:
       title: WiFi-Informationen nicht verfügbar
+      subtitle: |-
+        Um festzustellen, ob Mobileraker die Fernzugriffs-Verbindung nutzen soll, gewähren Sie Mobileraker Standortzugriff. Dies erlaubt es der App, den Namen des aktuellen WiFi-Netzwerks abzurufen.
+
+        Tippen Sie, um die Erlaubnis zu erteilen.
     local_ssid:
       section_header: Smart Switching
       no_ssids: Kein WiFi-Name hinzugefügt!
@@ -1005,6 +1015,10 @@ pages:
     target: 'Ziel: {} Hz über {} mm'
     permissionWarning:
       title: Berechtigung für das Mikrofon erforderlich
+      subtitle: |-
+        Der Zahnriemen-Tuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Zahnriemen zu analysieren.
+
+        Tippen Sie, um die Erlaubnis zu erteilen.
   spoolman:
     detail_pane_hint: Wähle einen Eintrag aus, um seine Details zu sehen
     title: Spoolman
@@ -1188,6 +1202,17 @@ components:
   supporter_add:
     title: Mögen Sie Mobileraker?
     subtitle: Tipp mich an! Um zu erfahren, wie Sie die Entwicklung unterstützen können!
+  demo_printer:
+    name: Demo-Drucker
+    try_hint: Gerade keinen Drucker zur Hand? Entdecke Mobileraker mit einem simulierten.
+    try_button: Demo-Drucker ausprobieren
+    banner_title: Du nutzt den Demo-Drucker
+    banner_body: Dieser Drucker wird in der App simuliert, nichts davon erreicht einen echten Drucker. Pro-Funktionen sind freigeschaltet, damit du sie ausprobieren kannst, achte auf das PRO-Abzeichen.
+    add_own: Eigenen Drucker hinzufügen
+    remove: Demo entfernen
+    pro_badge: PRO
+    pro_tooltip: Supporter-Funktion, auf dem Demo-Drucker freigeschaltet
+    webcam: Demo-Kamera
   supporter_only_feature:
     dialog_title: Funktion nur für Supporter
     button: Werde ein Mobileraker Supporter
