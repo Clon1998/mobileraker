@@ -27,6 +27,7 @@ import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
+import 'package:common/ui/components/skeletons/skeleton_box.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -46,6 +47,7 @@ import 'package:mobileraker/ui/components/connection/machine_connection_guard.da
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/updates/sudo_password_prompt.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The max width of the content on larger screens.
@@ -169,7 +171,7 @@ class _Body extends HookConsumerWidget {
           body: 'pages.updates.provider_error.body',
           onRetry: () => ref.invalidate(updateManagerStatusProvider(machineUUID)),
         ),
-        _ => const Center(child: CircularProgressIndicator.adaptive()),
+        _ => const _UpdateManagerSkeleton(),
       };
     }
 
@@ -1024,5 +1026,124 @@ Future<void> _showUpdaterActions(
       await _recover(container, machineUUID, updater, isSupporter: isSupporter);
     case UpdaterSheetAction.openRepo:
       if (repoUri != null) await launchUrl(repoUri, mode: LaunchMode.externalApplication);
+  }
+}
+
+/// Shown while the status is loaded the first time, it mirrors the layout of the list.
+class _UpdateManagerSkeleton extends StatelessWidget {
+  const _UpdateManagerSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+
+        return Shimmer.fromColors(
+          baseColor: Colors.grey,
+          highlightColor: themeData.colorScheme.surface,
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, 16),
+            children: [
+              // Summary
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      SkeletonBox(width: 48, height: 48, radius: 12),
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FractionallySizedBox(widthFactor: 0.55, child: SkeletonBox(height: 18)),
+                            SizedBox(height: 8),
+                            FractionallySizedBox(widthFactor: 0.8, child: SkeletonBox(height: 10)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const _SectionHeaderSkeleton(width: 100),
+              for (var i = 0; i < 2; i++)
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        SkeletonBox(width: 44, height: 44, radius: 11),
+                        SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(children: [SkeletonBox(width: 90, height: 14), SizedBox(width: 8), SkeletonBox(width: 44, height: 12)]),
+                              SizedBox(height: 8),
+                              FractionallySizedBox(widthFactor: 0.6, child: SkeletonBox(height: 10)),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        SkeletonBox(width: 76, height: 36, radius: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              const _SectionHeaderSkeleton(width: 80),
+              Card(
+                child: Column(
+                  children: [
+                    for (var i = 0; i < 4; i++) ...[
+                      if (i > 0) const Divider(height: 1, indent: 12 + 36 + 14),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        child: Row(
+                          children: [
+                            SkeletonBox(width: 36, height: 36, radius: 9),
+                            SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FractionallySizedBox(widthFactor: 0.4, child: SkeletonBox(height: 14)),
+                                  SizedBox(height: 6),
+                                  FractionallySizedBox(widthFactor: 0.6, child: SkeletonBox(height: 10)),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            SkeletonBox(width: 20, height: 20, radius: 10),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SectionHeaderSkeleton extends StatelessWidget {
+  const _SectionHeaderSkeleton({super.key, required this.width});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 6),
+      child: Align(alignment: Alignment.centerLeft, child: SkeletonBox(width: width, height: 14)),
+    );
   }
 }

@@ -27,6 +27,7 @@ import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
+import 'package:common/ui/components/skeletons/skeleton_box.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/historical_print_job_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -46,6 +47,7 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/files/components/remote_file_icon.dart';
 import 'package:mobileraker/ui/screens/history/job_formatting.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:shimmer/shimmer.dart';
 
 /// The amount of jobs loaded per step, also Moonraker's default limit. Hence, the first step shares its request with
 /// the dashboard's status card.
@@ -155,7 +157,7 @@ class _HistoryBody extends HookConsumerWidget {
     if (jobs == null) {
       return switch (jobsAsync) {
         AsyncError() => _ProviderError(onRetry: () => ref.invalidate(jobHistoryProvider(machineUUID, params))),
-        _ => const Center(child: CircularProgressIndicator.adaptive()),
+        _ => const _HistorySkeleton(),
       };
     }
 
@@ -894,5 +896,104 @@ Future<void> _showJobActions(WidgetRef ref, String machineUUID, HistoricalPrintJ
         talker.warning('[HistoryPage] Could not delete job ${job.jobId}', e, s);
         snackBarService.show(SnackBarConfig(type: SnackbarType.error, message: tr('pages.history.remove_failed')));
       }
+  }
+}
+
+/// Shown while the first jobs are loaded, it mirrors the layout of the list.
+class _HistorySkeleton extends StatelessWidget {
+  const _HistorySkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+
+        return Shimmer.fromColors(
+          baseColor: Colors.grey,
+          highlightColor: themeData.colorScheme.surface,
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, 16),
+            children: [
+              // Totals
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < 4; i++)
+                        const Expanded(
+                          child: Column(
+                            children: [SkeletonBox(width: 40, height: 18), SizedBox(height: 6), SkeletonBox(width: 56, height: 10)],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              // Filter bar
+              const Padding(
+                padding: EdgeInsets.fromLTRB(4, 6, 4, 2),
+                child: Row(
+                  children: [
+                    Expanded(child: SkeletonBox(height: 44, radius: 22)),
+                    SizedBox(width: 8),
+                    SkeletonBox(width: 40, height: 40, radius: 20),
+                  ],
+                ),
+              ),
+              for (var day = 0; day < 2; day++) ...[
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(8, 16, 8, 6),
+                  child: Row(children: [SkeletonBox(width: 90, height: 14), Spacer(), SkeletonBox(width: 110, height: 10)]),
+                ),
+                for (var i = 0; i < 3; i++) const _JobCardSkeleton(),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _JobCardSkeleton extends StatelessWidget {
+  const _JobCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Card(
+      child: Padding(
+        padding: EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SkeletonBox(width: 56, height: 56, radius: 10),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: 0.7, child: SkeletonBox(height: 14))),
+                      SizedBox(width: 8),
+                      SkeletonBox(width: 36, height: 10),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  SkeletonBox(width: 120, height: 10),
+                  SizedBox(height: 8),
+                  SkeletonBox(width: 80, height: 10),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
