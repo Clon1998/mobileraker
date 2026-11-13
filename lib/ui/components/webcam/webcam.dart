@@ -66,7 +66,7 @@ class Webcam extends HookConsumerWidget {
       return const Text('Webcams via Obico are still Work in Progress!');
     }
 
-    if (webcamInfo.service.forSupporters && !ref.watch(canUseProFeaturesProvider)) {
+    if (webcamInfo.service.forSupporters && !ref.watch(canUseProFeaturesProvider(machine.uuid))) {
       return SupporterOnlyFeature(
         text: const Text('components.supporter_only_feature.webcam').tr(args: [webcamInfo.service.name.titleCase()]),
       );

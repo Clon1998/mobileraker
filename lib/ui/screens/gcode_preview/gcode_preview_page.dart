@@ -54,7 +54,7 @@ class _Body extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSup = ref.watch(canUseProFeaturesProvider);
+    final isSup = ref.watch(canUseProFeaturesProvider(machineUUID));
     if (!isSup) {
       return Center(
         child: SupporterOnlyFeature(text: const Text('components.supporter_only_feature.gcode_preview').tr()),

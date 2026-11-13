@@ -74,7 +74,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   Widget build(BuildContext context) {
     Widget body;
     if (loading) {
-      if (fileDownloadProgress != null && !ref.watch(canUseProFeaturesProvider)) {
+      if (fileDownloadProgress != null && !ref.watch(canUseProFeaturesOnSelectedProvider)) {
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -132,7 +132,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   }
 
   _startDownload(BuildContext ctx) {
-    var isSupporter = ref.read(canUseProFeaturesProvider);
+    var isSupporter = ref.read(canUseProFeaturesOnSelectedProvider);
 
     final box = ctx.findRenderObject() as RenderBox?;
     final pos = box!.localToGlobal(Offset.zero) & box.size;

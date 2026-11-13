@@ -70,7 +70,7 @@ Future<List<WebcamInfo>> allSupportedWebcamInfos(Ref ref, String machineUUID) as
 
 @riverpod
 Future<WebcamInfo?> activeWebcamInfoForMachine(Ref ref, String machineUUID) async {
-  final isSupporter = ref.watch(canUseProFeaturesProvider);
+  final isSupporter = ref.watch(canUseProFeaturesProvider(machineUUID));
 
   final cams = await ref.watch(allSupportedWebcamInfosProvider(machineUUID).future);
   if (!ref.mounted) return null;

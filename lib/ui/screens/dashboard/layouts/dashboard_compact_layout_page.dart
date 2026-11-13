@@ -91,7 +91,7 @@ class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
               ),
             ),
           ),
-        if (widget.isEditing && !ref.watch(canUseProFeaturesProvider))
+        if (widget.isEditing && !ref.watch(canUseProFeaturesProvider(widget.machineUUID)))
           SliverPadding(
             padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
             sliver: SliverToBoxAdapter(

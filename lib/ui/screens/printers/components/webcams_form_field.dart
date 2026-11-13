@@ -223,7 +223,7 @@ class _CamFormBody extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (cam.service.forSupporters && !ref.watch(canUseProFeaturesProvider))
+        if (cam.service.forSupporters && !ref.watch(canUseProFeaturesProvider(machine.uuid)))
           SupporterOnlyFeature(
             text: const Text('components.supporter_only_feature.webcam').tr(args: [cam.service.name.titleCase()]),
           ),

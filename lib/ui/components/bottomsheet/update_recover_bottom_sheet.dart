@@ -30,7 +30,7 @@ class UpdateRecoverBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
     final customColors = themeData.extension<CustomColors>();
-    final isSupporter = ref.watch(canUseProFeaturesProvider);
+    final isSupporter = ref.watch(canUseProFeaturesOnSelectedProvider);
     // A reset does not bring a corrupt repo back.
     final hardRecommended = updater.issue == UpdaterIssue.corrupt;
 

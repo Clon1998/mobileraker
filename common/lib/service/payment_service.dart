@@ -84,20 +84,29 @@ FutureOr<bool> isSupporterAsync(Ref ref) async {
   return customerInfo.entitlements.active.containsKey('Supporter') == true;
 }
 
-/// Whether Pro features can be used right now: by supporters, and by everyone on the demo printer so they can try
-/// them. Gate features that act on the selected printer with this, and keep [isSupporter] for app-wide perks (themes,
-/// ads, printer limits) and for anything that tells who is a supporter.
-@Riverpod(keepAlive: true)
-bool canUseProFeatures(Ref ref) {
-  if (ref.watch(isSupporterProvider)) return true;
-  return ref.watch(isDemoSelectedProvider);
+/// Whether Pro features can be used for the printer [machineUUID]: by supporters, and by everyone on the demo printer
+/// so they can try them. Gate features that act on a printer with this, and keep [isSupporter] for app-wide perks
+/// (themes, ads, printer limits) and for anything that tells who is a supporter. As it is bound to the printer, the
+/// demo printer never unlocks anything on a real one.
+@riverpod
+bool canUseProFeatures(Ref ref, String machineUUID) {
+  if (isDemoMachine(machineUUID)) return true;
+  return ref.watch(isSupporterProvider);
 }
 
 /// Async variant of [canUseProFeatures] that waits for the purchases to be known.
-@Riverpod(keepAlive: true)
-Future<bool> canUseProFeaturesAsync(Ref ref) async {
-  if (ref.watch(isDemoSelectedProvider)) return true;
+@riverpod
+Future<bool> canUseProFeaturesAsync(Ref ref, String machineUUID) async {
+  if (isDemoMachine(machineUUID)) return true;
   return ref.watch(isSupporterAsyncProvider.future);
+}
+
+/// [canUseProFeatures] for the selected printer. Only for widgets that do not know their printer's UUID and only ever
+/// show the selected printer, everything else uses [canUseProFeatures] with the UUID.
+@riverpod
+bool canUseProFeaturesOnSelected(Ref ref) {
+  if (ref.watch(isDemoSelectedProvider)) return true;
+  return ref.watch(isSupporterProvider);
 }
 
 /// Whether the selected printer is the demo printer. Pro features are unlocked there, the UI marks them as Pro.

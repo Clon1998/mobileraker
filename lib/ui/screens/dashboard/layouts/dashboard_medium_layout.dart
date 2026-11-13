@@ -85,7 +85,7 @@ class DashboardMediumLayout extends HookConsumerWidget {
                 title: const Text('pages.customizing_dashboard.editing_card.title').tr(),
                 subtitle: const Text('pages.customizing_dashboard.editing_card.body').tr(),
               ),
-              if (!ref.watch(canUseProFeaturesProvider))
+              if (!ref.watch(canUseProFeaturesProvider(machineUUID)))
                 WarningCard(
                   margin: const EdgeInsets.all(4),
                   title: Padding(

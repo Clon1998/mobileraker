@@ -146,7 +146,7 @@ class _Body extends HookConsumerWidget {
         ref.watch(klipperProvider(machineUUID).selectAs((d) => d.hasUpdateManagerComponent)).value ?? true;
     final statusAsync = ref.watch(updateManagerStatusProvider(machineUUID));
     final blockers = _watchBlockers(ref, machineUUID);
-    final isSupporter = ref.watch(canUseProFeaturesProvider);
+    final isSupporter = ref.watch(canUseProFeaturesProvider(machineUUID));
     final sudoRequest = ref.watch(sudoRequestProvider(machineUUID)).value;
     // The software Moonraker is working on right now, it offers the live log.
     final updating = ref.watch(updateProgressProvider(machineUUID).select((d) => d.isRunning ? d.current : null));

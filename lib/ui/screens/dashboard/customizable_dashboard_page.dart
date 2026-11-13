@@ -712,7 +712,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void saveCurrentLayout() {
-    var isSupporter = ref.read(canUseProFeaturesProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider(machineUUID));
 
     if (!isSupporter) {
       _snackbarService.show(
@@ -733,7 +733,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void resetCurrentLayout() {
-    var isSupporter = ref.read(canUseProFeaturesProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider(machineUUID));
 
     if (!isSupporter) {
       _snackbarService.show(
@@ -770,7 +770,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void renameCurrentLayout() async {
-    var isSupporter = ref.read(canUseProFeaturesProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider(machineUUID));
 
     if (!isSupporter) {
       _snackbarService.show(
@@ -818,7 +818,7 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void exportCurrentLayout(Rect origin) {
-    var isSupporter = ref.read(canUseProFeaturesProvider);
+    var isSupporter = ref.read(canUseProFeaturesProvider(machineUUID));
 
     if (!isSupporter) {
       _snackbarService.show(
