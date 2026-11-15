@@ -1,7 +1,8 @@
 /*
- * Copyright (c) 2025-2026. Patrick Schmidt.
+ * Copyright (c) 2026. Patrick Schmidt.
  * All rights reserved.
  */
+
 import 'package:flutter/widgets.dart';
 
 class MobilerakerIcons {
@@ -18,4 +19,8 @@ class MobilerakerIcons {
   static const IconData nozzle_unload = IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData nozzle_off = IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData nozzle_off_outline = IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData estop_outline = IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData estop_ring = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData estop_mono = IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData estop_cycle = IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

@@ -9,10 +9,10 @@ import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/mobileraker_icons.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class EmergencyStopButton extends ConsumerWidget {
@@ -26,7 +26,7 @@ class EmergencyStopButton extends ConsumerWidget {
 
     return IconButton(
       color: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
-      icon: const Icon(MaterialCommunityIcons.skull_outline, size: 26),
+      icon: const Icon(MobilerakerIcons.estop_cycle, size: 26),
       tooltip: tr('pages.dashboard.ems_btn'),
       onPressed: klippyState == KlipperState.ready
           ? () async {
