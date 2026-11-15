@@ -29,6 +29,7 @@ import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/skeletons/skeleton_box.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/historical_print_job_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -55,6 +56,18 @@ const int _pageSize = 50;
 
 /// The max width of the content on larger screens.
 const double _maxContentWidth = 720;
+
+/// Min. width of the history's body for the list-detail layout.
+///
+/// Wider than the one of the file manager and Spoolman: the list needs [_minListWidth] for its filters/buttons, and
+/// portrait tablets are better off with the full-width list than with two cramped panes.
+const double _listDetailMinWidth = 840;
+
+/// Min. width of the list in the list-detail layout.
+const double _minListWidth = 360;
+
+/// Max. width of the list in the list-detail layout, the details take the rest.
+const double _maxListWidth = 400;
 
 const _defaultSort = SortConfiguration(SortMode.startTime, SortKind.descending);
 
@@ -138,9 +151,14 @@ class _HistoryBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final refreshController = useMemoized(() => RefreshController(), const []);
     useEffect(() => refreshController.dispose, const []);
+    // The list moves between the single and the list-detail layout (e.g. rotating a tablet) instead of being rebuilt:
+    // its controller only supports a single refresher at a time, and the scroll position is kept.
+    final listKey = useMemoized(GlobalKey.new, const []);
     final filter = useState(_HistoryFilter.all);
     final sort = useState(_defaultSort);
     final limit = useState(_pageSize);
+    // The job shown in the detail pane of the list-detail layout.
+    final selectedId = useState<String?>(null);
     // Moonraker only sorts by date. Everything else is sorted here, among the jobs loaded so far.
     final sortedByDate = sort.value.mode == SortMode.startTime;
     final order = sortedByDate ? sort.value.kind : SortKind.descending;
@@ -185,20 +203,6 @@ class _HistoryBody extends HookConsumerWidget {
       if (res.confirmed && res.data is SortConfiguration) sort.value = res.data as SortConfiguration;
     }
 
-    // A flat list of the job rows, so they are built lazily.
-    final rows = <Widget Function(BuildContext)>[
-      if (sortedByDate)
-        for (final (day, dayJobs) in shown.groupedByDay()) ...[
-          (_) => _DayHeader(day: day, jobs: dayJobs),
-          // The attempts to print a file on that day are a single card.
-          for (final (job, others) in dayJobs.groupedByFile())
-            (_) => _JobCard(key: ValueKey(job.jobId), machineUUID: machineUUID, job: job, otherAttempts: others),
-        ]
-      else
-        for (final job in shown)
-          (_) => _JobCard(key: ValueKey(job.jobId), machineUUID: machineUUID, job: job, showDate: true),
-    ];
-
     // Tells what is beyond the last job: older ones (that are being loaded), a failed request or nothing.
     final Widget? footer;
     if (loadFailed) {
@@ -215,15 +219,53 @@ class _HistoryBody extends HookConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+        final split = constraints.maxWidth >= _listDetailMinWidth;
+        // In the list-detail layout, a tap shows the job in the detail pane instead of its actions.
+        final selected = split ? selectedId.value?.let((id) => jobs.where((job) => job.jobId == id).firstOrNull) : null;
+        void onTapJob(HistoricalPrintJob job) =>
+            split ? selectedId.value = job.jobId : _showJobActions(ref, machineUUID, job);
 
-        return SmartRefresher(
+        // A flat list of the job rows, so they are built lazily.
+        final rows = <Widget Function(BuildContext)>[
+          if (sortedByDate)
+            for (final (day, dayJobs) in shown.groupedByDay()) ...[
+              (_) => _DayHeader(day: day, jobs: dayJobs),
+              // The attempts to print a file on that day are a single card.
+              for (final (job, others) in dayJobs.groupedByFile())
+                (_) => _JobCard(
+                  key: ValueKey(job.jobId),
+                  machineUUID: machineUUID,
+                  job: job,
+                  otherAttempts: others,
+                  selectedId: selected?.jobId,
+                  onTap: onTapJob,
+                ),
+            ]
+          else
+            for (final job in shown)
+              (_) => _JobCard(
+                key: ValueKey(job.jobId),
+                machineUUID: machineUUID,
+                job: job,
+                showDate: true,
+                selectedId: selected?.jobId,
+                onTap: onTapJob,
+              ),
+        ];
+
+        final horizontal = split ? 4.0 : max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+
+        final list = SmartRefresher(
+          key: listKey,
           controller: refreshController,
           onRefresh: () {
             ref.invalidate(historyTotalsProvider(machineUUID));
             ref
                 .refresh(jobHistoryProvider(machineUUID, params).future)
-                .then((_) => refreshController.refreshCompleted(), onError: (_, _) => refreshController.refreshFailed());
+                .then(
+                  (_) => refreshController.refreshCompleted(),
+                  onError: (_, _) => refreshController.refreshFailed(),
+                );
           },
           child: CustomScrollView(
             slivers: [
@@ -262,6 +304,30 @@ class _HistoryBody extends HookConsumerWidget {
               ),
             ],
           ),
+        );
+        if (!split) return list;
+
+        // List-detail on larger layouts (tablets, foldables): the details of a job are shown next to the list.
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: (constraints.maxWidth * 0.4).clamp(_minListWidth, _maxListWidth), child: list),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: kThemeAnimationDuration,
+                child: selected == null
+                    ? const _DetailPanePlaceholder()
+                    : _JobDetails(
+                        key: ValueKey(selected.jobId),
+                        machineUUID: machineUUID,
+                        job: selected,
+                        fileJobs: jobs.where((job) => job.filename == selected.filename).toList(),
+                        onSelect: onTapJob,
+                      ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -609,6 +675,8 @@ class _JobCard extends HookConsumerWidget {
     required this.job,
     this.otherAttempts = const [],
     this.showDate = false,
+    this.selectedId,
+    required this.onTap,
   });
 
   final String machineUUID;
@@ -618,6 +686,11 @@ class _JobCard extends HookConsumerWidget {
   /// Whether the date is shown next to the time, for lists that are not grouped by day.
   final bool showDate;
 
+  /// The id of the job shown in the detail pane, it is highlighted.
+  final String? selectedId;
+
+  final ValueChanged<HistoricalPrintJob> onTap;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
@@ -625,111 +698,121 @@ class _JobCard extends HookConsumerWidget {
     final expanded = useState(false);
     final (statusColor, statusIcon) = jobStatusStyle(themeData, job);
     final materials = job.materials;
+    // An attempt shown in the detail pane (e.g. picked there) is revealed.
+    final attemptSelected = otherAttempts.any((it) => it.jobId == selectedId);
+    useEffect(() {
+      if (attemptSelected) expanded.value = true;
+      return null;
+    }, [attemptSelected]);
 
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          InkWell(
-            onTap: () => _showJobActions(ref, machineUUID, job),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: themeData.colorScheme.onSurface.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: _thumbnail(themeData, machineUUID, job),
-                      ),
-                      Positioned(
-                        right: -5,
-                        bottom: -5,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(color: themeData.cardColor, shape: BoxShape.circle),
-                          child: Icon(statusIcon, size: 20, color: statusColor),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          Material(
+            color: _selectedColor(themeData, job.jobId == selectedId),
+            child: InkWell(
+              onTap: () => onTap(job),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                job.displayName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              showDate
-                                  ? '${DateFormat.MMMd().format(job.startTime)}, ${timeFormat.format(job.startTime)}'
-                                  : timeFormat.format(job.startTime),
-                              style: themeData.textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: jobStatusLabel(job),
-                                style: TextStyle(color: statusColor, fontWeight: FontWeight.w600),
-                              ),
-                              if (job.printDuration >= 1) TextSpan(text: '  ·  ${jobDurationText(job.printDuration)}'),
-                            ],
+                        Container(
+                          width: 56,
+                          height: 56,
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: themeData.colorScheme.onSurface.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: themeData.textTheme.bodySmall,
+                          child: _thumbnail(themeData, machineUUID, job),
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            if (job.filamentUsed >= 10) ...[
-                              Text(jobFilamentText(context, job.filamentUsed), style: themeData.textTheme.bodySmall),
-                              const SizedBox(width: 8),
-                            ],
-                            if (materials != null)
-                              Flexible(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: themeData.colorScheme.onSurface.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    materials,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: themeData.textTheme.labelSmall,
-                                  ),
-                                ),
-                              ),
-                          ],
+                        Positioned(
+                          right: -5,
+                          bottom: -5,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(color: themeData.cardColor, shape: BoxShape.circle),
+                            child: Icon(statusIcon, size: 20, color: statusColor),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  job.displayName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                showDate
+                                    ? '${DateFormat.MMMd().format(job.startTime)}, ${timeFormat.format(job.startTime)}'
+                                    : timeFormat.format(job.startTime),
+                                style: themeData.textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: jobStatusLabel(job),
+                                  style: TextStyle(color: statusColor, fontWeight: FontWeight.w600),
+                                ),
+                                if (job.printDuration >= 1)
+                                  TextSpan(text: '  ·  ${jobDurationText(job.printDuration)}'),
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: themeData.textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              if (job.filamentUsed >= 10) ...[
+                                Text(jobFilamentText(context, job.filamentUsed), style: themeData.textTheme.bodySmall),
+                                const SizedBox(width: 8),
+                              ],
+                              if (materials != null)
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: themeData.colorScheme.onSurface.withValues(alpha: 0.08),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      materials,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: themeData.textTheme.labelSmall,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -768,7 +851,12 @@ class _JobCard extends HookConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         for (final attempt in otherAttempts)
-                          _Attempt(key: ValueKey(attempt.jobId), machineUUID: machineUUID, job: attempt),
+                          _Attempt(
+                            key: ValueKey(attempt.jobId),
+                            job: attempt,
+                            selected: attempt.jobId == selectedId,
+                            onTap: onTap,
+                          ),
                         const SizedBox(height: 4),
                       ],
                     )
@@ -783,10 +871,17 @@ class _JobCard extends HookConsumerWidget {
 
 /// Another attempt to print the file of a [_JobCard].
 class _Attempt extends ConsumerWidget {
-  const _Attempt({super.key, required this.machineUUID, required this.job});
+  const _Attempt({super.key, required this.job, this.selected = false, this.showDate = false, required this.onTap});
 
-  final String machineUUID;
   final HistoricalPrintJob job;
+
+  /// Whether it is shown in the detail pane.
+  final bool selected;
+
+  /// Whether the date is shown next to the time.
+  final bool showDate;
+
+  final ValueChanged<HistoricalPrintJob> onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -794,45 +889,62 @@ class _Attempt extends ConsumerWidget {
     final timeFormat = ref.watch(dateFormatServiceProvider).Hm();
     final (statusColor, statusIcon) = jobStatusStyle(themeData, job);
 
-    return InkWell(
-      onTap: () => _showJobActions(ref, machineUUID, job),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 6, 12, 6),
-        child: Row(
-          children: [
-            Icon(statusIcon, size: 14, color: statusColor),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                [
-                  jobStatusLabel(job),
-                  if (job.printDuration >= 1) jobDurationText(job.printDuration),
-                  if (job.filamentUsed >= 10) jobFilamentText(context, job.filamentUsed),
-                ].join(' · '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+    return Material(
+      color: _selectedColor(themeData, selected),
+      child: InkWell(
+        onTap: () => onTap(job),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 6, 12, 6),
+          child: Row(
+            children: [
+              Icon(statusIcon, size: 14, color: statusColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  [
+                    jobStatusLabel(job),
+                    if (job.printDuration >= 1) jobDurationText(job.printDuration),
+                    if (job.filamentUsed >= 10) jobFilamentText(context, job.filamentUsed),
+                  ].join(' · '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.bodySmall,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                showDate
+                    ? '${DateFormat.MMMd().format(job.startTime)}, ${timeFormat.format(job.startTime)}'
+                    : timeFormat.format(job.startTime),
                 style: themeData.textTheme.bodySmall,
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(timeFormat.format(job.startTime), style: themeData.textTheme.bodySmall),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+/// The background of a job (row) shown in the detail pane.
+Color _selectedColor(ThemeData themeData, bool selected) =>
+    selected ? themeData.colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent;
+
+/// Whether the file of [job] can be printed again right now: it still exists and the printer is idle.
+bool _watchCanPrint(WidgetRef ref, String machineUUID, HistoricalPrintJob job) {
+  final klippyReady = ref.watch(klipperProvider(machineUUID).selectAs((d) => d.klippyCanReceiveCommands)).value;
+  final printState = ref.watch(printerProvider(machineUUID).selectAs((d) => d.print.state)).value;
+  return job.exists &&
+      klippyReady == true &&
+      printState != null &&
+      printState != PrintState.printing &&
+      printState != PrintState.paused;
+}
+
 /// Shows the actions of a job in a bottom sheet and executes the picked one.
 Future<void> _showJobActions(WidgetRef ref, String machineUUID, HistoricalPrintJob job) async {
   // Everything is read up front, the page might be gone once the sheet is closed.
   final bottomSheetService = ref.read(bottomSheetServiceProvider);
-  final dialogService = ref.read(dialogServiceProvider);
-  final snackBarService = ref.read(snackBarServiceProvider);
-  final historyService = ref.read(historyServiceProvider(machineUUID));
-  final fileInteractionService = ref.read(fileInteractionServiceProvider(machineUUID));
-  final goRouter = ref.read(goRouterProvider);
-  final container = ProviderScope.containerOf(ref.context, listen: false);
   final themeData = Theme.of(ref.context);
   final startTime = ref.read(dateFormatServiceProvider).add_Hm(DateFormat.yMMMd(), ', ').format(job.startTime);
 
@@ -844,6 +956,7 @@ Future<void> _showJobActions(WidgetRef ref, String machineUUID, HistoricalPrintJ
       printState != null &&
       printState != PrintState.printing &&
       printState != PrintState.paused;
+  final run = _jobActionRunner(ref, machineUUID, job);
 
   final res = await bottomSheetService.show(
     BottomSheetConfig(
@@ -865,37 +978,358 @@ Future<void> _showJobActions(WidgetRef ref, String machineUUID, HistoricalPrintJ
       ),
     ),
   );
-  if (!res.confirmed) return;
+  if (res.confirmed && res.data is HistoryJobSheetAction) await run(res.data as HistoryJobSheetAction);
+}
 
-  switch (res.data) {
-    case HistoryJobSheetAction.printAgain:
-      // Starts the print and switches to the dashboard.
-      await for (final event in fileInteractionService.submitJobAction(job.metadata)) {
-        talker.info('[HistoryPage] Print again file-interaction-event: $event');
-      }
-    case HistoryJobSheetAction.openFile:
-      goRouter.pushNamed(
-        AppRoute.fileManager_exlorer_gcodeDetail.name,
-        pathParameters: {'path': job.metadata.parentPath},
-        extra: job.metadata,
-      );
-    case HistoryJobSheetAction.remove:
-      final confirm = await dialogService.showDangerConfirm(
-        title: tr('pages.history.remove_dialog.title'),
-        body: tr('pages.history.remove_dialog.body', args: [job.displayName]),
-        actionLabel: tr('general.remove'),
-      );
-      if (confirm?.confirmed != true) return;
+/// Executes an action on [job]. Everything is read up front: the page might be gone by the time it runs (e.g. a sheet
+/// was closed).
+Future<void> Function(HistoryJobSheetAction action) _jobActionRunner(
+  WidgetRef ref,
+  String machineUUID,
+  HistoricalPrintJob job,
+) {
+  final dialogService = ref.read(dialogServiceProvider);
+  final snackBarService = ref.read(snackBarServiceProvider);
+  final historyService = ref.read(historyServiceProvider(machineUUID));
+  final fileInteractionService = ref.read(fileInteractionServiceProvider(machineUUID));
+  final goRouter = ref.read(goRouterProvider);
+  final container = ProviderScope.containerOf(ref.context, listen: false);
 
-      try {
-        await historyService.deleteJob(job.jobId);
-        // Moonraker does not notify about removed jobs.
-        container.invalidate(jobHistoryProvider);
-        container.invalidate(historyTotalsProvider(machineUUID));
-      } catch (e, s) {
-        talker.warning('[HistoryPage] Could not delete job ${job.jobId}', e, s);
-        snackBarService.show(SnackBarConfig(type: SnackbarType.error, message: tr('pages.history.remove_failed')));
+  return (action) async {
+    switch (action) {
+      case HistoryJobSheetAction.printAgain:
+        // Starts the print and switches to the dashboard.
+        await for (final event in fileInteractionService.submitJobAction(job.metadata)) {
+          talker.info('[HistoryPage] Print again file-interaction-event: $event');
+        }
+      case HistoryJobSheetAction.openFile:
+        goRouter.pushNamed(
+          AppRoute.fileManager_exlorer_gcodeDetail.name,
+          pathParameters: {'path': job.metadata.parentPath},
+          extra: job.metadata,
+        );
+      case HistoryJobSheetAction.remove:
+        final confirm = await dialogService.showDangerConfirm(
+          title: tr('pages.history.remove_dialog.title'),
+          body: tr('pages.history.remove_dialog.body', args: [job.displayName]),
+          actionLabel: tr('general.remove'),
+        );
+        if (confirm?.confirmed != true) return;
+
+        try {
+          await historyService.deleteJob(job.jobId);
+          // Moonraker does not notify about removed jobs.
+          container.invalidate(jobHistoryProvider);
+          container.invalidate(historyTotalsProvider(machineUUID));
+        } catch (e, s) {
+          talker.warning('[HistoryPage] Could not delete job ${job.jobId}', e, s);
+          snackBarService.show(SnackBarConfig(type: SnackbarType.error, message: tr('pages.history.remove_failed')));
+        }
+    }
+  };
+}
+
+/// Shown in the detail pane of the list-detail layout until a job is picked.
+class _DetailPanePlaceholder extends StatelessWidget {
+  const _DetailPanePlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final color = themeData.textTheme.bodySmall?.color;
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.history, size: 48, color: color),
+          const SizedBox(height: 8),
+          Text(
+            tr('pages.history.detail_pane_hint'),
+            textAlign: TextAlign.center,
+            style: themeData.textTheme.bodyMedium?.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The details of a job and its actions, in the detail pane of the list-detail layout (tablets, foldables).
+class _JobDetails extends ConsumerWidget {
+  const _JobDetails({
+    super.key,
+    required this.machineUUID,
+    required this.job,
+    required this.fileJobs,
+    required this.onSelect,
+  });
+
+  final String machineUUID;
+  final HistoricalPrintJob job;
+
+  /// The loaded jobs of the same file, most recent first. Includes [job].
+  final List<HistoricalPrintJob> fileJobs;
+
+  /// Shows another job in the pane.
+  final ValueChanged<HistoricalPrintJob> onSelect;
+
+  /// The max. amount of other prints of the file that are listed.
+  static const int _maxListedPrints = 10;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
+    final dateFormat = ref.watch(dateFormatServiceProvider).add_Hm(DateFormat.yMMMEd(), ', ');
+    final canPrint = _watchCanPrint(ref, machineUUID, job);
+    final (statusColor, statusIcon) = jobStatusStyle(themeData, job);
+    final file = job.metadata;
+    final materials = job.materials;
+    final slicer = [?file.slicer, ?file.slicerVersion].join(' ');
+    final completedRuns = fileJobs.where((it) => it.outcome == JobOutcome.completed).length;
+
+    // How the print went compared to the estimate of the slicer, only meaningful if it completed.
+    String? estimateHint;
+    if (file.estimatedTime case final estimate? when job.outcome == JobOutcome.completed && estimate > 0) {
+      final diff = job.printDuration - estimate;
+      if (diff.abs() >= 60) {
+        estimateHint = tr(
+          diff > 0
+              ? 'pages.files.details.history_card.longer_than_estimate'
+              : 'pages.files.details.history_card.shorter_than_estimate',
+          args: [jobDurationText(diff.abs())],
+        );
       }
+    }
+
+    void run(HistoryJobSheetAction action) => _jobActionRunner(ref, machineUUID, job)(action);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+
+        // Wide panes have the preview next to the title, the pane is short in landscape.
+        final wide = constraints.maxWidth - 2 * horizontal >= 600;
+        final previewSize = wide ? 220.0 : (constraints.maxHeight / 3).clamp(160.0, 280.0);
+        final preview = Card(
+          clipBehavior: Clip.antiAlias,
+          child: SizedBox(
+            height: previewSize,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: job.exists
+                  ? RemoteFileIcon(
+                      machineUUID: machineUUID,
+                      file: file,
+                      useHero: false,
+                      imageBuilder: (_, image) => Image(image: image, fit: BoxFit.contain),
+                    )
+                  : Icon(Icons.insert_drive_file_outlined, size: 72, color: themeData.disabledColor),
+            ),
+          ),
+        );
+        final header = Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                job.displayName,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                [job.filename, if (!job.exists) tr('pages.history.file_deleted')].join(' · '),
+                style: themeData.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(statusIcon, size: 18, color: statusColor),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      jobStatusLabel(job),
+                      style: themeData.textTheme.titleSmall?.copyWith(color: statusColor, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        final actions = Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                onPressed: canPrint ? () => run(HistoryJobSheetAction.printAgain) : null,
+                icon: Icon(HistoryJobSheetAction.printAgain.icon),
+                label: Text(HistoryJobSheetAction.printAgain.labelTranslationKey).tr(),
+              ),
+              OutlinedButton.icon(
+                onPressed: job.exists ? () => run(HistoryJobSheetAction.openFile) : null,
+                icon: Icon(HistoryJobSheetAction.openFile.icon),
+                label: Text(HistoryJobSheetAction.openFile.labelTranslationKey).tr(),
+              ),
+              TextButton.icon(
+                style: TextButton.styleFrom(foregroundColor: themeData.colorScheme.error),
+                onPressed: job.outcome != JobOutcome.inProgress ? () => run(HistoryJobSheetAction.remove) : null,
+                icon: Icon(HistoryJobSheetAction.remove.icon),
+                label: Text(HistoryJobSheetAction.remove.labelTranslationKey).tr(),
+              ),
+            ],
+          ),
+        );
+
+        return ListView(
+          padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, MediaQuery.viewPaddingOf(context).bottom + 16),
+          children: [
+            if (wide)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(width: previewSize, child: preview),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [header, actions]),
+                  ),
+                ],
+              )
+            else ...[
+              preview,
+              header,
+              actions,
+            ],
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _StatTile(
+                      icon: Icons.timer_outlined,
+                      label: tr('pages.history.stats.print_time'),
+                      value: jobDurationText(job.printDuration),
+                      hint: estimateHint,
+                    ),
+                  ),
+                  Expanded(
+                    child: _StatTile(
+                      icon: Icons.hourglass_empty,
+                      label: tr('pages.history.details.total_time'),
+                      value: jobDurationText(job.totalDuration),
+                    ),
+                  ),
+                  Expanded(
+                    child: _StatTile(
+                      icon: Icons.album_outlined,
+                      label: tr('pages.history.stats.filament'),
+                      value: jobFilamentText(context, job.filamentUsed),
+                      hint: materials,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.play_circle_outline),
+                    title: const Text('pages.history.details.started').tr(),
+                    subtitle: Text(dateFormat.format(job.startTime)),
+                  ),
+                  if (job.endTime case final end?)
+                    ListTile(
+                      leading: const Icon(Icons.stop_circle_outlined),
+                      title: const Text('pages.history.details.ended').tr(),
+                      subtitle: Text(dateFormat.format(end)),
+                    ),
+                  if (slicer.isNotEmpty)
+                    ListTile(
+                      leading: const Icon(Icons.layers_outlined),
+                      title: const Text('pages.files.details.meta_card.slicer').tr(),
+                      subtitle: Text([slicer, if (file.layerHeight case final height?) '${height}mm'].join(' · ')),
+                    ),
+                ],
+              ),
+            ),
+            if (fileJobs.length > 1)
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.history),
+                      title: const Text('pages.history.details.file_prints').tr(),
+                      subtitle: const Text(
+                        'pages.history.details.file_prints_completed',
+                      ).tr(args: ['$completedRuns', '${fileJobs.length}']),
+                    ),
+                    const Divider(height: 1),
+                    for (final it in fileJobs.take(_maxListedPrints))
+                      _Attempt(
+                        key: ValueKey(it.jobId),
+                        job: it,
+                        showDate: true,
+                        selected: it.jobId == job.jobId,
+                        onTap: onSelect,
+                      ),
+                    const SizedBox(height: 4),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// A key figure of a job in the [_JobDetails].
+class _StatTile extends StatelessWidget {
+  const _StatTile({super.key, required this.icon, required this.label, required this.value, this.hint});
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final muted = themeData.textTheme.bodySmall;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 14, color: muted?.color),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: muted),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(value, style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            ),
+            if (hint != null) Text(hint!, maxLines: 2, overflow: TextOverflow.ellipsis, style: muted),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -909,9 +1343,10 @@ class _HistorySkeleton extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+        final split = constraints.maxWidth >= _listDetailMinWidth;
+        final horizontal = split ? 4.0 : max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
 
-        return Shimmer.fromColors(
+        final list = Shimmer.fromColors(
           baseColor: Colors.grey,
           highlightColor: themeData.colorScheme.surface,
           child: ListView(
@@ -954,6 +1389,16 @@ class _HistorySkeleton extends StatelessWidget {
               ],
             ],
           ),
+        );
+        if (!split) return list;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: (constraints.maxWidth * 0.4).clamp(_minListWidth, _maxListWidth), child: list),
+            const VerticalDivider(width: 1),
+            const Expanded(child: _DetailPanePlaceholder()),
+          ],
         );
       },
     );

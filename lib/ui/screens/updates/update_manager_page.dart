@@ -53,6 +53,18 @@ import 'package:url_launcher/url_launcher.dart';
 /// The max width of the content on larger screens.
 const double _maxContentWidth = 720;
 
+/// Min. width of the update manager's body for the list-detail layout.
+///
+/// Wider than the one of the file manager and Spoolman: the list needs [_minListWidth] for its filters/buttons, and
+/// portrait tablets are better off with the full-width list than with two cramped panes.
+const double _listDetailMinWidth = 840;
+
+/// Min. width of the list in the list-detail layout.
+const double _minListWidth = 360;
+
+/// Max. width of the list in the list-detail layout, the details take the rest.
+const double _maxListWidth = 400;
+
 /// A host that was not updated for a while has hundreds of packages to update.
 const int _maxListedPackages = 40;
 
@@ -143,6 +155,11 @@ class _Body extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final refreshController = useMemoized(() => RefreshController(), const []);
     useEffect(() => refreshController.dispose, const []);
+    // The list moves between the single and the list-detail layout (e.g. rotating a tablet) instead of being rebuilt:
+    // its controller only supports a single refresher at a time, and the scroll position is kept.
+    final listKey = useMemoized(GlobalKey.new, const []);
+    // The software shown in the detail pane of the list-detail layout.
+    final selectedName = useState<String?>(null);
 
     final configured =
         ref.watch(klipperProvider(machineUUID).selectAs((d) => d.hasUpdateManagerComponent)).value ?? true;
@@ -181,90 +198,105 @@ class _Body extends HookConsumerWidget {
     final available = updaters.where((it) => it.issue == null && it.updateAvailable).toList();
     final upToDate = updaters.where((it) => it.issue == null && !it.updateAvailable).toList();
 
-    Widget card(UpdaterInfo it) => _UpdaterCard(
-      key: ValueKey(it.name),
-      machineUUID: machineUUID,
-      updater: it,
-      blocked: blocked,
-      isSupporter: isSupporter,
-      updating: it.name == updating,
-    );
-
-    final rows = <Widget>[
-      // Moonraker waits for the sudo password, e.g. in the middle of an update.
-      AnimatedSizeAndFade(
-        alignment: Alignment.topCenter,
-        child: sudoRequest?.sudoRequested == true
-            ? _Banner(
-                key: const Key('sudo'),
-                icon: Icons.key,
-                title: 'pages.updates.sudo.title',
-                body: sudoRequest!.requestMessages.isEmpty ? 'pages.updates.sudo.body' : null,
-                bodyText: sudoRequest.requestMessages.join('\n'),
-                actionLabel: 'pages.updates.sudo.enter',
-                onAction: () => promptSudoPassword(_containerOf(ref), machineUUID),
-              )
-            : const SizedBox(key: Key('noSudo'), width: double.infinity),
-      ),
-      // Animated, both come and go while the page is open.
-      AnimatedSizeAndFade(
-        alignment: Alignment.topCenter,
-        child: switch (blockers) {
-          (printing: true, busy: _) => const _Banner(
-            key: Key('printing'),
-            icon: Icons.pause_circle_outline,
-            title: 'pages.updates.printing.title',
-            body: 'pages.updates.printing.body',
-          ),
-          (printing: _, busy: true) => _Banner(
-            key: const Key('busy'),
-            icon: Icons.downloading,
-            title: 'pages.updates.busy.title',
-            body: 'pages.updates.busy.body',
-            actionLabel: 'pages.updates.busy.show_log',
-            onAction: () => _showLog(_containerOf(ref), machineUUID),
-          ),
-          _ => const SizedBox(key: Key('none'), width: double.infinity),
-        },
-      ),
-      _SummaryCard(machineUUID: machineUUID, status: status, blocked: blocked, isSupporter: isSupporter),
-      if (attention.isNotEmpty) ...[
-        _SectionHeader(
-          label: 'pages.updates.sections.attention',
-          color: Theme.of(context).extension<CustomColors>()?.warning,
-        ),
-        ...attention.map(card),
-      ],
-      if (available.isNotEmpty) ...[
-        const _SectionHeader(label: 'pages.updates.sections.available'),
-        ...available.map(card),
-      ],
-      if (upToDate.isNotEmpty) ...[
-        const _SectionHeader(label: 'pages.updates.sections.up_to_date'),
-        _UpToDateCard(
-          machineUUID: machineUUID,
-          updaters: upToDate,
-          blocked: blocked,
-          isSupporter: isSupporter,
-          updating: updating,
-        ),
-      ],
-      if (status.githubRateLimit != null && status.githubRequestsRemaining != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: Text(
-            'pages.updates.github_rate',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
-          ).tr(args: ['${status.githubRequestsRemaining}', '${status.githubRateLimit}']),
-        ),
-    ];
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+        final split = constraints.maxWidth >= _listDetailMinWidth;
+        // The pane always shows a software, the first one in the list unless another one was picked.
+        final ordered = [...attention, ...available, ...upToDate];
+        final selected = split
+            ? ordered.where((it) => it.name == selectedName.value).firstOrNull ?? ordered.firstOrNull
+            : null;
+        // In the list-detail layout, a tap shows the software in the detail pane instead of its actions.
+        void onTap(UpdaterInfo it) => split
+            ? selectedName.value = it.name
+            : _showUpdaterActions(_containerOf(ref), machineUUID, it, blocked: blocked, isSupporter: isSupporter);
 
-        return SmartRefresher(
+        Widget card(UpdaterInfo it) => _UpdaterCard(
+          key: ValueKey(it.name),
+          machineUUID: machineUUID,
+          updater: it,
+          blocked: blocked,
+          isSupporter: isSupporter,
+          updating: it.name == updating,
+          selected: it.name == selected?.name,
+          // The details are in the pane.
+          compact: split,
+          onTap: onTap,
+        );
+
+        final rows = <Widget>[
+          // Moonraker waits for the sudo password, e.g. in the middle of an update.
+          AnimatedSizeAndFade(
+            alignment: Alignment.topCenter,
+            child: sudoRequest?.sudoRequested == true
+                ? _Banner(
+                    key: const Key('sudo'),
+                    icon: Icons.key,
+                    title: 'pages.updates.sudo.title',
+                    body: sudoRequest!.requestMessages.isEmpty ? 'pages.updates.sudo.body' : null,
+                    bodyText: sudoRequest.requestMessages.join('\n'),
+                    actionLabel: 'pages.updates.sudo.enter',
+                    onAction: () => promptSudoPassword(_containerOf(ref), machineUUID),
+                  )
+                : const SizedBox(key: Key('noSudo'), width: double.infinity),
+          ),
+          // Animated, both come and go while the page is open.
+          AnimatedSizeAndFade(
+            alignment: Alignment.topCenter,
+            child: switch (blockers) {
+              (printing: true, busy: _) => const _Banner(
+                key: Key('printing'),
+                icon: Icons.pause_circle_outline,
+                title: 'pages.updates.printing.title',
+                body: 'pages.updates.printing.body',
+              ),
+              (printing: _, busy: true) => _Banner(
+                key: const Key('busy'),
+                icon: Icons.downloading,
+                title: 'pages.updates.busy.title',
+                body: 'pages.updates.busy.body',
+                actionLabel: 'pages.updates.busy.show_log',
+                onAction: () => _showLog(_containerOf(ref), machineUUID),
+              ),
+              _ => const SizedBox(key: Key('none'), width: double.infinity),
+            },
+          ),
+          _SummaryCard(machineUUID: machineUUID, status: status, blocked: blocked, isSupporter: isSupporter),
+          if (attention.isNotEmpty) ...[
+            _SectionHeader(
+              label: 'pages.updates.sections.attention',
+              color: Theme.of(context).extension<CustomColors>()?.warning,
+            ),
+            ...attention.map(card),
+          ],
+          if (available.isNotEmpty) ...[
+            const _SectionHeader(label: 'pages.updates.sections.available'),
+            ...available.map(card),
+          ],
+          if (upToDate.isNotEmpty) ...[
+            const _SectionHeader(label: 'pages.updates.sections.up_to_date'),
+            _UpToDateCard(
+              machineUUID: machineUUID,
+              updaters: upToDate,
+              updating: updating,
+              selectedName: selected?.name,
+              onTap: onTap,
+            ),
+          ],
+          if (status.githubRateLimit != null && status.githubRequestsRemaining != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Text(
+                'pages.updates.github_rate',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+              ).tr(args: ['${status.githubRequestsRemaining}', '${status.githubRateLimit}']),
+            ),
+        ];
+
+        final horizontal = split ? 4.0 : max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+        final list = SmartRefresher(
+          key: listKey,
           controller: refreshController,
           onRefresh: () => ref
               .refresh(updateManagerStatusProvider(machineUUID).future)
@@ -273,6 +305,31 @@ class _Body extends HookConsumerWidget {
             padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, MediaQuery.viewPaddingOf(context).bottom + 16),
             children: rows,
           ),
+        );
+        if (!split) return list;
+
+        // List-detail on larger layouts (tablets, foldables): the details of a software are shown next to the list.
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: (constraints.maxWidth * 0.4).clamp(_minListWidth, _maxListWidth), child: list),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: kThemeAnimationDuration,
+                child: selected == null
+                    ? const _DetailPanePlaceholder()
+                    : _UpdaterPane(
+                        key: ValueKey(selected.name),
+                        machineUUID: machineUUID,
+                        updater: selected,
+                        blocked: blocked,
+                        isSupporter: isSupporter,
+                        updating: selected.name == updating,
+                      ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -606,6 +663,9 @@ class _UpdaterCard extends HookConsumerWidget {
     required this.blocked,
     required this.isSupporter,
     this.updating = false,
+    this.selected = false,
+    this.compact = false,
+    required this.onTap,
   });
 
   final String machineUUID;
@@ -615,6 +675,15 @@ class _UpdaterCard extends HookConsumerWidget {
 
   /// Whether Moonraker is updating, recovering or rolling it back right now.
   final bool updating;
+
+  /// Whether it is shown in the detail pane.
+  final bool selected;
+
+  /// Next to the detail pane, which shows what is left out: the commits/packages, the type and the labels of the
+  /// buttons.
+  final bool compact;
+
+  final ValueChanged<UpdaterInfo> onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -636,76 +705,96 @@ class _UpdaterCard extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
-            onTap: () => _showUpdaterActions(_containerOf(ref), machineUUID, updater, blocked: blocked, isSupporter: isSupporter),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  _Avatar(updater: updater),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                updaterDisplayName(updater),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            _TypeLabel(updater: updater),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text.rich(
-                          TextSpan(
+          Material(
+            color: _selectedColor(themeData, selected),
+            child: InkWell(
+              onTap: () => onTap(updater),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    _Avatar(updater: updater),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              TextSpan(text: installed),
-                              if (available != null) ...[
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.middle,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: Icon(
-                                      Icons.arrow_forward,
-                                      size: 12,
-                                      color: themeData.textTheme.bodySmall?.color,
-                                    ),
-                                  ),
+                              Flexible(
+                                child: Text(
+                                  updaterDisplayName(updater),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: themeData.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                                 ),
-                                TextSpan(text: available),
-                              ],
+                              ),
+                              if (!compact) ...[const SizedBox(width: 8), _TypeLabel(updater: updater)],
                             ],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: themeData.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (updating || updater.canUpdate) ...[
-                    const SizedBox(width: 8),
-                    AnimatedSwitcher(
-                      duration: kThemeAnimationDuration,
-                      child: updating
-                          ? _ShowLogButton(key: const Key('showLog'), machineUUID: machineUUID)
-                          : FilledButton.tonal(
-                              key: const Key('update'),
-                              onPressed: blocked
-                                  ? null
-                                  : () => _start(_containerOf(ref), machineUUID, (it) => it.upgrade(updater.name)),
-                              child: const Text('pages.updates.update').tr(),
+                          const SizedBox(height: 2),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(text: installed),
+                                if (available != null) ...[
+                                  WidgetSpan(
+                                    alignment: PlaceholderAlignment.middle,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                                      child: Icon(
+                                        Icons.arrow_forward,
+                                        size: 12,
+                                        color: themeData.textTheme.bodySmall?.color,
+                                      ),
+                                    ),
+                                  ),
+                                  TextSpan(text: available),
+                                ],
+                              ],
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: themeData.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
+                    if (updating || updater.canUpdate) ...[
+                      const SizedBox(width: 8),
+                      AnimatedSwitcher(
+                        duration: kThemeAnimationDuration,
+                        child: switch ((updating, compact)) {
+                          (true, false) => _ShowLogButton(key: const Key('showLog'), machineUUID: machineUUID),
+                          (true, true) => IconButton.filledTonal(
+                            key: const Key('showLogCompact'),
+                            tooltip: tr('pages.updates.busy.show_log'),
+                            onPressed: () => _showLog(_containerOf(ref), machineUUID),
+                            icon: const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                          (false, true) => IconButton.filledTonal(
+                            key: const Key('updateCompact'),
+                            tooltip: tr('pages.updates.update'),
+                            onPressed: blocked
+                                ? null
+                                : () => _start(_containerOf(ref), machineUUID, (it) => it.upgrade(updater.name)),
+                            icon: const Icon(Icons.download),
+                          ),
+                          (false, false) => FilledButton.tonal(
+                                key: const Key('update'),
+                                onPressed: blocked
+                                    ? null
+                                    : () => _start(_containerOf(ref), machineUUID, (it) => it.upgrade(updater.name)),
+                                child: const Text('pages.updates.update').tr(),
+                              ),
+                        },
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -728,7 +817,7 @@ class _UpdaterCard extends HookConsumerWidget {
                 ],
               ),
             ),
-          if (detailsLabel != null) ...[
+          if (detailsLabel != null && !compact) ...[
             const Divider(height: 1),
             InkWell(
               onTap: () => expanded.value = !expanded.value,
@@ -861,18 +950,21 @@ class _UpToDateCard extends ConsumerWidget {
     super.key,
     required this.machineUUID,
     required this.updaters,
-    required this.blocked,
-    required this.isSupporter,
     this.updating,
+    this.selectedName,
+    required this.onTap,
   });
 
   final String machineUUID;
   final List<UpdaterInfo> updaters;
-  final bool blocked;
-  final bool isSupporter;
 
   /// The name of the software Moonraker is working on right now, e.g. one that is rolled back.
   final String? updating;
+
+  /// The name of the software shown in the detail pane.
+  final String? selectedName;
+
+  final ValueChanged<UpdaterInfo> onTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -903,7 +995,8 @@ class _UpToDateCard extends ConsumerWidget {
                     ? _ShowLogButton(key: const Key('showLog'), machineUUID: machineUUID)
                     : Icon(Icons.check_circle, key: const Key('upToDate'), size: 20, color: success),
               ),
-              onTap: () => _showUpdaterActions(_containerOf(ref), machineUUID, it, blocked: blocked, isSupporter: isSupporter),
+              tileColor: it.name == selectedName ? _selectedColor(themeData, true) : null,
+              onTap: () => onTap(it),
             ),
           ],
         ],
@@ -971,7 +1064,6 @@ Future<void> _showUpdaterActions(
   required bool blocked,
   required bool isSupporter,
 }) async {
-  final dialogService = container.read(dialogServiceProvider);
   final name = updaterDisplayName(updater);
   final repoUri = updater.repoUri;
 
@@ -1006,9 +1098,24 @@ Future<void> _showUpdaterActions(
           ),
         ),
       );
-  if (!res.confirmed) return;
+  if (res.confirmed && res.data is UpdaterSheetAction) {
+    await _runUpdaterAction(container, machineUUID, updater, res.data as UpdaterSheetAction, isSupporter: isSupporter);
+  }
+}
 
-  switch (res.data) {
+/// Executes an action on [updater], shared by its action sheet and the detail pane.
+Future<void> _runUpdaterAction(
+  ProviderContainer container,
+  String machineUUID,
+  UpdaterInfo updater,
+  UpdaterSheetAction action, {
+  required bool isSupporter,
+}) async {
+  final dialogService = container.read(dialogServiceProvider);
+  final name = updaterDisplayName(updater);
+  final repoUri = updater.repoUri;
+
+  switch (action) {
     case UpdaterSheetAction.update:
       _start(container, machineUUID, (it) => it.upgrade(updater.name));
     case UpdaterSheetAction.refresh:
@@ -1029,6 +1136,271 @@ Future<void> _showUpdaterActions(
   }
 }
 
+/// The background of a software (row) shown in the detail pane.
+Color _selectedColor(ThemeData themeData, bool selected) =>
+    selected ? themeData.colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent;
+
+/// Shown in the detail pane of the list-detail layout if there is no software to show.
+class _DetailPanePlaceholder extends StatelessWidget {
+  const _DetailPanePlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final color = themeData.textTheme.bodySmall?.color;
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.system_update_alt, size: 48, color: color),
+          const SizedBox(height: 8),
+          Text(
+            tr('pages.updates.detail_pane_hint'),
+            textAlign: TextAlign.center,
+            style: themeData.textTheme.bodyMedium?.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A software with its versions, actions and what an update brings, in the detail pane of the list-detail layout
+/// (tablets, foldables).
+class _UpdaterPane extends ConsumerWidget {
+  const _UpdaterPane({
+    super.key,
+    required this.machineUUID,
+    required this.updater,
+    required this.blocked,
+    required this.isSupporter,
+    this.updating = false,
+  });
+
+  final String machineUUID;
+  final UpdaterInfo updater;
+  final bool blocked;
+  final bool isSupporter;
+
+  /// Whether Moonraker is updating, recovering or rolling it back right now.
+  final bool updating;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeData = Theme.of(context);
+    final muted = themeData.textTheme.bodySmall;
+    final issue = updater.issue;
+    final (installed, available) = _versions(updater);
+    final repoUri = updater.repoUri;
+    final changelogUri = Uri.tryParse(updater.changelogUrl);
+
+    void run(UpdaterSheetAction action) =>
+        _runUpdaterAction(_containerOf(ref), machineUUID, updater, action, isSupporter: isSupporter);
+
+    final detailsLabel = switch (updater) {
+      _ when updater.commitsBehindTotal > 0 => plural('pages.updates.commits_behind', updater.commitsBehindTotal),
+      _ when updater.packageList.isNotEmpty => plural('pages.updates.packages', updater.packageList.length),
+      _ when updater.anomalies.isNotEmpty => tr('general.details'),
+      _ => null,
+    };
+
+    Widget lockable(String label) =>
+        Row(mainAxisSize: MainAxisSize.min, children: [Text(label).tr(), const DemoProBadge()]);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+
+        return ListView(
+          padding: EdgeInsets.fromLTRB(horizontal, 4, horizontal, MediaQuery.viewPaddingOf(context).bottom + 16),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 16, 12, 4),
+              child: Row(
+                children: [
+                  _Avatar(updater: updater, size: 64),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          updaterDisplayName(updater),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(text: installed),
+                                  if (available != null) ...[
+                                    WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                                        child: Icon(Icons.arrow_forward, size: 16, color: muted?.color),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: available,
+                                      style: TextStyle(
+                                        color: themeData.colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              style: themeData.textTheme.titleSmall,
+                            ),
+                            _TypeLabel(updater: updater),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (updating)
+                    _ShowLogButton(machineUUID: machineUUID)
+                  else if (updater.canUpdate)
+                    FilledButton.icon(
+                      onPressed: blocked ? null : () => run(UpdaterSheetAction.update),
+                      icon: Icon(UpdaterSheetAction.update.icon),
+                      label: Text(UpdaterSheetAction.update.labelTranslationKey).tr(),
+                    ),
+                  OutlinedButton.icon(
+                    onPressed: blocked ? null : () => run(UpdaterSheetAction.refresh),
+                    icon: Icon(UpdaterSheetAction.refresh.icon),
+                    label: Text(UpdaterSheetAction.refresh.labelTranslationKey).tr(),
+                  ),
+                  if (updater.canRollback)
+                    OutlinedButton.icon(
+                      onPressed: blocked ? null : () => run(UpdaterSheetAction.rollback),
+                      icon: Icon(isSupporter ? UpdaterSheetAction.rollback.icon : Icons.lock_outline),
+                      label: lockable(UpdaterSheetAction.rollback.labelTranslationKey),
+                    ),
+                  if (updater.canRecover)
+                    OutlinedButton.icon(
+                      onPressed: blocked ? null : () => run(UpdaterSheetAction.recover),
+                      icon: Icon(isSupporter ? UpdaterSheetAction.recover.icon : Icons.lock_outline),
+                      label: lockable(UpdaterSheetAction.recover.labelTranslationKey),
+                    ),
+                  if (repoUri != null)
+                    TextButton.icon(
+                      onPressed: () => run(UpdaterSheetAction.openRepo),
+                      icon: Icon(UpdaterSheetAction.openRepo.icon),
+                      label: Text(UpdaterSheetAction.openRepo.labelTranslationKey).tr(),
+                    ),
+                ],
+              ),
+            ),
+            if (issue != null)
+              WarningCard(
+                margin: const EdgeInsets.all(4),
+                leadingIcon: const Icon(Icons.warning_amber),
+                title: Text('pages.updates.issue.${issue.name}.title').tr(),
+                subtitle: Text(_UpdaterCard._issueBody(updater, issue)),
+              ),
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.inventory_2_outlined),
+                    title: const Text('pages.updates.details.installed').tr(),
+                    subtitle: Text(
+                      [
+                        // The full version string of git repos already contains the hash.
+                        if (updater.fullVersionString.isNotEmpty)
+                          updater.fullVersionString
+                        else ...[
+                          installed,
+                          if (updater.currentHash.isNotEmpty) UpdaterInfoExtension.shortHash(updater.currentHash),
+                        ],
+                      ].join(' · '),
+                    ),
+                  ),
+                  if (available != null)
+                    ListTile(
+                      leading: const Icon(Icons.new_releases_outlined),
+                      title: const Text('pages.updates.details.available').tr(),
+                      subtitle: Text(
+                        [
+                          available,
+                          if (updater.remoteHash.isNotEmpty && updater.remoteVersion != available)
+                            UpdaterInfoExtension.shortHash(updater.remoteHash),
+                        ].join(' · '),
+                      ),
+                    ),
+                  if (updater.canRollback)
+                    ListTile(
+                      leading: const Icon(Icons.history),
+                      title: const Text('pages.updates.details.rollback_version').tr(),
+                      subtitle: Text(updater.rollbackVersion),
+                    ),
+                  if (updater.branch != null || updater.repoName != null)
+                    ListTile(
+                      leading: const Icon(Icons.call_split),
+                      title: const Text('pages.updates.details.source').tr(),
+                      subtitle: Text(
+                        [
+                          if (updater.owner != null && updater.repoName != null)
+                            '${updater.owner}/${updater.repoName}'
+                          else
+                            ?updater.repoName,
+                          ?updater.branch,
+                        ].join(' · '),
+                      ),
+                    ),
+                  if (changelogUri != null && changelogUri.hasScheme)
+                    ListTile(
+                      leading: const Icon(Icons.article_outlined),
+                      title: const Text('pages.updates.details.changelog').tr(),
+                      trailing: const Icon(Icons.open_in_new, size: 20),
+                      onTap: () => launchUrl(changelogUri, mode: LaunchMode.externalApplication),
+                    ),
+                ],
+              ),
+            ),
+            if (detailsLabel != null)
+              Card(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ListTile(
+                      leading: Icon(updater.isSystem ? Icons.developer_board : Icons.commit),
+                      title: Text(detailsLabel),
+                    ),
+                    const Divider(height: 1),
+                    const SizedBox(height: 12),
+                    _UpdaterDetails(updater: updater),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
 /// Shown while the status is loaded the first time, it mirrors the layout of the list.
 class _UpdateManagerSkeleton extends StatelessWidget {
   const _UpdateManagerSkeleton({super.key});
@@ -1039,9 +1411,10 @@ class _UpdateManagerSkeleton extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontal = max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
+        final split = constraints.maxWidth >= _listDetailMinWidth;
+        final horizontal = split ? 4.0 : max(4.0, (constraints.maxWidth - _maxContentWidth) / 2);
 
-        return Shimmer.fromColors(
+        final list = Shimmer.fromColors(
           baseColor: Colors.grey,
           highlightColor: themeData.colorScheme.surface,
           child: ListView(
@@ -1128,6 +1501,16 @@ class _UpdateManagerSkeleton extends StatelessWidget {
               ),
             ],
           ),
+        );
+        if (!split) return list;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(width: (constraints.maxWidth * 0.4).clamp(_minListWidth, _maxListWidth), child: list),
+            const VerticalDivider(width: 1),
+            const Expanded(child: SizedBox.shrink()),
+          ],
         );
       },
     );

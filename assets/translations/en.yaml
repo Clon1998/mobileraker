@@ -991,6 +991,13 @@ pages:
     loading_more: Loading older prints…
     load_more_failed: Could not load older prints.
     end_reached: No older prints
+    detail_pane_hint: Select a print to see its details
+    details:
+      started: Started
+      ended: Ended
+      total_time: Total time
+      file_prints: Prints of this file
+      file_prints_completed: "{} of {} completed"
     provider_error:
       title: Error fetching Print History
       body: An error occurred while trying to fetch the print history. Please verify
@@ -1073,6 +1080,13 @@ pages:
       title: Update manager is not set up
       body: Add the [update_manager] section to your moonraker.conf to manage updates
         from here.
+    detail_pane_hint: Nothing to show
+    details:
+      installed: Installed
+      available: Available
+      rollback_version: Rollback version
+      source: Source
+      changelog: Changelog
     provider_error:
       title: Error fetching updates
       body: An error occurred while trying to read the update manager. Please retry
