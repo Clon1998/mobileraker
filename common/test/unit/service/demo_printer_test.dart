@@ -100,6 +100,31 @@ void main() {
     expect(printer.excludeObject!.objects, hasLength(8));
   });
 
+  test('turning off the printer power device disconnects Klipper, turning it on brings it back', () async {
+    List<String?> methods() => [for (final n in notifications) n['method'] as String?];
+    await rpc('printer.print.cancel'); // The printer device is locked while printing
+
+    await rpc('machine.device_power.post_device', {'device': 'printer', 'action': 'off'});
+    await pumpEventQueue();
+    expect(methods(), contains('notify_klippy_disconnected'));
+    final off = KlipperInstance.fromJson(await rpc('server.info'));
+    expect(off.klippyConnected, isFalse);
+    expect(off.klippyState, KlipperState.disconnected);
+    await expectLater(rpc('printer.info'), throwsA(anything), reason: 'printer.* fails like Moonraker without Klipper');
+
+    notifications.clear();
+    moonraker.tick();
+    await pumpEventQueue();
+    expect(methods(), isNot(contains('notify_status_update')));
+
+    await rpc('machine.device_power.post_device', {'device': 'printer', 'action': 'on'});
+    await pumpEventQueue();
+    expect(methods(), isNot(contains('notify_klippy_ready')), reason: 'Klipper takes a moment to start');
+    await Future<void>.delayed(const Duration(milliseconds: 2100));
+    expect(methods(), contains('notify_klippy_ready'));
+    expect(KlipperInstance.fromJson(await rpc('server.info')).klippyState, KlipperState.ready);
+  });
+
   test('server responses parse into the app DTOs', () async {
     final server = KlipperInstance.fromJson(await rpc('server.info'));
     expect(server.klippyState, KlipperState.ready);

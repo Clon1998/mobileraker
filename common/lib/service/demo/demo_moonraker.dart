@@ -62,6 +62,10 @@ class DemoMoonraker {
   var _jobQueueState = 'ready';
   var _jobIdCounter = 0x66D99C90;
   var _updateBusy = false;
+
+  /// Klipper is bound to the `printer` power device (Moonraker's `bound_services: klipper`): turning it off stops
+  /// Klipper, turning it on starts it again.
+  var _klippyConnected = true;
   final _webcams = <Map<String, dynamic>>[
     {
       'uid': 'b5f5e0b2-demo-4c1e-9b1d-1f4b2a6c9d10',
@@ -380,13 +384,14 @@ class DemoMoonraker {
   /// Answers a JSON-RPC call with the raw `result` moonraker would send. Throws [JRpcError] like a real server.
   Future<dynamic> call(String method, [dynamic params]) async {
     final p = params is Map ? params.cast<String, dynamic>() : const <String, dynamic>{};
+    if (!_klippyConnected && method.startsWith('printer.')) throw JRpcError(503, 'Klippy Disconnected');
     switch (method) {
       case 'server.connection.identify':
         return {'connection_id': 1};
       case 'server.info':
         return {
-          'klippy_connected': true,
-          'klippy_state': 'ready',
+          'klippy_connected': _klippyConnected,
+          'klippy_state': _klippyConnected ? 'ready' : 'disconnected',
           'components': [
             'database',
             'file_manager',
@@ -943,7 +948,23 @@ class DemoMoonraker {
       _ => device['status'] == 'on' ? 'off' : 'on',
     };
     notify('notify_power_changed', [_copy(device)]);
+    if (name == 'printer') _setKlippyPowered(device['status'] == 'on');
     return {name: device['status']};
+  }
+
+  void _setKlippyPowered(bool powered) {
+    if (!powered) {
+      if (!_klippyConnected) return;
+      _klippyConnected = false;
+      notify('notify_klippy_disconnected', const []);
+      return;
+    }
+    // Klipper needs a moment to start once the printer has power
+    Timer(const Duration(seconds: 2), () {
+      if (_disposed || _klippyConnected || _power['printer']?['status'] != 'on') return;
+      _klippyConnected = true;
+      notify('notify_klippy_ready', const []);
+    });
   }
 
   void _setService(String name, (String, String) state) {
@@ -1360,6 +1381,8 @@ class DemoMoonraker {
 
   /// Advances the pretend printer by one second.
   void tick() {
+    // No Klipper, no status updates
+    if (!_klippyConnected) return;
     // Heaters approach their target, then hover around it.
     for (final (heater, rate) in [('extruder', 4.0), ('heater_bed', 1.5)]) {
       final temp = (status[heater]!['temperature'] as num).toDouble();

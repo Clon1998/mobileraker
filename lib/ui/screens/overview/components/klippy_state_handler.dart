@@ -7,12 +7,15 @@ import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/power_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,6 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/bottomsheet/power_devices_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/overview/components/common/machine_cam_base_card.dart';
 import 'package:mobileraker/ui/screens/overview/components/printer_card.dart';
 import 'package:mobileraker/ui/screens/overview/components/printer_job_handler.dart';
@@ -414,9 +419,31 @@ class _Actions extends ConsumerWidget {
       // Do Nothing;
     }
 
+    // Klipper is not running, e.g. because the printer is powered off: offer its power devices
+    final showPower = switch (klippy?.klippyState) {
+      KlipperState.disconnected || KlipperState.startup || KlipperState.shutdown || KlipperState.error =>
+        klippy!.hasPowerComponent,
+      _ => false,
+    };
+    final hasPowerDevices =
+        showPower && ref.watch(powerDevicesProvider(machine.uuid)).value?.let(visiblePowerDevices).isNotEmpty == true;
+
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       spacing: 6,
-      children: [for (var button in buttons) Expanded(child: button)],
+      children: [
+        for (var button in buttons) Expanded(child: button),
+        if (hasPowerDevices)
+          IconButton.filled(
+            key: const Key('overviewPowerButton'),
+            tooltip: tr('pages.dashboard.control.power_card.title'),
+            onPressed: () => ref
+                .read(bottomSheetServiceProvider)
+                .show(BottomSheetConfig(type: SheetType.powerDevices, data: machine.uuid))
+                .ignore(),
+            icon: const Icon(Icons.power_settings_new),
+          ),
+      ],
     );
   }
 }

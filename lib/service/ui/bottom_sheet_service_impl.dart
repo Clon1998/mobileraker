@@ -16,6 +16,7 @@ import 'package:mobileraker/ui/components/bottomsheet/macros_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/graph_settings_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/manage_services_bottom_sheet.dart';
+import 'package:mobileraker/ui/components/bottomsheet/power_devices_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/select_file_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/settings_bottom_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
@@ -55,6 +56,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   macros,
   updateRecover,
   updateLog,
+  powerDevices,
 }
 
 BottomSheetService bottomSheetServiceImpl(Ref ref) => BottomSheetServiceImpl(ref);
@@ -353,6 +355,21 @@ class BottomSheetServiceImpl implements BottomSheetService {
           key: state.pageKey,
           name: state.name,
           child: UpdateLogBottomSheet(machineUUID: state.extra as String),
+        );
+      },
+    ),
+    GoRoute(
+      name: SheetType.powerDevices.name,
+      path: '/sheet/power-devices',
+      pageBuilder: (context, state) {
+        assert(state.extra is String, 'Invalid extra data for String');
+
+        // SheetContentScaffold
+        return PagedSheetPage(
+          scrollConfiguration: const SheetScrollConfiguration(),
+          key: state.pageKey,
+          name: state.name,
+          child: PowerDevicesBottomSheet(machineUUID: state.extra as String),
         );
       },
     ),

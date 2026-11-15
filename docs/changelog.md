@@ -52,6 +52,11 @@
   a quick reprint, along with a shortcut to the print history.
   [#424](https://github.com/Clon1998/mobileraker/issues/424)
 
+- **Power Devices on the Overview**: If Klipper is not running, e.g. because the printer is powered off, its card on
+  the overview now offers a power button next to the other actions. It opens the printer's power devices, so you can
+  turn it on without opening its dashboard. The demo printer behaves like a printer whose Klipper is bound to its
+  power device: turning off the "Printer" device stops Klipper, turning it on starts it again.
+
 - **Hide Webcam Card**: The dashboard webcam card can now be collapsed by tapping its webcam icon. The stream stops
   while hidden, and the choice is remembered per printer.
 
