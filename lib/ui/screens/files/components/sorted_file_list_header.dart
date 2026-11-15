@@ -24,8 +24,9 @@ class SortedFileListHeader extends ConsumerWidget {
         activeSortConfig != null ? tr(activeSortConfig!.mode.translation) : tr('pages.files.sort_by.sort_by');
 
     final themeData = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(color: themeData.scaffoldBackgroundColor),
+    // Material (not DecoratedBox) so ink of M2 IconButtons/InkWells in [trailing] paints above the background.
+    return Material(
+      color: themeData.scaffoldBackgroundColor,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
@@ -42,7 +43,7 @@ class SortedFileListHeader extends ConsumerWidget {
               iconAlignment: IconAlignment.end,
             ),
             const Spacer(),
-            if (trailing != null) trailing!,
+            ?trailing,
           ],
         ),
       ),
