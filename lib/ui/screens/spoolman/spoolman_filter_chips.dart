@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
 import 'package:common/ui/locale_spy.dart';
@@ -47,74 +48,6 @@ enum SpoolmanFilterType {
 
   final String labelI18n;
   final IconData? icon;
-}
-
-class SpoolmanFilterChips extends ConsumerWidget {
-  const SpoolmanFilterChips({
-    super.key,
-    required this.machineUUID,
-    required this.onFiltersChanged,
-    required this.filterBy,
-    this.cache = 'default',
-    this.leading,
-  });
-
-  /// Shown in front of the filter chips, e.g. the spools' group-by chip.
-  final Widget? leading;
-
-  final String cache;
-
-  final String machineUUID;
-
-  final Set<SpoolmanFilterType> filterBy;
-
-  final Function(SpoolmanFilters) onFiltersChanged;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final filters = ref.watch(_spoolmanFilterChipsControllerProvider(machineUUID, cache));
-    final controller = ref.read(_spoolmanFilterChipsControllerProvider(machineUUID, cache).notifier);
-
-    ref.listen(_spoolmanFilterChipsControllerProvider(machineUUID, cache), (prev, next) {
-      onFiltersChanged(next);
-    });
-
-    final chips = [
-      for (final type in filterBy)
-        FilterChip(
-          key: ValueKey(type),
-          label: Text(type.labelI18n.tr()),
-          avatar: type.icon?.let(Icon.new),
-          onSelected: (selected) => controller._onFilterUpdate(type, selected),
-          selected: controller.selected(type),
-          // showCheckmark: false,
-        ),
-    ];
-
-    // Sort the chips by selected state
-    chips.sort((a, b) => b.selected && !a.selected ? 1 : 0);
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          if (leading != null) Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: leading),
-          ...[
-          // FilterChip(
-          //   label: const Text('More'),
-          //   avatar: const Icon(Icons.tune),
-          //   onSelected: (_) => controller.clearAllFilters(),
-          //   selected: true,
-          //   showCheckmark: false,
-          // ),
-          ...chips,
-        ]
-            .sorted((a, b) => b.selected && !a.selected ? 1 : 0)
-            .map((e) => Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: e)),
-        ],
-      ),
-    );
-  }
 }
 
 /// An entry of the filter sheet of [SpoolmanListHeader].
@@ -188,14 +121,14 @@ class SpoolmanListHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = _spoolmanFilterChipsControllerProvider(machineUUID, cache);
-    ref.watch(provider);
+    final filters = ref.watch(provider);
     final controller = ref.read(provider.notifier);
     ref.listen(provider, (prev, next) => onFiltersChanged(next));
 
-    final active = filterBy.where(controller.selected).length;
+    final active = filterBy.where(controller.selected).toList();
     final themeData = Theme.of(context);
 
-    return SortedFileListHeader(
+    final header = SortedFileListHeader(
       activeSortConfig: sort,
       onTapSortMode: onTapSort,
       trailing: filterBy.isEmpty && onTapGroupBy == null
@@ -203,14 +136,77 @@ class SpoolmanListHeader extends ConsumerWidget {
           : IconButton(
               tooltip: tr('pages.spoolman.filters.title'),
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              onPressed: () => _openFilters(ref, controller, active > 0),
+              onPressed: () => _openFilters(ref, controller, active.isNotEmpty),
               icon: Badge.count(
-                count: active,
-                isLabelVisible: active > 0,
+                count: active.length,
+                isLabelVisible: active.isNotEmpty,
                 child: Icon(Icons.filter_list, size: 20, color: themeData.textTheme.bodySmall?.color),
               ),
             ),
     );
+
+    // The active filters, tapping one opens its sheet, × removes it. Opaque: the header floats over the list.
+    return ColoredBox(
+      color: themeData.scaffoldBackgroundColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          header,
+          AnimatedSizeAndFade(
+            alignment: Alignment.topLeft,
+            child: active.isEmpty
+                ? const SizedBox(key: Key('noActiveFilters'), width: double.infinity)
+                : Align(
+                    key: const Key('activeFilters'),
+                    alignment: Alignment.centerLeft,
+                    child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        for (final type in active)
+                          InputChip(
+                            key: ValueKey(type),
+                            avatar: type == SpoolmanFilterType.color
+                                ? filters.color?.let((it) => SpoolWidget(color: it, height: 18))
+                                : Icon(_entry(type, filters).icon),
+                            label: Text(_chipLabel(type, filters)),
+                            onPressed: () => _editFilter(controller, type),
+                            onDeleted: () => controller.clearFilter(type),
+                            deleteButtonTooltipMessage: tr('general.remove'),
+                          ),
+                      ],
+                    ),
+                  ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The chip of the active filter [type]: its values, e.g. `PLA, PETG`, or the filter's name (archived).
+  static String _chipLabel(SpoolmanFilterType type, SpoolmanFilters filters) =>
+      _entry(type, filters).description ?? tr(type.labelI18n);
+
+  /// Opens the sheet of the filter [type], like its entry in the filter sheet.
+  static Future<void> _editFilter(_SpoolmanFilterChipsController controller, SpoolmanFilterType type) async {
+    switch (type) {
+      case SpoolmanFilterType.archived:
+        controller.filterArchived(false);
+      case SpoolmanFilterType.color:
+        await controller.filterColor();
+      case SpoolmanFilterType.material:
+        await controller.filterMaterial();
+      case SpoolmanFilterType.location:
+        await controller.filterLocation();
+      case SpoolmanFilterType.filament:
+        await controller.filterFilament();
+      case SpoolmanFilterType.vendor:
+        await controller.filterVendor();
+    }
   }
 
   /// The entry of the filter [type] with its value in [filters] (none if it isn't set).
@@ -336,6 +332,18 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   }
 
   void clearAllFilters() => state = const SpoolmanFilters();
+
+  /// Removes the filter [type].
+  void clearFilter(SpoolmanFilterType type) {
+    state = switch (type) {
+      SpoolmanFilterType.archived => state.copyWith(allowArchived: false),
+      SpoolmanFilterType.color => state.copyWith(color: null, colorFilaments: null),
+      SpoolmanFilterType.material => state.copyWith(materials: null),
+      SpoolmanFilterType.location => state.copyWith(locations: null),
+      SpoolmanFilterType.filament => state.copyWith(filaments: null),
+      SpoolmanFilterType.vendor => state.copyWith(vendors: null),
+    };
+  }
 
   void filterArchived(bool isActive) {
     talker.info('[SpoolmanFilterChipsController($machineUUID)] Toggling archived to: $isActive');

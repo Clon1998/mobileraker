@@ -111,6 +111,15 @@
   button next to the QR scanner: a spool's tag shows that spool to set active, a filament's tag lists its spools. Only
   shown on phones with NFC.
 
+- **Spoolman Page Redesign**: Spools, filaments and manufacturers are shown as cards in the style of the print
+  history. With Spoolman v0.26.0 or newer, the spools are grouped by filament (or by location, manufacturer or
+  material, or not at all): each group shows the colors, the remaining filament and when it was used last, and
+  expands to its spools. Unused spools of the same filament and weight are folded into a single entry. Every list can
+  be sorted, e.g. by remaining weight or last use, and the choice is remembered. Like in the file manager, the sort and
+  a filter button sit in a header that hides while scrolling; active filters are shown as chips below it and can be
+  removed with a tap. On Spoolman v0.26.0 or newer, the spool selection's search uses Spoolman's search, which also
+  finds spools by comment, lot number, extra fields or color (e.g. "red").
+
 - **Printer Actions, Services, Job Queue and Confirmation Sheets**: These sheets got the same look as the macro sheet.
   The printer actions (opened from the dashboard while not printing) are now a list with a short description for each
   action, and note that a long press skips the confirmation. Manage Services shows the state of each service (e.g.

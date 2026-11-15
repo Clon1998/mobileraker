@@ -458,6 +458,31 @@ void main() {
       expect(find.text('1'), findsNothing);
     });
 
+    testWidgets('the active filters are chips: tapping one opens its sheet, × removes it', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+      expect(find.byType(InputChip), findsNothing);
+
+      sheets.picks.addAll([
+        'Material',
+        ['PLA'],
+      ]);
+      await tester.tap(find.byIcon(Icons.filter_list));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(InputChip, 'PLA'), findsOneWidget);
+      expect(find.text('Orange'), findsNothing, reason: 'PETG');
+
+      await tester.tap(find.widgetWithText(InputChip, 'PLA'));
+      await tester.pumpAndSettle();
+      expect(sheets.shown.last.type, SheetType.selections, reason: 'the material sheet');
+
+      await tester.tap(find.byTooltip('Remove'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InputChip), findsNothing);
+      expect(find.text('Orange'), findsOneWidget);
+    });
+
     testWidgets('the manufacturers have only the sort, no filter button', (tester) async {
       await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
 
