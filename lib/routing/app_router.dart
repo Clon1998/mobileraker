@@ -6,6 +6,7 @@
 
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/history/historical_print_job.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
@@ -92,6 +93,7 @@ enum AppRoute implements RouteDefinitionMixin {
   qrScanner,
   console,
   history,
+  history_job,
   updates,
   settings,
   settings_appearance,
@@ -338,6 +340,21 @@ GoRouter goRouterImpl(Ref ref) {
             path: '/history',
             name: AppRoute.history.name,
             pageBuilder: railDestination(ref, (context, state) => const HistoryPage()),
+            routes: [
+              GoRoute(
+                path: 'job',
+                parentNavigatorKey: rootNavigatorKey,
+                name: AppRoute.history_job.name,
+                builder: (context, state) => switch (state.extra) {
+                  [String machineUUID, HistoricalPrintJob job, List<HistoricalPrintJob> fileJobs] => HistoryJobPage(
+                    machineUUID: machineUUID,
+                    job: job,
+                    fileJobs: fileJobs,
+                  ),
+                  _ => throw ArgumentError('Invalid state.extra for history-job route'),
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: '/updates',

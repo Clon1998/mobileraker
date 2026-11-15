@@ -993,6 +993,7 @@ pages:
     end_reached: No older prints
     detail_pane_hint: Select a print to see its details
     details:
+      title: Print details
       started: Started
       ended: Ended
       total_time: Total time

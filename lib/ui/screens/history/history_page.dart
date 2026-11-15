@@ -36,6 +36,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
@@ -223,7 +224,8 @@ class _HistoryBody extends HookConsumerWidget {
         // In the list-detail layout, a tap shows the job in the detail pane instead of its actions.
         final selected = split ? selectedId.value?.let((id) => jobs.where((job) => job.jobId == id).firstOrNull) : null;
         void onTapJob(HistoricalPrintJob job) =>
-            split ? selectedId.value = job.jobId : _showJobActions(ref, machineUUID, job);
+            split ? selectedId.value = job.jobId : _openJob(ref, machineUUID, job, jobs);
+        void onLongPressJob(HistoricalPrintJob job) => _showJobActions(ref, machineUUID, job);
 
         // A flat list of the job rows, so they are built lazily.
         final rows = <Widget Function(BuildContext)>[
@@ -239,6 +241,7 @@ class _HistoryBody extends HookConsumerWidget {
                   otherAttempts: others,
                   selectedId: selected?.jobId,
                   onTap: onTapJob,
+                  onLongPress: onLongPressJob,
                 ),
             ]
           else
@@ -250,6 +253,7 @@ class _HistoryBody extends HookConsumerWidget {
                 showDate: true,
                 selectedId: selected?.jobId,
                 onTap: onTapJob,
+                onLongPress: onLongPressJob,
               ),
         ];
 
@@ -677,6 +681,7 @@ class _JobCard extends HookConsumerWidget {
     this.showDate = false,
     this.selectedId,
     required this.onTap,
+    this.onLongPress,
   });
 
   final String machineUUID;
@@ -690,6 +695,7 @@ class _JobCard extends HookConsumerWidget {
   final String? selectedId;
 
   final ValueChanged<HistoricalPrintJob> onTap;
+  final ValueChanged<HistoricalPrintJob>? onLongPress;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -714,6 +720,7 @@ class _JobCard extends HookConsumerWidget {
             color: _selectedColor(themeData, job.jobId == selectedId),
             child: InkWell(
               onTap: () => onTap(job),
+              onLongPress: onLongPress != null ? () => onLongPress!(job) : null,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Row(
@@ -856,6 +863,7 @@ class _JobCard extends HookConsumerWidget {
                             job: attempt,
                             selected: attempt.jobId == selectedId,
                             onTap: onTap,
+                            onLongPress: onLongPress,
                           ),
                         const SizedBox(height: 4),
                       ],
@@ -871,7 +879,14 @@ class _JobCard extends HookConsumerWidget {
 
 /// Another attempt to print the file of a [_JobCard].
 class _Attempt extends ConsumerWidget {
-  const _Attempt({super.key, required this.job, this.selected = false, this.showDate = false, required this.onTap});
+  const _Attempt({
+    super.key,
+    required this.job,
+    this.selected = false,
+    this.showDate = false,
+    required this.onTap,
+    this.onLongPress,
+  });
 
   final HistoricalPrintJob job;
 
@@ -882,6 +897,7 @@ class _Attempt extends ConsumerWidget {
   final bool showDate;
 
   final ValueChanged<HistoricalPrintJob> onTap;
+  final ValueChanged<HistoricalPrintJob>? onLongPress;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -893,6 +909,7 @@ class _Attempt extends ConsumerWidget {
       color: _selectedColor(themeData, selected),
       child: InkWell(
         onTap: () => onTap(job),
+        onLongPress: onLongPress != null ? () => onLongPress!(job) : null,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 6, 12, 6),
           child: Row(
@@ -982,12 +999,13 @@ Future<void> _showJobActions(WidgetRef ref, String machineUUID, HistoricalPrintJ
 }
 
 /// Executes an action on [job]. Everything is read up front: the page might be gone by the time it runs (e.g. a sheet
-/// was closed).
+/// was closed). [onRemoved] is called once the job was removed from the history.
 Future<void> Function(HistoryJobSheetAction action) _jobActionRunner(
   WidgetRef ref,
   String machineUUID,
-  HistoricalPrintJob job,
-) {
+  HistoricalPrintJob job, {
+  VoidCallback? onRemoved,
+}) {
   final dialogService = ref.read(dialogServiceProvider);
   final snackBarService = ref.read(snackBarServiceProvider);
   final historyService = ref.read(historyServiceProvider(machineUUID));
@@ -1021,12 +1039,67 @@ Future<void> Function(HistoryJobSheetAction action) _jobActionRunner(
           // Moonraker does not notify about removed jobs.
           container.invalidate(jobHistoryProvider);
           container.invalidate(historyTotalsProvider(machineUUID));
+          onRemoved?.call();
         } catch (e, s) {
           talker.warning('[HistoryPage] Could not delete job ${job.jobId}', e, s);
           snackBarService.show(SnackBarConfig(type: SnackbarType.error, message: tr('pages.history.remove_failed')));
         }
     }
   };
+}
+
+/// Opens the [HistoryJobPage] of [job]. [jobs] are the loaded ones, it lists the other prints of the file.
+void _openJob(WidgetRef ref, String machineUUID, HistoricalPrintJob job, List<HistoricalPrintJob> jobs) {
+  ref
+      .read(goRouterProvider)
+      .pushNamed(
+        AppRoute.history_job.name,
+        extra: [machineUUID, job, jobs.where((it) => it.filename == job.filename).toList()],
+      );
+}
+
+/// The details of a job as their own page, on phones and other layouts without the detail pane of the history.
+class HistoryJobPage extends HookConsumerWidget {
+  const HistoryJobPage({super.key, required this.machineUUID, required this.job, this.fileJobs = const []});
+
+  final String machineUUID;
+  final HistoricalPrintJob job;
+
+  /// The jobs of the same file the history had loaded, most recent first.
+  final List<HistoricalPrintJob> fileJobs;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Another print of the file can be picked on the page.
+    final selected = useState(job);
+    // The latest state of the jobs (e.g. one was removed), the first page of the history is kept alive by the
+    // dashboard and the history page.
+    final latest = ref.watch(jobHistoryProvider(machineUUID, null)).value;
+    final byId = {
+      for (final it in fileJobs) it.jobId: it,
+      for (final it in latest ?? const <HistoricalPrintJob>[])
+        if (it.filename == job.filename) it.jobId: it,
+    };
+    final shown = byId[selected.value.jobId] ?? selected.value;
+    final others = byId.values.toList()..sort((a, b) => b.startTime.compareTo(a.startTime));
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('pages.history.details.title').tr()),
+      body: AnimatedSwitcher(
+        duration: kThemeAnimationDuration,
+        child: _JobDetails(
+          key: ValueKey(shown.jobId),
+          machineUUID: machineUUID,
+          job: shown,
+          fileJobs: others.isEmpty ? [shown] : others,
+          onSelect: (it) => selected.value = it,
+          onRemoved: () {
+            if (context.mounted) context.pop();
+          },
+        ),
+      ),
+    );
+  }
 }
 
 /// Shown in the detail pane of the list-detail layout until a job is picked.
@@ -1055,7 +1128,8 @@ class _DetailPanePlaceholder extends StatelessWidget {
   }
 }
 
-/// The details of a job and its actions, in the detail pane of the list-detail layout (tablets, foldables).
+/// The details of a job and its actions: in the detail pane of the list-detail layout (tablets, foldables) and as the
+/// body of the [HistoryJobPage] (phones).
 class _JobDetails extends ConsumerWidget {
   const _JobDetails({
     super.key,
@@ -1063,6 +1137,7 @@ class _JobDetails extends ConsumerWidget {
     required this.job,
     required this.fileJobs,
     required this.onSelect,
+    this.onRemoved,
   });
 
   final String machineUUID;
@@ -1073,6 +1148,9 @@ class _JobDetails extends ConsumerWidget {
 
   /// Shows another job in the pane.
   final ValueChanged<HistoricalPrintJob> onSelect;
+
+  /// Called once [job] was removed from the history.
+  final VoidCallback? onRemoved;
 
   /// The max. amount of other prints of the file that are listed.
   static const int _maxListedPrints = 10;
@@ -1102,7 +1180,7 @@ class _JobDetails extends ConsumerWidget {
       }
     }
 
-    void run(HistoryJobSheetAction action) => _jobActionRunner(ref, machineUUID, job)(action);
+    void run(HistoryJobSheetAction action) => _jobActionRunner(ref, machineUUID, job, onRemoved: onRemoved)(action);
 
     return LayoutBuilder(
       builder: (context, constraints) {
