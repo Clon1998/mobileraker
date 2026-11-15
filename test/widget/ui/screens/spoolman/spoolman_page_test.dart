@@ -3,12 +3,19 @@
  * All rights reserved.
  */
 
+import 'package:common/data/enums/sort_kind_enum.dart';
+import 'package:common/data/enums/sort_mode_enum.dart';
+import 'package:common/data/model/sort_configuration.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
+import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:test_support/test_support.dart';
 
@@ -57,17 +64,30 @@ void main() {
     );
   }
 
-  Future<void> pumpSpoolman(WidgetTester tester, {required TestDevice device}) async {
+  late FakeSpoolmanService service;
+  late FakeBottomSheetService sheets;
+
+  Future<void> pumpSpoolman(
+    WidgetTester tester, {
+    required TestDevice device,
+    String? spoolmanVersion,
+    List<GetSpool>? spools,
+  }) async {
+    service = FakeSpoolmanService(
+      vendors: [prusa],
+      filaments: [black, orange],
+      spools: spools ?? [spool100, spool101, spool102],
+      serverVersion: spoolmanVersion,
+    );
+    sheets = FakeBottomSheetService();
     await tester.pumpRouterApp(
       router(),
       device: device,
       overrides: [
         ...connectedMachineOverrides(machine, klipper: Fixtures.klipper(components: ['spoolman'])),
         ...remoteConfigOverrides(),
-        ...spoolmanOverrides(
-          machine.uuid,
-          FakeSpoolmanService(vendors: [prusa], filaments: [black, orange], spools: [spool100, spool101, spool102]),
-        ),
+        ...spoolmanOverrides(machine.uuid, service),
+        bottomSheetServiceProvider.overrideWithValue(sheets),
         isSupporterProvider.overrideWithValue(true),
       ],
     );
@@ -172,5 +192,175 @@ void main() {
         expect(spoolInfoId(100), findsOneWidget);
       },
     );
+  });
+
+  group('grouped spools (Spoolman v0.26.0+)', () {
+    Finder groupChip(String axis) => find.widgetWithText(FilterChip, 'Group: $axis');
+
+    /// Picks [axis] (`location`, `none`, ...) in the group-by sheet.
+    Future<void> groupBy(WidgetTester tester, String current, String axis) async {
+      sheets.result = BottomSheetResult.confirmed(axis);
+      await tester.tap(groupChip(current));
+      await tester.pumpAndSettle();
+      expect(sheets.shown.last.type, SheetType.selections);
+    }
+
+    Future<void> pickSort(WidgetTester tester, SortConfiguration sort) async {
+      sheets.result = BottomSheetResult.confirmed(sort);
+      await tester.tap(find.byIcon(Icons.sort));
+      await tester.pumpAndSettle();
+      expect(sheets.shown.last.type, SheetType.sortMode);
+    }
+
+    /// Expands a group by its spools section ("2 spools · …").
+    Future<void> expand(WidgetTester tester, String counts) async {
+      await tester.tap(find.text(counts));
+      await tester.pumpAndSettle();
+    }
+
+    Finder spoolRow(int id) => find.text('#$id', findRichText: true);
+
+    testWidgets('before v0.26.0 the spools are a flat list without grouping', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.25.0');
+
+      expect(find.textContaining('Group:'), findsNothing);
+      expect(entry('#100 Black'), findsOneWidget);
+    });
+
+    testWidgets('grouped by filament by default, the 3 tabs stay, the spools once expanded', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+
+      expect(find.text('Spools'), findsOneWidget);
+      expect(find.text('Filaments'), findsOneWidget);
+      expect(find.text('Manufacturers'), findsOneWidget);
+      expect(groupChip('Filament'), findsOneWidget);
+      expect(find.text('Black'), findsOneWidget);
+      expect(find.text('Orange'), findsOneWidget);
+      expect(spoolRow(100), findsNothing);
+
+      await expand(tester, '2 spools · 2 in use');
+
+      expect(spoolRow(100), findsOneWidget);
+      expect(spoolRow(101), findsOneWidget);
+      expect(spoolRow(102), findsNothing);
+      expect(find.widgetWithText(TextButton, 'Add Spool'), findsOneWidget);
+
+      await tester.tap(spoolRow(101));
+      await tester.pumpAndSettle();
+      expect(find.text('spoolman_details_spool page of 101'), findsOneWidget);
+    });
+
+    testWidgets('the header of a filament group opens the filament', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+
+      await tester.tap(find.text('Orange'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('spoolman_details_filament page of 11'), findsOneWidget);
+    });
+
+    testWidgets('the filaments tab is the plain filament list', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+
+      await openTab(tester, 'Filaments');
+
+      expect(entry('#10 Black'), findsOneWidget);
+      expect(find.textContaining('Group:'), findsNothing);
+    });
+
+    testWidgets('unused identical spools are folded into one row until tapped', (tester) async {
+      await pumpSpoolman(
+        tester,
+        device: TestDevice.phone,
+        spoolmanVersion: '0.26.0',
+        spools: [
+          spool100,
+          for (final id in [200, 201, 202]) SpoolmanFixtures.spool(id, black, usedWeight: 0),
+        ],
+      );
+      await expand(tester, '4 spools · 1 in use');
+
+      expect(spoolRow(100), findsOneWidget);
+      expect(find.textContaining('3 unused · '), findsOneWidget);
+      expect(find.text('#200, #201, #202'), findsOneWidget);
+      expect(spoolRow(200), findsNothing);
+
+      await tester.tap(find.textContaining('3 unused · '));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('3 unused · '), findsNothing);
+      expect(spoolRow(200), findsOneWidget);
+      expect(spoolRow(202), findsOneWidget);
+    });
+
+    testWidgets('group by location, spools without one in their own group; the choice is remembered', (tester) async {
+      await pumpSpoolman(
+        tester,
+        device: TestDevice.phone,
+        spoolmanVersion: '0.26.0',
+        spools: [SpoolmanFixtures.spool(100, black, location: 'Dry box'), spool102],
+      );
+
+      await groupBy(tester, 'Filament', 'location');
+
+      expect(groupChip('Location'), findsOneWidget);
+      expect(find.text('Dry box'), findsOneWidget);
+      expect(find.text('No location'), findsOneWidget);
+      expect(testSettingsBox.get('smGroupBy'), 'location');
+
+      // Value groups have nothing to open, their header expands them
+      await tester.tap(find.text('No location'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('#102', findRichText: true), findsOneWidget);
+      expect(find.textContaining('#100', findRichText: true), findsNothing);
+    });
+
+    testWidgets('"None" is the flat list, the choice is remembered', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+
+      await groupBy(tester, 'Filament', 'none');
+
+      expect(entry('#100 Black'), findsOneWidget);
+      expect(entry('#102 Orange'), findsOneWidget);
+      expect(testSettingsBox.get('smGroupBy'), 'none');
+
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+      expect(groupChip('None'), findsOneWidget);
+    });
+
+    testWidgets('the groups are sorted with the sort sheet, their own modes', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+
+      await pickSort(tester, const SortConfiguration(SortMode.spoolRemainingWeight, SortKind.ascending));
+
+      final args = sheets.shown.last.data as SortModeSheetArgs;
+      expect(args.toShow, SortMode.availableForSpoolGroups());
+      expect(service.groupFilters.last?['sort'], 'group.total_remaining:asc');
+    });
+
+    testWidgets('the flat list is sorted by spool fields, also before v0.26.0', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.25.0');
+
+      await pickSort(tester, const SortConfiguration(SortMode.spoolLastUsed, SortKind.descending));
+
+      final args = sheets.shown.last.data as SortModeSheetArgs;
+      expect(args.toShow, SortMode.availableForSpools());
+      expect(service.spoolListFilters.last?['sort'], 'last_used:desc,id:asc');
+    });
+
+    testWidgets('list-detail: a group shows its filament and its spools in the pane', (tester) async {
+      await pumpSpoolman(tester, device: splitDevice, spoolmanVersion: '0.26.0');
+      await expand(tester, '2 spools · 2 in use');
+
+      await tester.tap(spoolRow(100));
+      await tester.pumpAndSettle();
+      expect(spoolInfoId(100), findsOneWidget);
+
+      await tester.tap(find.text('Black').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Filament Info'), findsOneWidget);
+      expect(find.textContaining('page of'), findsNothing);
+    });
   });
 }

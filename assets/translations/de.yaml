@@ -1118,6 +1118,29 @@ pages:
       info_card: Hersteller Details
     filament_details:
       info_card: Filament Details
+    sort_by:
+      spool_count: Anzahl Spulen
+    groups:
+      group_by: Gruppieren nach
+      label: 'Gruppe: {}'
+      by:
+        filament: Filament
+        location: Lagerort
+        vendor: Hersteller
+        material: Material
+        none: Keine
+      no_location: Kein Lagerort
+      no_vendor: Kein Hersteller
+      no_material: Kein Material
+      spools:
+        one: '{} Spule'
+        other: '{} Spulen'
+      in_use: '{} in Benutzung'
+      no_spools: Keine Spulen
+      unused_identical:
+        one: '{} unbenutzt · je {}'
+        other: '{} unbenutzt · je {}'
+      load_more: 'Mehr anzeigen ({} übrig)'
     spool_details:
       page_title: Spule {}
       info_card: Spulen Details

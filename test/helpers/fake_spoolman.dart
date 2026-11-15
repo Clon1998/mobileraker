@@ -17,8 +17,10 @@ import 'package:mobileraker_pro/spoolman/dto/update_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/update_vendor.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool_group.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/spoolman_server_info.dart';
 
 /// Spoolman test data.
 abstract final class SpoolmanFixtures {
@@ -44,24 +46,33 @@ abstract final class SpoolmanFixtures {
     colorHex: color,
   );
 
-  static GetSpool spool(int id, GetFilament filament, {double usedWeight = 250}) => GetSpool(
+  static GetSpool spool(int id, GetFilament filament, {double usedWeight = 250, String? location}) => GetSpool(
     id: id,
     registered: _registered,
     filament: filament,
     usedWeight: usedWeight,
     remainingWeight: 1000 - usedWeight,
     usedLength: usedWeight * 330,
+    location: location,
     archived: false,
   );
 }
 
 /// An in-memory Spoolman. Lists honour the filters the detail pages use (by filament, vendor and material).
 class FakeSpoolmanService extends Fake implements SpoolmanService {
-  FakeSpoolmanService({this.spools = const [], this.filaments = const [], this.vendors = const []});
+  FakeSpoolmanService({
+    this.spools = const [],
+    this.filaments = const [],
+    this.vendors = const [],
+    this.serverVersion,
+  });
 
   final List<GetSpool> spools;
   final List<GetFilament> filaments;
   final List<GetVendor> vendors;
+
+  /// The Spoolman version [getServerInfo] reports, without one it fails (the page then shows what all versions have).
+  final String? serverVersion;
 
   static bool _matches(Map<String, dynamic>? filter, Object? Function(String key) valueOf) {
     if (filter == null) return true;
@@ -69,7 +80,9 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
       final actual = valueOf(key);
       // Filters this fake doesn't know (e.g. the filter chips) don't restrict the list.
       if (actual == _unknown) continue;
-      if ('$actual' != '$value') return false;
+      // Like Spoolman: quoted is an exact match, empty or -1 (IDs) matches unset fields
+      final expected = '$value'.replaceAll(RegExp(r'^"|"$'), '');
+      if (actual == null ? !(expected.isEmpty || expected == '-1') : '$actual' != expected) return false;
     }
     return true;
   }
@@ -80,6 +93,7 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
     'filament.id' => s.filament.id,
     'filament.material' => s.filament.material,
     'filament.vendor.id' => s.filament.vendor?.id,
+    'location' => s.location,
     _ => _unknown,
   };
 
@@ -95,8 +109,14 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
     return PaginationResult(all.skip(p * size).take(size).toList(), all.length, p, size);
   }
 
+  /// The filters of the spool list and group requests, e.g. to check the sort.
+  final List<Map<String, dynamic>?> spoolListFilters = [];
+  final List<Map<String, dynamic>?> groupFilters = [];
+
   @override
-  Future<PaginationResult<GetSpool>> spoolList({int? pageSize, int? page, Map<String, dynamic>? filter}) async => _page(
+  Future<PaginationResult<GetSpool>> spoolList({int? pageSize, int? page, Map<String, dynamic>? filter}) async {
+    spoolListFilters.add(filter);
+    return _page(
     [
       for (final s in spools)
         if (_matches(filter, (k) => _spoolValue(s, k))) s,
@@ -104,6 +124,7 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
     page,
     pageSize,
   );
+  }
 
   @override
   Future<PaginationResult<GetFilament>> filamentList({int? pageSize, int? page, Map<String, dynamic>? filter}) async =>
@@ -119,6 +140,58 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
   @override
   Future<PaginationResult<GetVendor>> vendorList({int? pageSize, int? page, Map<String, dynamic>? filter}) async =>
       _page(vendors, page, pageSize);
+
+  @override
+  Future<SpoolmanServerInfo> getServerInfo() async {
+    if (serverVersion == null) throw UnimplementedError('No Spoolman version set');
+    return SpoolmanServerInfo(
+      version: serverVersion!,
+      debugMode: false,
+      automaticBackups: false,
+      dataDir: '',
+      logsDir: '',
+      backupsDir: '',
+      dbType: 'sqlite',
+      gitCommit: '',
+    );
+  }
+
+  /// Groups the [spools] matching the filter like Spoolman, sorted by the group's title.
+  @override
+  Future<PaginationResult<SpoolGroup>> spoolGroups(
+    SpoolGroupBy groupBy, {
+    int? pageSize,
+    int? page,
+    Map<String, dynamic>? filter,
+  }) async {
+    groupFilters.add(filter);
+    final byKey = <String?, List<GetSpool>>{};
+    for (final s in spools) {
+      if (!_matches(filter, (k) => _spoolValue(s, k))) continue;
+      final key = switch (groupBy) {
+        SpoolGroupBy.filament => '${s.filament.id}',
+        SpoolGroupBy.vendor => s.filament.vendor?.id.toString(),
+        SpoolGroupBy.material => s.filament.material,
+        SpoolGroupBy.location => s.location,
+      };
+      (byKey[key] ??= []).add(s);
+    }
+    final groups = [
+      for (final MapEntry(:key, value: members) in byKey.entries)
+        SpoolGroup(
+          groupBy: groupBy.name,
+          key: key,
+          spoolCount: members.length,
+          inUseCount: members.where((s) => s.usedWeight > 0).length,
+          totalRemainingWeight: members.fold<double>(0, (sum, s) => sum + (s.remainingWeight ?? 0)),
+          filament: groupBy == SpoolGroupBy.filament ? members.first.filament : null,
+          vendor: groupBy == SpoolGroupBy.vendor ? members.first.filament.vendor : null,
+        ),
+    ];
+    String title(SpoolGroup g) => g.filament?.name ?? g.vendor?.name ?? g.key ?? '';
+    groups.sort((a, b) => title(a).compareTo(title(b)));
+    return _page(groups, page, pageSize);
+  }
 
   @override
   Future<GetSpool?> spool(int id) async => spools.where((s) => s.id == id).firstOrNull;

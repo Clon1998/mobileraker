@@ -240,6 +240,8 @@ enum UiKeys implements KeyValueStoreKey {
   hadFirmwareRetraction('hFwRetr'),
   hadExtruder('hExtruder'),
   hideWebcam('hideWebcam'),
+  // Name of the SpoolGroupBy the Spoolman page's spools are grouped by, 'none' for the flat list
+  spoolmanGroupBy('smGroupBy'),
   ;
 
   @override

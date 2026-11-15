@@ -1403,6 +1403,29 @@ pages:
       unlink_confirm:
         title: Unlink tag?
         body: Scanning {} will no longer find this {}.
+    sort_by:
+      spool_count: Spool count
+    groups:
+      group_by: Group by
+      label: 'Group: {}'
+      by:
+        filament: Filament
+        location: Location
+        vendor: Manufacturer
+        material: Material
+        none: None
+      no_location: No location
+      no_vendor: No manufacturer
+      no_material: No material
+      spools:
+        one: '{} spool'
+        other: '{} spools'
+      in_use: '{} in use'
+      no_spools: No spools
+      unused_identical:
+        one: '{} unused · {} each'
+        other: '{} unused · {} each'
+      load_more: 'Show more ({} left)'
     spool_details:
       page_title: Spool {}
       info_card: Spool Info

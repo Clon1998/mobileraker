@@ -17,6 +17,7 @@ import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_search_result.dart';
 import 'package:mobileraker_pro/spoolman/nfc/nfc_tag_reader.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
 import 'package:mobileraker_pro/spoolman/spoolman_server_info.dart';
@@ -204,17 +205,18 @@ void main() {
     expect(find.byType(ChoiceChip), findsNothing);
   });
 
-  group('search', () {
+  group('search before Spoolman v0.26.0 (local)', () {
     testWidgets('matches vendor, name and material together', (tester) async {
-      await openSheet(tester);
+      await openSheet(tester, spoolmanVersion: '0.25.0');
 
       await search(tester, 'polymaker petg');
 
       expect(ids(tester).first, 2);
+      expect(service.searches, isEmpty);
     });
 
     testWidgets('finds a spool by its id', (tester) async {
-      await openSheet(tester);
+      await openSheet(tester, spoolmanVersion: '0.25.0');
 
       await search(tester, '#4');
 
@@ -222,7 +224,7 @@ void main() {
     });
 
     testWidgets('finds a spool by its location', (tester) async {
-      await openSheet(tester);
+      await openSheet(tester, spoolmanVersion: '0.25.0');
 
       await search(tester, 'dry box');
 
@@ -230,12 +232,64 @@ void main() {
     });
 
     testWidgets('says so if nothing matches', (tester) async {
-      await openSheet(tester);
+      await openSheet(tester, spoolmanVersion: '0.25.0');
 
       await search(tester, 'zzzzzz');
 
       expect(find.byType(SpoolTile), findsNothing);
       expect(find.text('No spools match your search'), findsOneWidget);
+    });
+  });
+
+  group('search on Spoolman v0.26.0+ (server)', () {
+    testWidgets('shows the spool hits, then the spools of the filament hits', (tester) async {
+      await openSheet(tester, spoolmanVersion: '0.26.0');
+      // A comment match on 3, the filament of 2 matched by name
+      service.searchResult = SpoolmanSearchResult(spools: [spools[2]], filaments: [spools[1].filament]);
+
+      await search(tester, 'black');
+
+      expect(service.searches, ['black']);
+      expect(ids(tester), [3, 2]);
+    });
+
+    testWidgets('only shows spools of the selected material', (tester) async {
+      await openSheet(tester, spoolmanVersion: '0.26.0');
+      service.searchResult = SpoolmanSearchResult(spools: [spools[0], spools[2]]);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'PETG'));
+      await tester.pumpAndSettle();
+      await search(tester, 'black');
+
+      expect(ids(tester), [3]);
+    });
+
+    testWidgets('sends an id search without the #', (tester) async {
+      await openSheet(tester, spoolmanVersion: '0.26.0');
+      service.searchResult = SpoolmanSearchResult(spools: [spools[3]]);
+
+      await search(tester, '#4');
+
+      expect(service.searches, ['4']);
+      expect(ids(tester), [4]);
+    });
+
+    testWidgets('says so if nothing matches', (tester) async {
+      await openSheet(tester, spoolmanVersion: '0.26.0');
+
+      await search(tester, 'zzzzzz');
+
+      expect(find.byType(SpoolTile), findsNothing);
+      expect(find.text('No spools match your search'), findsOneWidget);
+    });
+
+    testWidgets('falls back to the local search if the server search fails', (tester) async {
+      await openSheet(tester, spoolmanVersion: '0.26.0');
+      service.searchError = Exception('Spoolman not reachable');
+
+      await search(tester, 'polymaker petg');
+
+      expect(ids(tester).first, 2);
     });
   });
 
@@ -404,6 +458,18 @@ class _FakeSpoolmanService extends Fake implements SpoolmanService {
 
   @override
   Future<List<GetFilament>> filamentsByTag(String uid) async => [?filamentTags[uid]];
+
+  /// The queries sent to [search], it answers with [searchResult] or throws [searchError].
+  final List<String> searches = [];
+  SpoolmanSearchResult searchResult = const SpoolmanSearchResult();
+  Object? searchError;
+
+  @override
+  Future<SpoolmanSearchResult> search(String query) async {
+    searches.add(query);
+    if (searchError != null) throw searchError!;
+    return searchResult;
+  }
 
   @override
   Future<PaginationResult<GetSpool>> spoolList({int? pageSize, int? page, Map<String, dynamic>? filter}) async {

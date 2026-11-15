@@ -5,6 +5,7 @@
 
 import 'dart:math' as math;
 
+import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
@@ -12,6 +13,9 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/data/model/sort_configuration.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/demo_pro_badge.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
@@ -33,13 +37,20 @@ import 'package:mobileraker_pro/service/ui/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/get_vendor.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool_group.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_dto_mixin.dart';
 import 'package:mobileraker_pro/spoolman/dto/spoolman_entity_type_enum.dart';
+import 'package:mobileraker_pro/spoolman/dto/spoolman_filter.dart';
 import 'package:mobileraker_pro/spoolman/service/spoolman_service.dart';
+import 'package:mobileraker_pro/spoolman/spoolman_sort.dart';
+import 'package:mobileraker_pro/spoolman/ui/spool_group_list.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/selection_bottom_sheet.dart';
+import '../../components/bottomsheet/sort_mode_bottom_sheet.dart';
 import '../../components/connection/machine_connection_guard.dart';
 import '../../components/machine_state_indicator.dart';
 import 'common_detail.dart';
@@ -95,27 +106,17 @@ class _BottomNav extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final controller = ref.watch(_spoolmanPageControllerProvider(selectedMachine.value!.uuid).notifier);
-    final currentIndex = ref.watch(_spoolmanPageControllerProvider(selectedMachine.value!.uuid));
+    final machineUUID = selectedMachine.value!.uuid;
+    final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
+    final currentIndex = ref.watch(_spoolmanPageControllerProvider(machineUUID));
 
     return BottomNavigationBar(
       showSelectedLabels: true,
       currentIndex: currentIndex,
       onTap: controller.onBottomItemTapped,
-      // onTap: model.onBottomItemTapped,
       items: [
-        BottomNavigationBarItem(
-          label: plural('pages.spoolman.spool', 2),
-          icon: const Icon(Icons.spoke_outlined),
-        ),
-        BottomNavigationBarItem(
-          label: plural('pages.spoolman.filament', 2),
-          icon: const Icon(Icons.color_lens_outlined),
-        ),
-        BottomNavigationBarItem(
-          label: plural('pages.spoolman.vendor', 2),
-          icon: const Icon(Icons.factory_outlined),
-        ),
+        for (final tab in SpoolmanListType.values)
+          BottomNavigationBarItem(label: _tabLabel(tab), icon: Icon(_tabIcon(tab))),
       ],
     );
   }
@@ -148,7 +149,13 @@ class _Body extends ConsumerWidget {
               ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value == true;
           final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
           final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
-          final scrollController = useScrollController(keys: [machineUUID, page]);
+          // Since Spoolman v0.26.0 the spools are grouped (filament by default), "None" and older servers: flat list
+          final canGroup = ref.watch(spoolmanServerInfoProvider(machineUUID)).value?.supportsSpoolGroups == true;
+          final groupBy = canGroup ? _groupBy(ref) : null;
+          final scrollController = useScrollController(keys: [machineUUID, page, groupBy]);
+          // The order of the spools, the groups have other sort modes than the flat list
+          final listSort = useState(spoolListDefaultSort);
+          final groupSort = useState(spoolGroupsDefaultSort);
           final filters = useState({
             SpoolmanListType.spools: const SpoolmanFilters(),
             SpoolmanListType.filaments: const SpoolmanFilters(),
@@ -195,11 +202,16 @@ class _Body extends ConsumerWidget {
             );
           }
 
-          final type = switch (page) {
-            1 => SpoolmanListType.filaments,
-            2 => SpoolmanListType.vendors,
-            _ => SpoolmanListType.spools,
+          final type = SpoolmanListType.values[page];
+          final grouped = type == SpoolmanListType.spools ? groupBy : null;
+          final sort = grouped != null ? groupSort : listSort;
+          /// The [filter] in the spools' order.
+          SpoolmanFilter sorted(SpoolmanFilter filter) => switch (spoolmanSortQuery(sort.value, grouped: grouped != null)) {
+            final query? => SpoolmanFilter({...filter.filters, 'sort': query}),
+            null => filter,
           };
+          void Function(SpoolmanIdentifiableDtoMixin) onEntryTap(bool inSplit) =>
+              inSplit ? ref.read(spoolmanDetailSelectionProvider(machineUUID).notifier).select : controller.onEntryTap;
 
           final paneSelection = ref.watch(spoolmanDetailSelectionProvider(machineUUID));
 
@@ -209,22 +221,49 @@ class _Body extends ConsumerWidget {
             children: [
               if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
               if (type == SpoolmanListType.spools || type == SpoolmanListType.filaments)
-                SpoolmanFilterChips(
-                  cache: type.name,
-                  machineUUID: machineUUID,
-                  onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
-                  filterBy: typeToFilters(type),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SpoolmanFilterChips(
+                        cache: type.name,
+                        machineUUID: machineUUID,
+                        onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
+                        filterBy: typeToFilters(type),
+                        leading: canGroup && type == SpoolmanListType.spools ? _GroupByChip(groupBy: groupBy) : null,
+                      ),
+                    ),
+                    if (type == SpoolmanListType.spools)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, right: 8),
+                        child: _SortButton(
+                          sort: sort.value,
+                          defaultSort: grouped != null ? spoolGroupsDefaultSort : spoolListDefaultSort,
+                          modes: grouped != null ? SortMode.availableForSpoolGroups() : SortMode.availableForSpools(),
+                          onChanged: (it) => sort.value = it,
+                        ),
+                      ),
+                  ],
                 ),
               Expanded(
-                child: SpoolmanScrollPagination(
+                child: grouped != null
+                    ? SpoolGroupList(
+                        scrollController: scrollController,
+                        machineUUID: machineUUID,
+                        groupBy: grouped,
+                        onEntryTap: onEntryTap(inSplit),
+                        onAddSpool: controller.addSpool,
+                        filters: sorted(filters.value[type]!.toSpoolFilter()),
+                        selected: paneSelection.only(inSplit),
+                      )
+                    : SpoolmanScrollPagination(
                   scrollController: scrollController,
                   machineUUID: machineUUID,
                   type: type,
-                  onEntryTap: inSplit
-                      ? ref.read(spoolmanDetailSelectionProvider(machineUUID).notifier).select
-                      : controller.onEntryTap,
+                  onEntryTap: onEntryTap(inSplit),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  filters: filters.value[type]!.toFilterForType(type),
+                  filters: type == SpoolmanListType.spools
+                      ? sorted(filters.value[type]!.toSpoolFilter())
+                      : filters.value[type]!.toFilterForType(type),
                   selected: paneSelection.only(inSplit),
                 ),
               ),
@@ -292,6 +331,96 @@ class _Body extends ConsumerWidget {
   }
 }
 
+/// The axis the spools are grouped by, filament unless the user picked another; null: "None", the flat list.
+SpoolGroupBy? _groupBy(WidgetRef ref) => switch (ref.watch(stringSettingProvider(UiKeys.spoolmanGroupBy))) {
+  'none' => null,
+  final name => SpoolGroupBy.values.asNameMap()[name] ?? SpoolGroupBy.filament,
+};
+
+/// Chip in front of the spool filters that picks the [SpoolGroupBy] of the spools in a selection sheet, "None" is the
+/// flat list.
+class _GroupByChip extends ConsumerWidget {
+  const _GroupByChip({required this.groupBy});
+
+  final SpoolGroupBy? groupBy;
+
+  static String _label(String name) => tr('pages.spoolman.groups.by.$name');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = groupBy?.name ?? 'none';
+
+    Future<void> pick() async {
+      final res = await ref
+          .read(bottomSheetServiceProvider)
+          .show(
+            BottomSheetConfig(
+              type: SheetType.selections,
+              data: SelectionBottomSheetArgs<String>(
+                title: const Text('pages.spoolman.groups.group_by').tr(),
+                showSearch: false,
+                options: [
+                  for (final name in [...SpoolGroupBy.values.map((e) => e.name), 'none'])
+                    SelectionOption(value: name, label: _label(name), selected: name == current),
+                ],
+              ),
+            ),
+          );
+      if (res.confirmed && res.data is String) {
+        await ref.read(settingServiceProvider).writeString(UiKeys.spoolmanGroupBy, res.data as String);
+      }
+    }
+
+    return FilterChip(
+      avatar: const Icon(Icons.workspaces_outline),
+      label: Text(tr('pages.spoolman.groups.label', args: [_label(current)])),
+      tooltip: tr('pages.spoolman.groups.group_by'),
+      selected: groupBy != null,
+      showCheckmark: false,
+      onSelected: (_) => pick(),
+    );
+  }
+}
+
+/// Opens the sort modes in the sort sheet, like the history's sort button; highlighted if it is not the default.
+class _SortButton extends ConsumerWidget {
+  const _SortButton({required this.sort, required this.defaultSort, required this.modes, required this.onChanged});
+
+  final SortConfiguration sort;
+  final SortConfiguration defaultSort;
+  final List<SortMode> modes;
+  final ValueChanged<SortConfiguration> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton.outlined(
+      tooltip: '${tr('pages.files.sort_by.sort_by')}: ${tr(sort.mode.translation)}',
+      color: sort == defaultSort ? null : Theme.of(context).colorScheme.primary,
+      icon: const Icon(Icons.sort),
+      onPressed: () async {
+        final res = await ref
+            .read(bottomSheetServiceProvider)
+            .show(
+              BottomSheetConfig(type: SheetType.sortMode, data: SortModeSheetArgs(toShow: modes, active: sort)),
+            );
+        if (res.confirmed && res.data is SortConfiguration) onChanged(res.data as SortConfiguration);
+      },
+    );
+  }
+}
+
+String _tabLabel(SpoolmanListType type) => switch (type) {
+  SpoolmanListType.spools => plural('pages.spoolman.spool', 2),
+  SpoolmanListType.filaments => plural('pages.spoolman.filament', 2),
+  SpoolmanListType.vendors => plural('pages.spoolman.vendor', 2),
+};
+
+IconData _tabIcon(SpoolmanListType type) => switch (type) {
+  SpoolmanListType.spools => Icons.spoke_outlined,
+  SpoolmanListType.filaments => Icons.color_lens_outlined,
+  SpoolmanListType.vendors => Icons.factory_outlined,
+};
+
 /// Min. width of the Spoolman page's body for the list-detail layout.
 const double _listDetailMinWidth = 720;
 
@@ -333,7 +462,7 @@ class _Header extends HookConsumerWidget {
     final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
     final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
 
-    final tabController = useTabController(initialLength: 3);
+    final tabController = useTabController(initialLength: SpoolmanListType.values.length);
 
     if (tabController.index != page && !tabController.indexIsChanging) {
       tabController.index = page;
@@ -352,18 +481,7 @@ class _Header extends HookConsumerWidget {
           unselectedLabelColor: themeData.disabledColor,
           enableFeedback: true,
           tabs: [
-            Tab(
-              icon: const Icon(Icons.spoke_outlined),
-              text: plural('pages.spoolman.spool', 2),
-            ),
-            Tab(
-              icon: const Icon(Icons.color_lens_outlined),
-              text: plural('pages.spoolman.filament', 2),
-            ),
-            Tab(
-              icon: const Icon(Icons.factory_outlined),
-              text: plural('pages.spoolman.vendor', 2),
-            ),
+            for (final tab in SpoolmanListType.values) Tab(icon: Icon(_tabIcon(tab)), text: _tabLabel(tab)),
           ],
         ),
         if (!themeData.useMaterial3) Divider(height: 1, thickness: 1, color: themeData.colorScheme.primary),
@@ -385,18 +503,13 @@ class _Fab extends ConsumerWidget {
 
     final fab = FloatingActionButton(
       onPressed: () {
-        final currentIndex = ref.read(_spoolmanPageControllerProvider(machineUUID));
-
-        switch (currentIndex) {
-          case 1:
-            context.goNamed(ProRoutes.spoolman_form_filament.name, extra: [machineUUID]);
-            break;
-          case 2:
-            context.goNamed(ProRoutes.spoolman_form_vendor.name, extra: [machineUUID]);
-            break;
-          default:
-            context.goNamed(ProRoutes.spoolman_form_spool.name, extra: [machineUUID]);
-        }
+        final type = SpoolmanListType.values[ref.read(_spoolmanPageControllerProvider(machineUUID))];
+        final form = switch (type) {
+          SpoolmanListType.spools => ProRoutes.spoolman_form_spool,
+          SpoolmanListType.filaments => ProRoutes.spoolman_form_filament,
+          SpoolmanListType.vendors => ProRoutes.spoolman_form_vendor,
+        };
+        context.goNamed(form.name, extra: [machineUUID]);
       },
       child: const Icon(Icons.add),
     );
@@ -438,6 +551,11 @@ class _SpoolmanPageController extends _$SpoolmanPageController {
     state = index;
     // The detail pane shows an entry of the previous list.
     ref.read(spoolmanDetailSelectionProvider(machineUUID).notifier).select(null);
+  }
+
+  /// Opens the form for a new spool of [filament].
+  void addSpool(GetFilament filament) {
+    ref.read(goRouterProvider).pushNamed(ProRoutes.spoolman_form_spool.name, extra: [machineUUID, filament]);
   }
 
   void onEntryTap(SpoolmanIdentifiableDtoMixin dto) {

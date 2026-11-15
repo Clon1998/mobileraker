@@ -51,7 +51,11 @@ class SpoolmanFilterChips extends ConsumerWidget {
     required this.onFiltersChanged,
     required this.filterBy,
     this.cache = 'default',
+    this.leading,
   });
+
+  /// Shown in front of the filter chips, e.g. the spools' group-by chip.
+  final Widget? leading;
 
   final String cache;
 
@@ -89,6 +93,8 @@ class SpoolmanFilterChips extends ConsumerWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
+          if (leading != null) Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: leading),
+          ...[
           // FilterChip(
           //   label: const Text('More'),
           //   avatar: const Icon(Icons.tune),
@@ -99,8 +105,8 @@ class SpoolmanFilterChips extends ConsumerWidget {
           ...chips,
         ]
             .sorted((a, b) => b.selected && !a.selected ? 1 : 0)
-            .map((e) => Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: e))
-            .toList(),
+            .map((e) => Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: e)),
+        ],
       ),
     );
   }
