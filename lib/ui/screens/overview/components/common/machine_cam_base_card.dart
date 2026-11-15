@@ -8,6 +8,7 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/logging_extension.dart';
@@ -29,6 +30,8 @@ class MachineCamBaseCard extends ConsumerWidget {
 
   final Widget body;
 
+  /// Called when the card is tapped. Defaults to opening the machine's dashboard, which works in every connection
+  /// and Klipper state (e.g. to turn on a powered off printer via its power devices).
   final GestureTapCallback? onTap;
 
   @override
@@ -39,7 +42,7 @@ class MachineCamBaseCard extends ConsumerWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap ?? () => _openDashboard(ref),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -52,6 +55,11 @@ class MachineCamBaseCard extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _openDashboard(WidgetRef ref) {
+    ref.read(selectedMachineServiceProvider).selectMachine(machine);
+    ref.read(goRouterProvider).pushNamed(AppRoute.dashBoard.name);
   }
 }
 

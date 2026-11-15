@@ -142,6 +142,11 @@
 - **Temperature Presets**: Applying a preset on a printer without a heated bed no longer tries to set a bed
   temperature, which Klipper rejected with an error.
 
+- **Overview Printer Cards**: Printer cards on the overview can now be tapped in every state to open the printer's
+  dashboard, not only while Klipper is ready. Previously a printer that is e.g. powered off ("Klipper is
+  disconnected") could not be opened from the overview, even though its dashboard lets you turn it on via its power
+  devices. The compact overview already behaved this way.
+
 - **Notifications of New Printers (Android)**: Notifications of a newly added printer now show up right away.
   Previously Android dropped them until the app was restarted, as the printer's notification channels were only
   created on app start.
