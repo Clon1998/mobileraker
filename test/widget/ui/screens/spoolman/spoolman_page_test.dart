@@ -220,6 +220,10 @@ void main() {
 
     Finder spoolRow(int id) => find.text('#$id', findRichText: true);
 
+    /// The sort of the last request of the flat list, the spools of a group are sorted by `used_weight`.
+    String? flatListSort() => service.spoolListFilters
+        .lastWhere((f) => !'${f?['sort']}'.startsWith('used_weight'))?['sort'] as String?;
+
     testWidgets('before v0.26.0 the spools are a flat list without grouping', (tester) async {
       await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.25.0');
 
@@ -307,6 +311,9 @@ void main() {
       expect(find.text('Dry box'), findsOneWidget);
       expect(find.text('No location'), findsOneWidget);
       expect(testSettingsBox.get('smGroupBy'), 'location');
+      // Value groups: when they were used and the colors of their spools
+      expect(find.text('Never used'), findsNWidgets(2));
+      expect(find.byKey(const Key('colors')), findsNWidgets(2));
 
       // Value groups have nothing to open, their header expands them
       await tester.tap(find.text('No location'));
@@ -347,6 +354,57 @@ void main() {
       final args = sheets.shown.last.data as SortModeSheetArgs;
       expect(args.toShow, SortMode.availableForSpools());
       expect(service.spoolListFilters.last?['sort'], 'last_used:desc,id:asc');
+    });
+
+    testWidgets('the group sort is remembered and kept across the axes, the flat list has its own', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+      await pickSort(tester, const SortConfiguration(SortMode.spoolCount, SortKind.descending));
+      expect(testSettingsBox.get('smGroupSort'), 'spoolCount:descending');
+
+      await groupBy(tester, 'Filament', 'location');
+      expect(service.groupFilters.last?['group_by'], isNull, reason: 'the axis is a parameter of the call');
+      expect(service.groupFilters.last?['sort'], 'group.spool_count:desc');
+
+      // The flat list: its default, not the group sort (the other requests are the groups' spools)
+      await groupBy(tester, 'Location', 'none');
+      expect(flatListSort(), 'id:asc');
+
+      // Back on the page later: still the stored sorts
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+      await testSettingsBox.put('smGroupBy', 'material');
+      await tester.pumpAndSettle();
+      expect(service.groupFilters.last?['sort'], 'group.spool_count:desc');
+    });
+
+    testWidgets('a stored sort the list does not offer falls back to the default', (tester) async {
+      await testSettingsBox.put('smGroupSort', 'spoolLocation:ascending');
+      await testSettingsBox.put('smSort', 'garbage');
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+      expect(service.groupFilters.last?['sort'], 'group.title:asc');
+
+      await testSettingsBox.put('smGroupBy', 'none');
+      await tester.pumpAndSettle();
+      expect(flatListSort(), 'id:asc');
+    });
+
+    testWidgets('filaments and manufacturers have their own sorts, on all versions', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.21.0');
+
+      await openTab(tester, 'Filaments');
+      expect(service.filamentListFilters.last?['sort'], 'id:asc');
+      await pickSort(tester, const SortConfiguration(SortMode.spoolmanPrice, SortKind.descending));
+      expect((sheets.shown.last.data as SortModeSheetArgs).toShow, SortMode.availableForSpoolmanFilaments());
+      expect(service.filamentListFilters.last?['sort'], 'price:desc,id:asc');
+      expect(testSettingsBox.get('smFilamentSort'), 'spoolmanPrice:descending');
+
+      await openTab(tester, 'Manufacturers');
+      await pickSort(tester, const SortConfiguration(SortMode.name, SortKind.ascending));
+      expect((sheets.shown.last.data as SortModeSheetArgs).toShow, SortMode.availableForSpoolmanVendors());
+      expect(service.vendorListFilters.last?['sort'], 'name:asc,id:asc');
+
+      // Each tab keeps its own
+      await openTab(tester, 'Filaments');
+      expect(service.filamentListFilters.last?['sort'], 'price:desc,id:asc');
     });
 
     testWidgets('list-detail: a group shows its filament and its spools in the pane', (tester) async {

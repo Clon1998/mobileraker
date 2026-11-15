@@ -5,6 +5,7 @@
 
 import 'dart:math' as math;
 
+import 'package:common/data/enums/sort_kind_enum.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -153,9 +154,7 @@ class _Body extends ConsumerWidget {
           final canGroup = ref.watch(spoolmanServerInfoProvider(machineUUID)).value?.supportsSpoolGroups == true;
           final groupBy = canGroup ? _groupBy(ref) : null;
           final scrollController = useScrollController(keys: [machineUUID, page, groupBy]);
-          // The order of the spools, the groups have other sort modes than the flat list
-          final listSort = useState(spoolListDefaultSort);
-          final groupSort = useState(spoolGroupsDefaultSort);
+
           final filters = useState({
             SpoolmanListType.spools: const SpoolmanFilters(),
             SpoolmanListType.filaments: const SpoolmanFilters(),
@@ -204,9 +203,16 @@ class _Body extends ConsumerWidget {
 
           final type = SpoolmanListType.values[page];
           final grouped = type == SpoolmanListType.spools ? groupBy : null;
-          final sort = grouped != null ? groupSort : listSort;
-          /// The [filter] in the spools' order.
-          SpoolmanFilter sorted(SpoolmanFilter filter) => switch (spoolmanSortQuery(sort.value, grouped: grouped != null)) {
+          // Every list has its own sort modes and remembers its sort; the groups' sort applies to every axis
+          final sortTarget = switch (type) {
+            SpoolmanListType.spools => grouped != null ? SpoolmanSortTarget.spoolGroups : SpoolmanSortTarget.spools,
+            SpoolmanListType.filaments => SpoolmanSortTarget.filaments,
+            SpoolmanListType.vendors => SpoolmanSortTarget.vendors,
+          };
+          final sortKey = _sortKeys[sortTarget]!;
+          final sort = _storedSort(ref.watch(stringSettingProvider(sortKey)), sortTarget.modes) ?? sortTarget.defaultSort;
+          /// The [filter] in the list's order.
+          SpoolmanFilter sorted(SpoolmanFilter filter) => switch (sortTarget.query(sort)) {
             final query? => SpoolmanFilter({...filter.filters, 'sort': query}),
             null => filter,
           };
@@ -220,30 +226,34 @@ class _Body extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
-              if (type == SpoolmanListType.spools || type == SpoolmanListType.filaments)
-                Row(
-                  children: [
-                    Expanded(
-                      child: SpoolmanFilterChips(
-                        cache: type.name,
-                        machineUUID: machineUUID,
-                        onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
-                        filterBy: typeToFilters(type),
-                        leading: canGroup && type == SpoolmanListType.spools ? _GroupByChip(groupBy: groupBy) : null,
-                      ),
+              Row(
+                children: [
+                  Expanded(
+                    // The manufacturers have no filters, only the sort
+                    child: type == SpoolmanListType.vendors
+                        ? const SizedBox.shrink()
+                        : SpoolmanFilterChips(
+                            cache: type.name,
+                            machineUUID: machineUUID,
+                            onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
+                            filterBy: typeToFilters(type),
+                            leading: canGroup && type == SpoolmanListType.spools
+                                ? _GroupByChip(groupBy: groupBy)
+                                : null,
+                          ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, right: 8),
+                    child: _SortButton(
+                      sort: sort,
+                      defaultSort: sortTarget.defaultSort,
+                      modes: sortTarget.modes,
+                      onChanged: (it) =>
+                          ref.read(settingServiceProvider).writeString(sortKey, '${it.mode.name}:${it.kind.name}'),
                     ),
-                    if (type == SpoolmanListType.spools)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4, right: 8),
-                        child: _SortButton(
-                          sort: sort.value,
-                          defaultSort: grouped != null ? spoolGroupsDefaultSort : spoolListDefaultSort,
-                          modes: grouped != null ? SortMode.availableForSpoolGroups() : SortMode.availableForSpools(),
-                          onChanged: (it) => sort.value = it,
-                        ),
-                      ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
               Expanded(
                 child: grouped != null
                     ? SpoolGroupList(
@@ -261,9 +271,7 @@ class _Body extends ConsumerWidget {
                   type: type,
                   onEntryTap: onEntryTap(inSplit),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  filters: type == SpoolmanListType.spools
-                      ? sorted(filters.value[type]!.toSpoolFilter())
-                      : filters.value[type]!.toFilterForType(type),
+                  filters: sorted(filters.value[type]!.toFilterForType(type)),
                   selected: paneSelection.only(inSplit),
                 ),
               ),
@@ -336,6 +344,24 @@ SpoolGroupBy? _groupBy(WidgetRef ref) => switch (ref.watch(stringSettingProvider
   'none' => null,
   final name => SpoolGroupBy.values.asNameMap()[name] ?? SpoolGroupBy.filament,
 };
+
+/// Where the sort of each list is stored.
+const _sortKeys = {
+  SpoolmanSortTarget.spools: UiKeys.spoolmanSort,
+  SpoolmanSortTarget.spoolGroups: UiKeys.spoolmanGroupSort,
+  SpoolmanSortTarget.filaments: UiKeys.spoolmanFilamentSort,
+  SpoolmanSortTarget.vendors: UiKeys.spoolmanVendorSort,
+};
+
+/// The sort stored as `<SortMode name>:<SortKind name>`, null if there is none or it isn't one of the [modes].
+SortConfiguration? _storedSort(String? stored, List<SortMode> modes) {
+  if (stored?.split(':') case [final mode, final kind]) {
+    final sortMode = modes.where((m) => m.name == mode).firstOrNull;
+    final sortKind = SortKind.values.where((k) => k.name == kind).firstOrNull;
+    if (sortMode != null && sortKind != null) return SortConfiguration(sortMode, sortKind);
+  }
+  return null;
+}
 
 /// Chip in front of the spool filters that picks the [SpoolGroupBy] of the spools in a selection sheet, "None" is the
 /// flat list.

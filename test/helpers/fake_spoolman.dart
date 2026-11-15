@@ -112,6 +112,8 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
   /// The filters of the spool list and group requests, e.g. to check the sort.
   final List<Map<String, dynamic>?> spoolListFilters = [];
   final List<Map<String, dynamic>?> groupFilters = [];
+  final List<Map<String, dynamic>?> filamentListFilters = [];
+  final List<Map<String, dynamic>?> vendorListFilters = [];
 
   @override
   Future<PaginationResult<GetSpool>> spoolList({int? pageSize, int? page, Map<String, dynamic>? filter}) async {
@@ -127,8 +129,9 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
   }
 
   @override
-  Future<PaginationResult<GetFilament>> filamentList({int? pageSize, int? page, Map<String, dynamic>? filter}) async =>
-      _page(
+  Future<PaginationResult<GetFilament>> filamentList({int? pageSize, int? page, Map<String, dynamic>? filter}) async {
+    filamentListFilters.add(filter);
+    return _page(
         [
           for (final f in filaments)
             if (_matches(filter, (k) => _filamentValue(f, k))) f,
@@ -136,10 +139,13 @@ class FakeSpoolmanService extends Fake implements SpoolmanService {
         page,
         pageSize,
       );
+  }
 
   @override
-  Future<PaginationResult<GetVendor>> vendorList({int? pageSize, int? page, Map<String, dynamic>? filter}) async =>
-      _page(vendors, page, pageSize);
+  Future<PaginationResult<GetVendor>> vendorList({int? pageSize, int? page, Map<String, dynamic>? filter}) async {
+    vendorListFilters.add(filter);
+    return _page(vendors, page, pageSize);
+  }
 
   @override
   Future<SpoolmanServerInfo> getServerInfo() async {

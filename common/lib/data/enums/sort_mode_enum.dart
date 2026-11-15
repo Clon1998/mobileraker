@@ -22,7 +22,11 @@ enum SortMode {
   spoolRemainingWeight('pages.spoolman.properties.remaining_weight', SortKind.ascending),
   spoolRegistered('pages.spoolman.properties.registered', SortKind.descending),
   spoolLocation('pages.spoolman.properties.location', SortKind.ascending),
-  spoolCount('pages.spoolman.sort_by.spool_count', SortKind.descending);
+  spoolCount('pages.spoolman.sort_by.spool_count', SortKind.descending),
+  // The Spoolman filaments
+  spoolmanVendor('pages.spoolman.vendor.one', SortKind.ascending),
+  spoolmanMaterial('pages.spoolman.properties.material', SortKind.ascending),
+  spoolmanPrice('pages.spoolman.properties.price', SortKind.ascending);
 
   const SortMode(this.translation, this.defaultKind);
 
@@ -47,6 +51,13 @@ enum SortMode {
 
   /// The Spoolman spools grouped (by filament, location, ...), [name] is the group's title.
   static List<SortMode> availableForSpoolGroups() => [name, spoolLastUsed, spoolRemainingWeight, spoolCount];
+
+  /// The Spoolman filaments, [spoolId] and [spoolRegistered] are those of the filament.
+  static List<SortMode> availableForSpoolmanFilaments() =>
+      [spoolId, name, spoolmanVendor, spoolmanMaterial, spoolmanPrice, spoolRegistered];
+
+  /// The Spoolman manufacturers, [spoolId] and [spoolRegistered] are those of the manufacturer.
+  static List<SortMode> availableForSpoolmanVendors() => [spoolId, name, spoolRegistered];
 
   static List<SortMode> availableForFiles() =>
       [

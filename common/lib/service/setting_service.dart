@@ -242,6 +242,11 @@ enum UiKeys implements KeyValueStoreKey {
   hideWebcam('hideWebcam'),
   // Name of the SpoolGroupBy the Spoolman page's spools are grouped by, 'none' for the flat list
   spoolmanGroupBy('smGroupBy'),
+  // The sorts of the Spoolman page's lists as `<SortMode name>:<SortKind name>`
+  spoolmanGroupSort('smGroupSort'),
+  spoolmanSort('smSort'),
+  spoolmanFilamentSort('smFilamentSort'),
+  spoolmanVendorSort('smVendorSort'),
   ;
 
   @override

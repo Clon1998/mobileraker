@@ -1421,6 +1421,8 @@ pages:
         one: '{} spool'
         other: '{} spools'
       in_use: '{} in use'
+      last_used: 'Last used {}'
+      never_used: Never used
       no_spools: No spools
       unused_identical:
         one: '{} unused · {} each'

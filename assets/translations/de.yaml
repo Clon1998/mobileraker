@@ -1136,6 +1136,8 @@ pages:
         one: '{} Spule'
         other: '{} Spulen'
       in_use: '{} in Benutzung'
+      last_used: 'Zuletzt benutzt {}'
+      never_used: Nie benutzt
       no_spools: Keine Spulen
       unused_identical:
         one: '{} unbenutzt · je {}'
