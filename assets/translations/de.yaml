@@ -46,6 +46,7 @@ general:
   one_time: Einmalig
   delete: Löschen
   clear: Zurücksetzen
+  deselect_all: Alle abwählen
   unlink: Unlink
   save: Speichern
   apply: Anwenden
@@ -1118,11 +1119,15 @@ pages:
       info_card: Hersteller Details
     filament_details:
       info_card: Filament Details
+    filters:
+      title: Filter
+      show_archived: Archivierte anzeigen
+      hide_archived: Archivierte ausblenden
+      clear: Filter zurücksetzen
     sort_by:
       spool_count: Anzahl Spulen
     groups:
       group_by: Gruppieren nach
-      label: 'Gruppe: {}'
       by:
         filament: Filament
         location: Lagerort

@@ -4,6 +4,7 @@
  */
 
 import 'package:common/data/enums/sort_kind_enum.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
 import 'package:common/data/enums/sort_mode_enum.dart';
 import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -11,7 +12,10 @@ import 'package:common/service/payment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/components/bottomsheet/action_bottom_sheet.dart';
+import 'package:mobileraker/ui/screens/files/components/sorted_file_list_header.dart';
 import 'package:mobileraker/ui/components/bottomsheet/sort_mode_bottom_sheet.dart';
 import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
 import 'package:mobileraker_pro/service/ui/pro_routes.dart';
@@ -65,7 +69,7 @@ void main() {
   }
 
   late FakeSpoolmanService service;
-  late FakeBottomSheetService sheets;
+  late _ChainingSheets sheets;
 
   Future<void> pumpSpoolman(
     WidgetTester tester, {
@@ -79,7 +83,7 @@ void main() {
       spools: spools ?? [spool100, spool101, spool102],
       serverVersion: spoolmanVersion,
     );
-    sheets = FakeBottomSheetService();
+    sheets = _ChainingSheets();
     await tester.pumpRouterApp(
       router(),
       device: device,
@@ -92,6 +96,7 @@ void main() {
       ],
     );
     await tester.pumpAndSettle();
+    sheets.context = tester.element(find.byType(SpoolmanPage));
   }
 
   // Entries show "#<id> <filament>" as rich text.
@@ -195,19 +200,33 @@ void main() {
   });
 
   group('grouped spools (Spoolman v0.26.0+)', () {
-    Finder groupChip(String axis) => find.widgetWithText(FilterChip, 'Group: $axis');
-
-    /// Picks [axis] (`location`, `none`, ...) in the group-by sheet.
-    Future<void> groupBy(WidgetTester tester, String current, String axis) async {
-      sheets.result = BottomSheetResult.confirmed(axis);
-      await tester.tap(groupChip(current));
+    /// The filter sheet's entries (`label` or `label: value`) after tapping the filter button (closes it again).
+    Future<List<String>> filterEntries(WidgetTester tester) async {
+      await tester.tap(find.byIcon(Icons.filter_list));
       await tester.pumpAndSettle();
-      expect(sheets.shown.last.type, SheetType.selections);
+      final args = sheets.shown.last.data as ActionBottomSheetArgs;
+      return [
+        for (final action in args.actions)
+          if (action is! DividerSheetAction)
+            [tr(action.labelTranslationKey), ?action.description].join(': '),
+      ];
     }
 
+    /// Picks [axis] (`location`, `none`, ...) via the group-by entry of the filter sheet ([current] is its label).
+    Future<void> groupBy(WidgetTester tester, String current, String axis) async {
+      sheets.picks.addAll(['Group by', axis]);
+      await tester.tap(find.byIcon(Icons.filter_list));
+      await tester.pumpAndSettle();
+      expect(sheets.shown.map((c) => c.type).toList().sublist(sheets.shown.length - 2), [
+        SheetType.actions,
+        SheetType.selections,
+      ]);
+    }
+
+    /// Picks [sort] with the header's sort label.
     Future<void> pickSort(WidgetTester tester, SortConfiguration sort) async {
-      sheets.result = BottomSheetResult.confirmed(sort);
-      await tester.tap(find.byIcon(Icons.sort));
+      sheets.picks.add(sort);
+      await tester.tap(find.descendant(of: find.byType(SortedFileListHeader), matching: find.byType(TextButton)));
       await tester.pumpAndSettle();
       expect(sheets.shown.last.type, SheetType.sortMode);
     }
@@ -227,7 +246,7 @@ void main() {
     testWidgets('before v0.26.0 the spools are a flat list without grouping', (tester) async {
       await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.25.0');
 
-      expect(find.textContaining('Group:'), findsNothing);
+      expect(await filterEntries(tester), isNot(contains(startsWith('Group by'))));
       expect(entry('#100 Black'), findsOneWidget);
     });
 
@@ -237,7 +256,7 @@ void main() {
       expect(find.text('Spools'), findsOneWidget);
       expect(find.text('Filaments'), findsOneWidget);
       expect(find.text('Manufacturers'), findsOneWidget);
-      expect(groupChip('Filament'), findsOneWidget);
+      expect(await filterEntries(tester), contains('Group by: Filament'));
       expect(find.text('Black'), findsOneWidget);
       expect(find.text('Orange'), findsOneWidget);
       expect(spoolRow(100), findsNothing);
@@ -269,7 +288,7 @@ void main() {
       await openTab(tester, 'Filaments');
 
       expect(entry('#10 Black'), findsOneWidget);
-      expect(find.textContaining('Group:'), findsNothing);
+      expect(await filterEntries(tester), isNot(contains(startsWith('Group by'))));
     });
 
     testWidgets('unused identical spools are folded into one row until tapped', (tester) async {
@@ -307,7 +326,7 @@ void main() {
 
       await groupBy(tester, 'Filament', 'location');
 
-      expect(groupChip('Location'), findsOneWidget);
+      expect(await filterEntries(tester), contains('Group by: Location'));
       expect(find.text('Dry box'), findsOneWidget);
       expect(find.text('No location'), findsOneWidget);
       expect(testSettingsBox.get('smGroupBy'), 'location');
@@ -333,7 +352,7 @@ void main() {
       expect(testSettingsBox.get('smGroupBy'), 'none');
 
       await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
-      expect(groupChip('None'), findsOneWidget);
+      expect(await filterEntries(tester), contains('Group by: None'));
     });
 
     testWidgets('the groups are sorted with the sort sheet, their own modes', (tester) async {
@@ -407,6 +426,47 @@ void main() {
       expect(service.filamentListFilters.last?['sort'], 'price:desc,id:asc');
     });
 
+    testWidgets('the filter sheet opens the filters\' sheets, the badge counts the active ones', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+      expect(await filterEntries(tester), [
+        'Group by: Filament',
+        'Show archived',
+        'Color',
+        'Material',
+        'Location',
+        'Filament',
+        'Manufacturer',
+      ]);
+
+      sheets.picks.addAll([
+        'Material',
+        ['PLA'],
+      ]);
+      await tester.tap(find.byIcon(Icons.filter_list));
+      await tester.pumpAndSettle();
+
+      expect(service.groupFilters.last?['filament.material'], 'PLA');
+      expect(find.text('Orange'), findsNothing, reason: 'PETG');
+      expect(find.text('1'), findsOneWidget, reason: 'the badge');
+      expect(await filterEntries(tester), containsAll(['Material: PLA', 'Clear filters']));
+
+      sheets.picks.add('Clear filters');
+      await tester.tap(find.byIcon(Icons.filter_list));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Orange'), findsOneWidget);
+      expect(find.text('1'), findsNothing);
+    });
+
+    testWidgets('the manufacturers have only the sort, no filter button', (tester) async {
+      await pumpSpoolman(tester, device: TestDevice.phone, spoolmanVersion: '0.26.0');
+
+      await openTab(tester, 'Manufacturers');
+
+      expect(find.byType(SortedFileListHeader), findsOneWidget);
+      expect(find.byIcon(Icons.filter_list), findsNothing);
+    });
+
     testWidgets('list-detail: a group shows its filament and its spools in the pane', (tester) async {
       await pumpSpoolman(tester, device: splitDevice, spoolmanVersion: '0.26.0');
       await expand(tester, '2 spools · 2 in use');
@@ -421,4 +481,28 @@ void main() {
       expect(find.textContaining('page of'), findsNothing);
     });
   });
+}
+
+/// Answers the sheets with [picks] in order (dismissed once they ran out). Like the real sheet, a picked entry of an
+/// action sheet with `onActionSelected` (the filter sheet) runs it; the sheets it opens take the next picks. Entries are
+/// picked by label.
+class _ChainingSheets extends FakeBottomSheetService {
+  final List<Object> picks = [];
+
+  /// The page's context, for the filter sheet's callback.
+  BuildContext? context;
+
+  @override
+  Future<BottomSheetResult> show(BottomSheetConfig config) async {
+    shown.add(config);
+    if (picks.isEmpty) return BottomSheetResult.dismissed();
+    final pick = picks.removeAt(0);
+    if (config.data case ActionBottomSheetArgs(:final actions, onActionSelected: final onSelected?)) {
+      final action = actions.firstWhere((a) => tr(a.labelTranslationKey) == pick);
+      // The page's context: the filter sheet would close itself, here there is nothing to pop
+      await onSelected(context!, action);
+      return BottomSheetResult.confirmed(action);
+    }
+    return BottomSheetResult.confirmed(pick);
+  }
 }

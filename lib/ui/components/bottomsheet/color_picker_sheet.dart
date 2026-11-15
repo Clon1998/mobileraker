@@ -48,6 +48,12 @@ class ColorPickerSheet extends HookConsumerWidget {
       preferredSize: const Size.fromHeight(kToolbarHeight),
       child: ListTile(
         visualDensity: VisualDensity.compact,
+        // Opened from another sheet (e.g. the Spoolman filters): back to it, like the selection sheet
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: context.pop,
+        ).only(ModalRoute.of(context)?.impliesAppBarDismissal == true),
         title: args?.title?.let(Text.new) ?? const Text('components.select_color_sheet.title').tr(),
       ),
     );

@@ -125,6 +125,31 @@ void main() {
     expect(result().data, ['petg'], reason: 'PLA was preselected and got deselected');
   });
 
+  testWidgets('deselect all clears a multi select, it is only shown while something is selected', (tester) async {
+    await openSheet(tester, const SelectionBottomSheetArgs(options: filaments, multiSelect: true, showDeselectAll: true));
+
+    // PLA is preselected
+    expect(find.text('Deselect all'), findsOneWidget);
+    await tester.tap(find.text('PETG'));
+    await tester.tap(find.text('Deselect all'));
+    await tester.pumpAndSettle();
+    expect(find.text('Deselect all'), findsNothing);
+
+    await tester.tap(find.text('ABS'));
+    await tester.pumpAndSettle();
+    expect(find.text('Deselect all'), findsOneWidget);
+
+    await tester.tap(find.text('Select'));
+    await tester.pumpAndSettle();
+    expect(result().data, ['abs']);
+  });
+
+  testWidgets('no deselect all unless asked for', (tester) async {
+    await openSheet(tester, const SelectionBottomSheetArgs(options: filaments, multiSelect: true));
+
+    expect(find.text('Deselect all'), findsNothing);
+  });
+
   testWidgets('async options show a spinner until they are loaded', (tester) async {
     final options = Completer<List<SelectionOption<String>>>();
     await openSheet(tester, SelectionBottomSheetArgs(options: options.future), settle: false);

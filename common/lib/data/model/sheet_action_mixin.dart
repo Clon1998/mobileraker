@@ -18,6 +18,9 @@ mixin BottomSheetAction {
   IconData get icon;
 
   bool get enabled => true;
+
+  /// Shown below the label, e.g. the current value of a setting. None by default.
+  String? get description => null;
 }
 
 final class DividerSheetAction with BottomSheetAction {
@@ -45,4 +48,7 @@ final class _ToggleSheetAction with BottomSheetAction {
 
   @override
   IconData get icon => _action.icon;
+
+  @override
+  String? get description => _action.description;
 }

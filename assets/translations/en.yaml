@@ -47,6 +47,7 @@ general:
   one_time: One time
   delete: Delete
   clear: Clear
+  deselect_all: Deselect all
   unlink: Unlink
   save: Save
   apply: Apply
@@ -1403,11 +1404,15 @@ pages:
       unlink_confirm:
         title: Unlink tag?
         body: Scanning {} will no longer find this {}.
+    filters:
+      title: Filter
+      show_archived: Show archived
+      hide_archived: Hide archived
+      clear: Clear filters
     sort_by:
       spool_count: Spool count
     groups:
       group_by: Group by
-      label: 'Group: {}'
       by:
         filament: Filament
         location: Location

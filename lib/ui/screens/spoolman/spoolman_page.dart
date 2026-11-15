@@ -47,6 +47,7 @@ import 'package:mobileraker_pro/spoolman/spoolman_sort.dart';
 import 'package:mobileraker_pro/spoolman/ui/spool_group_list.dart';
 import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:persistent_header_adaptive/persistent_header_adaptive.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
@@ -221,45 +222,37 @@ class _Body extends ConsumerWidget {
 
           final paneSelection = ref.watch(spoolmanDetailSelectionProvider(machineUUID));
 
+          // Like the file manager: the sort on the left, the filters (and the group-by) on the right; it floats, scrolling
+          // up shows it again
+          final header = AdaptiveHeightSliverPersistentHeader(
+            floating: true,
+            initialHeight: 48,
+            needRepaint: true,
+            child: SpoolmanListHeader(
+              key: ValueKey('header-${type.name}'),
+              cache: type.name,
+              machineUUID: machineUUID,
+              filterBy: typeToFilters(type),
+              onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
+              sort: sort,
+              onTapSort: () => _pickSort(ref, sortTarget, sort, sortKey),
+              onTapGroupBy: canGroup && type == SpoolmanListType.spools ? () => _pickGroupBy(ref, groupBy) : null,
+              groupedBy: groupBy?.name ?? 'none',
+            ),
+          );
+
           Widget list({required bool inSplit}) => Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               if (context.isLargerThanCompact) _Header(machineUUID: machineUUID),
-              Row(
-                children: [
-                  Expanded(
-                    // The manufacturers have no filters, only the sort
-                    child: type == SpoolmanListType.vendors
-                        ? const SizedBox.shrink()
-                        : SpoolmanFilterChips(
-                            cache: type.name,
-                            machineUUID: machineUUID,
-                            onFiltersChanged: (f) => filters.value = {...filters.value, type: f},
-                            filterBy: typeToFilters(type),
-                            leading: canGroup && type == SpoolmanListType.spools
-                                ? _GroupByChip(groupBy: groupBy)
-                                : null,
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, right: 8),
-                    child: _SortButton(
-                      sort: sort,
-                      defaultSort: sortTarget.defaultSort,
-                      modes: sortTarget.modes,
-                      onChanged: (it) =>
-                          ref.read(settingServiceProvider).writeString(sortKey, '${it.mode.name}:${it.kind.name}'),
-                    ),
-                  ),
-                ],
-              ),
               Expanded(
                 child: grouped != null
                     ? SpoolGroupList(
                         scrollController: scrollController,
                         machineUUID: machineUUID,
                         groupBy: grouped,
+                        header: header,
                         onEntryTap: onEntryTap(inSplit),
                         onAddSpool: controller.addSpool,
                         filters: sorted(filters.value[type]!.toSpoolFilter()),
@@ -269,6 +262,7 @@ class _Body extends ConsumerWidget {
                   scrollController: scrollController,
                   machineUUID: machineUUID,
                   type: type,
+                  header: header,
                   onEntryTap: onEntryTap(inSplit),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   filters: sorted(filters.value[type]!.toFilterForType(type)),
@@ -363,76 +357,40 @@ SortConfiguration? _storedSort(String? stored, List<SortMode> modes) {
   return null;
 }
 
-/// Chip in front of the spool filters that picks the [SpoolGroupBy] of the spools in a selection sheet, "None" is the
-/// flat list.
-class _GroupByChip extends ConsumerWidget {
-  const _GroupByChip({required this.groupBy});
-
-  final SpoolGroupBy? groupBy;
-
-  static String _label(String name) => tr('pages.spoolman.groups.by.$name');
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final current = groupBy?.name ?? 'none';
-
-    Future<void> pick() async {
-      final res = await ref
-          .read(bottomSheetServiceProvider)
-          .show(
-            BottomSheetConfig(
-              type: SheetType.selections,
-              data: SelectionBottomSheetArgs<String>(
-                title: const Text('pages.spoolman.groups.group_by').tr(),
-                showSearch: false,
-                options: [
-                  for (final name in [...SpoolGroupBy.values.map((e) => e.name), 'none'])
-                    SelectionOption(value: name, label: _label(name), selected: name == current),
-                ],
-              ),
-            ),
-          );
-      if (res.confirmed && res.data is String) {
-        await ref.read(settingServiceProvider).writeString(UiKeys.spoolmanGroupBy, res.data as String);
-      }
-    }
-
-    return FilterChip(
-      avatar: const Icon(Icons.workspaces_outline),
-      label: Text(tr('pages.spoolman.groups.label', args: [_label(current)])),
-      tooltip: tr('pages.spoolman.groups.group_by'),
-      selected: groupBy != null,
-      showCheckmark: false,
-      onSelected: (_) => pick(),
-    );
-  }
+/// Picks the [SpoolGroupBy] of the spools in a selection sheet and stores it, "None" is the flat list. Whether one was
+/// picked.
+Future<bool> _pickGroupBy(WidgetRef ref, SpoolGroupBy? groupBy) async {
+  final current = groupBy?.name ?? 'none';
+  final res = await ref
+      .read(bottomSheetServiceProvider)
+      .show(
+        BottomSheetConfig(
+          type: SheetType.selections,
+          data: SelectionBottomSheetArgs<String>(
+            title: const Text('pages.spoolman.groups.group_by').tr(),
+            showSearch: false,
+            options: [
+              for (final name in [...SpoolGroupBy.values.map((e) => e.name), 'none'])
+                SelectionOption(value: name, label: tr('pages.spoolman.groups.by.$name'), selected: name == current),
+            ],
+          ),
+        ),
+      );
+  if (!res.confirmed || res.data is! String) return false;
+  await ref.read(settingServiceProvider).writeString(UiKeys.spoolmanGroupBy, res.data as String);
+  return true;
 }
 
-/// Opens the sort modes in the sort sheet, like the history's sort button; highlighted if it is not the default.
-class _SortButton extends ConsumerWidget {
-  const _SortButton({required this.sort, required this.defaultSort, required this.modes, required this.onChanged});
-
-  final SortConfiguration sort;
-  final SortConfiguration defaultSort;
-  final List<SortMode> modes;
-  final ValueChanged<SortConfiguration> onChanged;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return IconButton.outlined(
-      tooltip: '${tr('pages.files.sort_by.sort_by')}: ${tr(sort.mode.translation)}',
-      color: sort == defaultSort ? null : Theme.of(context).colorScheme.primary,
-      icon: const Icon(Icons.sort),
-      onPressed: () async {
-        final res = await ref
-            .read(bottomSheetServiceProvider)
-            .show(
-              BottomSheetConfig(type: SheetType.sortMode, data: SortModeSheetArgs(toShow: modes, active: sort)),
-            );
-        if (res.confirmed && res.data is SortConfiguration) onChanged(res.data as SortConfiguration);
-      },
-    );
-  }
+/// Picks the sort of the [target] list in the sort sheet and stores it at [key].
+Future<void> _pickSort(WidgetRef ref, SpoolmanSortTarget target, SortConfiguration sort, KeyValueStoreKey key) async {
+  final res = await ref
+      .read(bottomSheetServiceProvider)
+      .show(
+        BottomSheetConfig(type: SheetType.sortMode, data: SortModeSheetArgs(toShow: target.modes, active: sort)),
+      );
+  if (!res.confirmed || res.data is! SortConfiguration) return;
+  final picked = res.data as SortConfiguration;
+  await ref.read(settingServiceProvider).writeString(key, '${picked.mode.name}:${picked.kind.name}');
 }
 
 String _tabLabel(SpoolmanListType type) => switch (type) {

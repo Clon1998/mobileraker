@@ -46,7 +46,7 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
     }, [optionsSnapshot.connectionState]);
 
     return SheetContentScaffold(
-      topBar: _Title(arguments: arguments, textEditingController: textCtl),
+      topBar: _Title(arguments: arguments, textEditingController: textCtl, selected: selected),
       body: _bodyFromSnapshot(optionsSnapshot, textCtl, selected),
       bottomBarVisibility: BottomBarVisibility.always(),
       bottomBar: SafeArea(
@@ -93,10 +93,13 @@ class SelectionBottomSheet<T> extends HookConsumerWidget {
 }
 
 class _Title<T> extends HookWidget {
-  const _Title({super.key, required this.arguments, required this.textEditingController});
+  const _Title({super.key, required this.arguments, required this.textEditingController, this.selected});
 
   final SelectionBottomSheetArgs<T> arguments;
   final TextEditingController textEditingController;
+
+  /// The selection of a multi select sheet.
+  final ValueNotifier<List<T>>? selected;
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +127,7 @@ class _Title<T> extends HookWidget {
           // horizontalTitleGap: 8,
           title: arguments.title,
           subtitle: arguments.subtitle,
+          trailing: arguments.showDeselectAll ? _DeselectAll(selected: selected) : null,
         ),
         if (arguments.showSearch) ...[
           Padding(
@@ -147,6 +151,29 @@ class _Title<T> extends HookWidget {
         ],
         const Divider(height: 0),
       ],
+    );
+  }
+}
+
+/// Clears the selection of a multi select sheet, only shown while something is selected.
+class _DeselectAll<T> extends HookWidget {
+  const _DeselectAll({super.key, required this.selected});
+
+  final ValueNotifier<List<T>>? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final anySelected = useListenableSelector(selected, () => selected?.value.isNotEmpty == true);
+
+    return AnimatedSwitcher(
+      duration: kThemeAnimationDuration,
+      child: anySelected
+          ? TextButton(
+              key: const Key('deselectAll'),
+              onPressed: () => selected?.value = [],
+              child: const Text('general.deselect_all').tr(),
+            )
+          : const SizedBox.shrink(),
     );
   }
 }
@@ -308,8 +335,12 @@ class SelectionBottomSheetArgs<T> {
     required this.options,
     this.showSearch = true,
     this.multiSelect = false,
+    this.showDeselectAll = false,
     this.onConfirmed,
   });
+
+  /// With [multiSelect]: a button at the top right that clears the selection, while anything is selected.
+  final bool showDeselectAll;
 
   final Widget? title;
   final Widget? subtitle;
@@ -347,10 +378,11 @@ class SelectionBottomSheetArgs<T> {
           const DeepCollectionEquality().equals(other.options, options) &&
           showSearch == other.showSearch &&
           multiSelect == other.multiSelect &&
+          showDeselectAll == other.showDeselectAll &&
           title == other.title;
 
   @override
-  int get hashCode => Object.hash(const DeepCollectionEquality().hash(options), title, showSearch, multiSelect);
+  int get hashCode => Object.hash(const DeepCollectionEquality().hash(options), title, showSearch, multiSelect, showDeselectAll);
 }
 
 @immutable

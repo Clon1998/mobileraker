@@ -4,6 +4,8 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:common/data/model/sheet_action_mixin.dart';
+import 'package:common/data/model/sort_configuration.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/spool_widget.dart';
@@ -14,6 +16,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/color_picker_sheet.dart';
 import 'package:mobileraker_pro/misc/filament_extension.dart';
@@ -25,7 +28,9 @@ import 'package:mobileraker_pro/spoolman/ui/spoolman_scroll_pagination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../service/ui/bottom_sheet_service_impl.dart';
+import '../../components/bottomsheet/action_bottom_sheet.dart';
 import '../../components/bottomsheet/selection_bottom_sheet.dart';
+import '../files/components/sorted_file_list_header.dart';
 
 part 'spoolman_filter_chips.freezed.dart';
 part 'spoolman_filter_chips.g.dart';
@@ -112,6 +117,174 @@ class SpoolmanFilterChips extends ConsumerWidget {
   }
 }
 
+/// An entry of the filter sheet of [SpoolmanListHeader].
+enum _FilterAction with BottomSheetAction {
+  groupBy('pages.spoolman.groups.group_by', Icons.workspaces_outline),
+  showArchived('pages.spoolman.filters.show_archived', Icons.inventory_2_outlined),
+  hideArchived('pages.spoolman.filters.hide_archived', Icons.inventory_2_outlined),
+  color('pages.spoolman.properties.color', Icons.palette_outlined),
+  material('pages.spoolman.properties.material', Icons.category_outlined),
+  location('pages.spoolman.properties.location', Icons.place_outlined),
+  filament('pages.spoolman.filament.one', Icons.color_lens_outlined),
+  vendor('pages.spoolman.vendor.one', Icons.factory_outlined),
+  clear('pages.spoolman.filters.clear', Icons.filter_alt_off_outlined);
+
+  const _FilterAction(this.labelTranslationKey, this.icon);
+
+  @override
+  final String labelTranslationKey;
+
+  @override
+  final IconData icon;
+}
+
+/// A [_FilterAction] with its current value, e.g. the selected materials.
+final class _FilterEntry with BottomSheetAction {
+  const _FilterEntry(this.action, [this.description]);
+
+  final _FilterAction action;
+
+  @override
+  final String? description;
+
+  @override
+  String get labelTranslationKey => action.labelTranslationKey;
+
+  @override
+  IconData get icon => action.icon;
+}
+
+/// The header of a Spoolman list, like the file manager's: the active sort on the left (opens the sort modes via
+/// [onTapSort]), a filter button on the right. It opens a sheet with the [filterBy] filters (and with [onTapGroupBy]
+/// the group-by); picking one opens its selection sheet, the same the filter chips use.
+class SpoolmanListHeader extends ConsumerWidget {
+  const SpoolmanListHeader({
+    super.key,
+    required this.machineUUID,
+    required this.filterBy,
+    required this.onFiltersChanged,
+    required this.sort,
+    required this.onTapSort,
+    this.onTapGroupBy,
+    this.groupedBy,
+    this.cache = 'default',
+  });
+
+  /// The current group-by (`filament`, ..., `none`), shown in the filter sheet's group-by entry.
+  final String? groupedBy;
+
+  final String machineUUID;
+  final Set<SpoolmanFilterType> filterBy;
+  final Function(SpoolmanFilters) onFiltersChanged;
+  final SortConfiguration sort;
+  final VoidCallback onTapSort;
+
+  /// Picks how the list is grouped, whether something was picked; null if it can't be grouped.
+  final Future<bool> Function()? onTapGroupBy;
+
+  /// The filters are kept per cache key, e.g. per list.
+  final String cache;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = _spoolmanFilterChipsControllerProvider(machineUUID, cache);
+    ref.watch(provider);
+    final controller = ref.read(provider.notifier);
+    ref.listen(provider, (prev, next) => onFiltersChanged(next));
+
+    final active = filterBy.where(controller.selected).length;
+    final themeData = Theme.of(context);
+
+    return SortedFileListHeader(
+      activeSortConfig: sort,
+      onTapSortMode: onTapSort,
+      trailing: filterBy.isEmpty && onTapGroupBy == null
+          ? null
+          : IconButton(
+              tooltip: tr('pages.spoolman.filters.title'),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              onPressed: () => _openFilters(ref, controller, active > 0),
+              icon: Badge.count(
+                count: active,
+                isLabelVisible: active > 0,
+                child: Icon(Icons.filter_list, size: 20, color: themeData.textTheme.bodySmall?.color),
+              ),
+            ),
+    );
+  }
+
+  /// The entry of the filter [type] with its value in [filters] (none if it isn't set).
+  static _FilterEntry _entry(SpoolmanFilterType type, SpoolmanFilters filters) {
+    String? names(Iterable<String?>? values) => values?.nonNulls.join(', ');
+    return switch (type) {
+      SpoolmanFilterType.archived => _FilterEntry(
+        filters.allowArchived == true ? _FilterAction.hideArchived : _FilterAction.showArchived,
+      ),
+      SpoolmanFilterType.color => _FilterEntry(_FilterAction.color, filters.color?.let((it) => '#${it.toUpperCase()}')),
+      SpoolmanFilterType.material => _FilterEntry(_FilterAction.material, names(filters.materials)),
+      SpoolmanFilterType.location => _FilterEntry(_FilterAction.location, names(filters.locations)),
+      SpoolmanFilterType.filament => _FilterEntry(_FilterAction.filament, names(filters.filaments?.map((f) => f.name))),
+      SpoolmanFilterType.vendor => _FilterEntry(_FilterAction.vendor, names(filters.vendors?.map((v) => v.name))),
+    };
+  }
+
+  /// The filter sheet. A picked entry opens its sheet on top of it (as the group actions do, see
+  /// group_actions_fab.dart); once that changed something, both close, a cancelled one goes back to the filters.
+  Future<void> _openFilters(WidgetRef ref, _SpoolmanFilterChipsController controller, bool anyActive) async {
+    final provider = _spoolmanFilterChipsControllerProvider(machineUUID, cache);
+
+    await ref
+        .read(bottomSheetServiceProvider)
+        .show(
+          BottomSheetConfig(
+            type: SheetType.actions,
+            data: ActionBottomSheetArgs(
+              title: const Text('pages.spoolman.filters.title').tr(),
+              actions: [
+                if (onTapGroupBy != null) ...[
+                  _FilterEntry(_FilterAction.groupBy, groupedBy?.let((it) => tr('pages.spoolman.groups.by.$it'))),
+                  DividerSheetAction.divider,
+                ],
+                for (final type in filterBy) _entry(type, ref.read(provider)),
+                if (anyActive) ...[DividerSheetAction.divider, const _FilterEntry(_FilterAction.clear)],
+              ],
+              onActionSelected: (octx, action) async {
+                final before = ref.read(provider);
+                // Whether the group-by sheet picked something, null for the filters (their state tells)
+                bool? groupPicked;
+                switch ((action as _FilterEntry).action) {
+                  case _FilterAction.groupBy:
+                    groupPicked = await onTapGroupBy?.call();
+                  case _FilterAction.showArchived:
+                    controller.filterArchived(true);
+                  case _FilterAction.hideArchived:
+                    controller.filterArchived(false);
+                  case _FilterAction.color:
+                    await controller.filterColor();
+                  case _FilterAction.material:
+                    await controller.filterMaterial();
+                  case _FilterAction.location:
+                    await controller.filterLocation();
+                  case _FilterAction.filament:
+                    await controller.filterFilament();
+                  case _FilterAction.vendor:
+                    await controller.filterVendor();
+                  case _FilterAction.clear:
+                    controller.clearAllFilters();
+                }
+                if (!(groupPicked ?? before != ref.read(provider))) return;
+                // Closing this sheet right after the one on top of it closed races go_router's page removal
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  // go_router's canPop: the sheets have their own navigator, the filter sheet is its first page
+                  if (octx.mounted && GoRouter.of(octx).canPop()) octx.pop(BottomSheetResult.confirmed());
+                });
+              },
+            ),
+          ),
+        );
+  }
+}
+
 @riverpod
 class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
@@ -185,6 +358,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
           }),
           title: const Text('pages.spoolman.properties.material').tr(),
           multiSelect: true,
+          showDeselectAll: true,
           showSearch: false,
         ),
       ),
@@ -216,6 +390,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
           }),
           title: const Text('pages.spoolman.properties.location').tr(),
           multiSelect: true,
+          showDeselectAll: true,
           showSearch: false,
         ),
       ),
@@ -267,6 +442,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
           }),
           title: const Text('pages.spoolman.filament.one').tr(),
           multiSelect: true,
+          showDeselectAll: true,
           showSearch: false,
         ),
       ),
@@ -294,6 +470,7 @@ class _SpoolmanFilterChipsController extends _$SpoolmanFilterChipsController {
               ]),
           title: const Text('pages.spoolman.vendor.one').tr(),
           multiSelect: true,
+          showDeselectAll: true,
           showSearch: false,
         ),
       ),
