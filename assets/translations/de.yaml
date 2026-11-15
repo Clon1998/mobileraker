@@ -46,6 +46,7 @@ general:
   one_time: Einmalig
   delete: Löschen
   clear: Zurücksetzen
+  deselect_all: Alle abwählen
   unlink: Unlink
   save: Speichern
   apply: Anwenden
@@ -1102,7 +1103,7 @@ pages:
       used_weight: Benutztes Gewicht
       remaining_length: Verbleibende Länge
       used_length: Benutzte Länge
-      location: Standort
+      location: Lagerort
       lot_number: Chargennummer
       color: Farbe
       initial_weight: Anfangsgewicht
@@ -1118,6 +1119,35 @@ pages:
       info_card: Hersteller Details
     filament_details:
       info_card: Filament Details
+    filters:
+      title: Filter
+      show_archived: Archivierte anzeigen
+      hide_archived: Archivierte ausblenden
+      clear: Filter zurücksetzen
+    sort_by:
+      spool_count: Anzahl Spulen
+    groups:
+      group_by: Gruppieren nach
+      by:
+        filament: Filament
+        location: Lagerort
+        vendor: Hersteller
+        material: Material
+        none: Keine
+      no_location: Kein Lagerort
+      no_vendor: Kein Hersteller
+      no_material: Kein Material
+      spools:
+        one: '{} Spule'
+        other: '{} Spulen'
+      in_use: '{} in Benutzung'
+      last_used: 'Zuletzt benutzt {}'
+      never_used: Nie benutzt
+      no_spools: Keine Spulen
+      unused_identical:
+        one: '{} unbenutzt · je {}'
+        other: '{} unbenutzt · je {}'
+      load_more: 'Mehr anzeigen ({} übrig)'
     spool_details:
       page_title: Spule {}
       info_card: Spulen Details
